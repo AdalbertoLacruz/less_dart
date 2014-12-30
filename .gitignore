@@ -1,0 +1,4 @@
+ignore
+packages
+pubspec.lock
+.settings
