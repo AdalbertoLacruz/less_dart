@@ -75,6 +75,8 @@ You can also pass options to Lessc if necessary:
 
 ## [License](LICENSE)
 
--Copyright (c) 2009-2014 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
--Copyright (c) 2014 [Adalberto Lacruz](Adalberto.Lacruz@gmail.com) for dart translation.
+Copyright (c) 2009-2014 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
+
+Copyright (c) 2014 [Adalberto Lacruz](Adalberto.Lacruz@gmail.com) for dart translation.
+
 Licensed under the [Apache License](LICENSE).
