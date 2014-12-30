@@ -60,6 +60,14 @@ You can also pass options to Lessc if necessary:
 - other_flags - Let add other flags such as (-line-numbers=comments, ...) in the lessc command line.
 
 
+## How to use in other programs
+
+- import 'package:less_dart/less.dart';
+- create the Less class: Less less = new Less();
+- call transform future.
+
+See a example in: test/simply_test.dart
+
 ## Known issues
 
 - Sources from lessc 1.7.5.
