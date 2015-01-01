@@ -12,7 +12,7 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 
   final String type ="Comment";
 
-  Comment(String this.value, [bool this.silent, int this.index, FileInfo this.currentFileInfo]);
+  Comment(String this.value, [bool this.silent = false, int this.index, FileInfo this.currentFileInfo]);
 
   /// Writes the comment in [output]. #
   genCSS(Env env, Output output) {
@@ -32,11 +32,11 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   ///
   bool isSilent(Env env) {
     bool isReference = this.currentFileInfo != null
-        && isTrue(this.currentFileInfo.reference)
+        && this.currentFileInfo.reference
         && !this.isReferenced;
     RegExp re = new RegExp(r'^\/\*!');
     bool isCompressed = env.compress && !re.hasMatch(this.value);
-    return isTrue(this.silent) || isReference || isCompressed;
+    return this.silent || isReference || isCompressed;
 
 //        var isReference = (this.currentFileInfo && this.currentFileInfo.reference && !this.isReferenced),
 //            isCompressed = env.compress && !this.value.match(/^\/\*!/);

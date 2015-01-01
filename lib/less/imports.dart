@@ -65,7 +65,7 @@ class Imports {
             ..processImports = false
             ..contents[fullPath] = contents;
 
-        if (isTrue(currentFileInfo.reference) || isTrue(importOptions.reference)) {
+        if (currentFileInfo.reference || isTrue(importOptions.reference)) {
           newFileInfo.reference = true;
         }
 

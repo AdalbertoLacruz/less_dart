@@ -156,7 +156,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
       arg = (args != null && argIndex < args.length) ? args[argIndex] : null;
 
       if ((name = params[i].name) != null) {
-        if (isTrue(params[i].variadic)) {
+        if (params[i].variadic) {
           varargs = [];
           for (j = argIndex; j < argsLength; j++) {
             varargs.add(args[j].value.eval(env));
@@ -178,7 +178,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
           evaldArguments[i] = val;
         }
       }
-      if (isTrue(params[i].variadic) && args != null) {
+      if (params[i].variadic && args != null) {
         for (j = argIndex; j < argsLength; j++) {
           evaldArguments[j] = args[j].value.eval(env);
         }
@@ -368,7 +368,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
     len = math.min(argsLength, this.arity);
 
     for (int i = 0; i < len; i++) {
-      if (this.params[i].name == null && !isTrue(this.params[i].variadic)) {
+      if (this.params[i].name == null && !this.params[i].variadic) {
         if (args[i].value.eval(env).toCSS(env) != this.params[i].value.eval(env).toCSS(env)) {
           return false;
         }

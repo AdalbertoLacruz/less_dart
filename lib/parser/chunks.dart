@@ -3,22 +3,14 @@
 part of parser.less;
 
 class Chunks {
-  int len;
-  int level = 0;
-  int parenLevel = 0;
-  int lastOpening = 0;
-  int lastOpeningParen = 0;
-  int lastMultiComment = 0;
-  int lastMultiCommentEndBrace = 0;
+  Env env;
+
   List<String> chunks = [];
+  int currentChunkStartIndex;
   int emitFrom = 0;
   int parserCurrentIndex;
-  int currentChunkStartIndex;
-  int cc;  //character
-  int cc2; //character
-  bool matched;
-  //
-  Env env;
+
+  Chunks(this.env);
 
   /**
    * throw Parse error
@@ -35,21 +27,29 @@ class Chunks {
   }
 
   // less/parser.js 1.7.5 lines 390-397
-  emitChunk([bool force=false]) {
+  void emitChunk([bool force=false]) {
     int len = parserCurrentIndex - emitFrom;
     if (((len < 512) && !force) || len == 0) return;
     chunks.add(env.input.substring(emitFrom, parserCurrentIndex + 1));
     emitFrom = parserCurrentIndex + 1;
   }
 
-  Chunks(this.env);
-
   /**
    * Split the input into chunks.
    */
   // less/parser.js 1.7.5 lines 375-480
   List<String> analyzeInput(String input){
-    len = input.length;
+    int cc;  //character
+    int cc2; //character
+    int lastMultiComment = 0;
+    int lastMultiCommentEndBrace = 0;
+    int lastOpening = 0;
+    int lastOpeningParen = 0;
+    int len = input.length;
+    int level = 0;
+    bool matched;
+    int parenLevel = 0;
+
     env.input = input;
 
     for (parserCurrentIndex = 0; parserCurrentIndex < len; parserCurrentIndex++) {

@@ -10,7 +10,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
   bool strictImports;
 
   bool allowImports = false;
-  bool extendOnEveryPath; // used in ExtendFinderVisitor
+  bool extendOnEveryPath = false; // used in ExtendFinderVisitor
   bool firstRoot = false;
   bool isReferenced = false;
   bool multiMedia = false;
@@ -1358,11 +1358,9 @@ class VariableMixin {
 
     List<Node> filtRules = [];
     List<Node> rules = this.rules;
-    int cnt = rules.length;
-    int i;
     Node rule;
 
-    for (i = 0; i < cnt; i++) {
+    for (int i = 0; i < rules.length; i++) {
       rule = rules[i];
       if (rule is Ruleset || rule is MixinDefinition) filtRules.add(rule);
     }

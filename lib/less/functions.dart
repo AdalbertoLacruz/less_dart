@@ -12,13 +12,13 @@ import '../nodejs/nodejs.dart';
 import '../tree/tree.dart';
 
 class Functions {
-  Env env;
+  ColorBlend colorBlend;
   FileInfo currentFileInfo;
+  Env env;
 
   /// Methods description: name, {f: function, args: num arguments}
   /// If num arguments is -1 then pass all arguments in list
   Map<String, Object> methods;
-  ColorBlend colorBlend;
 
   Functions() {
     this.methods = {

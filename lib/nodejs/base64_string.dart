@@ -12,7 +12,9 @@ class Base64String {
 
   /// [income] String or List<int>
   static String encode(income) {
+    List<String> characters = new List<String>();
     List<int> data;
+    int i;
 
     if (income is String) {
       data = income.codeUnits;
@@ -20,8 +22,6 @@ class Base64String {
       data = income;
     }
 
-    List<String> characters = new List<String>();
-    int i;
     for (i = 0; i + 3 <= data.length; i += 3) {
       int value = 0;
       value |= data[i + 2];
@@ -63,11 +63,13 @@ class Base64String {
   }
 
 
+  ///
   static String decode(String data) {
-    List<int> result = new List<int>();
-    int padCount = 0;
     int charCount = 0;
+    int padCount = 0;
+    List<int> result = new List<int>();
     int value = 0;
+
     for (int i = 0; i < data.length; i++) {
       int char = data.codeUnitAt(i);
       if (65 <= char && char <= 90) {  // "A" - "Z".

@@ -12,7 +12,7 @@ class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
   String type = 'Anonymous';
 
   Anonymous(this.value, [int this.index, FileInfo this.currentFileInfo,
-           this.mapLines, bool this.rulesetLike = false]);
+           this.mapLines = false, bool this.rulesetLike = false]);
 
   ///
   Node eval(env) => new Anonymous(this.value, this.index, this.currentFileInfo, this.mapLines, this.rulesetLike);

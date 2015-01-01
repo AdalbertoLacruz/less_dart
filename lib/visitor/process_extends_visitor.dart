@@ -97,7 +97,7 @@ class ProcessExtendsVisitor extends VisitorBase {
             // only process the selector once.. if we have :extend(.a,.b) then multiple
             // extends will look at the same selector path, so when extending
             // we know that any others will be duplicates in terms of what is added to the css
-            if (isTrue(targetExtend.firstExtendOnThisSelectorPath)) {
+            if (targetExtend.firstExtendOnThisSelectorPath) {
               newExtend.firstExtendOnThisSelectorPath = true;
               targetExtend.ruleset.paths.add(newSelector);
             }
@@ -252,7 +252,7 @@ class ProcessExtendsVisitor extends VisitorBase {
         selectorPath = rulesetNode.paths[pathIndex];
 
         // extending extends happens initially, before the main pass
-        if (isTrue(rulesetNode.extendOnEveryPath)) continue;
+        if (rulesetNode.extendOnEveryPath) continue;
         List<Extend> extendList = selectorPath.last.extendList;
         if (extendList != null && extendList.isNotEmpty) continue;
 

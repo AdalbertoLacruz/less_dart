@@ -11,7 +11,7 @@ class Condition extends Node implements EvalNode {
 
   final String type = 'Condition';
 
-  Condition (String op, Node this.lvalue, Node this.rvalue, [int this.index, bool this.negate]) {
+  Condition (String op, Node this.lvalue, Node this.rvalue, [int this.index, bool this.negate = false]) {
     this.op = op.trim();
   }
 
@@ -62,7 +62,7 @@ class Condition extends Node implements EvalNode {
     }
 
     result = compare(this.op);
-    return isTrue(this.negate) ? !result : result;
+    return this.negate ? !result : result;
 
 //    eval: function (env) {
 //        var a = this.lvalue.eval(env),

@@ -12,42 +12,42 @@ part 'current_chunk.dart';
 part 'entities.dart';
 part 'mixin.dart';
 
-/*
- *
- * Here in, the parsing rules/functions
- *
- * The basic structure of the syntax tree generated is as follows:
- *
- *   Ruleset ->  Rule -> Value -> Expression -> Entity
- *
- * Here's some Less code:
- *
- *    .class {
- *      color: #fff;
- *      border: 1px solid #000;
- *      width: @w + 4px;
- *      > .child {...}
- *    }
- *
- * And here's what the parse tree might look like:
- *
- *     Ruleset (Selector '.class', [
- *         Rule ("color",  Value ([Expression [Color #fff]]))
- *         Rule ("border", Value ([Expression [Dimension 1px][Keyword "solid"][Color #000]]))
- *         Rule ("width",  Value ([Expression [Operation "+" [Variable "@w"][Dimension 4px]]]))
- *         Ruleset (Selector [Element '>', '.child'], [...])
- *     ])
- *
- *  In general, most rules will try to parse a token with the `$()` function, and if the return
- *  value is truly, will return a new node, of the relevant type. Sometimes, we need to check
- *  first, before parsing, that's when we use `peek()`.
- */
+///
+/// Here in, the parsing rules/functions
+///
+/// The basic structure of the syntax tree generated is as follows:
+///
+///   Ruleset ->  Rule -> Value -> Expression -> Entity
+///
+/// Here's some Less code:
+///
+///    .class {
+///      color: #fff;
+///      border: 1px solid #000;
+///      width: @w + 4px;
+///      > .child {...}
+///    }
+///
+/// And here's what the parse tree might look like:
+///
+///     Ruleset (Selector '.class', [
+///         Rule ("color",  Value ([Expression [Color #fff]]))
+///         Rule ("border", Value ([Expression [Dimension 1px][Keyword "solid"][Color #000]]))
+///         Rule ("width",  Value ([Expression [Operation "+" [Variable "@w"][Dimension 4px]]]))
+///         Ruleset (Selector [Element '>', '.child'], [...])
+///     ])
+///
+///  In general, most rules will try to parse a token with the `$()` function, and if the return
+///  value is truly, will return a new node, of the relevant type. Sometimes, we need to check
+///  first, before parsing, that's when we use `peek()`.
+///
 // less/parser.js 1.7.5 lines 0681-2093
 class Parsers {
-  Entities entities;
-  Mixin mixin;
   Env env;
   CurrentChunk currentChunk;
+
+  Entities entities;
+  Mixin mixin;
 
   Parsers(Env this.env, List<String>chunks){
     currentChunk = new CurrentChunk(env, chunks);
@@ -56,25 +56,25 @@ class Parsers {
     mixin = new Mixin(env, currentChunk, this, entities);
   }
 
-  /**
-   * The `primary` rule is the *entry* and *exit* point of the parser.
-   * The rules here can appear at any level of the parse tree.
-   *
-   * The recursive nature of the grammar is an interplay between the `block`
-   * rule, which represents `{ ... }`, the `ruleset` rule, and this `primary` rule,
-   * as represented by this simplified grammar:
-   *
-   *     primary  →  (ruleset | rule)+
-   *     ruleset  →  selector+ block
-   *     block    →  '{' primary '}'
-   *
-   * Only at one point is the primary rule not called from the
-   * block rule: at the root level.
-   */
+  ///
+  /// The `primary` rule is the *entry* and *exit* point of the parser.
+  /// The rules here can appear at any level of the parse tree.
+  ///
+  /// The recursive nature of the grammar is an interplay between the `block`
+  /// rule, which represents `{ ... }`, the `ruleset` rule, and this `primary` rule,
+  /// as represented by this simplified grammar:
+  ///
+  ///     primary  →  (ruleset | rule)+
+  ///     ruleset  →  selector+ block
+  ///     block    →  '{' primary '}'
+  ///
+  /// Only at one point is the primary rule not called from the
+  /// block rule: at the root level.
+  ///
   //lines 726-746
   List<Node> primary(){
-    List root = [];
     var node;
+    List root = [];
 
     while(currentChunk.noEmpty){
       node = extendRule();
@@ -122,12 +122,12 @@ class Parsers {
   /// check if input is empty. Else throw error.
   isFinished() => currentChunk.isFinished();
 
-  /*
-   * We create a Comment node for CSS comments `/* */`,
-   * but keep the LeSS comments `//` silent, by just skipping
-   * over them.
-   */
-  Node comment(){
+  ///
+  /// We create a Comment node for CSS comments `/* */`,
+  /// but keep the LeSS comments `//` silent, by just skipping
+  /// over them.
+  ///
+  Comment comment(){
     String comment;
     int i = currentChunk.i;
 
@@ -143,8 +143,8 @@ class Parsers {
 
   ///
   List comments(){
-    Node comment;
-    List comments = [];
+    Comment comment;
+    List<Comment> comments = [];
 
     while (true) {
       comment = this.comment();
@@ -170,17 +170,17 @@ class Parsers {
 //},
   }
 
-  /*
-   * The variable part of a variable definition. Used in the `rule` parser
-   *
-   *      @fink:
-   */
+  ///
+  /// The variable part of a variable definition. Used in the `rule` parser
+  ///
+  ///      @fink:
+  ///
   String variable(){
     String name;
 
     if (currentChunk.charAtPos() == '@' && (name = currentChunk.$re(r'^(@[\w-]+)\s*:')) != null) return name;
     return null;
-////
+
 //variable: function () {
 //    var name;
 //
@@ -188,12 +188,12 @@ class Parsers {
 //},
   }
 
-  /*
-   * The variable part of a variable definition. Used in the `rule` parser
-   *
-   *       @fink();
-   */
-  Node rulesetCall(){
+  ///
+  /// The variable part of a variable definition. Used in the `rule` parser
+  ///
+  ///       @fink();
+  ///
+  RulesetCall rulesetCall(){
     String name;
 
     if (currentChunk.charAtPos() == '@') {
@@ -203,7 +203,6 @@ class Parsers {
 
     return null;
 
-////
 //rulesetCall: function () {
 //    var name;
 //
@@ -213,16 +212,16 @@ class Parsers {
 //},
   }
 
-  /*
-   * extend syntax - used to extend selectors
-   */
-  List extend([bool isRule = false]) {
-    List elements;
-    Node e;
+  ///
+  // extend syntax - used to extend selectors
+  ///
+  List<Extend> extend([bool isRule = false]) {
+    Element e;
+    List<Element> elements;
+    Extend extend;
+    List<Extend> extendedList;
     int index = currentChunk.i;
     String option;
-    List extendedList;
-    Node extend;
 
     if ((isRule ? currentChunk.$re(r'^&:extend\(') : currentChunk.$re(r'^:extend\(')) == null) return null;
 
@@ -279,12 +278,12 @@ class Parsers {
   }
 
   /// extendRule - used in a rule to extend all the parent selectors
-  List extendRule() => extend(true);
+  List<Extend> extendRule() => extend(true);
 
-  /*
-   * Entities are the smallest recognized token,
-   * and can be found inside a rule's value.
-   */
+  ///
+  /// Entities are the smallest recognized token,
+  /// and can be found inside a rule's value.
+  ///
   Node entity() {
     Node                result = entities.literal();
     if (result == null) result = entities.variable();
@@ -296,11 +295,11 @@ class Parsers {
     return result;
   }
 
-  /*
-   * A Rule terminator. Note that we use `peek()` to check for '}',
-   * because the `block` rule will be expecting it, but we still need to make sure
-   * it's there, if ';' was ommitted.
-   */
+  ///
+  /// A Rule terminator. Note that we use `peek()` to check for '}',
+  /// because the `block` rule will be expecting it, but we still need to make sure
+  /// it's there, if ';' was ommitted.
+  ///
   bool end() {
     return (currentChunk.$char(';') != null) || currentChunk.peekChar('}');
 
@@ -328,23 +327,23 @@ class Parsers {
 //},
 //  }
 
-  /*
-   * A Selector Element
-   *
-   *     div
-   *     + h1
-   *     #socks
-   *     input[type="text"]
-   *
-   * Elements are the building blocks for Selectors,
-   * they are made out of a `Combinator` (see combinator rule),
-   * and an element name, such as a tag a class, or `*`.
-   */
-  Node element() {
-    var e;
-    Node c;
-    Node v;
+  ///
+  /// A Selector Element
+  ///
+  ///     div
+  ///     + h1
+  ///     #socks
+  ///     input[type="text"]
+  ///
+  /// Elements are the building blocks for Selectors,
+  /// they are made out of a `Combinator` (see combinator rule),
+  /// and an element name, such as a tag a class, or `*`.
+  ///
+  Element element() {
+    Combinator c;
+    var e; //String or Node
     int index = currentChunk.i;
+    Selector v;
 
     c = combinator();
 
@@ -404,16 +403,16 @@ class Parsers {
 //},
   }
 
-  /*
-   * Combinators combine elements together, in a Selector.
-   *
-   * Because our parser isn't white-space sensitive, special care
-   * has to be taken, when parsing the descendant combinator, ` `,
-   * as it's an empty space. We have to check the previous character
-   * in the input, to see if it's a ` ` character. More info on how
-   * we deal with this in *combinator.js*.
-   */
-  Node combinator() {
+  ///
+  /// Combinators combine elements together, in a Selector.
+  ///
+  /// Because our parser isn't white-space sensitive, special care
+  /// has to be taken, when parsing the descendant combinator, ` `,
+  /// as it's an empty space. We have to check the previous character
+  /// in the input, to see if it's a ` ` character. More info on how
+  /// we deal with this in *combinator.js*.
+  ///
+  Combinator combinator() {
     String c = currentChunk.charAtPos();
 
     if (c == '/') {
@@ -440,7 +439,6 @@ class Parsers {
       return new Combinator(null);
     }
 
-////
 //combinator: function () {
 //    var c = input.charAt(i);
 //
@@ -470,29 +468,29 @@ class Parsers {
 //},
   }
 
-  /**
-   * A CSS selector (see selector below)
-   * with less extensions e.g. the ability to extend and guard
-   */
-  Node lessSelector() => selector(true);
+  ///
+  /// A CSS selector (see selector below)
+  /// with less extensions e.g. the ability to extend and guard
+  ///
+  Selector lessSelector() => selector(true);
 
-  /*
-   * A CSS Selector
-   *
-   *     .class > div + h1
-   *     li a:hover
-   *
-   * Selectors are made out of one or more Elements, see above.
-   */
-  Node selector([bool isLess = false]) {
-    int index = currentChunk.i;
-    List elements;
-    List extendList;
+  ///
+  /// A CSS Selector
+  ///
+  ///     .class > div + h1
+  ///     li a:hover
+  ///
+  /// Selectors are made out of one or more Elements, see above.
+  ///
+  Selector selector([bool isLess = false]) {
     String  c;
-    Node e;
-    List extend;
+    Condition condition;
+    Element e;
+    List<Element> elements;
+    List<Extend> extend;
+    List extendList;
+    int index = currentChunk.i;
     String when;
-    var condition;
 
     while ((isLess && (extend = this.extend()) != null) ||
         (isLess && (when = currentChunk.$re(r'^when')) != null) ||
@@ -511,6 +509,7 @@ class Parsers {
       }
       if (c == '{' || c == '}' || c == ';' || c == ',' || c == ')' ) break;
     }
+
     if (elements != null) return new Selector(elements, extendList, condition, index, env.currentFileInfo);
     if (extendList != null) currentChunk.error('Extend must be used to extend a selector, it cannot be used on its own');
 
@@ -543,12 +542,12 @@ class Parsers {
   }
 
   ///
-  Node attribute() {
+  Attribute attribute() {
     if (currentChunk.$char('[') == null) return null;
 
-    var key;
-    var val;
+    var key; //String or Node
     String op;
+    var val; //String or Node
 
     if ((key = entities.variableCurly()) == null) {
       key = currentChunk.expect(new RegExp(r'^(?:[_A-Za-z0-9-\*]*\|)?(?:[_A-Za-z0-9-]|\\.)+'));
@@ -586,10 +585,10 @@ class Parsers {
 //},
   }
 
-  /*
-   * The `block` rule is used by `ruleset` and `mixin.definition`.
-   * It's a wrapper around the `primary` rule, with added `{}`.
-   */
+  ///
+  /// The `block` rule is used by `ruleset` and `mixin.definition`.
+  /// It's a wrapper around the `primary` rule, with added `{}`.
+  ///
   List<Node> block() {
     List<Node> content;
 
@@ -607,11 +606,11 @@ class Parsers {
 //},
   }
 
-  Node blockRuleset() {
-    var block = this.block();
+  ///
+  Ruleset blockRuleset() {
+    List<Node> block = this.block();
 
-    if (block != null) block = new Ruleset(null, block);
-    return block;
+    return (block != null) ? new Ruleset(null, block) : null;
 
 //blockRuleset: function() {
 //    var block = this.block();
@@ -623,10 +622,10 @@ class Parsers {
 //},
   }
 
-  Node detachedRuleset() {
-    Node blockRuleset = this.blockRuleset();
-    if (blockRuleset != null) return new DetachedRuleset(blockRuleset);
-    return null;
+  ///
+  DetachedRuleset detachedRuleset() {
+    Ruleset blockRuleset = this.blockRuleset();
+    return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
 
 //detachedRuleset: function() {
 //    var blockRuleset = this.blockRuleset();
@@ -636,14 +635,14 @@ class Parsers {
 //},
   }
 
-  /*
-   * div, .class, body > p {...}
-   */
-  Node ruleset() {
-    List selectors;
-    Node s;
-    List<Node> rules;
+  ///
+  // div, .class, body > p {...}
+  ///
+  Ruleset ruleset() {
     LessDebugInfo debugInfo;
+    List<Node> rules;
+    Selector s;
+    List<Selector> selectors;
 
     currentChunk.save();
 
@@ -654,11 +653,11 @@ class Parsers {
       if (s == null) break;
       if (selectors != null) { selectors.add(s); } else { selectors = [s]; }
       comments();
-      if ((s as Selector).condition != null && selectors.length > 1) {
+      if (s.condition != null && selectors.length > 1) {
         currentChunk.error('Guards are only currently allowed on a single selector.');
       }
       if (currentChunk.$char(',') == null) break;
-      if ((s as Selector).condition != null) {
+      if (s.condition != null) {
         currentChunk.error('Guards are only currently allowed on a single selector.');
       }
       comments();
@@ -666,7 +665,7 @@ class Parsers {
 
     if (selectors != null && (rules = block()) != null) {
       currentChunk.forget();
-      Node ruleset = new Ruleset(selectors, rules, env.strictImports);
+      Ruleset ruleset = new Ruleset(selectors, rules, env.strictImports);
       if (isNotEmpty(env.dumpLineNumbers)) ruleset.debugInfo = debugInfo;
       return ruleset;
     } else {
@@ -719,13 +718,13 @@ class Parsers {
 
   ///
   Node rule([tryAnonymous = false]) {
-    var name;
-    var value;
-    int startOfRule = currentChunk.i;
     String c = currentChunk.charAtPos();
     String important;
-    String merge = '';
     bool isVariable;
+    String merge = '';
+    var name; //String or Node
+    int startOfRule = currentChunk.i;
+    Node value;
 
     if (c == '.' || c == '#' || c == '&') return null;
 
@@ -822,7 +821,7 @@ class Parsers {
   }
 
   ///
-  Node anonymousValue() {
+  Anonymous anonymousValue() {
     //Match match = new RegExp(r'^([^@+\/' + r"'" + r'"*`(;{}-]*);').firstMatch(currentChunk.current);
     Match match = new RegExp(r'''^([^@+\/'"*`(;{}-]*);''').firstMatch(currentChunk.current);
     if (match != null) {
@@ -841,22 +840,22 @@ class Parsers {
 //},
   }
 
-  /*
-   * An @import directive
-   *
-   *     @import "lib";
-   *
-   * Depending on our environment, importing is done differently:
-   * In the browser, it's an XHR request, in Node, it would be a
-   * file-system operation. The function used for importing is
-   * stored in `import`, which we pass to the Import constructor.
-   */
-  Node import() {
-    Node path;
-    List features;
-    Node nodeFeatures;
+  ///
+  /// An @import directive
+  ///
+  ///     @import "lib";
+  ///
+  /// Depending on our environment, importing is done differently:
+  /// In the browser, it's an XHR request, in Node, it would be a
+  /// file-system operation. The function used for importing is
+  /// stored in `import`, which we pass to the Import constructor.
+  ///
+  Import import() {
     int index = currentChunk.i;
+    List<Node> features;
+    Value nodeFeatures;
     ImportOptions options = new ImportOptions();
+    Node path;
 
     String dir = currentChunk.$re(r'^@import?\s+');
 
@@ -909,14 +908,14 @@ class Parsers {
 //},
   }
 
-  /**
-   * ex. @import (less, multiple) "file.css";
-   * return {less: true, multiple: true}
-   */
+  ///
+  /// ex. @import (less, multiple) "file.css";
+  /// return {less: true, multiple: true}
+  ///
   ImportOptions importOptions() {
     String o;
-    ImportOptions options = new ImportOptions();
     String optionName;
+    ImportOptions options = new ImportOptions();
     bool value;
 
     // list of options, surrounded by parens
@@ -948,9 +947,9 @@ class Parsers {
   String importOption() => currentChunk.$re('^(less|css|multiple|once|inline|reference)');
 
   ///
-  mediaFeature() {
-    List<Node> nodes = [];
+  Expression mediaFeature() {
     Node e;
+    List<Node> nodes = [];
     String p;
 
     do {
@@ -1007,9 +1006,9 @@ class Parsers {
   }
 
   ///
-  List mediaFeatures() {
-    List features = [];
+  List<Node> mediaFeatures() {
     Node e;
+    List<Node> features = [];
 
     do{
       e = mediaFeature();
@@ -1048,11 +1047,11 @@ class Parsers {
   }
 
   ///
-  Node media() {
-    List features;
-    List rules;
-    Node media;
+  Media media() {
     LessDebugInfo debugInfo;
+    List<Node> features;
+    Media media;
+    List<Node> rules;
 
     if (isNotEmpty(env.dumpLineNumbers)) debugInfo = LessError.getDebugInfo(currentChunk.i, currentChunk.input, env);
 
@@ -1090,21 +1089,21 @@ class Parsers {
 //},
   }
 
-  /*
-   * A CSS Directive
-   *
-   *     @charset "utf-8";
-   */
+  ///
+  /// A CSS Directive
+  ///
+  ///     @charset "utf-8";
+  ///
   Node directive() {
+    bool hasBlock = true;
+    bool hasExpression = false;
+    bool hasIdentifier = false;
+    bool hasUnknown = false;
     int index = currentChunk.i;
     String name;
-    Node value;
-    var rules;
     String nonVendorSpecificName;
-    bool hasIdentifier = false;
-    bool hasExpression = false;
-    bool hasUnknown = false;
-    bool hasBlock = true;
+    Ruleset rules;
+    Node value;
 
     if (currentChunk.charAtPos() != '@') return null;
 
@@ -1288,17 +1287,17 @@ class Parsers {
 //},
   }
 
-  /*
-   * A Value is a comma-delimited list of Expressions
-   *
-   *     font-family: Baskerville, Georgia, serif;
-   *
-   * In a Rule, a Value represents everything after the `:`,
-   * and before the `;`.
-   */
-  Node value() {
-    Node e;
-    List<Node> expressions = [];
+  ///
+  /// A Value is a comma-delimited list of Expressions
+  ///
+  ///     font-family: Baskerville, Georgia, serif;
+  ///
+  /// In a Rule, a Value represents everything after the `:`,
+  /// and before the `;`.
+  ///
+  Value value() {
+    Expression e;
+    List<Expression> expressions = [];
 
     do {
       e = expression();
@@ -1341,7 +1340,7 @@ class Parsers {
   }
 
   ///
-  Node sub() {
+  Expression sub() {
     Node a;
     Expression e;
 
@@ -1354,6 +1353,7 @@ class Parsers {
         return e;
       }
     }
+    return null;
 
 //sub: function () {
 //    var a, e;
@@ -1368,16 +1368,15 @@ class Parsers {
 //        }
 //    }
 //},
-    return null;
   }
 
   ///
   Node multiplication() {
-    Node m;
     Node a;
-    String op;
-    Node operation;
     bool isSpaced;
+    Node m;
+    String op;
+    Operation operation;
 
     m = operand();
     if (m != null) {
@@ -1443,10 +1442,10 @@ class Parsers {
 
   ///
   Node addition() {
-    Node m;
     Node a;
+    Node m;
     String op;
-    Node operation;
+    Operation operation;
     bool isSpaced;
 
     m = multiplication();
@@ -1499,8 +1498,8 @@ class Parsers {
   Node conditions() {
     Node a;
     Node b;
+    Condition condition;
     int index = currentChunk.i;
-    Node condition;
 
     a = this.condition();
     if (a != null) {
@@ -1543,7 +1542,7 @@ class Parsers {
     bool negate = false;
     Node a;
     Node b;
-    Node c;
+    Condition c;
     String op;
 
     if (currentChunk.$re(r'^not') != null) negate = true;
@@ -1596,14 +1595,14 @@ class Parsers {
 //},
   }
 
-  /*
-   * An operand is anything that can be part of an operation,
-   * such as a Color, or a Variable
-   */
+  ///
+  /// An operand is anything that can be part of an operation,
+  /// such as a Color, or a Variable
+  ///
   Node operand() {
-    String p = currentChunk.charAtNextPos();
     String negate;
     Node o;
+    String p = currentChunk.charAtNextPos();
 
     if (currentChunk.charAtPos() == '-' && (p == '@' || p == '(')) negate = currentChunk.$char('-');
     o = sub();
@@ -1638,17 +1637,17 @@ class Parsers {
 //},
   }
 
-  /*
-   * Expressions either represent mathematical operations,
-   * or white-space delimited Entities.
-   *
-   *     1px solid black
-   *     @var * 2
-   */
-  Node expression() {
-    List entities = [];
-    Node e;
+  ///
+  /// Expressions either represent mathematical operations,
+  /// or white-space delimited Entities.
+  ///
+  ///     1px solid black
+  ///     @var * 2
+  ///
+  Expression expression() {
     String delim;
+    Node e;
+    List<Node> entities = [];
 
     do {
       e = addition();
@@ -1699,15 +1698,14 @@ class Parsers {
 //  },
 
   ///
-  List ruleProperty() {
+  List<String> ruleProperty() {
     String c = currentChunk.current;
-    List name = [];
-    List index = [];
+    List<int> index = [];
     int length = 0;
+    List<String> name = [];
     String s;
-    int k;
 
-    List match(String sre) {
+    List<String> match(String sre) {
       RegExp re = new RegExp(sre);
       Match a = re.firstMatch(c);
       if (a != null) {
@@ -1751,7 +1749,7 @@ class Parsers {
         name.removeAt(0);
         index.removeAt(0);
       }
-      for (k = 0; k < name.length; k++) {
+      for (int k = 0; k < name.length; k++) {
         s = name[k];
         name[k] = (!s.startsWith('@'))
             ? new Keyword(s)

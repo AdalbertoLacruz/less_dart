@@ -215,7 +215,6 @@ class Output {
 class OutputRulesetMixin {
   void outputRuleset(Env env, Output output, List<Node> rules) {
     int ruleCnt = rules.length;
-    int i;
 
     if (env.tabLevel == null) env.tabLevel = 0;
     env.tabLevel++;
@@ -223,7 +222,7 @@ class OutputRulesetMixin {
     // Compressed
     if (env.compress) {
       output.add('{');
-      for (i = 0; i < ruleCnt; i++) rules[i].genCSS(env, output);
+      for (int i = 0; i < ruleCnt; i++) rules[i].genCSS(env, output);
       output.add('}');
       env.tabLevel--;
       return;
@@ -237,7 +236,7 @@ class OutputRulesetMixin {
     } else {
       output.add(' {' + tabRuleStr);
       rules[0].genCSS(env, output);
-      for (i = 1; i < ruleCnt; i++) {
+      for (int i = 1; i < ruleCnt; i++) {
         output.add(tabRuleStr);
         rules[i].genCSS(env, output);
       }

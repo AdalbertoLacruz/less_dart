@@ -2,9 +2,9 @@
 
 part of parsers.dart;
 
-  /*
-   * Entities are tokens which can be found inside an Expression
-   */
+///
+/// Entities are tokens which can be found inside an Expression
+///
 class Entities {
   Env env;
   CurrentChunk currentChunk;
@@ -14,13 +14,13 @@ class Entities {
 
   Entities(Env this.env, CurrentChunk this.currentChunk, Parsers this.parsers);
 
-  /**
-   * A string, which supports escaping " and '
-   *
-   *     "milky way" 'he\'s the one!'
-   */
+  ///
+  /// A string, which supports escaping " and '
+  ///
+  ///     "milky way" 'he\'s the one!'
+  ///
   //lines 783-800
-  Node quoted() {
+  Quoted quoted() {
     List<String> str;
     int j = currentChunk.i;
     bool e = false;
@@ -42,11 +42,11 @@ class Entities {
     return null;
   }
 
-  /*
-   * A catch-all word, such as:
-   *
-   *     black border-collapse
-   */
+  ///
+  /// A catch-all word, such as:
+  ///
+  ///     black border-collapse
+  ///
   Node keyword() {
     String k = currentChunk.$re(r'^%|^[_A-Za-z-][_A-Za-z0-9-]*');
     if (k != null) {
@@ -70,17 +70,17 @@ class Entities {
 //    },
   }
 
-  /*
-   * A function call
-   *
-   *     rgb(255, 0, 255)
-   *
-   * We also try to catch IE's `alpha()`, but let the `alpha` parser
-   * deal with the details.
-   *
-   * The arguments are parsed with the `entities.arguments` parser.
-   *
-   */
+  ///
+  /// A function call
+  ///
+  ///     rgb(255, 0, 255)
+  ///
+  /// We also try to catch IE's `alpha()`, but let the `alpha` parser
+  /// deal with the details.
+  ///
+  /// The arguments are parsed with the `entities.arguments` parser.
+  ///
+  ///
   Node call() {
     String name;
     String nameLC;
@@ -147,13 +147,13 @@ class Entities {
 //    },
   }
 
-  /*
-   * IE's alpha function
-   *
-   *     alpha(opacity=88)
-   */
+  ///
+  /// IE's alpha function
+  ///
+  ///     alpha(opacity=88)
+  ///
   //Original in parsers.dart
-  Node alpha() {
+  Alpha alpha() {
     var value;
 
     if (currentChunk.$re(r'^\(opacity=', false) == null) return null; // i
@@ -178,6 +178,7 @@ class Entities {
 
   }
 
+  ///
   List<Node> arguments() {
     List<Node> args = [];
     Node arg;
@@ -210,23 +211,23 @@ class Entities {
 //    },
   }
 
+  ///
+  Node literal() {
+    Node result = dimension();
+    if (result == null) result = color();
+    if (result == null) result = quoted();
+    if (result == null) result = unicodeDescriptor();
 
-    Node literal() {
-      Node result = dimension();
-      if (result == null) result = color();
-      if (result == null) result = quoted();
-      if (result == null) result = unicodeDescriptor();
-
-      return result;
+    return result;
   }
 
-  /*
-   * Assignments are argument entities for calls.
-   * They are present in ie filter properties as shown below.
-   *
-   *     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
-   */
-  Node assignment() {
+  ///
+  /// Assignments are argument entities for calls.
+  /// They are present in ie filter properties as shown below.
+  ///
+  ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
+  ///
+  Assignment assignment() {
     String key;
     Node value;
 
@@ -255,14 +256,14 @@ class Entities {
 //    },
   }
 
-  /*
-   * Parse url() tokens
-   *
-   * We use a specific rule for urls, because they don't really behave like
-   * standard function calls. The difference is that the argument doesn't have
-   * to be enclosed within a string, so it can't be parsed as an Expression.
-   */
-  Node url() {
+  ///
+  /// Parse url() tokens
+  ///
+  /// We use a specific rule for urls, because they don't really behave like
+  /// standard function calls. The difference is that the argument doesn't have
+  /// to be enclosed within a string, so it can't be parsed as an Expression.
+  ///
+  URL url() {
     String anonymous;
     int index = currentChunk.i;
     Node value;
@@ -297,23 +298,24 @@ class Entities {
 //    },
   }
 
-  /*
-   * A Variable entity, such as `@fink`, in
-   *
-   *     width: @fink + 2px
-   *
-   * We use a different parser for variable definitions,
-   * see `parsers.variable`.
-   */
-   Node variable() {
-     String name;
-     int index = currentChunk.i;
+  ///
+  /// A Variable entity, such as `@fink`, in
+  ///
+  ///     width: @fink + 2px
+  ///
+  /// We use a different parser for variable definitions,
+  /// see `parsers.variable`.
+  ///
+  Variable variable() {
+    String name;
+    int index = currentChunk.i;
 
-     if (currentChunk.charAtPos() == '@') {
-       name = currentChunk.$re(r'^@@?[\w-]+');
-       if (name != null) return new Variable(name, index, env.currentFileInfo);
-     }
-     return null;
+    if (currentChunk.charAtPos() == '@') {
+      name = currentChunk.$re(r'^@@?[\w-]+');
+      if (name != null) return new Variable(name, index, env.currentFileInfo);
+    }
+    return null;
+
 //    variable: function () {
 //        var name, index = i;
 //
@@ -321,20 +323,20 @@ class Entities {
 //            return new(tree.Variable)(name, index, env.currentFileInfo);
 //        }
 //    },
-   }
+  }
 
 
-  /*
-   * A variable entity useing the protective {} e.g. @{var}
-   */
-   Node variableCurly() {
-     String curly;
-     int index = currentChunk.i;
+  ///
+  /// A variable entity using the protective {} e.g. @{var}
+  ///
+  Variable variableCurly() {
+    String curly;
+    int index = currentChunk.i;
 
-     if (currentChunk.charAtPos() == '@' && (curly = currentChunk.$re(r'^@\{([\w-]+)\}', true, 1)) != null) {
-       return new Variable('@${curly}', index, env.currentFileInfo);
-     }
-     return null;
+    if (currentChunk.charAtPos() == '@' && (curly = currentChunk.$re(r'^@\{([\w-]+)\}', true, 1)) != null) {
+      return new Variable('@${curly}', index, env.currentFileInfo);
+    }
+    return null;
 
 //    variableCurly: function () {
 //        var curly, index = i;
@@ -345,27 +347,27 @@ class Entities {
 //    },
    }
 
-  /*
-   * A Hexadecimal color
-   *
-   *     #4F3C2F
-   *
-   * `rgb` and `hsl` colors are parsed through the `entities.call` parser.
-   */
-   Node color() {
-     Match rgb;
+  ///
+  /// A Hexadecimal color
+  ///
+  ///     #4F3C2F
+  ///
+  /// `rgb` and `hsl` colors are parsed through the `entities.call` parser.
+  ///
+  Color color() {
+    Match rgb;
 
-     if (currentChunk.charAtPos() == '#' && (rgb = currentChunk.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
-       // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
-       Match colorCandidateMatch = new RegExp(r'^#([\w]+).*').firstMatch(rgb.input);
-       String colorCandidateString = colorCandidateMatch[1];
+    if (currentChunk.charAtPos() == '#' && (rgb = currentChunk.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
+      // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
+      Match colorCandidateMatch = new RegExp(r'^#([\w]+).*').firstMatch(rgb.input);
+      String colorCandidateString = colorCandidateMatch[1];
 
-       // verify if candidate consists only of allowed HEX characters
-       if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) currentChunk.error('Invalid HEX color code');
+      // verify if candidate consists only of allowed HEX characters
+      if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) currentChunk.error('Invalid HEX color code');
 
-       return new Color(rgb[1]);
-     }
-     return null;
+      return new Color(rgb[1]);
+    }
+    return null;
 
 //    color: function () {
 //        var rgb;
@@ -379,34 +381,34 @@ class Entities {
 //            return new(tree.Color)(rgb[1]);
 //        }
 //    },
-   }
+  }
 
-  /**
-   * A Dimension, that is, a number and a unit
-   *
-   *     0.5em 95%
-   */
-   Node dimension() {
-     List<String> value;
-     int c = currentChunk.charCodeAtPos();
-     //Is the first char of the dimension 0-9, '.', '+' or '-'
-     if ((c > 57 || c < 43) || c == 47 || c == 44) return null;
+  ///
+  /// A Dimension, that is, a number and a unit
+  ///
+  ///     0.5em 95%
+  ///
+  Dimension dimension() {
+    List<String> value;
+    int c = currentChunk.charCodeAtPos();
+    //Is the first char of the dimension 0-9, '.', '+' or '-'
+    if ((c > 57 || c < 43) || c == 47 || c == 44) return null;
 
-     value = currentChunk.$re(r'^([+-]?\d*\.?\d+)(%|[a-z]+)?');
-     if (value != null) return new Dimension(value[1], value[2]);
-     return null;
-   }
+    value = currentChunk.$re(r'^([+-]?\d*\.?\d+)(%|[a-z]+)?');
+    if (value != null) return new Dimension(value[1], value[2]);
+    return null;
+  }
 
-  /*
-   * A unicode descriptor, as is used in unicode-range
-   *
-   * U+0??  or U+00A1-00A9
-   */
-   Node unicodeDescriptor() {
-     String ud = currentChunk.$re(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', true, 0);
-     if (ud != null) return new UnicodeDescriptor(ud);
+  ///
+  /// A unicode descriptor, as is used in unicode-range
+  ///
+  /// U+0??  or U+00A1-00A9
+  ///
+  UnicodeDescriptor unicodeDescriptor() {
+    String ud = currentChunk.$re(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', true, 0);
+    if (ud != null) return new UnicodeDescriptor(ud);
 
-     return null;
+    return null;
 //    unicodeDescriptor: function () {
 //        var ud;
 //
@@ -415,34 +417,35 @@ class Entities {
 //            return new(tree.UnicodeDescriptor)(ud[0]);
 //        }
 //    },
-   }
+  }
 
-  /*
-   * JavaScript code to be evaluated
-   *
-   *     `window.location.href`
-   */
-   Node javascript() {
-     String str;
-     int j = currentChunk.i;
-     bool e = false;
+  ///
+  /// JavaScript code to be evaluated
+  ///
+  ///     `window.location.href`
+  ///
+  JavaScript javascript() {
+    String str;
+    int j = currentChunk.i;
+    bool e = false;
 
-     if (currentChunk.charAt(j) == '~') { // Escaped strings
-       j++;
-       e = true;
-     }
-     if (currentChunk.charAt(j) != '`') return null;
+    if (currentChunk.charAt(j) == '~') { // Escaped strings
+      j++;
+      e = true;
+    }
+    if (currentChunk.charAt(j) != '`') return null;
 
-     if (env.javascriptEnabled == null || !env.javascriptEnabled ) {
-       currentChunk.error('You are using JavaScript, which has been disabled.');
-     }
+    if (env.javascriptEnabled == null || !env.javascriptEnabled ) {
+      currentChunk.error('You are using JavaScript, which has been disabled.');
+    }
 
-     if (e) currentChunk.$char('~');
+    if (e) currentChunk.$char('~');
 
-     str = currentChunk.$re(r'^`([^`]*)`');
-     if (str != null) return new JavaScript(str, currentChunk.i, e);
+    str = currentChunk.$re(r'^`([^`]*)`');
+    if (str != null) return new JavaScript(str, currentChunk.i, e);
 
-     return null;
+    return null;
+
 //    javascript: function () {
 //        var str, j = i, e;
 //
@@ -459,5 +462,5 @@ class Entities {
 //            return new(tree.JavaScript)(str[1], i, e);
 //        }
 //    }
-   }
+  }
 }

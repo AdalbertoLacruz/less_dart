@@ -20,34 +20,41 @@ class CurrentChunk {
     current = (chunks.isEmpty) ? '' : chunks[0];
   }
 
-  get noEmpty => current.length > 0;
+  ///
+  bool get noEmpty => current.length > 0;
 
-  String charAt(int pos) => input[pos];
-
-  String charAtPos() {
-    if (i >= input.length) return null;
-    return input[i];
+  ///
+  String charAt(int pos) {
+    if (pos >= input.length) return null;
+    return input[pos];
   }
 
-  String charAtNextPos() {
-    if (i + 1 >= input.length) return null;
-    return input[i+1];
+  ///
+  String charAtPos() => charAt(i);
+
+  ///
+  String charAtNextPos() => charAt(i + 1);
+
+  ///
+  int charCodeAt(int pos) {
+    if (pos >= input.length) return null;
+    return input.codeUnitAt(pos);
   }
 
-  int charCodeAt(int pos) => input.codeUnitAt(pos);
-  int charCodeAtPos() => input.codeUnitAt(i);
+  ///
+  int charCodeAtPos() => charCodeAt(i);
 
-  /**
-   * save input pointers in stack
-   */
+  ///
+  /// save input pointers in stack
+  ///
   void save() {
     currentPos = i;
     saveStack.add(new StackItem(current, i, j));
   }
 
-  /**
-   * restore input pointers from stack
-   */
+  ///
+  /// restore input pointers from stack
+  ///
   void restore() {
     StackItem state = saveStack.removeLast();
     current = state.current;
@@ -55,13 +62,14 @@ class CurrentChunk {
     j = state.j;
   }
 
-  /**
-   * Remove input pointer from stack
-   */
+  ///
+  /// Remove input pointer from stack
+  ///
   void forget() {
     saveStack.removeLast();
   }
 
+  ///
   void sync() {
     if (i > currentPos) {
       current = current.substring(i - currentPos);
@@ -69,9 +77,9 @@ class CurrentChunk {
     }
   }
 
-  /**
-   * Char at pos is 32 (space), 10 (\n) or 9 (tab)
-   */
+  ///
+  /// Char at pos is 32 (space), 10 (\n) or 9 (tab)
+  ///
   bool isWhitespace(String str, [int pos = 0]) {
     if (pos < 0) return false;
     int code = str.codeUnitAt(pos);
@@ -83,17 +91,17 @@ class CurrentChunk {
 //  }
   }
 
-  /// is White Space Previous Position ?
+  /// is White Space Previous Position
   bool isWhitespacePrevPos() => isWhitespace(input, i - 1);
 
-  /// is White Space in Position ?
+  /// is White Space in Position
   bool isWhitespacePos() => isWhitespace(input, i);
 
-  /**
-   * Parse from a token, regexp or string, and move forward if match
-   * [tok] String or RegExp
-   * return String or List
-   */
+  ///
+  /// Parse from a token, regexp or string, and move forward if match
+  /// [tok] String or RegExp
+  /// return String or List
+  ///
   $(tok) {
     Match match;
     int length;
@@ -169,14 +177,14 @@ class CurrentChunk {
 //  }
   }
 
-  /**
-   * Specialization of $(tok).
-   * Parse from a RegExp and returns String or List<String> with the match.
-   *
-   * [tok] is String to search.
-   * [caseSensitive] true by default. false correspond to 'i'.
-   * [index] if match returns m[index]
-   */
+  ///
+  /// Specialization of $(tok).
+  /// Parse from a RegExp and returns String or List<String> with the match.
+  ///
+  /// [tok] is String to search.
+  /// [caseSensitive] true by default. false correspond to 'i'.
+  /// [index] if match returns m[index]
+  ///
   //lines 168-184
   $re(String tok, [bool caseSensitive = true, int index]) {
     List<String> resultList = [];
@@ -219,13 +227,13 @@ class CurrentChunk {
 //          return m.length === 1 ? m[0] : m;
 //      }
 
-  /**
-   * Same as $re, but returns first match.
-   * Parse from a RegExp and returns Match.
-   *
-   * [tok] is String to search.
-   * [caseSensitive] true by default. false correspond to 'i'.
-   */
+  ///
+  /// Same as $re, but returns first match.
+  /// Parse from a RegExp and returns Match.
+  ///
+  /// [tok] is String to search.
+  /// [caseSensitive] true by default. false correspond to 'i'.
+  ///
   Match $reMatch(String tok, [bool caseSensitive = true]) {
     RegExp reg = new RegExp(tok, caseSensitive: caseSensitive);
 
@@ -245,12 +253,12 @@ class CurrentChunk {
 //  var _$re = $re;
 //
 
-  /**
-   * Specialization of $(tok).
-   * return a String if [tok] is found.
-   *
-   * [tok] is a String.
-   */
+  ///
+  /// Specialization of $(tok).
+  /// return a String if [tok] is found.
+  ///
+  /// [tok] is a String.
+  ///
   //lines 189-195
   String $char(String tok) {
     if (charAtPos() != tok) return null;
@@ -317,11 +325,11 @@ class CurrentChunk {
 //  }
   }
 
-  /**
-   * [arg] Function (?), RegExp or String
-   * [index] ????
-   * return String or List<String>
-   */
+  ///
+  /// [arg] Function (?), RegExp or String
+  /// [index] ????
+  /// return String or List<String>
+  ///
   expect(arg, [String msg, int index]) {
     String message = msg;
 
@@ -344,9 +352,9 @@ class CurrentChunk {
 //  }
   }
 
-  /*
-   * Specialization of expect()
-   */
+  ///
+  /// Specialization of expect()
+  ///
   String expectChar(String arg, [String msg]) {
     if (charAtPos() == arg) {
       skipWhitespace(1);
@@ -365,6 +373,7 @@ class CurrentChunk {
 //  }
   }
 
+  ///
   error(String msg, [String type]) {
     LessError e = new LessError(
         index: i,
@@ -381,11 +390,11 @@ class CurrentChunk {
 //  }
   }
 
-  /**
-   * Same as $(), but don't change the state of the parser,
-   * just return the match.
-   * [tok] is String or RegExp
-   */
+  ///
+  /// Same as $(), but don't change the state of the parser,
+  /// just return the match.
+  /// [tok] is String or RegExp
+  ///
   bool peek(tok) {
     if (tok is String) {
       return input[i] == tok;
@@ -402,24 +411,24 @@ class CurrentChunk {
 //  }
   }
 
-  /*
-   * Specialization of peek()
-   */
+  ///
+  /// Specialization of peek()
+  ///
   bool peekChar(String tok) {
     if (i >= input.length) return false;
     return input[i] == tok;
   }
 
-  /**
-   * If `i` is smaller than the `input.length - 1`,
-   * it means the parser wasn't able to parse the whole
-   * string, so we've got a parsing error.
-   *
-   * We try to extract a \n delimited string,
-   * showing the line where the parse error occured.
-   * We split it up into two parts (the part which parsed,
-   * and the part which didn't), so we can color them differently.
-   */
+  ///
+  /// If `i` is smaller than the `input.length - 1`,
+  /// it means the parser wasn't able to parse the whole
+  /// string, so we've got a parsing error.
+  ///
+  /// We try to extract a \n delimited string,
+  /// showing the line where the parse error occured.
+  /// We split it up into two parts (the part which parsed,
+  /// and the part which didn't), so we can color them differently.
+  ///
   void isFinished() {
     String getLine(List<String> lines, int line) {
         if ((line >= 0) && (line <= lines.length -1)) return lines[line];
@@ -440,11 +449,6 @@ class CurrentChunk {
       e.filename = env.currentFileInfo.filename;
       e.line = line;
       e.column = loc.column;
-//      e.extract = [
-//            lines[line - 2],
-//            lines[line - 1],
-//            lines[line]
-//      ];
       e.extract = [
         getLine(lines, line-2),
         getLine(lines, line - 1),
@@ -479,6 +483,8 @@ class CurrentChunk {
 
   }
 }
+
+/*************************************************/
 
 class StackItem {
   String current;

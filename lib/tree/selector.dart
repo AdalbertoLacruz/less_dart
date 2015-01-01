@@ -16,8 +16,8 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   /// Cached string elements List, such as ['#selector1', .., '.selectorN']
   List<String> _elements;
 
-  bool evaldCondition;
-  bool mediaEmpty;
+  bool evaldCondition = false;
+  bool mediaEmpty = false;
 
   /// String Elements List
   List<String> get strElements {
@@ -196,7 +196,7 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   }
 
   /// #
-  bool isJustParentSelector() => !isTrue(this.mediaEmpty)
+  bool isJustParentSelector() => !this.mediaEmpty
                               && this.elements.length == 1
                               && this.elements[0].value == '&'
                               && (   this.elements[0].combinator.value == ' '
@@ -269,7 +269,7 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   }
 
   ///
-  bool getIsReferenced() => !isTrue(this.currentFileInfo.reference) || isTrue(this.isReferenced);
+  bool getIsReferenced() => !this.currentFileInfo.reference || isTrue(this.isReferenced);
 
   ///
   bool getIsOutput() => this.evaldCondition;

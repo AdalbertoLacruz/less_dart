@@ -1,4 +1,4 @@
-//source: less/parser.js
+//source: less/parser.js 1.7.5
 
 part of parsers.dart;
 
@@ -14,27 +14,27 @@ class Mixin {
 
   Mixin(Env this.env, CurrentChunk this.currentChunk, Parsers this.parsers, Entities this.entities);
 
-  /*
-   * A Mixin call, with an optional argument list
-   *
-   *     #mixins > .square(#fff);
-   *     .rounded(4px, black);
-   *     .button;
-   *
-   * The `while` loop is there because mixins can be
-   * namespaced, but we only support the child and descendant
-   * selector for now.
-   */
+  ///
+  /// A Mixin call, with an optional argument list
+  ///
+  ///     #mixins > .square(#fff);
+  ///     .rounded(4px, black);
+  ///     .button;
+  ///
+  /// The `while` loop is there because mixins can be
+  /// namespaced, but we only support the child and descendant
+  /// selector for now.
+  ///
   Node call() {
-    String s = currentChunk.charAtPos();
+    List<MixinArgs> args;
+    String c;
+    String e;
+    int elemIndex;
+    Element elem;
+    List<Element> elements;
     bool important = false;
     int index = currentChunk.i;
-    int elemIndex;
-    List<Node> elements;
-    Node elem;
-    String e;
-    String c;
-    var args;
+    String s = currentChunk.charAtPos();
 
     if (s != '.' && s != '#') return null;
 
@@ -103,17 +103,18 @@ class Mixin {
 //    },
   }
 
+  ///
   MixinReturner args(bool isCall) {
-    MixinReturner returner = new MixinReturner();
-    List expressions = [];
-    List argsSemiColon = [];
+    Node arg;
     List argsComma = [];
-    bool isSemiColonSeperated = false;
+    List argsSemiColon = [];
     bool expressionContainsNamed = false;
+    List expressions = [];
     String name;
     String nameLoop;
-    var value;
-    Node arg;
+    bool isSemiColonSeperated = false;
+    MixinReturner returner = new MixinReturner();
+    Node value;
 
     currentChunk.save();
 
@@ -326,32 +327,32 @@ class Mixin {
 //    },
   }
 
-  /*
-   * A Mixin definition, with a list of parameters
-   *
-   *     .rounded (@radius: 2px, @color) {
-   *        ...
-   *     }
-   *
-   * Until we have a finer grained state-machine, we have to
-   * do a look-ahead, to make sure we don't have a mixin call.
-   * See the `rule` function for more information.
-   *
-   * We start by matching `.rounded (`, and then proceed on to
-   * the argument list, which has optional default values.
-   * We store the parameters in `params`, with a `value` key,
-   * if there is a value, such as in the case of `@radius`.
-   *
-   * Once we've got our params list, and a closing `)`, we parse
-   * the `{...}` block.
-   */
-  Node definition() {
-    String name;
-    List params = [];
-    List ruleset;
-    var cond;
-    bool variadic = false;
+  ///
+  /// A Mixin definition, with a list of parameters
+  ///
+  ///     .rounded (@radius: 2px, @color) {
+  ///        ...
+  ///     }
+  ///
+  /// Until we have a finer grained state-machine, we have to
+  /// do a look-ahead, to make sure we don't have a mixin call.
+  /// See the `rule` function for more information.
+  ///
+  /// We start by matching `.rounded (`, and then proceed on to
+  /// the argument list, which has optional default values.
+  /// We store the parameters in `params`, with a `value` key,
+  /// if there is a value, such as in the case of `@radius`.
+  ///
+  /// Once we've got our params list, and a closing `)`, we parse
+  /// the `{...}` block.
+  ///
+  MixinDefinition definition() {
+    Condition cond;
     int index = currentChunk.i; //not in original
+    String name;
+    List<MixinArgs> params = [];
+    List<Node> ruleset;
+    bool variadic = false;
 
     if ((currentChunk.charAtPos() != '.' && currentChunk.charAtPos() != '#') || currentChunk.peek(new RegExp(r'^[^{]*\}'))) return null;
 
@@ -442,6 +443,8 @@ class Mixin {
 //},
   }
 }
+
+/* ************************************************ */
 
 class MixinReturner {
   List<MixinArgs> args;

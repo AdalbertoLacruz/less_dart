@@ -148,7 +148,7 @@ class MixinCall extends Node implements EvalNode{
         }
 
         if (match) {
-          if (this.currentFileInfo == null || !isTrue(this.currentFileInfo.reference)) {
+          if (this.currentFileInfo == null || !this.currentFileInfo.reference) {
             for (i = 0; i < rules.length; i++) {
               rule = rules[i];
               if (rule is MarkReferencedNode) (rule as MarkReferencedNode).markReferenced();
@@ -332,7 +332,7 @@ class MixinArgs {
   Node value;
   bool variadic;
 
-  MixinArgs({String this.name, Node this.value, bool this.variadic});
+  MixinArgs({String this.name, Node this.value, bool this.variadic: false});
 }
 
 class Candidate {

@@ -52,7 +52,7 @@ class ToCSSVisitor extends VisitorBase{
 
   ///
   visitDirective (Directive directiveNode, VisitArgs visitArgs) {
-    if (isTrue(directiveNode.currentFileInfo.reference) && !directiveNode.isReferenced) {
+    if (directiveNode.currentFileInfo.reference && !directiveNode.isReferenced) {
       return [];
     }
     if (directiveNode.name == '@charset') {
@@ -275,9 +275,8 @@ class ToCSSVisitor extends VisitorBase{
     Map ruleCache = {};
     var ruleList;
     Node rule;
-    int i;
 
-    for (i = rules.length - 1; i >= 0; i--) {
+    for (int i = rules.length - 1; i >= 0; i--) {
       rule = rules[i];
       if (rule is Rule) {
         Rule rrule = rule as Rule;

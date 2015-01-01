@@ -9,7 +9,7 @@ class Extend extends Node implements EvalNode {
 
   bool            allowAfter;
   bool            allowBefore;
-  bool            firstExtendOnThisSelectorPath;
+  bool            firstExtendOnThisSelectorPath = false;
   int             object_id;
   List<int>       parent_ids;
   Ruleset         ruleset; //extend
