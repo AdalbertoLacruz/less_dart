@@ -4,6 +4,7 @@ library functions.less;
 
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:path/path.dart' as path;
 
 import 'env.dart';
 import 'file_info.dart';
@@ -1764,9 +1765,9 @@ class Functions {
 
     if (this.env.isPathRelative(filePath)) {
       if (this.currentFileInfo.relativeUrls) {
-        filePath = Path.join([this.currentFileInfo.currentDirectory, filePath]);
+        filePath = path.normalize(path.join(this.currentFileInfo.currentDirectory, filePath));
       } else {
-        filePath = Path.join([this.currentFileInfo.entryPath, filePath]);
+        filePath = path.normalize(path.join(this.currentFileInfo.entryPath, filePath));
       }
     }
 
@@ -1783,7 +1784,6 @@ class Functions {
       useBase64 = new RegExp(r';base64$').hasMatch(mimetype);
     }
 
-    //String buf = new File(filePath).readAsStringSync();
     List<int> buf = new File(filePath).readAsBytesSync();
 
     // IE8 cannot handle a data-uri larger than 32KB. If this is exceeded
@@ -2246,7 +2246,7 @@ class Mime {
   };
 
   String lookup(String filepath) {
-    String ext = Path.extname(filepath);
+    String ext = path.extension(filepath);
     String type = _types[ext];
     if (type == null) {
       throw new LessExceptionError(new LessError(

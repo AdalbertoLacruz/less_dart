@@ -2,6 +2,7 @@
 library lessOptions.less;
 
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'cleancss_options.dart';
 import 'index.dart';
@@ -326,7 +327,7 @@ class LessOptions {
         return false;
       }
       sourceMapFullFilename = sourceMapOutputFilename + '.map';
-      sourceMap = Path.basename(new File(sourceMapFullFilename).path);
+      sourceMap = path.basename(new File(sourceMapFullFilename).path);
     }
 
     if(cleancss && (sourceMap == true || sourceMap != '')) {

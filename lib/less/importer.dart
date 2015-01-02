@@ -3,11 +3,11 @@ library immporter.less;
 
 import 'dart:async';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'env.dart';
 import 'file_info.dart';
 import 'less_error.dart';
-import '../nodejs/nodejs.dart';
 
 ///
 /// FileImporter or UrlImporter associated with @imports...
@@ -101,7 +101,7 @@ class Importer {
     bool exist = false;
 
     for (int i = 0; i < paths.length; i++) {
-      pathname = Path.join([paths[i], file]);
+      pathname = path.normalize(path.join(paths[i], file));
       exist = new File(pathname).existsSync();
       if (exist) break;
     }

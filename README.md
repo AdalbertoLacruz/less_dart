@@ -71,7 +71,7 @@ See a example in: test/simply_test.dart
 ## Known issues
 
 - Sources from lessc 1.7.5.
-- Pass the standard tests in windows (possibly fail with paths in linux).
+- Pass the standard tests in windows (no tested in linux).
 - Javascript and Dart have different way to treat null, true, ... Many bug must be eliminated yet.
 - cleanCSS not implemented yet.
 - source-map not implemented yet.
@@ -83,8 +83,8 @@ See a example in: test/simply_test.dart
 
 ## [License](LICENSE)
 
-Copyright (c) 2009-2014 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
+Copyright (c) 2009-2015 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
 
-Copyright (c) 2014 [Adalberto Lacruz](Adalberto.Lacruz@gmail.com) for dart translation.
+Copyright (c) 2014-2014 [Adalberto Lacruz](Adalberto.Lacruz@gmail.com) for dart translation.
 
 Licensed under the [Apache License](LICENSE).

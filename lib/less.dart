@@ -2,6 +2,7 @@ library less;
 
 import 'dart:async';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'less/less_error.dart';
 import 'less/less_options.dart';
@@ -36,7 +37,11 @@ class Less {
     }
 
     if(_options.input != '-') {
-      File file = new File(_options.input);
+      // Default to .less
+      String filename = _options.input;
+      if (path.extension(filename).isEmpty) filename += '.less';
+
+      File file = new File(filename);
       if (!file.existsSync()) {
         console.log('Error cannot open file ${_options.input}');
         currentErrorCode = 3;

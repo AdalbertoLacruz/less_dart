@@ -2,23 +2,23 @@
 
 library debugInfo.less;
 
-import 'dart:io';
-import 'env.dart';
-import '../nodejs/nodejs.dart';
+import 'package:path/path.dart' as path;
 
-/**
- * Debug coordinates
- * ex. new LessDebugIngo({lineNumber: 30, fileName: 'file.less'});
- */
+import 'env.dart';
+
+///
+/// Debug coordinates
+/// ex. new LessDebugIngo({lineNumber: 30, fileName: 'file.less'});
+///
 class LessDebugInfo {
   int lineNumber;
   String fileName;
 
   LessDebugInfo({int this.lineNumber, String fileName}){
-    if (Path.isAbsolute(fileName)) {
+    if (path.isAbsolute(fileName)) {
       this.fileName = fileName;
     } else {
-      this.fileName = Path.join([Directory.current.path, fileName]);
+      this.fileName = path.normalize(path.absolute(fileName));
     }
   }
 

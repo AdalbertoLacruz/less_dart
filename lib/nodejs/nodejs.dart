@@ -4,7 +4,6 @@ import 'dart:async';
 
 part 'base64_string.dart';
 part 'console.dart';
-part 'path.dart';
 part 'reg_exp_extended.dart';
 
 /// resolves null as false. #
