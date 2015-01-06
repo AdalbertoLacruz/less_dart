@@ -1,4 +1,5 @@
 ignore
 packages
+result
 pubspec.lock
 .settings

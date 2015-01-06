@@ -1063,7 +1063,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
     if (options == null) options = new LessOptions();
     Node evaluate = this;
 
-    Node evaldRoot;
+    var evaldRoot; //Ruleset or source_map_output
     String css;
     Env evalEnv = new Env.evalEnv(options);
 
@@ -1131,20 +1131,19 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
       }
 
       if (options.sourceMap) {
-//        evaldRoot = new tree.sourceMapOutput(
-//            {
-//                contentsIgnoredCharsMap: parser.imports.contentsIgnoredChars,
-//                writeSourceMap: options.writeSourceMap,
-//                rootNode: evaldRoot,
-//                contentsMap: parser.imports.contents,
-//                sourceMapFilename: options.sourceMapFilename,
-//                sourceMapURL: options.sourceMapURL,
-//                outputFilename: options.sourceMapOutputFilename,
-//                sourceMapBasepath: options.sourceMapBasepath,
-//                sourceMapRootpath: options.sourceMapRootpath,
-//                outputSourceFiles: options.outputSourceFiles,
-//                sourceMapGenerator: options.sourceMapGenerator
-//            });
+        evaldRoot = new SourceMapOutput(
+                contentsIgnoredCharsMap: env.imports.contentsIgnoredChars,
+                writeSourceMap: options.writeSourceMap,
+                rootNode: evaldRoot,
+                contentsMap: env.imports.contents,
+                sourceMapFilename: options.sourceMapFilename,
+                sourceMapURL: options.sourceMapURL,
+                outputFilename: options.sourceMapOutputFilename,
+                sourceMapBasepath: options.sourceMapBasepath,
+                sourceMapRootpath: options.sourceMapRootpath,
+                outputSourceFiles: options.outputSourceFiles,
+                sourceMapGenerator: options.sourceMapGenerator
+            );
       }
 
       css = evaldRoot.toCSS(new Env()
@@ -1153,7 +1152,6 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
               ..strictUnits = options.strictUnits
               ..numPrecision = 8
               ).toString();
-
 
     } catch (e, s) {
       LessError error = LessError.transform(e, env: env);

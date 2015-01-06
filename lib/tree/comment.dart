@@ -17,7 +17,7 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   /// Writes the comment in [output]. #
   genCSS(Env env, Output output) {
     if (this.debugInfo != null) {
-      output.addFull(debugInfo.toOutput(env), this.currentFileInfo, this.index);
+      output.add(debugInfo.toOutput(env), this.currentFileInfo, this.index);
     }
     output.add(this.value.trim()); //TODO (orig) shouldn't need to trim, we shouldn't grab the \n
 

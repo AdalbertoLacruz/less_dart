@@ -66,7 +66,8 @@ class LessOptions {
   /// whether we are currently importing multiple copies
   bool importMultiple = false;
 
-  Function writeSourceMap; //for clone()
+  Function writeSourceMap; //Function writeSourceMap(String content), to write the sourcemap file
+  var sourceMapGenerator; // class instance - default: new SourceMapBuilder();
 
   // I/O
   String input = '';
@@ -79,6 +80,7 @@ class LessOptions {
   CleancssOptions cleancssOptions = new CleancssOptions();
   bool sourceMapFileInline = false;
   bool parseError = false;
+  String warningMessages = '';
 
   //debug
   int showTreeLevel;
@@ -129,7 +131,7 @@ class LessOptions {
         depends = true;
         break;
       case 'yui-compress':
-        console.log('yui-compress option has been removed. ignoring.');
+        warningMessages += 'yui-compress option has been removed. ignoring.';
         break;
       case 'clean-css':
         cleancss = true;
@@ -300,13 +302,17 @@ class LessOptions {
    * check options combinations
    */
   bool validate() {
-    if (input != null) {
+    if (input.isNotEmpty) {
       inputBase = input;
       filename  = input;
       if (input != '-') {
+        //input = path.normalize(path.absolute(input)); //use absolute path
         String inputDirName = new File(input).parent.path;
         paths.insert(0, inputDirName);
-        if (sourceMapBasepath == '') sourceMapBasepath = inputDirName;
+        if (sourceMapBasepath.isEmpty) sourceMapBasepath = inputDirName;
+
+      } else {
+        if (sourceMapBasepath.isEmpty) sourceMapBasepath = path.current;
       }
     } else {
       console.log('lessc: no input files\n');
@@ -315,29 +321,31 @@ class LessOptions {
       return false;
     }
 
-    if (output != null) {
+    if (output.isNotEmpty) {
       outputBase = output;
       sourceMapOutputFilename = output;
+      //output = path.normalize(path.absolute(output)); //use absolute path
+      if (warningMessages.isNotEmpty) console.log(warningMessages);
     }
 
-    if(sourceMap == true){
+    if(sourceMap is bool && sourceMap == true){
       if((output == null) && !sourceMapFileInline){
         console.log('the sourcemap option only has an optional filename if the css filename is given');
         parseError = true;
         return false;
       }
       sourceMapFullFilename = sourceMapOutputFilename + '.map';
-      sourceMap = path.basename(new File(sourceMapFullFilename).path);
+      sourceMap = path.basename(sourceMapFullFilename);
     }
 
-    if(cleancss && (sourceMap == true || sourceMap != '')) {
+    if(cleancss && (sourceMap == true || sourceMap.isNotEmpty)) {
       console.log('the cleancss option is not compatible with sourcemap support at the moment. See Issue #1656');
       parseError = true;
       return false;
     }
 
     if(depends) {
-      if(outputBase == null) {
+      if(outputBase.isEmpty) {
         console.log('option --depends requires an output path to be specified');
         parseError = true;
         return false;
@@ -345,8 +353,18 @@ class LessOptions {
       //stdout.write(outputbase + ": "); TODO
     }
 
+    if (!sourceMapFileInline) {
+      writeSourceMap = sourceMapWriter;
+    }
 
     return true;
+  }
+
+
+  void sourceMapWriter(String output) {
+    String filename = sourceMapFullFilename;
+    if(filename == null || filename.isEmpty) filename = sourceMap;
+    new File(filename).writeAsStringSync(output);
   }
 
   LessOptions clone() {
@@ -366,7 +384,7 @@ class LessOptions {
     op.sourceMapBasepath  = this.sourceMapBasepath;
     op.sourceMapRootpath  = this.sourceMapRootpath;
     op.outputSourceFiles  = this.outputSourceFiles;
-    //writeSourceMap: writeSourceMap
+    op.writeSourceMap     = this.writeSourceMap;
     op.maxLineLen         = this.maxLineLen;
     op.strictMath         = this.strictMath;
     op.strictUnits        = this.strictUnits;

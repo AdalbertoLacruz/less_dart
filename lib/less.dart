@@ -114,7 +114,7 @@ class Less {
         currentErrorCode = 1;
        })
     .then((Ruleset tree){
-      Function writeSourceMap;
+      Function writeSourceMap = _options.writeSourceMap;
       String css;
 
       if (tree == null) return new Future.value(currentErrorCode);
@@ -130,7 +130,7 @@ class Less {
         for (var file in parser.imports.files) stdout.write(file + ' ');
       } else {
         try {
-          if (_options.lint) writeSourceMap = (){};
+          if (_options.lint) writeSourceMap = (String output){};
           css = tree.rootToCSS((_options.clone()
                               ..writeSourceMap = writeSourceMap), parser.env);
           if (!_options.lint) {
@@ -149,9 +149,6 @@ class Less {
           return new Future.value(currentErrorCode);
         }
       }
-
-
-      //stdout.write(css);
 
       return new Future.value(currentErrorCode);
     })

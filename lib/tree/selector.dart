@@ -233,7 +233,7 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
     Element element;
 
     if ((env == null || !isTrue(env.firstSelector)) && this.elements[0].combinator.value == '') {
-      output.addFull(' ', this.currentFileInfo, this.index);
+      output.add(' ', this.currentFileInfo, this.index);
     }
     if (!isNotEmpty(this._css)) {
       // TODO (js) caching? speed comparison?

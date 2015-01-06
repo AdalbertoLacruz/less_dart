@@ -96,11 +96,14 @@ class Parser {
 //    }
 
     if (preText.isNotEmpty) {
+      preText = preText.replaceAll('\r\n', '\n');
       str = preText + str;
+      imports.contentsIgnoredChars[env.currentFileInfo.filename] = preText.length;
       preText = ''; // avoid banner in @import
-      //TODO imports.contentsIgnoredChars[env.currentFileInfo.filename] = preText.length;
     }
+
     str = str.replaceAll('\r\n', '\n');
+
     // Remove potential UTF Byte Order Mark
 //  input = str = preText + str.replace(/^\uFEFF/, '') + modifyVars;
     input = str = str.replaceAll(new RegExp(r'^\uFEFF'), '');

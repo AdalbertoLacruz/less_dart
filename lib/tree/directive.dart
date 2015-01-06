@@ -37,7 +37,7 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements E
   void genCSS(Env env, Output output) {
     Node value = this.value;
     Node rules = this.rules;
-    output.addFull(this.name, this.currentFileInfo, this.index);
+    output.add(this.name, this.currentFileInfo, this.index);
     if (value != null) {
       output.add(' ');
       value.genCSS(env, output);

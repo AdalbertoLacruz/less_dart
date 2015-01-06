@@ -38,7 +38,7 @@ class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
 
   ///
   void genCSS(Env env, Output output) {
-    output.addFull(this.value, this.currentFileInfo, this.index, this.mapLines);
+    output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
   }
 
 //    toCSS: tree.toCSS

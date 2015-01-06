@@ -36,7 +36,7 @@ class Element extends Node implements EvalNode, ToCSSNode {
 
   ///
   void genCSS(Env env, Output output) {
-    output.addFull(this.toCSS(env), this.currentFileInfo, this.index);
+    output.add(this.toCSS(env), this.currentFileInfo, this.index);
   }
 
   ///

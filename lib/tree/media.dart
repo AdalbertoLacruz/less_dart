@@ -39,7 +39,7 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
 
   ///
   void genCSS(Env env, Output output) {
-    output.addFull('@media ', this.currentFileInfo, this.index);
+    output.add('@media ', this.currentFileInfo, this.index);
     this.features.genCSS(env, output);
     outputRuleset(env, output, this.rules);
   }

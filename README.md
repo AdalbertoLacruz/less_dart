@@ -74,7 +74,6 @@ See a example in: test/simply_test.dart
 - Pass the standard tests in windows (no tested in linux).
 - Javascript and Dart have different way to treat null, true, ... Many bug must be eliminated yet.
 - cleanCSS not implemented yet.
-- source-map not implemented yet.
 - error color output. Implemented, but not tested in linux. In windows cmd don't work.
 - Added option --banner=bannerfile.txt. Could change in next versions according to official version.
 

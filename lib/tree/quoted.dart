@@ -20,7 +20,7 @@ class Quoted extends Node implements CompareNode, EvalNode, ToCSSNode {
   ///
   void genCSS(Env env, Output output) {
     if (!this.escaped) {
-      output.addFull(this.quote, this.currentFileInfo, this.index);
+      output.add(this.quote, this.currentFileInfo, this.index);
     }
     output.add(this.value);
     if (!this.escaped) {

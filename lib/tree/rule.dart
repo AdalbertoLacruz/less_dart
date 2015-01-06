@@ -38,7 +38,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
   }
 
   void genCSS(Env env, Output output) {
-    output.addFull(this.name + (env.compress ? ':' : ': '), this.currentFileInfo, this.index);
+    output.add(this.name + (env.compress ? ':' : ': '), this.currentFileInfo, this.index);
     try {
       this.value.genCSS(env, output);
     } catch (e) {
@@ -50,7 +50,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
     }
     String out = '';
     if (!this.inline) out = (env.lastRule && env.compress) ? '' : ';';
-    output.addFull(this.important + out, this.currentFileInfo, this.index);
+    output.add(this.important + out, this.currentFileInfo, this.index);
 
 //    genCSS: function (env, output) {
 //        output.add(this.name + (env.compress ? ':' : ': '), this.currentFileInfo, this.index);

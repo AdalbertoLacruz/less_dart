@@ -88,7 +88,7 @@ class Call extends Node implements EvalNode, ToCSSNode {
 
   ///
   void genCSS(Env env, Output output) {
-    output.addFull(this.name + '(', this.currentFileInfo, this.index);
+    output.add(this.name + '(', this.currentFileInfo, this.index);
 
     for (int i = 0; i < this.args.length; i++){
       this.args[i].genCSS(env, output);

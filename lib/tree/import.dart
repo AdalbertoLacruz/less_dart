@@ -90,7 +90,7 @@ class Import extends Node implements EvalNode, ToCSSNode {
 
   void genCSS(Env env, Output output) {
     if (this.css) {
-      output.addFull('@import ', this.currentFileInfo, this.index);
+      output.add('@import ', this.currentFileInfo, this.index);
       this.path.genCSS(env, output);
       if (this.features != null) {
         output.add(' ');

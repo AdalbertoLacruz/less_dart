@@ -10,6 +10,8 @@ import '../less/functions.dart';
 import '../less/less_debug_info.dart';
 import '../less/less_error.dart';
 import '../less/less_options.dart';
+import '../less/output.dart';
+import '../less/source_map_output.dart';
 import '../nodejs/nodejs.dart';
 import '../visitor/visitor_base.dart';
 
@@ -189,24 +191,6 @@ abstract class OperateNode {
 abstract class ToCSSNode {
   void genCSS(Env env, Output output);
   String toCSS(Env env);
-}
-
-class Output {
-  StringBuffer value = new StringBuffer();
-
-  bool get isEmpty => value.isEmpty;
-
-  /// [s] is String or s.toString(). #
-  void add(s) {
-    this.value.write(s);
-  }
-
-  /// [s] String normally. #
-  void addFull(s, FileInfo currentFileInfo, int index, [mapLines]) {
-    add(s);
-  }
-
-  String toString() => value.toString();
 }
 
 //-----------------------------------------------------------
