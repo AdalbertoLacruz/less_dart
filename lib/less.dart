@@ -136,7 +136,9 @@ class Less {
           if (!_options.lint) {
             if (_options.output.isNotEmpty) {
               //ensureDirectory(output);
-              new File(_options.output).writeAsStringSync(css);
+              new File(_options.output)
+                ..createSync(recursive: true)
+                ..writeAsStringSync(css);
               if (_options.verbose) console.log('lessc: wrote ${_options.output}');
             } else {
               stdout.write(css);

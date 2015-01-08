@@ -2,6 +2,7 @@
 library immporter.less;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
@@ -82,16 +83,101 @@ class Importer {
     if (paths.indexOf('.') == -1) paths.add('.');
   }
 
-  //TODO
+  /// get dirname from the uri
+  /// uri == http://host.com:port/path/index.css
+  /// dirname == http://host.com:port/path
+  String uriDirname(Uri uri) {
+    List segments = uri.pathSegments;
+    dirname = uri.scheme + '://' + uri.host + ((uri.hasPort) ? ':' + uri.port.toString() : '');
+    for (int i = 0; i < segments.length - 1; i++) {
+      dirname += '/' + segments[i];
+    }
+    return dirname;
+  }
+
+  ///
+  /// Load the file as url
+  ///
   Future urlLoader() {
+    StringBuffer dataBuffer = new StringBuffer();
+    HttpClient client = new HttpClient();
+    Completer task = new Completer();
 
-    LessError error = new LessError(
-              type: 'Application',
-              message: "url loader not implemented yet",
+    String urlStr = isUrl ? this.file : new Uri.file(currentFileInfo.currentDirectory).resolve(file);
+
+    client.getUrl(Uri.parse(urlStr))
+    .then((HttpClientRequest request) {
+      dirname = uriDirname(request.uri);
+      return request.close();
+    })
+    .then((HttpClientResponse response) {
+      response.transform(UTF8.decoder).listen((contents) {
+        dataBuffer.write(contents);
+      }, onDone: (){
+        if (response.statusCode == 404) {
+          LessError error = new LessError(
+                  type: 'File',
+                  message: 'resource " ${urlStr} " was not found\n',
+                  env: env);
+          return task.completeError(error);
+        }
+        pathname = urlStr;
+        updateFileInfo();
+        return task.complete(dataBuffer.toString());
+      });
+    })
+    .catchError((e, s) {
+      LessError error = new LessError(
+              type: 'File',
+              message: e.message,
               env: env);
-    throw new LessExceptionError(error);
+      task.completeError(error);
+    });
+    return task.future;
 
-    return new Future(null);
+//        if (request === undefined) {
+//            try { request = require('request'); }
+//            catch(e) { request = null; }
+//        }
+//        if (!request) {
+//            callback({ type: 'File', message: "optional dependency 'request' required to import over http(s)\n" });
+//            return;
+//        }
+//
+//        var urlStr = isUrl ? file : url.resolve(currentFileInfo.currentDirectory, file),
+//            urlObj = url.parse(urlStr);
+//
+//        if (!urlObj.protocol) {
+//            urlObj.protocol = "http";
+//            urlStr = urlObj.format();
+//        }
+//
+//        request.get({uri: urlStr, strictSSL: !env.insecure }, function (error, res, body) {
+//            if (error) {
+//                callback({ type: 'File', message: "resource '" + urlStr + "' gave this Error:\n  "+ error +"\n" });
+//                return;
+//            }
+//            if (res.statusCode === 404) {
+//                callback({ type: 'File', message: "resource '" + urlStr + "' was not found\n" });
+//                return;
+//            }
+//            if (!body) {
+//                console.error( 'Warning: Empty body (HTTP '+ res.statusCode + ') returned by "' + urlStr +'"' );
+//            }
+//            pathname = urlStr;
+//            dirname = urlObj.protocol +'//'+ urlObj.host + urlObj.pathname.replace(/[^\/]*$/, '');
+//            handleDataAndCallCallback(body);
+//        });
+
+
+
+//    LessError error = new LessError(
+//              type: 'Application',
+//              message: "url loader not implemented yet",
+//              env: env);
+//    throw new LessExceptionError(error);
+//
+//    return new Future(null);
   }
 
   ///
@@ -120,9 +206,31 @@ class Importer {
     }
   }
 
-  //TODO
+  ///
+  /// Load the file Asyncronously
+  ///
   Future fileAsyncLoader() {
-    return new Future(null);
+    bool exist = false;
+
+    for (int i = 0; i < paths.length; i++) {
+      pathname = path.normalize(path.join(paths[i], file));
+      exist = new File(pathname).existsSync();
+      if (exist) break;
+    }
+
+    if (exist) {
+      return new File(pathname).readAsString().then((data){
+        updateFileInfo();
+        return new Future.value(data);
+      });
+    } else {
+      pathname = null;
+      LessError error = new LessError(
+          type: 'File',
+          message: "'$file' wasn't found",
+          env: env);
+      throw new LessExceptionError(error);
+    }
   }
 
   ///

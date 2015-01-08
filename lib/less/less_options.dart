@@ -364,7 +364,9 @@ class LessOptions {
   void sourceMapWriter(String output) {
     String filename = sourceMapFullFilename;
     if(filename == null || filename.isEmpty) filename = sourceMap;
-    new File(filename).writeAsStringSync(output);
+    new File(filename)
+      ..createSync(recursive: true)
+      ..writeAsStringSync(output);
   }
 
   LessOptions clone() {

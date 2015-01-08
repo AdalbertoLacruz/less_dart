@@ -51,7 +51,6 @@ class Imports {
    */
   Future push(String path, FileInfo currentFileInfo, ImportOptions importOptions) {
     this.queue.add(path);
-    env.syncImport = true; //TODO remove when ...
     Importer importer = new Importer(path, currentFileInfo, env);
 
     return new Future.sync((){

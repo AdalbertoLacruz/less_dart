@@ -251,7 +251,8 @@ void runAsync() {
       153: def('errors/svg-gradient1', isErrorTest: true),
       154: def('errors/svg-gradient2', isErrorTest: true),
       155: def('errors/svg-gradient3', isErrorTest: true),
-      156: def('errors/unit-function', isErrorTest: true)
+      156: def('errors/unit-function', isErrorTest: true),
+      200: def('extendedTest/url', isExtendedTest: true)
     };
   }
 
