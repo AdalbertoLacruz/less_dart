@@ -4,13 +4,13 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
-import 'less/less_error.dart';
-import 'less/less_options.dart';
-import 'nodejs/nodejs.dart';
-import 'parser/parser.dart';
-import 'tree/tree.dart';
+import 'src/less_error.dart';
+import 'src/less_options.dart';
+import 'src/nodejs/nodejs.dart';
+import 'src/parser/parser.dart';
+import 'src/tree/tree.dart';
 
-export 'less/less_options.dart';
+export 'src/less_options.dart';
 
 class Less {
   StringBuffer stdin  = new StringBuffer();

@@ -9,8 +9,8 @@ import 'package:path/path.dart' as path;
 import 'env.dart';
 import 'file_info.dart';
 import 'less_error.dart';
-import '../nodejs/nodejs.dart';
-import '../tree/tree.dart';
+import 'nodejs/nodejs.dart';
+import 'tree/tree.dart';
 
 class Functions {
   ColorBlend colorBlend;

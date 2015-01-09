@@ -9,8 +9,8 @@ import 'package:source_span/source_span.dart';
 import 'env.dart';
 import 'file_info.dart';
 import 'output.dart';
-import '../nodejs/nodejs.dart';
-import '../tree/tree.dart';
+import 'nodejs/nodejs.dart';
+import 'tree/tree.dart';
 
 class SourceMapOutput extends Output{
   Map<String, int> contentsIgnoredCharsMap;

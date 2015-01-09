@@ -8,9 +8,9 @@ import 'file_info.dart';
 import 'importer.dart';
 import 'less_error.dart';
 import 'less_options.dart';
-import '../nodejs/nodejs.dart';
-import '../parser/parser.dart';
-import '../tree/tree.dart';
+import 'nodejs/nodejs.dart';
+import 'parser/parser.dart';
+import 'tree/tree.dart';
 
 part 'imports.dart';
 

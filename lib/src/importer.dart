@@ -9,7 +9,7 @@ import 'package:path/path.dart' as path;
 import 'env.dart';
 import 'file_info.dart';
 import 'less_error.dart';
-import '../nodejs/nodejs.dart';
+import 'nodejs/nodejs.dart';
 
 ///
 /// FileImporter or UrlImporter associated with @imports...

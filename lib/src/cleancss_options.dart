@@ -1,6 +1,6 @@
 library cleancss.less;
 
-import '../nodejs/nodejs.dart';
+import 'nodejs/nodejs.dart';
 
 class CleancssOptions {
   bool keepBreaks;

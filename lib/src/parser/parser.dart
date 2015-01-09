@@ -6,9 +6,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'parsers.dart';
-import '../less/env.dart';
-import '../less/less_error.dart';
-import '../less/less_options.dart';
+import '../env.dart';
+import '../less_error.dart';
+import '../less_options.dart';
 import '../tree/tree.dart';
 import '../visitor/visitor_base.dart';
 

@@ -2,9 +2,9 @@
 
 library parsers.dart;
 
-import '../less/env.dart';
-import '../less/less_debug_info.dart';
-import '../less/less_error.dart';
+import '../env.dart';
+import '../less_debug_info.dart';
+import '../less_error.dart';
 import '../nodejs/nodejs.dart';
 import '../tree/tree.dart';
 

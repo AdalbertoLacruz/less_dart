@@ -7,7 +7,7 @@ import 'package:path/path.dart' as path;
 import 'cleancss_options.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
-import '../nodejs/nodejs.dart';
+import 'nodejs/nodejs.dart';
 
 class LessOptions {
   bool   depends =  false;

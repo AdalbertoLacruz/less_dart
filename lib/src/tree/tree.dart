@@ -4,14 +4,14 @@ library tree.less;
 
 import 'dart:math' as math;
 
-import '../less/file_info.dart';
-import '../less/env.dart';
-import '../less/functions.dart';
-import '../less/less_debug_info.dart';
-import '../less/less_error.dart';
-import '../less/less_options.dart';
-import '../less/output.dart';
-import '../less/source_map_output.dart';
+import '../file_info.dart';
+import '../env.dart';
+import '../functions.dart';
+import '../less_debug_info.dart';
+import '../less_error.dart';
+import '../less_options.dart';
+import '../output.dart';
+import '../source_map_output.dart';
 import '../nodejs/nodejs.dart';
 import '../visitor/visitor_base.dart';
 

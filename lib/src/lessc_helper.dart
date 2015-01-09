@@ -1,6 +1,6 @@
 library helper.less;
 
-import '../nodejs/nodejs.dart';
+import 'nodejs/nodejs.dart';
 
 /*
  * helper functions for lessc
@@ -15,7 +15,7 @@ import '../nodejs/nodejs.dart';
  */
 printUsage() {
   NodeConsole console = new NodeConsole();
-  
+
   console.log("usage: lessc [option option=parameter ...] <source> [destination]");
   console.log("");
   console.log("If source is set to `-' (dash or hyphen-minus), input is read from stdin.");
