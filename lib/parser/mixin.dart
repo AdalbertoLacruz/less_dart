@@ -25,7 +25,7 @@ class Mixin {
   /// namespaced, but we only support the child and descendant
   /// selector for now.
   ///
-  Node call() {
+  MixinCall call() {
     List<MixinArgs> args;
     String c;
     String e;

@@ -1059,41 +1059,40 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
 
   //parser.js 1.7.5 lines 514-627
   /// Main entry to convert the tree to CSS
-  String rootToCSS(LessOptions options, Env env, [variables]) {
-    if (options == null) options = new LessOptions();
-    Node evaluate = this;
-
-    var evaldRoot; //Ruleset or source_map_output
+  String rootToCSS(LessOptions options, Env env, [Map<String, Node> variables]) {
     String css;
+    var evaldRoot; //Ruleset or source_map_output
+    Node evaluate = this;
+    int i;
+    if (options == null) options = new LessOptions();
+
     Env evalEnv = new Env.evalEnv(options);
 
     // Allows setting variables with a hash, so:
     //
-    //   `{ color: new(tree.Color)('#f01') }` will become:
+    // variables = {'my-color': new Color('ff0000')}; will become:
     //
-    //   new(tree.Rule)('@color',
-    //     new(tree.Value)([
-    //       new(tree.Expression)([
-    //         new(tree.Color)('#f01')
+    //   new Rule('@my-color',
+    //     new Value([
+    //       new Expression)([
+    //         new Color('ff0000')
     //       ])
     //     ])
     //   )
 
-    //TODO
-//          if (typeof(variables) === 'object' && !Array.isArray(variables)) {
-//              variables = Object.keys(variables).map(function (k) {
-//                  var value = variables[k];
-//
-//                  if (! (value instanceof tree.Value)) {
-//                      if (! (value instanceof tree.Expression)) {
-//                          value = new(tree.Expression)([value]);
-//                      }
-//                      value = new(tree.Value)([value]);
-//                  }
-//                  return new(tree.Rule)('@' + k, value, false, null, 0);
-//              });
-//              evalEnv.frames = [new(tree.Ruleset)(null, variables)];
-//          }
+    if (variables != null) {
+      List<Node> vars = [];
+      Node value;
+      for (String k in variables.keys) {
+        value = variables[k];
+        if (value is! Value) {
+          if (value is! Expression) value = new Expression([value]);
+          value = new Value([value]);
+        }
+        vars.add(new Rule('@' + k, value, null, null, 0));
+      }
+      evalEnv.frames = [new Ruleset(null, vars)];
+    }
 
     try {
       List<VisitorBase> preEvalVisitors = [];
@@ -1102,23 +1101,24 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
                        new ProcessExtendsVisitor(),
                        new ToCSSVisitor(new Env()
                                           ..compress = options.compress)
-                       ]; //TODO: compress: Boolean(options.compress)
-      int i;
+                       ];
+
       Ruleset root = this;
 
-//      if (options.plugins) {
-//          for(i =0; i < options.plugins.length; i++) {
-//              if (options.plugins[i].isPreEvalVisitor) {
-//                  preEvalVisitors.push(options.plugins[i]);
-//              } else {
-//                  if (options.plugins[i].isPreVisitor) {
-//                      visitors.splice(0, 0, options.plugins[i]);
-//                  } else {
-//                      visitors.push(options.plugins[i]);
-//                  }
-//              }
-//          }
-//      }
+      // plugins must extend visitorBase
+      if (options.plugins.isNotEmpty) {
+        for (i = 0; i < options.plugins.length; i++) {
+          if (options.plugins[i].isPreEvalVisitor) {
+            preEvalVisitors.add(options.plugins[i]);
+          } else {
+            if (options.plugins[i].isPreVisitor) {
+              visitors.insert(0, options.plugins[i]);
+            } else {
+              visitors.add(options.plugins[i]);
+            }
+          }
+        }
+      }
 
       for (i = 0; i < preEvalVisitors.length; i++) {
         preEvalVisitors[i].run(root);
@@ -1159,6 +1159,8 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
     }
 
     if (options.cleancss) {
+      return css;
+
 //      var CleanCSS = require('clean-css'),
 //          cleancssOptions = options.cleancssOptions || {};
 //
@@ -1173,13 +1175,11 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
 //
 //      return new CleanCSS(cleancssOptions).minify(css);
     } else if (options.compress) {
-//      return css.replace(/(^(\s)+)|((\s)+$)/g, "");
+      return css;
+//      return css.replace(/(^(\s)+)|((\s)+$)/g, ""); //sourcemap problems?
     } else {
       return css;
     }
-
-  return css; //TODO remove when compress would be full implemented
-
 
 //  root.toCSS = (function (evaluate) { //evaluate = this
 //      return function (options, variables) {

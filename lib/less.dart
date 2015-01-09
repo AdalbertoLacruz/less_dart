@@ -10,6 +10,8 @@ import 'nodejs/nodejs.dart';
 import 'parser/parser.dart';
 import 'tree/tree.dart';
 
+export 'less/less_options.dart';
+
 class Less {
   StringBuffer stdin  = new StringBuffer();
   StringBuffer stdout = new StringBuffer();
@@ -26,7 +28,18 @@ class Less {
     _options = new LessOptions();
   }
 
-  Future transform(List<String> args) {
+  ///
+  /// Rransform a less file to css file.
+  ///
+  /// [args] has the options and input/output file names.
+  /// [modifyOptions] let programtically modify the options.
+  ///
+  /// Example:
+  ///   new Less.transform(args, modifyOptions: (options){
+  ///    options.plugins = ...
+  ///   });
+  ///
+  Future transform(List<String> args, {Function modifyOptions}) {
     if (!argsFilter(args)) {
       currentErrorCode = _options.parseError ? 1 : 0;
       return new Future.value(currentErrorCode);
@@ -35,6 +48,8 @@ class Less {
       currentErrorCode = _options.parseError ? 1 : 0;
       return new Future.value(currentErrorCode);
     }
+
+    if (modifyOptions != null) modifyOptions(this._options);
 
     if(_options.input != '-') {
       // Default to .less
@@ -57,15 +72,6 @@ class Less {
         currentErrorCode = 3;
         return new Future.value(currentErrorCode);
       });
-
-//      return new File(_options.input).readAsString().then((String content){
-//        return parseLessFile(content);
-//      },
-//      onError:(e){
-//        console.log('Error reading ${_options.input}');
-//        currentErrorCode = 2;
-//        return new Future.value(currentErrorCode);
-//      });
     } else {
       return parseLessFile(stdin.toString());
     }
@@ -108,11 +114,7 @@ class Less {
     if (_options.modifyVariables.isNotEmpty) data = data + '\n' + _options.modifyVariables;
 
     Parser parser = new Parser(_options);
-    return parser.parse(data,
-      onError: (e){
-        console.log(e.toString());
-        currentErrorCode = 1;
-       })
+    return parser.parse(data)
     .then((Ruleset tree){
       Function writeSourceMap = _options.writeSourceMap;
       String css;

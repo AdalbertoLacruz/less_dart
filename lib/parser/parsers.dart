@@ -717,7 +717,7 @@ class Parsers {
   }
 
   ///
-  Node rule([tryAnonymous = false]) {
+  Rule rule([tryAnonymous = false]) {
     String c = currentChunk.charAtPos();
     String important;
     bool isVariable;

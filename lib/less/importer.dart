@@ -9,6 +9,7 @@ import 'package:path/path.dart' as path;
 import 'env.dart';
 import 'file_info.dart';
 import 'less_error.dart';
+import '../nodejs/nodejs.dart';
 
 ///
 /// FileImporter or UrlImporter associated with @imports...
@@ -22,6 +23,8 @@ class Importer {
   FileInfo currentFileInfo;
 
   Env env;
+
+  NodeConsole console;
 
   /// Content read from file
   String data;
@@ -47,6 +50,7 @@ class Importer {
   Importer(this.file, this.currentFileInfo, this.env) {
     newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, env);
     isUrl = isUrlRe.hasMatch(file);
+    console = new NodeConsole();
   }
 
   ///
@@ -121,6 +125,9 @@ class Importer {
                   env: env);
           return task.completeError(error);
         }
+        if (dataBuffer.isEmpty) {
+          console.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "${urlStr}"');
+        }
         pathname = urlStr;
         updateFileInfo();
         return task.complete(dataBuffer.toString());
@@ -129,7 +136,7 @@ class Importer {
     .catchError((e, s) {
       LessError error = new LessError(
               type: 'File',
-              message: e.message,
+              message: 'resource "${urlStr}" gave this Error:\n  ${e.message}\n',
               env: env);
       task.completeError(error);
     });
@@ -170,14 +177,6 @@ class Importer {
 //        });
 
 
-
-//    LessError error = new LessError(
-//              type: 'Application',
-//              message: "url loader not implemented yet",
-//              env: env);
-//    throw new LessExceptionError(error);
-//
-//    return new Future(null);
   }
 
   ///

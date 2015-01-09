@@ -39,6 +39,8 @@ class LessError {
 
   bool isSimplyFormat = true;
 
+  bool silent = false;
+
   /// error object to be constructed outside
   //LessError.empty();
 
@@ -81,6 +83,7 @@ class LessError {
       this.color = env.color;
       this.isSimplyFormat = false;
     }
+    this.silent = env.silent;
   }
 
   ///
@@ -297,6 +300,7 @@ class LessExceptionError implements Exception {
   }
 
   String toString() {
+    if (error.silent) return '';
     if (error.message == null) error.message = '';
     if (error.line == null) error.isSimplyFormat = true;
     return error.isSimplyFormat ? simplyFormatError() : formatError();

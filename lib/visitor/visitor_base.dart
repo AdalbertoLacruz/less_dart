@@ -14,6 +14,8 @@ part 'to_css_visitor.dart';
 part 'visitor.dart';
 
 class VisitorBase {
+  bool isPreEvalVisitor = false; //plugins
+  bool isPreVisitor = false; //plugins
   bool isReplacing = false;
 
   run(root){}

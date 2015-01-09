@@ -75,11 +75,10 @@ class Parser {
   /// Parse an input string into an abstract syntax tree.
   ///
   /// [str] A string containing 'less' markup
-  /// [onError] Function onError(e)
   ///
   /// NO @param [additionalData] An optional map which can contains vars - a map (key, value) of variables to apply
   ///
-  Future parse(String str, {Function onError}) {
+  Future parse(String str) {
     Chunks  chunksAnalyzer;
     Ruleset root;
     Ruleset rulesetEvaluated;
@@ -116,12 +115,7 @@ class Parser {
     try {
       chunks = chunksAnalyzer.analyzeInput(str);
     } catch (e) {
-      if (onError != null) {
-        onError(e);
-        return new Future.value(null);
-      } else {
-        return new Future.error(e);
-      }
+      return new Future.error(e);
     }
 
     parsers = new Parsers(env, chunks);
@@ -148,10 +142,7 @@ class Parser {
       }
     } catch (e, s) {
       LessExceptionError error = new LessExceptionError(LessError.transform(e, stackTrace: s, env: env));
-      if (onError != null) {
-        onError(error);
-        return new Future.value(null);
-      } else throw error;
+      return new Future.error(error);
     }
 
     return new Future.value(root);

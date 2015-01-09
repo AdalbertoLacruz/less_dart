@@ -165,6 +165,7 @@ class Env {
     javascriptEnabled   = options.javascriptEnabled;
     strictMath          = options.strictMath;
     color               = options.color;
+    silent              = options.silent;
   }
 
   ///

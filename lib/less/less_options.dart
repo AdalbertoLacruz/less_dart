@@ -81,6 +81,7 @@ class LessOptions {
   bool sourceMapFileInline = false;
   bool parseError = false;
   String warningMessages = '';
+  List plugins = [];
 
   //debug
   int showTreeLevel;

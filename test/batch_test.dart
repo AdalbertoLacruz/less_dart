@@ -134,7 +134,7 @@ void runAsync() {
       43: def('scope'),
       44: def('selectors'),
       45: def('strings'),
-      46: def('urls'),
+      46: def('urls', options: ['--silent']),
       47: def('variables-in-at-rules'),
       48: def('variables'),
       49: def('whitespace'),
