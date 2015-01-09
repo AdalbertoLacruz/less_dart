@@ -1,3 +1,7 @@
+# v0.1.3 (2015-01-09)
+
+- Final less 1.7.5 code.
+
 # v0.1.2 (2015-01-06)
 
 - SourceMaps generation.
