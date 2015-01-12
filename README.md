@@ -15,18 +15,18 @@ transformer. Also, it could be used in other Dart programs.
 If you get the full distribution (tar.gz file), the bin directory has the lessc.dart 
 for use with pub run:
 
-    `CMD> pub run lessc [args] file.less file.css`
+    CMD> pub run lessc [args] file.less file.css
 
 A working example: `CMD> pub run lessc test/less/charsets.less`
 
-And a error example: `CMD> pub run lessc --no-color test/less/errors/import-subfolder1.less`
+Error output example: `CMD> pub run lessc --no-color test/less/errors/import-subfolder1.less`
 
 For help: `CMD> pub run lessc --help`
 
 ### How to use in other dart programs
 
 You would need import the package, create the Less class and call the transform future. 
-There is a example:
+There is an example:
 
       import 'dart:io';
       import 'package:less_dart/less.dart';
@@ -66,7 +66,7 @@ Considerer to use the less transformer as the first in the chain.
 
 #### Transformer Configuration
 
-You can also pass options to lessc if necessary:
+You can also pass options to less_dart if necessary:
 
     transformers:
       - less_dart:
@@ -89,9 +89,9 @@ You can also pass options to lessc if necessary:
 - cleancss - see [Less Documentation clean-css](http://lesscss.org/usage/#command-line-usage-clean-css).
 - compress - see [Less Documentation compress](http://lesscss.org/usage/#command-line-usage-compress).
 - build_mode -
-	- less - command 'CMD> lessc --flags input.less output.css' is used. (output.css is in the same directory as input.less)
-	- dart - command 'CMD> lessc --flags -' with stdin and stdout piped in the dart transformer process. See build folder for the css file.
-	- mixed - command 'CMD> lessc --flags input.less' with stdout managed by the dart transformer process. See build folder for the css file.
+	- less - command `CMD> lessc --flags input.less output.css` is used. (output.css is in the same directory as input.less)
+	- dart - command `CMD> lessc --flags -` with stdin and stdout piped in the dart transformer process. See build folder for the css file.
+	- mixed - command `CMD> lessc --flags input.less` with stdout managed by the dart transformer process. See build folder for the css file.
 - other_flags - Let add other flags such as (--source-map, ...) in the lessc command line.
 
 
@@ -100,11 +100,10 @@ You can also pass options to lessc if necessary:
 
 - Sources from lessc 1.7.5.
 - Pass the standard tests in windows (no tested in linux).
-- Javascript and Dart have different way to treat null, true, ... Some bugs must be eliminated yet.
+- Javascript and Dart have different ways to treat null, true, ... Some bugs must be eliminated yet.
 - cleanCSS not implemented yet.
-- error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
-- Added option --banner=bannerfile.txt. Could change in next versions according to official version.
-
+- Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
+- Added option `--banner=bannerfile.txt`. Could change in next versions according to official version.
 - Javascript evaluation not supported. If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node)
 
 
