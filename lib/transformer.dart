@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 2014, adalberto.lacruz@gmail.com
+ * Copyright (c) 2014-2015, adalberto.lacruz@gmail.com
  * Thanks to juha.komulainen@evident.fi for inspiration and some code
  * (Copyright (c) 2013 Evident Solutions Oy) from package http://pub.dartlang.org/packages/sass
  *
+ * less_dart v 0.1.4  20150112 'build_mode: dart' as default
  * less_dart v 0.1.0  20141230
  * less_node v 0.2.1  20141212 niceDuration, other_flags argument
  * less_node v 0.2.0  20140905 entry_point(s) multifile
@@ -18,8 +19,6 @@ import 'dart:math';
 import 'dart:io';
 import 'less.dart';
 import 'package:barback/barback.dart';
-//import 'package:barback/src/utils.dart' as utils;
-//import 'package:utf/utf.dart';
 
 const String INFO_TEXT = '[Info from less-dart]';
 const String BUILD_MODE_LESS = 'less';
@@ -29,7 +28,7 @@ const String BUILD_MODE_MIXED = 'mixed';
 /*
  * Transformer used by 'pub build' & 'pub serve' to convert .less files to .css
  * Based on lessc over nodejs executing a process like
- * CMD> lessc --flags input.less > output.css
+ * CMD> lessc --flags input.less output.css
  * It use one or various files as entry point and produces the css files
  * To mix several .less files in one, the input contents could be "@import 'filexx.less'; ..." directives
  * See http://lesscss.org/ for more information
@@ -69,7 +68,6 @@ class LessTransformer extends Transformer {
       case BUILD_MODE_LESS:
       default:
         flags.add(inputFile);
-        flags.add('>');
         flags.add(outputFile);
     }
 
@@ -89,7 +87,7 @@ class LessTransformer extends Transformer {
   }
 
   /*
-   * only returns true in entry_point(s) file
+   * Only returns true in entry_point(s) file
    */
   bool _isEntryPoint(AssetId id) {
     if (id.extension != '.less') return false;
@@ -150,7 +148,7 @@ class TransformerOptions {
   final bool compress;       // compress: true - compress output by removing some whitespaces
 
   final String executable;   // executable: lessc - command to execute lessc  - NOT USED
-  final String build_mode;   // build_mode: less - io managed by lessc compiler (less) by (dart) or (mixed)
+  final String build_mode;   // build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
   final List other_flags;    // other options in the command line
 
   TransformerOptions({List<String> this.entry_points, String this.include_path, String this.output, bool this.cleancss, bool this.compress,
@@ -191,7 +189,7 @@ class TransformerOptions {
         compress: config('compress', false),
 
         executable: config('executable', 'lessc'),
-        build_mode: config('build_mode', BUILD_MODE_LESS),
+        build_mode: config('build_mode', BUILD_MODE_DART),
         other_flags: readStringList(configuration['other_flags'])
     );
   }
@@ -225,7 +223,7 @@ class ProcessInfo {
 
 /* ************************************** */
 /*
- * process error management
+ * Process error management
  */
 class LessException implements Exception {
   final String message;
