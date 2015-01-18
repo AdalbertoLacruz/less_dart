@@ -10,6 +10,7 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
   num alpha;
 
   bool isTransparentKeyword = false;
+  String keyword; //2.2.0
   static String transparentKeyword = "transparent";
 
   final String type = 'Color';

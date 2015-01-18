@@ -1,4 +1,4 @@
-//source: less/tree/call.js 1.7.5
+//source: less/tree/call.js 2.2.0
 
 part of tree.less;
 
@@ -32,63 +32,54 @@ class Call extends Node implements EvalNode, ToCSSNode {
   /// The reason why we evaluate the arguments, is in the case where
   /// we try to pass a variable to a function, like: `saturate(@color)`.
   /// The function should receive the value, not the variable.
-  /// #
-  eval(Env env) {
-    List<Expression> args = this.args.map((a) => a.eval(env)).toList();
-    String nameLC = this.name.toLowerCase();
-    FunctionCall func = new FunctionCall(env, this.currentFileInfo);
+  ///
+  eval(Env context) {
+    List<Expression> args = this.args.map((a) => a.eval(context)).toList();
+    FunctionCaller funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
     var result;
 
-    try {
-      if(env.defaultFunc != null && nameLC == 'default') {
-        result = env.defaultFunc.eval();
+    if (funcCaller.isValid()) {
+      try {
+        result = funcCaller.call(args);
         if (result != null) return result;
+      } catch (e) {
+        String message = LessError.getMessage(e);
+        message = (message.isEmpty) ? '' : ': ' + message;
+        LessError error = LessError.transform(e,
+            type: 'Runtime',
+            index: this.index,
+            filename: this.currentFileInfo.filename
+        );
+        error.message = 'error evaluating function `${this.name}`${message}';
+        throw new LessExceptionError(error);
       }
-      if (func.isMethod(nameLC)) {
-        result = func.call(nameLC, args);
-        if (result != null) return result;
-      }
-    } catch (e) {
-      String message = LessError.getMessage(e);
-      message = (message.isEmpty) ? '' : ': ' + message;
-      LessError error = LessError.transform(e,
-          type: 'Runtime',
-          index: this.index,
-          filename: this.currentFileInfo.filename
-      );
-      error.message = 'error evaluating function `${this.name}`${message}';
-      throw new LessExceptionError(error);
     }
-
     return new Call(this.name, args, this.index, this.currentFileInfo);
 
-// 1.7.5
-//      eval: function (env) {
-//          var args = this.args.map(function (a) { return a.eval(env); }),
-//              nameLC = this.name.toLowerCase(),
-//              result, func;
+//2.2.0
+//    Call.prototype.eval = function (context) {
+//        var args = this.args.map(function (a) { return a.eval(context); }),
+//            result, funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
 //
-//          if (nameLC in tree.functions) { // 1.
-//              try {
-//                  func = new tree.functionCall(env, this.currentFileInfo);
-//                  result = func[nameLC].apply(func, args);
-//                  if (result != null) {
-//                      return result;
-//                  }
-//              } catch (e) {
-//                  throw { type: e.type || "Runtime",
-//                          message: "error evaluating function `" + this.name + "`" +
-//                                   (e.message ? ': ' + e.message : ''),
-//                          index: this.index, filename: this.currentFileInfo.filename };
-//              }
-//          }
+//        if (funcCaller.isValid()) { // 1.
+//            try {
+//                result = funcCaller.call(args);
+//                if (result != null) {
+//                    return result;
+//                }
+//            } catch (e) {
+//                throw { type: e.type || "Runtime",
+//                        message: "error evaluating function `" + this.name + "`" +
+//                                 (e.message ? ': ' + e.message : ''),
+//                        index: this.index, filename: this.currentFileInfo.filename };
+//            }
+//        }
 //
-//          return new tree.Call(this.name, args, this.index, this.currentFileInfo);
-//      },
+//        return new Call(this.name, args, this.index, this.currentFileInfo);
+//    };
   }
 
   ///
-  // 2.2.0 ok
   void genCSS(Env context, Output output) {
     output.add(this.name + '(', this.currentFileInfo, this.index);
 
@@ -101,5 +92,4 @@ class Call extends Node implements EvalNode, ToCSSNode {
   }
 
 //      toCSS: tree.toCSS
-
 }

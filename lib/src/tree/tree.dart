@@ -6,7 +6,7 @@ import 'dart:math' as math;
 
 import '../file_info.dart';
 import '../env.dart';
-import '../functions.dart';
+import '../functions/functions.dart';
 import '../less_debug_info.dart';
 import '../less_error.dart';
 import '../less_options.dart';
