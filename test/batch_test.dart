@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 import '../lib/less.dart';
 
 Map<int, Config> config;
+String errorTests;
 List<Future> run = [];
 int passCount = 0;
 int testCount = 0;
@@ -56,6 +57,7 @@ main() {
   }
   timeInProcess.stop();
   stdout.writeln('\n${passCount} test pass of ${testCount} in time ${timeInProcess.elapsed}');
+  if (errorTests != null) stdout.writeln(errorTests);
 }
 
 void runAsync() {
@@ -83,6 +85,7 @@ void runAsync() {
     }
     timeInProcess.stop();
     stdout.writeln('\n${passCount} test pass of ${testCount} in time ${timeInProcess.elapsed}');
+    if (errorTests != null) stdout.writeln(errorTests);
   });
 }
 
@@ -91,85 +94,86 @@ void runAsync() {
        0: def('charsets'), //@import
        1: def('colors'),
        2: def('comments'),
-       3: def('css-3'),
-       4: def('css-escapes'),
-       5: def('css-guards'),
-       6: def('css'),
-       7: def('detached-rulesets'),
-       8: def('empty'),
-       9: def('extend-chaining'),
-      10: def('extend-clearfix'),
-      11: def('extend-exact'),
-      12: def('extend-media'),
-      13: def('extend-nest'),
-      14: def('extend-selector'),
-      15: def('extend'),
-      16: def('extract-and-length'),
-      17: def('functions'),
-      18: def('ie-filters'),
-      19: def('import-inline'),
-      20: def('import-interpolation'),
-      21: def('import-once'),
-      22: def('import-reference'),
-      23: def('import'),
-      //24: def('javascript'),
-      25: def('lazy-eval'),
-      26: def('media'),
-      27: def('merge'),
-      28: def('mixins-args'),
-      29: def('mixins-closure'),
-      30: def('mixins-guards-default-func'),
-      31: def('mixins-guards'),
-      32: def('mixins-important'),
-      33: def('mixins-interpolated'),
-      34: def('mixins-named-args'),
-      35: def('mixins-nested'),
-      36: def('mixins-pattern'),
-      37: def('mixins'),
-      38: def('no-output'),
-      39: def('operations'),
-      40: def('parens'),
-      41: def('property-name-interp'),
-      42: def('rulesets'),
-      43: def('scope'),
-      44: def('selectors'),
-      45: def('strings'),
-      46: def('urls', options: ['--silent']),
-      47: def('variables-in-at-rules'),
-      48: def('variables'),
-      49: def('whitespace'),
+       //3: def('comments2'), //TODO pending upgrade 2.2.0 Ruleset.eval and parserInput.start()
+       4: def('css-3'),
+       5: def('css-escapes'),
+       6: def('css-guards'),
+       7: def('css'),
+       8: def('detached-rulesets'),
+       9: def('empty'),
+      10: def('extend-chaining'),
+      11: def('extend-clearfix'),
+      12: def('extend-exact'),
+      13: def('extend-media'),
+      14: def('extend-nest'),
+      15: def('extend-selector'),
+      16: def('extend'),
+      17: def('extract-and-length'),
+      18: def('functions'),
+      19: def('ie-filters'),
+      20: def('import-inline'),
+      21: def('import-interpolation'),
+      22: def('import-once'),
+      23: def('import-reference'),
+      24: def('import'),
+      //25: def('javascript'),
+      30: def('lazy-eval'),
+      31: def('media'),
+      32: def('merge'),
+      33: def('mixins-args'),
+      34: def('mixins-closure'),
+      35: def('mixins-guards-default-func'),
+      36: def('mixins-guards'),
+      37: def('mixins-important'),
+      38: def('mixins-interpolated'),
+      39: def('mixins-named-args'),
+      40: def('mixins-nested'),
+      41: def('mixins-pattern'),
+      42: def('mixins'),
+      43: def('no-output'),
+      44: def('operations'),
+      45: def('parens'),
+      46: def('property-name-interp'),
+      47: def('rulesets'),
+      48: def('scope'),
+      49: def('selectors'),
+      50: def('strings'),
+      51: def('urls', options: ['--silent']),
+      52: def('variables-in-at-rules'),
+      53: def('variables'),
+      54: def('whitespace'),
 
       // compression
-      50: def('compression/compression', options: ['-x']),
+      60: def('compression/compression', options: ['-x']),
 
       // globalVars
-      51: def('globalVars/simple',
+      61: def('globalVars/simple',
           options: ['--global-var=my-color=red', '--banner=banner.txt']),
-      52: def('globalVars/extended',
+      62: def('globalVars/extended',
           options: ['--global-var=the-border=1px', '--global-var=base-color=#111',
                     '--global-var=red=#842210', '--banner=banner.txt']),
 
       // modifyVars
-      53: def('modifyVars/extended',
+      63: def('modifyVars/extended',
           options: ['--modify-var=the-border=1px', '--modify-var=base-color=#111',
                     '--modify-var=red=#842210']),
 
       // debug line-numbers
-      54: def('debug/linenumbers',
+      64: def('debug/linenumbers',
           options: ['--line-numbers=comments'],
           cssName: 'debug/linenumbers-comments',
           replace: [
             {'from': '{path}', 'to': absPath('less/debug')},
             {'from': '{pathimport}', 'to': absPath('less/debug/import')}
           ]),
-      55: def('debug/linenumbers',
+      65: def('debug/linenumbers',
           options: ['--line-numbers=mediaquery'],
           cssName: 'debug/linenumbers-mediaquery',
           replace: [
             {'from': '{pathesc}', 'to': escFile(absPath('less/debug'))},
             {'from': '{pathimportesc}', 'to': escFile(absPath('less/debug/import'))}
           ]),
-      56: def('debug/linenumbers',
+      66: def('debug/linenumbers',
           options: ['--line-numbers=all'],
           cssName: 'debug/linenumbers-all',
           replace: [
@@ -179,18 +183,18 @@ void runAsync() {
             {'from': '{pathimportesc}', 'to': escFile(absPath('less/debug/import'))}
           ]),
 
-      57: def('legacy/legacy'),
+      67: def('legacy/legacy'),
 
       // static-urls
-      58: def('static-urls/urls',
+      68: def('static-urls/urls',
           options: ['--rootpath=folder (1)/']),
 
       //url-args
-      59: def('url-args/urls',
+      69: def('url-args/urls',
           options: ['--url-args=424242']),
 
       //sourcemaps
-      60: def('index', isExtendedTest: true,
+      70: def('index', isExtendedTest: true,
           isSourcemapTest: true, cssName: 'index_expected',
           options: ['--source-map=webSourceMap/index.map', '--banner=webSourceMap/banner.txt']),
 
@@ -202,7 +206,7 @@ void runAsync() {
       104: def('errors/color-func-invalid-color', isErrorTest: true),
       105: def('errors/color-invalid-hex-code', isErrorTest: true),
       106: def('errors/color-invalid-hex-code2', isErrorTest: true),
-      107: def('errors/comment-in-selector', isErrorTest: true),
+      //107: def('errors/comment-in-selector', isErrorTest: true),
       108: def('errors/css-guard-default-func', isErrorTest: true),
       109: def('errors/detached-ruleset-1', isErrorTest: true),
       110: def('errors/detached-ruleset-2', isErrorTest: true),
@@ -405,6 +409,10 @@ void runAsync() {
 
   printResult(int c) {
     String passResult = config[c].pass ? 'pass' : '  NO pass';
+    if (!config[c].pass) {
+      if (errorTests == null) errorTests = 'Errors in:';
+      errorTests += ' ' + c.toString();
+    }
     String result = '>${c.toString()} ${config[c].lessFile}: ${passResult}';
     stdout.writeln(result);
     if (config[c].stderr.isNotEmpty && !config[c].isErrorTest) {

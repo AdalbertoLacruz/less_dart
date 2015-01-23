@@ -1,73 +1,67 @@
-//source: less/parser.js 1.7.5 lines 782-1025
+//source: less/parser.js 2.2.0 lines 280-511
 
-part of parsers.dart;
+part of parser.less;
 
 ///
 /// Entities are tokens which can be found inside an Expression
 ///
 class Entities {
-  Env env;
-  CurrentChunk currentChunk;
+  Env context;
+  ParserInput parserInput;
   Parsers parsers; //To reference parsers.expression() and parsers.entity()
+  FileInfo fileInfo;
 
   Node node;
 
-  Entities(Env this.env, CurrentChunk this.currentChunk, Parsers this.parsers);
+  Entities(Env this.context, ParserInput this.parserInput, Parsers this.parsers) {
+    this.fileInfo = this.context.currentFileInfo;
+  }
 
   ///
   /// A string, which supports escaping " and '
   ///
   ///     "milky way" 'he\'s the one!'
   ///
-  //lines 783-800
+  //2.2.0 ok
   Quoted quoted() {
     List<String> str;
-    int j = currentChunk.i;
-    bool e = false;
-    int index = currentChunk.i;
+    int index = parserInput.i;
 
-    // Escaped strings
-    if (currentChunk.charAt(j) == '~') {
-      j++;
-      e = true;
-    }
-    if ((currentChunk.charAt(j) != '"') && (currentChunk.charAt(j) != "'")) return null;
-
-    if (e) currentChunk.$char('~');
-
-    // ^"((?:[^"\\\r\n]|\\.)*)"|'((?:[^'\\\r\n]|\\.)*)'
-    str = currentChunk.$re(r'^"((?:[^"\\\r\n]|\\.)*)"|' + r"'((?:[^'\\\r\n]|\\.)*)'");
-
-    if (str != null) return new Quoted(str[0], str[1] != null ? str[1] : str[2], e, index, env.currentFileInfo);
+    str = parserInput.$re(r'^(~)?("((?:[^"\\\r\n]|\\.)*)"|' + r"'((?:[^'\\\r\n]|\\.)*)')");
+    if (str != null) return new Quoted(str[2], str[3] != null ? str[3] : str[4],
+        str[1] != null, index, fileInfo);
     return null;
+
+//2.2.0
+//  quoted: function () {
+//      var str, index = parserInput.i;
+//
+//      str = parserInput.$re(/^(~)?("((?:[^"\\\r\n]|\\.)*)"|'((?:[^'\\\r\n]|\\.)*)')/);
+//      if (str) {
+//          return new(tree.Quoted)(str[2], str[3] || str[4], Boolean(str[1]), index, fileInfo);
+//      }
+//  }
   }
 
   ///
   /// A catch-all word, such as:
   ///
   ///     black border-collapse
-  ///
+  //2.2.0 ok
   Node keyword() {
-    String k = currentChunk.$re(r'^%|^[_A-Za-z-][_A-Za-z0-9-]*');
+    String k = parserInput.$re(r'^%|^[_A-Za-z-][_A-Za-z0-9-]*');
     if (k != null) {
       Node color = new Color.fromKeyword(k);
-      if (color != null) return color;
-      return new Keyword(k);
+      return (color != null) ? color : new Keyword(k);
     }
     return null;
 
-//    keyword: function () {
-//        var k;
- //
-//        k = $re(/^%|^[_A-Za-z-][_A-Za-z0-9-]*/);
-//        if (k) {
-//            var color = tree.Color.fromKeyword(k);
-//            if (color) {
-//                return color;
-//            }
-//            return new(tree.Keyword)(k);
-//        }
-//    },
+//2.2.0
+//  keyword: function () {
+//      var k = parserInput.$re(/^%|^[_A-Za-z-][_A-Za-z0-9-]*/);
+//      if (k) {
+//          return tree.Color.fromKeyword(k) || new(tree.Keyword)(k);
+//      }
   }
 
   ///
@@ -80,71 +74,74 @@ class Entities {
   ///
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
-  ///
+  //2.2.0 ok
   Node call() {
     String name;
     String nameLC;
-    Match nameMatch;
     List args;
-    Node alpha_ret;
-    int index = currentChunk.i;
+    Node alpha;
+    int index = parserInput.i;
 
-    nameMatch = new RegExp(r'^([\w-]+|%|progid:[\w\.]+)\(').firstMatch(currentChunk.current);
-    if (nameMatch == null) return null;
+    if (parserInput.peek(new RegExp(r'^url\(', caseSensitive: false))) return null;
 
-    name = nameMatch[1];
-    nameLC = name.toLowerCase();
-    if (nameLC == 'url') return null;
+    parserInput.save();
 
-    currentChunk.i += name.length;
-
-    if (nameLC == 'alpha') {
-      alpha_ret = alpha();
-      if (alpha_ret != null) return alpha_ret;
+    name = parserInput.$re(r'^([\w-]+|%|progid:[\w\.]+)\(', true, 1);
+    if (name == null) {
+      parserInput.forget();
+      return null;
     }
 
-    currentChunk.$char('('); // Parse the '(' and consume whitespace.
+    nameLC = name.toLowerCase();
+
+    if (nameLC == 'alpha') {
+      alpha = this.alpha();
+      if (alpha != null) return alpha;
+    }
 
     args = arguments();
 
-    if (currentChunk.$char(')') == null) return null;
+    if (parserInput.$char(')') == null) {
+      parserInput.restore("Could not parse call arguments or missing ')'");
+      return null;
+    }
 
-    //?? name null ??
-    if (name != null) return new Call(name, args, index, env.currentFileInfo);
+    parserInput.forget();
+    return new Call(name, args, index, fileInfo);
 
-    return null;
-
-//    call: function () {
-//        var name, nameLC, args, alpha_ret, index = i;
- //
-//        name = /^([\w-]+|%|progid:[\w\.]+)\(/.exec(current);
-//        if (!name) { return; }
- //
-//        name = name[1];
-//        nameLC = name.toLowerCase();
-//        if (nameLC === 'url') {
-//            return null;
-//        }
- //
-//        i += name.length;
- //
-//        if (nameLC === 'alpha') {
-//            alpha_ret = parsers.alpha();
-//            if(typeof alpha_ret !== 'undefined') {
-//                return alpha_ret;
-//            }
-//        }
- //
-//        $char('('); // Parse the '(' and consume whitespace.
- //
-//        args = this.arguments();
- //
-//        if (! $char(')')) {
-//            return;
-//        }
- //
-//        if (name) { return new(tree.Call)(name, args, index, env.currentFileInfo); }
-//    },
+//2.2.0
+//  call: function () {
+//      var name, nameLC, args, alpha, index = parserInput.i;
+//
+//      if (parserInput.peek(/^url\(/i)) {
+//          return;
+//      }
+//
+//      parserInput.save();
+//
+//      name = parserInput.$re(/^([\w-]+|%|progid:[\w\.]+)\(/);
+//      if (!name) { parserInput.forget(); return; }
+//
+//      name = name[1];
+//      nameLC = name.toLowerCase();
+//
+//      if (nameLC === 'alpha') {
+//          alpha = parsers.alpha();
+//          if(alpha) {
+//              return alpha;
+//          }
+//      }
+//
+//      args = this.arguments();
+//
+//      if (! parserInput.$char(')')) {
+//          parserInput.restore("Could not parse call arguments or missing ')'");
+//          return;
+//      }
+//
+//      parserInput.forget();
+//      return new(tree.Call)(name, args, index, fileInfo);
+//  }
   }
 
   ///
@@ -153,32 +150,34 @@ class Entities {
   ///     alpha(opacity=88)
   ///
   //Original in parsers.dart
+  //2.2.0 ok
   Alpha alpha() {
     var value;
 
-    if (currentChunk.$re(r'^\(opacity=', false) == null) return null; // i
-    value = currentChunk.$re(r'^\d+');
-    if (value == null) value = variable();
-    if (value != null) {
-      currentChunk.expectChar(')');
-      return new Alpha(value);
+    if (parserInput.$re(r'^\opacity=', false) == null) return null; // i
+    value = parserInput.$re(r'^\d+');
+    if (value == null) {
+      value = parserInput.expect(this.variable, 'Could not parse alpha');
     }
-    return null;
+    parserInput.expectChar(')');
+    return new Alpha(value);
 
-//alpha: function () {
-//    var value;
+//2.2.0
+//  alpha: function () {
+//      var value;
 //
-//    if (! $re(/^\(opacity=/i)) { return; }
-//    value = $re(/^\d+/) || this.entities.variable();
-//    if (value) {
-//        expectChar(')');
-//        return new(tree.Alpha)(value);
-//    }
-//},
-
+//      if (! parserInput.$re(/^opacity=/i)) { return; }
+//      value = parserInput.$re(/^\d+/);
+//      if (!value) {
+//          value = expect(this.entities.variable, "Could not parse alpha");
+//      }
+//      expectChar(')');
+//      return new(tree.Alpha)(value);
+//  }
   }
 
   ///
+  //2.2.0 ok
   List<Node> arguments() {
     List<Node> args = [];
     Node arg;
@@ -189,29 +188,31 @@ class Entities {
       if (arg == null) break;
 
       args.add(arg);
-      if (currentChunk.$char(',') == null) break;
+      if (parserInput.$char(',') == null) break;
     }
 
     return args;
 
-//    arguments: function () {
-//        var args = [], arg;
- //
-//        while (true) {
-//            arg = this.assignment() || parsers.expression();
-//            if (!arg) {
-//                break;
-//            }
-//            args.push(arg);
-//            if (! $char(',')) {
-//                break;
-//            }
-//        }
-//        return args;
-//    },
+//2.2.0
+//  arguments: function () {
+//      var args = [], arg;
+//
+//      while (true) {
+//          arg = this.assignment() || parsers.expression();
+//          if (!arg) {
+//              break;
+//          }
+//          args.push(arg);
+//          if (! parserInput.$char(',')) {
+//              break;
+//          }
+//      }
+//      return args;
+//  }
   }
 
   ///
+  //2.2.0 ok
   Node literal() {
     Node result = dimension();
     if (result == null) result = color();
@@ -219,6 +220,14 @@ class Entities {
     if (result == null) result = unicodeDescriptor();
 
     return result;
+
+//2.2.0
+//  literal: function () {
+//      return this.dimension() ||
+//             this.color() ||
+//             this.quoted() ||
+//             this.unicodeDescriptor();
+//  }
   }
 
   ///
@@ -227,33 +236,36 @@ class Entities {
   ///
   ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
   ///
+  //2.2.0 ok
   Assignment assignment() {
     String key;
     Node value;
 
-    key = currentChunk.$re(r'^\w+(?=\s?=)', false);
+    key = parserInput.$re(r'^\w+(?=\s?=)', false);
     if (key == null) return null;
 
-    if (currentChunk.$char('=') == null) return null;
+    if (parserInput.$char('=') == null) return null;
 
     value = parsers.entity();
     if (value != null) return new Assignment(key, value);
 
     return null;
-//    assignment: function () {
-//        var key, value;
-//        key = $re(/^\w+(?=\s?=)/i);
-//        if (!key) {
-//            return;
-//        }
-//        if (!$char('=')) {
-//            return;
-//        }
-//        value = parsers.entity();
-//        if (value) {
-//            return new(tree.Assignment)(key, value);
-//        }
-//    },
+
+//2.2.0
+//  assignment: function () {
+//      var key, value;
+//      key = parserInput.$re(/^\w+(?=\s?=)/i);
+//      if (!key) {
+//          return;
+//      }
+//      if (!parserInput.$char('=')) {
+//          return;
+//      }
+//      value = parsers.entity();
+//      if (value) {
+//          return new(tree.Assignment)(key, value);
+//      }
+//  }
   }
 
   ///
@@ -263,39 +275,48 @@ class Entities {
   /// standard function calls. The difference is that the argument doesn't have
   /// to be enclosed within a string, so it can't be parsed as an Expression.
   ///
+  //2.2.0 ok
   URL url() {
     String anonymous;
-    int index = currentChunk.i;
+    int index = parserInput.i;
     Node value;
 
-    if ((currentChunk.charAtPos() != 'u') || (currentChunk.$re(r'^url\(') == null)) return null;
+    if ((parserInput.currentChar() != 'u') || (parserInput.$re(r'^url\(') == null)) return null;
 
+    parserInput.autoCommentAbsorb = false;
     value = quoted();
     if (value == null) value = variable();
     if (value == null) {
-      anonymous = currentChunk.$re(r'''^(?:(?:\\[\(\)'"])|[^\(\)'"])+''');
+      anonymous = parserInput.$re(r'''^(?:(?:\\[\(\)'"])|[^\(\)'"])+''');
       if (anonymous == null) anonymous = '';
       value = new Anonymous(anonymous);
     }
+    parserInput.autoCommentAbsorb = true;
 
-    currentChunk.expectChar(')');
-    return new URL(value, index, env.currentFileInfo);
+    parserInput.expectChar(')');
+    return new URL(value, index, fileInfo);
 
-//    url: function () {
-//        var value;
+//2.2.0
+//  url: function () {
+//      var value, index = parserInput.i;
 //
-//        if (input.charAt(i) !== 'u' || !$re(/^url\(/)) {
-//            return;
-//        }
+//      parserInput.autoCommentAbsorb = false;
 //
-//        value = this.quoted() || this.variable() ||
-//                $re(/^(?:(?:\\[\(\)'"])|[^\(\)'"])+/) || "";
+//      if (parserInput.currentChar() !== 'u' || !parserInput.$re(/^url\(/)) {
+//          parserInput.autoCommentAbsorb = true;
+//          return;
+//      }
 //
-//        expectChar(')');
- //
-//        return new(tree.URL)((value.value != null || value instanceof tree.Variable)
-//                            ? value : new(tree.Anonymous)(value), env.currentFileInfo);
-//    },
+//      value = this.quoted() || this.variable() ||
+//              parserInput.$re(/^(?:(?:\\[\(\)'"])|[^\(\)'"])+/) || "";
+//
+//      parserInput.autoCommentAbsorb = true;
+//
+//      expectChar(')');
+//
+//      return new(tree.URL)((value.value != null || value instanceof tree.Variable) ?
+//                          value : new(tree.Anonymous)(value), index, fileInfo);
+//  }
   }
 
   ///
@@ -306,45 +327,48 @@ class Entities {
   /// We use a different parser for variable definitions,
   /// see `parsers.variable`.
   ///
+  //2.2.0 ok
   Variable variable() {
     String name;
-    int index = currentChunk.i;
+    int index = parserInput.i;
 
-    if (currentChunk.charAtPos() == '@') {
-      name = currentChunk.$re(r'^@@?[\w-]+');
-      if (name != null) return new Variable(name, index, env.currentFileInfo);
+    if (parserInput.currentChar() == '@') {
+      name = parserInput.$re(r'^@@?[\w-]+');
+      if (name != null) return new Variable(name, index, fileInfo);
     }
     return null;
 
-//    variable: function () {
-//        var name, index = i;
+//2.2.0
+//  variable: function () {
+//      var name, index = parserInput.i;
 //
-//        if (input.charAt(i) === '@' && (name = $re(/^@@?[\w-]+/))) {
-//            return new(tree.Variable)(name, index, env.currentFileInfo);
-//        }
-//    },
+//      if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^@@?[\w-]+/))) {
+//          return new(tree.Variable)(name, index, fileInfo);
+//      }
+//  }
   }
-
 
   ///
   /// A variable entity using the protective {} e.g. @{var}
   ///
+  //2.2.0 ok
   Variable variableCurly() {
     String curly;
-    int index = currentChunk.i;
+    int index = parserInput.i;
 
-    if (currentChunk.charAtPos() == '@' && (curly = currentChunk.$re(r'^@\{([\w-]+)\}', true, 1)) != null) {
-      return new Variable('@${curly}', index, env.currentFileInfo);
+    if (parserInput.currentChar() == '@' && (curly = parserInput.$re(r'^@\{([\w-]+)\}', true, 1)) != null) {
+      return new Variable('@${curly}', index, fileInfo);
     }
     return null;
 
-//    variableCurly: function () {
-//        var curly, index = i;
+//2.2.0
+//  variableCurly: function () {
+//      var curly, index = parserInput.i;
 //
-//        if (input.charAt(i) === '@' && (curly = $re(/^@\{([\w-]+)\}/))) {
-//            return new(tree.Variable)("@" + curly[1], index, env.currentFileInfo);
-//        }
-//    },
+//      if (parserInput.currentChar() === '@' && (curly = parserInput.$re(/^@\{([\w-]+)\}/))) {
+//          return new(tree.Variable)("@" + curly[1], index, fileInfo);
+//      }
+//  }
    }
 
   ///
@@ -354,33 +378,34 @@ class Entities {
   ///
   /// `rgb` and `hsl` colors are parsed through the `entities.call` parser.
   ///
+  //2.2.0 ok
   Color color() {
     Match rgb;
 
-    if (currentChunk.charAtPos() == '#' && (rgb = currentChunk.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
+    if (parserInput.currentChar() == '#' && (rgb = parserInput.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
       // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
       Match colorCandidateMatch = new RegExp(r'^#([\w]+).*').firstMatch(rgb.input);
       String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
-      if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) currentChunk.error('Invalid HEX color code');
+      if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) parserInput.error('Invalid HEX color code');
 
       return new Color(rgb[1]);
     }
     return null;
 
-//    color: function () {
-//        var rgb;
+//2.2.0
+//  color: function () {
+//      var rgb;
 //
-//        if (input.charAt(i) === '#' && (rgb = $re(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/))) {
-//            var colorCandidateString = rgb.input.match(/^#([\w]+).*/); // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
-//            colorCandidateString = colorCandidateString[1];
-//            if (!colorCandidateString.match(/^[A-Fa-f0-9]+$/)) { // verify if candidate consists only of allowed HEX characters
-//                error("Invalid HEX color code");
-//            }
-//            return new(tree.Color)(rgb[1]);
-//        }
-//    },
+//      if (parserInput.currentChar() === '#' && (rgb = parserInput.$re(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/))) {
+//          var colorCandidateString = rgb.input.match(/^#([\w]+).*/); // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
+//          colorCandidateString = colorCandidateString[1];
+//          if (!colorCandidateString.match(/^[A-Fa-f0-9]+$/)) { // verify if candidate consists only of allowed HEX characters
+//              error("Invalid HEX color code");
+//          }
+//          return new(tree.Color)(rgb[1]);
+//      }
   }
 
   ///
@@ -388,15 +413,25 @@ class Entities {
   ///
   ///     0.5em 95%
   ///
+  //2.2.0 ok
   Dimension dimension() {
-    List<String> value;
-    int c = currentChunk.charCodeAtPos();
-    //Is the first char of the dimension 0-9, '.', '+' or '-'
-    if ((c > 57 || c < 43) || c == 47 || c == 44) return null;
+    if (parserInput.peekNotNumeric()) return null;
 
-    value = currentChunk.$re(r'^([+-]?\d*\.?\d+)(%|[a-z]+)?');
+    List<String> value = parserInput.$re(r'^([+-]?\d*\.?\d+)(%|[a-z]+)?', false);
     if (value != null) return new Dimension(value[1], value[2]);
     return null;
+
+//2.2.0
+//  dimension: function () {
+//      if (parserInput.peekNotNumeric()) {
+//          return;
+//      }
+//
+//      var value = parserInput.$re(/^([+-]?\d*\.?\d+)(%|[a-z]+)?/i);
+//      if (value) {
+//          return new(tree.Dimension)(value[1], value[2]);
+//      }
+//  }
   }
 
   ///
@@ -404,19 +439,22 @@ class Entities {
   ///
   /// U+0??  or U+00A1-00A9
   ///
+  //2.2.0 ok
   UnicodeDescriptor unicodeDescriptor() {
-    String ud = currentChunk.$re(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', true, 0);
+    String ud = parserInput.$re(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', true, 0);
     if (ud != null) return new UnicodeDescriptor(ud);
 
     return null;
-//    unicodeDescriptor: function () {
-//        var ud;
+
+//2.2.0
+//  unicodeDescriptor: function () {
+//      var ud;
 //
-//        ud = $re(/^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?/);
-//        if (ud) {
-//            return new(tree.UnicodeDescriptor)(ud[0]);
-//        }
-//    },
+//      ud = parserInput.$re(/^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?/);
+//      if (ud) {
+//          return new(tree.UnicodeDescriptor)(ud[0]);
+//      }
+//  }
   }
 
   ///
@@ -424,28 +462,40 @@ class Entities {
   ///
   ///     `window.location.href`
   ///
+  //2.2.0 TODO pending upgrade - requires changes in tree\JavaScript
   JavaScript javascript() {
     String str;
-    int j = currentChunk.i;
+    int j = parserInput.i;
     bool e = false;
 
-    if (currentChunk.charAt(j) == '~') { // Escaped strings
+    if (parserInput.charAt(j) == '~') { // Escaped strings
       j++;
       e = true;
     }
-    if (currentChunk.charAt(j) != '`') return null;
+    if (parserInput.charAt(j) != '`') return null;
 
-    if (env.javascriptEnabled == null || !env.javascriptEnabled ) {
-      currentChunk.error('You are using JavaScript, which has been disabled.');
+    if (context.javascriptEnabled == null || !context.javascriptEnabled ) {
+      parserInput.error('You are using JavaScript, which has been disabled.');
     }
 
-    if (e) currentChunk.$char('~');
+    if (e) parserInput.$char('~');
 
-    str = currentChunk.$re(r'^`([^`]*)`');
-    if (str != null) return new JavaScript(str, currentChunk.i, e);
+    str = parserInput.$re(r'^`([^`]*)`');
+    if (str != null) return new JavaScript(str, parserInput.i, e);
 
     return null;
 
+//2.2.0
+//  javascript: function () {
+//      var js, index = parserInput.i;
+//
+//      js = parserInput.$re(/^(~)?`([^`]*)`/);
+//      if (js) {
+//          return new(tree.JavaScript)(js[2], Boolean(js[1]), index, fileInfo);
+//      }
+//  }
+
+//1.7.5
 //    javascript: function () {
 //        var str, j = i, e;
 //

@@ -59,6 +59,7 @@
   clip: auto;
 }
 @-webkit-keyframes hover {
+  /* and Chrome */
   0% {
     color: red;
   }
@@ -75,3 +76,7 @@
   color: #A33;
 }
 /* } */
+/*by block */
+#output-block {
+  comment: /* // Not commented out // */;
+}

@@ -5,14 +5,21 @@ library parser.less;
 import 'dart:async';
 import 'dart:io';
 
-import 'parsers.dart';
 import '../env.dart';
+import '../file_info.dart';
+import '../less_debug_info.dart';
 import '../less_error.dart';
 import '../less_options.dart';
+import '../nodejs/nodejs.dart';
 import '../tree/tree.dart';
 import '../visitor/visitor_base.dart';
 
-part 'chunks.dart';
+part 'charcode.dart';
+part 'chunker.dart';
+part 'parser_input.dart';
+part 'entities.dart';
+part 'mixin.dart';
+part 'parsers.dart';
 
 /*
  *  A relatively straight-forward predictive parser.
@@ -78,8 +85,8 @@ class Parser {
   ///
   /// NO @param [additionalData] An optional map which can contains vars - a map (key, value) of variables to apply
   ///
+  //2.2.0 TODO upgrading
   Future parse(String str) {
-    Chunks  chunksAnalyzer;
     Ruleset root;
     Ruleset rulesetEvaluated;
 
@@ -109,11 +116,10 @@ class Parser {
     imports.contents[env.currentFileInfo.filename] = str;
     imports.rootFilename = env.currentFileInfo.filename;
 
-    // Split the input into chunks.
     env.imports = imports;
-    chunksAnalyzer = new Chunks(env);
     try {
-      chunks = chunksAnalyzer.analyzeInput(str);
+      // Split the input into chunks.
+      chunks = new Chunker(env, str).getChunks();
     } catch (e) {
       return new Future.error(e);
     }
@@ -126,6 +132,7 @@ class Parser {
     // output. The callback is called when the input is parsed.
 
     try {
+      parsers.parserInput.skipWhitespace(0); //TODO move other side
       root = new Ruleset(null, parsers.primary());
       root.root = true;
       root.firstRoot = true;

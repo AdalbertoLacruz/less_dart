@@ -150,6 +150,7 @@ class LessError {
       var char = inputStream.codeUnitAt(n);
       column++;
     }
+    if (column < 0) column = 0;
 
     if (index is num) {
       line = regLine.allMatches(inputStream.substring(0, index)).length;

@@ -1,18 +1,22 @@
-//source: less/parser.js 1.7.5
+//source: less/parser.js 2.2.0 lines 578-810
 
-part of parsers.dart;
+part of parser.less;
 
 /*
  * Mixins
  */
-// source: less/parser.js 1.7.5 lines 1092-1325
+
 class Mixin {
-  Env env;
-  CurrentChunk currentChunk;
+  Env context;
+  ParserInput parserInput;
   Parsers parsers;
   Entities entities;
 
-  Mixin(Env this.env, CurrentChunk this.currentChunk, Parsers this.parsers, Entities this.entities);
+  FileInfo fileInfo;
+
+  Mixin(Env this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
+    this.fileInfo = context.currentFileInfo;
+  }
 
   ///
   /// A Mixin call, with an optional argument list
@@ -25,6 +29,7 @@ class Mixin {
   /// namespaced, but we only support the child and descendant
   /// selector for now.
   ///
+  //2.2.0 ok
   MixinCall call() {
     List<MixinArgs> args;
     String c;
@@ -33,77 +38,79 @@ class Mixin {
     Element elem;
     List<Element> elements;
     bool important = false;
-    int index = currentChunk.i;
-    String s = currentChunk.charAtPos();
+    int index = parserInput.i;
+    String s = parserInput.currentChar();
 
     if (s != '.' && s != '#') return null;
 
-    currentChunk.save(); // stop us absorbing part of an invalid selector
+    parserInput.save(); // stop us absorbing part of an invalid selector
 
     while (true) {
-      elemIndex = currentChunk.i;
-      e = currentChunk.$re(r'^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+');
+      elemIndex = parserInput.i;
+      e = parserInput.$re(r'^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+');
       if (e == null) break;
-      elem = new Element(c, e, elemIndex, env.currentFileInfo);
+      elem = new Element(c, e, elemIndex, fileInfo);
       if (elements != null) { elements.add(elem); } else { elements = [elem]; }
-      c = currentChunk.$char('>');
+      c = parserInput.$char('>');
     }
 
     if (elements != null) {
-      if (currentChunk.$char('(') != null) {
+      if (parserInput.$char('(') != null) {
         args = this.args(true).args;
-        currentChunk.expectChar(')');
+        parserInput.expectChar(')');
       }
       if (parsers.important() != null) important = true;
       if (parsers.end()) {
-        currentChunk.forget();
-        return new MixinCall(elements, args, index, env.currentFileInfo, important);
+        parserInput.forget();
+        return new MixinCall(elements, args, index, fileInfo, important);
       }
     }
 
-    currentChunk.restore();
+    parserInput.restore();
     return null;
 
-//    call: function () {
-//        var s = input.charAt(i), important = false, index = i, elemIndex,
-//            elements, elem, e, c, args;
+//2.2.0
+//  call: function () {
+//      var s = parserInput.currentChar(), important = false, index = parserInput.i, elemIndex,
+//          elements, elem, e, c, args;
 //
-//        if (s !== '.' && s !== '#') { return; }
+//      if (s !== '.' && s !== '#') { return; }
 //
-//        save(); // stop us absorbing part of an invalid selector
+//      parserInput.save(); // stop us absorbing part of an invalid selector
 //
-//        while (true) {
-//            elemIndex = i;
-//            e = $re(/^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/);
-//            if (!e) {
-//                break;
-//            }
-//            elem = new(tree.Element)(c, e, elemIndex, env.currentFileInfo);
-//            if (elements) { elements.push(elem); } else { elements = [ elem ]; }
-//            c = $char('>');
-//        }
+//      while (true) {
+//          elemIndex = parserInput.i;
+//          e = parserInput.$re(/^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/);
+//          if (!e) {
+//              break;
+//          }
+//          elem = new(tree.Element)(c, e, elemIndex, fileInfo);
+//          if (elements) { elements.push(elem); } else { elements = [ elem ]; }
+//          c = parserInput.$char('>');
+//      }
 //
-//        if (elements) {
-//            if ($char('(')) {
-//                args = this.args(true).args;
-//                expectChar(')');
-//            }
+//      if (elements) {
+//          if (parserInput.$char('(')) {
+//              args = this.args(true).args;
+//              expectChar(')');
+//          }
 //
-//            if (parsers.important()) {
-//                important = true;
-//            }
+//          if (parsers.important()) {
+//              important = true;
+//          }
 //
-//            if (parsers.end()) {
-//                forget();
-//                return new(tree.mixin.Call)(elements, args, index, env.currentFileInfo, important);
-//            }
-//        }
+//          if (parsers.end()) {
+//              parserInput.forget();
+//              return new(tree.mixin.Call)(elements, args, index, fileInfo, important);
+//          }
+//      }
 //
-//        restore();
-//    },
+//      parserInput.restore();
+//  }
   }
 
   ///
+  //2.2.0 ok
   MixinReturner args(bool isCall) {
     Node arg;
     List argsComma = [];
@@ -116,17 +123,17 @@ class Mixin {
     MixinReturner returner = new MixinReturner();
     Node value;
 
-    currentChunk.save();
+    parserInput.save();
 
     while (true) {
       if (isCall) {
         arg = parsers.detachedRuleset();
         if (arg == null) arg = parsers.expression();
       } else {
-        parsers.comments();
-        if (currentChunk.charAtPos() == '.' && currentChunk.$re(r'^\.{3}') != null) {
+        parserInput.commentStore.length = 0;
+        if (parserInput.currentChar() == '.' && parserInput.$re(r'^\.{3}') != null) {
           returner.variadic = true;
-          if (currentChunk.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
+          if (parserInput.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
           if (isSemiColonSeperated) { argsSemiColon.add(new MixinArgs(variadic: true)); } else { argsComma.add(new MixinArgs(variadic: true)); }
           break;
         }
@@ -150,9 +157,9 @@ class Mixin {
       }
 
       if (val != null && val is Variable) {
-        if (currentChunk.$char(':') != null) {
+        if (parserInput.$char(':') != null) {
           if (expressions.isNotEmpty) {
-            if (isSemiColonSeperated) currentChunk.error('Cannot mix ; and , as delimiter types');
+            if (isSemiColonSeperated) parserInput.error('Cannot mix ; and , as delimiter types');
             expressionContainsNamed = true;
           }
 
@@ -165,17 +172,17 @@ class Mixin {
 
           if (value == null) {
             if (isCall) {
-              currentChunk.error('could not understand value for named argument');
+              parserInput.error('could not understand value for named argument');
             } else {
-              currentChunk.restore();
+              parserInput.restore();
               returner.args = [];
               return returner;
             }
           }
           nameLoop = (name = val.name);
-        } else if (!isCall && currentChunk.$re(r'^\.{3}') != null){
+        } else if (!isCall && parserInput.$re(r'^\.{3}') != null){
           returner.variadic = true;
-          if (currentChunk.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
+          if (parserInput.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
           if (isSemiColonSeperated) { argsSemiColon.add(new MixinArgs(name: arg.name, variadic: true)); }
             else { argsComma.add(new MixinArgs(name: arg.name, variadic: true)); }
           break;
@@ -189,10 +196,10 @@ class Mixin {
 
       argsComma.add(new MixinArgs(name: nameLoop, value: value));
 
-      if (currentChunk.$char(',') != null) continue;
+      if (parserInput.$char(',') != null) continue;
 
-      if (currentChunk.$char(';') != null || isSemiColonSeperated) {
-        if (expressionContainsNamed) currentChunk.error('Cannot mix ; and , as delimiter types');
+      if (parserInput.$char(';') != null || isSemiColonSeperated) {
+        if (expressionContainsNamed) parserInput.error('Cannot mix ; and , as delimiter types');
 
         isSemiColonSeperated = true;
 
@@ -205,126 +212,127 @@ class Mixin {
       }
     }
 
-    currentChunk.forget();
+    parserInput.forget();
     returner.args = isSemiColonSeperated ? argsSemiColon : argsComma;
     return returner;
 
-//    args: function (isCall) {
-//        var parsers = parser.parsers, entities = parsers.entities,
-//            returner = { args:null, variadic: false },
-//            expressions = [], argsSemiColon = [], argsComma = [],
-//            isSemiColonSeperated, expressionContainsNamed, name, nameLoop, value, arg;
+//2.2.0
+//  args: function (isCall) {
+//      var entities = parsers.entities,
+//          returner = { args:null, variadic: false },
+//          expressions = [], argsSemiColon = [], argsComma = [],
+//          isSemiColonSeparated, expressionContainsNamed, name, nameLoop, value, arg;
 //
-//        save();
+//      parserInput.save();
 //
-//        while (true) {
-//            if (isCall) {
-//                arg = parsers.detachedRuleset() || parsers.expression();
-//            } else {
-//                parsers.comments();
-//                if (input.charAt(i) === '.' && $re(/^\.{3}/)) {
-//                    returner.variadic = true;
-//                    if ($char(";") && !isSemiColonSeperated) {
-//                        isSemiColonSeperated = true;
-//                    }
-//                    (isSemiColonSeperated ? argsSemiColon : argsComma)
-//                        .push({ variadic: true });
-//                    break;
-//                }
-//                arg = entities.variable() || entities.literal() || entities.keyword();
-//            }
+//      while (true) {
+//          if (isCall) {
+//              arg = parsers.detachedRuleset() || parsers.expression();
+//          } else {
+//              parserInput.commentStore.length = 0;
+//              if (parserInput.currentChar() === '.' && parserInput.$re(/^\.{3}/)) {
+//                  returner.variadic = true;
+//                  if (parserInput.$char(";") && !isSemiColonSeparated) {
+//                      isSemiColonSeparated = true;
+//                  }
+//                  (isSemiColonSeparated ? argsSemiColon : argsComma)
+//                      .push({ variadic: true });
+//                  break;
+//              }
+//              arg = entities.variable() || entities.literal() || entities.keyword();
+//          }
 //
-//            if (!arg) {
-//                break;
-//            }
+//          if (!arg) {
+//              break;
+//          }
 //
-//            nameLoop = null;
-//            if (arg.throwAwayComments) {
-//                arg.throwAwayComments();
-//            }
-//            value = arg;
-//            var val = null;
+//          nameLoop = null;
+//          if (arg.throwAwayComments) {
+//              arg.throwAwayComments();
+//          }
+//          value = arg;
+//          var val = null;
 //
-//            if (isCall) {
-//                // Variable
-//                if (arg.value && arg.value.length == 1) {
-//                    val = arg.value[0];
-//                }
-//            } else {
-//                val = arg;
-//            }
+//          if (isCall) {
+//              // Variable
+//              if (arg.value && arg.value.length == 1) {
+//                  val = arg.value[0];
+//              }
+//          } else {
+//              val = arg;
+//          }
 //
-//            if (val && val instanceof tree.Variable) {
-//                if ($char(':')) {
-//                    if (expressions.length > 0) {
-//                        if (isSemiColonSeperated) {
-//                            error("Cannot mix ; and , as delimiter types");
-//                        }
-//                        expressionContainsNamed = true;
-//                    }
+//          if (val && val instanceof tree.Variable) {
+//              if (parserInput.$char(':')) {
+//                  if (expressions.length > 0) {
+//                      if (isSemiColonSeparated) {
+//                          error("Cannot mix ; and , as delimiter types");
+//                      }
+//                      expressionContainsNamed = true;
+//                  }
 //
-//                    // we do not support setting a ruleset as a default variable - it doesn't make sense
-//                    // However if we do want to add it, there is nothing blocking it, just don't error
-//                    // and remove isCall dependency below
-//                    value = (isCall && parsers.detachedRuleset()) || parsers.expression();
+//                  // we do not support setting a ruleset as a default variable - it doesn't make sense
+//                  // However if we do want to add it, there is nothing blocking it, just don't error
+//                  // and remove isCall dependency below
+//                  value = (isCall && parsers.detachedRuleset()) || parsers.expression();
 //
-//                    if (!value) {
-//                        if (isCall) {
-//                            error("could not understand value for named argument");
-//                        } else {
-//                            restore();
-//                            returner.args = [];
-//                            return returner;
-//                        }
-//                    }
-//                    nameLoop = (name = val.name);
-//                } else if (!isCall && $re(/^\.{3}/)) {
-//                    returner.variadic = true;
-//                    if ($char(";") && !isSemiColonSeperated) {
-//                        isSemiColonSeperated = true;
-//                    }
-//                    (isSemiColonSeperated ? argsSemiColon : argsComma)
-//                        .push({ name: arg.name, variadic: true });
-//                    break;
-//                } else if (!isCall) {
-//                    name = nameLoop = val.name;
-//                    value = null;
-//                }
-//            }
+//                  if (!value) {
+//                      if (isCall) {
+//                          error("could not understand value for named argument");
+//                      } else {
+//                          parserInput.restore();
+//                          returner.args = [];
+//                          return returner;
+//                      }
+//                  }
+//                  nameLoop = (name = val.name);
+//              } else if (!isCall && parserInput.$re(/^\.{3}/)) {
+//                  returner.variadic = true;
+//                  if (parserInput.$char(";") && !isSemiColonSeparated) {
+//                      isSemiColonSeparated = true;
+//                  }
+//                  (isSemiColonSeparated ? argsSemiColon : argsComma)
+//                      .push({ name: arg.name, variadic: true });
+//                  break;
+//              } else if (!isCall) {
+//                  name = nameLoop = val.name;
+//                  value = null;
+//              }
+//          }
 //
-//            if (value) {
-//                expressions.push(value);
-//            }
+//          if (value) {
+//              expressions.push(value);
+//          }
 //
-//            argsComma.push({ name:nameLoop, value:value });
+//          argsComma.push({ name:nameLoop, value:value });
 //
-//            if ($char(',')) {
-//                continue;
-//            }
+//          if (parserInput.$char(',')) {
+//              continue;
+//          }
 //
-//            if ($char(';') || isSemiColonSeperated) {
+//          if (parserInput.$char(';') || isSemiColonSeparated) {
 //
-//                if (expressionContainsNamed) {
-//                    error("Cannot mix ; and , as delimiter types");
-//                }
+//              if (expressionContainsNamed) {
+//                  error("Cannot mix ; and , as delimiter types");
+//              }
 //
-//                isSemiColonSeperated = true;
+//              isSemiColonSeparated = true;
 //
-//                if (expressions.length > 1) {
-//                    value = new(tree.Value)(expressions);
-//                }
-//                argsSemiColon.push({ name:name, value:value });
+//              if (expressions.length > 1) {
+//                  value = new(tree.Value)(expressions);
+//              }
+//              argsSemiColon.push({ name:name, value:value });
 //
-//                name = null;
-//                expressions = [];
-//                expressionContainsNamed = false;
-//            }
-//        }
+//              name = null;
+//              expressions = [];
+//              expressionContainsNamed = false;
+//          }
+//      }
 //
-//        forget();
-//        returner.args = isSemiColonSeperated ? argsSemiColon : argsComma;
-//        return returner;
-//    },
+//      parserInput.forget();
+//      returner.args = isSemiColonSeparated ? argsSemiColon : argsComma;
+//      return returner;
+//  }
   }
 
   ///
@@ -346,19 +354,20 @@ class Mixin {
   /// Once we've got our params list, and a closing `)`, we parse
   /// the `{...}` block.
   ///
+  //2.2.0 ok
   MixinDefinition definition() {
     Condition cond;
-    int index = currentChunk.i; //not in original
+    int index = parserInput.i; //not in original
     String name;
     List<MixinArgs> params = [];
     List<Node> ruleset;
     bool variadic = false;
 
-    if ((currentChunk.charAtPos() != '.' && currentChunk.charAtPos() != '#') || currentChunk.peek(new RegExp(r'^[^{]*\}'))) return null;
+    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') || parserInput.peek(new RegExp(r'^[^{]*\}'))) return null;
 
-    currentChunk.save();
+    parserInput.save();
 
-    name = currentChunk.$re(r'^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(');
+    name = parserInput.$re(r'^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(');
     if (name != null) {
       MixinReturner argInfo = args(false);
       params = argInfo.args;
@@ -369,78 +378,77 @@ class Mixin {
       // also
       // .mixincall(@a: {rule: set;});
       // so we have to be nice and restore
-      if (currentChunk.$char(')') == null) {
-        currentChunk.furthest = currentChunk.i;
-        currentChunk.restore();
+      if (parserInput.$char(')') == null) {
+        //parserInput.furthest = parserInput.i;
+        parserInput.restore("Missing closing ')'");
         return null;
       }
 
-      parsers.comments();
+      parserInput.commentStore.length = 0;
 
-      if (currentChunk.$re(r'^when') != null) { // Guard
-        cond = currentChunk.expect(parsers.conditions, 'expected condition');
+      if (parserInput.$re(r'^when') != null) { // Guard
+        cond = parserInput.expect(parsers.conditions, 'expected condition');
       }
 
       ruleset = parsers.block();
       if (ruleset != null) {
-        currentChunk.forget();
-        return new MixinDefinition(name, params, ruleset, cond, variadic, index, env.currentFileInfo);
+        parserInput.forget();
+        return new MixinDefinition(name, params, ruleset, cond, variadic, index, context.currentFileInfo);
       } else {
-        currentChunk.restore();
+        parserInput.restore();
       }
     } else {
-      currentChunk.forget();
+      parserInput.forget();
     }
 
     return null;
 
-//    definition: function () {
-//        var name, params = [], match, ruleset, cond, variadic = false;
-//        if ((input.charAt(i) !== '.' && input.charAt(i) !== '#') ||
-//            peek(/^[^{]*\}/)) {
-//            return;
-//        }
+//2.2.0
+//  definition: function () {
+//      var name, params = [], match, ruleset, cond, variadic = false;
+//      if ((parserInput.currentChar() !== '.' && parserInput.currentChar() !== '#') ||
+//          parserInput.peek(/^[^{]*\}/)) {
+//          return;
+//      }
 //
-//        save();
+//      parserInput.save();
 //
-//        match = $re(/^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(/);
-//        if (match) {
-//            name = match[1];
+//      match = parserInput.$re(/^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(/);
+//      if (match) {
+//          name = match[1];
 //
-//            var argInfo = this.args(false);
-//            params = argInfo.args;
-//            variadic = argInfo.variadic;
+//          var argInfo = this.args(false);
+//          params = argInfo.args;
+//          variadic = argInfo.variadic;
 //
-//            // .mixincall("@{a}");
-//            // looks a bit like a mixin definition..
-//            // also
-//            // .mixincall(@a: {rule: set;});
-//            // so we have to be nice and restore
-//            if (!$char(')')) {
-//                furthest = i;
-//                restore();
-//                return;
-//            }
+//          // .mixincall("@{a}");
+//          // looks a bit like a mixin definition..
+//          // also
+//          // .mixincall(@a: {rule: set;});
+//          // so we have to be nice and restore
+//          if (!parserInput.$char(')')) {
+//              parserInput.restore("Missing closing ')'");
+//              return;
+//          }
 //
-//            parsers.comments();
+//          parserInput.commentStore.length = 0;
 //
-//            if ($re(/^when/)) { // Guard
-//                cond = expect(parsers.conditions, 'expected condition');
-//            }
+//          if (parserInput.$re(/^when/)) { // Guard
+//              cond = expect(parsers.conditions, 'expected condition');
+//          }
 //
-//            ruleset = parsers.block();
+//          ruleset = parsers.block();
 //
-//            if (ruleset) {
-//                forget();
-//                return new(tree.mixin.Definition)(name, params, ruleset, cond, variadic);
-//            } else {
-//                restore();
-//            }
-//        } else {
-//            forget();
-//        }
-//    }
-//},
+//          if (ruleset) {
+//              parserInput.forget();
+//              return new(tree.mixin.Definition)(name, params, ruleset, cond, variadic);
+//          } else {
+//              parserInput.restore();
+//          }
+//      } else {
+//          parserInput.forget();
+//      }
+//  }
   }
 }
 
