@@ -15,7 +15,7 @@ class Value extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  Node eval(Env env) {
+  Node eval(Contexts env) {
     if (this.value.length == 1) {
       return this.value.first.eval(env);
     } else {
@@ -36,7 +36,7 @@ class Value extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     for (int i = 0; i < this.value.length; i++) {
       this.value[i].genCSS(env, output);
       if (i+1 < this.value.length) output.add((env != null && env.compress) ? ',' : ', ');

@@ -34,7 +34,7 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements E
   bool isCharset() => '@charset' == this.name;
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     Node value = this.value;
     Node rules = this.rules;
     output.add(this.name, this.currentFileInfo, this.index);
@@ -66,7 +66,7 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements E
 //    toCSS: tree.toCSS,
 
   ///
-  Directive eval(Env env) {
+  Directive eval(Contexts env) {
     Node value = this.value;
     Ruleset rules = this.rules;
 

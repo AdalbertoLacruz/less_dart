@@ -3,13 +3,13 @@
 part of visitor.less;
 
 class ToCSSVisitor extends VisitorBase{
-  Env _env;
+  Contexts _env;
 
   bool charset = false;
   bool isReplacing = true;
   Visitor _visitor;
 
-  ToCSSVisitor(Env env) {
+  ToCSSVisitor(Contexts env) {
     this._visitor = new Visitor(this);
     this._env = env;
   }

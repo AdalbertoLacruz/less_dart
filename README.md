@@ -5,10 +5,12 @@
 This is a traslation from less 1.7.5 Javascript (over nodejs) to Dart. 
 Is a pure Dart implementation for the server/developper side.
 
+
 ## Use as Compiler or Transformer
 
 The package is a less compiler with wrappers for use in command line or as a dart 
 transformer. Also, it could be used in other Dart programs.
+
 
 ### pub-run usage
 
@@ -22,6 +24,7 @@ A working example: `CMD> pub run lessc test/less/charsets.less`
 Error output example: `CMD> pub run lessc --no-color test/less/errors/import-subfolder1.less`
 
 For help: `CMD> pub run lessc --help`
+
 
 ### How to use in other dart programs
 
@@ -45,6 +48,7 @@ There is an example:
           stdout.write(less.stdout.toString());
         });
       }
+
 
 ### Use as a Dart Transformer with pub-build or pub-serve
 
@@ -95,16 +99,16 @@ You can also pass options to less_dart if necessary:
 - other_flags - Let add other flags such as (--source-map, ...) in the lessc command line.
 
 
-
 ## Known issues
 
-- Sources from lessc 1.7.5.
+- Sources from lessc 1.7.5+.
 - Pass the standard tests in windows (no tested in linux).
-- Javascript and Dart have different ways to treat null, true, ... Some bugs must be eliminated yet.
 - cleanCSS not implemented yet.
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
 - Added option `--banner=bannerfile.txt`. Could change in next versions according to official version.
-- Javascript evaluation not supported. If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node)
+- Javascript evaluation not supported. 
+  - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node)
+  - Alternatively you can use 'Custom Functions' (see test/custom_functions_test.dart') from your dart program.
 
 
 ## [License](LICENSE)

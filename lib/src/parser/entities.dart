@@ -6,14 +6,14 @@ part of parser.less;
 /// Entities are tokens which can be found inside an Expression
 ///
 class Entities {
-  Env context;
+  Contexts context;
   ParserInput parserInput;
   Parsers parsers; //To reference parsers.expression() and parsers.entity()
   FileInfo fileInfo;
 
   Node node;
 
-  Entities(Env this.context, ParserInput this.parserInput, Parsers this.parsers) {
+  Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
     this.fileInfo = this.context.currentFileInfo;
   }
 

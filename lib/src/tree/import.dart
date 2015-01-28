@@ -88,7 +88,7 @@ class Import extends Node implements EvalNode, ToCSSNode {
 //      },
   }
 
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     if (this.css) {
       output.add('@import ', this.currentFileInfo, this.index);
       this.path.genCSS(env, output);
@@ -130,11 +130,11 @@ class Import extends Node implements EvalNode, ToCSSNode {
   ///
   /// Resolves @var in the path
   /// #
-  Import evalForImport(Env env) => new Import(this.path.eval(env), this.features,
+  Import evalForImport(Contexts env) => new Import(this.path.eval(env), this.features,
       this.options, this.index, this.currentFileInfo);
 
   ///
-  Node evalPath(Env env) {
+  Node evalPath(Contexts env) {
     Node path = this.path.eval(env);
     String rootpath = (this.currentFileInfo != null) ? this.currentFileInfo.rootpath : null;
 
@@ -174,7 +174,7 @@ class Import extends Node implements EvalNode, ToCSSNode {
   /// replaces the @import rule with the imported ruleset
   /// Returns Node or List<Node>
   ///
-   eval(Env env) {
+   eval(Contexts env) {
     Node features = (this.features != null) ? this.features.eval(env) : null;
 
     if (this.skip != null) {

@@ -16,7 +16,7 @@ class DetachedRuleset extends Node implements EvalNode {
   }
 
   ///
-  DetachedRuleset eval(Env env) {
+  DetachedRuleset eval(Contexts env) {
     List<Node> frames = getValueOrDefault(this.frames, env.frames.sublist(0));
     return new DetachedRuleset(this.ruleset, frames);
 
@@ -27,8 +27,8 @@ class DetachedRuleset extends Node implements EvalNode {
   }
 
   ///
-  Ruleset callEval(Env env) {
-    Env ctx = (this.frames != null) ? new Env.evalEnv(env, this.frames.sublist(0)..addAll(env.frames)) : env;
+  Ruleset callEval(Contexts env) {
+    Contexts ctx = (this.frames != null) ? new Contexts.eval(env, this.frames.sublist(0)..addAll(env.frames)) : env;
     return this.ruleset.eval(ctx);
 
 //    callEval: function (env) {

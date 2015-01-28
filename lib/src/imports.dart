@@ -1,9 +1,9 @@
 // source: less/parser.js 1.7.5 lines 61-111
 
-part of env.less;
+part of contexts.less;
 
 class Imports {
-  Env env;
+  Contexts env;
 
   /// Holds the imported file contents
   Map<String, String> contents;
@@ -29,7 +29,7 @@ class Imports {
   String rootFilename; // Initialized by parser
 
   ///
-  Imports(Env this.env) {
+  Imports(Contexts this.env) {
     paths = this.env.paths != null ? this.env.paths : [];
     files = this.env.files;
     contents = this.env.contents;
@@ -59,7 +59,7 @@ class Imports {
         FileInfo newFileInfo = importer.newFileInfo;
         String contents = data;
 
-        Env newEnv = new Env.parseEnv(env)
+        Contexts newEnv = new Contexts.parse(env)
             ..currentFileInfo = newFileInfo
             ..processImports = false
             ..contents[fullPath] = contents;

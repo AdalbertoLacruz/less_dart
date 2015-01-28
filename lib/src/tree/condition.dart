@@ -24,7 +24,7 @@ class Condition extends Node implements EvalNode {
   ///
   /// Compare (lvalue op rvalue) returning true or false
   /// #
-  bool eval(Env env) {
+  bool eval(Contexts env) {
     var a = this.lvalue.eval(env);
     var b = this.rvalue.eval(env);
 

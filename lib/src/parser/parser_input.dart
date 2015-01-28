@@ -3,24 +3,23 @@
 part of parser.less;
 
 class ParserInput {
-  Env env;
-  List<String> chunks; // chunkified input
+  String input;         // Less input string
+  Contexts context;
 
   bool autoCommentAbsorb = true;
+  List<String> chunks; // chunkified input
   List<CommentPointer> commentStore = [];
   String current;       // current chunk
   int currentPos = 0;   // index of current chunk, in `input`. current[0] == input[currentPos]
   int i = 0;            // current index in `input`
-  String input;         // Less input string
   bool finished = false;
   int furthest = 0;     // furthest index the parser has gone to
   String furthestPossibleErrorMessage; // if this is furthest we got to, this is the probably cause
   int j = 0;            // current chunk in chunks[j]
   List saveStack = [];  // holds state for backtracking
 
-  ParserInput(Env this.env, List<String> this.chunks) {
-    input = env.input;
-    current = (chunks.isEmpty) ? '' : chunks[0];
+  ParserInput(String this.input, Contexts this.context) {
+    start(this.input, context.chunkInput);
   }
 
   ///
@@ -305,7 +304,6 @@ class ParserInput {
   }
 
   ///
-  /// true is skip
   //2.2.0 ok
   bool skipWhitespace(int length) {
     int oldi = i;
@@ -331,7 +329,7 @@ class ParserInput {
           continue;
         } else if (nextChar == '*') {
           String haystack = input.substring(i);
-          RegExp reg = new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/'); //TODO test
+          RegExp reg = new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/');
           Match comment_search_result = reg.firstMatch(haystack);
           if (comment_search_result != null) {
             comment = new CommentPointer(
@@ -426,71 +424,12 @@ class ParserInput {
 //    };
   }
 
-// 1.7.5 lines 197-226
-//  bool skipWhitespace(int length) {
-//    int oldi = i;
-//    int oldj = j;
-//    int curr = i - currentPos;
-//    int endIndex = i + current.length - curr;
-//    int mem = (i += length);
-//    String inp = input;
-//    int c; //char
-//
-//    for (; i < endIndex; i++) {
-//      c = inp.codeUnitAt(i);
-//      if (c > 32) break;
-//      if ((c != 32) && (c != 10) && (c != 9) && (c != 13)) break;
-//    }
-//
-//    current = current.substring(length + i - mem + curr);
-//    currentPos = i;
-//
-//    if (current.length == 0 && (j < chunks.length - 1)) {
-//      current = chunks[++j];
-//      skipWhitespace(0); // skip space at the beginning of a chunk
-//      return true; // things changed
-//    }
-//
-//    return (oldi != i || oldj != j);
-//
-////1.7.5
-////  function skipWhitespace(length) {
-////      var oldi = i, oldj = j,
-////          curr = i - currentPos,
-////          endIndex = i + current.length - curr,
-////          mem = (i += length),
-////          inp = input,
-////          c;
-////
-////      for (; i < endIndex; i++) {
-////          c = inp.charCodeAt(i);
-////          if (c > 32) {
-////              break;
-////          }
-////
-////          if ((c !== 32) && (c !== 10) && (c !== 9) && (c !== 13)) {
-////              break;
-////          }
-////       }
-////
-////      current = current.slice(length + i - mem + curr);
-////      currentPos = i;
-////
-////      if (!current.length && (j < chunks.length - 1)) {
-////          current = chunks[++j];
-////          skipWhitespace(0); // skip space at the beginning of a chunk
-////          return true; // things changed
-////      }
-////
-////      return oldi !== i || oldj !== j;
-////  }
-//  }
-
   ///
   /// [arg] Function (?), RegExp or String
   /// [index] ????
   /// return String or List<String>
   ///
+  // parser.js 2.2.0 46-54
   expect(arg, [String msg, int index]) {
     String message = msg;
 
@@ -502,13 +441,14 @@ class ParserInput {
     }
     error(message);
 
+//2.2.0
 //  function expect(arg, msg, index) {
 //      // some older browsers return typeof 'function' for RegExp
-//      var result = (Object.prototype.toString.call(arg) === '[object Function]') ? arg.call(parsers) : $(arg);
+//      var result = (Object.prototype.toString.call(arg) === '[object Function]') ? arg.call(parsers) : parserInput.$(arg);
 //      if (result) {
 //          return result;
 //      }
-//      error(msg || (typeof(arg) === 'string' ? "expected '" + arg + "' got '" + input.charAt(i) + "'"
+//      error(msg || (typeof(arg) === 'string' ? "expected '" + arg + "' got '" + parserInput.currentChar() + "'"
 //                                             : "unexpected token"));
 //  }
   }
@@ -516,38 +456,47 @@ class ParserInput {
   ///
   /// Specialization of expect()
   ///
+  //parser.js 2.2.0 56-62
   String expectChar(String arg, [String msg]) {
-    if (currentChar() == arg) {
-      skipWhitespace(1);
-      return arg;
-    }
+//    if (currentChar() == arg) {
+//      skipWhitespace(1);
+//      return arg;
+//    }
+    if ($char(arg) != null) return arg;
 
     String message = msg != null ? msg : "expected '$arg' got '${currentChar()}'";
     return error(message);
 
+//2.2.0
 //  function expectChar(arg, msg) {
-//      if (input.charAt(i) === arg) {
-//          skipWhitespace(1);
+//      if (parserInput.$char(arg)) {
 //          return arg;
 //      }
-//      error(msg || "expected '" + arg + "' got '" + input.charAt(i) + "'");
+//      error(msg || "expected '" + arg + "' got '" + parserInput.currentChar() + "'");
 //  }
   }
 
   ///
+  //parser.js 2.2.0 lines 64-74
   error(String msg, [String type]) {
     LessError e = new LessError(
         index: i,
         type: type != null ? type :  'Syntax',
         message: msg,
-        env: env);
+        context: context);
     throw new LessExceptionError(e);
 
+//2.2.0
 //  function error(msg, type) {
-//      var e = new Error(msg);
-//      e.index = i;
-//      e.type = type || 'Syntax';
-//      throw e;
+//      throw new LessError(
+//          {
+//              index: parserInput.i,
+//              filename: fileInfo.filename,
+//              type: type || 'Syntax',
+//              message: msg
+//          },
+//          imports
+//      );
 //  }
   }
 
@@ -617,13 +566,15 @@ class ParserInput {
   /// this is officially deprecated but can be switched on via an option
   /// in the case it causes too much performance issues.
   ///
-  void start(String str, bool chunkInput, Function failFunction){
-    input = str;
+  void start(String str, bool chunkInput){
+    //input = str;
     i = j = currentPos = furthest = 0;
 
     if (chunkInput) {
+      chunks = new Chunker(str, context).getChunks();
       //chunks = chunker(str, failFunction); //TODO pte upgrade 2.2.0
     } else {
+      //env.input = str;
       chunks = [str];
     }
 
@@ -718,8 +669,8 @@ class ParserInput {
           type: 'Parse',
           message: message,
           index: endInfo.furthest,
-          filename: env.currentFileInfo.filename,
-          env: env);
+          filename: context.currentFileInfo.filename,
+          context: context);
       throw new LessExceptionError(error);
     }
 

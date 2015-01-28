@@ -19,7 +19,7 @@ class Operation extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  eval(Env env) {
+  eval(Contexts env) {
     Node a = this.operands[0].eval(env);
     Node b = this.operands[1].eval(env);
 
@@ -61,7 +61,7 @@ class Operation extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     this.operands[0].genCSS(env, output);
     if (this.isSpaced) output.add(' ');
     output.add(this.op);
@@ -73,7 +73,7 @@ class Operation extends Node implements EvalNode, ToCSSNode {
 
   ///
   //Original out of class (operate)
-  static num operateExec(Env env, String op, num a, num b) {
+  static num operateExec(Contexts env, String op, num a, num b) {
     switch (op) {
         case '+': return a + b;
         case '-': return a - b;

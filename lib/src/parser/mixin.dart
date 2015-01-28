@@ -7,14 +7,14 @@ part of parser.less;
  */
 
 class Mixin {
-  Env context;
+  Contexts context;
   ParserInput parserInput;
   Parsers parsers;
   Entities entities;
 
   FileInfo fileInfo;
 
-  Mixin(Env this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
+  Mixin(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
     this.fileInfo = context.currentFileInfo;
   }
 

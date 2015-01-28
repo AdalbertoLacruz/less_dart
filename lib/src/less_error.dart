@@ -2,8 +2,8 @@
 
 library error.less;
 
-import 'env.dart';
-import 'less_debug_info.dart';
+import 'contexts.dart';
+import 'utils.dart';
 
 class LessError {
   /// error type
@@ -41,11 +41,8 @@ class LessError {
 
   bool silent = false;
 
-  /// error object to be constructed outside
-  //LessError.empty();
-
   // less/parser.js 1.7.5 lines 309-331
-  LessError({int call, Env env, int index, String filename, String message, StackTrace stack, String type}) {
+  LessError({int call, Contexts context, int index, String filename, String message, StackTrace stack, String type}) {
     this.call = call;
     this.index = index;
     this.filename = filename;
@@ -53,22 +50,22 @@ class LessError {
     this.stack = stack;
     this.type = type;
 
-    if (env != null) addFileInformation(env);
+    if (context != null) addFileInformation(context);
   }
 
   ///
-  /// Completes the error with line, col error in input
+  /// Completes the error with line, col in input
   ///
-  addFileInformation(Env env) {
-    if (this.filename == null) this.filename = (env.currentFileInfo != null) ? env.currentFileInfo.filename : null;
+  addFileInformation(Contexts context) {
+    if (this.filename == null) this.filename = (context.currentFileInfo != null) ? context.currentFileInfo.filename : null;
     if (this.type == null) this.type = 'Syntax';
 
-    String input = getInput(this.filename, env);
+    String input = getInput(this.filename, context);
     if (input != null && this.index != null) {
-      LessErrorLocation loc = getLocation(this.index, input);
+      LocationPoint loc = Utils.getLocation(this.index, input);
       int line = loc.line;
       int col = loc.column;
-      int callLine = (this.call != null) ? getLocation(this.call, input).line : 0;
+      int callLine = (this.call != null) ? Utils.getLocation(this.call, input).line : 0;
       List<String> lines = input.split('\n');
 
       this.line = (line is num)? line + 1 : null;
@@ -80,16 +77,16 @@ class LessError {
         getLine(lines, line),
         getLine(lines, line + 1)
         ];
-      this.color = env.color;
+      this.color = context.color;
       this.isSimplyFormat = false;
     }
-    this.silent = env.silent;
+    this.silent = context.silent;
   }
 
   ///
-  /// Transform un error [e] to LessError and completes some error information
+  /// Transforms un error [e] to LessError and completes some error information
   ///
-  static transform(e, {int index, String filename, String message, String type, StackTrace stackTrace, Env env}) {
+  static transform(e, {int index, String filename, String message, String type, StackTrace stackTrace, Contexts context}) {
     LessError error;
     if (e is LessExceptionError) error = e.error;
     if (error == null) error = (e is LessError) ? e : new LessError();
@@ -99,9 +96,8 @@ class LessError {
       error.message = (e != null && e is! LessError) ? e.toString() : message;
     }
     if (error.type == null) error.type = type;
-    //error.isSimplyFormat = true;
     if (error.stack == null) error.stack = stackTrace;
-    if (env != null) error.addFileInformation(env);
+    if (context != null) error.addFileInformation(context);
     return error;
   }
 
@@ -111,80 +107,29 @@ class LessError {
   static String getMessage(e) {
     if (e is LessExceptionError) return e.error.message;
     if (e is LessError) return e.message;
-    //return e.toString(); ??
     return '';
   }
-  /**
-   * return null if [line] is out of range in [lines]
-   */
+
+  ///
+  /// Returns null if [line] is out of range in [lines]
+  ///
   String getLine(List<String> lines, int line) {
     if ((line >= 0) && (line <= lines.length -1)) return lines[line];
     return null;
   }
 
-  /**
-   * return the source code associated to the error
-   * [filename] is the error source
-   */
+  ///
+  /// Returns the source code associated to the error
+  /// [filename] is the error source
+  ///
   // less/parser.js 1.7.5 lines 270-276
-  String getInput(String filename, Env env) {
-    if ((filename != null) && (env.currentFileInfo != null) && (env.currentFileInfo.filename != null) && (filename != env.currentFileInfo.filename)) {
-      return env.imports.contents[filename];
+  String getInput(String filename, Contexts context) {
+    if ((filename != null) && (context.currentFileInfo != null) && (context.currentFileInfo.filename != null) && (filename != context.currentFileInfo.filename)) {
+      return context.imports.contents[filename];
     } else {
-      return env.input;
+      return context.input;
     }
   }
-
-  /**
-   * return line and column corresponding to error
-   * [index] is the error character position in [inputStream]
-   */
-  // less/parser.js 1.7.5 lines 278-295
-  static LessErrorLocation getLocation(int index, String inputStream) {
-    int n = index + 1;
-    int line;
-    int column = -1;
-    RegExp regLine = new RegExp('\n');
-
-    while ((--n >= 0) && (inputStream.codeUnitAt(n) != 10)) { //'\n'
-      var char = inputStream.codeUnitAt(n);
-      column++;
-    }
-    if (column < 0) column = 0;
-
-    if (index is num) {
-      line = regLine.allMatches(inputStream.substring(0, index)).length;
-    }
-
-    return new LessErrorLocation(
-        line: line,
-        column: column
-        );
-  }
-
-  // less/parser.js 1.7.5 lines 297-307
-  static LessDebugInfo getDebugInfo(int index, String inputStream, Env env) {
-    String filename = env.currentFileInfo.filename;
-
-    //if(less.mode !== 'browser' && less.mode !== 'rhino') {
-    //  filename = require('path').resolve(filename);
-    //}
-
-    return new LessDebugInfo(
-        lineNumber: getLocation(index, inputStream).line + 1,
-        fileName: filename);
-  }
-}
-
-/**
- * error coordinates in file
- * ex. new LessErrorLocation({line: 9, column: 30});
- */
-class LessErrorLocation {
-  int line;
-  int column;
-
-  LessErrorLocation({int this.line, int this.column});
 }
 
 //Style for LessExceptionError.stylize
@@ -198,7 +143,7 @@ const int STYLE_RED         = 6;
 const int STYLE_GREY        = 7;
 
 class LessExceptionError implements Exception {
-  /// compound information about the error and environment
+  /// compound information about the error and context
   final LessError error;
   bool _color;
 
@@ -207,7 +152,7 @@ class LessExceptionError implements Exception {
     if (_color == null) _color = false;
   }
 
-  /// return only type and message error
+  /// Returns only type and message error
   String simplyFormatError() {
     String result = '';
     if (error.type != null) result += '${error.type}Error: ';
@@ -216,10 +161,10 @@ class LessExceptionError implements Exception {
     return result;
   }
 
-  /**
-   * return the full message with information about error,
-   * file, line & column position e including 3 lines from source
-   */
+  ///
+  /// Returns the full message with information about error,
+  /// file, line & column position and includes 3 lines from source
+  ///
   // less/index.js 1.7.5 lines 44-92
   String formatError() {
     if (error.type == null) error.type = 'Syntax';
@@ -276,11 +221,12 @@ class LessExceptionError implements Exception {
   /// Stylize [str] in reset
   String stReset(String str) => stylize(str, STYLE_RESET);
 
-  /**
-   * Stylize a string
-   * [str] String to transform with [style]
-   * [style] is defined with a const as STYLE_RED ...
-   */
+  ///
+  /// Stylizes a string
+  ///
+  /// [str] String to transform with [style]
+  /// [style] is defined with a const as STYLE_RED ...
+  ///
   // less/lessc_helper.js 1.7.5 lines 07-20
   String stylize(String str, int style) {
     if (!_color) return (str);

@@ -9,9 +9,9 @@ class UnicodeDescriptor extends Node implements EvalNode, ToCSSNode {
 
   UnicodeDescriptor(String this.value);
 
-  UnicodeDescriptor eval(Env env) => this;
+  UnicodeDescriptor eval(Contexts env) => this;
 
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add(this.value);
   }
 

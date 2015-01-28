@@ -38,7 +38,7 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add('@media ', this.currentFileInfo, this.index);
     this.features.genCSS(env, output);
     outputRuleset(env, output, this.rules);
@@ -47,7 +47,7 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
 //    toCSS: tree.toCSS,
 
   ///
-  eval(Env env) {
+  eval(Contexts env) {
     if (env.mediaBlocks == null) {
       env.mediaBlocks = [];
       env.mediaPath = [];
@@ -171,7 +171,7 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
   }
 
   /// returns Media or Ruleset
-  Node evalTop(Env env) {
+  Node evalTop(Contexts env) {
     Node result = this;
 
     // Render all dependent Media blocks.
@@ -203,7 +203,7 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
 //    },
   }
 
-  Node evalNested(Env env) {
+  Node evalNested(Contexts env) {
     var value; //Node or List
     List<Media> mediaPath = env.mediaPath.sublist(0)..add(this);
     List<List<Node>> path = [];

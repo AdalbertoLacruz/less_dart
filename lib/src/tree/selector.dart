@@ -203,7 +203,7 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
                                   || this.elements[0].combinator.value == '');
 
   ///
-  Selector eval(Env env) {
+  Selector eval(Contexts env) {
     bool evaldCondition;
     if (this.condition != null) evaldCondition = this.condition.eval(env); //evaldCondition null is ok
     List<Element> elements = this.elements;
@@ -229,10 +229,10 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   /// Writes Selector as String in [output]:
   ///  ' selector'. White space prefixed.
   /// #
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     Element element;
 
-    if ((env == null || !isTrue(env.firstSelector)) && this.elements[0].combinator.value == '') {
+    if ((env == null || !env.firstSelector) && this.elements[0].combinator.value == '') {
       output.add(' ', this.currentFileInfo, this.index);
     }
     if (!isNotEmpty(this._css)) {

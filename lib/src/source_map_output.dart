@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:source_maps/source_maps.dart';
 import 'package:source_span/source_span.dart';
 
-import 'env.dart';
+import 'contexts.dart';
 import 'file_info.dart';
 import 'output.dart';
 import 'nodejs/nodejs.dart';
@@ -202,7 +202,7 @@ class SourceMapOutput extends Output{
   }
 
   ///
-  String toCSS(Env env) {
+  String toCSS(Contexts env) {
     String sourceMapContent;
     String sourceMapURL = '';
     Map<String, String> contents = {};

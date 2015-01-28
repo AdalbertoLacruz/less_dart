@@ -18,10 +18,10 @@ class Keyword extends Node implements CompareNode, EvalNode, ToCSSNode {
   }
 
   ///
-  Keyword eval(Env env) => this;
+  Keyword eval(Contexts env) => this;
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     if (this.value == '%') {
       throw new LessExceptionError(new LessError(
           type: 'Syntax',

@@ -15,13 +15,13 @@ class Alpha extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  Alpha eval(Env env) {
+  Alpha eval(Contexts env) {
     if (this.value is EvalNode) return new Alpha(this.value.eval(env));
     return this;
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add('alpha(opacity=');
 
     if (this.value is ToCSSNode) {

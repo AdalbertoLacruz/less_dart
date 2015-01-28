@@ -29,12 +29,12 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
   }
 
   ///
-  Dimension eval(Env env) => this;
+  Dimension eval(Contexts env) => this;
 
   ///
   Color toColor() => new Color([this.value, this.value, this.value]);
 
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     if ((env != null && isTrue(env.strictUnits)) && !this.unit.isSingular()) {
       throw new LessExceptionError(new LessError(
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
@@ -104,7 +104,7 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
   /// we default to the first Dimension's unit,
   /// so `1px + 2` will yield `3px`.
   ///
-  Dimension operate(Env env, String op, Dimension other) {
+  Dimension operate(Contexts env, String op, Dimension other) {
     num value = Operation.operateExec(env, op, this.value, other.value);
     Unit unit = this.unit.clone();
 

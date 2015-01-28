@@ -15,7 +15,7 @@ class Negative extends Node implements EvalNode, ToCSSNode {
   }
 
   /// ><
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add('-');
     this.value.genCSS(env, output);
   }
@@ -23,7 +23,7 @@ class Negative extends Node implements EvalNode, ToCSSNode {
 //    toCSS: tree.toCSS,
 
   ///
-  eval(Env env) {
+  eval(Contexts env) {
     if (env.isMathOn()) {
       return (new Operation('*', [new Dimension(-1), this.value])).eval(env);
     }

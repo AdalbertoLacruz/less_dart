@@ -8,7 +8,7 @@ class ImportVisitor extends VisitorBase {
   ImportDetector  onceFileDetectionMap;
   ImportDetector  recursionDetector;
 
-  Env     env;
+  Contexts     env;
   bool    isReplacing = true;
   Visitor _visitor;
 
@@ -18,11 +18,11 @@ class ImportVisitor extends VisitorBase {
   ///
   /// Structure to search for @import in the tree.
   ///
-  ImportVisitor(Imports this.importer, [Env evalEnv, ImportDetector onceFileDetectionMap,
+  ImportVisitor(Imports this.importer, [Contexts evalEnv, ImportDetector onceFileDetectionMap,
       ImportDetector recursionDetector]){
 
     this._visitor = new Visitor(this);
-    this.env = (evalEnv != null) ? evalEnv : new Env.evalEnv();
+    this.env = (evalEnv != null) ? evalEnv : new Contexts.eval();
 
     this.onceFileDetectionMap = ImportDetector.own(onceFileDetectionMap);
     this.recursionDetector = ImportDetector.clone(recursionDetector);
@@ -84,7 +84,7 @@ class ImportVisitor extends VisitorBase {
         runners.add(completer.future);
         importNode = evaldImportNode;
         //this.importCount++;
-        Env env = new Env.evalEnvClone(this.env, this.env.frames.sublist(0));
+        Contexts env = new Contexts.eval(this.env, this.env.frames.sublist(0));
         if (isTrue(importNode.options.multiple)) env.importMultiple = true;
 
         this.importer.push(importNode.getPath(), importNode.currentFileInfo, importNode.options).then((ImportedFile importedFile){

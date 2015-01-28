@@ -4,12 +4,12 @@
 #divRed {
   height: 100px;
   background-color: #ff0000;
-  border: 2px dotted #000000;
+  border: 2px dotted black;
 }
 #divGrey {
   height: 100px;
   background-color: #808080;
-  border: 2px dotted #000000;
+  border: 2px dotted black;
 }
 #hBlue {
   text-align: center;

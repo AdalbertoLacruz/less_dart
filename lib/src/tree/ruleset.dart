@@ -41,7 +41,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
   // ********************************* entry point ***********************************
 
   ///
-  eval(Env env) {
+  eval(Contexts env) {
     List<Selector> thisSelectors = this.selectors;
     List<Selector> selectors;
     int selCnt;
@@ -64,7 +64,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
       defaultFunc.error(new LessError(
         type: 'Syntax',
         message: 'it is currently only allowed in parametric mixin guards,',
-        env: env
+        context: env
       ));
       for (i = 0; i < selCnt; i++) {
         selector = thisSelectors[i].eval(env);
@@ -328,7 +328,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
   ///
   /// Analyze the rules for @import, loading the new nodes
   ///
-  void evalImports(Env env) {
+  void evalImports(Contexts env) {
     List<Node> rules = this.rules;
     List<Node> importRules;
     var evalImport;
@@ -387,7 +387,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
   }
 
   ///
-  bool matchArgs(List<MixinArgs> args, Env env) => (args == null || args.isEmpty);
+  bool matchArgs(List<MixinArgs> args, Contexts env) => (args == null || args.isEmpty);
 
 //  matchArgs: function (args) {
 //      return !args || args.length === 0;
@@ -398,11 +398,11 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
   ///
   /// lets you call a css selector with a guard
   ///
-  bool matchCondition(List<MixinArgs>args, Env env) {
+  bool matchCondition(List<MixinArgs>args, Contexts env) {
     Selector lastSelector = this.selectors.last;
     if (!lastSelector.evaldCondition) return false;
     if (lastSelector.condition != null &&
-        !lastSelector.condition.eval(new Env.evalEnv(env, env.frames))) return false;
+        !lastSelector.condition.eval(new Contexts.eval(env, env.frames))) return false;
 
     return true;
 
@@ -441,7 +441,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
   }
 
 
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     int i;
     int j;
     List<Node> charsetRuleNodes = [];
@@ -1059,14 +1059,14 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
 
   //parser.js 1.7.5 lines 514-627
   /// Main entry to convert the tree to CSS
-  String rootToCSS(LessOptions options, Env env, [Map<String, Node> variables]) {
+  String rootToCSS(LessOptions options, Contexts env, [Map<String, Node> variables]) {
     String css;
     var evaldRoot; //Ruleset or source_map_output
     Node evaluate = this;
     int i;
     if (options == null) options = new LessOptions();
 
-    Env evalEnv = new Env.evalEnv(options);
+    Contexts evalEnv = new Contexts.eval(options);
 
     // Allows setting variables with a hash, so:
     //
@@ -1099,7 +1099,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
       List<VisitorBase> visitors = [
                        new JoinSelectorVisitor(),
                        new ProcessExtendsVisitor(),
-                       new ToCSSVisitor(new Env()
+                       new ToCSSVisitor(new Contexts()
                                           ..compress = options.compress)
                        ];
 
@@ -1146,7 +1146,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
             );
       }
 
-      css = evaldRoot.toCSS(new Env()
+      css = evaldRoot.toCSS(new Contexts()
               ..compress = options.compress
               ..dumpLineNumbers = options.dumpLineNumbers
               ..strictUnits = options.strictUnits
@@ -1154,7 +1154,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, MakeImportant
               ).toString();
 
     } catch (e, s) {
-      LessError error = LessError.transform(e, env: env);
+      LessError error = LessError.transform(e, context: env);
       throw new LessExceptionError(error);
     }
 

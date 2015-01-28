@@ -10,7 +10,9 @@ import 'src/nodejs/nodejs.dart';
 import 'src/parser/parser.dart';
 import 'src/tree/tree.dart';
 
+export 'src/functions/functions.dart' show FunctionBase, defineMethod;
 export 'src/less_options.dart';
+export 'src/tree/tree.dart';
 
 class Less {
   StringBuffer stdin  = new StringBuffer();
@@ -134,7 +136,7 @@ class Less {
         try {
           if (_options.lint) writeSourceMap = (String output){};
           css = tree.rootToCSS((_options.clone()
-                              ..writeSourceMap = writeSourceMap), parser.env);
+                              ..writeSourceMap = writeSourceMap), parser.context);
           if (!_options.lint) {
             if (_options.output.isNotEmpty) {
               //ensureDirectory(output);

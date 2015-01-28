@@ -32,16 +32,18 @@ part of parser.less;
 ///  first, before parsing, that's when we use `peek()`.
 ///
 class Parsers {
-  Env context;
+  String input;
+  Contexts context;
   ParserInput parserInput;
 
   Entities entities;
-  FileInfo fileInfo; //TODO 2.2.0 pass as parameter?
+  FileInfo fileInfo;
   Mixin mixin;
 
-  Parsers(Env this.context, List<String>chunks){
+  Parsers(String this.input, Contexts this.context){
+    context.input = input;
     fileInfo = context.currentFileInfo;
-    parserInput = new ParserInput(context, chunks);
+    parserInput = new ParserInput(input, context);
     entities = new Entities(context, parserInput, this);
     mixin = new Mixin(context, parserInput, this, entities);
   }
@@ -671,7 +673,7 @@ class Parsers {
   ///
   // div, .class, body > p {...}
   ///
-  //2.2.0 TODO upgrading
+  //2.2.0 ok
   Ruleset ruleset() {
     LessDebugInfo debugInfo;
     List<Node> rules;
@@ -681,8 +683,7 @@ class Parsers {
     parserInput.save();
 
     if (isNotEmpty(context.dumpLineNumbers)) {
-      //debugInfo = LessError.getDebugInfo(parserInput.i); //2.2.0 TODO
-      debugInfo = LessError.getDebugInfo(parserInput.i, parserInput.input, context); //1.7.5
+      debugInfo = getDebugInfo(parserInput.i);
     }
 
     while (true) {
@@ -1324,7 +1325,7 @@ class Parsers {
   }
 
   ///
-  //TODO upgrade 2.2.0
+  //2.2.0 ok
   Media media() {
     LessDebugInfo debugInfo;
     List<Node> features;
@@ -1332,8 +1333,7 @@ class Parsers {
     List<Node> rules;
 
     if (isNotEmpty(context.dumpLineNumbers)) {
-      //debugInfo = LessError.getDebugInfo(parserInput.i); //TODO 2.2.0
-      debugInfo = LessError.getDebugInfo(parserInput.i, parserInput.input, context); //1.7.5
+      debugInfo = getDebugInfo(parserInput.i);
     }
 
     if (parserInput.$re(r'^@media') != null) {
@@ -1376,7 +1376,7 @@ class Parsers {
   ///
   ///     @charset "utf-8";
   ///
-  //2.2.0 TODO upgrade
+  //2.2.0 ok
   Node directive() {
     bool hasBlock = true;
     bool hasExpression = false;
@@ -1470,8 +1470,7 @@ class Parsers {
       parserInput.forget();
       return new Directive(name, value, rules, index, fileInfo,
           isNotEmpty(context.dumpLineNumbers)
-          //? LessError.getDebugInfo(index) //2.2.0 TODO
-          ? LessError.getDebugInfo(index, parserInput.input, context) //1.7.5
+          ? getDebugInfo(index)
           : null);
     }
 
@@ -2143,5 +2142,28 @@ class Parsers {
 //
 //      return s;
 //  };
+  }
+
+  ///
+  /// Returns filename and line corresponding to [index]
+  ///
+  // less/parser.js 2.2.0 lines 76-84
+  LessDebugInfo getDebugInfo(int index, [String xinputStream, Contexts xcontext]) {
+    String filename = fileInfo.filename;
+
+    return new LessDebugInfo(
+        lineNumber: Utils.getLocation(index, input).line + 1,
+        fileName: filename);
+
+//2.2.0
+//  function getDebugInfo(index) {
+//      var filename = fileInfo.filename;
+//
+//
+//      return {
+//          lineNumber: utils.getLocation(index, parserInput.getInput()).line + 1,
+//          fileName: filename
+//      };
+//  }
   }
 }

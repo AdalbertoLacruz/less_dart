@@ -5,11 +5,12 @@ library parser.less;
 import 'dart:async';
 import 'dart:io';
 
-import '../env.dart';
+import '../contexts.dart';
 import '../file_info.dart';
 import '../less_debug_info.dart';
 import '../less_error.dart';
 import '../less_options.dart';
+import '../utils.dart';
 import '../nodejs/nodejs.dart';
 import '../tree/tree.dart';
 import '../visitor/visitor_base.dart';
@@ -54,17 +55,16 @@ part 'parsers.dart';
  */
 class Parser {
   String input;   // LeSS input string
-  List<String> chunks;  // chunkified input
   //var rootFilename = env && env.filename; --> inicializacion TODO
 
   Imports imports;
-  Env env;
+  Contexts context;
   Parsers parsers;
   String preText = '';
 
   Parser(LessOptions options){
-    env = new Env.parseEnv(options);
-    imports = new Imports(env);
+    context = new Contexts.parse(options);
+    imports = new Imports(context);
     if (options.banner.isNotEmpty) {
       try {
         preText = new File(options.banner).readAsStringSync();
@@ -72,8 +72,8 @@ class Parser {
     }
   }
 
-  Parser.fromRecursive(Env this.env) {
-    imports = new Imports(this.env);
+  Parser.fromRecursive(Contexts this.context) {
+    imports = new Imports(this.context);
   }
 
   //  parse: function (str, callback, additionalData)
@@ -104,7 +104,7 @@ class Parser {
     if (preText.isNotEmpty) {
       preText = preText.replaceAll('\r\n', '\n');
       str = preText + str;
-      imports.contentsIgnoredChars[env.currentFileInfo.filename] = preText.length;
+      imports.contentsIgnoredChars[context.currentFileInfo.filename] = preText.length;
       preText = ''; // avoid banner in @import
     }
 
@@ -113,18 +113,11 @@ class Parser {
     // Remove potential UTF Byte Order Mark
 //  input = str = preText + str.replace(/^\uFEFF/, '') + modifyVars;
     input = str = str.replaceAll(new RegExp(r'^\uFEFF'), '');
-    imports.contents[env.currentFileInfo.filename] = str;
-    imports.rootFilename = env.currentFileInfo.filename;
+    imports.contents[context.currentFileInfo.filename] = str;
+    imports.rootFilename = context.currentFileInfo.filename;
 
-    env.imports = imports;
-    try {
-      // Split the input into chunks.
-      chunks = new Chunker(env, str).getChunks();
-    } catch (e) {
-      return new Future.error(e);
-    }
-
-    parsers = new Parsers(env, chunks);
+    context.imports = imports;
+    context.input = str;
 
     // Start with the primary rule.
     // The whole syntax tree is held under a Ruleset node,
@@ -132,23 +125,22 @@ class Parser {
     // output. The callback is called when the input is parsed.
 
     try {
-      parsers.parserInput.skipWhitespace(0); //TODO move other side
+      parsers = new Parsers(str, context);
       root = new Ruleset(null, parsers.primary());
       root.root = true;
       root.firstRoot = true;
       parsers.isFinished();
 
-      if (env.processImports) {
-        ImportVisitor importVisitor = new ImportVisitor(this.imports);
-        return importVisitor.run(root).then((_){
+      if (context.processImports) {
+        return new ImportVisitor(this.imports).run(root).then((_){
             return new Future.value(root);
         }).catchError((e){
-          LessError error = LessError.transform(e, type: 'Import', env: env);
+          LessError error = LessError.transform(e, type: 'Import', context: context);
           throw new LessExceptionError(error);
         });
       }
     } catch (e, s) {
-      LessExceptionError error = new LessExceptionError(LessError.transform(e, stackTrace: s, env: env));
+      LessExceptionError error = new LessExceptionError(LessError.transform(e, stackTrace: s, context: context));
       return new Future.error(error);
     }
 

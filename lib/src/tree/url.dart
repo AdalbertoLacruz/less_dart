@@ -18,7 +18,7 @@ class URL extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  void genCSS(Env context, Output output) {
+  void genCSS(Contexts context, Output output) {
     output.add('url(');
     this.value.genCSS(context, output);
     output.add(')');
@@ -28,7 +28,7 @@ class URL extends Node implements EvalNode, ToCSSNode {
 
 
   ///
-  URL eval(Env context) {
+  URL eval(Contexts context) {
     Node val = this.value.eval(context);
     String rootpath;
 

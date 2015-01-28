@@ -33,7 +33,7 @@ class Call extends Node implements EvalNode, ToCSSNode {
   /// we try to pass a variable to a function, like: `saturate(@color)`.
   /// The function should receive the value, not the variable.
   ///
-  eval(Env context) {
+  eval(Contexts context) {
     List<Expression> args = this.args.map((a) => a.eval(context)).toList();
     FunctionCaller funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
     var result;
@@ -80,7 +80,7 @@ class Call extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  void genCSS(Env context, Output output) {
+  void genCSS(Contexts context, Output output) {
     output.add(this.name + '(', this.currentFileInfo, this.index);
 
     for (int i = 0; i < this.args.length; i++){

@@ -16,13 +16,13 @@ class Assignment extends Node implements ToCSSNode {
   }
 
   ///
-  Assignment eval(Env env) {
+  Assignment eval(Contexts env) {
     if (this.value is EvalNode) return new Assignment(this.key, this.value.eval(env));
     return this;
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add(this.key + '=');
     if (this.value is EvalNode) {
       this.value.genCSS(env, output);

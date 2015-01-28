@@ -24,7 +24,7 @@ class Combinator extends Node implements ToCSSNode {
   ///
   /// Writes value in [output]
   /// #
-  genCSS(Env env, Output output) {
+  genCSS(Contexts env, Output output) {
     String spaceOrEmpty = (isTrue(env.compress) || isTrue(this._noSpaceCombinators[this.value])) ? '' : ' ';
     output.add(spaceOrEmpty + this.value + spaceOrEmpty);
 

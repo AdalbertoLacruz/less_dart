@@ -5,13 +5,14 @@ library tree.less;
 import 'dart:math' as math;
 
 import '../file_info.dart';
-import '../env.dart';
+import '../contexts.dart';
 import '../functions/functions.dart';
 import '../less_debug_info.dart';
 import '../less_error.dart';
 import '../less_options.dart';
 import '../output.dart';
 import '../source_map_output.dart';
+import '../data/unit_conversions.dart';
 import '../nodejs/nodejs.dart';
 import '../visitor/visitor_base.dart';
 
@@ -47,7 +48,6 @@ part 'ruleset_call.dart';
 part 'selector.dart';
 part 'unicode_descriptor.dart';
 part 'unit.dart';
-part 'unit_conversions.dart';
 part 'url.dart';
 part 'value.dart';
 part 'variable.dart';
@@ -84,13 +84,13 @@ class Node {
   }
 
   /// Default eval returns the node
-  eval(Env env) => this; //TODO to Delete
+  eval(Contexts env) => this; //TODO to Delete
 
-  evalImports(Env env){}
+  evalImports(Contexts env){}
 
   /// Generate CSS from this node.
   /// The default method does nothing.
-  void genCSS(Env env, Output output){}
+  void genCSS(Contexts env, Output output){}
 
   throwAwayComments() { return null; }
 
@@ -99,7 +99,7 @@ class Node {
 
 
   //StringBuffer toCSS(Env env) {
-  String toCSS(Env env) {
+  String toCSS(Contexts env) {
      Output output = new Output();
      this.genCSS(env, output);
      //return output.value;
@@ -122,13 +122,13 @@ class Node {
 
   //debug print the node tree
   StringBuffer toTree(LessOptions options) {
-    Env env = new Env.evalEnv(options);
+    Contexts env = new Contexts.eval(options);
      Output output = new Output();
      this.genTree(env, output);
      return output.value;
   }
 
-  void genTree(Env env, Output output) {
+  void genTree(Contexts env, Output output) {
     int i;
     Node rule;
     String tabStr = '  ' * env.tabLevel;
@@ -168,7 +168,7 @@ abstract class CompareNode {
   int compare(Node x);
 }
 abstract class EvalNode {
-  eval(Env env);
+  eval(Contexts env);
 }
 abstract class MakeImportantNode {
   Node makeImportant();
@@ -180,24 +180,24 @@ abstract class MarkReferencedNode {
 
 abstract class MatchConditionNode {
   List<Node> rules;
-  bool matchCondition(List<MixinArgs> args, Env env);
-  bool matchArgs(List<MixinArgs> args, Env env);
+  bool matchCondition(List<MixinArgs> args, Contexts env);
+  bool matchArgs(List<MixinArgs> args, Contexts env);
 }
 
 abstract class OperateNode {
-  Node operate(Env env, String op, Node other);
+  Node operate(Contexts env, String op, Node other);
 }
 
 abstract class ToCSSNode {
-  void genCSS(Env env, Output output);
-  String toCSS(Env env);
+  void genCSS(Contexts env, Output output);
+  String toCSS(Contexts env);
 }
 
 //-----------------------------------------------------------
 
 // tree.js lines 65-95 for Directive & Media
 class OutputRulesetMixin {
-  void outputRuleset(Env env, Output output, List<Node> rules) {
+  void outputRuleset(Contexts env, Output output, List<Node> rules) {
     int ruleCnt = rules.length;
 
     if (env.tabLevel == null) env.tabLevel = 0;

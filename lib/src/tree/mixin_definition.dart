@@ -98,7 +98,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
   ///
   /// Build a Ruleset where the rules are the mixin params evaluated
   /// Build evaldArguments
-  Ruleset evalParams(Env env, Env mixinEnv, List<MixinArgs> args, List evaldArguments) {
+  Ruleset evalParams(Contexts env, Contexts mixinEnv, List<MixinArgs> args, List evaldArguments) {
     Ruleset frame = new Ruleset(null, null);
     List<Node> varargs;
     MixinArgs arg;
@@ -115,7 +115,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
         (params != null) ? params.length : 0,
         (args != null)   ? args.length : 0);
 
-    mixinEnv = new Env.evalEnv(mixinEnv,
+    mixinEnv = new Contexts.eval(mixinEnv,
                              [frame]..addAll(mixinEnv.frames));
 
     if (args != null) {
@@ -275,7 +275,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
   }
 
   ///
-  MixinDefinition eval(Env env) {
+  MixinDefinition eval(Contexts env) {
     var frames = (this.frames != null) ? this.frames : env.frames.sublist(0);
     return new MixinDefinition(this.name, this.params, this.rules, this.condition,
         this.variadic, this.index, this.currentFileInfo, frames);
@@ -286,10 +286,10 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
   }
 
   ///
-  Ruleset evalCall(Env env, List<MixinArgs> args, bool important) {
+  Ruleset evalCall(Contexts env, List<MixinArgs> args, bool important) {
     List _arguments = [];
     List<Node> mixinFrames = (this.frames != null) ? (this.frames.sublist(0)..addAll(env.frames)) : env.frames;
-    Ruleset frame = this.evalParams(env, new Env.evalEnv(env, mixinFrames), args, _arguments);
+    Ruleset frame = this.evalParams(env, new Contexts.eval(env, mixinFrames), args, _arguments);
     List<Node> rules;
     Ruleset ruleset;
 
@@ -300,7 +300,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
     ruleset = new Ruleset(null, rules);
     ruleset.originalRuleset = this;
     ruleset.id = this.id;
-    ruleset = ruleset.eval(new Env.evalEnv(env, [this, frame]..addAll(mixinFrames)));
+    ruleset = ruleset.eval(new Contexts.eval(env, [this, frame]..addAll(mixinFrames)));
     if (important) {
       ruleset = ruleset.makeImportant();
       //ruleset = this.parent.makeImportant.apply(ruleset);
@@ -330,12 +330,12 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
   //--- MatchConditionNode
 
   ///
-  bool matchCondition(List<MixinArgs> args, Env env) {
+  bool matchCondition(List<MixinArgs> args, Contexts env) {
     List thisFrames = (this.frames != null) ? (this.frames.sublist(0)..addAll(env.frames)) : env.frames;
-    List frames = [this.evalParams(env, new Env.evalEnv(env, thisFrames), args, [])] // the parameter variables
+    List frames = [this.evalParams(env, new Contexts.eval(env, thisFrames), args, [])] // the parameter variables
       ..addAll(this.frames != null ? this.frames : [] ) // the parent namespace/mixin frames
       ..addAll(env.frames); // the current environment frames
-    if (this.condition != null && !this.condition.eval(new Env.evalEnv(env, frames))) return false;
+    if (this.condition != null && !this.condition.eval(new Contexts.eval(env, frames))) return false;
     return true;
 
 //    matchCondition: function (args, env) {
@@ -353,7 +353,7 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
   ///
   /// Check arguments call is according mixin definition
   ///
-  bool matchArgs(List<MixinArgs> args, Env env) {
+  bool matchArgs(List<MixinArgs> args, Contexts env) {
     int argsLength = 0;
     if (args != null) argsLength = args.length;
     int len;

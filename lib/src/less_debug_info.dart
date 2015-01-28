@@ -4,7 +4,7 @@ library debugInfo.less;
 
 import 'package:path/path.dart' as path;
 
-import 'env.dart';
+import 'contexts.dart';
 
 ///
 /// Debug coordinates
@@ -23,7 +23,7 @@ class LessDebugInfo {
   }
 
   ///
-  String toOutput(Env env, [String lineSeparator = '']) {
+  String toOutput(Contexts env, [String lineSeparator = '']) {
     StringBuffer result;
 
     if (env.dumpLineNumbers != null && !env.compress) {

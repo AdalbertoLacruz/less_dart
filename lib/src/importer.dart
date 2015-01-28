@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
-import 'env.dart';
+import 'contexts.dart';
 import 'file_info.dart';
 import 'less_error.dart';
 import 'nodejs/nodejs.dart';
@@ -22,7 +22,7 @@ class Importer {
 
   FileInfo currentFileInfo;
 
-  Env env;
+  Contexts env;
 
   NodeConsole console;
 
@@ -122,7 +122,7 @@ class Importer {
           LessError error = new LessError(
                   type: 'File',
                   message: 'resource " ${urlStr} " was not found\n',
-                  env: env);
+                  context: env);
           return task.completeError(error);
         }
         if (dataBuffer.isEmpty) {
@@ -137,7 +137,7 @@ class Importer {
       LessError error = new LessError(
               type: 'File',
               message: 'resource "${urlStr}" gave this Error:\n  ${e.message}\n',
-              env: env);
+              context: env);
       task.completeError(error);
     });
     return task.future;
@@ -200,7 +200,7 @@ class Importer {
       LessError error = new LessError(
           type: 'File',
           message: "'$file' wasn't found",
-          env: env);
+          context: env);
       throw new LessExceptionError(error);
     }
   }
@@ -227,7 +227,7 @@ class Importer {
       LessError error = new LessError(
           type: 'File',
           message: "'$file' wasn't found",
-          env: env);
+          context: env);
       throw new LessExceptionError(error);
     }
   }

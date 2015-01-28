@@ -1,7 +1,7 @@
 library visitor.less;
 
 import 'dart:async';
-import '../env.dart';
+import '../contexts.dart';
 import '../less_error.dart';
 import '../nodejs/nodejs.dart';
 import '../tree/tree.dart';

@@ -15,7 +15,7 @@ class Paren extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add('(');
     this.value.genCSS(env, output);
     output.add(')');
@@ -24,5 +24,5 @@ class Paren extends Node implements EvalNode, ToCSSNode {
 //    toCSS: tree.toCSS,
 
   ///
-  Paren eval(Env env) => new Paren(this.value.eval(env));
+  Paren eval(Contexts env) => new Paren(this.value.eval(env));
 }

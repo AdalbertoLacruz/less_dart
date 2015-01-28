@@ -18,7 +18,7 @@ class Quoted extends Node implements CompareNode, EvalNode, ToCSSNode {
   }
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     if (!this.escaped) {
       output.add(this.quote, this.currentFileInfo, this.index);
     }
@@ -30,7 +30,7 @@ class Quoted extends Node implements CompareNode, EvalNode, ToCSSNode {
 
 //    toCSS: tree.toCSS
 
-  Node eval(Env env){
+  Node eval(Contexts env){
     Quoted that = this;
     RegExp rExp = new RegExp(r'`([^`]+)`'); //javascript expresion
     RegExp rName = new RegExp(r'@\{([\w-]+)\}');

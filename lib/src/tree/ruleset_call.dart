@@ -12,7 +12,7 @@ class RulesetCall extends Node implements EvalNode {
   ///
   void accept(Visitor visitor) {}
 
-  Ruleset eval(Env env) {
+  Ruleset eval(Contexts env) {
     DetachedRuleset detachedRuleset = new Variable(this.variable).eval(env);
     return detachedRuleset.callEval(env);
   }

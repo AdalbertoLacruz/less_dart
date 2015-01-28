@@ -19,7 +19,7 @@ class Variable extends Node implements EvalNode {
   }
 
   ///
-  Node eval(Env env) {
+  Node eval(Contexts env) {
     Node variable;
     String name = this.name;
 
@@ -31,14 +31,14 @@ class Variable extends Node implements EvalNode {
           message: 'Recursive variable definition for $name',
           filename: this.currentFileInfo.filename,
           index: this.index,
-          env: env
+          context: env
       );
       throw new LessExceptionError(error);
     }
 
     this.evaluating = true;
 
-    variable = Env.find(env.frames, (frame){
+    variable = Contexts.find(env.frames, (frame){
       var v = frame.variable(name);
       if (v != null) return v.value.eval(env);
     });
@@ -52,7 +52,7 @@ class Variable extends Node implements EvalNode {
           message: 'variable $name is undefined',
           filename: this.currentFileInfo.filename,
           index: this.index,
-          env: env
+          context: env
       );
       throw new LessExceptionError(error);
     }

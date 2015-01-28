@@ -37,7 +37,7 @@ class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
   bool isRulesetLike() => this.rulesetLike;
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
   }
 

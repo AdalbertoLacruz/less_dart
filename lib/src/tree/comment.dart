@@ -16,7 +16,7 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 
   /// Writes the comment in [output].
   //2.2.0 ok
-  genCSS(Env context, Output output) {
+  genCSS(Contexts context, Output output) {
     if (this.debugInfo != null) {
       output.add(debugInfo.toOutput(context), this.currentFileInfo, this.index);
     }
@@ -35,7 +35,7 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 
   ///
   //2.2.0 ok
-  bool isSilent(Env context) {
+  bool isSilent(Contexts context) {
     bool isReference = this.currentFileInfo != null
         && this.currentFileInfo.reference
         && !this.isReferenced;

@@ -12,18 +12,18 @@ class Attribute extends Node implements EvalNode, ToCSSNode {
   Attribute(this.key, this.op, this.value);
 
   ///
-  Attribute eval(Env env) => new Attribute(
+  Attribute eval(Contexts env) => new Attribute(
         this.key is EvalNode ? this.key.eval(env) : this.key,
         this.op,
         this.value is EvalNode ?  this.value.eval(env) : this.value);
 
   /// ><
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add(this.toCSS(env));
   }
 
   ///
-  String toCSS(Env env) {
+  String toCSS(Contexts env) {
     String value = (this.key is ToCSSNode) ? (this.key as ToCSSNode).toCSS(env) : this.key;
 
     if (this.op != null) {

@@ -1,3 +1,5 @@
+- Custom Functions, keep color name
+
 ## v0.1.4 (2015-01-12)
 
 - Breaking Change: Transformer option 'build_mode' changed to 'dart' as default.

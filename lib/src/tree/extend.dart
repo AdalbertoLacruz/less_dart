@@ -41,7 +41,7 @@ class Extend extends Node implements EvalNode {
   }
 
   ///
-  Extend eval(Env env) => new Extend(this.selector.eval(env), this.option, this.index);
+  Extend eval(Contexts env) => new Extend(this.selector.eval(env), this.option, this.index);
 
   ///
   Node clone() => new Extend (this.selector, this.option, this.index);

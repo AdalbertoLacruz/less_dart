@@ -37,7 +37,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
     this.value = visitor.visit(this.value);
   }
 
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add(this.name + (env.compress ? ':' : ': '), this.currentFileInfo, this.index);
     try {
       this.value.genCSS(env, output);
@@ -45,7 +45,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
       LessError error = LessError.transform(e,
           index: this.index,
           filename: this.currentFileInfo.filename,
-          env: env);
+          context: env);
       throw new LessExceptionError(error);
     }
     String out = '';
@@ -69,7 +69,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
 //    toCSS: tree.toCSS,
 
   ///
-  eval(Env env) {
+  eval(Contexts env) {
     bool strictMathBypass = false;
     var name = this.name;
     bool variable = this.variable;
@@ -93,7 +93,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
             message: 'Rulesets cannot be evaluated on a property.',
             index: this.index,
             filename: this.currentFileInfo.filename,
-            env: env
+            context: env
          ));
       }
       return new Rule(name, evaldValue, this.important, this.merge, this.index, this.currentFileInfo,
@@ -160,7 +160,7 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
                                 this.index, this.currentFileInfo, this.inline);
 
   //function external to class. static?
-  String evalName(Env env, List<Node> name) {
+  String evalName(Contexts env, List<Node> name) {
     int n = name.length;
     Output output = new Output();
 

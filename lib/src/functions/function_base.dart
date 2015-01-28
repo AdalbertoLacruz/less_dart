@@ -9,7 +9,7 @@ class FunctionBase {
 
   int index;
   FileInfo currentFileInfo;
-  Env context;
+  Contexts context;
   String name;
 
   FunctionBase() {

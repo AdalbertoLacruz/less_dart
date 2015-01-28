@@ -20,7 +20,7 @@ class Unit extends Node implements CompareNode, ToCSSNode {
                           this.backupUnit);
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     if (this.numerator.length >= 1) {
       output.add(this.numerator[0]);
     } else if (this.denominator.length >= 1) {
@@ -73,7 +73,7 @@ class Unit extends Node implements CompareNode, ToCSSNode {
   //      },
 
   ///
-  bool isLength(Env env) {
+  bool isLength(Contexts env) {
     RegExp re = new RegExp(r'px|em|%|in|cm|mm|pc|pt|ex');
     String result = this.toCSS(env);
     return re.hasMatch(result);

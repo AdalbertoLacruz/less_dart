@@ -7,91 +7,191 @@ import 'package:path/path.dart' as path;
 import 'cleancss_options.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
+import 'functions/functions.dart';
 import 'nodejs/nodejs.dart';
 
 class LessOptions {
-  bool   depends =  false;
-  bool   compress = false;
-  bool   cleancss = false;
+  // ****************** CONFIGURATION *********************************
 
-  int    _maxLineLen = -1;  //original max_line_len
-  set maxLineLen(int value) {
-    _maxLineLen = (value < 0) ? -1 : value;
-  }
-  get maxLineLen => _maxLineLen;
+  /// Whether to chunk input. more performant but causes parse issues.
+  bool chunkInput = false;  // Must be false in 2.2.0
 
-  int    optimization = 1;
-  bool   silent = false;
-  bool   verbose = false;
-  bool   lint = false;
-  List   paths = [];
-  /// color in error messages
-  bool   color = true;
-  bool   strictImports = false;
-  bool   insecure = false;
-  String rootpath = '';
-  bool   relativeUrls = false;
-  bool   ieCompat = true;
-
-  bool   _strictMath = false;
-  set strictMath(bool value){
-    _strictMath = (value == null) ? false : value;
-  }
-  bool get strictMath => _strictMath;
-
-  bool   _strictUnits = false;
-  set strictUnits(bool value){
-    _strictUnits = (value == null) ? false : value;
-  }
-  get strictUnits => _strictUnits;
-
-  String globalVariables = '';
-  String modifyVariables = '';
-  String urlArgs = '';
-  bool   javascriptEnabled = true;  // *** From here not in original ***
-  String banner = '';
-  String dumpLineNumbers = '';      //comments or mediaquery
-  var    sourceMap = false;
-  String sourceMapFilename = '';  // sourceMap to clone()
-  String sourceMapRootpath = '';
-  String sourceMapBasepath = '';
-  bool   outputSourceFiles = false;
-  String sourceMapURL = '';
-  String sourceMapOutputFilename;
-  String sourceMapFullFilename;
-
-  /// whether to compress with the outside tool yui compressor. OPTION HAS BEEN REMOVED
-  bool yuicompress = false;
+  ///
+  /// Extends Less functions as alternative to javascript
+  ///
+  /// Example(see test/custom_functions_test.dart):
+  /// class MyFunctions extends FunctionBase {
+  ///   Dimension myFunction(Node a) => New Dimension(a.value);
+  /// }
+  /// options.custonFunctions = new MyFunctions();
+  ///
+  FunctionBase customFunctions;
 
   /// whether we are currently importing multiple copies
   bool importMultiple = false;
 
-  Function writeSourceMap; //Function writeSourceMap(String content), to write the sourcemap file
-  var sourceMapGenerator; // class instance - default: new SourceMapBuilder();
+  /// Browser only - mime type for sheet import
+  String mime;
 
-  // I/O
+  /// Whether to process imports. if false then imports will not be imported
+  bool processImports = true;
+
+  /// Whether to import synchronously
+  bool syncImport = false;
+
+  /// Browser only - whether to use the per file session cache
+  bool useFileCache;
+
+// ****************** COMMAND LINE OPTIONS ****************************
+
+  /// Filename for the banner text - Not official option
+  String banner = '';
+
+  /// Whether to compress with clean-css
+  bool cleancss = false;
+
+  /// Color in error messages
+  bool color = true;
+
+  /// Whether to compress
+  bool compress = false;
+
+  /// Outputs a makefile import dependency list to stdout
+  bool depends =  false;
+
+  /// Whether to dump line numbers: 'comments', 'mediaquery' or 'all'
+  String dumpLineNumbers = '';
+
+  /// Defines a variable that can be referenced by the file
+  String globalVariables = '';
+
+  /// Whether to enforce IE compatibility (IE8 data-uri)
+  bool ieCompat = true;
+
+  /// Input filename or '-' for stdin
   String input = '';
-  String filename = ''; //same as input
-  String inputBase = '';
+
+  /// Whether to allow imports from insecure ssl hosts
+  bool insecure = false;
+
+  /// whether JavaScript is enabled. Dart version don't evaluate JavaScript
+  bool javascriptEnabled = true;
+
+  bool   lint = false;
+
+  /// max-line-len - deprecated
+  get maxLineLen => _maxLineLen;
+  set maxLineLen(int value) {
+    _maxLineLen = (value < 0) ? -1 : value;
+  }
+  int    _maxLineLen = -1;  //original max_line_len
+
+  /// Modifies a variable already declared in the file
+  String modifyVariables = '';
+
+  /// Optimization level (for the chunker) - deprecated
+  int optimization = 1;
+
+  /// Output filename
   String output = '';
-  String outputBase = '';
+
+  /// Puts the less files into the map instead of referencing them
+  bool outputSourceFiles = false;
+
+  /// Paths to search for imports on
+  List paths = [];
+
+  /// Whether to adjust URL's to be relative
+  bool relativeUrls = false;
+
+  /// Rootpath to append to URL's
+  String rootpath = '';
+
+  int showTreeLevel; // debug level - not official
+
+  /// whether to swallow errors and warnings
+  bool silent = false;
+
+  /// whether to output a source map
+  var sourceMap = false;
+
+  /// Sets sourcemap base path, defaults to current working directory
+  String sourceMapBasepath = '';
+
+  /// Puts the map (and any less files) into the output css file
+  bool sourceMapFileInline = false;
+
+  /// Outputs a v3 sourcemap to the filename (or output filename.map)
+  String sourceMapOutputFilename;
+
+  /// Adds this path onto the sourcemap filename and less file paths
+  String sourceMapRootpath = '';
+
+  /// Sets a custom URL to map file, for sourceMappingURL comment in generated CSS file
+  String sourceMapURL = '';
+
+  /// Forces evaluation of imports
+  bool strictImports = false;
+
+  /// Whether math has to be within parenthesis
+  bool get strictMath => _strictMath;
+  set strictMath(bool value){
+    _strictMath = (value == null) ? false : value;
+  }
+  bool _strictMath = false;
+
+  /// Whether units need to evaluate correctly
+  bool get strictUnits => _strictUnits;
+  set strictUnits(bool value){
+    _strictUnits = (value == null) ? false : value;
+  }
+  bool   _strictUnits = false;
+
+  /// Whether to add args into url tokens
+  String urlArgs = '';
+
+  /// Whether to log more activity
+  bool   verbose = false;
+
+  /// Whether to compress with the outside tool yui compressor. OPTION HAS BEEN REMOVED
+  bool yuicompress = false;
+
+
+
+// ****************** Internal
+
+  CleancssOptions cleancssOptions = new CleancssOptions();
 
   NodeConsole console = new NodeConsole();
-  CleancssOptions cleancssOptions = new CleancssOptions();
-  bool sourceMapFileInline = false;
-  bool parseError = false;
+
+  String filename = ''; //same as input
+
+  String inputBase = ''; //same as input
+
+  String outputBase = ''; // same as output
+
+  bool parseError = false; // error detected in command line
+
+  List plugins = []; //TODO 2.2.0
+
+  String sourceMapFilename = '';  // sourceMap to clone()
+
+  String sourceMapFullFilename;
+
+  var sourceMapGenerator; // class instance - default: new SourceMapBuilder();
+
   String warningMessages = '';
-  List plugins = [];
 
-  //debug
-  int showTreeLevel;
+  Function writeSourceMap; //Function writeSourceMap(String content), to write the sourcemap file
 
+  ///
   LessOptions();
 
-  /*
-   * Update less options from arg
-   * ej.: '-include-path=lib/lessIncludes;lib/otherIncludes'
-   */
+  ///
+  /// Update less options from arg
+  ///
+  /// Example: '-include-path=lib/lessIncludes;lib/otherIncludes'
+  ///
   bool parse(arg) {
     if (arg == null) return setParseError('empty');
     String command = arg[1];
@@ -394,8 +494,8 @@ class LessOptions {
     op.urlArgs            = this.urlArgs;
 
     op.showTreeLevel      = this.showTreeLevel; //debug
+    op.customFunctions    = this.customFunctions;
 
     return op;
-
   }
 }

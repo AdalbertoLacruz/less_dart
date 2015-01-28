@@ -1,6 +1,6 @@
 library fileInfo.less;
 
-import 'env.dart';
+import 'contexts.dart';
 
 /**
  * File Information
@@ -39,7 +39,7 @@ class FileInfo {
    * ex.: FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, env);
    * #
    */
-  FileInfo.cloneForLoader(FileInfo current, Env env) {
+  FileInfo.cloneForLoader(FileInfo current, Contexts env) {
     this.relativeUrls   = env.relativeUrls;
     this.entryPath      = current.entryPath;
     this.rootpath       = current.rootpath;

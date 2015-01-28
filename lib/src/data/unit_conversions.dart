@@ -1,7 +1,10 @@
-//source: less/tree/dimension.js 1.7.5
+//source: less/data/unit-conversions.js 2.2.0
 
-part of tree.less;
+library unitconversions.less;
 
+import 'dart:math' as math;
+
+/// http://www.w3.org/TR/css3-values/#absolute-lengths
 class UnitConversions {
   static Map<String, Map> groups = {
     'length': length,
@@ -28,25 +31,10 @@ class UnitConversions {
     'turn': 1
   };
 
-  static group(String group) => groups[group]; //TODO delete?
-
-//    switch (group) {
-//      case 'length':
-//        return length;
-//      case 'duration':
-//        return duration;
-//      case 'angle':
-//        return angle;
-//    }
-//    return null;
-
-
-// ************************************************* UnitConversions ******************
-
-//// http://www.w3.org/TR/css3-values/#absolute-lengths
-//  tree.UnitConversions = {
+//2.2.0
+//  module.exports = {
 //      length: {
-//           'm': 1,
+//          'm': 1,
 //          'cm': 0.01,
 //          'mm': 0.001,
 //          'in': 0.0254,
@@ -65,5 +53,4 @@ class UnitConversions {
 //          'turn': 1
 //      }
 //  };
-//
 }

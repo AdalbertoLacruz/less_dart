@@ -28,26 +28,26 @@ class Element extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  Element eval(Env env) => new Element(
+  Element eval(Contexts env) => new Element(
                         this.combinator,
                         (this.value is Node) ? this.value.eval(env) : this.value,
                         this.index,
                         this.currentFileInfo);
 
   ///
-  void genCSS(Env env, Output output) {
+  void genCSS(Contexts env, Output output) {
     output.add(this.toCSS(env), this.currentFileInfo, this.index);
   }
 
   ///
   /// Converts value to String: Combinator + value
   /// #
-  String toCSS(Env env) {
+  String toCSS(Contexts env) {
     String value = (this.value is ToCSSNode) ? this.value.toCSS(env) : this.value;
     if (value.isEmpty && this.combinator.value.startsWith('&')) {
       return '';
     } else {
-      return this.combinator.toCSS(env != null ? env : new Env()) + value;
+      return this.combinator.toCSS(env != null ? env : new Contexts()) + value;
     }
 
 //      toCSS: function (env) {

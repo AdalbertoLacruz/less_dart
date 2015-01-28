@@ -3,28 +3,26 @@
 part of parser.less;
 
 class Chunker {
-  Env env;
   String input;
+  Contexts env;
 
   int chunkerCurrentIndex;
   List<String> chunks = [];
   int currentChunkStartIndex;
   int emitFrom = 0;
 
-  Chunker(this.env, String this.input) { //TODO 2.2.0 pass fail function ?
-    env.input = input;
-  }
+  Chunker(String this.input, this.env);
 
   ///
   /// throw Parse error
   ///
-  fail(String msg, [int index]) {
+  fail (String message, int index) {
     LessError error = new LessError(
-        index: (index != null)? index : chunkerCurrentIndex,
+        index: index,
         type: 'Parse',
-        message: msg,
+        message: message,
         filename: env.currentFileInfo.filename,
-        env: env);
+        context: env);
     throw new LessExceptionError(error);
   }
 
@@ -68,7 +66,7 @@ class Chunker {
           continue;
 
         case Charcode.CLOSE_PARENTHESIS_41: // )
-          if (--parenLevel < 0) return fail("missing opening `(`");
+          if (--parenLevel < 0) return fail("missing opening `(`", chunkerCurrentIndex);
           continue;
 
         case Charcode.SEMICOLON_59:         // ;
@@ -81,7 +79,7 @@ class Chunker {
           continue;
 
         case Charcode.CLOSE_BRACE_125:      // }
-          if (--level < 0) return fail("missing opening `{`");
+          if (--level < 0) return fail("missing opening `{`", chunkerCurrentIndex);
           if (level == 0 && parenLevel == 0) emitChunk();
           continue;
 
@@ -90,7 +88,7 @@ class Chunker {
             chunkerCurrentIndex++;
             continue;
           }
-          return fail("unescaped `\\`");
+          return fail("unescaped `\\`", chunkerCurrentIndex);
 
         case Charcode.DOUBLE_QUOTE_34:
         case Charcode.QUOTE_39:
@@ -107,7 +105,7 @@ class Chunker {
               break;
             }
             if (cc2 == Charcode.BACK_SLASH_92) { // \
-              if (chunkerCurrentIndex == len - 1) return fail("unescaped `\\`");
+              if (chunkerCurrentIndex == len - 1) return fail("unescaped `\\`", chunkerCurrentIndex);
               chunkerCurrentIndex++;
             }
           }
@@ -151,7 +149,7 @@ class Chunker {
         case Charcode.ASTERISK_42:           // *, check for unmatched */
           if ((chunkerCurrentIndex < len - 1)
               && (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47)) {
-            return fail("unmatched `/*`");
+            return fail("unmatched `/*`", chunkerCurrentIndex);
           }
           continue;
       }

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:mirrors';
 
-import '../env.dart';
+import '../contexts.dart';
 import '../file_info.dart';
 import '../less_error.dart';
 import '../environment/environment.dart';
@@ -28,7 +28,7 @@ part 'types_functions.dart';
 /// Adjust the precision of [value] according to [env].numPrecision.
 /// 8 By default.
 /// #
-num fround(Env env, num value) {  //TODO return string
+num fround(Contexts env, num value) {  //TODO return string
 if (value is int) return value;
 
 //precision

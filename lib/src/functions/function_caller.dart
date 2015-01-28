@@ -3,7 +3,7 @@
 part of functions.less;
 
 class FunctionCaller {
-  Env context;
+  Contexts context;
   FileInfo currentFileInfo;
   int index;
 
@@ -20,7 +20,7 @@ class FunctionCaller {
   /// instance that has the method to call
   FunctionBase found;
 
-  FunctionCaller._() {
+  FunctionCaller._(Contexts context) {
     innerCache = [
       new ColorBlend(),
       new ColorFunctions(),
@@ -31,11 +31,12 @@ class FunctionCaller {
       new SvgFunctions(),
       new TypesFunctions()
       ];
+    if (context.customFunctions != null) innerCache.add(context.customFunctions);
     defaultCache = new DefaultFunc();
   }
 
-  factory FunctionCaller(String name, Env context, int index, FileInfo currentFileInfo) {
-    if (cache == null) cache = new FunctionCaller._();
+  factory FunctionCaller(String name, Contexts context, int index, FileInfo currentFileInfo) {
+    if (cache == null) cache = new FunctionCaller._(context);
     cache
       ..name = name.toLowerCase()
       ..context = context

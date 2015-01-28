@@ -40,7 +40,7 @@ class SvgFunctions extends FunctionBase {
     String gradientType = 'linear';
     String rectangleDimension = 'x="0" y="0" width="1" height="1"';
     bool useBase64 = true;
-    Env renderEnv = new Env()..compress = false;
+    Contexts renderEnv = new Contexts()..compress = false;
     String returner;
     String directionValue = direction.toCSS(renderEnv);
     int i;
