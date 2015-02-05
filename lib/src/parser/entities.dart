@@ -481,7 +481,7 @@ class Entities {
     if (e) parserInput.$char('~');
 
     str = parserInput.$re(r'^`([^`]*)`');
-    if (str != null) return new JavaScript(str, parserInput.i, e);
+    if (str != null) return new JavaScript(str, e, parserInput.i, fileInfo);
 
     return null;
 

@@ -1,4 +1,4 @@
-//source: less/tree/keyword.js 1.7.5
+//source: less/tree/keyword.js 2.3.1
 
 part of tree.less;
 
@@ -18,16 +18,23 @@ class Keyword extends Node implements CompareNode, EvalNode, ToCSSNode {
   }
 
   ///
-  Keyword eval(Contexts env) => this;
+  Keyword eval(Contexts env) => this; //TODO 2.3.1 remove
 
   ///
-  void genCSS(Contexts env, Output output) {
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     if (this.value == '%') {
       throw new LessExceptionError(new LessError(
           type: 'Syntax',
           message: 'Invalid % without number'));
     }
     output.add(this.value);
+
+//2.3.1
+//  Keyword.prototype.genCSS = function (context, output) {
+//      if (this.value === '%') { throw { type: "Syntax", message: "Invalid % without number" }; }
+//      output.add(this.value);
+//  };
   }
 
 //    toCSS: tree.toCSS,
@@ -36,6 +43,7 @@ class Keyword extends Node implements CompareNode, EvalNode, ToCSSNode {
 //--- CompareNode
 
   /// Returns -1, 0 or +1
+  // TODO 2.3.1 remove?
   int compare(Node other) {
     if (other is Keyword) {
       return (other.value == this.value) ? 0 : 1;

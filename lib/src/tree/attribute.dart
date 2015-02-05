@@ -1,4 +1,4 @@
-//source: less/tree/element.js 1.7.5 lines 45-90
+//source: less/tree/attribute.js 2.3.1
 
 part of tree.less;
 
@@ -12,36 +12,52 @@ class Attribute extends Node implements EvalNode, ToCSSNode {
   Attribute(this.key, this.op, this.value);
 
   ///
-  Attribute eval(Contexts env) => new Attribute(
-        this.key is EvalNode ? this.key.eval(env) : this.key,
+  //2.3.1 ok
+  Attribute eval(Contexts context) => new Attribute(
+        this.key is EvalNode ? this.key.eval(context) : this.key, //TODO is Node
         this.op,
-        this.value is EvalNode ?  this.value.eval(env) : this.value);
+        this.value is EvalNode ?  this.value.eval(context) : this.value); //TODO is Node
 
-  /// ><
-  void genCSS(Contexts env, Output output) {
-    output.add(this.toCSS(env));
+//2.3.1
+//  Attribute.prototype.eval = function (context) {
+//      return new Attribute(this.key.eval ? this.key.eval(context) : this.key,
+//          this.op, (this.value && this.value.eval) ? this.value.eval(context) : this.value);
+//  };
+
+  ///
+  //No in tests
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
+    output.add(this.toCSS(context));
+
+//2.3.1
+//  Attribute.prototype.genCSS = function (context, output) {
+//      output.add(this.toCSS(context));
+//  };
   }
 
   ///
-  String toCSS(Contexts env) {
-    String value = (this.key is ToCSSNode) ? (this.key as ToCSSNode).toCSS(env) : this.key;
+  //2.3.1 ok
+  String toCSS(Contexts context) {
+    String value = (this.key is ToCSSNode) ? this.key.toCSS(context) : this.key; //TODO is Node
 
     if (this.op != null) {
       value += this.op;
-      value += (this.value is ToCSSNode) ? (this.value as ToCSSNode).toCSS(env) : this.value;
+      value += (this.value is ToCSSNode) ? this.value.toCSS(context) : this.value; //TODO is Node
     }
 
     return '[${value}]';
 
-//      toCSS: function (env) {
-//          var value = this.key.toCSS ? this.key.toCSS(env) : this.key;
+//2.3.1
+//  Attribute.prototype.toCSS = function (context) {
+//      var value = this.key.toCSS ? this.key.toCSS(context) : this.key;
 //
-//          if (this.op) {
-//              value += this.op;
-//              value += (this.value.toCSS ? this.value.toCSS(env) : this.value);
-//          }
-//
-//          return '[' + value + ']';
+//      if (this.op) {
+//          value += this.op;
+//          value += (this.value.toCSS ? this.value.toCSS(context) : this.value);
 //      }
+//
+//      return '[' + value + ']';
+//  };
   }
 }

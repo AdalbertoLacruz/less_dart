@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 1.7.5
+//source: less/tree/operation.js 2.3.1
 
 part of tree.less;
 
@@ -9,21 +9,37 @@ class Operation extends Node implements EvalNode, ToCSSNode {
 
   final String type = 'Operation';
 
+  ///
+  //2.3.1 ok
   Operation(String op, List this.operands, [bool this.isSpaced = false]) {
     this.op = op.trim();
+
+//2.3.1
+//  var Operation = function (op, operands, isSpaced) {
+//      this.op = op.trim();
+//      this.operands = operands;
+//      this.isSpaced = isSpaced;
+//  };
   }
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     this.operands = visitor.visit(this.operands);
+
+//2.3.1
+//  Operation.prototype.accept = function (visitor) {
+//      this.operands = visitor.visit(this.operands);
+//  };
   }
 
   ///
-  eval(Contexts env) {
-    Node a = this.operands[0].eval(env);
-    Node b = this.operands[1].eval(env);
+  //2.3.1 ok
+  eval(Contexts context) {
+    Node a = this.operands[0].eval(context);
+    Node b = this.operands[1].eval(context);
 
-    if (env.isMathOn()) {
+    if (context.isMathOn()) {
       if (a is Dimension && b is Color) a = (a as Dimension).toColor();
       if (b is Dimension && a is Color) b = (b as Dimension).toColor();
       if (a is! OperateNode) {
@@ -32,63 +48,78 @@ class Operation extends Node implements EvalNode, ToCSSNode {
             message: 'Operation on an invalid type'
         ));
       }
-      return (a as OperateNode).operate(env, this.op, b);
+      return (a as OperateNode).operate(context, this.op, b);
     } else {
       return new Operation(this.op, [a, b], this.isSpaced);
     }
 
-//    eval: function (env) {
-//        var a = this.operands[0].eval(env),
-//            b = this.operands[1].eval(env);
+//2.3.1
+//  Operation.prototype.eval = function (context) {
+//      var a = this.operands[0].eval(context),
+//          b = this.operands[1].eval(context);
 //
-//        if (env.isMathOn()) {
-//            if (a instanceof tree.Dimension && b instanceof tree.Color) {
-//                a = a.toColor();
-//            }
-//            if (b instanceof tree.Dimension && a instanceof tree.Color) {
-//                b = b.toColor();
-//            }
-//            if (!a.operate) {
-//                throw { type: "Operation",
-//                        message: "Operation on an invalid type" };
-//            }
+//      if (context.isMathOn()) {
+//          if (a instanceof Dimension && b instanceof Color) {
+//              a = a.toColor();
+//          }
+//          if (b instanceof Dimension && a instanceof Color) {
+//              b = b.toColor();
+//          }
+//          if (!a.operate) {
+//              throw { type: "Operation",
+//                      message: "Operation on an invalid type" };
+//          }
 //
-//            return a.operate(env, this.op, b);
-//        } else {
-//            return new(tree.Operation)(this.op, [a, b], this.isSpaced);
-//        }
-//    },
+//          return a.operate(context, this.op, b);
+//      } else {
+//          return new Operation(this.op, [a, b], this.isSpaced);
+//      }
+//  };
   }
 
   ///
-  void genCSS(Contexts env, Output output) {
-    this.operands[0].genCSS(env, output);
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
+    this.operands[0].genCSS(context, output);
     if (this.isSpaced) output.add(' ');
     output.add(this.op);
     if (this.isSpaced) output.add(' ');
-    this.operands[1].genCSS(env, output);
+    this.operands[1].genCSS(context, output);
+
+//2.3.1
+//  Operation.prototype.genCSS = function (context, output) {
+//      this.operands[0].genCSS(context, output);
+//      if (this.isSpaced) {
+//          output.add(" ");
+//      }
+//      output.add(this.op);
+//      if (this.isSpaced) {
+//          output.add(" ");
+//      }
+//      this.operands[1].genCSS(context, output);
+//  };
   }
 
 //    toCSS: tree.toCSS
 
   ///
-  //Original out of class (operate)
-  static num operateExec(Contexts env, String op, num a, num b) {
-    switch (op) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': return a / b;
-    }
-    return null;
-
-//tree.operate = function (env, op, a, b) {
+  //Original out of class (operate) - TODO 2.2.0 use node._operate in Dimension - REMOVE
+//  static num operateExec(Contexts env, String op, num a, num b) {
 //    switch (op) {
 //        case '+': return a + b;
 //        case '-': return a - b;
 //        case '*': return a * b;
 //        case '/': return a / b;
 //    }
-//};
-  }
+//    return null;
+//
+////tree.operate = function (env, op, a, b) {
+////    switch (op) {
+////        case '+': return a + b;
+////        case '-': return a - b;
+////        case '*': return a * b;
+////        case '/': return a / b;
+////    }
+////};
+//  }
 }

@@ -1,4 +1,4 @@
-//source: less/tree/import.js 1.7.5
+//source: less/tree/import.js 1.7.5 -> 2.3.1
 
 part of tree.less;
 
@@ -35,14 +35,17 @@ class Import extends Node implements EvalNode, ToCSSNode {
   LessError errorImport;
   String    importedFilename;
   var       root;
+
   // bool or Function - initialized in import_visitor
   var       skip;
 
   final String type = 'Import';
 
+  ///
+  //2.3.1 ok
   Import(Node this.path, Node this.features, ImportOptions this.options, int this.index,
       [FileInfo this.currentFileInfo]) {
-    RegExp rPathValue = new RegExp(r'css([\?;].*)?$');
+    RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
 
     if (this.options.less != null || isTrue(this.options.inline)) {
       this.css = !isTrue(this.options.less) || isTrue(this.options.inline);
@@ -50,9 +53,9 @@ class Import extends Node implements EvalNode, ToCSSNode {
       String pathValue = getPath();
       if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) this.css = true;
     }
-  }
 
-//  tree.Import = function (path, features, options, index, currentFileInfo) {
+//2.3.1
+//  var Import = function (path, features, options, index, currentFileInfo) {
 //      this.options = options;
 //      this.index = index;
 //      this.path = path;
@@ -63,13 +66,15 @@ class Import extends Node implements EvalNode, ToCSSNode {
 //          this.css = !this.options.less || this.options.inline;
 //      } else {
 //          var pathValue = this.getPath();
-//          if (pathValue && /css([\?;].*)?$/.test(pathValue)) {
+//          if (pathValue && /[#\.\&\?\/]css([\?;].*)?$/.test(pathValue)) {
 //              this.css = true;
 //          }
 //      }
 //  };
+  }
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.features != null) this.features = visitor.visit(this.features);
 
@@ -77,45 +82,73 @@ class Import extends Node implements EvalNode, ToCSSNode {
 
     if (!isTrue(this.options.inline) && this.root != null) this.root = visitor.visit(this.root);
 
-//      accept: function (visitor) {
-//          if (this.features) {
-//              this.features = visitor.visit(this.features);
-//          }
-//          this.path = visitor.visit(this.path);
-//          if (!this.options.inline && this.root) {
-//              this.root = visitor.visit(this.root);
-//          }
-//      },
+//2.3.1
+//  Import.prototype.accept = function (visitor) {
+//      if (this.features) {
+//          this.features = visitor.visit(this.features);
+//      }
+//      this.path = visitor.visit(this.path);
+//      if (!this.options.inline && this.root) {
+//          this.root = visitor.visit(this.root);
+//      }
+//  };
   }
 
-  void genCSS(Contexts env, Output output) {
+  ///
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     if (this.css) {
       output.add('@import ', this.currentFileInfo, this.index);
-      this.path.genCSS(env, output);
+      this.path.genCSS(context, output);
       if (this.features != null) {
         output.add(' ');
-        this.features.genCSS(env, output);
+        this.features.genCSS(context, output);
       }
       output.add(';');
     }
+
+//2.3.1
+//  Import.prototype.genCSS = function (context, output) {
+//      if (this.css) {
+//          output.add("@import ", this.currentFileInfo, this.index);
+//          this.path.genCSS(context, output);
+//          if (this.features) {
+//              output.add(" ");
+//              this.features.genCSS(context, output);
+//          }
+//          output.add(';');
+//      }
+//  };
   }
 
 //      toCSS: tree.toCSS,
 
   ///
   /// get the file path to import.
-  /// #
+  ///
+  //2.3.1 - TODO pending upgrade
   String getPath() {
-    RegExp rPath = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
+    RegExp rPath = new RegExp(r'(\.[a-z]*$)|([\?;].*)$'); //1.7.5 *****
 
     if (this.path is Quoted) {
-      String path = this.path.value;
-      return (this.css || rPath.hasMatch(path))? path : path + '.less';
+        String path = this.path.value; //1.7.5 *****
+        return (this.css || rPath.hasMatch(path))? path : path + '.less'; //1.7.5 *****
+//      return this.path.value; //2.3.1 *****
     } else if (this.path is URL) {
       return this.path.value.value;
     }
     return null;
 
+//2.3.1
+//  Import.prototype.getPath = function () {
+//      if (this.path instanceof Quoted) {
+//          return this.path.value;
+//      } else if (this.path instanceof URL) {
+//          return this.path.value.value;
+//      }
+//      return null;
+//  };
+//1.7.5
 //      getPath: function () {
 //          if (this.path instanceof tree.Quoted) {
 //              var path = this.path.value;
@@ -128,54 +161,93 @@ class Import extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
-  /// Resolves @var in the path
-  /// #
-  Import evalForImport(Contexts env) => new Import(this.path.eval(env), this.features,
-      this.options, this.index, this.currentFileInfo);
+  //2.3.1 ok
+  bool isVariableImport() {
+    var path = this.path;
+    if (path is URL) path = path.value;
+    if (path is Quoted) return path.containsVariables();
+    return true;
+
+//2.3.1
+//  Import.prototype.isVariableImport = function () {
+//      var path = this.path;
+//      if (path instanceof URL) {
+//          path = path.value;
+//      }
+//      if (path instanceof Quoted) {
+//          return path.containsVariables();
+//      }
+//
+//      return true;
+//  };
+  }
 
   ///
-  Node evalPath(Contexts env) {
-    Node path = this.path.eval(env);
+  /// Resolves @var in the path
+  ///
+  //2.3.1 ok
+  Import evalForImport(Contexts context) {
+    Node path = this.path;
+    if (path is URL) path = path.value;
+    return new Import(path.eval(context), this.features, this.options,
+        this.index, this.currentFileInfo);
+
+//2.3.1
+//  Import.prototype.evalForImport = function (context) {
+//      var path = this.path;
+//      if (path instanceof URL) {
+//          path = path.value;
+//      }
+//      return new Import(path.eval(context), this.features, this.options, this.index, this.currentFileInfo);
+//  };
+  }
+
+  ///
+  //2.3.1 ok
+  Node evalPath(Contexts context) {
+    Node path = this.path.eval(context);
     String rootpath = (this.currentFileInfo != null) ? this.currentFileInfo.rootpath : null;
 
     if (path is! URL) {
       if (rootpath != null) {
         String pathValue = path.value;
         // Add the base path if the import is relative
-        if (pathValue != null && env.isPathRelative(pathValue)) {
+        if (pathValue != null && context.isPathRelative(pathValue)) {
           path.value = rootpath + pathValue;
         }
       }
-      path.value = env.normalizePath(path.value);
+      path.value = context.normalizePath(path.value);
     }
 
     return path;
 
-//      evalPath: function (env) {
-//          var path = this.path.eval(env);
-//          var rootpath = this.currentFileInfo && this.currentFileInfo.rootpath;
+//2.3.1
+//  Import.prototype.evalPath = function (context) {
+//      var path = this.path.eval(context);
+//      var rootpath = this.currentFileInfo && this.currentFileInfo.rootpath;
 //
-//          if (!(path instanceof tree.URL)) {
-//              if (rootpath) {
-//                  var pathValue = path.value;
-//                  // Add the base path if the import is relative
-//                  if (pathValue && env.isPathRelative(pathValue)) {
-//                      path.value = rootpath +pathValue;
-//                  }
+//      if (!(path instanceof URL)) {
+//          if (rootpath) {
+//              var pathValue = path.value;
+//              // Add the base path if the import is relative
+//              if (pathValue && context.isPathRelative(pathValue)) {
+//                  path.value = rootpath + pathValue;
 //              }
-//              path.value = env.normalizePath(path.value);
 //          }
+//          path.value = context.normalizePath(path.value);
+//      }
 //
-//          return path;
-//      },
+//      return path;
+//  };
   }
 
   ///
-  /// replaces the @import rule with the imported ruleset
+  /// Replaces the @import rule with the imported ruleset
   /// Returns Node or List<Node>
   ///
-   eval(Contexts env) {
-    Node features = (this.features != null) ? this.features.eval(env) : null;
+  //2.3.1 ok
+   eval(Contexts context) {
+    Node features = (this.features != null) ? this.features.eval(context) : null;
 
     if (this.skip != null) {
       if (skip is Function) this.skip = this.skip();
@@ -188,50 +260,50 @@ class Import extends Node implements EvalNode, ToCSSNode {
       return (this.features != null) ? new Media([contents], this.features.value) : [contents];
 
     } else if (isTrue(this.css)) {
-      Import newImport = new Import(this.evalPath(env), features, this.options, this.index);
+      Import newImport = new Import(this.evalPath(context), features, this.options, this.index);
       if (!isTrue(newImport.css) && this.errorImport != null) throw new LessExceptionError(this.errorImport);
       return newImport;
 
     } else {
       Ruleset ruleset = new Ruleset(null, this.root.rules.sublist(0));
-      ruleset.evalImports(env);
+      ruleset.evalImports(context);
       return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
     }
 
-//      eval: function (env) {
-//          var ruleset, features = this.features && this.features.eval(env);
+//2.3.1
+//  Import.prototype.eval = function (context) {
+//      var ruleset, features = this.features && this.features.eval(context);
 //
-//          if (this.skip) {
-//              if (typeof this.skip === "function") {
-//                  this.skip = this.skip();
-//              }
-//              if (this.skip) {
-//                  return [];
-//              }
+//      if (this.skip) {
+//          if (typeof this.skip === "function") {
+//              this.skip = this.skip();
 //          }
-//
-//          if (this.options.inline) {
-//              //todo needs to reference css file not import
-//              var contents = new(tree.Anonymous)(this.root, 0, {filename: this.importedFilename}, true, true);
-//              return this.features ? new(tree.Media)([contents], this.features.value) : [contents];
-//          } else if (this.css) {
-//              var newImport = new(tree.Import)(this.evalPath(env), features, this.options, this.index);
-//              if (!newImport.css && this.error) {
-//                  throw this.error;
-//              }
-//              return newImport;
-//          } else {
-//              ruleset = new(tree.Ruleset)(null, this.root.rules.slice(0));
-//
-//              ruleset.evalImports(env);
-//
-//              return this.features ? new(tree.Media)(ruleset.rules, this.features.value) : ruleset.rules;
+//          if (this.skip) {
+//              return [];
 //          }
 //      }
+//
+//      if (this.options.inline) {
+//          var contents = new Anonymous(this.root, 0, {filename: this.importedFilename}, true, true);
+//          return this.features ? new Media([contents], this.features.value) : [contents];
+//      } else if (this.css) {
+//          var newImport = new Import(this.evalPath(context), features, this.options, this.index);
+//          if (!newImport.css && this.error) {
+//              throw this.error;
+//          }
+//          return newImport;
+//      } else {
+//          ruleset = new Ruleset(null, this.root.rules.slice(0));
+//
+//          ruleset.evalImports(context);
+//
+//          return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
+//      }
+//  };
   }
 }
 
-/// ex. options['less'] = true;  options.less = true;
+/// Example: options['less'] = true;  options.less = true;
 class ImportOptions {
   bool less;
   bool css;

@@ -1,4 +1,4 @@
-//source: less/tree/assignment.js 1.7.5
+//source: less/tree/assignment.js 2.3.1
 
 part of tree.less;
 
@@ -11,24 +11,50 @@ class Assignment extends Node implements ToCSSNode {
   Assignment(String this.key, Node this.value);
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
+
+//2.3.1
+//  Assignment.prototype.accept = function (visitor) {
+//      this.value = visitor.visit(this.value);
+//  };
   }
 
   ///
-  Assignment eval(Contexts env) {
-    if (this.value is EvalNode) return new Assignment(this.key, this.value.eval(env));
+  //2.3.1 ok
+  Assignment eval(Contexts context) {
+    if (this.value is EvalNode) return new Assignment(this.key, this.value.eval(context));
     return this;
+
+//2.3.1
+//  Assignment.prototype.eval = function (context) {
+//      if (this.value.eval) {
+//          return new Assignment(this.key, this.value.eval(context));
+//      }
+//      return this;
+//  };
   }
 
   ///
-  void genCSS(Contexts env, Output output) {
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     output.add(this.key + '=');
-    if (this.value is EvalNode) {
-      this.value.genCSS(env, output);
+    if (this.value is EvalNode) { //TODO is Node
+      this.value.genCSS(context, output);
     } else {
       output.add(this.value);
     }
+
+//2.3.1
+//  Assignment.prototype.genCSS = function (context, output) {
+//      output.add(this.key + '=');
+//      if (this.value.genCSS) {
+//          this.value.genCSS(context, output);
+//      } else {
+//          output.add(this.value);
+//      }
+//  };
   }
 
 //    toCSS: tree.toCSS

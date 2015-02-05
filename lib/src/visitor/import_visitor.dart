@@ -8,8 +8,8 @@ class ImportVisitor extends VisitorBase {
   ImportDetector  onceFileDetectionMap;
   ImportDetector  recursionDetector;
 
-  Contexts     env;
-  bool    isReplacing = true;
+  Contexts context;
+  bool isReplacing = true;
   Visitor _visitor;
 
   /// visitImport futures for await their completion
@@ -22,7 +22,7 @@ class ImportVisitor extends VisitorBase {
       ImportDetector recursionDetector]){
 
     this._visitor = new Visitor(this);
-    this.env = (evalEnv != null) ? evalEnv : new Contexts.eval();
+    this.context = (evalEnv != null) ? evalEnv : new Contexts.eval();
 
     this.onceFileDetectionMap = ImportDetector.own(onceFileDetectionMap);
     this.recursionDetector = ImportDetector.clone(recursionDetector);
@@ -69,7 +69,7 @@ class ImportVisitor extends VisitorBase {
     if (!importNode.css || inlineCSS) {
       try {
         //expand @variables in path value, ...
-        evaldImportNode = importNode.evalForImport(this.env);
+        evaldImportNode = importNode.evalForImport(this.context);
       } catch (e) {
         LessError error = LessError.transform(e,
             filename: importNode.currentFileInfo.filename,
@@ -84,7 +84,7 @@ class ImportVisitor extends VisitorBase {
         runners.add(completer.future);
         importNode = evaldImportNode;
         //this.importCount++;
-        Contexts env = new Contexts.eval(this.env, this.env.frames.sublist(0));
+        Contexts env = new Contexts.eval(this.context, this.context.frames.sublist(0));
         if (isTrue(importNode.options.multiple)) env.importMultiple = true;
 
         this.importer.push(importNode.getPath(), importNode.currentFileInfo, importNode.options).then((ImportedFile importedFile){
@@ -226,45 +226,45 @@ class ImportVisitor extends VisitorBase {
 
   ///
   Directive visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    this.env.frames.insert(0, directiveNode);
+    this.context.frames.insert(0, directiveNode);
     return directiveNode;
   }
 
   ///
   void visitDirectiveOut(Directive directiveNode) {
-    this.env.frames.removeAt(0);
+    this.context.frames.removeAt(0);
   }
 
   ///
   MixinDefinition visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
-    this.env.frames.insert(0, mixinDefinitionNode);
+    this.context.frames.insert(0, mixinDefinitionNode);
     return mixinDefinitionNode;
   }
 
   ///
   void visitMixinDefinitionOut(MixinDefinition mixinDefinitionNode) {
-    this.env.frames.removeAt(0);
+    this.context.frames.removeAt(0);
   }
 
   ///
   Ruleset visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    this.env.frames.insert(0, rulesetNode);
+    this.context.frames.insert(0, rulesetNode);
     return rulesetNode;
   }
 
   ///
   void visitRulesetOut(Ruleset rulesetNode) {
-    this.env.frames.removeAt(0);
+    this.context.frames.removeAt(0);
   }
 
   ///
   Media visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    this.env.frames.insert(0, mediaNode.rules[0]);
+    this.context.frames.insert(0, mediaNode.rules[0]);
     return mediaNode;
   }
 
   void visitMediaOut(Media mediaNode) {
-    this.env.frames.removeAt(0);
+    this.context.frames.removeAt(0);
   }
 
 

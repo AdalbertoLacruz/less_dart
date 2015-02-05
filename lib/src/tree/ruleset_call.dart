@@ -1,4 +1,4 @@
-//source: less/tree/ruleset-call.js 1.7.5
+//source: less/tree/ruleset-call.js 2.3.1
 
 part of tree.less;
 
@@ -10,10 +10,19 @@ class RulesetCall extends Node implements EvalNode {
   RulesetCall(String this.variable);
 
   ///
+  //2.3.1 TODO remove
   void accept(Visitor visitor) {}
 
-  Ruleset eval(Contexts env) {
-    DetachedRuleset detachedRuleset = new Variable(this.variable).eval(env);
-    return detachedRuleset.callEval(env);
+  ///
+  //2.3.1
+  Ruleset eval(Contexts context) {
+    DetachedRuleset detachedRuleset = new Variable(this.variable).eval(context);
+    return detachedRuleset.callEval(context);
+
+//2.3.1
+//  RulesetCall.prototype.eval = function (context) {
+//      var detachedRuleset = new Variable(this.variable).eval(context);
+//      return detachedRuleset.callEval(context);
+//  };
   }
 }

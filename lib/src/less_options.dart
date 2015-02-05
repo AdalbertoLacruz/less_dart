@@ -33,6 +33,9 @@ class LessOptions {
   /// Browser only - mime type for sheet import
   String mime;
 
+  /// Default Numeric precision
+  int numPrecision = 8;
+
   /// Whether to process imports. if false then imports will not be imported
   bool processImports = true;
 
@@ -491,6 +494,7 @@ class LessOptions {
     op.maxLineLen         = this.maxLineLen;
     op.strictMath         = this.strictMath;
     op.strictUnits        = this.strictUnits;
+    op.numPrecision       = this.numPrecision;
     op.urlArgs            = this.urlArgs;
 
     op.showTreeLevel      = this.showTreeLevel; //debug

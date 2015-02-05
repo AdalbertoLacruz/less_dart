@@ -18,6 +18,8 @@ part 'imports.dart';
 class Contexts {
   // ***** From options
 
+  bool avoidDartOptimization; //Dart prune some code apparently not used
+
   /// options.chunkInput
   bool chunkInput;
 
@@ -64,6 +66,9 @@ class Contexts {
   /// options.ieCompat
   bool ieCompat;
 
+  /// used to bubble up !important statements
+  List<ImportantRule> importantScope = [];
+
   /// options.importMultiple
   bool importMultiple;
 
@@ -81,7 +86,8 @@ class Contexts {
   /// options.mime
   String mime;  // browser only
 
-  int numPrecision = null; //functions frunt
+  /// options.numPrecision
+  int numPrecision; //functions frunt
 
   /// Stack for evaluating expression in parenthesis flag
   List<bool> parensStack;
@@ -195,6 +201,7 @@ class Contexts {
     processImports      = options.processImports;
     javascriptEnabled   = options.javascriptEnabled; //removed 2.2.0
     strictMath          = options.strictMath; //removed 2.2.0
+    numPrecision        = options.numPrecision;
     color               = options.color;
     silent              = options.silent; //removed 2.2.0
     customFunctions     = options.customFunctions; //dart version
@@ -247,6 +254,7 @@ class Contexts {
     newctx.ieCompat           = options.ieCompat;
     newctx.strictMath         = options.strictMath;
     newctx.strictUnits        = options.strictUnits;
+    newctx.numPrecision       = options.numPrecision;
     newctx.cleancss           = options.cleancss; //removed 2.2.0
     newctx.sourceMap          = options.sourceMap;
     newctx.importMultiple     = options.importMultiple;
@@ -259,6 +267,7 @@ class Contexts {
     if (options is Contexts) {
       Contexts context  = options as Contexts;
       newctx.defaultFunc    = context.defaultFunc;
+      newctx.importantScope = context.importantScope;
     }
   }
 
@@ -369,24 +378,26 @@ class Contexts {
 //  };
   }
 
-  // less/tree.js 1.7.5 lines 36-42
-   static find(List obj, Function fun) {
-     int i;
-     var r;
 
-     for (i = 0; i < obj.length; i++) {
-       r = fun(obj[i]);
-       if (r != null) return r;
-     }
-     return null;
-   }
-
-//tree.find = function (obj, fun) {
-//    for (var i = 0, r; i < obj.length; i++) {
-//        r = fun.call(obj, obj[i]);
-//        if (r) { return r; }
-//    }
-//    return null;
-//};
+//TODO 2.3.1 remove. Is now in Variable
+//  // less/tree.js 1.7.5 lines 36-42
+//   static find(List obj, Function fun) {
+//     int i;
+//     var r;
+//
+//     for (i = 0; i < obj.length; i++) {
+//       r = fun(obj[i]);
+//       if (r != null) return r;
+//     }
+//     return null;
+//   }
+//
+////tree.find = function (obj, fun) {
+////    for (var i = 0, r; i < obj.length; i++) {
+////        r = fun.call(obj, obj[i]);
+////        if (r) { return r; }
+////    }
+////    return null;
+////};
 
 }

@@ -1,9 +1,9 @@
-//source: less/tree/selector.js 1.7.5
+//source: less/tree/selector.js 2.3.1
 
 part of tree.less;
 
-// Selectors such as body, h1, ...
-class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
+/// Selectors such as body, h1, ...
+class Selector extends Node implements EvalNode, GetIsReferencedNode, MarkReferencedNode, ToCSSNode {
   List<Element> elements; //body, ...
   List<Node> extendList;
   Node condition;
@@ -27,20 +27,49 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 
   final String type = 'Selector';
 
+  ///
+  //2.3.1 ok
   Selector (List<Node> this.elements, [List<Node> this.extendList, Node this.condition, int this.index,
                             FileInfo this.currentFileInfo, bool this.isReferenced]) {
     if (this.currentFileInfo == null) this.currentFileInfo = new FileInfo();
     if (this.condition == null) this.evaldCondition = true;
+
+//2.3.1
+//  var Selector = function (elements, extendList, condition, index, currentFileInfo, isReferenced) {
+//      this.elements = elements;
+//      this.extendList = extendList;
+//      this.condition = condition;
+//      this.currentFileInfo = currentFileInfo || {};
+//      this.isReferenced = isReferenced;
+//      if (!condition) {
+//          this.evaldCondition = true;
+//      }
+//  };
   }
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.elements != null) this.elements = visitor.visitArray(this.elements);
     if (this.extendList != null) this.extendList = visitor.visitArray(this.extendList);
     if (this.condition != null) this.condition = visitor.visit(this.condition);
+
+//2.3.1
+//  Selector.prototype.accept = function (visitor) {
+//      if (this.elements) {
+//          this.elements = visitor.visitArray(this.elements);
+//      }
+//      if (this.extendList) {
+//          this.extendList = visitor.visitArray(this.extendList);
+//      }
+//      if (this.condition) {
+//          this.condition = visitor.visit(this.condition);
+//      }
+//  };
   }
 
   ///
+  //2.3.1 ok
   Selector createDerived(List<Element> elements, [List<Node> extendList, bool evaldCondition]) {
     evaldCondition = (evaldCondition != null)? evaldCondition : this.evaldCondition;
 
@@ -50,21 +79,22 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
         ..mediaEmpty = this.mediaEmpty;
     return newSelector;
 
-//    createDerived: function(elements, extendList, evaldCondition) {
-//        evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
-//        var newSelector = new(tree.Selector)(elements, extendList || this.extendList, null, this.index,
-//                          this.currentFileInfo, this.isReferenced);
-//        newSelector.evaldCondition = evaldCondition;
-//        newSelector.mediaEmpty = this.mediaEmpty;
-//        return newSelector;
-//    },
+//2.3.1
+//  Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
+//      evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
+//      var newSelector = new Selector(elements, extendList || this.extendList, null, this.index, this.currentFileInfo, this.isReferenced);
+//      newSelector.evaldCondition = evaldCondition;
+//      newSelector.mediaEmpty = this.mediaEmpty;
+//      return newSelector;
+//  };
   }
 
   ///
   /// Compares this Selector with the [other] Selector
   ///
   /// Returns number of matched Selector elements if match. 0 means not match.
-  /// #
+  ///
+  //2.3.1 ok
   int match(Selector other) {
     List<String> thisStrElements = this.strElements;
     List<String> otherStrElements = other.strElements;
@@ -96,181 +126,184 @@ class Selector extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 //
 //    return olen;
 
-
-//    match: function (other) {
-//        var elements = this.elements,
-//            len = elements.length,
-//            olen, i;
+//2.3.1
+//  Selector.prototype.match = function (other) {
+//      var elements = this.elements,
+//          len = elements.length,
+//          olen, i;
 //
-//        other.CacheElements();
+//      other.CacheElements();
 //
-//        olen = other._elements.length;
-//        if (olen === 0 || len < olen) {
-//            return 0;
-//        } else {
-//            for (i = 0; i < olen; i++) {
-//                if (elements[i].value !== other._elements[i]) {
-//                    return 0;
-//                }
-//            }
-//        }
+//      olen = other._elements.length;
+//      if (olen === 0 || len < olen) {
+//          return 0;
+//      } else {
+//          for (i = 0; i < olen; i++) {
+//              if (elements[i].value !== other._elements[i]) {
+//                  return 0;
+//              }
+//          }
+//      }
 //
-//        return olen; // return number of matched elements
-//    },
+//      return olen; // return number of matched elements
+//  };
   }
 
   ///
   /// Creates this._elements as a String List of selector names
   ///
   /// Example: ['#sel1', '.sel2', ...]
-  /// #
+  ///
+  //2.3.1 ok
   void cacheElements() {
-    String css = '';
-    int len;
-    Element v;
+    String css;
     RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
-    if (this._elements == null) {
-      len = this.elements.length;
-      for (int i = 0; i < len; i++) {
-        v = this.elements[i];
-        css += v.combinator.value;
+    if (this._elements != null) return; // cache exist
 
-        if (v.value is String) { //String or Node
-          css += v.value;
-          continue;
-        }
+    css = this.elements.map((Element v){
+      return v.combinator.value
+          + ((v.value is String) ? v.value : (v.value.value is String) ? v.value.value : '');
+    }).toList().join('');
 
-        if (v.value.value is! String) {
-          css = '';
-          break;
-        }
-        css += v.value.value;
-      }
-
-      Iterable<Match> matchs = re.allMatches(css);
-      if (matchs != null) {
-        this._elements = matchs.map((m) => m[0]).toList();
-        if (this._elements.isNotEmpty && this._elements[0] == '&') this._elements.removeAt(0);
-      } else {
-        this._elements = [];
-      }
+    Iterable<Match> matchs = re.allMatches(css);
+    if (matchs != null) {
+      this._elements = matchs.map((m) => m[0]).toList();
+      if (this._elements.isNotEmpty && this._elements[0] == '&') this._elements.removeAt(0);
+    } else {
+      this._elements = [];
     }
 
-//    CacheElements: function(){
-//        var css = '', len, v, i;
+
+//2.3.1
+//  Selector.prototype.CacheElements = function() {
+//      if (this._elements) {
+//          return;
+//      }
 //
-//        if( !this._elements ){
+//      var elements = this.elements.map( function(v) {
+//          return v.combinator.value + (v.value.value || v.value);
+//      }).join("").match(/[,&#\*\.\w-]([\w-]|(\\.))*/g);
 //
-//            len = this.elements.length;
-//            for(i = 0; i < len; i++){
+//      if (elements) {
+//          if (elements[0] === "&") {
+//              elements.shift();
+//          }
+//      } else {
+//          elements = [];
+//      }
 //
-//                v = this.elements[i];
-//                css += v.combinator.value;
-//
-//                if( !v.value.value ){
-//                    css += v.value;
-//                    continue;
-//                }
-//
-//                if( typeof v.value.value !== "string" ){
-//                    css = '';
-//                    break;
-//                }
-//                css += v.value.value;
-//            }
-//
-//            this._elements = css.match(/[,&#\*\.\w-]([\w-]|(\\.))*/g);
-//
-//            if (this._elements) {
-//                if (this._elements[0] === "&") {
-//                    this._elements.shift();
-//                }
-//
-//            } else {
-//                this._elements = [];
-//            }
-//
-//        }
-//    },
+//      this._elements = elements;
+//  };
   }
 
-  /// #
+  ///
+  //2.3.1 ok
   bool isJustParentSelector() => !this.mediaEmpty
                               && this.elements.length == 1
                               && this.elements[0].value == '&'
                               && (   this.elements[0].combinator.value == ' '
                                   || this.elements[0].combinator.value == '');
 
+  //2.3.1
+//  Selector.prototype.isJustParentSelector = function() {
+//      return !this.mediaEmpty &&
+//          this.elements.length === 1 &&
+//          this.elements[0].value === '&' &&
+//          (this.elements[0].combinator.value === ' ' || this.elements[0].combinator.value === '');
+//  };
+
   ///
-  Selector eval(Contexts env) {
+  //2.3.1 ok
+  Selector eval(Contexts context) {
     bool evaldCondition;
-    if (this.condition != null) evaldCondition = this.condition.eval(env); //evaldCondition null is ok
+    if (this.condition != null) evaldCondition = this.condition.eval(context); //evaldCondition null is ok
     List<Element> elements = this.elements;
     List<Node> extendList = this.extendList;
 
-    if (elements != null) elements = elements.map((e)=> e.eval(env)).toList();
-    if (extendList != null) extendList = extendList.map((extend) => extend.eval(env)).toList();
+    if (elements != null) elements = elements.map((e)=> e.eval(context)).toList();
+    if (extendList != null) extendList = extendList.map((extend) => extend.eval(context)).toList();
 
     return this.createDerived(elements, extendList, evaldCondition);
 
-//    eval: function (env) {
-//        var evaldCondition = this.condition && this.condition.eval(env),
-//            elements = this.elements, extendList = this.extendList;
+//2.3.1
+//  Selector.prototype.eval = function (context) {
+//      var evaldCondition = this.condition && this.condition.eval(context),
+//          elements = this.elements, extendList = this.extendList;
 //
-//        elements = elements && elements.map(function (e) { return e.eval(env); });
-//        extendList = extendList && extendList.map(function(extend) { return extend.eval(env); });
+//      elements = elements && elements.map(function (e) { return e.eval(context); });
+//      extendList = extendList && extendList.map(function(extend) { return extend.eval(context); });
 //
-//        return this.createDerived(elements, extendList, evaldCondition);
-//    },
+//      return this.createDerived(elements, extendList, evaldCondition);
+//  };
   }
 
   ///
   /// Writes Selector as String in [output]:
   ///  ' selector'. White space prefixed.
-  /// #
-  void genCSS(Contexts env, Output output) {
+  ///
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     Element element;
 
-    if ((env == null || !env.firstSelector) && this.elements[0].combinator.value == '') {
+    if ((context == null || !context.firstSelector) && this.elements[0].combinator.value == '') {
       output.add(' ', this.currentFileInfo, this.index);
     }
     if (!isNotEmpty(this._css)) {
-      // TODO (js) caching? speed comparison?
+      // todo caching? speed comparison?
       for (int i = 0; i < this.elements.length; i++) {
         element = this.elements[i];
-        element.genCSS(env, output);
+        element.genCSS(context, output);
       }
     }
 
-//    genCSS: function (env, output) {
-//        var i, element;
-//        if ((!env || !env.firstSelector) && this.elements[0].combinator.value === "") {
-//            output.add(' ', this.currentFileInfo, this.index);
-//        }
-//        if (!this._css) {
-//            //TODO caching? speed comparison?
-//            for(i = 0; i < this.elements.length; i++) {
-//                element = this.elements[i];
-//                element.genCSS(env, output);
-//            }
-//        }
-//    },
+//2.3.1
+//  Selector.prototype.genCSS = function (context, output) {
+//      var i, element;
+//      if ((!context || !context.firstSelector) && this.elements[0].combinator.value === "") {
+//          output.add(' ', this.currentFileInfo, this.index);
+//      }
+//      if (!this._css) {
+//          //todo caching? speed comparison?
+//          for(i = 0; i < this.elements.length; i++) {
+//              element = this.elements[i];
+//              element.genCSS(context, output);
+//          }
+//      }
+//  };
   }
 
 //    toCSS: tree.toCSS,
 
 
-  //--- MarkReferencedNode
+  //--- MarkReferencedNode -------------
 
   ///
+  //2.3.1 ok
   void markReferenced() {
     this.isReferenced = true;
+
+//2.3.1
+//  Selector.prototype.markReferenced = function () {
+//      this.isReferenced = true;
+//  };
   }
 
   ///
+  //2.3.1 ok
   bool getIsReferenced() => !this.currentFileInfo.reference || isTrue(this.isReferenced);
 
+//2.3.1
+//  Selector.prototype.getIsReferenced = function() {
+//      return !this.currentFileInfo.reference || this.isReferenced;
+//  };
+
   ///
+  //2.3.1 ok
   bool getIsOutput() => this.evaldCondition;
+
+//2.3.1
+//  Selector.prototype.getIsOutput = function() {
+//      return this.evaldCondition;
+//  };
 }

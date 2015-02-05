@@ -1,4 +1,4 @@
-//source: less/tree/mixin.js 1.7.5 lines 4-152
+//source: tree/mixin-call.js 2.3.1
 
 part of tree.less;
 
@@ -12,23 +12,47 @@ class MixinCall extends Node implements EvalNode{
 
   final String type = 'MixinCall';
 
+  ///
+  //2.3.1 ok
   MixinCall(elements, List args, int this.index, FileInfo this.currentFileInfo, bool this.important) {
     this.selector = new Selector(elements);
     if (args != null && args.isNotEmpty) this.arguments = args;
+
+//2.3.1
+//  var MixinCall = function (elements, args, index, currentFileInfo, important) {
+//      this.selector = new Selector(elements);
+//      this.arguments = (args && args.length) ? args : null;
+//      this.index = index;
+//      this.currentFileInfo = currentFileInfo;
+//      this.important = important;
+//  };
   }
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.selector != null) this.selector = visitor.visit(this.selector);
     if (this.arguments != null) this.arguments = visitor.visitArray(this.arguments);
+
+//2.3.1
+//  MixinCall.prototype.accept = function (visitor) {
+//      if (this.selector) {
+//          this.selector = visitor.visit(this.selector);
+//      }
+//      if (this.arguments) {
+//          this.arguments = visitor.visitArray(this.arguments);
+//      }
+//  };
   }
 
   ///
   /// Search the MixinDefinition and ...
   ///
-  eval(Contexts env) {
-    List<MixinDefinition> mixins;
+  //2.3.1 ok
+  eval(Contexts context) {
+    List<MixinFound> mixins;
     MatchConditionNode mixin;
+    List<Node> mixinPath;
     List<MixinArgs> args;
     List<Node> rules = [];
     bool match = false;
@@ -39,30 +63,60 @@ class MixinCall extends Node implements EvalNode{
     List<Candidate> candidates = [];
     Candidate candidate;
     List conditionResult = [null, null];
+    int defaultResult;
 
     DefaultFunc defaultFunc;
-    if (env.defaultFunc == null) {
-      env.defaultFunc = defaultFunc = new DefaultFunc();
+    if (context.defaultFunc == null) {
+      context.defaultFunc = defaultFunc = new DefaultFunc();
     } else {
-      defaultFunc = env.defaultFunc;
+      defaultFunc = context.defaultFunc;
     }
 
-    int defaultResult;
+    int defFalseEitherCase = -1;
+
     final int defNone = 0;
     final int defTrue = 1;
     final int defFalse = 2;
     List<int> count; // length == 3
-    var originalRuleset;
+    Ruleset originalRuleset;
+
+    // mixin is Node, mixinPath is List<Node>
+    int calcDefGroup(mixin, List mixinPath) {
+      var namespace;
+
+      for (int f = 0; f < 2; f++) {
+        conditionResult[f] = true;
+        defaultFunc.value(f);
+        for (int p = 0; p < mixinPath.length && conditionResult[f]; p++) {
+          namespace = mixinPath[p];
+          if (namespace is MatchConditionNode) {
+            conditionResult[f] = conditionResult[f] && namespace.matchCondition(null, context);
+          }
+        }
+        if (mixin is MatchConditionNode) {
+          conditionResult[f] = conditionResult[f] && mixin.matchCondition(args, context);
+        }
+      }
+      if (conditionResult[0] || conditionResult[1]) {
+        if (conditionResult[0] != conditionResult[1]) {
+          return conditionResult[1] ? defTrue : defFalse;
+        }
+        return defNone;
+      }
+      return defFalseEitherCase;
+    }
 
     if (this.arguments != null) {
       args = this.arguments.map((a) {
-        return new MixinArgs(name: a.name, value: a.value.eval(env));
+        return new MixinArgs(name: a.name, value: a.value.eval(context));
       }).toList();
     }
 
+    noArgumentsFilter(rule) => rule.matchArgs(null, context);
+
     // Search MixinDefinition
-    for (i = 0; i < env.frames.length; i++) {
-      if ((mixins = (env.frames[i] as VariableMixin).find(this.selector)).isNotEmpty) {
+    for (i = 0; i < context.frames.length; i++) {
+      if ((mixins = (context.frames[i] as VariableMixin).find(this.selector, null, noArgumentsFilter)).isNotEmpty) {
         isOneFound = true;
 
         // To make `default()` function independent of definition order we have two "subpasses" here.
@@ -71,34 +125,24 @@ class MixinCall extends Node implements EvalNode{
         // we make a final decision.
 
         for (m = 0; m < mixins.length; m++) {
-          mixin = mixins[m];
+          mixin = mixins[m].rule as MatchConditionNode;
+          mixinPath = mixins[m].path;
           isRecursive = false;
-          for (f = 0; f < env.frames.length; f++) {
-            if ((mixin is! MixinDefinition) && (mixin == env.frames[f].originalRuleset || mixin == env.frames[f])) {
+          for (f = 0; f < context.frames.length; f++) {
+            if ((mixin is! MixinDefinition) && (mixin == context.frames[f].originalRuleset || mixin == context.frames[f])) {
               isRecursive = true;
               break;
             }
           }
           if (isRecursive) continue;
 
-          if (mixin.matchArgs(args, env)) {
-            candidate = new Candidate(mixin: mixin, group: defNone);
+          if (mixin.matchArgs(args, context)) {
+            candidate = new Candidate(mixin: mixin, group: calcDefGroup(mixin, mixinPath));
 
-            if (mixin is MatchConditionNode) { // if (mixin.matchCondition)
-              for (f = 0; f < 2; f++) {
-                defaultFunc.value(f);
-                conditionResult[f] = mixin.matchCondition(args, env);
-              }
-              if (conditionResult[0] || conditionResult[1]) {
-                if (conditionResult[0] != conditionResult[1]) {
-                  candidate.group = conditionResult[1] ? defTrue : defFalse;
-                }
-                candidates.add(candidate);
-              }
-
-            } else {
+            if (candidate.group != defFalseEitherCase) {
               candidates.add(candidate);
             }
+
             match = true;
           }
         }
@@ -135,7 +179,7 @@ class MixinCall extends Node implements EvalNode{
                 (mixin as MixinDefinition).originalRuleset = originalRuleset;
                 if (originalRuleset != null) (mixin as MixinDefinition).id = originalRuleset.id;
               }
-              rules.addAll((mixin as MixinDefinition).evalCall(env, args, this.important).rules);
+              rules.addAll((mixin as MixinDefinition).evalCall(context, args, this.important).rules);
             } catch (e, s) {
               //in js creates a new error and lost type: NameError -> SyntaxError
               LessError error = LessError.transform(e,
@@ -169,12 +213,294 @@ class MixinCall extends Node implements EvalNode{
     } else {
       throw new LessExceptionError(new LessError(
           type: 'Name',
-          message: this.selector.toCSS(env).trim() + ' is undefined',
+          message: this.selector.toCSS(context).trim() + ' is undefined',
           index: this.index,
           filename: this.currentFileInfo.filename
       ));
     }
 
+//2.3.1
+//  MixinCall.prototype.eval = function (context) {
+//      var mixins, mixin, mixinPath, args, rules = [], match = false, i, m, f, isRecursive, isOneFound, rule,
+//          candidates = [], candidate, conditionResult = [], defaultResult, defFalseEitherCase = -1,
+//          defNone = 0, defTrue = 1, defFalse = 2, count, originalRuleset, noArgumentsFilter;
+//
+//      function calcDefGroup(mixin, mixinPath) {
+//          var p, namespace;
+//
+//          for (f = 0; f < 2; f++) {
+//              conditionResult[f] = true;
+//              defaultFunc.value(f);
+//              for(p = 0; p < mixinPath.length && conditionResult[f]; p++) {
+//                  namespace = mixinPath[p];
+//                  if (namespace.matchCondition) {
+//                      conditionResult[f] = conditionResult[f] && namespace.matchCondition(null, context);
+//                  }
+//              }
+//              if (mixin.matchCondition) {
+//                  conditionResult[f] = conditionResult[f] && mixin.matchCondition(args, context);
+//              }
+//          }
+//          if (conditionResult[0] || conditionResult[1]) {
+//              if (conditionResult[0] != conditionResult[1]) {
+//                  return conditionResult[1] ?
+//                      defTrue : defFalse;
+//              }
+//
+//              return defNone;
+//          }
+//          return defFalseEitherCase;
+//      }
+//
+//      args = this.arguments && this.arguments.map(function (a) {
+//          return { name: a.name, value: a.value.eval(context) };
+//      });
+//
+//      noArgumentsFilter = function(rule) {return rule.matchArgs(null, context);};
+//
+//      for (i = 0; i < context.frames.length; i++) {
+//          if ((mixins = context.frames[i].find(this.selector, null, noArgumentsFilter)).length > 0) {
+//              isOneFound = true;
+//
+//              // To make `default()` function independent of definition order we have two "subpasses" here.
+//              // At first we evaluate each guard *twice* (with `default() == true` and `default() == false`),
+//              // and build candidate list with corresponding flags. Then, when we know all possible matches,
+//              // we make a final decision.
+//
+//              for (m = 0; m < mixins.length; m++) {
+//                  mixin = mixins[m].rule;
+//                  mixinPath = mixins[m].path;
+//                  isRecursive = false;
+//                  for(f = 0; f < context.frames.length; f++) {
+//                      if ((!(mixin instanceof MixinDefinition)) && mixin === (context.frames[f].originalRuleset || context.frames[f])) {
+//                          isRecursive = true;
+//                          break;
+//                      }
+//                  }
+//                  if (isRecursive) {
+//                      continue;
+//                  }
+//
+//                  if (mixin.matchArgs(args, context)) {
+//                      candidate = {mixin: mixin, group: calcDefGroup(mixin, mixinPath)};
+//
+//                      if (candidate.group !== defFalseEitherCase) {
+//                          candidates.push(candidate);
+//                      }
+//
+//                      match = true;
+//                  }
+//              }
+//
+//              defaultFunc.reset();
+//
+//              count = [0, 0, 0];
+//              for (m = 0; m < candidates.length; m++) {
+//                  count[candidates[m].group]++;
+//              }
+//
+//              if (count[defNone] > 0) {
+//                  defaultResult = defFalse;
+//              } else {
+//                  defaultResult = defTrue;
+//                  if ((count[defTrue] + count[defFalse]) > 1) {
+//                      throw { type: 'Runtime',
+//                          message: 'Ambiguous use of `default()` found when matching for `' + this.format(args) + '`',
+//                          index: this.index, filename: this.currentFileInfo.filename };
+//                  }
+//              }
+//
+//              for (m = 0; m < candidates.length; m++) {
+//                  candidate = candidates[m].group;
+//                  if ((candidate === defNone) || (candidate === defaultResult)) {
+//                      try {
+//                          mixin = candidates[m].mixin;
+//                          if (!(mixin instanceof MixinDefinition)) {
+//                              originalRuleset = mixin.originalRuleset || mixin;
+//                              mixin = new MixinDefinition("", [], mixin.rules, null, false);
+//                              mixin.originalRuleset = originalRuleset;
+//                          }
+//                          Array.prototype.push.apply(
+//                              rules, mixin.evalCall(context, args, this.important).rules);
+//                      } catch (e) {
+//                          throw { message: e.message, index: this.index, filename: this.currentFileInfo.filename, stack: e.stack };
+//                      }
+//                  }
+//              }
+//
+//              if (match) {
+//                  if (!this.currentFileInfo || !this.currentFileInfo.reference) {
+//                      for (i = 0; i < rules.length; i++) {
+//                          rule = rules[i];
+//                          if (rule.markReferenced) {
+//                              rule.markReferenced();
+//                          }
+//                      }
+//                  }
+//                  return rules;
+//              }
+//          }
+//      }
+//      if (isOneFound) {
+//          throw { type:    'Runtime',
+//              message: 'No matching definition was found for `' + this.format(args) + '`',
+//              index:   this.index, filename: this.currentFileInfo.filename };
+//      } else {
+//          throw { type:    'Name',
+//              message: this.selector.toCSS().trim() + " is undefined",
+//              index:   this.index, filename: this.currentFileInfo.filename };
+//      }
+//  };
+//1.7.5 dart
+//    eval(Contexts context) {
+//      List<MixinDefinition> mixins;
+//      MatchConditionNode mixin;
+//      List<MixinArgs> args;
+//      List<Node> rules = [];
+//      bool match = false;
+//      int i, m, f; // for counters
+//      bool isRecursive;
+//      bool isOneFound = false;
+//      Node rule;
+//      List<Candidate> candidates = [];
+//      Candidate candidate;
+//      List conditionResult = [null, null];
+//
+//      DefaultFunc defaultFunc;
+//      if (context.defaultFunc == null) {
+//        context.defaultFunc = defaultFunc = new DefaultFunc();
+//      } else {
+//        defaultFunc = context.defaultFunc;
+//      }
+//
+//      int defaultResult;
+//      final int defNone = 0;
+//      final int defTrue = 1;
+//      final int defFalse = 2;
+//      List<int> count; // length == 3
+//      var originalRuleset;
+//
+//      if (this.arguments != null) {
+//        args = this.arguments.map((a) {
+//          return new MixinArgs(name: a.name, value: a.value.eval(context));
+//        }).toList();
+//      }
+//
+//      // Search MixinDefinition
+//      for (i = 0; i < context.frames.length; i++) {
+//        if ((mixins = (context.frames[i] as VariableMixin).find(this.selector)).isNotEmpty) {
+//          isOneFound = true;
+//
+//          // To make `default()` function independent of definition order we have two "subpasses" here.
+//          // At first we evaluate each guard *twice* (with `default() == true` and `default() == false`),
+//          // and build candidate list with corresponding flags. Then, when we know all possible matches,
+//          // we make a final decision.
+//
+//          for (m = 0; m < mixins.length; m++) {
+//            mixin = mixins[m];
+//            isRecursive = false;
+//            for (f = 0; f < context.frames.length; f++) {
+//              if ((mixin is! MixinDefinition) && (mixin == context.frames[f].originalRuleset || mixin == context.frames[f])) {
+//                isRecursive = true;
+//                break;
+//              }
+//            }
+//            if (isRecursive) continue;
+//
+//            if (mixin.matchArgs(args, context)) {
+//              candidate = new Candidate(mixin: mixin, group: defNone);
+//
+//              if (mixin is MatchConditionNode) { // if (mixin.matchCondition)
+//                for (f = 0; f < 2; f++) {
+//                  defaultFunc.value(f);
+//                  conditionResult[f] = mixin.matchCondition(args, context);
+//                }
+//                if (conditionResult[0] || conditionResult[1]) {
+//                  if (conditionResult[0] != conditionResult[1]) {
+//                    candidate.group = conditionResult[1] ? defTrue : defFalse;
+//                  }
+//                  candidates.add(candidate);
+//                }
+//
+//              } else {
+//                candidates.add(candidate);
+//              }
+//              match = true;
+//            }
+//          }
+//
+//          defaultFunc.reset();
+//
+//          count = [0, 0, 0];
+//          for (m = 0; m < candidates.length; m++) {
+//            count[candidates[m].group]++;
+//          }
+//
+//          if (count[defNone] > 0) {
+//            defaultResult = defFalse;
+//          } else {
+//            defaultResult = defTrue;
+//            if ((count[defTrue] + count[defFalse]) > 1) {
+//              throw new LessExceptionError(new LessError(
+//                  type: 'Runtime',
+//                  message: 'Ambiguous use of `default()` found when matching for `' + this.format(args) + '`',
+//                  index: this.index,
+//                  filename: this.currentFileInfo.filename));
+//            }
+//          }
+//
+//          for (m = 0; m < candidates.length; m++) {
+//            int candidateGroup = candidates[m].group;
+//            if (candidateGroup == defNone || candidateGroup == defaultResult) {
+//              try {
+//                mixin = candidates[m].mixin;
+//                if (mixin is! MixinDefinition) {
+//                  originalRuleset = (mixin as Ruleset).originalRuleset;
+//                  if (originalRuleset == null) originalRuleset = mixin;
+//                  mixin = new MixinDefinition('', [], mixin.rules, null, false, this.index, this.currentFileInfo);
+//                  (mixin as MixinDefinition).originalRuleset = originalRuleset;
+//                  if (originalRuleset != null) (mixin as MixinDefinition).id = originalRuleset.id;
+//                }
+//                rules.addAll((mixin as MixinDefinition).evalCall(context, args, this.important).rules);
+//              } catch (e, s) {
+//                //in js creates a new error and lost type: NameError -> SyntaxError
+//                LessError error = LessError.transform(e,
+//                    index: this.index,
+//                    filename: this.currentFileInfo.filename,
+//                    stackTrace: s);
+//                throw new LessExceptionError(error);
+//              }
+//            }
+//          }
+//
+//          if (match) {
+//            if (this.currentFileInfo == null || !this.currentFileInfo.reference) {
+//              for (i = 0; i < rules.length; i++) {
+//                rule = rules[i];
+//                if (rule is MarkReferencedNode) (rule as MarkReferencedNode).markReferenced();
+//              }
+//            }
+//            return rules;
+//          }
+//        }
+//      }
+//
+//      if (isOneFound) {
+//        throw new LessExceptionError(new LessError(
+//            type: 'Runtime',
+//            message: 'No matching definition was found for `' + this.format(args) + '`',
+//            index: this.index,
+//            filename: this.currentFileInfo.filename
+//        ));
+//      } else {
+//        throw new LessExceptionError(new LessError(
+//            type: 'Name',
+//            message: this.selector.toCSS(context).trim() + ' is undefined',
+//            index: this.index,
+//            filename: this.currentFileInfo.filename
+//        ));
+//      }
+//1.7.5
 //      eval: function (env) {
 //          var mixins, mixin, args, rules = [], match = false, i, m, f, isRecursive, isOneFound, rule,
 //              candidates = [], candidate, conditionResult = [], defaultFunc = tree.defaultFunc,
@@ -294,6 +620,7 @@ class MixinCall extends Node implements EvalNode{
   }
 
   /// Returns a String with the Mixin arguments
+  //2.3.1 ok
   String format(List<MixinArgs> args) {
     String result = this.selector.toCSS(null).trim();
     String argsStr = (args != null)? args.map((a){
@@ -309,21 +636,22 @@ class MixinCall extends Node implements EvalNode{
 
     return result + '(' + argsStr + ')';
 
-//      format: function (args) {
-//          return this.selector.toCSS().trim() + '(' +
-//              (args ? args.map(function (a) {
-//                  var argValue = "";
-//                  if (a.name) {
-//                      argValue += a.name + ":";
-//                  }
-//                  if (a.value.toCSS) {
-//                      argValue += a.value.toCSS();
-//                  } else {
-//                      argValue += "???";
-//                  }
-//                  return argValue;
-//              }).join(', ') : "") + ")";
-//      }
+//2.3.1
+//  MixinCall.prototype.format = function (args) {
+//      return this.selector.toCSS().trim() + '(' +
+//          (args ? args.map(function (a) {
+//              var argValue = "";
+//              if (a.name) {
+//                  argValue += a.name + ":";
+//              }
+//              if (a.value.toCSS) {
+//                  argValue += a.value.toCSS();
+//              } else {
+//                  argValue += "???";
+//              }
+//              return argValue;
+//          }).join(', ') : "") + ")";
+//  };
   }
 }
 

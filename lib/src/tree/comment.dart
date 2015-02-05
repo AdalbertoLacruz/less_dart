@@ -1,4 +1,4 @@
-//source: less/tree/comment.js 2.2.0
+//source: less/tree/comment.js 2.3.1
 
 part of tree.less;
 
@@ -52,7 +52,7 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 
   }
 
-  //TODO in 2.2.o goes to Node
+  //TODO in 2.2.0 goes to Node
   Node eval(env) => this;
 
   //--- MarkReferencedNode
@@ -63,10 +63,9 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
   }
 
   ///
-  //TODO testing 2.2.0
-  bool isRulesetLike(root) {
-    return (root != null);
-  }
+  //2.2.0 ok
+  bool isRulesetLike(bool root) => root;
+
 //2.2.0
 //  Comment.prototype.isRulesetLike = function(root) {
 //      return Boolean(root);

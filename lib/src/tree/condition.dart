@@ -1,4 +1,4 @@
-//source: less/tree/condition.js 1.7.5
+//source: less/tree/condition.js 2.3.1
 
 part of tree.less;
 
@@ -19,81 +19,56 @@ class Condition extends Node implements EvalNode {
   void accept(Visitor visitor) {
     this.lvalue = visitor.visit(this.lvalue);
     this.rvalue = visitor.visit(this.rvalue);
+
+//2.3.1
+//  Condition.prototype.accept = function (visitor) {
+//      this.lvalue = visitor.visit(this.lvalue);
+//      this.rvalue = visitor.visit(this.rvalue);
+//  };
   }
 
   ///
   /// Compare (lvalue op rvalue) returning true or false
-  /// #
-  bool eval(Contexts env) {
-    var a = this.lvalue.eval(env);
-    var b = this.rvalue.eval(env);
-
-    int i = this.index;
-    bool result;
-
-    bool compare(String op) {
-      int result;
+  ///
+  //2.3.1 ok
+  bool eval(Contexts context) {
+    bool comparation(String op, a, b) {
       switch (op) {
-        case 'and':
-          return a && b;
-        case 'or':
-          return a || b;
+        case 'and': return a && b;
+        case 'or':  return a || b;
         default:
-          if (a is CompareNode) {
-            result = a.compare(b);
-          } else if (b is CompareNode) {
-            result = b.compare(a);
-          } else {
-            throw new LessExceptionError(new LessError(
-                type: 'Type',
-                message: 'Unable to perform comparison',
-                index: i));
-          }
-          switch (result) {
+          switch (Node.compareNodes(a, b)) {
             case -1:
               return (op == '<' || op == '=<' || op == '<=');
             case 0:
               return (op == '=' || op == '>=' || op == '=<' || op == '<=');
             case 1:
-            return (op == '>' || op == '>=');
+              return (op == '>' || op == '>=');
+            default:
+              return false;
           }
-      }
-      return false;
+        }
     }
-
-    result = compare(this.op);
+    bool result = comparation(this.op, this.lvalue.eval(context), this.rvalue.eval(context));
     return this.negate ? !result : result;
 
-//    eval: function (env) {
-//        var a = this.lvalue.eval(env),
-//            b = this.rvalue.eval(env);
+//2.3.1
+//  Condition.prototype.eval = function (context) {
+//      var result = (function (op, a, b) {
+//          switch (op) {
+//              case 'and': return a && b;
+//              case 'or':  return a || b;
+//              default:
+//                  switch (Node.compare(a, b)) {
+//                      case -1: return op === '<' || op === '=<' || op === '<=';
+//                      case  0: return op === '=' || op === '>=' || op === '=<' || op === '<=';
+//                      case  1: return op === '>' || op === '>=';
+//                          default: return false;
+//                  }
+//          }
+//      })(this.op, this.lvalue.eval(context), this.rvalue.eval(context));
 //
-//        var i = this.index, result;
-//
-//        result = (function (op) {
-//            switch (op) {
-//                case 'and':
-//                    return a && b;
-//                case 'or':
-//                    return a || b;
-//                default:
-//                    if (a.compare) {
-//                        result = a.compare(b);
-//                    } else if (b.compare) {
-//                        result = b.compare(a);
-//                    } else {
-//                        throw { type: "Type",
-//                                message: "Unable to perform comparison",
-//                                index: i };
-//                    }
-//                    switch (result) {
-//                        case -1: return op === '<' || op === '=<' || op === '<=';
-//                        case  0: return op === '=' || op === '>=' || op === '=<' || op === '<=';
-//                        case  1: return op === '>' || op === '>=';
-//                    }
-//            }
-//        })(this.op);
-//        return this.negate ? !result : result;
-//    }
+//      return this.negate ? !result : result;
+//  };
   }
 }

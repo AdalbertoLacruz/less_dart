@@ -1,4 +1,4 @@
-//source: less/tree/anonymous.js 1.7.5
+//source: less/tree/detached-ruleset.js 2.3.1
 
 part of tree.less;
 
@@ -6,33 +6,44 @@ class DetachedRuleset extends Node implements EvalNode {
   Ruleset ruleset;
   List<Node> frames;
 
+  bool evalFirst = true;
   final String type = 'DetachedRuleset';
 
   DetachedRuleset(this.ruleset, [this.frames]);
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     this.ruleset = visitor.visit(this.ruleset);
+
+//2.3.1
+//  DetachedRuleset.prototype.accept = function (visitor) {
+//      this.ruleset = visitor.visit(this.ruleset);
+//  };
   }
 
   ///
-  DetachedRuleset eval(Contexts env) {
-    List<Node> frames = getValueOrDefault(this.frames, env.frames.sublist(0));
+  //2.3.1 ok
+  DetachedRuleset eval(Contexts context) {
+    List<Node> frames = getValueOrDefault(this.frames, context.frames.sublist(0));
     return new DetachedRuleset(this.ruleset, frames);
 
-//    eval: function (env) {
-//        var frames = this.frames || env.frames.slice(0);
-//        return new tree.DetachedRuleset(this.ruleset, frames);
-//    },
+//2.3.1
+//  DetachedRuleset.prototype.eval = function (context) {
+//      var frames = this.frames || context.frames.slice(0);
+//      return new DetachedRuleset(this.ruleset, frames);
+//  };
   }
 
   ///
-  Ruleset callEval(Contexts env) {
-    Contexts ctx = (this.frames != null) ? new Contexts.eval(env, this.frames.sublist(0)..addAll(env.frames)) : env;
+  //2.3.1 ok
+  Ruleset callEval(Contexts context) {
+    Contexts ctx = (this.frames != null) ? new Contexts.eval(context, this.frames.sublist(0)..addAll(context.frames)) : context;
     return this.ruleset.eval(ctx);
 
-//    callEval: function (env) {
-//        return this.ruleset.eval(this.frames ? new(tree.evalEnv)(env, this.frames.concat(env.frames)) : env);
-//    }
+//2.3.1
+//  DetachedRuleset.prototype.callEval = function (context) {
+//      return this.ruleset.eval(this.frames ? new contexts.Eval(context, this.frames.concat(context.frames)) : context);
+//  };
   }
 }

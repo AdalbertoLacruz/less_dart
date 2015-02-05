@@ -40,6 +40,8 @@ class VisitorBase {
      throw new LessExceptionError(error);
    }
 
+   visit(node) => node;
+
 }
 
 class VisitArgs {

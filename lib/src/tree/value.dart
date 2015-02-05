@@ -1,4 +1,4 @@
-//source: less/tree/value.js 1.7.5
+//source: less/tree/value.js 2.3.1
 
 part of tree.less;
 
@@ -7,40 +7,75 @@ class Value extends Node implements EvalNode, ToCSSNode {
 
   final String type = 'Value';
 
-  Value(List<Node> this.value);
+  ///
+  //2.3.1 ok
+  Value(List<Node> this.value) {
+    if (this.value == null) throw new LessExceptionError(new LessError(
+        message: 'Value requires an array argument'));
+  }
+
+//2.3.1
+//  var Value = function (value) {
+//      this.value = value;
+//      if (!value) {
+//          throw new Error("Value requires an array argument");
+//      }
+//  };
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.value != null) this.value = visitor.visitArray(this.value);
+
+//2.3.1
+//  Value.prototype.accept = function (visitor) {
+//      if (this.value) {
+//          this.value = visitor.visitArray(this.value);
+//      }
+//  };
   }
 
   ///
-  Node eval(Contexts env) {
+  //2.3.1 ok
+  Node eval(Contexts context) {
     if (this.value.length == 1) {
-      return this.value.first.eval(env);
+      return this.value.first.eval(context);
     } else {
-      return new Value(this.value.map((v){
-        return (v as Node).eval(env);
+      return new Value(this.value.map((Node v){
+        return v.eval(context);
       }).toList());
     }
 
-//    eval: function (env) {
-//        if (this.value.length === 1) {
-//            return this.value[0].eval(env);
-//        } else {
-//            return new(tree.Value)(this.value.map(function (v) {
-//                return v.eval(env);
-//            }));
-//        }
-//    },
+//2.3.1
+//  Value.prototype.eval = function (context) {
+//      if (this.value.length === 1) {
+//          return this.value[0].eval(context);
+//      } else {
+//          return new Value(this.value.map(function (v) {
+//              return v.eval(context);
+//          }));
+//      }
+//  };
   }
 
   ///
-  void genCSS(Contexts env, Output output) {
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     for (int i = 0; i < this.value.length; i++) {
-      this.value[i].genCSS(env, output);
-      if (i+1 < this.value.length) output.add((env != null && env.compress) ? ',' : ', ');
+      this.value[i].genCSS(context, output);
+      if (i+1 < this.value.length) output.add((context != null && context.compress) ? ',' : ', ');
     }
+
+//2.3.1
+//  Value.prototype.genCSS = function (context, output) {
+//      var i;
+//      for(i = 0; i < this.value.length; i++) {
+//          this.value[i].genCSS(context, output);
+//          if (i + 1 < this.value.length) {
+//              output.add((context && context.compress) ? ',' : ', ');
+//          }
+//      }
+//  };
   }
 
 //    toCSS: tree.toCSS

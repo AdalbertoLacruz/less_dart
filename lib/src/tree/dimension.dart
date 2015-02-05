@@ -1,18 +1,21 @@
-//source: less/tree/dimension.js 1.7.5
+//source: less/tree/dimension.js 2.3.1
 
 part of tree.less;
 
-/*
- * A number with a unit
- */
+///
+/// A number with a unit
+///
 class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNode {
   double value;
   Unit unit;
 
   final String type = 'Dimension';
 
+  ///
   /// [value] is double or String
   /// [unit] is Unit or String
+  ///
+  //2.3.1 ok
   Dimension(value, [unit = null]) {
     this.value = (value is String) ? double.parse(value) : value.toDouble();
 
@@ -21,26 +24,43 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
     } else {
       this.unit = new Unit();
     }
+
+//2.3.1
+//  var Dimension = function (value, unit) {
+//      this.value = parseFloat(value);
+//      this.unit = (unit && unit instanceof Unit) ? unit :
+//        new Unit(unit ? [unit] : undefined);
+//  };
   }
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     this.unit = visitor.visit(this.unit);
+
+//2.3.1
+//  Dimension.prototype.accept = function (visitor) {
+//      this.unit = visitor.visit(this.unit);
+//  };
   }
 
   ///
-  Dimension eval(Contexts env) => this;
+  //2.3.1 ok
+  Dimension eval(Contexts context) => this;
 
   ///
+  //2.3.1 ok
   Color toColor() => new Color([this.value, this.value, this.value]);
 
-  void genCSS(Contexts env, Output output) {
-    if ((env != null && isTrue(env.strictUnits)) && !this.unit.isSingular()) {
+  ///
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
+    if ((context != null && isTrue(context.strictUnits)) && !this.unit.isSingular()) {
       throw new LessExceptionError(new LessError(
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
     }
 
-    double value = fround(env, this.value);
+    double value = fround(context, this.value);
     String strValue = numToString(value); //10.0 -> '10'
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
@@ -48,9 +68,9 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
       strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
     }
 
-    if (env != null && env.compress) {
+    if (context != null && context.compress) {
       // Zero values doesn't need a unit
-      if (value == 0 && this.unit.isLength(env)) {
+      if (value == 0 && this.unit.isLength(context)) {
         output.add(strValue);
         return;
       }
@@ -62,37 +82,38 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
     }
 
     output.add(strValue);
-    this.unit.genCSS(env, output);
+    this.unit.genCSS(context, output);
 
-//      genCSS: function (env, output) {
-//          if ((env && env.strictUnits) && !this.unit.isSingular()) {
-//              throw new Error("Multiple units in dimension. Correct the units or use the unit function. Bad unit: "+this.unit.toString());
+//2.3.1
+//  Dimension.prototype.genCSS = function (context, output) {
+//      if ((context && context.strictUnits) && !this.unit.isSingular()) {
+//          throw new Error("Multiple units in dimension. Correct the units or use the unit function. Bad unit: " + this.unit.toString());
+//      }
+//
+//      var value = this.fround(context, this.value),
+//          strValue = String(value);
+//
+//      if (value !== 0 && value < 0.000001 && value > -0.000001) {
+//          // would be output 1e-6 etc.
+//          strValue = value.toFixed(20).replace(/0+$/, "");
+//      }
+//
+//      if (context && context.compress) {
+//          // Zero values doesn't need a unit
+//          if (value === 0 && this.unit.isLength()) {
+//              output.add(strValue);
+//              return;
 //          }
 //
-//          var value = tree.fround(env, this.value),
-//              strValue = String(value);
-//
-//          if (value !== 0 && value < 0.000001 && value > -0.000001) {
-//              // would be output 1e-6 etc.
-//              strValue = value.toFixed(20).replace(/0+$/, "");
+//          // Float values doesn't need a leading zero
+//          if (value > 0 && value < 1) {
+//              strValue = (strValue).substr(1);
 //          }
+//      }
 //
-//          if (env && env.compress) {
-//              // Zero values doesn't need a unit
-//              if (value === 0 && this.unit.isLength()) {
-//                  output.add(strValue);
-//                  return;
-//              }
-//
-//              // Float values doesn't need a leading zero
-//              if (value > 0 && value < 1) {
-//                  strValue = (strValue).substr(1);
-//              }
-//          }
-//
-//          output.add(strValue);
-//          this.unit.genCSS(env, output);
-//      },
+//      output.add(strValue);
+//      this.unit.genCSS(context, output);
+//  };
   }
 
 //      toCSS: tree.toCSS,
@@ -104,8 +125,9 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
   /// we default to the first Dimension's unit,
   /// so `1px + 2` will yield `3px`.
   ///
-  Dimension operate(Contexts env, String op, Dimension other) {
-    num value = Operation.operateExec(env, op, this.value, other.value);
+  //2.3.1 ok
+  Dimension operate(Contexts context, String op, Dimension other) {
+    num value = _operate(context, op, this.value, other.value);
     Unit unit = this.unit.clone();
 
     if (op == '+' || op == '-') {
@@ -117,13 +139,13 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
       } else {
         other = other.convertTo(this.unit.usedUnits());
 
-        if (env.strictUnits && other.unit.toString() != unit.toString()) {
+        if (context.strictUnits && other.unit.toString() != unit.toString()) {
           throw new LessExceptionError(new LessError(
               message: "Incompatible units. Change the units or use the unit function. Bad units: '"
                 + unit.toString() + "' and '" + other.unit.toString() + "'."));
         }
 
-        value = Operation.operateExec(env, op, this.value, other.value);
+        value = _operate(context, op, this.value, other.value);
       }
     } else if (op == '*') {
       unit.numerator
@@ -145,103 +167,106 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
 
     return new Dimension(value, unit);
 
-//      operate: function (env, op, other) {
-//          /*jshint noempty:false */
-//          var value = tree.operate(env, op, this.value, other.value),
-//              unit = this.unit.clone();
+//2.3.1
+//  Dimension.prototype.operate = function (context, op, other) {
+//      /*jshint noempty:false */
+//      var value = this._operate(context, op, this.value, other.value),
+//          unit = this.unit.clone();
 //
-//          if (op === '+' || op === '-') {
-//              if (unit.numerator.length === 0 && unit.denominator.length === 0) {
-//                  unit.numerator = other.unit.numerator.slice(0);
-//                  unit.denominator = other.unit.denominator.slice(0);
-//              } else if (other.unit.numerator.length === 0 && unit.denominator.length === 0) {
-//                  // do nothing
-//              } else {
-//                  other = other.convertTo(this.unit.usedUnits());
+//      if (op === '+' || op === '-') {
+//          if (unit.numerator.length === 0 && unit.denominator.length === 0) {
+//              unit.numerator = other.unit.numerator.slice(0);
+//              unit.denominator = other.unit.denominator.slice(0);
+//          } else if (other.unit.numerator.length === 0 && unit.denominator.length === 0) {
+//              // do nothing
+//          } else {
+//              other = other.convertTo(this.unit.usedUnits());
 //
-//                  if(env.strictUnits && other.unit.toString() !== unit.toString()) {
-//                    throw new Error("Incompatible units. Change the units or use the unit function. Bad units: '" + unit.toString() +
-//                      "' and '" + other.unit.toString() + "'.");
-//                  }
-//
-//                  value = tree.operate(env, op, this.value, other.value);
+//              if(context.strictUnits && other.unit.toString() !== unit.toString()) {
+//                throw new Error("Incompatible units. Change the units or use the unit function. Bad units: '" + unit.toString() +
+//                  "' and '" + other.unit.toString() + "'.");
 //              }
-//          } else if (op === '*') {
-//              unit.numerator = unit.numerator.concat(other.unit.numerator).sort();
-//              unit.denominator = unit.denominator.concat(other.unit.denominator).sort();
-//              unit.cancel();
-//          } else if (op === '/') {
-//              unit.numerator = unit.numerator.concat(other.unit.denominator).sort();
-//              unit.denominator = unit.denominator.concat(other.unit.numerator).sort();
-//              unit.cancel();
+//
+//              value = this._operate(context, op, this.value, other.value);
 //          }
-//          return new(tree.Dimension)(value, unit);
-//      },
+//      } else if (op === '*') {
+//          unit.numerator = unit.numerator.concat(other.unit.numerator).sort();
+//          unit.denominator = unit.denominator.concat(other.unit.denominator).sort();
+//          unit.cancel();
+//      } else if (op === '/') {
+//          unit.numerator = unit.numerator.concat(other.unit.denominator).sort();
+//          unit.denominator = unit.denominator.concat(other.unit.numerator).sort();
+//          unit.cancel();
+//      }
+//      return new Dimension(value, unit);
+//  };
   }
 
 
 //--- CompareNode
 
+  ///
   /// Returns -1, 0 or +1
-  int compare(Node other) {
-    if (other is! Dimension) return -1;
+  ///
+  //2.3.1 ok
+  int compare(Node otherNode) {
+    if (otherNode is! Dimension) return null;
 
-    Dimension otherDim = other as Dimension;
     Dimension a;
     Dimension b;
+    Dimension other = otherNode as Dimension;
 
-    if (this.unit.isEmpty() || otherDim.unit.isEmpty()) {
+    if (this.unit.isEmpty() || other.unit.isEmpty()) {
       a = this;
-      b = otherDim;
+      b = other;
     } else {
       a = this.unify();
-      b = otherDim.unify();
-      if (a.unit.compare(b.unit) != 0) return -1;
+      b = other.unify();
+      if (a.unit.compare(b.unit) != 0) return null;
     }
 
-    return a.value.compareTo(b.value);
+    return Node.numericCompare(a.value, b.value);
 
-//      compare: function (other) {
-//          if (other instanceof tree.Dimension) {
-//              var a, b,
-//                  aValue, bValue;
+//2.3.1
+//  Dimension.prototype.compare = function (other) {
+//      var a, b;
 //
-//              if (this.unit.isEmpty() || other.unit.isEmpty()) {
-//                  a = this;
-//                  b = other;
-//              } else {
-//                  a = this.unify();
-//                  b = other.unify();
-//                  if (a.unit.compare(b.unit) !== 0) {
-//                      return -1;
-//                  }
-//              }
-//              aValue = a.value;
-//              bValue = b.value;
+//      if (!(other instanceof Dimension)) {
+//          return undefined;
+//      }
 //
-//              if (bValue > aValue) {
-//                  return -1;
-//              } else if (bValue < aValue) {
-//                  return 1;
-//              } else {
-//                  return 0;
-//              }
-//          } else {
-//              return -1;
+//      if (this.unit.isEmpty() || other.unit.isEmpty()) {
+//          a = this;
+//          b = other;
+//      } else {
+//          a = this.unify();
+//          b = other.unify();
+//          if (a.unit.compare(b.unit) !== 0) {
+//              return undefined;
 //          }
-//      },
+//      }
+//
+//      return Node.numericCompare(a.value, b.value);
+//  };
   }
 
   ///
   /// Normalize the units to px, s, or rad
   ///
+  //2.3.1 ok
   Dimension unify() => convertTo({ 'length': 'px', 'duration': 's', 'angle': 'rad' });
 
+//2.3.1
+//  Dimension.prototype.unify = function () {
+//      return this.convertTo({ length: 'px', duration: 's', angle: 'rad' });
+//  };
+
   ///
-  /// Convert a number from one unit into another
+  /// Converts a number from one unit into another
   /// [conversions] ==  'px', 's' , ...
   /// or { length: 'px', duration: 's', angle: 'rad' }
   ///
+  //2.3.1 ok
   Dimension convertTo(conversions) {
     double value = this.value;
     Unit unit = this.unit.clone();
@@ -291,46 +316,47 @@ class Dimension extends Node implements CompareNode, EvalNode, OperateNode, ToCS
 
     return new Dimension(value, unit);
 
-//      convertTo: function (conversions) {
-//          var value = this.value, unit = this.unit.clone(),
-//              i, groupName, group, targetUnit, derivedConversions = {}, applyUnit;
+//2.3.1
+//  Dimension.prototype.convertTo = function (conversions) {
+//      var value = this.value, unit = this.unit.clone(),
+//          i, groupName, group, targetUnit, derivedConversions = {}, applyUnit;
 //
-//          if (typeof conversions === 'string') {
-//              for(i in tree.UnitConversions) {
-//                  if (tree.UnitConversions[i].hasOwnProperty(conversions)) {
-//                      derivedConversions = {};
-//                      derivedConversions[i] = conversions;
-//                  }
-//              }
-//              conversions = derivedConversions;
-//          }
-//          applyUnit = function (atomicUnit, denominator) {
-//            /*jshint loopfunc:true */
-//              if (group.hasOwnProperty(atomicUnit)) {
-//                  if (denominator) {
-//                      value = value / (group[atomicUnit] / group[targetUnit]);
-//                  } else {
-//                      value = value * (group[atomicUnit] / group[targetUnit]);
-//                  }
-//
-//                  return targetUnit;
-//              }
-//
-//              return atomicUnit;
-//          };
-//
-//          for (groupName in conversions) {
-//              if (conversions.hasOwnProperty(groupName)) {
-//                  targetUnit = conversions[groupName];
-//                  group = tree.UnitConversions[groupName];
-//
-//                  unit.map(applyUnit);
+//      if (typeof conversions === 'string') {
+//          for(i in unitConversions) {
+//              if (unitConversions[i].hasOwnProperty(conversions)) {
+//                  derivedConversions = {};
+//                  derivedConversions[i] = conversions;
 //              }
 //          }
-//
-//          unit.cancel();
-//
-//          return new(tree.Dimension)(value, unit);
+//          conversions = derivedConversions;
 //      }
+//      applyUnit = function (atomicUnit, denominator) {
+//        /*jshint loopfunc:true */
+//          if (group.hasOwnProperty(atomicUnit)) {
+//              if (denominator) {
+//                  value = value / (group[atomicUnit] / group[targetUnit]);
+//              } else {
+//                  value = value * (group[atomicUnit] / group[targetUnit]);
+//              }
+//
+//              return targetUnit;
+//          }
+//
+//          return atomicUnit;
+//      };
+//
+//      for (groupName in conversions) {
+//          if (conversions.hasOwnProperty(groupName)) {
+//              targetUnit = conversions[groupName];
+//              group = unitConversions[groupName];
+//
+//              unit.map(applyUnit);
+//          }
+//      }
+//
+//      unit.cancel();
+//
+//      return new Dimension(value, unit);
+//  };
   }
 }

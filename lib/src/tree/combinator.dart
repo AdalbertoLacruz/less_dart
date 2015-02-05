@@ -1,9 +1,10 @@
-//source: less/tree/element.js 1.7.5 lines 71-90
+//source: tree/combinator.js 2.3.1
 
 part of tree.less;
 
 class Combinator extends Node implements ToCSSNode {
   String value = '';
+  bool emptyOrWhitespace;
 
   Map<String, bool> _noSpaceCombinators = {
     '': true,
@@ -13,25 +14,42 @@ class Combinator extends Node implements ToCSSNode {
 
   final String type = 'Combinator';
 
+  ///
+  //2.3.1 ok
   Combinator (String value) {
     if (value == ' ') {
       this.value = ' ';
+      this.emptyOrWhitespace = true;
     } else if (value != null) {
       this.value = value.trim();
+      this.emptyOrWhitespace = this.value.isEmpty;
     }
+
+//2.3.1
+//  var Combinator = function (value) {
+//      if (value === ' ') {
+//          this.value = ' ';
+//          this.emptyOrWhitespace = true;
+//      } else {
+//          this.value = value ? value.trim() : "";
+//          this.emptyOrWhitespace = this.value === "";
+//      }
+//  };
   }
 
   ///
   /// Writes value in [output]
-  /// #
-  genCSS(Contexts env, Output output) {
-    String spaceOrEmpty = (isTrue(env.compress) || isTrue(this._noSpaceCombinators[this.value])) ? '' : ' ';
+  ///
+  //2.3.1 ok
+  genCSS(Contexts context, Output output) {
+    String spaceOrEmpty = (isTrue(context.compress) || isTrue(this._noSpaceCombinators[this.value])) ? '' : ' ';
     output.add(spaceOrEmpty + this.value + spaceOrEmpty);
 
-//    genCSS: function (env, output) {
-//        var spaceOrEmpty = (env.compress || this._noSpaceCombinators[this.value]) ? '' : ' ';
-//        output.add(spaceOrEmpty + this.value + spaceOrEmpty);
-//    },
+//2.3.1
+//  Combinator.prototype.genCSS = function (context, output) {
+//      var spaceOrEmpty = (context.compress || _noSpaceCombinators[this.value]) ? '' : ' ';
+//      output.add(spaceOrEmpty + this.value + spaceOrEmpty);
+//  };
   }
 
   // toCSS => node.toCSS

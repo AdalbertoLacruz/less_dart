@@ -1,4 +1,4 @@
-//source: less/tree/color.js 2.2.0
+//source: less/tree/color.js 2.3.1
 
 part of tree.less;
 
@@ -9,7 +9,7 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
   List<num> rgb;
   num alpha;
 
-  String keyword;
+  String value;
   static String transparentKeyword = 'transparent';
 
   final String type = 'Color';
@@ -64,7 +64,7 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
   }
 
   ///
-  //2.2.0 ok
+  //2.3.1 ok
   factory Color.fromKeyword(String keyword){
     Color c;
     String key = keyword.toLowerCase();
@@ -77,13 +77,13 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
     }
 
     if (c != null) {
-      c.keyword = keyword;
+      c.value = keyword;
       return c;
     }
 
     return null;
 
-//2.2.0
+//2.3.1
 //  Color.fromKeyword = function(keyword) {
 //      var c, key = keyword.toLowerCase();
 //      if (colors.hasOwnProperty(key)) {
@@ -94,9 +94,10 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
 //      }
 //
 //      if (c) {
-//          c.keyword = keyword;
+//          c.value = keyword;
 //          return c;
 //      }
+//  };
   }
 
   ///
@@ -140,12 +141,12 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
   ///
   /// Returns this color as string. Transparent, #rrggbb, #rgb.
   ///
-  //2.2.0 ok
+  //2.3.1 ok
   String toCSS(context) {
-    // `keyword` is set if this color was originally
+    // `value` is set if this color was originally
     // converted from a named color string so we need
     // to respect this and try to output named color too.
-    if (this.keyword != null) return this.keyword;
+    if (this.value != null) return this.value;
 
     bool compress = (context != null) ? context.compress : false;
 
@@ -175,15 +176,15 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
     }
     return color;
 
-//2.2.0
+//2.3.1
 //  Color.prototype.toCSS = function (context, doNotCompress) {
 //      var compress = context && context.compress && !doNotCompress, color, alpha;
 //
-//      // `keyword` is set if this color was originally
+//      // `value` is set if this color was originally
 //      // converted from a named color string so we need
 //      // to respect this and try to output named color too.
-//      if (this.keyword) {
-//          return this.keyword;
+//      if (this.value) {
+//          return this.value;
 //      }
 //
 //      // If we have some transparency, the only way to represent it
@@ -222,16 +223,16 @@ class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNod
   /// our result, in the form of an integer triplet,
   /// we create a new Color node to hold the result.
   ///
-  //2.2.0 TODO
+  //2.3.1
   Color operate(Contexts context, String op, Color other) {
     List<num> rgb = [0, 0, 0];
     num alpha = this.alpha * (1 - other.alpha) + other.alpha;
     for (int c = 0; c < 3; c++) {
-      rgb[c] = Operation.operateExec(context, op, this.rgb[c], other.rgb[c]); //TODO 2.2.0
+      rgb[c] = _operate(context, op, this.rgb[c], other.rgb[c]);
     }
     return new Color(rgb, alpha);
 
-//2.2.0
+//2.3.1
 //  Color.prototype.operate = function (context, op, other) {
 //      var rgb = [];
 //      var alpha = this.alpha * (1 - other.alpha) + other.alpha;

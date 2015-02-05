@@ -814,7 +814,7 @@ class ColorFunctions extends FunctionBase {
       return new Color(c.value.substring(1)); // #rrggbb - without #
     }
     if (c is Color || (c = new Color.fromKeyword(c.value)) != null) {
-      (c as Color).keyword = null;
+      (c as Color).value = null;
       return c;
     }
     throw new LessExceptionError(new LessError(

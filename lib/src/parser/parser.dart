@@ -7,7 +7,6 @@ import 'dart:io';
 
 import '../contexts.dart';
 import '../file_info.dart';
-import '../less_debug_info.dart';
 import '../less_error.dart';
 import '../less_options.dart';
 import '../utils.dart';

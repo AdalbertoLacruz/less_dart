@@ -1,4 +1,4 @@
-//source: less/tree/url.js 1.7.5
+//source: less/tree/url.js 2.3.1
 
 part of tree.less;
 
@@ -10,24 +10,39 @@ class URL extends Node implements EvalNode, ToCSSNode {
 
   String type = 'Url';
 
+  ///
   URL(Node this.value, [int this.index, FileInfo this.currentFileInfo, bool this.isEvald = false]);
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
+
+//2.3.1
+//  URL.prototype.accept = function (visitor) {
+//      this.value = visitor.visit(this.value);
+//  };
   }
 
   ///
+  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add('url(');
     this.value.genCSS(context, output);
     output.add(')');
+
+//2.3.1
+//  URL.prototype.genCSS = function (context, output) {
+//      output.add("url(");
+//      this.value.genCSS(context, output);
+//      output.add(")");
+//  };
   }
 
 //    toCSS: tree.toCSS,
 
-
   ///
+  //2.3.1 ok
   URL eval(Contexts context) {
     Node val = this.value.eval(context);
     String rootpath;
@@ -62,37 +77,41 @@ class URL extends Node implements EvalNode, ToCSSNode {
     }
     return new URL(val, this.index, this.currentFileInfo, true);
 
-//    eval: function (ctx) {
-//        var val = this.value.eval(ctx),
-//            rootpath;
+//2.3.1
+//  URL.prototype.eval = function (context) {
+//      var val = this.value.eval(context),
+//          rootpath;
 //
-//        if (!this.isEvald) {
-//            // Add the base path if the URL is relative
-//            rootpath = this.currentFileInfo && this.currentFileInfo.rootpath;
-//            if (rootpath && typeof val.value === "string" && ctx.isPathRelative(val.value)) {
-//                if (!val.quote) {
-//                    rootpath = rootpath.replace(/[\(\)'"\s]/g, function(match) { return "\\"+match; });
-//                }
-//                val.value = rootpath + val.value;
-//            }
+//      if (!this.isEvald) {
+//          // Add the base path if the URL is relative
+//          rootpath = this.currentFileInfo && this.currentFileInfo.rootpath;
+//          if (rootpath &&
+//              typeof val.value === "string" &&
+//              context.isPathRelative(val.value)) {
 //
-//            val.value = ctx.normalizePath(val.value);
+//              if (!val.quote) {
+//                  rootpath = rootpath.replace(/[\(\)'"\s]/g, function(match) { return "\\" + match; });
+//              }
+//              val.value = rootpath + val.value;
+//          }
 //
-//            // Add url args if enabled
-//            if (ctx.urlArgs) {
-//                if (!val.value.match(/^\s*data:/)) {
-//                    var delimiter = val.value.indexOf('?') === -1 ? '?' : '&';
-//                    var urlArgs = delimiter + ctx.urlArgs;
-//                    if (val.value.indexOf('#') !== -1) {
-//                        val.value = val.value.replace('#', urlArgs + '#');
-//                    } else {
-//                        val.value += urlArgs;
-//                    }
-//                }
-//            }
-//        }
+//          val.value = context.normalizePath(val.value);
 //
-//        return new(tree.URL)(val, this.currentFileInfo, true);
-//    }
+//          // Add url args if enabled
+//          if (context.urlArgs) {
+//              if (!val.value.match(/^\s*data:/)) {
+//                  var delimiter = val.value.indexOf('?') === -1 ? '?' : '&';
+//                  var urlArgs = delimiter + context.urlArgs;
+//                  if (val.value.indexOf('#') !== -1) {
+//                      val.value = val.value.replace('#', urlArgs + '#');
+//                  } else {
+//                      val.value += urlArgs;
+//                  }
+//              }
+//          }
+//      }
+//
+//      return new URL(val, this.index, this.currentFileInfo, true);
+//  };
   }
 }

@@ -1,4 +1,4 @@
-//source: less/tree/anonymous.js 1.7.5
+//source: less/tree/anonymous.js 2.3.1
 
 part of tree.less;
 
@@ -15,32 +15,43 @@ class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
            this.mapLines = false, bool this.rulesetLike = false]);
 
   ///
-  Node eval(env) => new Anonymous(this.value, this.index, this.currentFileInfo, this.mapLines, this.rulesetLike);
+  //2.3.1 ok
+  Node eval(env) => new Anonymous(this.value, this.index,
+      this.currentFileInfo, this.mapLines, this.rulesetLike);
 
+///2.3.1
+//  Anonymous.prototype.eval = function () {
+//      return new Anonymous(this.value, this.index, this.currentFileInfo, this.mapLines, this.rulesetLike);
+//  };
 
 //--- CompareNode
 
   ///
-  int compare(Node x) {
-    if (x is! ToCSSNode) return -1;
+  //2.3.1 ok
+  int compare(Node other) {
+    if (other is! ToCSSNode) return -1;
+    return this.toCSS(null).compareTo(other.toCSS(null));
 
-    String left = this.toCSS(null);
-    String right = x.toCSS(null);
-
-    //if (left == right) return 0;
-    //return left < right ? -1 : 1;
-
-    return left.compareTo(right);
+//2.3.1
+//  Anonymous.prototype.compare = function (other) {
+//      return other.toCSS && this.toCSS() === other.toCSS() ? 0 : undefined;
+//  };
   }
 
   ///
-  bool isRulesetLike() => this.rulesetLike;
+  //2.3.1 ok
+  bool isRulesetLike(bool root) => this.rulesetLike;
 
   ///
-  void genCSS(Contexts env, Output output) {
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
+
+//2.3.1
+//  Anonymous.prototype.genCSS = function (context, output) {
+//      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
+//  };
   }
 
 //    toCSS: tree.toCSS
-
 }

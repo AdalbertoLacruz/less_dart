@@ -1,4 +1,4 @@
-//source: less/tree/paren.js 1.7.5
+//source: less/tree/paren.js 2.3.1
 
 part of tree.less;
 
@@ -10,19 +10,34 @@ class Paren extends Node implements EvalNode, ToCSSNode {
   Paren(Node this.value);
 
   ///
+  //2.3.1 TODO remove
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
   }
 
   ///
-  void genCSS(Contexts env, Output output) {
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     output.add('(');
-    this.value.genCSS(env, output);
+    this.value.genCSS(context, output);
     output.add(')');
+
+//2.3.1
+//  Paren.prototype.genCSS = function (context, output) {
+//      output.add('(');
+//      this.value.genCSS(context, output);
+//      output.add(')');
+//  };
   }
 
 //    toCSS: tree.toCSS,
 
   ///
-  Paren eval(Contexts env) => new Paren(this.value.eval(env));
+  //2.3.1 ok
+  Paren eval(Contexts context) => new Paren(this.value.eval(context));
+
+//2.3.1
+//  Paren.prototype.eval = function (context) {
+//      return new Paren(this.value.eval(context));
+//  };
 }

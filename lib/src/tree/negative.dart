@@ -1,4 +1,4 @@
-//source: less/tree/negative.js 1.7.5
+//source: less/tree/negative.js 2.3.1
 
 part of tree.less;
 
@@ -10,30 +10,40 @@ class Negative extends Node implements EvalNode, ToCSSNode {
   Negative (Node this.value);
 
   ///
+  //2.3.1 Remove
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
   }
 
-  /// ><
-  void genCSS(Contexts env, Output output) {
+  ///
+  //2.3.1 ok  - not in tests
+  void genCSS(Contexts context, Output output) {
     output.add('-');
-    this.value.genCSS(env, output);
+    this.value.genCSS(context, output);
+
+//2.3.1
+//  Negative.prototype.genCSS = function (context, output) {
+//      output.add('-');
+//      this.value.genCSS(context, output);
+//  };
   }
 
 //    toCSS: tree.toCSS,
 
   ///
-  eval(Contexts env) {
-    if (env.isMathOn()) {
-      return (new Operation('*', [new Dimension(-1), this.value])).eval(env);
+  //2.3.1 ok
+  eval(Contexts context) {
+    if (context.isMathOn()) {
+      return (new Operation('*', [new Dimension(-1), this.value])).eval(context);
     }
-    return new Negative(this.value.eval(env));
+    return new Negative(this.value.eval(context));
 
-//    eval: function (env) {
-//        if (env.isMathOn()) {
-//            return (new(tree.Operation)('*', [new(tree.Dimension)(-1), this.value])).eval(env);
-//        }
-//        return new(tree.Negative)(this.value.eval(env));
-//    }
+//2.3.1
+//  Negative.prototype.eval = function (context) {
+//      if (context.isMathOn()) {
+//          return (new Operation('*', [new Dimension(-1), this.value])).eval(context);
+//      }
+//      return new Negative(this.value.eval(context));
+//  };
   }
 }

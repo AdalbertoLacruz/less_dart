@@ -1,4 +1,4 @@
-//source: less/tree/extend.js 1.7.5
+//source: less/tree/extend.js 2.3.1
 
 part of tree.less;
 
@@ -15,10 +15,12 @@ class Extend extends Node implements EvalNode {
   Ruleset         ruleset; //extend
   List<Selector>  selfSelectors;
 
-  static int next_id = 0; //TODO review with multi-thread
+  static int next_id = 0;
 
   final String type = 'Extend';
 
+  ///
+  //2.3.1 ok
   Extend(Node this.selector, String this.option, int this.index) {
     this.object_id = next_id++;
     this.parent_ids = [this.object_id];
@@ -33,23 +35,59 @@ class Extend extends Node implements EvalNode {
         this.allowAfter = false;
         break;
     }
+
+//2.3.1
+//  var Extend = function Extend(selector, option, index) {
+//      this.selector = selector;
+//      this.option = option;
+//      this.index = index;
+//      this.object_id = Extend.next_id++;
+//      this.parent_ids = [this.object_id];
+//
+//      switch(option) {
+//          case "all":
+//              this.allowBefore = true;
+//              this.allowAfter = true;
+//          break;
+//          default:
+//              this.allowBefore = false;
+//              this.allowAfter = false;
+//          break;
+//      }
+//  };
   }
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     this.selector = visitor.visit(this.selector);
+
+//2.3.1
+//  Extend.prototype.accept = function (visitor) {
+//      this.selector = visitor.visit(this.selector);
+//  };
   }
 
   ///
-  Extend eval(Contexts env) => new Extend(this.selector.eval(env), this.option, this.index);
+  //2.3.1 ok
+  Extend eval(Contexts context) => new Extend(this.selector.eval(context), this.option, this.index);
+
+//2.3.1
+//  Extend.prototype.eval = function (context) {
+//      return new Extend(this.selector.eval(context), this.option, this.index);
+//  };
 
   ///
+  //2.3.1 ok - // removed clone(context)
   Node clone() => new Extend (this.selector, this.option, this.index);
 
-//      clone: function (env) {// removed env
-//          return new(tree.Extend)(this.selector, this.option, this.index);
-//      },
+//2.3.1
+//  Extend.prototype.clone = function (context) {
+//      return new Extend(this.selector, this.option, this.index);
+//  };
 
+  ///
+  //2.3.1 ok
   void findSelfSelectors(List<Selector> selectors) {
     List selfElements = [];
     List<Element> selectorElements;
@@ -58,7 +96,7 @@ class Extend extends Node implements EvalNode {
       selectorElements = selectors[i].elements;
 
       // duplicate the logic in genCSS function inside the selector node.
-      // future TODO - move both logics into the selector joiner visitor
+      // future TODO (js) - move both logics into the selector joiner visitor
       if (i > 0 && selectorElements.isNotEmpty && selectorElements.first.combinator.value.isEmpty) {
         selectorElements.first.combinator.value = ' ';
       }
@@ -67,23 +105,23 @@ class Extend extends Node implements EvalNode {
 
     this.selfSelectors = [new Selector(selfElements)];
 
-//      findSelfSelectors: function (selectors) {
-//          var selfElements = [],
-//              i,
-//              selectorElements;
+//2.3.1
+//  Extend.prototype.findSelfSelectors = function (selectors) {
+//      var selfElements = [],
+//          i,
+//          selectorElements;
 //
-//          for(i = 0; i < selectors.length; i++) {
-//              selectorElements = selectors[i].elements;
-//              // duplicate the logic in genCSS function inside the selector node.
-//              // future TODO - move both logics into the selector joiner visitor
-//              if (i > 0 && selectorElements.length && selectorElements[0].combinator.value === "") {
-//                  selectorElements[0].combinator.value = ' ';
-//              }
-//              selfElements = selfElements.concat(selectors[i].elements);
+//      for(i = 0; i < selectors.length; i++) {
+//          selectorElements = selectors[i].elements;
+//          // duplicate the logic in genCSS function inside the selector node.
+//          // future TODO - move both logics into the selector joiner visitor
+//          if (i > 0 && selectorElements.length && selectorElements[0].combinator.value === "") {
+//              selectorElements[0].combinator.value = ' ';
 //          }
-//
-//          this.selfSelectors = [{ elements: selfElements }];
-
+//          selfElements = selfElements.concat(selectors[i].elements);
 //      }
+//
+//      this.selfSelectors = [{ elements: selfElements }];
+//  };
   }
 }

@@ -1,4 +1,4 @@
-//source: less/tree/expression.js 1.7.5
+//source: less/tree/expression.js 2.3.1
 
 part of tree.less;
 
@@ -9,89 +9,123 @@ class Expression extends Node implements EvalNode, ToCSSNode {
 
   final String type = 'Expression';
 
-  Expression(List<Node> this.value);
-
   ///
-  accept(Visitor visitor){
-    if (this.value != null) this.value = visitor.visitArray(this.value);
+  //2.3.1 ok
+  Expression(List<Node> this.value) {
+    if (this.value == null) {
+      throw new LessExceptionError(new LessError(message: 'Expression requires an array parameter'));
+    }
+
+//2.3.1
+//  var Expression = function (value) {
+//      this.value = value;
+//      if (!value) {
+//          throw new Error("Expression requires an array parameter");
+//      }
+//  };
   }
 
-  /// returns Node or List<Node>
-  eval(Contexts env) {
+  ///
+  //2.3.1 ok
+  accept(Visitor visitor){
+    this.value = visitor.visitArray(this.value);
+
+//2.3.1
+//  Expression.prototype.accept = function (visitor) {
+//      this.value = visitor.visitArray(this.value);
+//  };
+  }
+
+  /// Returns Node or List<Node>
+  //2.3.1 ok
+  eval(Contexts context) {
     var returnValue;
     bool inParenthesis = this.parens && !this.parensInOp;
     bool doubleParen = false;
 
-    if (inParenthesis) env.inParenthesis();
+    if (inParenthesis) context.inParenthesis();
 
     if (this.value.length > 1) {
       returnValue = new Expression(this.value.map((e){
-        return (e != null) ? e.eval(env) : null;
+        return (e != null) ? e.eval(context) : null;
       }).toList());
     } else if (this.value.length == 1) {
       if (this.value.first.parens && !this.value.first.parensInOp) doubleParen = true;
-      returnValue = this.value.first.eval(env);
+      returnValue = this.value.first.eval(context);
     } else {
       returnValue = this;
     }
-    if (inParenthesis) env.outOfParenthesis();
+    if (inParenthesis) context.outOfParenthesis();
 
-    if (this.parens && this.parensInOp && !(env.isMathOn()) && !doubleParen) {
+    if (this.parens && this.parensInOp && !(context.isMathOn()) && !doubleParen) {
       returnValue = new Paren(returnValue);
     }
 
     return returnValue;
 
-//      eval: function (env) {
-//          var returnValue,
-//              inParenthesis = this.parens && !this.parensInOp,
-//              doubleParen = false;
-//          if (inParenthesis) {
-//              env.inParenthesis();
+//2.3.1
+//  Expression.prototype.eval = function (context) {
+//      var returnValue,
+//          inParenthesis = this.parens && !this.parensInOp,
+//          doubleParen = false;
+//      if (inParenthesis) {
+//          context.inParenthesis();
+//      }
+//      if (this.value.length > 1) {
+//          returnValue = new Expression(this.value.map(function (e) {
+//              return e.eval(context);
+//          }));
+//      } else if (this.value.length === 1) {
+//          if (this.value[0].parens && !this.value[0].parensInOp) {
+//              doubleParen = true;
 //          }
-//          if (this.value.length > 1) {
-//              returnValue = new(tree.Expression)(this.value.map(function (e) {
-//                  return e.eval(env);
-//              }));
-//          } else if (this.value.length === 1) {
-//              if (this.value[0].parens && !this.value[0].parensInOp) {
-//                  doubleParen = true;
-//              }
-//              returnValue = this.value[0].eval(env);
-//          } else {
-//              returnValue = this;
-//          }
-//          if (inParenthesis) {
-//              env.outOfParenthesis();
-//          }
-//          if (this.parens && this.parensInOp && !(env.isMathOn()) && !doubleParen) {
-//              returnValue = new(tree.Paren)(returnValue);
-//          }
-//          return returnValue;
-//      },
+//          returnValue = this.value[0].eval(context);
+//      } else {
+//          returnValue = this;
+//      }
+//      if (inParenthesis) {
+//          context.outOfParenthesis();
+//      }
+//      if (this.parens && this.parensInOp && !(context.isMathOn()) && !doubleParen) {
+//          returnValue = new Paren(returnValue);
+//      }
+//      return returnValue;
+//  };
   }
 
   ///
-  void genCSS(Contexts env, Output output) {
+  //2.3.1 ok
+  void genCSS(Contexts context, Output output) {
     for (int i = 0; i < this.value.length; i++) {
-      this.value[i].genCSS(env, output);
+      this.value[i].genCSS(context, output);
       if (i + 1 < this.value.length) output.add(' ');
     }
+
+//2.3.1
+//  Expression.prototype.genCSS = function (context, output) {
+//      for(var i = 0; i < this.value.length; i++) {
+//          this.value[i].genCSS(context, output);
+//          if (i + 1 < this.value.length) {
+//              output.add(" ");
+//          }
+//      }
+//  };
   }
 
 //      toCSS: tree.toCSS,
 
   ///
+  //2.3.1 ok
   void throwAwayComments() {
     this.value.retainWhere((v) {
       return (v is! Comment);
     });
 
-//      throwAwayComments: function () {
-//          this.value = this.value.filter(function(v) {
-//              return !(v instanceof tree.Comment);
-//          });
-//      }
+//2.3.1
+//  Expression.prototype.throwAwayComments = function () {
+//      this.value = this.value.filter(function(v) {
+//          return !(v instanceof Comment);
+//      });
 //  };
   }
 }

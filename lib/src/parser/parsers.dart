@@ -675,7 +675,7 @@ class Parsers {
   ///
   //2.2.0 ok
   Ruleset ruleset() {
-    LessDebugInfo debugInfo;
+    DebugInfo debugInfo;
     List<Node> rules;
     Selector s;
     List<Selector> selectors;
@@ -1327,7 +1327,7 @@ class Parsers {
   ///
   //2.2.0 ok
   Media media() {
-    LessDebugInfo debugInfo;
+    DebugInfo debugInfo;
     List<Node> features;
     Media media;
     List<Node> rules;
@@ -2148,10 +2148,10 @@ class Parsers {
   /// Returns filename and line corresponding to [index]
   ///
   // less/parser.js 2.2.0 lines 76-84
-  LessDebugInfo getDebugInfo(int index, [String xinputStream, Contexts xcontext]) {
+  DebugInfo getDebugInfo(int index, [String xinputStream, Contexts xcontext]) {
     String filename = fileInfo.filename;
 
-    return new LessDebugInfo(
+    return new DebugInfo(
         lineNumber: Utils.getLocation(index, input).line + 1,
         fileName: filename);
 

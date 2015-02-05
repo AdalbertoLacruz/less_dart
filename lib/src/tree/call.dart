@@ -1,10 +1,10 @@
-//source: less/tree/call.js 2.2.0
+//source: less/tree/call.js 2.3.1
 
 part of tree.less;
 
-/*
- * A function call node.
- */
+///
+/// A function call node.
+///
 class Call extends Node implements EvalNode, ToCSSNode {
   String name;
   List<Expression> args;
@@ -16,8 +16,16 @@ class Call extends Node implements EvalNode, ToCSSNode {
   Call(this.name, this.args, this.index, this.currentFileInfo);
 
   ///
+  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.args != null) this.args = visitor.visitArray(this.args);
+
+//2.3.1
+//  Call.prototype.accept = function (visitor) {
+//      if (this.args) {
+//          this.args = visitor.visitArray(this.args);
+//      }
+//  };
   }
 
   ///
@@ -33,6 +41,7 @@ class Call extends Node implements EvalNode, ToCSSNode {
   /// we try to pass a variable to a function, like: `saturate(@color)`.
   /// The function should receive the value, not the variable.
   ///
+  //2.3.1 ok
   eval(Contexts context) {
     List<Expression> args = this.args.map((a) => a.eval(context)).toList();
     FunctionCaller funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
@@ -56,7 +65,7 @@ class Call extends Node implements EvalNode, ToCSSNode {
     }
     return new Call(this.name, args, this.index, this.currentFileInfo);
 
-//2.2.0
+//2.3.1
 //    Call.prototype.eval = function (context) {
 //        var args = this.args.map(function (a) { return a.eval(context); }),
 //            result, funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
@@ -80,6 +89,7 @@ class Call extends Node implements EvalNode, ToCSSNode {
   }
 
   ///
+  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.name + '(', this.currentFileInfo, this.index);
 
@@ -89,6 +99,20 @@ class Call extends Node implements EvalNode, ToCSSNode {
     }
 
     output.add(')');
+
+//2.3.1
+//  Call.prototype.genCSS = function (context, output) {
+//      output.add(this.name + "(", this.currentFileInfo, this.index);
+//
+//      for(var i = 0; i < this.args.length; i++) {
+//          this.args[i].genCSS(context, output);
+//          if (i + 1 < this.args.length) {
+//              output.add(", ");
+//          }
+//      }
+//
+//      output.add(")");
+//  };
   }
 
 //      toCSS: tree.toCSS
