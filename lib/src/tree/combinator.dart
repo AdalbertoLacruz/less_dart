@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Combinator extends Node implements ToCSSNode {
+class Combinator extends Node {
   String value = '';
   bool emptyOrWhitespace;
 
@@ -51,6 +51,4 @@ class Combinator extends Node implements ToCSSNode {
 //      output.add(spaceOrEmpty + this.value + spaceOrEmpty);
 //  };
   }
-
-  // toCSS => node.toCSS
 }

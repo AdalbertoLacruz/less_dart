@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class DetachedRuleset extends Node implements EvalNode {
+class DetachedRuleset extends Node {
   Ruleset ruleset;
   List<Node> frames;
 

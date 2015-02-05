@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Condition extends Node implements EvalNode {
+class Condition extends Node {
   String op;
   Node lvalue;
   Node rvalue;

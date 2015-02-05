@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Element extends Node implements EvalNode, ToCSSNode {
+class Element extends Node {
   Combinator combinator;
   var value = ''; // String or Node
   int index;
@@ -97,7 +97,7 @@ class Element extends Node implements EvalNode, ToCSSNode {
       context.firstSelector = true;
     }
 
-    value = (value is ToCSSNode) ? value.toCSS(context) : value;
+    value = (value is Node) ? value.toCSS(context) : value;
     context.firstSelector = firstSelector;
     if (value.isEmpty && this.combinator.value.startsWith('&')) {
       return '';

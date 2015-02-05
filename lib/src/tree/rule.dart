@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
+class Rule extends Node implements MakeImportantNode {
   var name; //String or List<Keyword>
   Node value;
   String important = '';
@@ -38,12 +38,6 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
 //      this.variable = (variable !== undefined) ? variable
 //          : (name.charAt && (name.charAt(0) === '@'));
 //  };
-  }
-
-  ///
-  //2.3.1 TODO remove
-  void accept(Visitor visitor) {
-    this.value = visitor.visit(this.value);
   }
 
   ///
@@ -99,8 +93,6 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
 //      output.add(this.important + ((this.inline || (context.lastRule && context.compress)) ? "" : ";"), this.currentFileInfo, this.index);
 //  };
   }
-
-//    toCSS: tree.toCSS,
 
   ///
   //2.3.1 ok
@@ -218,6 +210,8 @@ class Rule extends Node implements EvalNode, MakeImportantNode, ToCSSNode {
 //                            this.index, this.currentFileInfo, this.inline);
 //  };
 }
+
+// ------------------------------------------------
 
 ///
 class ImportantRule {

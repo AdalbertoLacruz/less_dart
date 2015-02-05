@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class JavaScript extends Node with JsEvalNodeMixin implements EvalNode {
+class JavaScript extends Node with JsEvalNodeMixin {
   String expression;
   bool escaped;
   int index;

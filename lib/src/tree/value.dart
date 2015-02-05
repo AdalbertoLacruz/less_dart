@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Value extends Node implements EvalNode, ToCSSNode {
+class Value extends Node {
   List<Node> value;
 
   final String type = 'Value';
@@ -77,6 +77,4 @@ class Value extends Node implements EvalNode, ToCSSNode {
 //      }
 //  };
   }
-
-//    toCSS: tree.toCSS
 }

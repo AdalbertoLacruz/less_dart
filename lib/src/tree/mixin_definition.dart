@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class MixinDefinition extends Node with VariableMixin implements EvalNode, MatchConditionNode {
+class MixinDefinition extends Node with VariableMixin implements MatchConditionNode {
   /// Same as Selector
   String name;
 
@@ -39,9 +39,6 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
 
   /// Arguments number required
   int required;
-
-  //var _lookups = {};
-  //var parent;
 
   final String type = 'MixinDefinition';
 
@@ -103,20 +100,8 @@ class MixinDefinition extends Node with VariableMixin implements EvalNode, Match
 
 // VariableMixin
 
-//variable(String name) {
-//    variable:  function (name) { return this.parent.variable.call(this, name); },
-//}
+//variable:  function (name) { return this.parent.variable.call(this, name); },
 //
-// returns the variables list if exist, else creates it. #
-//Map<String, Node> variables(){
-//  Map<String, Node> _variables = (this.rules == null) ? {} : this.rules.fold({}, (hash, r){
-//      if (r is Rule && r.variable) {
-//        hash[r.name] = r;
-//      }
-//      return hash;
-//    });
-//  return _variables;
-//}
 //variables() {
 //    variables: function ()     { return this.parent.variables.call(this); },
 //}

@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Quoted extends Node with JsEvalNodeMixin implements CompareNode, EvalNode, ToCSSNode {
+class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   bool escaped;
   int index;
   FileInfo currentFileInfo;
@@ -60,8 +60,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode, EvalNode,
 //  Quoted.prototype.containsVariables = function() {
 //      return this.value.match(/(`([^`]+)`)|@\{([\w-]+)\}/);
 //  };
-
-//    toCSS: tree.toCSS
 
   ///
   //2.3.1 ok
@@ -128,7 +126,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode, EvalNode,
   /// Returns -1, 0 or +1 or null
   //2.3.1 ok
   int compare(Node other) {
-    if (other is! ToCSSNode) return null; // other is null?
+    if (other is! Node) return null; // other is null?
 
     // when comparing quoted strings allow the quote to differ
     // We need compare strings with: string.copareTo(otherString)

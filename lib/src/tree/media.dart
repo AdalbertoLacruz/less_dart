@@ -3,7 +3,7 @@
 part of tree.less;
 
 //TODO 2.3.1 extends from Directive
-class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalNode, MarkReferencedNode, ToCSSNode {
+class Media extends Node with OutputRulesetMixin, VariableMixin implements MarkReferencedNode {
   Node features;
   int index;
   FileInfo currentFileInfo;
@@ -67,8 +67,6 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
 //      this.outputRuleset(context, output, this.rules);
 //  };
   }
-
-//    toCSS: tree.toCSS,
 
   ///
   //2.3.1 ok
@@ -264,7 +262,7 @@ class Media extends Node with OutputRulesetMixin, VariableMixin implements EvalN
 
     this.features = new Value(this.permute(path).map((path) {
       path = path.map((fragment){
-        return (fragment is ToCSSNode) ? fragment : new Anonymous(fragment);
+        return (fragment is Node) ? fragment : new Anonymous(fragment);
       }).toList();
 
       for (int i = path.length - 1; i > 0; i--) {

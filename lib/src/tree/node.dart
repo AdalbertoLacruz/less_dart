@@ -1,52 +1,53 @@
-//source: less/tree/node.js 2.2.0
+//source: less/tree/node.js 2.3.1
 
-// TODO review properties/methods to eliminate
 part of tree.less;
 
 class Node {
+
+  List<Extend> allExtends; //Ruleset
+  DebugInfo debugInfo;
+  var elements;
+  bool evalFirst = false; //see Ruleset.eval
+
   /// hashCode own or inherited for object compare
   int id;
 
+  bool isRuleset = false; //true in MixinDefinition & Ruleset
+  var name;
+  var operands;
+  Node originalRuleset; //see mixin_call
+  bool parens = false; //Expression
+  bool parensInOp = false; //See parsers.operand & Expression
+  var rules; //Ruleset
+  var selectors;
   String type;
   var value;
-  var name;
 
-  bool allowImports;
-  bool evaldCondition; //See selector
-  bool evalFirst = false; //see Ruleset
-  bool isRuleset = false;
-  bool isRulesetLike(bool root) => false;
-  bool parensInOp = false; //See parsers.operand
-  bool parens = false; //Expression
-
-  Node originalRuleset; //TODO remove. used in mixin_call
-
-  DebugInfo debugInfo;
-  var rules; //Ruleset
-  var elements;
-  var selectors;
-  List<Extend> allExtends; //Ruleset
-  var operands;
-
-  /// Directive overrides it
-  bool isCharset() => false;
-
+  ///
   Node() {
     id = hashCode;
   }
 
+  /// Directive overrides it
+  bool isCharset() => false;
+
+  ///
+  bool isRulesetLike(bool root) => false;
+
+  ///
+  throwAwayComments() { return null; }
 
   ///
   /// Returns node transformed to css code
   ///
-  //2.2.0 ok
+  //2.3.1 ok
   String toCSS(Contexts context) {
      Output output = new Output();
      this.genCSS(context, output);
      //if (context != null) context.avoidDartOptimization = true; //avoid dart context prune
      return output.toString();
 
-//2.2.0
+//2.3.1
 //   Node.prototype.toCSS = function (context) {
 //       var strs = [];
 //       this.genCSS(context, {
@@ -64,22 +65,22 @@ class Node {
   ///
   /// Writes in [output] the node transformed to CSS.
   ///
-  //2.2.0 ok
+  //2.3.1 ok
   void genCSS(Contexts context, Output output){
     output.add(this.value);
 
-///2.2.0
+///2.3.1
 //  Node.prototype.genCSS = function (context, output) {
 //      output.add(this.value);
 //  };
   }
 
   ///
-  //2.2.0 ok
+  //2.3.1 ok
   accept(VisitorBase visitor) {
     this.value = visitor.visit(this.value);
 
-//2.2.0
+//2.3.1
 //  Node.prototype.accept = function (visitor) {
 //      this.value = visitor.visit(this.value);
 //  };
@@ -88,15 +89,14 @@ class Node {
   ///
   /// Default eval - returns the node
   ///
-  //2.2.0 ok
-  eval(Contexts env) => this;
+  //2.3.1 ok
+  eval(Contexts context) => this;
 
-//2.2.0
+//2.3.1
 //  Node.prototype.eval = function () { return this; };
 
   ///
-  //Original out of class (operate) - Operate.operateExec TODO change to this
-  //2.2.0 ok
+  //2.3.1 ok
   num _operate(Contexts context, String op, num a, num b) {
     switch (op) {
         case '+': return a + b;
@@ -106,7 +106,7 @@ class Node {
     }
     return null;
 
-//2.2.0
+//2.3.1
 //  Node.prototype._operate = function (context, op, a, b) {
 //      switch (op) {
 //          case '+': return a + b;
@@ -122,7 +122,7 @@ class Node {
   /// Adjust the precision of [value] according to [context].numPrecision.
   /// 8 By default.
   ///
-  //2.2.0 ok
+  //2.3.1 ok
   num fround(Contexts context, num value) {
   if (value is int) return value;
 
@@ -134,7 +134,7 @@ class Node {
   double result = value + 2e-16;
   return (precision == null) ? value : double.parse(result.toStringAsFixed(precision));
 
-//2.2.0
+//2.3.1
 //  Node.prototype.fround = function(context, value) {
 //      var precision = context && context.numPrecision;
 //      //add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999....) are properly rounded...
@@ -151,7 +151,7 @@ class Node {
   ///   1: a > b
   ///   and null  for other value for a != b
   ///
-  // 2.2.0 ok
+  // 2.3.1 ok
   static int compareNodes(Node a, Node b) {
     // for "symmetric results" force toCSS-based comparison
     // of Quoted or Anonymous if either value is one of those
@@ -175,7 +175,7 @@ class Node {
     }
     return 0;
 
-///2.2.0
+///2.3.1
 //  Node.compare = function (a, b) {
 //      /* returns:
 //       -1: a < b
@@ -230,9 +230,6 @@ class Node {
 //  };
   }
 
-  evalImports(Contexts env){}
-
-  throwAwayComments() { return null; }
 
   //debug print the node tree
   StringBuffer toTree(LessOptions options) {
@@ -281,12 +278,11 @@ abstract class CompareNode {
   /// Returns -1, 0 or +1
   int compare(Node x);
 }
-abstract class EvalNode {
-  eval(Contexts context);
-}
+
 abstract class GetIsReferencedNode {
   getIsReferenced();
 }
+
 abstract class MakeImportantNode {
   Node makeImportant();
 }
@@ -303,84 +299,4 @@ abstract class MatchConditionNode {
 
 abstract class OperateNode {
   Node operate(Contexts context, String op, Node other);
-}
-
-abstract class ToCSSNode {
-  void genCSS(Contexts context, Output output);
-  String toCSS(Contexts context);
-}
-
-//---------------------------- OutputRulesetMixin -----------------------
-
-// tree.js lines 65-95 for Directive & Media
-// tree/directive.js 2.3.1 lines 92-122
-
-///
-//2.3.1 ok
-class OutputRulesetMixin {
-  void outputRuleset(Contexts context, Output output, List<Node> rules) {
-    int ruleCnt = rules.length;
-
-    if (context.tabLevel == null) context.tabLevel = 0;
-    context.tabLevel++;
-
-    // Compressed
-    if (context.compress) {
-      output.add('{');
-      for (int i = 0; i < ruleCnt; i++) rules[i].genCSS(context, output);
-      output.add('}');
-      context.tabLevel--;
-      return;
-    }
-
-    // Non-compressed
-    String tabSetStr  = '\n' +  '  ' * (context.tabLevel - 1);
-    String tabRuleStr = tabSetStr + '  ';
-    if (ruleCnt == 0) {
-      output.add(' {' + tabSetStr + '}');
-    } else {
-      output.add(' {' + tabRuleStr);
-      rules[0].genCSS(context, output);
-      for (int i = 1; i < ruleCnt; i++) {
-        output.add(tabRuleStr);
-        rules[i].genCSS(context, output);
-      }
-      output.add(tabSetStr + '}');
-    }
-
-    context.tabLevel--;
-
-//2.3.1
-//  Directive.prototype.outputRuleset = function (context, output, rules) {
-//      var ruleCnt = rules.length, i;
-//      context.tabLevel = (context.tabLevel | 0) + 1;
-//
-//      // Compressed
-//      if (context.compress) {
-//          output.add('{');
-//          for (i = 0; i < ruleCnt; i++) {
-//              rules[i].genCSS(context, output);
-//          }
-//          output.add('}');
-//          context.tabLevel--;
-//          return;
-//      }
-//
-//      // Non-compressed
-//      var tabSetStr = '\n' + Array(context.tabLevel).join("  "), tabRuleStr = tabSetStr + "  ";
-//      if (!ruleCnt) {
-//          output.add(" {" + tabSetStr + '}');
-//      } else {
-//          output.add(" {" + tabRuleStr);
-//          rules[0].genCSS(context, output);
-//          for (i = 1; i < ruleCnt; i++) {
-//              output.add(tabRuleStr);
-//              rules[i].genCSS(context, output);
-//          }
-//          output.add(tabSetStr + '}');
-//      }
-//
-//      context.tabLevel--;
-//  };
-  }
 }

@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Alpha extends Node implements EvalNode, ToCSSNode {
+class Alpha extends Node {
   var value; // String, Variable, Dimension
 
   final String type = 'Alpha';
@@ -23,7 +23,7 @@ class Alpha extends Node implements EvalNode, ToCSSNode {
   ///
   //2.3.1 ok
   Alpha eval(Contexts context) {
-    if (this.value is EvalNode) return new Alpha(this.value.eval(context)); //TODO is Node?
+    if (this.value is Node) return new Alpha(this.value.eval(context));
     return this;
 
 //2.3.1
@@ -38,7 +38,7 @@ class Alpha extends Node implements EvalNode, ToCSSNode {
   void genCSS(Contexts context, Output output) {
     output.add('alpha(opacity=');
 
-    if (this.value is ToCSSNode) { //TODO is Node?
+    if (this.value is Node) {
       this.value.genCSS(context, output);
     } else {
       output.add(this.value);
@@ -59,7 +59,4 @@ class Alpha extends Node implements EvalNode, ToCSSNode {
 //      output.add(")");
 //  };
   }
-
-//    toCSS: tree.toCSS
-
 }

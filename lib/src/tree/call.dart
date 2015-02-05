@@ -5,7 +5,7 @@ part of tree.less;
 ///
 /// A function call node.
 ///
-class Call extends Node implements EvalNode, ToCSSNode {
+class Call extends Node {
   String name;
   List<Expression> args;
   int index;
@@ -114,6 +114,4 @@ class Call extends Node implements EvalNode, ToCSSNode {
 //      output.add(")");
 //  };
   }
-
-//      toCSS: tree.toCSS
 }

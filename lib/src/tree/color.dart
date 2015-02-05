@@ -5,7 +5,7 @@ part of tree.less;
 ///
 /// RGB Colors - #ff0014, #eee
 ///
-class Color extends Node implements CompareNode, EvalNode, OperateNode, ToCSSNode {
+class Color extends Node implements CompareNode, OperateNode {
   List<num> rgb;
   num alpha;
 

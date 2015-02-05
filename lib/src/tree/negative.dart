@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Negative extends Node implements EvalNode, ToCSSNode {
+class Negative extends Node {
   Node value;
 
   final String type = 'Negative';
@@ -27,8 +27,6 @@ class Negative extends Node implements EvalNode, ToCSSNode {
 //      this.value.genCSS(context, output);
 //  };
   }
-
-//    toCSS: tree.toCSS,
 
   ///
   //2.3.1 ok

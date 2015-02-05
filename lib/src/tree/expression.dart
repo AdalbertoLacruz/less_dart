@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Expression extends Node implements EvalNode, ToCSSNode {
+class Expression extends Node {
   List<Node> value;
   bool parens = false;  // ()
   bool parensInOp = false;

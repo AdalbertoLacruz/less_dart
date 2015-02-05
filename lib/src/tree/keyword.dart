@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Keyword extends Node implements CompareNode, EvalNode, ToCSSNode {
+class Keyword extends Node implements CompareNode {
   String value;
 
   final String type = 'Keyword';
@@ -16,9 +16,6 @@ class Keyword extends Node implements CompareNode, EvalNode, ToCSSNode {
   Keyword.False() {
     this.value = 'false';
   }
-
-  ///
-  Keyword eval(Contexts env) => this; //TODO 2.3.1 remove
 
   ///
   //2.3.1 ok
@@ -43,7 +40,7 @@ class Keyword extends Node implements CompareNode, EvalNode, ToCSSNode {
 //--- CompareNode
 
   /// Returns -1, 0 or +1
-  // TODO 2.3.1 remove?
+  //2.3.1 - don't remove used by Node.compareNodes
   int compare(Node other) {
     if (other is Keyword) {
       return (other.value == this.value) ? 0 : 1;

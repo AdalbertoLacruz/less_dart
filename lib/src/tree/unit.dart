@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Unit extends Node implements CompareNode, ToCSSNode {
+class Unit extends Node implements CompareNode {
   List numerator;
   List denominator;
   String backupUnit;
@@ -64,8 +64,6 @@ class Unit extends Node implements CompareNode, ToCSSNode {
 //      }
 //  };
   }
-
-  //      toCSS: tree.toCSS,
 
   ///
   //2.3.1 ok

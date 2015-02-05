@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Variable extends Node implements EvalNode {
+class Variable extends Node {
   String name;
   int index;
   FileInfo currentFileInfo;

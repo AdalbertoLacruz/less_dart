@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
+class Anonymous extends Node implements CompareNode {
   var value; //String, Unit, ...
   int index;
   FileInfo currentFileInfo;
@@ -29,7 +29,7 @@ class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
   ///
   //2.3.1 ok
   int compare(Node other) {
-    if (other is! ToCSSNode) return -1;
+    if (other is! Node) return -1;
     return this.toCSS(null).compareTo(other.toCSS(null));
 
 //2.3.1
@@ -52,6 +52,4 @@ class Anonymous extends Node implements CompareNode, EvalNode, ToCSSNode {
 //      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
 //  };
   }
-
-//    toCSS: tree.toCSS
 }

@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class URL extends Node implements EvalNode, ToCSSNode {
+class URL extends Node {
   Node      value;
   int       index;
   FileInfo  currentFileInfo;
@@ -38,8 +38,6 @@ class URL extends Node implements EvalNode, ToCSSNode {
 //      output.add(")");
 //  };
   }
-
-//    toCSS: tree.toCSS,
 
   ///
   //2.3.1 ok

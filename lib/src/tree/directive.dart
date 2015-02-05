@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Directive extends Node with OutputRulesetMixin, VariableMixin implements EvalNode, GetIsReferencedNode, MarkReferencedNode, ToCSSNode {
+class Directive extends Node with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
   String name;
   Node value;
   var rules; //Ruleset

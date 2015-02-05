@@ -24,7 +24,7 @@ part of tree.less;
  * ruleset.
  */
 
-class Import extends Node implements EvalNode, ToCSSNode {
+class Import extends Node {
   Node          path;
   Node          features;
   ImportOptions options;

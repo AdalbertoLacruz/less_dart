@@ -2035,11 +2035,12 @@ class Parsers {
 //  }
 
   ///
+  /// Returns List<String> or List<Node>
   //2.2.0 ok
-  List<String> ruleProperty() {
+  List ruleProperty() {
     List<int> index = [];
     int length = 0;
-    List<String> name = [];
+    List name = [];
     String s;
 
     parserInput.save();

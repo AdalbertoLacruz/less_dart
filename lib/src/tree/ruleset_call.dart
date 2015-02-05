@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class RulesetCall extends Node implements EvalNode {
+class RulesetCall extends Node {
   String variable;
 
   final String type = 'RulesetCall';

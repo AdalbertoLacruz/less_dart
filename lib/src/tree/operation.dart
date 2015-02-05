@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Operation extends Node implements EvalNode, ToCSSNode {
+class Operation extends Node {
   String op;
   List<Node> operands;
   bool isSpaced;
@@ -99,27 +99,4 @@ class Operation extends Node implements EvalNode, ToCSSNode {
 //      this.operands[1].genCSS(context, output);
 //  };
   }
-
-//    toCSS: tree.toCSS
-
-  ///
-  //Original out of class (operate) - TODO 2.2.0 use node._operate in Dimension - REMOVE
-//  static num operateExec(Contexts env, String op, num a, num b) {
-//    switch (op) {
-//        case '+': return a + b;
-//        case '-': return a - b;
-//        case '*': return a * b;
-//        case '/': return a / b;
-//    }
-//    return null;
-//
-////tree.operate = function (env, op, a, b) {
-////    switch (op) {
-////        case '+': return a + b;
-////        case '-': return a - b;
-////        case '*': return a * b;
-////        case '/': return a / b;
-////    }
-////};
-//  }
 }

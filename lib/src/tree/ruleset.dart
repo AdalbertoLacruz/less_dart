@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Ruleset extends Node with VariableMixin implements EvalNode, GetIsReferencedNode, MakeImportantNode, MarkReferencedNode, MatchConditionNode, ToCSSNode {
+class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, MakeImportantNode, MarkReferencedNode, MatchConditionNode {
   List<Selector> selectors;
 
   /// THE TREE
@@ -552,7 +552,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, GetIsReferenc
         context.lastRule = true;
       }
 
-      if (rule is ToCSSNode) {
+      if (rule is Node) {
         rule.genCSS(context, output);
       } else if (rule.value != null) {
         output.add(rule.value.toString());
@@ -712,10 +712,6 @@ class Ruleset extends Node with VariableMixin implements EvalNode, GetIsReferenc
 //    };
   }
 
-//  toCSS: tree.toCSS,
-//
-
-
   //--- MarkReferencedNode
 
   ///
@@ -812,10 +808,7 @@ class Ruleset extends Node with VariableMixin implements EvalNode, GetIsReferenc
   ///
   //2.3.1 ok
   joinSelectors(List<List<Selector>> paths, List<List<Selector>> context, List<Node> selectors) {
-//    List<List<Selector>> pathsOld = paths.sublist(0);
-//    List<List<Selector>> contextOld = context.sublist(0);
     for (int s = 0; s < selectors.length; s++) {
-      //joinSelectorOld(paths, context, selectors[s]);
       joinSelector(paths, context, selectors[s]);
     }
 
@@ -875,308 +868,6 @@ class Ruleset extends Node with VariableMixin implements EvalNode, GetIsReferenc
 //
 //  };
   }
-
-  ///
-  //1.7.5 dart TODO remove
-//  void joinSelectorOld(List paths, List<List> context, Selector selector){
-//    int i;
-//    int j;
-//    int k;
-//    bool hasParentSelector = false;
-//    List<List> newSelectors;
-//    Element el;
-//    List sel;
-//    List parentSel;
-//    List newSelectorPath;
-//    List afterParentJoin;
-//    Selector newJoinedSelector;
-//    bool newJoinedSelectorEmpty;
-//    Selector lastSelector;
-//    List currentElements;
-//    List selectorsMultiplied;
-//
-//    for (i = 0; i < selector.elements.length; i++) {
-//      el = selector.elements[i];
-//      if (el.value == '&') hasParentSelector = true;
-//    }
-//
-//    if (!hasParentSelector) {
-//      if (context.isNotEmpty) {
-//        for (i = 0; i < context.length; i++) {
-//          paths.add(context[i].sublist(0)..add(selector));
-//        }
-//      } else {
-//        paths.add([selector]);
-//      }
-//      return;
-//    }
-//
-//    // The paths are [[Selector]]
-//    // The first list is a list of comma seperated selectors
-//    // The inner list is a list of inheritance seperated selectors
-//    // e.g.
-//    // .a, .b {
-//    //   .c {
-//    //   }
-//    // }
-//    // == [[.a] [.c]] [[.b] [.c]]
-//    //
-//
-//    // the elements from the current selector so far
-//    currentElements = [];
-//
-//    // the current list of new selectors to add to the path.
-//    // We will build it up. We initiate it with one empty selector as we
-//    // "multiply" the new selectors by the parents
-//    newSelectors = [[]];
-//
-//    for (i = 0; i < selector.elements.length; i++) {
-//      el = selector.elements[i];
-//      // non parent reference elements just get added
-//      if (el.value != '&') {
-//        currentElements.add(el);
-//      } else {
-//        // the new list of selectors to add
-//        selectorsMultiplied = [];
-//
-//        // merge the current list of non parent selector elements
-//        // on to the current list of selectors to add
-//        if (currentElements.isNotEmpty) {
-//          this.mergeElementsOnToSelectors(currentElements, newSelectors);
-//        }
-//
-//        // loop through our current selectors
-//        for (j = 0; j < newSelectors.length; j++) {
-//          sel = newSelectors[j];
-//          // if we don't have any parent paths, the & might be in a mixin
-//          // so that it can be used whether there are parents or not
-//          if (context.isEmpty) {
-//            // the combinator used on el should now be applied to the next
-//            // element instead so that it is not lost
-//            if (sel.isNotEmpty) {
-//              sel[0].elements = sel[0].elements.sublist(0);
-//              Element ele = el;
-//              sel[0].elements.add(new Element(ele.combinator, '', ele.index,
-//                  ele.currentFileInfo));
-//            }
-//            selectorsMultiplied.add(sel);
-//          } else {
-//            // and the parent selectors
-//            for (k = 0; k < context.length; k++) {
-//              parentSel = context[k];
-//              // We need to put the current selectors
-//              // then join the last selector's elements on to the parents selectors
-//
-//              // our new selector path
-//              newSelectorPath = [];
-//              // selectors from the parent after the join
-//              afterParentJoin = [];
-//              newJoinedSelectorEmpty = true;
-//
-//              // construct the joined selector -
-//              // if & is the first thing this will be empty,
-//              // if not newJoinedSelector will be the last set of elements in the selector
-//              if (sel.isNotEmpty) {
-//                newSelectorPath = sel.sublist(0);
-//                lastSelector = newSelectorPath.removeLast();
-//                newJoinedSelector = selector.createDerived(lastSelector.elements.sublist(0));
-//                newJoinedSelectorEmpty = false;
-//              } else {
-//                newJoinedSelector = selector.createDerived([]);
-//              }
-//
-//              // put together the parent selectors after the join
-//              if (parentSel.length > 1) afterParentJoin.addAll(parentSel.sublist(1));
-//
-//              if (parentSel.isNotEmpty) {
-//                newJoinedSelectorEmpty = false;
-//
-//                // join the elements so far with the first part of the parent
-//                newJoinedSelector.elements.add(new Element(
-//                    el.combinator, parentSel[0].elements[0].value, el.index, el.currentFileInfo));
-//                newJoinedSelector.elements.addAll(parentSel[0].elements.sublist(1));
-//              }
-//
-//              if (!newJoinedSelectorEmpty) {
-//                // now add the joined selector
-//                newSelectorPath.add(newJoinedSelector);
-//              }
-//
-//              // and the rest of the parent
-//              newSelectorPath.addAll(afterParentJoin);
-//
-//              // add that to our new set of selectors
-//              selectorsMultiplied.add(newSelectorPath);
-//
-//            }
-//
-//          }
-//        }
-//
-//        // our new selectors has been multiplied, so reset the state
-//        newSelectors = selectorsMultiplied;
-//        currentElements = [];
-//      }
-//
-//    }
-//
-//    // if we have any elements left over (e.g. .a& .b == .b)
-//    // add them on to all the current selectors
-//    if (currentElements.isNotEmpty) {
-//      this.mergeElementsOnToSelectors(currentElements, newSelectors);
-//    }
-//
-//    for (i = 0; i < newSelectors.length; i++) {
-//      if (newSelectors[i].isNotEmpty) paths.add(newSelectors[i]);
-//    }
-//  }
-
-
-//1.7.5
-//  joinSelector: function (paths, context, selector) {
-//
-//      var i, j, k,
-//          hasParentSelector, newSelectors, el, sel, parentSel,
-//          newSelectorPath, afterParentJoin, newJoinedSelector,
-//          newJoinedSelectorEmpty, lastSelector, currentElements,
-//          selectorsMultiplied;
-//
-//      for (i = 0; i < selector.elements.length; i++) {
-//          el = selector.elements[i];
-//          if (el.value === '&') {
-//              hasParentSelector = true;
-//          }
-//      }
-//
-//      if (!hasParentSelector) {
-//          if (context.length > 0) {
-//              for (i = 0; i < context.length; i++) {
-//                  paths.push(context[i].concat(selector));
-//              }
-//          }
-//          else {
-//              paths.push([selector]);
-//          }
-//          return;
-//      }
-//
-//      // The paths are [[Selector]]
-//      // The first list is a list of comma seperated selectors
-//      // The inner list is a list of inheritance seperated selectors
-//      // e.g.
-//      // .a, .b {
-//      //   .c {
-//      //   }
-//      // }
-//      // == [[.a] [.c]] [[.b] [.c]]
-//      //
-//
-//      // the elements from the current selector so far
-//      currentElements = [];
-//      // the current list of new selectors to add to the path.
-//      // We will build it up. We initiate it with one empty selector as we "multiply" the new selectors
-//      // by the parents
-//      newSelectors = [[]];
-//
-//      for (i = 0; i < selector.elements.length; i++) {
-//          el = selector.elements[i];
-//          // non parent reference elements just get added
-//          if (el.value !== "&") {
-//              currentElements.push(el);
-//          } else {
-//              // the new list of selectors to add
-//              selectorsMultiplied = [];
-//
-//              // merge the current list of non parent selector elements
-//              // on to the current list of selectors to add
-//              if (currentElements.length > 0) {
-//                  this.mergeElementsOnToSelectors(currentElements, newSelectors);
-//              }
-//
-//              // loop through our current selectors
-//              for (j = 0; j < newSelectors.length; j++) {
-//                  sel = newSelectors[j];
-//                  // if we don't have any parent paths, the & might be in a mixin so that it can be used
-//                  // whether there are parents or not
-//                  if (context.length === 0) {
-//                      // the combinator used on el should now be applied to the next element instead so that
-//                      // it is not lost
-//                      if (sel.length > 0) {
-//                          sel[0].elements = sel[0].elements.slice(0);
-//                          sel[0].elements.push(new(tree.Element)(el.combinator, '', el.index, el.currentFileInfo));
-//                      }
-//                      selectorsMultiplied.push(sel);
-//                  }
-//                  else {
-//                      // and the parent selectors
-//                      for (k = 0; k < context.length; k++) {
-//                          parentSel = context[k];
-//                          // We need to put the current selectors
-//                          // then join the last selector's elements on to the parents selectors
-//
-//                          // our new selector path
-//                          newSelectorPath = [];
-//                          // selectors from the parent after the join
-//                          afterParentJoin = [];
-//                          newJoinedSelectorEmpty = true;
-//
-//                          //construct the joined selector - if & is the first thing this will be empty,
-//                          // if not newJoinedSelector will be the last set of elements in the selector
-//                          if (sel.length > 0) {
-//                              newSelectorPath = sel.slice(0);
-//                              lastSelector = newSelectorPath.pop();
-//                              newJoinedSelector = selector.createDerived(lastSelector.elements.slice(0));
-//                              newJoinedSelectorEmpty = false;
-//                          }
-//                          else {
-//                              newJoinedSelector = selector.createDerived([]);
-//                          }
-//
-//                          //put together the parent selectors after the join
-//                          if (parentSel.length > 1) {
-//                              afterParentJoin = afterParentJoin.concat(parentSel.slice(1));
-//                          }
-//
-//                          if (parentSel.length > 0) {
-//                              newJoinedSelectorEmpty = false;
-//
-//                              // join the elements so far with the first part of the parent
-//                              newJoinedSelector.elements.push(new(tree.Element)(el.combinator, parentSel[0].elements[0].value, el.index, el.currentFileInfo));
-//                              newJoinedSelector.elements = newJoinedSelector.elements.concat(parentSel[0].elements.slice(1));
-//                          }
-//
-//                          if (!newJoinedSelectorEmpty) {
-//                              // now add the joined selector
-//                              newSelectorPath.push(newJoinedSelector);
-//                          }
-//
-//                          // and the rest of the parent
-//                          newSelectorPath = newSelectorPath.concat(afterParentJoin);
-//
-//                          // add that to our new set of selectors
-//                          selectorsMultiplied.push(newSelectorPath);
-//                      }
-//                  }
-//              }
-//
-//              // our new selectors has been multiplied, so reset the state
-//              newSelectors = selectorsMultiplied;
-//              currentElements = [];
-//          }
-//      }
-//
-//      // if we have any elements left over (e.g. .a& .b == .b)
-//      // add them on to all the current selectors
-//      if (currentElements.length > 0) {
-//          this.mergeElementsOnToSelectors(currentElements, newSelectors);
-//      }
-//
-//      for (i = 0; i < newSelectors.length; i++) {
-//          if (newSelectors[i].length > 0) {
-//              paths.push(newSelectors[i]);
-//          }
-//      }
-//  },
 
   ///
   //2.3.1 TODO test
@@ -1985,6 +1676,7 @@ class VariableMixin {
     for (int i = 0; i < rules.length; i++) {
       rule = rules[i];
       if (rule.isRuleset) filtRules.add(rule);
+      //if (rule is Ruleset) filtRules.add(rule);
     }
 
     return filtRules;
@@ -2079,59 +1771,6 @@ class VariableMixin {
 //      this._lookups[key] = rules;
 //      return rules;
 //  };
-//1.7.5. dart
-//    List<Node> find (Selector selector, [self]) {
-//      if (self == null) self = this;
-//      List<Node> rules = [];
-//      int match; // Selectors matchs number. 0 not match
-//      String key = selector.toCSS(null); // ' selector'
-//
-//      if (this._lookups.containsKey(key)) return this._lookups[key];
-//
-//      this.rulesets().forEach((Node rule) {//List of MixinDefinition and Ruleset
-//        if (rule != self) {
-//          for (int j = 0; j < rule.selectors.length; j++) {
-//            match = selector.match(rule.selectors[j]);
-//            if (match > 0) {
-//              if (selector.elements.length > match) {
-//                rules.addAll((rule as Ruleset).find(new Selector(selector.elements.sublist(match)), self));
-//              } else {
-//                rules.add(rule);
-//              }
-//              break;
-//            }
-//          }
-//        }
-//      });
-//      this._lookups[key] = rules;
-//      return rules;
-//1.7.5
-//  find: function (selector, self) {
-//      self = self || this;
-//      var rules = [], match,
-//          key = selector.toCSS();
-//
-//      if (key in this._lookups) { return this._lookups[key]; }
-//
-//      this.rulesets().forEach(function (rule) {
-//          if (rule !== self) {
-//              for (var j = 0; j < rule.selectors.length; j++) {
-//                  match = selector.match(rule.selectors[j]);
-//                  if (match) {
-//                      if (selector.elements.length > match) {
-//                          Array.prototype.push.apply(rules, rule.find(
-//                              new(tree.Selector)(selector.elements.slice(match)), self));
-//                      } else {
-//                          rules.push(rule);
-//                      }
-//                      break;
-//                  }
-//              }
-//          }
-//      });
-//      this._lookups[key] = rules;
-//      return rules;
-//  },
   }
 }
 

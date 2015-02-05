@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Assignment extends Node implements ToCSSNode {
+class Assignment extends Node {
   String key;
   Node value;
 
@@ -24,7 +24,7 @@ class Assignment extends Node implements ToCSSNode {
   ///
   //2.3.1 ok
   Assignment eval(Contexts context) {
-    if (this.value is EvalNode) return new Assignment(this.key, this.value.eval(context));
+    if (this.value is Node) return new Assignment(this.key, this.value.eval(context));
     return this;
 
 //2.3.1
@@ -40,7 +40,7 @@ class Assignment extends Node implements ToCSSNode {
   //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.key + '=');
-    if (this.value is EvalNode) { //TODO is Node
+    if (this.value is Node) {
       this.value.genCSS(context, output);
     } else {
       output.add(this.value);
@@ -56,7 +56,4 @@ class Assignment extends Node implements ToCSSNode {
 //      }
 //  };
   }
-
-//    toCSS: tree.toCSS
-
 }

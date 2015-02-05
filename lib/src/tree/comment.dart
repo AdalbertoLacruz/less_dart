@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
+class Comment extends Node implements MarkReferencedNode {
   String value;
   bool isLineComment;
   int index;
@@ -51,9 +51,6 @@ class Comment extends Node implements EvalNode, MarkReferencedNode, ToCSSNode {
 //    };
 
   }
-
-  //TODO in 2.2.0 goes to Node
-  Node eval(env) => this;
 
   //--- MarkReferencedNode
 

@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Attribute extends Node implements EvalNode, ToCSSNode {
+class Attribute extends Node {
   var key; // String or Node
   String op; // '=', '^=', ...
   var value; // String or Node
@@ -14,9 +14,9 @@ class Attribute extends Node implements EvalNode, ToCSSNode {
   ///
   //2.3.1 ok
   Attribute eval(Contexts context) => new Attribute(
-        this.key is EvalNode ? this.key.eval(context) : this.key, //TODO is Node
+        this.key is Node ? this.key.eval(context) : this.key,
         this.op,
-        this.value is EvalNode ?  this.value.eval(context) : this.value); //TODO is Node
+        this.value is Node ?  this.value.eval(context) : this.value);
 
 //2.3.1
 //  Attribute.prototype.eval = function (context) {
@@ -39,11 +39,11 @@ class Attribute extends Node implements EvalNode, ToCSSNode {
   ///
   //2.3.1 ok
   String toCSS(Contexts context) {
-    String value = (this.key is ToCSSNode) ? this.key.toCSS(context) : this.key; //TODO is Node
+    String value = (this.key is Node) ? this.key.toCSS(context) : this.key;
 
     if (this.op != null) {
       value += this.op;
-      value += (this.value is ToCSSNode) ? this.value.toCSS(context) : this.value; //TODO is Node
+      value += (this.value is Node) ? this.value.toCSS(context) : this.value;
     }
 
     return '[${value}]';

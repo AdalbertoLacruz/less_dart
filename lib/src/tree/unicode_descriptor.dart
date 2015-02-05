@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class UnicodeDescriptor extends Node implements EvalNode, ToCSSNode {
+class UnicodeDescriptor extends Node {
   String value;
 
   final String type = 'UnicodeDescriptor';
@@ -18,6 +18,4 @@ class UnicodeDescriptor extends Node implements EvalNode, ToCSSNode {
   void genCSS(Contexts env, Output output) {
     output.add(this.value);
   }
-
-//    toCSS: tree.toCSS,
 }

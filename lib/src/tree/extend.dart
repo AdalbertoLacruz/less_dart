@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Extend extends Node implements EvalNode {
+class Extend extends Node {
   Node selector;
   String option;
   int index;
@@ -96,7 +96,7 @@ class Extend extends Node implements EvalNode {
       selectorElements = selectors[i].elements;
 
       // duplicate the logic in genCSS function inside the selector node.
-      // future TODO (js) - move both logics into the selector joiner visitor
+      // future todo (js) - move both logics into the selector joiner visitor
       if (i > 0 && selectorElements.isNotEmpty && selectorElements.first.combinator.value.isEmpty) {
         selectorElements.first.combinator.value = ' ';
       }
@@ -114,7 +114,7 @@ class Extend extends Node implements EvalNode {
 //      for(i = 0; i < selectors.length; i++) {
 //          selectorElements = selectors[i].elements;
 //          // duplicate the logic in genCSS function inside the selector node.
-//          // future TODO - move both logics into the selector joiner visitor
+//          // future todo - move both logics into the selector joiner visitor
 //          if (i > 0 && selectorElements.length && selectorElements[0].combinator.value === "") {
 //              selectorElements[0].combinator.value = ' ';
 //          }

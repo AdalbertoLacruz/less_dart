@@ -2,18 +2,12 @@
 
 part of tree.less;
 
-class Paren extends Node implements EvalNode, ToCSSNode {
+class Paren extends Node {
   Node value;
 
   final String type = 'Paren';
 
   Paren(Node this.value);
-
-  ///
-  //2.3.1 TODO remove
-  void accept(Visitor visitor) {
-    this.value = visitor.visit(this.value);
-  }
 
   ///
   //2.3.1 ok
@@ -29,8 +23,6 @@ class Paren extends Node implements EvalNode, ToCSSNode {
 //      output.add(')');
 //  };
   }
-
-//    toCSS: tree.toCSS,
 
   ///
   //2.3.1 ok
