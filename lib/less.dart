@@ -31,7 +31,7 @@ class Less {
   }
 
   ///
-  /// Rransform a less file to css file.
+  /// Transform a less file to css file.
   ///
   /// [args] has the options and input/output file names.
   /// [modifyOptions] let programtically modify the options.
