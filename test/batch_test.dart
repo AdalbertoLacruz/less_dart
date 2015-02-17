@@ -101,20 +101,20 @@ void runAsync() {
        7: def('css'),
        8: def('detached-rulesets'),
        9: def('empty'),
-      10: def('extend-chaining'),
+      10: def('extend-chaining', options: ['--log-level=1']),
       11: def('extend-clearfix'),
-      12: def('extend-exact'),
+      12: def('extend-exact', options: ['--log-level=1']),
       13: def('extend-media'),
-      14: def('extend-nest'),
+      14: def('extend-nest', options: ['--log-level=1']),
       15: def('extend-selector'),
-      16: def('extend'),
+      16: def('extend', options: ['--log-level=1']),
       17: def('extract-and-length'),
       18: def('functions'),
       19: def('ie-filters'),
       20: def('import-inline'),
       21: def('import-interpolation'),
       22: def('import-once'),
-      23: def('import-reference'),
+      23: def('import-reference', options: ['--log-level=1']),
       24: def('import'), //TODO 2.2.0
       //25: def('javascript'),
       30: def('lazy-eval'),
@@ -256,12 +256,18 @@ void runAsync() {
       154: def('errors/svg-gradient2', isErrorTest: true),
       155: def('errors/svg-gradient3', isErrorTest: true),
       156: def('errors/unit-function', isErrorTest: true),
-      200: def('extendedTest/url', isExtendedTest: true)
+      200: def('extendedTest/url', isExtendedTest: true),
+      //absolute path
+      201: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
+          replace: [{'from': '{pathabs}', 'to': absPath('less')}]),
+      //sync import
+      202: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;})
     };
   }
 
   Config def(name, {List options, String cssName, List<Map> replace,
-    bool isErrorTest: false, bool isExtendedTest: false, bool isSourcemapTest: false}) {
+    bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
+    bool isSourcemapTest: false, Function modifyOptions}) {
 
     String baseLess = 'less'; //base directory for less sources
     String baseCss = 'css';   //base directory for css comparation
@@ -288,7 +294,9 @@ void runAsync() {
       ..replace = replace
       ..isErrorTest = isErrorTest
       ..isExtendedText = isExtendedTest
-      ..isSourcemapTest = isSourcemapTest;
+      ..isReplaceSource = isReplaceSource
+      ..isSourcemapTest = isSourcemapTest
+      ..modifyOptions = modifyOptions;
   }
 
   String escFile(String fileName) {
@@ -315,12 +323,25 @@ void runAsync() {
 
     args.add('-no-color');
     if (config[c].options != null) args.addAll(config[c].options);
-    args.add(fileToTest);
+
+    if (config[c].isReplaceSource) {
+      String source = new File(fileToTest).readAsStringSync();
+      if (config[c].replace != null ) {
+        for (int i = 0; i < config[c].replace.length; i++) {
+          source = source.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
+        }
+      }
+      less.stdin.write(source);
+      args.add('-');
+    } else {
+      args.add(fileToTest);
+    }
+
     if(config[c].isSourcemapTest){
       fileOutputName = path.withoutExtension(config[c].lessFile) + '.css';
       args.add(fileOutputName);
     }
-    less.transform(args).then((exitCode){
+    less.transform(args, modifyOptions: config[c].modifyOptions).then((exitCode){
       config[c].stderr = less.stderr.toString();
 
       if (exitCode == 3) { // input file error
@@ -427,8 +448,10 @@ void runAsync() {
     String errorFile;
     bool isErrorTest;
     bool isExtendedText;
+    bool isReplaceSource;
     bool isSourcemapTest;
     String lessFile;
+    Function modifyOptions; // (LessOptions options){}
     List<String> options;
     bool pass;
     List<Map<String, String>> replace;

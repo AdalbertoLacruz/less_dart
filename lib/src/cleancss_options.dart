@@ -1,6 +1,6 @@
 library cleancss.less;
 
-import 'nodejs/nodejs.dart';
+import 'logger.dart';
 
 class CleancssOptions {
   bool keepBreaks;
@@ -9,7 +9,7 @@ class CleancssOptions {
   String compatibility;
   int roundingPrecision;
 
-  NodeConsole console = new NodeConsole();
+  Logger console = new Logger();
   bool parseError = false;
 
   CleancssOptions();

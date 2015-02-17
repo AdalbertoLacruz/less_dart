@@ -8,6 +8,7 @@ import '../contexts.dart';
 import '../file_info.dart';
 import '../less_error.dart';
 import '../environment/environment.dart';
+import '../logger.dart';
 import '../nodejs/nodejs.dart';
 import '../tree/tree.dart';
 

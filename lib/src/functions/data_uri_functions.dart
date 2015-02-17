@@ -20,7 +20,7 @@ class DataUriFunctions extends FunctionBase {
   @defineMethod(name: 'data-uri')
   URL dataURI(Node mimetypeNode, [Node filePathNode]) {
     Environment environment = new Environment();
-    NodeConsole console = new NodeConsole();
+    Logger console = new Logger();
 
     String mimetype = mimetypeNode.value;
     String filePath = filePathNode != null ? filePathNode.value : mimetype;

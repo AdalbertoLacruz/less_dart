@@ -39,8 +39,8 @@ class FileInfo {
    * ex.: FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, env);
    * #
    */
-  FileInfo.cloneForLoader(FileInfo current, Contexts env) {
-    this.relativeUrls   = env.relativeUrls;
+  FileInfo.cloneForLoader(FileInfo current, Contexts context) {
+    this.relativeUrls   = context.relativeUrls;
     this.entryPath      = current.entryPath;
     this.rootpath       = current.rootpath;
     this.rootFilename   = current.rootFilename;

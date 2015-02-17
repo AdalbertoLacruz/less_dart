@@ -6,7 +6,7 @@ import 'package:path/path.dart' as path;
 
 import 'src/less_error.dart';
 import 'src/less_options.dart';
-import 'src/nodejs/nodejs.dart';
+import 'src/logger.dart';
 import 'src/parser/parser.dart';
 import 'src/tree/tree.dart';
 
@@ -22,16 +22,16 @@ class Less {
   int currentErrorCode = 0;
   bool continueProcessing = true;
 
-  NodeConsole console;
+  Logger logger;
   LessOptions _options;
 
   Less(){
-    console = new NodeConsole(stderr); // is important the order
+    logger = new Logger(stderr); // is important the order
     _options = new LessOptions();
   }
 
   ///
-  /// Rransform a less file to css file.
+  /// Transform a less file to css file.
   ///
   /// [args] has the options and input/output file names.
   /// [modifyOptions] let programtically modify the options.
@@ -60,7 +60,7 @@ class Less {
 
       File file = new File(filename);
       if (!file.existsSync()) {
-        console.log('Error cannot open file ${_options.input}');
+        logger.log('Error cannot open file ${_options.input}');
         currentErrorCode = 3;
         return new Future.value(currentErrorCode);
       }
@@ -70,7 +70,7 @@ class Less {
         return parseLessFile(content);
       })
       .catchError((e){
-        console.log('Error reading ${_options.input}');
+        logger.log('Error reading ${_options.input}');
         currentErrorCode = 3;
         return new Future.value(currentErrorCode);
       });
@@ -143,14 +143,14 @@ class Less {
               new File(_options.output)
                 ..createSync(recursive: true)
                 ..writeAsStringSync(css);
-              if (_options.verbose) console.log('lessc: wrote ${_options.output}');
+              if (_options.verbose) logger.log('lessc: wrote ${_options.output}');
             } else {
               stdout.write(css);
             }
           }
 
         } on LessExceptionError catch (e) {
-          console.log(e.toString());
+          logger.log(e.toString());
           currentErrorCode = 2;
           return new Future.value(currentErrorCode);
         }
@@ -159,7 +159,7 @@ class Less {
       return new Future.value(currentErrorCode);
     })
     .catchError((e){
-      console.log(e.toString());
+      logger.log(e.toString());
       currentErrorCode = 1;
       return new Future.value(currentErrorCode);
     });

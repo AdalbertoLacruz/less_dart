@@ -1,7 +1,7 @@
 import 'package:unittest/unittest.dart';
 
 import '../lib/src/less_options.dart';
-import '../lib/src/nodejs/nodejs.dart';
+import '../lib/src/logger.dart';
 
 main(){
   SimpleConfiguration config = new SimpleConfiguration();
@@ -29,7 +29,7 @@ less_options_test(){
 
     tearDown((){
       testCount++;
-      if(testCount == testCases.length) print('stderr: ${new NodeConsole().stderr.toString()}');
+      if(testCount == testCases.length) print('stderr: ${new Logger().stderr.toString()}');
     });
 
     test('-v', (){

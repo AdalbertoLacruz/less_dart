@@ -7,6 +7,7 @@ import 'dart:io';
 
 import '../contexts.dart';
 import '../file_info.dart';
+import '../import_manager.dart';
 import '../less_error.dart';
 import '../less_options.dart';
 import '../utils.dart';
@@ -54,16 +55,16 @@ part 'parsers.dart';
  */
 class Parser {
   String input;   // LeSS input string
-  //var rootFilename = env && env.filename; --> inicializacion TODO
+  //var rootFilename = env && env.filename; --> inicializattion TODO
 
-  Imports imports;
+  ImportManager imports;
   Contexts context;
+  FileInfo fileInfo;
   Parsers parsers;
   String preText = '';
 
   Parser(LessOptions options){
     context = new Contexts.parse(options);
-    imports = new Imports(context);
     if (options.banner.isNotEmpty) {
       try {
         preText = new File(options.banner).readAsStringSync();
@@ -71,8 +72,7 @@ class Parser {
     }
   }
 
-  Parser.fromRecursive(Contexts this.context) {
-    imports = new Imports(this.context);
+  Parser.fromImporter(Contexts this.context, ImportManager this.imports, FileInfo this.fileInfo) {
   }
 
   //  parse: function (str, callback, additionalData)
@@ -100,10 +100,13 @@ class Parser {
 //        parser.imports.contentsIgnoredChars[env.currentFileInfo.filename] = preText.length;
 //    }
 
+    if (fileInfo == null) fileInfo = context.currentFileInfo;
+    if (imports == null) imports = new ImportManager(context, fileInfo);
+
     if (preText.isNotEmpty) {
       preText = preText.replaceAll('\r\n', '\n');
       str = preText + str;
-      imports.contentsIgnoredChars[context.currentFileInfo.filename] = preText.length;
+      imports.contentsIgnoredChars[fileInfo.filename] = preText.length;
       preText = ''; // avoid banner in @import
     }
 
@@ -112,8 +115,8 @@ class Parser {
     // Remove potential UTF Byte Order Mark
 //  input = str = preText + str.replace(/^\uFEFF/, '') + modifyVars;
     input = str = str.replaceAll(new RegExp(r'^\uFEFF'), '');
-    imports.contents[context.currentFileInfo.filename] = str;
-    imports.rootFilename = context.currentFileInfo.filename;
+    imports.contents[fileInfo.filename] = str;
+    //imports.rootFilename = fileInfo.filename; NO
 
     context.imports = imports;
     context.input = str;

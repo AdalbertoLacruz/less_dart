@@ -126,14 +126,13 @@ class Import extends Node {
   ///
   /// get the file path to import.
   ///
-  //2.3.1 - TODO pending upgrade
+  //2.3.1 ok
   String getPath() {
     RegExp rPath = new RegExp(r'(\.[a-z]*$)|([\?;].*)$'); //1.7.5 *****
 
     if (this.path is Quoted) {
-        String path = this.path.value; //1.7.5 *****
-        return (this.css || rPath.hasMatch(path))? path : path + '.less'; //1.7.5 *****
-//      return this.path.value; //2.3.1 *****
+        String path = this.path.value;
+          return this.path.value;
     } else if (this.path is URL) {
       return this.path.value.value;
     }
@@ -148,16 +147,6 @@ class Import extends Node {
 //      }
 //      return null;
 //  };
-//1.7.5
-//      getPath: function () {
-//          if (this.path instanceof tree.Quoted) {
-//              var path = this.path.value;
-//              return (this.css !== undefined || /(\.[a-z]*$)|([\?;].*)$/.test(path)) ? path : path + '.less';
-//          } else if (this.path instanceof tree.URL) {
-//              return this.path.value.value;
-//          }
-//          return null;
-//      },
   }
 
   ///

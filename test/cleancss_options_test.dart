@@ -1,7 +1,7 @@
 import 'package:unittest/unittest.dart';
 
 import '../lib/src/cleancss_options.dart';
-import '../lib/src/nodejs/nodejs.dart';
+import '../lib/src/logger.dart';
 
 main(){
   SimpleConfiguration config = new SimpleConfiguration();
@@ -24,7 +24,7 @@ cleancss_options_test(){
 
       tearDown((){
         testCount++;
-        if(testCount == testCases.length) print('stderr: ${new NodeConsole().stderr.toString()}');
+        if(testCount == testCases.length) print('stderr: ${new Logger().stderr.toString()}');
       });
 
       test('--keep-line-breaks', (){

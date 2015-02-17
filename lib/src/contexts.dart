@@ -2,18 +2,12 @@
 
 library contexts.less;
 
-import 'dart:async';
-
 import 'file_info.dart';
-import 'importer.dart';
-import 'less_error.dart';
+import 'import_manager.dart';
 import 'less_options.dart';
 import 'functions/functions.dart';
-import 'nodejs/nodejs.dart';
-import 'parser/parser.dart';
 import 'tree/tree.dart';
 
-part 'imports.dart';
 
 class Contexts {
   // ***** From options
@@ -24,13 +18,13 @@ class Contexts {
   bool chunkInput;
 
   /// options.cleancss
-  bool cleancss;
+  bool cleancss = false;
 
   /// options.color
-  bool color;
+  bool color = false;
 
   /// options.compress
-  bool compress;
+  bool compress = false;
 
   /// Map - filename to contents of all the files
   Map<String, String> contents = {};
@@ -61,21 +55,21 @@ class Contexts {
   List<Node> frames = []; //Ruleset/MixinDefinition/Directive
 
   /// options.javascriptEnabled
-  bool javascriptEnabled;
+  bool javascriptEnabled = true;
 
   /// options.ieCompat
-  bool ieCompat;
+  bool ieCompat = true;
 
   /// used to bubble up !important statements
   List<ImportantRule> importantScope = [];
 
   /// options.importMultiple
-  bool importMultiple;
+  bool importMultiple = false;
 
-  Imports imports; //for LessError
+  ImportManager imports; //for LessError
 
   /// options.insecure
-  bool insecure;
+  bool insecure = false;
 
   bool lastRule = false; // Ruleset
 
@@ -99,7 +93,7 @@ class Contexts {
   bool processImports;
 
   /// options.relativeUrls
-  bool relativeUrls;
+  bool relativeUrls = false;
 
   /// option.rootpath
   String rootpath;
@@ -113,16 +107,16 @@ class Contexts {
   bool sourceMap;
 
   /// options.strictImports
-  bool strictImports;
+  bool strictImports = false;
 
   /// options.strictMath
-  bool strictMath;
+  bool strictMath = false;
 
   /// options.strictUnits
-  bool strictUnits;
+  bool strictUnits = false;
 
   /// option.syncImport
-  bool syncImport;
+  bool syncImport = false;
 
   int tabLevel = 0; // Ruleset
 
@@ -377,27 +371,4 @@ class Contexts {
 //      return path.join("/");
 //  };
   }
-
-
-//TODO 2.3.1 remove. Is now in Variable
-//  // less/tree.js 1.7.5 lines 36-42
-//   static find(List obj, Function fun) {
-//     int i;
-//     var r;
-//
-//     for (i = 0; i < obj.length; i++) {
-//       r = fun(obj[i]);
-//       if (r != null) return r;
-//     }
-//     return null;
-//   }
-//
-////tree.find = function (obj, fun) {
-////    for (var i = 0, r; i < obj.length; i++) {
-////        r = fun.call(obj, obj[i]);
-////        if (r) { return r; }
-////    }
-////    return null;
-////};
-
 }

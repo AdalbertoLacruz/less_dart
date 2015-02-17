@@ -10,6 +10,7 @@ class Extend extends Node {
   bool            allowAfter;
   bool            allowBefore;
   bool            firstExtendOnThisSelectorPath = false;
+  bool            hasFoundMatches = false; // ProcessExtendsVisitor
   int             object_id;
   List<int>       parent_ids;
   Ruleset         ruleset; //extend

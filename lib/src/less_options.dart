@@ -8,7 +8,7 @@ import 'cleancss_options.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
 import 'functions/functions.dart';
-import 'nodejs/nodejs.dart';
+import 'logger.dart';
 
 class LessOptions {
   // ****************** CONFIGURATION *********************************
@@ -81,6 +81,8 @@ class LessOptions {
   bool javascriptEnabled = true;
 
   bool   lint = false;
+
+  int logLevel = logLevelWarn;
 
   /// max-line-len - deprecated
   get maxLineLen => _maxLineLen;
@@ -165,11 +167,11 @@ class LessOptions {
 
   CleancssOptions cleancssOptions = new CleancssOptions();
 
-  NodeConsole console = new NodeConsole();
-
   String filename = ''; //same as input
 
   String inputBase = ''; //same as input
+
+  Logger logger = new Logger();
 
   String outputBase = ''; // same as output
 
@@ -203,7 +205,7 @@ class LessOptions {
     switch (command) {
       case 'v':
       case 'version':
-        console.log('lessc ${LessIndex.version.join('.')} (Less Compiler) [Dart]');
+        logger.log('lessc ${LessIndex.version.join('.')} (Less Compiler) [Dart]');
         return false;
       case 'verbose':
         verbose = true;
@@ -357,6 +359,16 @@ class LessOptions {
           }
         } else return setParseError(command);
         break;
+      case 'log-level':
+        if (checkArgFunc(command, arg[2])) {
+          try {
+            logLevel = int.parse(arg[2]);
+            logger.setLogLevel(logLevel);
+          } catch (e) {
+            return setParseError('$command bad argument');
+          }
+        } else return setParseError(command);
+        break;
       case 'banner':
         if (checkArgFunc(command, arg[2])) {
           banner = arg[2];
@@ -371,14 +383,14 @@ class LessOptions {
   }
 
   bool setParseError([String option]) {
-    if(option != null) console.log('unrecognised less option $option');
+    if(option != null) logger.log('unrecognised less option $option');
     parseError = true;
     return false;
   }
 
   bool checkArgFunc(String command, String option) {
     if(option == null) {
-      console.log('$command option requires a parameter');
+      logger.log('$command option requires a parameter');
       return false;
     }
     return true;
@@ -389,7 +401,7 @@ class LessOptions {
     RegExp onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
     Match match;
     if ((match = onOff.firstMatch(arg)) == null){
-      console.log(' unable to parse $arg as a boolean. use one of on/t/true/y/yes/off/f/false/n/no');
+      logger.log(' unable to parse $arg as a boolean. use one of on/t/true/y/yes/off/f/false/n/no');
       return null;
     }
     if (match[1] != null) return true;
@@ -419,7 +431,7 @@ class LessOptions {
         if (sourceMapBasepath.isEmpty) sourceMapBasepath = path.current;
       }
     } else {
-      console.log('lessc: no input files\n');
+      logger.log('lessc: no input files\n');
       printUsage();
       parseError = true;
       return false;
@@ -429,12 +441,12 @@ class LessOptions {
       outputBase = output;
       sourceMapOutputFilename = output;
       //output = path.normalize(path.absolute(output)); //use absolute path
-      if (warningMessages.isNotEmpty) console.log(warningMessages);
+      if (warningMessages.isNotEmpty) logger.log(warningMessages);
     }
 
     if(sourceMap is bool && sourceMap == true){
       if((output == null) && !sourceMapFileInline){
-        console.log('the sourcemap option only has an optional filename if the css filename is given');
+        logger.log('the sourcemap option only has an optional filename if the css filename is given');
         parseError = true;
         return false;
       }
@@ -443,14 +455,14 @@ class LessOptions {
     }
 
     if(cleancss && (sourceMap == true || sourceMap.isNotEmpty)) {
-      console.log('the cleancss option is not compatible with sourcemap support at the moment. See Issue #1656');
+      logger.log('the cleancss option is not compatible with sourcemap support at the moment. See Issue #1656');
       parseError = true;
       return false;
     }
 
     if(depends) {
       if(outputBase.isEmpty) {
-        console.log('option --depends requires an output path to be specified');
+        logger.log('option --depends requires an output path to be specified');
         parseError = true;
         return false;
       }

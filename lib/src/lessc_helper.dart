@@ -1,6 +1,6 @@
 library helper.less;
 
-import 'nodejs/nodejs.dart';
+import 'logger.dart';
 
 /*
  * helper functions for lessc
@@ -14,7 +14,7 @@ import 'nodejs/nodejs.dart';
  * Print command line options
  */
 printUsage() {
-  NodeConsole console = new NodeConsole();
+  Logger console = new Logger();
 
   console.log("usage: lessc [option option=parameter ...] <source> [destination]");
   console.log("");
