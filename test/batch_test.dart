@@ -195,8 +195,15 @@ void runAsync() {
 
       //sourcemaps
       70: def('index', isExtendedTest: true,
-          isSourcemapTest: true, cssName: 'index_expected',
+          isSourcemapTest: true, cssName: 'index-expected',
           options: ['--source-map=webSourceMap/index.map', '--banner=webSourceMap/banner.txt']),
+      71: def('index-less-inline', isExtendedTest: true,
+          isSourcemapTest: true, cssName: 'index-less-inline-expected',
+          options: ['--source-map=webSourceMap/index-less-inline.map', '--source-map-less-inline',
+                    '--banner=webSourceMap/banner.txt']),
+      72: def('index-map-inline', isExtendedTest: true,
+          isSourcemapTest: true, cssName: 'index-map-inline-expected',
+          options: ['--source-map-map-inline', '--banner=webSourceMap/banner.txt']),
 
       //errors
       100: def('errors/add-mixed-units', isErrorTest: true),
@@ -261,7 +268,13 @@ void runAsync() {
       201: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
           replace: [{'from': '{pathabs}', 'to': absPath('less')}]),
       //sync import
-      202: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;})
+      202: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;}),
+      //options.variables
+      203: def('globalVars/simple', isExtendedTest: true,
+                options: ['--banner=banner.txt'],
+                modifyOptions: (LessOptions options){options.variables = { 'my-color': new Color.fromKeyword('red') };}),
+      210: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
+          options: ['--plugin=less-plugin-advanced-color-functions'])
     };
   }
 
@@ -361,11 +374,15 @@ void runAsync() {
         }
         String mapFileName = path.withoutExtension(config[c].lessFile) + '.map';
         String expectedMapFileName = path.withoutExtension(config[c].cssFile) + '.map';
-        String resultMap = new File(mapFileName).readAsStringSync();
-        new File(expectedMapFileName).readAsString().then((expectedMap){
-          if (resultMap != expectedMap) config[c].pass = false;
+        if (new File(mapFileName).existsSync()) {
+          String resultMap = new File(mapFileName).readAsStringSync();
+          new File(expectedMapFileName).readAsString().then((expectedMap){
+            if (resultMap != expectedMap) config[c].pass = false;
+            completer.complete();
+          });
+        } else {
           completer.complete();
-        });
+        }
       } else if (config[c].isErrorTest) {
         new File(fileError).readAsString().then((errorContent){
           String errorContentReplaced = errorContent;

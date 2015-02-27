@@ -118,17 +118,6 @@ less_options_test(){
       expect(options.depends, true);
     });
 
-    test('-yui-compress', (){
-      result = options.parse(getArgument('-yui-compress'));
-      expect(result, true);
-    });
-
-    test('-clean-css', (){
-      result = options.parse(getArgument('-clean-css'));
-      expect(result, true);
-      expect(options.cleancss, true);
-    });
-
     test('-max-line-len', (){
       result = options.parse(getArgument('-max-line-len=80'));
       expect(result, true);
@@ -160,24 +149,6 @@ less_options_test(){
 
     });
 
-    test('-00', (){
-      result = options.parse(getArgument('-O0'));
-      expect(result, true);
-      expect(options.optimization, equals(0));
-    });
-
-    test('-01', (){
-      result = options.parse(getArgument('-O1'));
-      expect(result, true);
-      expect(options.optimization, equals(1));
-    });
-
-    test('-02', (){
-      result = options.parse(getArgument('-O2'));
-      expect(result, true);
-      expect(options.optimization, equals(2));
-    });
-
     test('-line-numbers', (){
       result = options.parse(getArgument('-line-numbers=comments'));
       expect(result, true);
@@ -193,37 +164,37 @@ less_options_test(){
     test('-source-map file', (){
       result = options.parse(getArgument('-source-map=file.dat'));
       expect(result, true);
-      expect(options.sourceMap, equals('file.dat'));
+      expect(options.sourceMapOptions.sourceMapFullFilename, equals('file.dat'));
     });
 
     test('-source-map-rootpath', (){
       result = options.parse(getArgument('-source-map-rootpath=path/to'));
       expect(result, true);
-      expect(options.sourceMapRootpath, equals('path/to'));
+      expect(options.sourceMapOptions.sourceMapRootpath, equals('path/to'));
     });
 
     test('-source-map-basepath', (){
       result = options.parse(getArgument('-source-map-basepath=path/to'));
       expect(result, true);
-      expect(options.sourceMapBasepath, equals('path/to'));
+      expect(options.sourceMapOptions.sourceMapBasepath, equals('path/to'));
     });
 
     test('-source-map-map-inline', (){
       result = options.parse(getArgument('-source-map-map-inline'));
       expect(result, true);
-      expect(options.sourceMapFileInline, true);
+      expect(options.sourceMapOptions.sourceMapFileInline, true);
     });
 
     test('-source-map-less-inline', (){
       result = options.parse(getArgument('-source-map-less-inline'));
       expect(result, true);
-      expect(options.outputSourceFiles, true);
+      expect(options.sourceMapOptions.outputSourceFiles, true);
     });
 
     test('-source-map-url', (){
       result = options.parse(getArgument('-source-map-url=http://url/to.this'));
       expect(result, true);
-      expect(options.sourceMapURL, equals('http://url/to.this'));
+      expect(options.sourceMapOptions.sourceMapURL, equals('http://url/to.this'));
     });
 
     test('-rp', (){
@@ -277,19 +248,13 @@ less_options_test(){
     test('-global-var', (){
       result = options.parse(getArgument('-global-var=var=value'));
       expect(result, true);
-      expect(options.globalVariables, contains('@var:value'));
+      expect(options.globalVariables.length, equals(1));
     });
 
     test('-modify-var', (){
       result = options.parse(getArgument('-modify-var=var=value'));
       expect(result, true);
-      expect(options.modifyVariables, contains('@var:value'));
-    });
-
-    test('-clean-option', (){
-      result = options.parse(getArgument('--clean-option=--compatibility:ie7'));
-      expect(result, true);
-      expect(options.cleancssOptions.compatibility, equals('ie7'));
+      expect(options.modifyVariables.length, equals(1));
     });
 
     test('-url-args', (){

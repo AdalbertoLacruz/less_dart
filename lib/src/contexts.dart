@@ -6,6 +6,7 @@ import 'file_info.dart';
 import 'import_manager.dart';
 import 'less_options.dart';
 import 'functions/functions.dart';
+import 'plugins/plugins.dart';
 import 'tree/tree.dart';
 
 
@@ -18,7 +19,7 @@ class Contexts {
   bool chunkInput;
 
   /// options.cleancss
-  bool cleancss = false;
+  //bool cleancss = false;
 
   /// options.color
   bool color = false;
@@ -88,6 +89,9 @@ class Contexts {
 
   /// options.paths
   List paths;
+
+  /// options.pluginManager
+  PluginManager pluginManager;
 
   /// options.processImports
   bool processImports;
@@ -193,14 +197,14 @@ class Contexts {
     mime                = options.mime;
     useFileCache        = options.useFileCache;
     processImports      = options.processImports;
-    javascriptEnabled   = options.javascriptEnabled; //removed 2.2.0
-    strictMath          = options.strictMath; //removed 2.2.0
+    //javascriptEnabled   = options.javascriptEnabled; //removed 2.2.0
+    //strictMath          = options.strictMath; //removed 2.2.0
     numPrecision        = options.numPrecision;
     color               = options.color;
     silent              = options.silent; //removed 2.2.0
     customFunctions     = options.customFunctions; //dart version
 //    reference           = options.reference; // Used to indicate that the contents are imported by reference //TODO 2.2.0
-//    pluginManager       = options.pluginManager; // Used as the plugin manager for the session //TODO
+    pluginManager       = options.pluginManager; // Used as the plugin manager for the session //TODO
 
     if (options is Contexts) {
       Contexts context  = options as Contexts;
@@ -244,18 +248,17 @@ class Contexts {
     newctx.silent             = options.silent; //removed 2.2.0
     newctx.verbose            = options.verbose; //removed 2.2.0
     newctx.compress           = options.compress;
-    newctx.yuicompress        = options.yuicompress; //removed 2.2.0
     newctx.ieCompat           = options.ieCompat;
     newctx.strictMath         = options.strictMath;
     newctx.strictUnits        = options.strictUnits;
     newctx.numPrecision       = options.numPrecision;
-    newctx.cleancss           = options.cleancss; //removed 2.2.0
+    //newctx.cleancss           = options.cleancss; //removed 2.2.0
     newctx.sourceMap          = options.sourceMap;
     newctx.importMultiple     = options.importMultiple;
     newctx.urlArgs            = options.urlArgs;
     newctx.javascriptEnabled  = options.javascriptEnabled;
     newctx.dumpLineNumbers    = options.dumpLineNumbers; //removed 2.2.0
-//    newctx.pluginManager      = options.pluginManager; // Used as the plugin manager for the session. TODO 2.2.0
+    newctx.pluginManager      = options.pluginManager; // Used as the plugin manager for the session. TODO 2.2.0
 //    newctx.importantScope     = options.importantScope; // Used to bubble up !important statements. TODO 2.2.0
 
     if (options is Contexts) {

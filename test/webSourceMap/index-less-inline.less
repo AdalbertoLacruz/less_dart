@@ -1,0 +1,24 @@
+@red: #ff0000 ;
+@blue: #0000ff ;
+@green: #00ff00 ;
+
+.mixina (@style, @width, @color: black) {
+    border: @width @style @color;
+}
+
+#divRed {
+  height: 100px;
+  background-color: @red;
+  .mixina(dotted, 2px);
+}
+
+@import 'import.less';
+
+#hBlue {
+  text-align: center;
+  position: absolute;
+  background-color: @green;
+  color: @blue;
+}
+
+@import (inline) 'import-inline.less';

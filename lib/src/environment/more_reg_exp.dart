@@ -1,6 +1,6 @@
-part of nodejs.less;
+part of environment.less;
 
-class RegExpExtended {
+class MoreRegExp {
   String pattern;
   bool caseSensitive = true;
   bool global = false;
@@ -10,7 +10,7 @@ class RegExpExtended {
   /// flags:
   ///   g : global (for replace)
   ///   i : case insensible
-  RegExpExtended(String this.pattern, [String flags]) {
+  MoreRegExp(String this.pattern, [String flags]) {
     if (flags != null) {
       caseSensitive = !flags.contains('i');
       global = flags.contains('g');

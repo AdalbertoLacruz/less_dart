@@ -1,0 +1,26 @@
+/**
+  * Test sourcemaps
+  */
+#divRed {
+  height: 100px;
+  background-color: #ff0000;
+  border: 2px dotted black;
+}
+#divGrey {
+  height: 100px;
+  background-color: #808080;
+  border: 2px dotted black;
+}
+#hBlue {
+  text-align: center;
+  position: absolute;
+  background-color: #00ff00;
+  color: #0000ff;
+}
+#hGrey {
+  text-align: center;
+  position: absolute;
+  background-color: #c0c0c0;
+  color: white;
+}
+/*# sourceMappingURL=index-less-inline.map */

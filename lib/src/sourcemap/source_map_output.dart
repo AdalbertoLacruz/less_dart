@@ -1,16 +1,6 @@
-// source: less/source-map-output.js 1.7.5
+// source: less/source-map-output.js 2.4.0
 
-library sourcemapoutput.less;
-
-import 'dart:convert';
-import 'package:source_maps/source_maps.dart';
-import 'package:source_span/source_span.dart';
-
-import 'contexts.dart';
-import 'file_info.dart';
-import 'output.dart';
-import 'nodejs/nodejs.dart';
-import 'tree/tree.dart';
+part of sourcemap.less;
 
 class SourceMapOutput extends Output{
   Map<String, int> contentsIgnoredCharsMap;
@@ -18,41 +8,79 @@ class SourceMapOutput extends Output{
   String outputFilename;
   bool outputSourceFiles;
   Ruleset rootNode;
+  String sourceMap; //result
   String sourceMapBasepath;
   String sourceMapFilename;
   SourceMapBuilder sourceMapGenerator; //class instance
+  bool sourceMapFileInline;
   String sourceMapRootpath;
   String sourceMapURL;
-  Function writeSourceMap;
 
   int column = 0;
   int indexGenerated = 0;
   int lineNumber = 0;
   Map<String, String> normalizeCache = {};
 
+  ///
+  //2.4.0
   SourceMapOutput({Map<String, int> this.contentsIgnoredCharsMap,
-                   Function this.writeSourceMap,
                    Ruleset this.rootNode,
                    Map<String, String> this.contentsMap,
-                   String this.sourceMapFilename,
+                   String sourceMapFilename,
                    String this.sourceMapURL,
                    String this.outputFilename,
                    String sourceMapBasepath, //abs?
-                   String this.sourceMapRootpath,
+                   String sourceMapRootpath,
                    bool this.outputSourceFiles,
-                   this.sourceMapGenerator}) {
+                   bool this.sourceMapFileInline}) {
+
+    if (sourceMapFilename != null) {
+      this.sourceMapFilename = sourceMapFilename.replaceAll('\\', '/');
+    }
     if (sourceMapBasepath != null) {
       this.sourceMapBasepath = sourceMapBasepath.replaceAll('\\', '/');
     }
-    if (this.sourceMapRootpath.isNotEmpty && !this.sourceMapRootpath.endsWith('/')) {
-      this.sourceMapRootpath += '/';
+    if (sourceMapRootpath != null) {
+      this.sourceMapRootpath = sourceMapRootpath.replaceAll('\\', '/');
+      if (!this.sourceMapRootpath.endsWith('/')) this.sourceMapRootpath += '/';
+    } else {
+      this.sourceMapRootpath = '';
     }
-    if (this.sourceMapGenerator == null) {
-      this.sourceMapGenerator = new SourceMapBuilder();
-    }
+
+    this.sourceMapGenerator = new SourceMapBuilder();
+
+//2.4.0
+//  var SourceMapOutput = function (options) {
+//      this._css = [];
+//      this._rootNode = options.rootNode;
+//      this._contentsMap = options.contentsMap;
+//      this._contentsIgnoredCharsMap = options.contentsIgnoredCharsMap;
+//      if (options.sourceMapFilename) {
+//          this._sourceMapFilename = options.sourceMapFilename.replace(/\\/g, '/');
+//      }
+//      this._outputFilename = options.outputFilename;
+//      this.sourceMapURL = options.sourceMapURL;
+//      if (options.sourceMapBasepath) {
+//          this._sourceMapBasepath = options.sourceMapBasepath.replace(/\\/g, '/');
+//      }
+//      if (options.sourceMapRootpath) {
+//          this._sourceMapRootpath = options.sourceMapRootpath.replace(/\\/g, '/');
+//          if (this._sourceMapRootpath.charAt(this._sourceMapRootpath.length - 1) !== '/') {
+//              this._sourceMapRootpath += '/';
+//          }
+//      } else {
+//          this._sourceMapRootpath = "";
+//      }
+//      this._outputSourceFiles = options.outputSourceFiles;
+//      this._sourceMapGeneratorConstructor = environment.getSourceMapGenerator();
+//
+//      this._lineNumber = 0;
+//      this._column = 0;
+//  };
   }
 
   ///
+  //2.4.0 ok
   String normalizeFilename (String file) {
     if (normalizeCache.containsKey(file)) return normalizeCache[file];
 
@@ -66,25 +94,28 @@ class SourceMapOutput extends Output{
       }
     }
     result = (this.sourceMapRootpath != null) ? this.sourceMapRootpath + filename : filename;
+    result = path.normalize(result);
     normalizeCache[file] = result;
     return result;
 
-//    tree.sourceMapOutput.prototype.normalizeFilename = function(filename) {
-//        filename = filename.replace(/\\/g, '/');
+//2.4.0
+//  SourceMapOutput.prototype.normalizeFilename = function(filename) {
+//      filename = filename.replace(/\\/g, '/');
 //
-//        if (this._sourceMapBasepath && filename.indexOf(this._sourceMapBasepath) === 0) {
-//            filename = filename.substring(this._sourceMapBasepath.length);
-//            if (filename.charAt(0) === '\\' || filename.charAt(0) === '/') {
-//               filename = filename.substring(1);
-//            }
-//        }
-//        return (this._sourceMapRootpath || "") + filename;
-//    };
+//      if (this._sourceMapBasepath && filename.indexOf(this._sourceMapBasepath) === 0) {
+//          filename = filename.substring(this._sourceMapBasepath.length);
+//          if (filename.charAt(0) === '\\' || filename.charAt(0) === '/') {
+//              filename = filename.substring(1);
+//          }
+//      }
+//      return (this._sourceMapRootpath || "") + filename;
+//  };
   }
 
   ///
   /// genCSS call 'output.add'. This is 'output' for sourcemaps generation
   ///
+  //2.4.0 ok
   void add(String chunk, [FileInfo fileInfo, int index, mapLines = false]) {
     List<String> lines;
     List<String> sourceLines;
@@ -144,65 +175,67 @@ class SourceMapOutput extends Output{
     super.add(chunk);
     indexGenerated += chunk.length;
 
-//    tree.sourceMapOutput.prototype.add = function(chunk, fileInfo, index, mapLines) {
+//2.4.0
+//  SourceMapOutput.prototype.add = function(chunk, fileInfo, index, mapLines) {
 //
-//        //ignore adding empty strings
-//        if (!chunk) {
-//            return;
-//        }
+//      //ignore adding empty strings
+//      if (!chunk) {
+//          return;
+//      }
 //
-//        var lines,
-//            sourceLines,
-//            columns,
-//            sourceColumns,
-//            i;
+//      var lines,
+//          sourceLines,
+//          columns,
+//          sourceColumns,
+//          i;
 //
-//        if (fileInfo) {
-//            var inputSource = this._contentsMap[fileInfo.filename];
+//      if (fileInfo) {
+//          var inputSource = this._contentsMap[fileInfo.filename];
 //
-//            // remove vars/banner added to the top of the file
-//            if (this._contentsIgnoredCharsMap[fileInfo.filename]) {
-//                // adjust the index
-//                index -= this._contentsIgnoredCharsMap[fileInfo.filename];
-//                if (index < 0) { index = 0; }
-//                // adjust the source
-//                inputSource = inputSource.slice(this._contentsIgnoredCharsMap[fileInfo.filename]);
-//            }
-//            inputSource = inputSource.substring(0, index);
-//            sourceLines = inputSource.split("\n");
-//            sourceColumns = sourceLines[sourceLines.length-1];
-//        }
+//          // remove vars/banner added to the top of the file
+//          if (this._contentsIgnoredCharsMap[fileInfo.filename]) {
+//              // adjust the index
+//              index -= this._contentsIgnoredCharsMap[fileInfo.filename];
+//              if (index < 0) { index = 0; }
+//              // adjust the source
+//              inputSource = inputSource.slice(this._contentsIgnoredCharsMap[fileInfo.filename]);
+//          }
+//          inputSource = inputSource.substring(0, index);
+//          sourceLines = inputSource.split("\n");
+//          sourceColumns = sourceLines[sourceLines.length - 1];
+//      }
 //
-//        lines = chunk.split("\n");
-//        columns = lines[lines.length-1];
+//      lines = chunk.split("\n");
+//      columns = lines[lines.length - 1];
 //
-//        if (fileInfo) {
-//            if (!mapLines) {
-//                this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
-//                    original: { line: sourceLines.length, column: sourceColumns.length},
-//                    source: this.normalizeFilename(fileInfo.filename)});
-//            } else {
-//                for(i = 0; i < lines.length; i++) {
-//                    this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + i + 1, column: i === 0 ? this._column : 0},
-//                        original: { line: sourceLines.length + i, column: i === 0 ? sourceColumns.length : 0},
-//                        source: this.normalizeFilename(fileInfo.filename)});
-//                }
-//            }
-//        }
+//      if (fileInfo) {
+//          if (!mapLines) {
+//              this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
+//                  original: { line: sourceLines.length, column: sourceColumns.length},
+//                  source: this.normalizeFilename(fileInfo.filename)});
+//          } else {
+//              for (i = 0; i < lines.length; i++) {
+//                  this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + i + 1, column: i === 0 ? this._column : 0},
+//                      original: { line: sourceLines.length + i, column: i === 0 ? sourceColumns.length : 0},
+//                      source: this.normalizeFilename(fileInfo.filename)});
+//              }
+//          }
+//      }
 //
-//        if (lines.length === 1) {
-//            this._column += columns.length;
-//        } else {
-//            this._lineNumber += lines.length - 1;
-//            this._column = columns.length;
-//        }
+//      if (lines.length === 1) {
+//          this._column += columns.length;
+//      } else {
+//          this._lineNumber += lines.length - 1;
+//          this._column = columns.length;
+//      }
 //
-//        this._css.push(chunk);
-//    };
+//      this._css.push(chunk);
+//  };
   }
 
   ///
-  String toCSS(Contexts env) {
+  //2.4.0 ok
+  String toCSS(Contexts context) {
     String sourceMapContent;
     String sourceMapURL = '';
     Map<String, String> contents = {};
@@ -218,7 +251,7 @@ class SourceMapOutput extends Output{
       }
     }
 
-    this.rootNode.genCSS(env, this);
+    this.rootNode.genCSS(context, this);
 
     if (!super.isEmpty) {
       if (this.outputSourceFiles) {//--source-map-less-inline
@@ -239,59 +272,48 @@ class SourceMapOutput extends Output{
         sourceMapURL = normalizeFilename(this.sourceMapFilename);
       }
 
-      if (this.writeSourceMap != null) {
-        this.writeSourceMap(sourceMapContent);
-      } else { // --source-map-map-inline
-        sourceMapURL = 'data:application/json;base64,' + Base64String.encode(sourceMapContent);      }
-
-      if (sourceMapURL.isNotEmpty) {
-        super.add('/*# sourceMappingURL=${sourceMapURL} */');
-      }
+      //export results
+      this.sourceMapURL = sourceMapURL;
+      this.sourceMap = sourceMapContent;
     }
 
     return super.toString();
 
-//    tree.sourceMapOutput.prototype.toCSS = function(env) {
-//        this._sourceMapGenerator = new this._sourceMapGeneratorConstructor({ file: this._outputFilename, sourceRoot: null });
+//2.4.0
+//  SourceMapOutput.prototype.toCSS = function(context) {
+//      this._sourceMapGenerator = new this._sourceMapGeneratorConstructor({ file: this._outputFilename, sourceRoot: null });
 //
-//        if (this._outputSourceFiles) {
-//            for(var filename in this._contentsMap) {
-//                if (this._contentsMap.hasOwnProperty(filename))
-//                {
-//                    var source = this._contentsMap[filename];
-//                    if (this._contentsIgnoredCharsMap[filename]) {
-//                        source = source.slice(this._contentsIgnoredCharsMap[filename]);
-//                    }
-//                    this._sourceMapGenerator.setSourceContent(this.normalizeFilename(filename), source);
-//                }
-//            }
-//        }
+//      if (this._outputSourceFiles) {
+//          for (var filename in this._contentsMap) {
+//              if (this._contentsMap.hasOwnProperty(filename))
+//              {
+//                  var source = this._contentsMap[filename];
+//                  if (this._contentsIgnoredCharsMap[filename]) {
+//                      source = source.slice(this._contentsIgnoredCharsMap[filename]);
+//                  }
+//                  this._sourceMapGenerator.setSourceContent(this.normalizeFilename(filename), source);
+//              }
+//          }
+//      }
 //
-//        this._rootNode.genCSS(env, this);
+//      this._rootNode.genCSS(context, this);
 //
-//        if (this._css.length > 0) {
-//            var sourceMapURL,
-//                sourceMapContent = JSON.stringify(this._sourceMapGenerator.toJSON());
+//      if (this._css.length > 0) {
+//          var sourceMapURL,
+//              sourceMapContent = JSON.stringify(this._sourceMapGenerator.toJSON());
 //
-//            if (this._sourceMapURL) {
-//                sourceMapURL = this._sourceMapURL;
-//            } else if (this._sourceMapFilename) {
-//                sourceMapURL = this.normalizeFilename(this._sourceMapFilename);
-//            }
+//          if (this.sourceMapURL) {
+//              sourceMapURL = this.sourceMapURL;
+//          } else if (this._sourceMapFilename) {
+//              sourceMapURL = this._sourceMapFilename;
+//          }
+//          this.sourceMapURL = sourceMapURL;
 //
-//            if (this._writeSourceMap) {
-//                this._writeSourceMap(sourceMapContent);
-//            } else {
-//                sourceMapURL = "data:application/json;base64," + require('./encoder.js').encodeBase64(sourceMapContent);
-//            }
+//          this.sourceMap = sourceMapContent;
+//      }
 //
-//            if (sourceMapURL) {
-//                this._css.push("/*# sourceMappingURL=" + sourceMapURL + " */");
-//            }
-//        }
-//
-//        return this._css.join('');
-//    };
+//      return this._css.join('');
+//  };
   }
 }
 

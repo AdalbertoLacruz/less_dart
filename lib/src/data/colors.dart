@@ -1,6 +1,6 @@
-//source: less/colors.js 1.7.5
+//source: less/data/colors.js 2.4.0
 
-part of tree.less;
+library colors.less;
 
  const Map<String,String> colors =  const  {
     'aliceblue':'#f0f8ff',
@@ -122,6 +122,7 @@ part of tree.less;
     'plum':'#dda0dd',
     'powderblue':'#b0e0e6',
     'purple':'#800080',
+    'rebeccapurple':'#663399',
     'red':'#ff0000',
     'rosybrown':'#bc8f8f',
     'royalblue':'#4169e1',
@@ -149,5 +150,5 @@ part of tree.less;
     'white':'#ffffff',
     'whitesmoke':'#f5f5f5',
     'yellow':'#ffff00',
-    'yellowgreen':'#9acd32'                                   
+    'yellowgreen':'#9acd32'
 };

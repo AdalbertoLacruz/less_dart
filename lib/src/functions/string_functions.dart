@@ -74,7 +74,7 @@ class StringFunctions extends FunctionBase {
   Quoted replace(Node string, Quoted pattern, Quoted replacement, [Quoted flags]) {
     //string is Quoted, Keyword
     String flagsValue = flags != null ? flags.value : '';
-    RegExpExtended re = new RegExpExtended(pattern.value, flagsValue);
+    MoreRegExp re = new MoreRegExp(pattern.value, flagsValue);
     String result = re.replace(string.value, replacement.value);
     String quote = (string is Quoted) ? string.quote : '';
     bool escaped = (string is Quoted) ? string.escaped : false;
@@ -118,7 +118,7 @@ class StringFunctions extends FunctionBase {
   Quoted format(List<Node> args) {
     Quoted qstr = args[0];
     String result = qstr.value;
-    RegExpExtended sda = new RegExpExtended(r'%[sda]','i');
+    MoreRegExp sda = new MoreRegExp(r'%[sda]','i');
     RegExp az = new RegExp(r'[A-Z]$', caseSensitive: true);
 
     for (int i = 1; i < args.length; i++) {

@@ -1,4 +1,3 @@
-
 library lessOptions.less;
 
 import 'dart:io';
@@ -7,8 +6,10 @@ import 'package:path/path.dart' as path;
 import 'cleancss_options.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
-import 'functions/functions.dart';
 import 'logger.dart';
+import 'functions/functions.dart';
+import 'plugins/plugins.dart';
+import 'tree/tree.dart';
 
 class LessOptions {
   // ****************** CONFIGURATION *********************************
@@ -45,13 +46,17 @@ class LessOptions {
   /// Browser only - whether to use the per file session cache
   bool useFileCache;
 
+  /// Allows setting variables with a hash. Example:
+  /// variables = {'my-color': new Color.fromKeyword('red')};
+  Map<String, Node> variables;
+
 // ****************** COMMAND LINE OPTIONS ****************************
 
   /// Filename for the banner text - Not official option
   String banner = '';
 
   /// Whether to compress with clean-css
-  bool cleancss = false;
+  //bool cleancss = false;
 
   /// Color in error messages
   bool color = true;
@@ -65,8 +70,8 @@ class LessOptions {
   /// Whether to dump line numbers: 'comments', 'mediaquery' or 'all'
   String dumpLineNumbers = '';
 
-  /// Defines a variable that can be referenced by the file
-  String globalVariables = '';
+  /// Defines a variable list that can be referenced by the file
+  List<VariableDefinition> globalVariables = [];
 
   /// Whether to enforce IE compatibility (IE8 data-uri)
   bool ieCompat = true;
@@ -91,17 +96,11 @@ class LessOptions {
   }
   int    _maxLineLen = -1;  //original max_line_len
 
-  /// Modifies a variable already declared in the file
-  String modifyVariables = '';
-
-  /// Optimization level (for the chunker) - deprecated
-  int optimization = 1;
+  /// Modifies a variable (list) already declared in the file
+  List<VariableDefinition> modifyVariables = [];
 
   /// Output filename
   String output = '';
-
-  /// Puts the less files into the map instead of referencing them
-  bool outputSourceFiles = false;
 
   /// Paths to search for imports on
   List paths = [];
@@ -118,22 +117,10 @@ class LessOptions {
   bool silent = false;
 
   /// whether to output a source map
-  var sourceMap = false;
+  bool sourceMap = false;
 
-  /// Sets sourcemap base path, defaults to current working directory
-  String sourceMapBasepath = '';
-
-  /// Puts the map (and any less files) into the output css file
-  bool sourceMapFileInline = false;
-
-  /// Outputs a v3 sourcemap to the filename (or output filename.map)
-  String sourceMapOutputFilename;
-
-  /// Adds this path onto the sourcemap filename and less file paths
-  String sourceMapRootpath = '';
-
-  /// Sets a custom URL to map file, for sourceMappingURL comment in generated CSS file
-  String sourceMapURL = '';
+  /// All necessary information for source map
+  SourceMapOptions sourceMapOptions = new SourceMapOptions();
 
   /// Forces evaluation of imports
   bool strictImports = false;
@@ -158,11 +145,6 @@ class LessOptions {
   /// Whether to log more activity
   bool   verbose = false;
 
-  /// Whether to compress with the outside tool yui compressor. OPTION HAS BEEN REMOVED
-  bool yuicompress = false;
-
-
-
 // ****************** Internal
 
   CleancssOptions cleancssOptions = new CleancssOptions();
@@ -177,20 +159,20 @@ class LessOptions {
 
   bool parseError = false; // error detected in command line
 
-  List plugins = []; //TODO 2.2.0
+  List<Plugin> plugins = [];
 
-  String sourceMapFilename = '';  // sourceMap to clone()
+  PluginLoader pluginLoader;
 
-  String sourceMapFullFilename;
+  PluginManager pluginManager;
 
-  var sourceMapGenerator; // class instance - default: new SourceMapBuilder();
+  RegExp pluginRe = new RegExp(r'^([^=]+)(=(.*))?'); //plugin arguments split
 
   String warningMessages = '';
 
-  Function writeSourceMap; //Function writeSourceMap(String content), to write the sourcemap file
-
   ///
-  LessOptions();
+  LessOptions() {
+    this.pluginLoader = new PluginLoader(this);
+  }
 
   ///
   /// Update less options from arg
@@ -209,10 +191,12 @@ class LessOptions {
         return false;
       case 'verbose':
         verbose = true;
+        logger.verbose();
         break;
       case 's':
       case 'silent':
         silent = true;
+        logger.silence();
         break;
       case 'l':
       case 'lint':
@@ -236,12 +220,9 @@ class LessOptions {
       case 'depends':
         depends = true;
         break;
-      case 'yui-compress':
-        warningMessages += 'yui-compress option has been removed. ignoring.';
-        break;
-      case 'clean-css':
-        cleancss = true;
-        break;
+//      case 'clean-css':
+//        cleancss = true;
+//        break;
       case 'max-line-len':
         if (checkArgFunc(command, arg[2])) {
           try {
@@ -272,41 +253,35 @@ class LessOptions {
 //                });
         } else return setParseError(command);
         break;
-      case 'O0': optimization = 0; break;
-      case 'O1': optimization = 1; break;
-      case 'O2': optimization = 2; break;
       case 'line-numbers':
         if (checkArgFunc(command, arg[2])) {
           dumpLineNumbers = arg[2];
         } else return setParseError(command);
         break;
       case 'source-map':
-        if (arg[2] == null) {
-          sourceMap = true;
-        } else {
-          sourceMap = arg[2];
-        }
+        sourceMap = true;
+        if (arg[2] != null) sourceMapOptions.sourceMapFullFilename = arg[2];
         break;
       case 'source-map-rootpath':
         if (checkArgFunc(command, arg[2])) {
-          sourceMapRootpath = arg[2];
+          sourceMapOptions.sourceMapRootpath = arg[2];
         } else return setParseError(command);
         break;
       case 'source-map-basepath':
         if (checkArgFunc(command, arg[2])) {
-          sourceMapBasepath = arg[2];
+          sourceMapOptions.sourceMapBasepath = arg[2];
         } else return setParseError(command);
         break;
       case 'source-map-map-inline':
-        sourceMapFileInline = true;
+        sourceMapOptions.sourceMapFileInline = true;
         sourceMap = true;
         break;
       case 'source-map-less-inline':
-        outputSourceFiles = true;
+        sourceMapOptions.outputSourceFiles = true;
         break;
       case 'source-map-url':
         if (checkArgFunc(command, arg[2])) {
-          sourceMapURL = arg[2];
+          sourceMapOptions.sourceMapURL = arg[2];
         } else return setParseError(command);
         break;
       case 'rp':
@@ -315,36 +290,36 @@ class LessOptions {
           rootpath = arg[2].replaceAll(r'\', '/'); //arg[2] must be raw (r'something')
         } else return setParseError(command);
         break;
-      case "ru":
-      case "relative-urls":
+      case 'ru':
+      case 'relative-urls':
         relativeUrls = true;
         break;
-      case "sm":
-      case "strict-math":
+      case 'sm':
+      case 'strict-math':
         if (checkArgFunc(command, arg[2])) {
           if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
         } else return setParseError(command);
         break;
-      case "su":
-      case "strict-units":
+      case 'su':
+      case 'strict-units':
         if (checkArgFunc(command, arg[2])) {
             if((strictUnits = checkBooleanArg(arg[2])) == null) return setParseError();
         } else return setParseError(command);
         break;
-      case "global-var":
+      case 'global-var':
         if (checkArgFunc(command, arg[2])) {
-          globalVariables += parseVariableOption(arg[2]);
+          parseVariableOption(arg[2], globalVariables);
         } else return setParseError(command);
         break;
-      case "modify-var":
+      case 'modify-var':
         if (checkArgFunc(command, arg[2])) {
-          modifyVariables += parseVariableOption(arg[2]);
+          parseVariableOption(arg[2], modifyVariables);
         } else return setParseError(command);
         break;
-      case "clean-option":
-        result = cleancssOptions.parse(arg[2]);
-        if (cleancssOptions.parseError) parseError = true;
-        return result;
+//      case "clean-option":  //TODO remove
+//        result = cleancssOptions.parse(arg[2]);
+//        if (cleancssOptions.parseError) parseError = true;
+//        return result;
       case 'url-args':
         if (checkArgFunc(command, arg[2])) {
             urlArgs = arg[2];
@@ -374,10 +349,31 @@ class LessOptions {
           banner = arg[2];
         } else return setParseError(command);
         break;
+      case 'plugin':
+        Match splitupArg = pluginRe.firstMatch(arg[2]);
+        String name = splitupArg[1];
+        String pluginOptions = splitupArg[3];
+        Plugin plugin = pluginLoader.tryLoadPlugin(name, pluginOptions);
 
+        if (plugin != null) {
+          plugins.add(plugin);
+        } else {
+          logger.log('Unable to load plugin ${name} please make sure that it is installed under or at the same level as less\n');
+          printUsage();
+          parseError = true;
+          return false;
+        }
+        break;
       default:
-        printUsage();
-        return setParseError(command);
+        Plugin plugin = pluginLoader.tryLoadPlugin('less-plugin-' + command, arg[2]);
+        if (plugin != null) {
+          plugins.add(plugin);
+        } else {
+          logger.log('Unable to interpret argument ${command} - if it is a plugin (less-plugin-${command}), make sure that it is installed under or at the same level as less\n');
+          printUsage();
+          parseError = true;
+          return false;
+        }
     }
     return true;
   }
@@ -388,6 +384,10 @@ class LessOptions {
     return false;
   }
 
+  ///
+  /// Check the command has a argument
+  ///
+  //2.4.0 ok
   bool checkArgFunc(String command, String option) {
     if(option == null) {
       logger.log('$command option requires a parameter');
@@ -396,7 +396,11 @@ class LessOptions {
     return true;
   }
 
-  // return null if error
+  ///
+  /// Checks the argument is yes/no or equivalent, returning true/false
+  /// if not boolean returns null
+  ///
+  //2.4.0 ok
   bool checkBooleanArg(String arg) {
     RegExp onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
     Match match;
@@ -409,9 +413,24 @@ class LessOptions {
     return null;
   }
 
-  String parseVariableOption(String option) {
-    var parts = option.split('=');
-    return '@${parts[0]}:${parts[1]};\n';
+  ///
+  //2.4.0 ok
+  parseVariableOption(String option, List<VariableDefinition> variables) {
+    List<String> parts = option.split('=');
+    variables.add(new VariableDefinition(parts[0], parts[1]));
+
+//2.4.0
+//  var parseVariableOption = function(option, variables) {
+//      var parts = option.split('=', 2);
+//      variables[parts[0]] = parts[1];
+//  };
+  }
+
+  /// Show help
+  //2.4.0 ok
+  void printUsage() {
+    LesscHelper.printUsage();
+    pluginLoader.printUsage(plugins);
   }
 
   /*
@@ -425,10 +444,6 @@ class LessOptions {
         //input = path.normalize(path.absolute(input)); //use absolute path
         String inputDirName = new File(input).parent.path;
         paths.insert(0, inputDirName);
-        if (sourceMapBasepath.isEmpty) sourceMapBasepath = inputDirName;
-
-      } else {
-        if (sourceMapBasepath.isEmpty) sourceMapBasepath = path.current;
       }
     } else {
       logger.log('lessc: no input files\n');
@@ -439,26 +454,57 @@ class LessOptions {
 
     if (output.isNotEmpty) {
       outputBase = output;
-      sourceMapOutputFilename = output;
       //output = path.normalize(path.absolute(output)); //use absolute path
       if (warningMessages.isNotEmpty) logger.log(warningMessages);
     }
 
-    if(sourceMap is bool && sourceMap == true){
-      if((output == null) && !sourceMapFileInline){
-        logger.log('the sourcemap option only has an optional filename if the css filename is given');
-        parseError = true;
-        return false;
+    if(sourceMap) {
+      sourceMapOptions.sourceMapInputFilename = input;
+      if (sourceMapOptions.sourceMapFullFilename.isEmpty) {
+        if (output.isEmpty && !sourceMapOptions.sourceMapFileInline) {
+          logger.log('the sourcemap option only has an optional filename if the css filename is given');
+          logger.log('consider adding --source-map-map-inline which embeds the sourcemap into the css');
+          return false;
+        }
+
+        // its in the same directory, so always just the basename
+        sourceMapOptions.sourceMapOutputFilename = path.basename(output);
+        sourceMapOptions.sourceMapFullFilename = output + '.map';
+        sourceMapOptions.sourceMapFilename = path.basename(sourceMapOptions.sourceMapFullFilename);
+
+      } else if (!sourceMapOptions.sourceMapFileInline) {
+        String mapFilename = path.absolute(sourceMapOptions.sourceMapFullFilename);
+        String mapDir = path.dirname(mapFilename);
+        String outputDir = path.dirname(output);
+
+        // find the path from the map to the output file
+        sourceMapOptions.sourceMapOutputFilename = path.normalize(path.join(
+            path.relative(mapDir, from: outputDir), path.basename(output)));
+
+        // make the sourcemap filename point to the sourcemap relative to the css file output directory
+        sourceMapOptions.sourceMapFilename = path.normalize(path.join(
+            path.relative(outputDir, from: mapDir),
+            path.basename(sourceMapOptions.sourceMapFullFilename)));
       }
-      sourceMapFullFilename = sourceMapOutputFilename + '.map';
-      sourceMap = path.basename(sourceMapFullFilename);
     }
 
-    if(cleancss && (sourceMap == true || sourceMap.isNotEmpty)) {
-      logger.log('the cleancss option is not compatible with sourcemap support at the moment. See Issue #1656');
-      parseError = true;
-      return false;
+    if (sourceMapOptions.sourceMapBasepath.isEmpty) {
+      sourceMapOptions.sourceMapBasepath = input.isNotEmpty ? path.dirname(input) : path.current;
     }
+
+    if (sourceMapOptions.sourceMapRootpath.isEmpty) {
+      String pathToMap = path.dirname(sourceMapOptions.sourceMapFileInline
+          ? output
+          : sourceMapOptions.sourceMapFullFilename);
+      String pathToInput = path.dirname(sourceMapOptions.sourceMapInputFilename);
+      sourceMapOptions.sourceMapRootpath = path.relative(pathToMap, from: pathToInput);
+    }
+
+//    if(cleancss && (sourceMap == true /* || sourceMap.isNotEmpty */)) { //TODO
+//      logger.log('the cleancss option is not compatible with sourcemap support at the moment. See Issue #1656');
+//      parseError = true;
+//      return false;
+//    }
 
     if(depends) {
       if(outputBase.isEmpty) {
@@ -466,23 +512,9 @@ class LessOptions {
         parseError = true;
         return false;
       }
-      //stdout.write(outputbase + ": "); TODO
-    }
-
-    if (!sourceMapFileInline) {
-      writeSourceMap = sourceMapWriter;
     }
 
     return true;
-  }
-
-
-  void sourceMapWriter(String output) {
-    String filename = sourceMapFullFilename;
-    if(filename == null || filename.isEmpty) filename = sourceMap;
-    new File(filename)
-      ..createSync(recursive: true)
-      ..writeAsStringSync(output);
   }
 
   LessOptions clone() {
@@ -492,26 +524,57 @@ class LessOptions {
     op.verbose          = this.verbose;
     op.ieCompat         = this.ieCompat;
     op.compress         = this.compress;
-    op.cleancss         = this.cleancss;
+    //op.cleancss         = this.cleancss;
     op.cleancssOptions  = this.cleancssOptions;
     op.dumpLineNumbers  = this.dumpLineNumbers;
     op.sourceMap        = (this.sourceMap is bool) ? this.sourceMap : (this.sourceMap as String).isNotEmpty;
-    op.sourceMapFilename = (this.sourceMap is String) ? this.sourceMap : '';
-    op.sourceMapURL     = this.sourceMapURL;
-    op.sourceMapOutputFilename = this.sourceMapOutputFilename;
-    op.sourceMapBasepath  = this.sourceMapBasepath;
-    op.sourceMapRootpath  = this.sourceMapRootpath;
-    op.outputSourceFiles  = this.outputSourceFiles;
-    op.writeSourceMap     = this.writeSourceMap;
+    op.sourceMapOptions = this.sourceMapOptions;
     op.maxLineLen         = this.maxLineLen;
+    op.pluginManager      = this.pluginManager;
     op.strictMath         = this.strictMath;
     op.strictUnits        = this.strictUnits;
     op.numPrecision       = this.numPrecision;
     op.urlArgs            = this.urlArgs;
+    op.variables          = this.variables;
 
     op.showTreeLevel      = this.showTreeLevel; //debug
     op.customFunctions    = this.customFunctions;
 
     return op;
   }
+}
+
+// *********************************
+
+class SourceMapOptions {
+  /// Puts the less files into the map instead of referencing them
+  bool outputSourceFiles = false;
+
+  /// Sets sourcemap base path, defaults to current working directory
+  String sourceMapBasepath = '';
+
+  /// Puts the map (and any less files) into the output css file
+  bool sourceMapFileInline = false;
+
+  String sourceMapFilename = '';
+
+  String sourceMapFullFilename = '';
+
+  String sourceMapInputFilename = '';
+
+  /// Outputs a v3 sourcemap to the filename (or output filename.map)
+  String sourceMapOutputFilename = '';
+
+  /// Adds this path onto the sourcemap filename and less file paths
+  String sourceMapRootpath = '';
+
+  /// Sets a custom URL to map file, for sourceMappingURL comment in generated CSS file
+  String sourceMapURL = '';
+}
+
+/// GlobalVariables & ModifyVariables item definition
+class VariableDefinition {
+  String name;
+  String value;
+  VariableDefinition(this.name, this.value);
 }

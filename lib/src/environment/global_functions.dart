@@ -1,7 +1,5 @@
-library nodejs.less;
+part of environment.less;
 
-part 'base64_string.dart';
-part 'reg_exp_extended.dart';
 
 /// resolves null as false. #
 bool isTrue(bool value) => value != null ? value : false;

@@ -10,10 +10,12 @@ import 'package:path/path.dart' as pathLib;
 import '../contexts.dart';
 import '../less_error.dart';
 import '../logger.dart';
-import '../nodejs/nodejs.dart';
 
+part 'base64_string.dart';
+part 'more_reg_exp.dart';
 part 'file_file_manager.dart';
 part 'file_manager.dart';
+part 'global_functions.dart';
 part 'more_list.dart';
 part 'url_file_manager.dart';
 

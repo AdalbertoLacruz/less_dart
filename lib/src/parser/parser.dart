@@ -11,7 +11,8 @@ import '../import_manager.dart';
 import '../less_error.dart';
 import '../less_options.dart';
 import '../utils.dart';
-import '../nodejs/nodejs.dart';
+import '../environment/environment.dart';
+import '../plugins/plugins.dart';
 import '../tree/tree.dart';
 import '../visitor/visitor_base.dart';
 
@@ -54,28 +55,35 @@ part 'parsers.dart';
  *
  */
 class Parser {
-  String input;   // LeSS input string
-  //var rootFilename = env && env.filename; --> inicializattion TODO
-
-  ImportManager imports;
+  String banner = '';
   Contexts context;
   FileInfo fileInfo;
+  String globalVars = '';
+  ImportManager imports;
+  String modifyVars = '';
   Parsers parsers;
   String preText = '';
 
+  ///
   Parser(LessOptions options){
     context = new Contexts.parse(options);
+
     if (options.banner.isNotEmpty) {
       try {
-        preText = new File(options.banner).readAsStringSync();
+        banner = new File(options.banner).readAsStringSync();
       } catch (e) {}
     }
+
+    globalVars = serializeVars(options.globalVariables);
+    if (globalVars.isNotEmpty) globalVars += '\n';
+
+    modifyVars = serializeVars(options.modifyVariables);
+    if (modifyVars.isNotEmpty) modifyVars = '\n' + modifyVars;
   }
 
+  ///
   Parser.fromImporter(Contexts this.context, ImportManager this.imports, FileInfo this.fileInfo) {
   }
-
-  //  parse: function (str, callback, additionalData)
 
   ///
   /// Parse an input string into an abstract syntax tree.
@@ -89,34 +97,28 @@ class Parser {
     Ruleset root;
     Ruleset rulesetEvaluated;
 
-//    var root, line, lines, error = null, globalVars, modifyVars, preText = "";
-
-//    i = j = currentPos = furthest = 0;
-//    globalVars = (additionalData && additionalData.globalVars) ? less.Parser.serializeVars(additionalData.globalVars) + '\n' : '';
-//    modifyVars = (additionalData && additionalData.modifyVars) ? '\n' + less.Parser.serializeVars(additionalData.modifyVars) : '';
-//
-//    if (globalVars || (additionalData && additionalData.banner)) {
-//        preText = ((additionalData && additionalData.banner) ? additionalData.banner : "") + globalVars;
-//        parser.imports.contentsIgnoredChars[env.currentFileInfo.filename] = preText.length;
-//    }
-
     if (fileInfo == null) fileInfo = context.currentFileInfo;
     if (imports == null) imports = new ImportManager(context, fileInfo);
 
-    if (preText.isNotEmpty) {
+    if (context.pluginManager != null) {
+      context.pluginManager.getPreProcessors().forEach((Processor preProcessor){
+        str = preProcessor.process(str, { context: context, imports: imports, fileInfo: fileInfo });
+      });
+    }
+
+    if (globalVars.isNotEmpty || banner.isNotEmpty) {
+      preText = banner + globalVars;
       preText = preText.replaceAll('\r\n', '\n');
-      str = preText + str;
-      imports.contentsIgnoredChars[fileInfo.filename] = preText.length;
-      preText = ''; // avoid banner in @import
+      if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename)) {
+        imports.contentsIgnoredChars[fileInfo.filename] = 0;
+      }
+      imports.contentsIgnoredChars[fileInfo.filename] += preText.length;
     }
 
     str = str.replaceAll('\r\n', '\n');
-
     // Remove potential UTF Byte Order Mark
-//  input = str = preText + str.replace(/^\uFEFF/, '') + modifyVars;
-    input = str = str.replaceAll(new RegExp(r'^\uFEFF'), '');
+    str = preText + str.replaceAll(new RegExp(r'^\uFEFF'), '') + modifyVars;
     imports.contents[fileInfo.filename] = str;
-    //imports.rootFilename = fileInfo.filename; NO
 
     context.imports = imports;
     context.input = str;
@@ -147,5 +149,32 @@ class Parser {
     }
 
     return new Future.value(root);
+  }
+
+  ///
+  //2.4.0
+  String serializeVars(List<VariableDefinition> vars) {
+    String s = '';
+    vars.forEach((vardef){
+      s += vardef.name.startsWith('@') ? '' : '@';
+      s += vardef.name + ': ' + vardef.value;
+      s += vardef.value.endsWith(';') ? '' : ';';
+    });
+    return s;
+
+//2.4.0
+//  Parser.serializeVars = function(vars) {
+//      var s = '';
+//
+//      for (var name in vars) {
+//          if (Object.hasOwnProperty.call(vars, name)) {
+//              var value = vars[name];
+//              s += ((name[0] === '@') ? '' : '@') + name + ': ' + value +
+//                  ((String(value).slice(-1) === ';') ? '' : ';');
+//          }
+//      }
+//
+//      return s;
+//  };
   }
 }

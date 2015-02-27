@@ -1,4 +1,4 @@
-part of nodejs.less;
+part of environment.less;
 
 // https://gist.github.com/ahiipsa/4754533 20130211
 // 20141114 String.codeUnits StringBuffer.write

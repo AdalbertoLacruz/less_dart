@@ -1,0 +1,26 @@
+/**
+  * Test sourcemaps
+  */
+#divRed {
+  height: 100px;
+  background-color: #ff0000;
+  border: 2px dotted black;
+}
+#divGrey {
+  height: 100px;
+  background-color: #808080;
+  border: 2px dotted black;
+}
+#hBlue {
+  text-align: center;
+  position: absolute;
+  background-color: #00ff00;
+  color: #0000ff;
+}
+#hGrey {
+  text-align: center;
+  position: absolute;
+  background-color: #c0c0c0;
+  color: white;
+}
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJpbmRleC1tYXAtaW5saW5lLmxlc3MiLCJpbXBvcnQubGVzcyIsImltcG9ydC1pbmxpbmUubGVzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFRQTtFQUNFO0VBQ0E7RUFMRTs7QUNISjtFQUNFO0VBQ0E7RURDRTs7QUFXSjtFQUNFO0VBQ0E7RUFDQTtFQUNBOztBRXBCRjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EiLCJmaWxlIjoiaW5kZXgtbWFwLWlubGluZS5jc3MifQ== */

@@ -10,12 +10,15 @@ const int logLevelError = 1; // Errors
 const int logLevelNone  = 0; // None
 
 class Logger {
-  int id;
   int logLevel;
   StringBuffer stderr;
 
-  static Map<int, StringBuffer> cache = new Map();
-  static Map<int, int> cacheLogLevel = {};
+  static Map<int, Logger> cache = {};
+
+  Logger._(this.stderr){
+    if (this.stderr == null) this.stderr = new StringBuffer();
+    this.logLevel = logLevelWarn;
+  }
 
   /*
    * If not runZoned, #id == null. Example:
@@ -32,15 +35,10 @@ class Logger {
     if(buffer != null && cache[id] != null) {
       throw new StateError('Console buffer yet initialized');
     }
-    if(buffer != null) cache[id] = buffer;
-    if(cache[id] == null) cache[id] = new StringBuffer();
 
-    return new Logger._internal(cache[id], id);
-  }
+    if(cache[id] == null) cache[id] = new Logger._(buffer);
 
-  Logger._internal(this.stderr, this.id){
-    if (cacheLogLevel[id] == null) cacheLogLevel[id] = logLevelWarn;
-    logLevel = cacheLogLevel[id];
+    return cache[id];
   }
 
   ///
@@ -72,7 +70,7 @@ class Logger {
   ///
   void setLogLevel(logLevel) {
     this.logLevel = logLevel;
-    cacheLogLevel[id] = logLevel;
+    //cacheLogLevel[id] = logLevel;
   }
 
   /// Sets the log level to silence

@@ -15,6 +15,7 @@ class FunctionCaller {
 
   /// Inner instance classes
   List<FunctionBase> innerCache;
+  List<FunctionBase> customCache;
   FunctionBase defaultCache;
 
   /// instance that has the method to call
@@ -31,7 +32,6 @@ class FunctionCaller {
       new SvgFunctions(),
       new TypesFunctions()
       ];
-    if (context.customFunctions != null) innerCache.add(context.customFunctions);
     defaultCache = new DefaultFunc();
   }
 
@@ -43,6 +43,11 @@ class FunctionCaller {
       ..index = index
       ..currentFileInfo = currentFileInfo
       ..found = null;
+    if (context.pluginManager != null) {
+      cache.customCache = context.pluginManager.getCustomFunction();
+    } else {
+      cache.customCache = [];
+    }
     return cache;
   }
 
@@ -50,6 +55,7 @@ class FunctionCaller {
   bool isValid() {
     List<FunctionBase> inner = innerCache.sublist(0);
     inner.add(context.defaultFunc != null ? context.defaultFunc : defaultCache);
+    inner.addAll(customCache);
     found = null;
 
     for (int i = 0; i < inner.length; i++) {
