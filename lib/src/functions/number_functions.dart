@@ -1,4 +1,4 @@
-// source: lib/less/functions/number.js 2.2.0
+// source: lib/less/functions/number.js 2.4.0
 
 part of functions.less;
 

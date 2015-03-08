@@ -1,4 +1,4 @@
-//source: less/tree/color.js 2.3.1
+//source: less/tree/color.js 2.4.0
 
 part of tree.less;
 
@@ -30,6 +30,9 @@ class Color extends Node implements CompareNode, OperateNode {
   ///
   //2.2.0 ok
   Color(rgb, [num this.alpha = 1]){
+    if (alpha == 0) alpha = 0; // convert to int
+    if (alpha == 1) alpha = 1;
+
     RegExp hex6 = new RegExp('.{2}');
 
     if (rgb is List<int>) {           // [0, 0 , 0]
@@ -324,7 +327,7 @@ class Color extends Node implements CompareNode, OperateNode {
     double r = this.r / 255;
     double g = this.g / 255;
     double b = this.b / 255;
-    double a = this.alpha;
+    double a = this.alpha.toDouble();
 
     List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
     double max = maxList.first[1];
@@ -410,7 +413,7 @@ class Color extends Node implements CompareNode, OperateNode {
     return (xx.r == this.r &&
             xx.g == this.g &&
             xx.b == this.b &&
-            xx.alpha == this.alpha) ? 0 : -1;
+            xx.alpha == this.alpha) ? 0 : null;
 
 //2.2.0
 //  Color.prototype.compare = function (x) {

@@ -1,4 +1,4 @@
-//source: less/transform.tree.js --> 2.4.0
+//source: less/transform.tree.js 2.4.0
 
 part of render.less;
 

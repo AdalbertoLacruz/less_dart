@@ -1,8 +1,8 @@
-//source: less/tree/keyword.js 2.3.1
+//source: less/tree/keyword.js 2.4.0
 
 part of tree.less;
 
-class Keyword extends Node implements CompareNode {
+class Keyword extends Node {
   String value;
 
   final String type = 'Keyword';
@@ -39,13 +39,15 @@ class Keyword extends Node implements CompareNode {
 
 //--- CompareNode
 
-  /// Returns -1, 0 or +1
-  //2.3.1 - don't remove used by Node.compareNodes
-  int compare(Node other) {
-    if (other is Keyword) {
-      return (other.value == this.value) ? 0 : 1;
-    } else {
-      return -1;
-    }
-  }
+//  /// Returns -1, 0 or +1
+//  //2.3.1 - don't remove used by Node.compareNodes
+//  int compare(Node other) {
+//    new Logger().log('Keyword: ${this.value} - ${other.type}: ${other.value}');
+//
+//    if (other is Keyword) {
+//      return (other.value == this.value) ? 0 : 1;
+//    } else {
+//      return -1;
+//    }
+//  }
 }

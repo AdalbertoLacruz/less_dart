@@ -1,4 +1,4 @@
-//source: less/parser.js 2.2.0 lines 192-end
+//source: less/parser.js 2.4.0 lines 192-end
 
 part of parser.less;
 
@@ -63,18 +63,20 @@ class Parsers {
   /// Only at one point is the primary rule not called from the
   /// block rule: at the root level.
   ///
-  //2.2.0 ok
   List<Node> primary(){
     Node node;
     List<Node> nodeList;
     List root = [];
 
-    while(!parserInput.finished){
+    while(true){
       while(true) {
         node = comment();
         if (node == null) break;
         root.add(node);
       }
+
+      // always process comments before deciding if finished
+      if (parserInput.finished) break;
       if (parserInput.peekChar('}')) break;
 
       nodeList = extendRule();
@@ -99,40 +101,44 @@ class Parsers {
 
     return root;
 
-//2.2.0
+//2.4.0
 //  primary: function () {
-//      var mixin = this.mixin, root = [], node;
+//       var mixin = this.mixin, root = [], node;
 //
-//      while (!parserInput.finished)
-//      {
-//          while(true) {
-//              node = this.comment();
-//              if (!node) { break; }
-//              root.push(node);
-//          }
-//          if (parserInput.peek('}')) {
-//              break;
-//          }
+//       while (true) ****
+//       {
+//           while (true) {
+//               node = this.comment();
+//               if (!node) { break; }
+//               root.push(node);
+//           }
+//           // always process comments before deciding if finished
+//           if (parserInput.finished) {
+//               break;
+//           }
+//           if (parserInput.peek('}')) {
+//               break;
+//           }
 //
-//          node = this.extendRule();
-//          if (node) {
-//              root = root.concat(node);
-//              continue;
-//          }
+//           node = this.extendRule();
+//           if (node) {
+//               root = root.concat(node);
+//               continue;
+//           }
 //
-//          node = mixin.definition() || this.rule() || this.ruleset() ||
-//              mixin.call() || this.rulesetCall() || this.directive();
-//          if (node) {
-//              root.push(node);
-//          } else {
-//              if (!(parserInput.$re(/^[\s\n]+/) || parserInput.$re(/^;+/))) {
-//                  break;
-//              }
-//          }
-//      }
+//           node = mixin.definition() || this.rule() || this.ruleset() ||
+//               mixin.call() || this.rulesetCall() || this.directive();
+//           if (node) {
+//               root.push(node);
+//           } else {
+//               if (!(parserInput.$re(/^[\s\n]+/) || parserInput.$re(/^;+/))) {
+//                   break;
+//               }
+//           }
+//       }
 //
-//      return root;
-//  }
+//       return root;
+//   },
   }
 
   /// check if input is empty. Else throw error.
@@ -208,18 +214,19 @@ class Parsers {
   }
 
   ///
-  // extend syntax - used to extend selectors
+  /// extend syntax - used to extend selectors
   ///
-  //2.2.0 ok
   List<Extend> extend([bool isRule = false]) {
-    Element e;
+    Element       e;
     List<Element> elements;
-    Extend extend;
-    List<Extend> extendedList;
-    int index = parserInput.i;
-    String option;
+    Extend        extend;
+    List<Extend>  extendedList;
+    int           index = parserInput.i;
+    String        option;
 
-    if ((isRule ? parserInput.$re(r'^&:extend\(') : parserInput.$re(r'^:extend\(')) == null) return null;
+    if ((isRule ? parserInput.$re(r'^&:extend\(') : parserInput.$re(r'^:extend\(')) == null) {
+      return null;
+    }
 
     do {
       option = null;
@@ -227,12 +234,23 @@ class Parsers {
       while((option = parserInput.$re(r'^(all)(?=\s*(\)|,))', true, 1)) == null) {
         e = element();
         if (e == null) break;
-        if (elements != null) { elements.add(e); } else { elements = [e]; }
+
+        if (elements != null) {
+          elements.add(e);
+        } else {
+          elements = [e];
+        }
       }
 
-      if (elements == null) parserInput.error('Missing target selector for :extend().');
+      if (elements == null) {
+        parserInput.error('Missing target selector for :extend().');
+      }
       extend = new Extend(new Selector(elements), option, index);
-      if (extendedList != null) { extendedList.add(extend); } else { extendedList = [extend]; }
+      if (extendedList != null) {
+        extendedList.add(extend);
+      } else {
+        extendedList = [extend];
+      }
 
     } while (parserInput.$char(',') != null);
 
@@ -241,7 +259,7 @@ class Parsers {
 
     return extendedList;
 
-//2.2.0
+//2.4.0
 //  extend: function(isRule) {
 //      var elements, e, index = parserInput.i, option, extendList, extend;
 //
@@ -252,17 +270,27 @@ class Parsers {
 //          elements = null;
 //          while (! (option = parserInput.$re(/^(all)(?=\s*(\)|,))/))) {
 //              e = this.element();
-//              if (!e) { break; }
-//              if (elements) { elements.push(e); } else { elements = [ e ]; }
+//              if (!e) {
+//                  break;
+//              }
+//              if (elements) {
+//                  elements.push(e);
+//              } else {
+//                  elements = [ e ];
+//              }
 //          }
 //
 //          option = option && option[1];
-//          if (!elements)
+//          if (!elements) {
 //              error("Missing target selector for :extend().");
+//          }
 //          extend = new(tree.Extend)(new(tree.Selector)(elements), option, index);
-//          if (extendList) { extendList.push(extend); } else { extendList = [ extend ]; }
-//
-//      } while(parserInput.$char(","));
+//          if (extendList) {
+//              extendList.push(extend);
+//          } else {
+//              extendList = [ extend ];
+//          }
+//      } while (parserInput.$char(","));
 //
 //      expect(/^\)/);
 //
@@ -271,7 +299,7 @@ class Parsers {
 //      }
 //
 //      return extendList;
-//  }
+//  },
   }
 
   /// extendRule - used in a rule to extend all the parent selectors
@@ -333,7 +361,6 @@ class Parsers {
   /// they are made out of a `Combinator` (see combinator rule),
   /// and an element name, such as a tag a class, or `*`.
   ///
-  //2.2.0 ok
   Element element() {
     Combinator c;
     var e; //String or Node
@@ -347,8 +374,8 @@ class Parsers {
     if (e == null) e = parserInput.$char('*');
     if (e == null) e = parserInput.$char('&');
     if (e == null) e = attribute();
-    if (e == null) e = parserInput.$re(r'^\([^()@]+\)');
-    if (e == null) e = parserInput.$re(r'^[\.#](?=@)');
+    if (e == null) e = parserInput.$re(r'^\([^&()@]+\)');
+    if (e == null) e = parserInput.$re(r'^[\.#:](?=@)');
     if (e == null) e = entities.variableCurly();
 
     if (e == null) {
@@ -365,20 +392,20 @@ class Parsers {
       }
     }
 
-    if (e != null) {
-      return new Element(c, e, index, fileInfo);
-    }
+    if (e != null) return new Element(c, e, index, fileInfo);
 
     return null;
 
-//2.2.0
+//2.4.0
 //  element: function () {
 //      var e, c, v, index = parserInput.i;
 //
 //      c = this.combinator();
 //
-//      e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) || parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
-//          parserInput.$char('*') || parserInput.$char('&') || this.attribute() || parserInput.$re(/^\([^()@]+\)/) || parserInput.$re(/^[\.#](?=@)/) ||
+//      e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) ||
+//          parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
+//          parserInput.$char('*') || parserInput.$char('&') || this.attribute() ||
+//          parserInput.$re(/^\([^&()@]+\)/) ||  parserInput.$re(/^[\.#:](?=@)/) ||
 //          this.entities.variableCurly();
 //
 //      if (! e) {
@@ -396,33 +423,7 @@ class Parsers {
 //      }
 //
 //      if (e) { return new(tree.Element)(c, e, index, fileInfo); }
-//  }
-//1.7.5
-//element: function () {
-//    var e, c, v, index = i;
-//
-//    c = this.combinator();
-//
-//    e = $re(/^(?:\d+\.\d+|\d+)%/) || $re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
-//        $char('*') || $char('&') || this.attribute() || $re(/^\([^()@]+\)/) || $re(/^[\.#](?=@)/) ||
-//        this.entities.variableCurly();
-//
-//    if (! e) {
-//        save();
-//        if ($char('(')) {
-//            if ((v = this.selector()) && $char(')')) {
-//                e = new(tree.Paren)(v);
-//                forget();
-//            } else {
-//                restore();
-//            }
-//        } else {
-//            forget();
-//        }
-//    }
-//
-//    if (e) { return new(tree.Element)(c, e, index, env.currentFileInfo); }
-//},
+//  },
   }
 
   ///
@@ -507,7 +508,6 @@ class Parsers {
   ///
   /// Selectors are made out of one or more Elements, see above.
   ///
-  //2.2.0 ok
   Selector selector([bool isLess = false]) {
     List<Extend> allExtends;
     String  c;
@@ -526,11 +526,19 @@ class Parsers {
       } else if (condition != null) {
         parserInput.error('CSS guard can only be used at the end of selector');
       } else if (extendList != null) {
-        if (allExtends != null) { allExtends.addAll(extendList); } else { allExtends = extendList; }
+        if (allExtends != null) {
+          allExtends.addAll(extendList);
+        } else {
+          allExtends = extendList;
+        }
       } else {
         if (allExtends != null) parserInput.error('Extend can only be used at the end of selector');
         c = parserInput.currentChar();
-        if (elements != null) { elements.add(e); } else { elements = [e]; }
+        if (elements != null) {
+          elements.add(e);
+        } else {
+          elements = [e];
+        }
         e = null;
       }
       if (c == '{' || c == '}' || c == ';' || c == ',' || c == ')' ) break;
@@ -541,7 +549,7 @@ class Parsers {
 
     return null;
 
-//2.2.0
+//2.4.0
 //  selector: function (isLess) {
 //      var index = parserInput.i, elements, extendList, c, e, allExtends, when, condition;
 //
@@ -551,11 +559,19 @@ class Parsers {
 //          } else if (condition) {
 //              error("CSS guard can only be used at the end of selector");
 //          } else if (extendList) {
-//              if (allExtends) { allExtends = allExtends.concat(extendList); } else { allExtends = extendList; }
+//              if (allExtends) {
+//                  allExtends = allExtends.concat(extendList);
+//              } else {
+//                  allExtends = extendList;
+//              }
 //          } else {
 //              if (allExtends) { error("Extend can only be used at the end of selector"); }
 //              c = parserInput.currentChar();
-//              if (elements) { elements.push(e); } else { elements = [ e ]; }
+//              if (elements) {
+//                  elements.push(e);
+//              } else {
+//                  elements = [ e ];
+//              }
 //              e = null;
 //          }
 //          if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') {
@@ -565,7 +581,7 @@ class Parsers {
 //
 //      if (elements) { return new(tree.Selector)(elements, allExtends, condition, index, fileInfo); }
 //      if (allExtends) { error("Extend must be used to extend a selector, it cannot be used on its own"); }
-//  }
+//  },
   }
 
   ///
@@ -671,9 +687,8 @@ class Parsers {
   }
 
   ///
-  // div, .class, body > p {...}
+  /// div, .class, body > p {...}
   ///
-  //2.2.0 ok
   Ruleset ruleset() {
     DebugInfo debugInfo;
     List<Node> rules;
@@ -689,7 +704,11 @@ class Parsers {
     while (true) {
       s = lessSelector();
       if (s == null) break;
-      if (selectors != null) { selectors.add(s); } else { selectors = [s]; }
+      if (selectors != null) {
+        selectors.add(s);
+      } else {
+        selectors = [s];
+      }
       parserInput.commentStore.length = 0;
       if (s.condition != null && selectors.length > 1) {
         parserInput.error('Guards are only currently allowed on a single selector.');
@@ -711,7 +730,7 @@ class Parsers {
     }
     return null;
 
-//2.2.0
+//2.4.0
 //  ruleset: function () {
 //      var selectors, s, rules, debugInfo;
 //
@@ -726,7 +745,11 @@ class Parsers {
 //          if (!s) {
 //              break;
 //          }
-//          if (selectors) { selectors.push(s); } else { selectors = [ s ]; }
+//          if (selectors) {
+//              selectors.push(s);
+//          } else {
+//              selectors = [ s ];
+//          }
 //          parserInput.commentStore.length = 0;
 //          if (s.condition && selectors.length > 1) {
 //              error("Guards are only currently allowed on a single selector.");
@@ -748,48 +771,7 @@ class Parsers {
 //      } else {
 //          parserInput.restore();
 //      }
-//  }
-
-//1.7.5
-//ruleset: function () {
-//    var selectors, s, rules, debugInfo;
-//
-//    save();
-//
-//    if (env.dumpLineNumbers) {
-//        debugInfo = getDebugInfo(i, input, env);
-//    }
-//
-//    while (true) {
-//        s = this.lessSelector();
-//        if (!s) {
-//            break;
-//        }
-//        if (selectors) { selectors.push(s); } else { selectors = [ s ]; }
-//        this.comments();
-//        if (s.condition && selectors.length > 1) {
-//            error("Guards are only currently allowed on a single selector.");
-//        }
-//        if (! $char(',')) { break; }
-//        if (s.condition) {
-//            error("Guards are only currently allowed on a single selector.");
-//        }
-//        this.comments();
-//    }
-//
-//    if (selectors && (rules = this.block())) {
-//        forget();
-//        var ruleset = new(tree.Ruleset)(selectors, rules, env.strictImports);
-//        if (env.dumpLineNumbers) {
-//            ruleset.debugInfo = debugInfo;
-//        }
-//        return ruleset;
-//    } else {
-//        // Backtrack
-//        furthest = i;
-//        restore();
-//    }
-//},
+//  },
   }
 
   ///
@@ -1137,7 +1119,6 @@ class Parsers {
   /// ex. @import (less, multiple) "file.css";
   /// return {less: true, multiple: true}
   ///
-  //2.2.0 ok
   ImportOptions importOptions() {
     String o;
     String optionName;
@@ -1169,7 +1150,7 @@ class Parsers {
     return options;
   }
 
-//2.2.0
+//2.4.0
 //  importOptions: function() {
 //      var o, options = {}, optionName, value;
 //
@@ -1184,11 +1165,11 @@ class Parsers {
 //                  case "css":
 //                      optionName = "less";
 //                      value = false;
-//                  break;
+//                      break;
 //                  case "once":
 //                      optionName = "multiple";
 //                      value = false;
-//                  break;
+//                      break;
 //              }
 //              options[optionName] = value;
 //              if (! parserInput.$char(',')) { break; }
@@ -1196,12 +1177,18 @@ class Parsers {
 //      } while (o);
 //      expectChar(')');
 //      return options;
-//  }
+//  },
 
-  ///
-  //2.2.0 ok
-  String importOption() => parserInput.$re('^(less|css|multiple|once|inline|reference)');
+  ///TODO
+  String importOption() => parserInput.$re('^(less|css|multiple|once|inline|reference|optional)');
 
+//2.4.0
+//  importOption: function() {
+//      var opt = parserInput.$re(/^(less|css|multiple|once|inline|reference|optional)/);
+//      if (opt) {
+//          return opt[1];
+//      }
+//  },
 //2.2.0
 //  importOption: function() {
 //      var opt = parserInput.$re(/^(less|css|multiple|once|inline|reference)/);
@@ -2124,25 +2111,6 @@ class Parsers {
 //      }
 //      parserInput.restore();
 //  }
-  }
-
-  ///
-  //TODO
-  serializeVars(vars) {
-//2.2.0
-//  Parser.serializeVars = function(vars) {
-//      var s = '';
-//
-//      for (var name in vars) {
-//          if (Object.hasOwnProperty.call(vars, name)) {
-//              var value = vars[name];
-//              s += ((name[0] === '@') ? '' : '@') + name +': '+ value +
-//                  ((('' + value).slice(-1) === ';') ? '' : ';');
-//          }
-//      }
-//
-//      return s;
-//  };
   }
 
   ///

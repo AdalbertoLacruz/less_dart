@@ -1,4 +1,4 @@
-//source: lib/less-node/plugin-loader.js 2.4.0 TODO
+//source: lib/less-node/plugin-loader.js 2.4.0
 
 part of plugins.less;
 

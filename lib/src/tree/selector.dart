@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 2.3.1
+//source: less/tree/selector.js 2.4.0
 
 part of tree.less;
 
@@ -163,7 +163,8 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
     css = this.elements.map((Element v){
       return v.combinator.value
-          + ((v.value is String) ? v.value : (v.value.value is String) ? v.value.value : '');
+//          + ((v.value is String) ? v.value : (v.value.value is String) ? v.value.value : '');
+          + ((v.value is String) ? v.value : (v.value as Node).toCSS(null)); //ex. v.value Dimension
     }).toList().join('');
 
     Iterable<Match> matchs = re.allMatches(css);

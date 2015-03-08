@@ -1,4 +1,4 @@
-//source: lib/less-node/file-manager.js 2.3.1
+//source: lib/less-node/file-manager.js 2.4.0
 
 part of environment.less;
 
@@ -221,4 +221,29 @@ class FileFileManager extends FileManager {
 //    return result;
 //};
   }
+
+  ///
+  /// Load a file syncrhonously with readAsBytesSync
+  ///
+  /// result in FileLoaded.codeUnits
+  ///
+  FileLoaded loadFileAsBytesSync(String filename, String currentDirectory, Contexts options, Environment environment) {
+    FileLoaded fileLoaded = new FileLoaded();
+    if (options == null) options = new Contexts();
+
+    List<String> paths = createListPaths(filename, currentDirectory, options);
+    String fullFilename = findFileSync(filename, paths);
+    if (fullFilename != null) {
+      fileLoaded.filename = fullFilename;
+      fileLoaded.codeUnits = new File(fullFilename).readAsBytesSync();
+    } else {
+      fileLoaded.error = new LessError(
+          type: 'File',
+          message: "'{filename}' wasn't found. Tried - {filenamesTried.join(', ')}"
+      );
+    }
+
+    return fileLoaded;
+  }
+
 }

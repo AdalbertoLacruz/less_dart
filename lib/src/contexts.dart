@@ -1,4 +1,4 @@
-// source: less/contexts.js 2.2.0
+// source: less/contexts.js 2.4.0  TODO pending full revision
 
 library contexts.less;
 
@@ -105,7 +105,7 @@ class Contexts {
   List selectors; // Ruleset
 
   /// options.silent
-  bool silent;
+  //bool silent;
 
   /// options.sourceMap
   bool sourceMap;
@@ -131,7 +131,7 @@ class Contexts {
   bool useFileCache; // browser only
 
   /// options.verbose
-  bool verbose;
+  //bool verbose;
 
   /// options.yuicompress - deprecated
   bool yuicompress;
@@ -201,7 +201,7 @@ class Contexts {
     //strictMath          = options.strictMath; //removed 2.2.0
     numPrecision        = options.numPrecision;
     color               = options.color;
-    silent              = options.silent; //removed 2.2.0
+    //silent              = options.silent; //removed 2.2.0
     customFunctions     = options.customFunctions; //dart version
 //    reference           = options.reference; // Used to indicate that the contents are imported by reference //TODO 2.2.0
     pluginManager       = options.pluginManager; // Used as the plugin manager for the session //TODO
@@ -245,8 +245,8 @@ class Contexts {
   static void evalCopyProperties(Contexts newctx, options) {
     if (options == null) return;
 
-    newctx.silent             = options.silent; //removed 2.2.0
-    newctx.verbose            = options.verbose; //removed 2.2.0
+    //newctx.silent             = options.silent; //removed 2.2.0
+    //newctx.verbose            = options.verbose; //removed 2.2.0
     newctx.compress           = options.compress;
     newctx.ieCompat           = options.ieCompat;
     newctx.strictMath         = options.strictMath;
@@ -263,6 +263,7 @@ class Contexts {
 
     if (options is Contexts) {
       Contexts context  = options as Contexts;
+      newctx.paths          = context.paths;
       newctx.defaultFunc    = context.defaultFunc;
       newctx.importantScope = context.importantScope;
     }
@@ -306,15 +307,14 @@ class Contexts {
 //  };
 
   ///
-  //2.2.0 ok
   bool isPathRelative(String path) {
-    RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/)', caseSensitive: false);
+    RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
     return !re.hasMatch(path);
 
-//2.2.0
-//    contexts.Eval.prototype.isPathRelative = function (path) {
-//        return !/^(?:[a-z-]+:|\/)/i.test(path);
-//    };
+//2.4.0
+//  contexts.Eval.prototype.isPathRelative = function (path) {
+//      return !/^(?:[a-z-]+:|\/|#)/i.test(path);
+//  };
   }
 
   ///

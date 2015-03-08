@@ -24,4 +24,15 @@ class MoreList {
     return to;
   }
 
+  ///
+  /// Returns the indexth element.
+  /// If index < 0 || index >= length => null
+  ///
+  static elementAt(List list, int index) {
+    if (list == null) return null;
+    if (index < 0) return null;
+    if (index >= list.length) return null;
+    return list[index];
+  }
+
 }

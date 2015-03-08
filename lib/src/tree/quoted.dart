@@ -1,4 +1,4 @@
-//source: less/tree/quoted.js 2.3.1
+//source: less/tree/quoted.js 2.4.0
 
 part of tree.less;
 
@@ -13,11 +13,12 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   final String type = 'Quoted';
 
   ///
-  //2.3.1 ok
+  //2.4.0 ok
   Quoted(String str, String content, bool this.escaped, [int this.index, FileInfo this.currentFileInfo]){
     if (this.escaped == null) this.escaped = true;
     if(content != null) value = content;
     quote = str.isNotEmpty ? str[0] : '';
+    if (!(quote == '"' || quote == "'" || quote == '')) quote = '';
 
 //2.3.1
 //  var Quoted = function (str, content, escaped, index, currentFileInfo) {
@@ -124,20 +125,18 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //--- CompareNode
 
   /// Returns -1, 0 or +1 or null
-  //2.3.1 ok
+  //2.4.0 ok
   int compare(Node other) {
-    if (other is! Node) return null; // other is null?
-
     // when comparing quoted strings allow the quote to differ
     // We need compare strings with: string.copareTo(otherString)
 
     if (other is Quoted && !this.escaped && !other.escaped) {
       return this.value.compareTo(other.value);
     } else {
-      return this.toCSS(null).compareTo(other.toCSS(null));
+      return this.toCSS(null) == other.toCSS(null) ? 0 : null;
     }
 
-//2.3.1
+//2.4.0
 //  Quoted.prototype.compare = function (other) {
 //      // when comparing quoted strings allow the quote to differ
 //      if (other.type === "Quoted" && !this.escaped && !other.escaped) {

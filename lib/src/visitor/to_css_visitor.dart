@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.3.1
+//source: less/to-css-visitor.js 2.4.0
 
 part of visitor.less;
 
@@ -134,7 +134,7 @@ class ToCSSVisitor extends VisitorBase{
       // the directive was directly referenced and therefore needs to be shown in the output
       if (directiveNode.getIsReferenced()) return directiveNode;
 
-      if (directiveNode.rules.rules == null) return null;
+      if (directiveNode.rules == null || directiveNode.rules.rules == null) return null;
 
       // the directive was not directly referenced
       for (int r = 0; r < directiveNode.rules.rules.length; r++) {
@@ -302,7 +302,7 @@ class ToCSSVisitor extends VisitorBase{
       }
 
       // now decide whether we keep the ruleset
-      if (isNotEmpty(nodeRules) && rulesetNode.paths.isNotEmpty) {
+      if (isNotEmpty(nodeRules) && isNotEmpty(rulesetNode.paths)) {
         rulesets.insert(0, rulesetNode);
       }
     } else {

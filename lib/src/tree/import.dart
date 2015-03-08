@@ -1,4 +1,4 @@
-//source: less/tree/import.js 1.7.5 -> 2.3.1
+//source: less/tree/import.js 2.4.0
 
 part of tree.less;
 
@@ -120,8 +120,6 @@ class Import extends Node {
 //      }
 //  };
   }
-
-//      toCSS: tree.toCSS,
 
   ///
   /// get the file path to import.
@@ -300,6 +298,7 @@ class ImportOptions {
   bool once;
   bool inline;
   bool reference;
+  bool optional;
 
   void operator []= (String optionName, bool value) {
     switch (optionName) {
@@ -320,6 +319,9 @@ class ImportOptions {
         break;
       case 'reference':
         reference = value;
+        break;
+      case 'optional':
+        optional = value;
     }
   }
 }

@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 2.2.0
+// source: parser/parser-input.js 2.4.0
 
 part of parser.less;
 
@@ -601,10 +601,9 @@ class ParserInput {
   }
 
   ///
-  //2.2.0
   ParserStatus end() {
     String message;
-    bool isFinished = (i >= input.length -1);
+    bool isFinished = (i >= input.length);
 
     if (i < furthest) {
       message = furthestPossibleErrorMessage;
@@ -674,6 +673,7 @@ class ParserInput {
       throw new LessExceptionError(error);
     }
 
+//2.2.0
 //  var endInfo = parserInput.end();
 //  if (!endInfo.isFinished) {
 //

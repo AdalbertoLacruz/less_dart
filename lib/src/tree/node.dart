@@ -153,12 +153,14 @@ class Node {
   ///
   // 2.3.1 ok
   static int compareNodes(Node a, Node b) {
+    //new Logger().log('${a.type}: ${a.value} - ${b.type}: ${b.value}');
+
     // for "symmetric results" force toCSS-based comparison
     // of Quoted or Anonymous if either value is one of those
     if ((a is CompareNode) && !(b is Quoted || b is Anonymous)) {
       return (a as CompareNode).compare(b);
     } else if (b is CompareNode) {
-      return -(b as CompareNode).compare(a);
+      return negate((b as CompareNode).compare(a)); //-null?
     } else if (a.runtimeType != b.runtimeType) {
       return null;
     }

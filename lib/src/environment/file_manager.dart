@@ -1,4 +1,4 @@
-//source: lib/less/environment/abstract-file-manager.js 2.3.1
+//source: lib/less/environment/abstract-file-manager.js 2.4.0
 
 part of environment.less;
 
@@ -37,6 +37,13 @@ class FileManager {
   ///
   //2.3.1
   FileLoaded loadFileSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+
+  ///
+  /// Load a file syncrhonously with readAsBytesSync
+  ///
+  /// result in FileLoaded.codeUnits
+  ///
+  FileLoaded loadFileAsBytesSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
 
   ///
   /// Given the full path to a file [filename], return the path component
@@ -99,18 +106,17 @@ class FileManager {
   ///
   /// Returns whether a path is absolute
   ///
-  //2.3.1 ok
   bool isPathAbsolute(String path) {
     return pathLib.isAbsolute(path);
 
 // valid dart implementation
-//    RegExp re = new RegExp(r'^(?:[a-z-]+:|\/|\\)', caseSensitive: false);
+//    RegExp re = new RegExp(r'^(?:[a-z-]+:|\/|\\|#)', caseSensitive: false);
 //    return re.hasMatch(path);
 
-//2.3.1
-//abstractFileManager.prototype.isPathAbsolute = function(filename) {
-//    return (/^(?:[a-z-]+:|\/|\\)/i).test(filename);
-//};
+//2.4.0
+//  abstractFileManager.prototype.isPathAbsolute = function(filename) {
+//      return (/^(?:[a-z-]+:|\/|\\|#)/i).test(filename);
+//  };
   }
 
   ///
@@ -324,8 +330,9 @@ class FileLoaded {
   String filename;
   String contents;
   LessError error;
+  List<int> codeUnits;
 
-  FileLoaded({this.filename, this.contents, this.error});
+  FileLoaded({this.filename, this.contents, this.error, this.codeUnits});
 }
 
 class UrlParts {

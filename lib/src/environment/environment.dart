@@ -1,3 +1,4 @@
+//source: lib/less/environment.js 2.4.0
 library environment.less;
 
 import 'dart:async';
@@ -16,6 +17,7 @@ part 'more_reg_exp.dart';
 part 'file_file_manager.dart';
 part 'file_manager.dart';
 part 'global_functions.dart';
+part 'image_size.dart';
 part 'more_list.dart';
 part 'url_file_manager.dart';
 

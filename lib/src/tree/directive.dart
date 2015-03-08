@@ -1,4 +1,4 @@
-//source: less/tree/directive.js 2.3.1
+//source: less/tree/directive.js 2.4.0
 
 part of tree.less;
 
@@ -23,11 +23,11 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
   ///
   //2.3.1 ok
   void accept(Visitor visitor) {
-    Node value = this.value;
-    Ruleset rules = this.rules;
+//    Node value = this.value;
+//    Ruleset rules = this.rules;
 
-    if (rules != null) rules = visitor.visit(rules);
-    if (value != null) value = visitor.visit(value);
+    if (this.rules != null) this.rules = visitor.visit(this.rules);
+    if (this.value != null) this.value = visitor.visit(this.value);
 
 //2.3.1
 //  Directive.prototype.accept = function (visitor) {

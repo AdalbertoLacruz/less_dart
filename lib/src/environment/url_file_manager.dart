@@ -1,4 +1,4 @@
-//source: lib/less-node/url-file-manager.js 2.3.1
+//source: lib/less-node/url-file-manager.js 2.4.0
 
 part of environment.less;
 

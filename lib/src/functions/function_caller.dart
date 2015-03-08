@@ -1,4 +1,4 @@
-// source: lib/less/functions/function-caller.js 2.2.0
+// source: lib/less/functions/function-caller.js 2.4.0
 
 part of functions.less;
 
@@ -26,6 +26,7 @@ class FunctionCaller {
       new ColorBlend(),
       new ColorFunctions(),
       new DataUriFunctions(),
+      new ImageSizeFunctions(),
       new MathFunctions(),
       new NumberFunctions(),
       new StringFunctions(),
@@ -73,7 +74,7 @@ class FunctionCaller {
     return found.call(args);
   }
 
-
+//2.4.0
 //var functionCaller = function(name, context, index, currentFileInfo) {
 //    this.name = name.toLowerCase();
 //    this.func = functionRegistry.get(this.name);

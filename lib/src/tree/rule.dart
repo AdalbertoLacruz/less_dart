@@ -1,4 +1,4 @@
-//source: less/tree/rule.js 2.3.1
+//source: less/tree/rule.js 2.4.0
 
 part of tree.less;
 
@@ -67,7 +67,7 @@ class Rule extends Node implements MakeImportantNode {
   void genCSS(Contexts context, Output output) {
     output.add(this.name + (context.compress ? ':' : ': '), this.currentFileInfo, this.index);
     try {
-      this.value.genCSS(context, output);
+      if (this.value != null) this.value.genCSS(context, output);
     } catch (e) {
       LessError error = LessError.transform(e,
           index: this.index,

@@ -1,4 +1,4 @@
-//source: less/parser.js 2.2.0 lines 578-810
+//source: less/parser.js 2.4.0 lines 578-810
 
 part of parser.less;
 
@@ -29,7 +29,6 @@ class Mixin {
   /// namespaced, but we only support the child and descendant
   /// selector for now.
   ///
-  //2.2.0 ok
   MixinCall call() {
     List<MixinArgs> args;
     String c;
@@ -50,7 +49,11 @@ class Mixin {
       e = parserInput.$re(r'^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+');
       if (e == null) break;
       elem = new Element(c, e, elemIndex, fileInfo);
-      if (elements != null) { elements.add(elem); } else { elements = [elem]; }
+      if (elements != null) {
+        elements.add(elem);
+      } else {
+        elements = [elem];
+      }
       c = parserInput.$char('>');
     }
 
@@ -69,7 +72,7 @@ class Mixin {
     parserInput.restore();
     return null;
 
-//2.2.0
+//2.4.0
 //  call: function () {
 //      var s = parserInput.currentChar(), important = false, index = parserInput.i, elemIndex,
 //          elements, elem, e, c, args;
@@ -85,7 +88,11 @@ class Mixin {
 //              break;
 //          }
 //          elem = new(tree.Element)(c, e, elemIndex, fileInfo);
-//          if (elements) { elements.push(elem); } else { elements = [ elem ]; }
+//          if (elements) {
+//              elements.push(elem);
+//          } else {
+//              elements = [ elem ];
+//          }
 //          c = parserInput.$char('>');
 //      }
 //
@@ -106,7 +113,7 @@ class Mixin {
 //      }
 //
 //      parserInput.restore();
-//  }
+//  },
   }
 
   ///

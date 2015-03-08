@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 2.3.1
+//source: less/tree/operation.js 2.4.0
 
 part of tree.less;
 

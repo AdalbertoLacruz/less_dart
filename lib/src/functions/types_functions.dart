@@ -1,4 +1,4 @@
-// source: lib/less/functions/types.js 2.2.0
+// source: lib/less/functions/types.js 2.4.0
 
 part of functions.less;
 
@@ -7,6 +7,50 @@ class TypesFunctions extends FunctionBase {
 //  var isa = function (n, Type) {
 //      return (n instanceof Type) ? Keyword.True : Keyword.False;
 //  }
+
+  ///
+  @defineMethod(skip: true)
+  List<Node> getItemsFromNode(Node node) {
+    // handle non-array values as an array of length 1
+    // return null if index is invalid
+    List<Node> items = (node.value is List) ? node.value : [node];
+    items.retainWhere((item) => item is! Comment);
+    return items;
+
+//2.4.0
+//  getItemsFromNode = function(node) {
+//      // handle non-array values as an array of length 1
+//      // return 'undefined' if index is invalid
+//      var items = Array.isArray(node.value) ?
+//          node.value : Array(node);
+//
+//      return items.filter(function(item) {
+//          if (item.type === "Comment") {
+//              return false;
+//          }
+//          return true;
+//      });
+//  };
+  }
+
+  ///
+  /// Returns true if a value is a ruleset, false otherwise.
+  ///
+  /// Parameters:
+  ///   value - a variable being evaluated.
+  ///   Returns: true if value is a ruleset, false otherwise.
+  /// Example:
+  ///   @rules: {
+  ///     color: red;
+  ///   }
+  ///   isruleset(@rules);   // true
+  ///   isruleset(#ff0);     // false
+  ///
+  isruleset(n) => (n is DetachedRuleset) ? new Keyword.True() : new Keyword.False();
+
+//  isruleset: function (n) {
+//      return isa(n, DetachedRuleset);
+//  },
 
   ///
   /// Returns true if a value is a color, false otherwise.
@@ -178,21 +222,24 @@ class TypesFunctions extends FunctionBase {
     }
     return new Dimension(val.value, unitValue);
 
-//    unit: function (val, unit) {
-//            if(!(val instanceof Dimension)) {
-//                throw { type: "Argument", message: "the first argument to unit must be a number" + (val instanceof Operation ? ". Have you forgotten parenthesis?" : "") };
-//            }
-//            if (unit) {
-//                if (unit instanceof Keyword) {
-//                    unit = unit.value;
-//                } else {
-//                    unit = unit.toCSS();
-//                }
-//            } else {
-//                unit = "";
-//            }
-//            return new Dimension(val.value, unit);
-//        }
+//2.4.0
+//  unit: function (val, unit) {
+//      if (!(val instanceof Dimension)) {
+//          throw { type: "Argument",
+//              message: "the first argument to unit must be a number" +
+//                  (val instanceof Operation ? ". Have you forgotten parenthesis?" : "") };
+//      }
+//      if (unit) {
+//          if (unit instanceof Keyword) {
+//              unit = unit.value;
+//          } else {
+//              unit = unit.toCSS();
+//          }
+//      } else {
+//          unit = "";
+//      }
+//      return new Dimension(val.value, unit);
+//  },
   }
 
   ///
@@ -224,23 +271,13 @@ class TypesFunctions extends FunctionBase {
   ///
   Node extract(Node values, Node index) {
     int iIndex = (index.value as num).toInt() - 1; // (1-based index)
-    if (iIndex < 0) return null;
+    return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
 
-    // handle non-array values as an array of length 1
-    // return 'null' if index is invalid
-    if (values.value is List) {
-      return (iIndex >= values.value.length) ? null : values.value[iIndex];
-    } else {
-      return (iIndex > 0) ? null : values; //TODO ???
-    }
-
-//    extract: function(values, index) {
-//        index = index.value - 1; // (1-based index)
-//        // handle non-array values as an array of length 1
-//        // return 'undefined' if index is invalid
-//        return Array.isArray(values.value)
-//            ? values.value[index] : Array(values)[index];
-//    },
+//2.4.0
+//  extract: function(values, index) {
+//      index = index.value - 1; // (1-based index)
+//      return getItemsFromNode(values)[index];
+//  },
   }
 
   ///
@@ -253,12 +290,12 @@ class TypesFunctions extends FunctionBase {
   ///   Output: 3
   ///
   Dimension length(Node values) {
-    int n = (values.value is List) ? values.value.length : 1;
-    return new Dimension(n);
+    return new Dimension(getItemsFromNode(values).length);
 
-//    length: function(values) {
-//        var n = Array.isArray(values.value) ? values.value.length : 1;
-//        return new Dimension(n);
-//    },
+//2.4.0
+//  length: function(values) {
+//
+//      return new Dimension(getItemsFromNode(values).length);
+//  }
   }
 }

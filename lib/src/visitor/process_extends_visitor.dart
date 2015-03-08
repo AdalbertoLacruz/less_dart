@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.3.1 lines 91-451
+// source: less/extend-visitor.js 2.4.0 lines 91-451
 
 part of visitor.less;
 

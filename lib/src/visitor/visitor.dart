@@ -1,4 +1,4 @@
-//source: less/visitor.js 2.3.1
+//source: less/visitor.js 2.4.0
 
 part of visitor.less;
 

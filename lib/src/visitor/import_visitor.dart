@@ -1,4 +1,4 @@
-// source: less/import-visitor.js 2.3.1
+// source: less/import-visitor.js 2.4.0
 
 part of visitor.less;
 
@@ -11,6 +11,7 @@ class ImportVisitor extends VisitorBase {
   ImportDetector  onceFileDetectionMap;
   ImportDetector  recursionDetector;
   Visitor         _visitor;
+  List<VariableImport>  variableImports = [];
 
   /// visitImport futures for await their completion
   List<Future> runners = [];
@@ -43,14 +44,15 @@ class ImportVisitor extends VisitorBase {
   ///
   /// Replaces @import nodes with the file content
   ///
-  //2.3.1 ok
   Future run(Node root) {
     this._visitor.visit(root);
-    return Future
-        .wait(runners, eagerError: true)
-        .catchError((e) {
-          return new Future.error(e);
-        });
+
+//    return Future
+//        .wait(runners, eagerError: true)
+//        .catchError((e) {
+//          return new Future.error(e);
+//        });
+    return tryRun();
 
 //2.3.1
 //  run: function (root) {
@@ -67,6 +69,25 @@ class ImportVisitor extends VisitorBase {
 //  }
   }
 
+  Future tryRun() {
+    Completer task = new Completer();
+    Future.wait(runners, eagerError: true)
+    .then((v){
+      if (variableImports.isNotEmpty) {
+        VariableImport variableImport = variableImports.removeAt(0);
+        processImportNode(variableImport.importNode, variableImport.context, variableImport.importParent);
+        tryRun()
+          .then((v){task.complete();});
+      } else {
+        task.complete();
+      }
+    })
+    .catchError((e) {
+      task.completeError(e);
+    });
+    return task.future;
+  }
+
 ////2.3.1
 ////  _onSequencerEmpty: function() {
 ////      if (!this.isFinished) {
@@ -79,14 +100,19 @@ class ImportVisitor extends VisitorBase {
   ///
   /// @import node - recursively load file and parse
   ///
-  //2.3.1 ok
   visitImport(Import importNode, VisitArgs visitArgs) {
     bool inlineCSS = isTrue(importNode.options.inline); //include the file, but not process
 
     if (!importNode.css || inlineCSS) {
       Contexts context = new Contexts.eval(this.context, this.context.frames.sublist(0));
       Node importParent = context.frames[0];
-      this.processImportNode(importNode, context, importParent);
+
+      if (importNode.isVariableImport()) {
+        //process this type of imports *last*
+        variableImports.add(new VariableImport(importNode, context, importParent));
+      } else {
+        this.processImportNode(importNode, context, importParent);
+      }
     }
 
     visitArgs.visitDeeper = false;
@@ -432,4 +458,19 @@ class ImportVisitor extends VisitorBase {
 
     return null;
   }
+}
+
+// **************************
+
+///
+/// Contents the importNode with variables in the name, for delayed processing
+///
+/// Example: @import "less/import/import-@{in}@{terpolation}.less";
+///
+class VariableImport {
+  Import importNode;
+  Contexts context;
+  Node importParent;
+
+  VariableImport(this.importNode, this.context, this.importParent);
 }

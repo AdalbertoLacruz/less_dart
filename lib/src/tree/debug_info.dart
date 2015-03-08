@@ -1,4 +1,4 @@
-// source: tree/debug-info.dart 2.3.1
+// source: tree/debug-info.dart 2.4.0
 
 part of tree.less;
 

@@ -1,4 +1,4 @@
-//source: tree/combinator.js 2.3.1
+//source: tree/combinator.js 2.4.0
 
 part of tree.less;
 

@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 2.3.1
+//source: less/tree/dimension.js 2.4.0
 
 part of tree.less;
 
@@ -42,7 +42,6 @@ class Unit extends Node implements CompareNode {
 //  };
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     // Dimension checks the unit is singular and throws an error if in strict math mode.
     bool stricUnits = (context != null && context.strictUnits != null) ? context.strictUnits : false;
@@ -51,9 +50,11 @@ class Unit extends Node implements CompareNode {
       output.add(this.numerator[0]); // the ideal situation
     } else if (!stricUnits && this.backupUnit != null) {
       output.add(this.backupUnit);
+    } else if (!stricUnits && this.denominator.isNotEmpty) {
+      output.add(this.denominator[0]);
     }
 
-//2.3.1
+//2.4.0
 //  Unit.prototype.genCSS = function (context, output) {
 //      // Dimension checks the unit is singular and throws an error if in strict math mode.
 //      var strictUnits = context && context.strictUnits;
@@ -61,6 +62,8 @@ class Unit extends Node implements CompareNode {
 //          output.add(this.numerator[0]); // the ideal situation
 //      } else if (!strictUnits && this.backupUnit) {
 //          output.add(this.backupUnit);
+//      } else if (!strictUnits && this.denominator.length) {
+//          output.add(this.denominator[0]);
 //      }
 //  };
   }

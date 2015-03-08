@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 2.3.1
+// source: less/tree/ruleset.js 2.4.0
 
 part of tree.less;
 
@@ -384,27 +384,28 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   }
 
   ///
-  //2.3.1 ok
   Ruleset makeImportant(){
-    this.rules = this.rules.map((r){
+    Ruleset result = new Ruleset(this.selectors, this.rules.map((r){
       if (r is MakeImportantNode) {
         return r.makeImportant();
       } else {
         return r;
       }
-    }).toList();
-    return this;
+    }).toList(), this.strictImports);
 
-//2.3.1
+    return result;
+
+//2.4.0
 //  Ruleset.prototype.makeImportant = function() {
-//      this.rules = this.rules.map(function (r) {
+//      var result = new Ruleset(this.selectors, this.rules.map(function (r) {
 //          if (r.makeImportant) {
 //              return r.makeImportant();
 //          } else {
 //              return r;
 //          }
-//      });
-//      return this;
+//      }), this.strictImports);
+//
+//      return result;
 //  };
   }
 
@@ -922,7 +923,6 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   /// resulting selectors are returned inside `paths` array
   /// returns true if `inSelector` contained at least one parent selector
   ///
-  //2.3.1
   bool replaceParentSelector(List<List<Selector>> paths, List<List<Selector>> context, Selector inSelector) {
     //
     // The paths are [[Selector]]
@@ -942,10 +942,12 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     List<Selector> sel;
     Element el;
     bool hadParentSelector = false;
+    int length;
+    Selector lastSelector;
 
     Selector findNestedSelector(Element element) {
       if (element.value is String) return null;
-      if (element.value is Paren) return null;
+      if (element.value is! Paren) return null;
 
       var maybeSelector = element.value.value;
       if (maybeSelector is! Selector) return null;
@@ -1033,124 +1035,132 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     mergeElementsOnToSelectors(currentElements, newSelectors);
 
     for (int i = 0; i < newSelectors.length; i++) {
-      if (newSelectors[i].isNotEmpty) paths.add(newSelectors[i]);
+      length = newSelectors[i].length;
+      if (length > 0) {
+        paths.add(newSelectors[i]);
+        lastSelector = newSelectors[i].last;
+        newSelectors[i][length - 1] = lastSelector.createDerived(lastSelector.elements, inSelector.extendList);
+      }
     }
 
     return hadParentSelector;
 
-//2.3.1 inside joinSelector
-//      function replaceParentSelector(paths, context, inSelector) {
-//          // The paths are [[Selector]]
-//          // The first list is a list of comma separated selectors
-//          // The inner list is a list of inheritance separated selectors
-//          // e.g.
-//          // .a, .b {
-//          //   .c {
-//          //   }
-//          // }
-//          // == [[.a] [.c]] [[.b] [.c]]
-//          //
-//          var i, j, k, currentElements, newSelectors, selectorsMultiplied, sel, el, hadParentSelector = false;
-//          function findNestedSelector(element) {
-//              var maybeSelector;
-//              if (element.value.type !== 'Paren') {
-//                  return null;
-//              }
-//
-//              maybeSelector = element.value.value;
-//              if (maybeSelector.type !== 'Selector') {
-//                  return null;
-//              }
-//
-//              return maybeSelector;
+//2.4.0
+//  function replaceParentSelector(paths, context, inSelector) {
+//      // The paths are [[Selector]]
+//      // The first list is a list of comma separated selectors
+//      // The inner list is a list of inheritance separated selectors
+//      // e.g.
+//      // .a, .b {
+//      //   .c {
+//      //   }
+//      // }
+//      // == [[.a] [.c]] [[.b] [.c]]
+//      //
+//      var i, j, k, currentElements, newSelectors, selectorsMultiplied, sel, el, hadParentSelector = false, length, lastSelector;
+//      function findNestedSelector(element) {
+//          var maybeSelector;
+//          if (element.value.type !== 'Paren') {
+//              return null;
 //          }
 //
-//          // the elements from the current selector so far
-//          currentElements = [];
-//          // the current list of new selectors to add to the path.
-//          // We will build it up. We initiate it with one empty selector as we "multiply" the new selectors
-//          // by the parents
-//          newSelectors = [
-//              []
-//          ];
+//          maybeSelector = element.value.value;
+//          if (maybeSelector.type !== 'Selector') {
+//              return null;
+//          }
 //
-//          for (i = 0; i < inSelector.elements.length; i++) {
-//              el = inSelector.elements[i];
-//              // non parent reference elements just get added
-//              if (el.value !== "&") {
-//                  var nestedSelector = findNestedSelector(el);
-//                  if (nestedSelector != null) {
-//                      // merge the current list of non parent selector elements
-//                      // on to the current list of selectors to add
-//                      mergeElementsOnToSelectors(currentElements, newSelectors);
+//          return maybeSelector;
+//      }
 //
-//                      var nestedPaths = [], replaced, replacedNewSelectors = [];
-//                      replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
-//                      hadParentSelector = hadParentSelector || replaced;
-//                      //the nestedPaths array should have only one member - replaceParentSelector does not multiply selectors
-//                      for (k = 0; k < nestedPaths.length; k++) {
-//                          var replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
-//                          addAllReplacementsIntoPath(newSelectors, [replacementSelector], el, inSelector, replacedNewSelectors);
-//                      }
-//                      newSelectors = replacedNewSelectors;
-//                      currentElements = [];
+//      // the elements from the current selector so far
+//      currentElements = [];
+//      // the current list of new selectors to add to the path.
+//      // We will build it up. We initiate it with one empty selector as we "multiply" the new selectors
+//      // by the parents
+//      newSelectors = [
+//          []
+//      ];
 //
-//                  } else {
-//                      currentElements.push(el);
-//                  }
-//
-//              } else {
-//                  hadParentSelector = true;
-//                  // the new list of selectors to add
-//                  selectorsMultiplied = [];
-//
+//      for (i = 0; i < inSelector.elements.length; i++) {
+//          el = inSelector.elements[i];
+//          // non parent reference elements just get added
+//          if (el.value !== "&") {
+//              var nestedSelector = findNestedSelector(el);
+//              if (nestedSelector != null) {
 //                  // merge the current list of non parent selector elements
 //                  // on to the current list of selectors to add
 //                  mergeElementsOnToSelectors(currentElements, newSelectors);
 //
-//                  // loop through our current selectors
-//                  for (j = 0; j < newSelectors.length; j++) {
-//                      sel = newSelectors[j];
-//                      // if we don't have any parent paths, the & might be in a mixin so that it can be used
-//                      // whether there are parents or not
-//                      if (context.length === 0) {
-//                          // the combinator used on el should now be applied to the next element instead so that
-//                          // it is not lost
-//                          if (sel.length > 0) {
-//                              sel[0].elements.push(new Element(el.combinator, '', el.index, el.currentFileInfo));
-//                          }
-//                          selectorsMultiplied.push(sel);
+//                  var nestedPaths = [], replaced, replacedNewSelectors = [];
+//                  replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
+//                  hadParentSelector = hadParentSelector || replaced;
+//                  //the nestedPaths array should have only one member - replaceParentSelector does not multiply selectors
+//                  for (k = 0; k < nestedPaths.length; k++) {
+//                      var replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
+//                      addAllReplacementsIntoPath(newSelectors, [replacementSelector], el, inSelector, replacedNewSelectors);
+//                  }
+//                  newSelectors = replacedNewSelectors;
+//                  currentElements = [];
+//
+//              } else {
+//                  currentElements.push(el);
+//              }
+//
+//          } else {
+//              hadParentSelector = true;
+//              // the new list of selectors to add
+//              selectorsMultiplied = [];
+//
+//              // merge the current list of non parent selector elements
+//              // on to the current list of selectors to add
+//              mergeElementsOnToSelectors(currentElements, newSelectors);
+//
+//              // loop through our current selectors
+//              for (j = 0; j < newSelectors.length; j++) {
+//                  sel = newSelectors[j];
+//                  // if we don't have any parent paths, the & might be in a mixin so that it can be used
+//                  // whether there are parents or not
+//                  if (context.length === 0) {
+//                      // the combinator used on el should now be applied to the next element instead so that
+//                      // it is not lost
+//                      if (sel.length > 0) {
+//                          sel[0].elements.push(new Element(el.combinator, '', el.index, el.currentFileInfo));
 //                      }
-//                      else {
-//                          // and the parent selectors
-//                          for (k = 0; k < context.length; k++) {
-//                              // We need to put the current selectors
-//                              // then join the last selector's elements on to the parents selectors
-//                              var newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
-//                              // add that to our new set of selectors
-//                              selectorsMultiplied.push(newSelectorPath);
-//                          }
+//                      selectorsMultiplied.push(sel);
+//                  }
+//                  else {
+//                      // and the parent selectors
+//                      for (k = 0; k < context.length; k++) {
+//                          // We need to put the current selectors
+//                          // then join the last selector's elements on to the parents selectors
+//                          var newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
+//                          // add that to our new set of selectors
+//                          selectorsMultiplied.push(newSelectorPath);
 //                      }
 //                  }
-//
-//                  // our new selectors has been multiplied, so reset the state
-//                  newSelectors = selectorsMultiplied;
-//                  currentElements = [];
 //              }
+//
+//              // our new selectors has been multiplied, so reset the state
+//              newSelectors = selectorsMultiplied;
+//              currentElements = [];
 //          }
-//
-//          // if we have any elements left over (e.g. .a& .b == .b)
-//          // add them on to all the current selectors
-//          mergeElementsOnToSelectors(currentElements, newSelectors);
-//
-//          for (i = 0; i < newSelectors.length; i++) {
-//              if (newSelectors[i].length > 0) {
-//                  paths.push(newSelectors[i]);
-//              }
-//          }
-//
-//          return hadParentSelector;
 //      }
+//
+//      // if we have any elements left over (e.g. .a& .b == .b)
+//      // add them on to all the current selectors
+//      mergeElementsOnToSelectors(currentElements, newSelectors);
+//
+//      for (i = 0; i < newSelectors.length; i++) {
+//          length = newSelectors[i].length;
+//          if (length > 0) {
+//              paths.push(newSelectors[i]);
+//              lastSelector = newSelectors[i][length - 1];
+//              newSelectors[i][length - 1] = lastSelector.createDerived(lastSelector.elements, inSelector.extendList);
+//          }
+//      }
+//
+//      return hadParentSelector;
+//  }
   }
 
   ///
@@ -1482,7 +1492,7 @@ class VariableMixin {
           if (match > 0) {
             if (selector.elements.length > match) {
               if (filter == null || filter(rule)) {
-                foundMixins = (rule as Ruleset).find(new Selector(selector.elements.sublist(match)), self, filter);
+                foundMixins = (rule as VariableMixin).find(new Selector(selector.elements.sublist(match)), self, filter);
                 for (int i = 0; i < foundMixins.length; i++) {
                   foundMixins[i].path.add(rule); //2.3.1 MixinDefinition, Ruleset
                 }

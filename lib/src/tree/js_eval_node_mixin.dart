@@ -1,4 +1,4 @@
-//source: less/tree/js-eval-node.dart 2.3.1
+//source: less/tree/js-eval-node.dart 2.4.0
 
 part of tree.less;
 

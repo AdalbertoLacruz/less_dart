@@ -29,7 +29,6 @@ class Anonymous extends Node implements CompareNode {
   ///
   //2.3.1 ok
   int compare(Node other) {
-    if (other is! Node) return -1;
     return this.toCSS(null).compareTo(other.toCSS(null));
 
 //2.3.1

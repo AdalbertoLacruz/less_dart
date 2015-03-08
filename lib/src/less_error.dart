@@ -39,7 +39,7 @@ class LessError {
 
   bool isSimplyFormat = true;
 
-  bool silent = false;
+  //bool silent = false;
 
   // less/parser.js 1.7.5 lines 309-331
   LessError({int call, Contexts context, int index, String filename, String message, StackTrace stack, String type}) {
@@ -80,7 +80,7 @@ class LessError {
       this.color = context.color;
       this.isSimplyFormat = false;
     }
-    this.silent = context.silent;
+    //this.silent = context.silent;
   }
 
   ///
@@ -247,7 +247,7 @@ class LessExceptionError implements Exception {
   }
 
   String toString() {
-    if (error.silent) return '';
+    //if (error.silent) return '';
     if (error.message == null) error.message = '';
     if (error.line == null) error.isSimplyFormat = true;
     return error.isSimplyFormat ? simplyFormatError() : formatError();

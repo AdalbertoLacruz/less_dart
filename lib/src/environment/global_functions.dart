@@ -10,7 +10,7 @@ bool isNotEmpty(value){
   if (value is String) return value.isNotEmpty;
   if (value is List) return value.isNotEmpty;
   if (value is Map) return value.isNotEmpty;
-  return false;
+  return false; //if value is null
 }
 
 /// if [value] is null return default
@@ -20,6 +20,11 @@ getValueOrDefault(value, defaultValue) {
   } else {
     return value;
   }
+}
+
+/// -[value]. Considers null value.
+negate(num value) {
+  return (value == null) ? null : -value;
 }
 
 ///

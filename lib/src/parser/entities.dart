@@ -1,4 +1,4 @@
-//source: less/parser.js 2.2.0 lines 280-511
+//source: less/parser.js 2.4.0 lines 280-511
 
 part of parser.less;
 
@@ -281,9 +281,13 @@ class Entities {
     int index = parserInput.i;
     Node value;
 
-    if ((parserInput.currentChar() != 'u') || (parserInput.$re(r'^url\(') == null)) return null;
-
     parserInput.autoCommentAbsorb = false;
+    
+    if ((parserInput.currentChar() != 'u') || (parserInput.$re(r'^url\(') == null)) {
+      parserInput.autoCommentAbsorb = true;
+      return null;
+    }
+
     value = quoted();
     if (value == null) value = variable();
     if (value == null) {
@@ -378,34 +382,40 @@ class Entities {
   ///
   /// `rgb` and `hsl` colors are parsed through the `entities.call` parser.
   ///
-  //2.2.0 ok
   Color color() {
     Match rgb;
 
-    if (parserInput.currentChar() == '#' && (rgb = parserInput.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
-      // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
+    if (parserInput.currentChar() == '#'
+        && (rgb = parserInput.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
+
+      // strip colons, brackets, whitespaces and other characters that should not
+      // definitely be part of color string
       Match colorCandidateMatch = new RegExp(r'^#([\w]+).*').firstMatch(rgb.input);
       String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
-      if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) parserInput.error('Invalid HEX color code');
-
+      if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) {
+        parserInput.error('Invalid HEX color code');
+      }
       return new Color(rgb[1]);
     }
     return null;
 
-//2.2.0
+//2.4.0
 //  color: function () {
 //      var rgb;
 //
 //      if (parserInput.currentChar() === '#' && (rgb = parserInput.$re(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/))) {
-//          var colorCandidateString = rgb.input.match(/^#([\w]+).*/); // strip colons, brackets, whitespaces and other characters that should not definitely be part of color string
+//          // strip colons, brackets, whitespaces and other characters that should not
+//          // definitely be part of color string
+//          var colorCandidateString = rgb.input.match(/^#([\w]+).*/);
 //          colorCandidateString = colorCandidateString[1];
 //          if (!colorCandidateString.match(/^[A-Fa-f0-9]+$/)) { // verify if candidate consists only of allowed HEX characters
 //              error("Invalid HEX color code");
 //          }
 //          return new(tree.Color)(rgb[1]);
 //      }
+//  },
   }
 
   ///

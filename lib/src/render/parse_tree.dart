@@ -69,30 +69,6 @@ class ParseTree {
 
     return result;
 
-//1.7.5 pending -> plugin
-//    if (options.cleancss) {
-//      return result;
-//
-////      var CleanCSS = require('clean-css'),
-////          cleancssOptions = options.cleancssOptions || {};
-////
-////      if (cleancssOptions.keepSpecialComments === undefined) {
-////          cleancssOptions.keepSpecialComments = "*";
-////      }
-////      cleancssOptions.processImport = false;
-////      cleancssOptions.noRebase = true;
-////      if (cleancssOptions.noAdvanced === undefined) {
-////          cleancssOptions.noAdvanced = true;
-////      }
-////
-////      return new CleanCSS(cleancssOptions).minify(css);
-//    } else if (options.compress) {
-//      return result;
-////      return css.replace(/(^(\s)+)|((\s)+$)/g, ""); //sourcemap problems?
-//    } else {
-//      return result;
-//    }
-
 //2.4.0
 //    ParseTree.prototype.toCSS = function(options) {
 //        var evaldRoot, result = {}, sourceMapBuilder;

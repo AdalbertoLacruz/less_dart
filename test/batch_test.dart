@@ -24,7 +24,7 @@ bool sync = true;
 /// example: int testNumResults = 16;
 int testNumResults;
 
-bool useExtendedTest = true;
+bool useExtendedTest = false;
 
 main() {
   config = configFill();
@@ -95,9 +95,9 @@ void runAsync() {
        1: def('colors'),
        2: def('comments'),
        //3: def('comments2'), //TODO pending upgrade 2.2.0 Ruleset.eval and parserInput.start()
-       4: def('css-3'), //TODO 2.2.0
+       4: def('css-3'), //TODO @-ms-viewport
        5: def('css-escapes'),
-       6: def('css-guards'),
+       6: def('css-guards'), //2.4.0
        7: def('css'),
        8: def('detached-rulesets'),
        9: def('empty'),
@@ -108,14 +108,14 @@ void runAsync() {
       14: def('extend-nest', options: ['--log-level=1']),
       15: def('extend-selector'),
       16: def('extend', options: ['--log-level=1']),
-      17: def('extract-and-length'),
-      18: def('functions'),
+      17: def('extract-and-length'), //2.4.0
+      18: def('functions'), //2.4.0
       19: def('ie-filters'),
       20: def('import-inline'),
-      21: def('import-interpolation'),
+      21: def('import-interpolation'), // 2.4.0
       22: def('import-once'),
       23: def('import-reference', options: ['--log-level=1']),
-      24: def('import'), //TODO 2.2.0
+      24: def('import'), //2.4.0 except TODO import optional (26/1/2015)
       //25: def('javascript'),
       30: def('lazy-eval'),
       31: def('media'),
@@ -123,9 +123,9 @@ void runAsync() {
       33: def('mixins-args'),
       34: def('mixins-closure'),
       35: def('mixins-guards-default-func'),
-      36: def('mixins-guards'), //TODO 2.2.0
+      36: def('mixins-guards'), //2.4.0
       37: def('mixins-important'),
-      38: def('mixins-interpolated'),
+      38: def('mixins-interpolated'), //2.4.0
       39: def('mixins-named-args'),
       40: def('mixins-nested'),
       41: def('mixins-pattern'),
@@ -136,12 +136,13 @@ void runAsync() {
       46: def('property-name-interp'),
       47: def('rulesets'),
       48: def('scope'),
-      49: def('selectors'), //TODO 2.2.0
-      50: def('strings'), //TODO 2.2.0
-      51: def('urls', options: ['--silent']),
+      49: def('selectors'), //2.4.0
+      50: def('strings'), //2.4.0
+      51: def('urls', options: ['--silent']), //2.4.0
       52: def('variables-in-at-rules'),
-      53: def('variables'),
+      53: def('variables'), //2.4.0
       54: def('whitespace'),
+      55: def('strict-units/strict-units', options: ['--strict-math=on', '--strict-units=on']), //2.4.0
 
       // compression
       60: def('compression/compression', options: ['-x']),
@@ -259,6 +260,7 @@ void runAsync() {
       150: def('errors/property-in-root3', isErrorTest: true),
       151: def('errors/property-interp-not-defined', isErrorTest: true),
       152: def('errors/recursive-variable', isErrorTest: true),
+      1520: def('errors/single-character', isErrorTest: true),
       153: def('errors/svg-gradient1', isErrorTest: true),
       154: def('errors/svg-gradient2', isErrorTest: true),
       155: def('errors/svg-gradient3', isErrorTest: true),

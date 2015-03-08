@@ -10,12 +10,11 @@ import '../contexts.dart';
 import '../functions/functions.dart';
 import '../less_error.dart';
 import '../less_options.dart';
+//import '../logger.dart';
 import '../output.dart';
-//import '../sourcemap/sourcemap.dart';
 import '../data/colors.dart';
 import '../data/unit_conversions.dart';
 import '../environment/environment.dart';
-//import '../render/render.dart';
 import '../visitor/visitor_base.dart';
 
 part 'alpha.dart';

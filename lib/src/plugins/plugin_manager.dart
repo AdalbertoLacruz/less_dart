@@ -49,7 +49,6 @@ class PluginManager {
   ///
   /// Adds a visitor. The visitor object has options on itself to determine
   /// when it should run.
-  /// @param visitor
   ///
   //2.4.0 ok
   void addVisitor(VisitorBase visitor) {

@@ -1,4 +1,4 @@
-//source: less/import-manager.js 2.3.1
+//source: less/import-manager.js 2.4.0
 
 library importmanager.less;
 
