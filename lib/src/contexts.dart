@@ -260,10 +260,10 @@ class Contexts {
     newctx.dumpLineNumbers    = options.dumpLineNumbers; //removed 2.2.0
     newctx.pluginManager      = options.pluginManager; // Used as the plugin manager for the session. TODO 2.2.0
 //    newctx.importantScope     = options.importantScope; // Used to bubble up !important statements. TODO 2.2.0
-
+    newctx.paths              = options.paths;
     if (options is Contexts) {
       Contexts context  = options as Contexts;
-      newctx.paths          = context.paths;
+
       newctx.defaultFunc    = context.defaultFunc;
       newctx.importantScope = context.importantScope;
     }

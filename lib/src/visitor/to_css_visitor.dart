@@ -134,7 +134,7 @@ class ToCSSVisitor extends VisitorBase{
       // the directive was directly referenced and therefore needs to be shown in the output
       if (directiveNode.getIsReferenced()) return directiveNode;
 
-      if (directiveNode.rules == null || directiveNode.rules.rules == null) return null;
+      if (directiveNode.rules == null || (directiveNode.rules is List) || directiveNode.rules.rules == null) return null;
 
       // the directive was not directly referenced
       for (int r = 0; r < directiveNode.rules.rules.length; r++) {

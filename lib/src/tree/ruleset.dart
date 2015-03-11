@@ -871,12 +871,11 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   }
 
   ///
-  //2.3.1 TODO test
   Paren createParenthesis(List<Node> elementsToPak, Element originalElement) {
     Paren replacementParen;
 
-    if (elementsToPak.length == 1) { // 0?
-      replacementParen = new Paren(elementsToPak[0]); // TODO test
+    if (elementsToPak.length == 0) {
+      replacementParen = new Paren(null);
     } else {
       List  insideParent = [];
       for (int j = 0; j < elementsToPak.length; j++) {

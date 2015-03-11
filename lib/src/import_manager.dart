@@ -3,6 +3,7 @@
 library importmanager.less;
 
 import 'dart:async';
+import 'package:path/path.dart' as pathLib;
 
 import 'contexts.dart';
 import 'file_info.dart';
@@ -76,7 +77,8 @@ class ImportManager {
   ImportedFile fileParsedFunc(String path, root, String fullPath) {
     this.queue.remove(path);
     bool importedEqualsRoot = (fullPath == this.rootFilename);
-    this.files[fullPath] = root; // Store the root
+
+    if (fullPath != null) this.files[fullPath] = root; // Store the root
 
     return new ImportedFile(root, importedEqualsRoot, fullPath);
   }
@@ -134,11 +136,12 @@ class ImportManager {
       //   then rootpath should become 'less/../'
 
       newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
-      if (newFileInfo.relativeUrls) { //untested
-        newFileInfo.rootpath = fileManager.join(
-          getValueOrDefault(context.rootpath, ''),
-          fileManager.pathDiff(newFileInfo.currentDirectory, newFileInfo.entryPath)
-        );
+      if (newFileInfo.relativeUrls) {
+        String currentDirectory = newFileInfo.currentDirectory;
+        if (!currentDirectory.endsWith(pathLib.separator)) currentDirectory += pathLib.separator;
+        String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
+        newFileInfo.rootpath = fileManager.join(getValueOrDefault(context.rootpath, ''), pathdiff);
+
         if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
           newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
         }
@@ -164,7 +167,13 @@ class ImportManager {
         });
       }
     }).catchError((e){
-      task.completeError(e);
+      //importOptions.optional: continue compiling when file is not found
+      if (isTrue(importOptions.optional)) {
+        Ruleset r = new Ruleset([], []);
+        task.complete(fileParsedFunc(path, r, null));
+      } else {
+        task.completeError(e);
+      }
     });
 
     return task.future;

@@ -24,7 +24,7 @@ bool sync = true;
 /// example: int testNumResults = 16;
 int testNumResults;
 
-bool useExtendedTest = false;
+bool useExtendedTest = true;
 
 main() {
   config = configFill();
@@ -93,9 +93,9 @@ void runAsync() {
     return {
        0: def('charsets'), //@import
        1: def('colors'),
-       2: def('comments'),
+       2: def('comments'), //2.4.0
        //3: def('comments2'), //TODO pending upgrade 2.2.0 Ruleset.eval and parserInput.start()
-       4: def('css-3'), //TODO @-ms-viewport
+       4: def('css-3'), //2.4.0
        5: def('css-escapes'),
        6: def('css-guards'), //2.4.0
        7: def('css'),
@@ -114,8 +114,8 @@ void runAsync() {
       20: def('import-inline'),
       21: def('import-interpolation'), // 2.4.0
       22: def('import-once'),
-      23: def('import-reference', options: ['--log-level=1']),
-      24: def('import'), //2.4.0 except TODO import optional (26/1/2015)
+      23: def('import-reference', options: ['--log-level=1']), //2.4.0
+      24: def('import'), //2.4.0
       //25: def('javascript'),
       30: def('lazy-eval'),
       31: def('media'),
@@ -124,7 +124,7 @@ void runAsync() {
       34: def('mixins-closure'),
       35: def('mixins-guards-default-func'),
       36: def('mixins-guards'), //2.4.0
-      37: def('mixins-important'),
+      37: def('mixins-important'), //2.4.0
       38: def('mixins-interpolated'), //2.4.0
       39: def('mixins-named-args'),
       40: def('mixins-nested'),
@@ -138,7 +138,7 @@ void runAsync() {
       48: def('scope'),
       49: def('selectors'), //2.4.0
       50: def('strings'), //2.4.0
-      51: def('urls', options: ['--silent']), //2.4.0
+      51: def('urls', options: ['--relative-urls', '--silent']), //2.4.0
       52: def('variables-in-at-rules'),
       53: def('variables'), //2.4.0
       54: def('whitespace'),
@@ -188,7 +188,7 @@ void runAsync() {
 
       // static-urls
       68: def('static-urls/urls',
-          options: ['--rootpath=folder (1)/']),
+          options: ['--rootpath=folder (1)/']), //2.4.0
 
       //url-args
       69: def('url-args/urls',
@@ -205,6 +205,11 @@ void runAsync() {
       72: def('index-map-inline', isExtendedTest: true,
           isSourcemapTest: true, cssName: 'index-map-inline-expected',
           options: ['--source-map-map-inline', '--banner=webSourceMap/banner.txt']),
+      //73: sourcemaps-empty  TODO
+
+      //include-path
+      80: def('include-path/include-path',
+          options: ['--include-path=less/import;data']), //2.4.0
 
       //errors
       100: def('errors/add-mixed-units', isErrorTest: true),
@@ -226,7 +231,7 @@ void runAsync() {
       116: def('errors/extend-no-selector', isErrorTest: true),
       117: def('errors/extend-not-at-end',  isErrorTest: true),
       118: def('errors/import-malformed', isErrorTest: true),
-      119: def('errors/import-missing', isErrorTest: true),
+      119: def('errors/import-missing', isErrorTest: true), //2.4.0
       120: def('errors/import-no-semi', isErrorTest: true),
       121: def('errors/import-subfolder1', isErrorTest: true),
       122: def('errors/import-subfolder2', isErrorTest: true),
@@ -262,9 +267,14 @@ void runAsync() {
       152: def('errors/recursive-variable', isErrorTest: true),
       1520: def('errors/single-character', isErrorTest: true),
       153: def('errors/svg-gradient1', isErrorTest: true),
-      154: def('errors/svg-gradient2', isErrorTest: true),
-      155: def('errors/svg-gradient3', isErrorTest: true),
-      156: def('errors/unit-function', isErrorTest: true),
+      154: def('errors/svg-gradient2', isErrorTest: true), //2.4.0+
+      155: def('errors/svg-gradient3', isErrorTest: true), //2.4.0+
+      156: def('errors/svg-gradient4', isErrorTest: true), //2.4.0+
+      157: def('errors/svg-gradient5', isErrorTest: true), //2.4.0+
+      158: def('errors/svg-gradient6', isErrorTest: true), //2.4.0+
+      160: def('errors/unit-function', isErrorTest: true),
+      //
+      199: def('extendedTest/svg', isExtendedTest: true), //2.4.0+
       200: def('extendedTest/url', isExtendedTest: true),
       //absolute path
       201: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,

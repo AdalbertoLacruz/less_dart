@@ -531,6 +531,7 @@ class LessOptions {
     op.sourceMapOptions = this.sourceMapOptions;
     op.maxLineLen         = this.maxLineLen;
     op.pluginManager      = this.pluginManager;
+    op.paths              = this.paths;
     op.strictMath         = this.strictMath;
     op.strictUnits        = this.strictUnits;
     op.numPrecision       = this.numPrecision;

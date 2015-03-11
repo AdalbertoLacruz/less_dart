@@ -146,7 +146,7 @@ class FileManager {
   ///   url = 'a/'   baseUrl = 'a/b/' returns '../'
   ///   url = 'a/b/' baseUrl = 'a/'   returns 'b/'
   ///
-  //2.3.1 untested. pathLib.relative?
+  //2.3.1
   String pathDiff(String url, String baseUrl) {
     UrlParts urlParts = extractUrlParts(url);
     UrlParts baseUrlParts = extractUrlParts(baseUrl);
@@ -201,7 +201,7 @@ class FileManager {
   }
 
   ///
-  //2.3.1 untested
+  //2.3.1
   UrlParts extractUrlParts(String url, [String baseUrl]) {
     // urlParts[1] = protocol&hostname || /
     // urlParts[2] = / if path relative to host base
@@ -211,8 +211,12 @@ class FileManager {
 
     RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
     List<String> urlParts = [];
-    Iterable<Match> match = urlPartsRegex.allMatches(url);
-    if (match != null) match.forEach((Match m) => urlParts.add(m[0]));
+    Match match = urlPartsRegex.firstMatch(url);
+    if (match != null) {
+      for (int i = 0; i < match.groupCount; i++) {
+        urlParts.add(match[i]);
+      }
+    }
 
     UrlParts returner = new UrlParts();
     List<String> directories;
@@ -226,9 +230,14 @@ class FileManager {
 
     // Stylesheets in IE don't always return the full path
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
-      match = urlPartsRegex.allMatches(baseUrl);
+      match = urlPartsRegex.firstMatch(baseUrl);
       List<String> baseUrlParts = [];
-      if (match != null) match.forEach((Match m) => baseUrlParts.add(m[0]));
+      if (match != null) {
+        for (int i = 0; i < match.groupCount; i++) {
+          baseUrlParts.add(match[i]);
+        }
+      }
+
       if (baseUrlParts.isEmpty) {
         LessError error = new LessError(
                   message: "Could not parse page url - '${baseUrl}'");
@@ -256,6 +265,7 @@ class FileManager {
     }
 
     for (int i = 0; i < urlParts.length; i ++) if (urlParts[i] == null) urlParts[i] = '';
+    for (int i = urlParts.length; i < 6; i++) urlParts.add('');
 
     returner.hostPart = urlParts[1];
     returner.directories = directories;

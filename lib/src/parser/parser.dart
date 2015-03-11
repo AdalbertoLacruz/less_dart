@@ -109,7 +109,7 @@ class Parser {
 
     if (globalVars.isNotEmpty || banner.isNotEmpty) {
       preText = banner + globalVars;
-      preText = preText.replaceAll('\r\n', '\n');
+      preText = preText.replaceAll(new RegExp(r'\r\n?'), '\n');
       if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename)) {
         imports.contentsIgnoredChars[fileInfo.filename] = 0;
       }

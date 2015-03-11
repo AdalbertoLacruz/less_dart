@@ -26,8 +26,6 @@ class Visitor extends VisitorBase{
       if (this._implementation.isReplacing) node = newNode;
     }
 
-    if (node is List && node.isEmpty) return null; //TODO 2.3.1 remove - test 23
-
     if (this._visitArgs.visitDeeper && node != null && (node is Node)) node.accept(this);
 
     if (funcOut != null) funcOut(node);
