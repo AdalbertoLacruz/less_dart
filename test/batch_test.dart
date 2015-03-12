@@ -100,6 +100,7 @@ void runAsync() {
        6: def('css-guards'), //2.4.0
        7: def('css'),
        8: def('detached-rulesets'),
+       801: def('directives-bubling'), //2.4.0+1
        9: def('empty'),
       10: def('extend-chaining', options: ['--log-level=1']),
       11: def('extend-clearfix'),

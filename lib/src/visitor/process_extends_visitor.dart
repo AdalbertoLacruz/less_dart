@@ -822,8 +822,8 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
+    if (node is Media)      return this.visitMedia; //before Directive
     if (node is Directive)  return this.visitDirective;
-    if (node is Media)      return this.visitMedia;
     if (node is MixinDefinition) return this.visitMixinDefinition;
     if (node is Rule)       return this.visitRule;
     if (node is Ruleset)    return this.visitRuleset;
@@ -834,8 +834,8 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
+    if (node is Media)      return this.visitMediaOut; //before Directive
     if (node is Directive)  return this.visitDirectiveOut;
-    if (node is Media)      return this.visitMediaOut;
     if (node is Ruleset)    return this.visitRulesetOut;
 
     return null;

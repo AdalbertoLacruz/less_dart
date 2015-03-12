@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.4.0
+//source: less/to-css-visitor.js 2.4.0 -> 2.4.0+1
 
 part of visitor.less;
 
@@ -107,7 +107,50 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  //2.3.1 ok
+  bool hasVisibleChild(Directive directiveNode) {
+    //prepare list of childs
+    var rule;
+    List<Ruleset> bodyRules = directiveNode.rules;
+    // if there is only one nested ruleset and that one has no path, then it is
+    // just fake ruleset that got not replaced and we need to look inside it to
+    // get real childs
+    if (bodyRules.length == 1 && (bodyRules[0].paths == null || bodyRules[0].paths.isEmpty)) {
+      bodyRules = bodyRules[0].rules;
+    }
+
+    for (int r = 0; r < bodyRules.length; r++) {
+      var rule = bodyRules[r];
+      if (rule is GetIsReferencedNode && rule.getIsReferenced()) {
+        // the directive contains something that was referenced (likely by extend)
+        // therefore it needs to be shown in output too
+        return true;
+      }
+    }
+    return false;
+
+//2.4.0+1 inside VisitDirective
+//      function hasVisibleChild(directiveNode) {
+//          //prepare list of childs
+//          var rule, bodyRules = directiveNode.rules;
+//          //if there is only one nested ruleset and that one has no path, then it is
+//          //just fake ruleset that got not replaced and we need to look inside it to
+//          //get real childs
+//          if (bodyRules.length === 1 && (!bodyRules[0].paths || bodyRules[0].paths.length === 0)) {
+//              bodyRules = bodyRules[0].rules;
+//          }
+//          for (var r = 0; r < bodyRules.length; r++) {
+//              rule = bodyRules[r];
+//              if (rule.getIsReferenced && rule.getIsReferenced()) {
+//                  //the directive contains something that was referenced (likely by extend)
+//                  //therefore it needs to be shown in output too
+//                  return true;
+//              }
+//          }
+//          return false;
+//      }
+  }
+
+  ///
   visitDirective (Directive directiveNode, VisitArgs visitArgs) {
     if (directiveNode.name == '@charset') {
       if (!directiveNode.getIsReferenced()) return null;
@@ -125,8 +168,11 @@ class ToCSSVisitor extends VisitorBase{
       }
       this.charset = true;
     }
-    if (directiveNode.rules != null && directiveNode.rules.rules != null) {
-      this._mergeRules(directiveNode.rules.rules);
+    if (directiveNode.rules != null && directiveNode.rules.isNotEmpty) {
+      //it is still true that it is only one ruleset in array
+      // //this is last such moment
+      this._mergeRules(directiveNode.rules[0].rules);
+
       // process childs
       directiveNode.accept(this._visitor);
       visitArgs.visitDeeper = false;
@@ -134,20 +180,17 @@ class ToCSSVisitor extends VisitorBase{
       // the directive was directly referenced and therefore needs to be shown in the output
       if (directiveNode.getIsReferenced()) return directiveNode;
 
-      if (directiveNode.rules == null || (directiveNode.rules is List) || directiveNode.rules.rules == null) return null;
+      //if (directiveNode.rules == null || (directiveNode.rules is List) || directiveNode.rules.rules == null) return null;
+      if (directiveNode.rules == null || directiveNode.rules.isEmpty) return null;
 
-      // the directive was not directly referenced
-      for (int r = 0; r < directiveNode.rules.rules.length; r++) {
-        var rule = directiveNode.rules.rules[r];
-        if (rule is GetIsReferencedNode && rule.getIsReferenced()) {
-          // the directive contains something that was referenced (likely by extend)
-          // therefore it needs to be shown in output too
-
-          // marking as referenced in case the directive is stored inside another directive
-          directiveNode.markReferenced();
-          return directiveNode;
-        }
+      // the directive was not directly referenced - we need to check whether some of its childs
+      // was referenced
+      if (hasVisibleChild(directiveNode)) {
+        //marking as referenced in case the directive is stored inside another directive
+        directiveNode.markReferenced();
+        return directiveNode;
       }
+
       // The directive was not directly referenced and does not contain anything that
       // was referenced. Therefore it must not be shown in output.
       return null;
@@ -157,6 +200,145 @@ class ToCSSVisitor extends VisitorBase{
 
     return directiveNode;
 
+//2.4.0+1
+//  visitDirective: function(directiveNode, visitArgs) {
+//      if (directiveNode.name === "@charset") {
+//          if (!directiveNode.getIsReferenced()) {
+//              return;
+//          }
+//          // Only output the debug info together with subsequent @charset definitions
+//          // a comment (or @media statement) before the actual @charset directive would
+//          // be considered illegal css as it has to be on the first line
+//          if (this.charset) {
+//              if (directiveNode.debugInfo) {
+//                  var comment = new tree.Comment("/* " + directiveNode.toCSS(this._context).replace(/\n/g, "") + " */\n");
+//                  comment.debugInfo = directiveNode.debugInfo;
+//                  return this._visitor.visit(comment);
+//              }
+//              return;
+//          }
+//          this.charset = true;
+//      }
+//      function hasVisibleChild(directiveNode) {
+//          //prepare list of childs
+//          var rule, bodyRules = directiveNode.rules;
+//          //if there is only one nested ruleset and that one has no path, then it is
+//          //just fake ruleset that got not replaced and we need to look inside it to
+//          //get real childs
+//          if (bodyRules.length === 1 && (!bodyRules[0].paths || bodyRules[0].paths.length === 0)) {
+//              bodyRules = bodyRules[0].rules;
+//          }
+//          for (var r = 0; r < bodyRules.length; r++) {
+//              rule = bodyRules[r];
+//              if (rule.getIsReferenced && rule.getIsReferenced()) {
+//                  //the directive contains something that was referenced (likely by extend)
+//                  //therefore it needs to be shown in output too
+//                  return true;
+//              }
+//          }
+//          return false;
+//      }
+//
+//      if (directiveNode.rules && directiveNode.rules.length) {
+//          //it is still true that it is only one ruleset in array
+//          //this is last such moment
+//          this._mergeRules(directiveNode.rules[0].rules);
+//          //process childs
+//          directiveNode.accept(this._visitor);
+//          visitArgs.visitDeeper = false;
+//
+//          // the directive was directly referenced and therefore needs to be shown in the output
+//          if (directiveNode.getIsReferenced()) {
+//              return directiveNode;
+//          }
+//
+//          if (!directiveNode.rules || !directiveNode.rules.length) {
+//              return ;
+//          }
+//
+//          //the directive was not directly referenced - we need to check whether some of its childs
+//          //was referenced
+//          if (hasVisibleChild(directiveNode)) {
+//              //marking as referenced in case the directive is stored inside another directive
+//              directiveNode.markReferenced();
+//              return directiveNode;
+//          }
+//
+//          //The directive was not directly referenced and does not contain anything that
+//          //was referenced. Therefore it must not be shown in output.
+//          return ;
+//      } else {
+//          if (!directiveNode.getIsReferenced()) {
+//              return;
+//          }
+//      }
+//      return directiveNode;
+//  },
+//2.4.0+
+//  visitDirective: function(directiveNode, visitArgs) {
+//      if (directiveNode.name === "@charset") {
+//          if (!directiveNode.getIsReferenced()) {
+//              return;
+//          }
+//          // Only output the debug info together with subsequent @charset definitions
+//          // a comment (or @media statement) before the actual @charset directive would
+//          // be considered illegal css as it has to be on the first line
+//          if (this.charset) {
+//              if (directiveNode.debugInfo) {
+//                  var comment = new tree.Comment("/* " + directiveNode.toCSS(this._context).replace(/\n/g, "") + " */\n");
+//                  comment.debugInfo = directiveNode.debugInfo;
+//                  return this._visitor.visit(comment);
+//              }
+//              return;
+//          }
+//          this.charset = true;
+//      }
+//      if (directiveNode.rules && directiveNode.rules.length) {
+//          //FIXME: unsure about this one, it is still true that it is only one ruleset in array
+//          //but maybe it should loop anyway
+//          this._mergeRules(directiveNode.rules[0].rules);
+//          //process childs
+//          directiveNode.accept(this._visitor);
+//          visitArgs.visitDeeper = false;
+//
+//          // the directive was directly referenced and therefore needs to be shown in the output
+//          if (directiveNode.getIsReferenced()) {
+//              return directiveNode;
+//          }
+//
+//          if (!directiveNode.rules || !directiveNode.rules.length) {
+//              return ;
+//          }
+//
+//          //the directive was not directly referenced
+//          //FIXME: lepsi komentar
+//          //if there is only one nested ruleset and that one has no path, then it means actual body is inside that
+//          //think on @font-face
+//          var bodyRules = directiveNode.rules;
+//          if (bodyRules.length === 1 && (!bodyRules[0].paths || bodyRules[0].paths.length === 0)) {
+//              bodyRules = bodyRules[0].rules;
+//          }
+//          for (var r = 0; r < bodyRules.length; r++) {
+//              var rule = bodyRules[r];
+//              if (rule.getIsReferenced && rule.getIsReferenced()) {
+//                  //the directive contains something that was referenced (likely by extend)
+//                  //therefore it needs to be shown in output too
+//
+//                  //marking as referenced in case the directive is stored inside another directive
+//                  directiveNode.markReferenced();
+//                  return directiveNode;
+//              }
+//          }
+//          //The directive was not directly referenced and does not contain anything that
+//          //was referenced. Therefore it must not be shown in output.
+//          return ;
+//      } else {
+//          if (!directiveNode.getIsReferenced()) {
+//              return;
+//          }
+//      }
+//      return directiveNode;
+//  },
 //2.3.1
 //  visitDirective: function(directiveNode, visitArgs) {
 //      if (directiveNode.name === "@charset") {
@@ -573,9 +755,9 @@ class ToCSSVisitor extends VisitorBase{
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
     if (node is Comment)    return this.visitComment;
+    if (node is Media)      return this.visitMedia; //before Directive
     if (node is Directive)  return this.visitDirective;
     if (node is Extend)     return this.visitExtend;
-    if (node is Media)      return this.visitMedia;
     if (node is MixinDefinition) return this.visitMixinDefinition;
     if (node is Rule)       return this.visitRule;
     if (node is Ruleset)    return this.visitRuleset;

@@ -105,7 +105,7 @@ class JoinSelectorVisitor extends VisitorBase{
   //2.3.1 ok
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
     List context = this.contexts.last;
-    (mediaNode.rules[0] as Ruleset).root = (context.isEmpty || (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
+    mediaNode.rules[0].root = (context.isEmpty || (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
 
 //2.3.1
 //  visitMedia: function (mediaNode, visitArgs) {
@@ -114,9 +114,26 @@ class JoinSelectorVisitor extends VisitorBase{
 //  }
   }
 
+  ///
+  void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
+    List context = this.contexts.last;
+    if (directiveNode.rules != null && directiveNode.rules.isNotEmpty) {
+      directiveNode.rules[0].root = context.isEmpty;
+    }
+
+//2.4.1+1
+//  visitDirective: function (directiveNode, visitArgs) {
+//      var context = this.contexts[this.contexts.length - 1];
+//      if (directiveNode.rules && directiveNode.rules.length) {
+//          directiveNode.rules[0].root = (context.length === 0 || null);
+//      }
+//  }
+  }
+
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media) return this.visitMedia;
+    if (node is Media) return this.visitMedia; //before Directive
+    if (node is Directive) return this.visitDirective;
     if (node is MixinDefinition) return this.visitMixinDefinition;
     if (node is Rule) return this.visitRule;
     if (node is Ruleset) return this.visitRuleset;

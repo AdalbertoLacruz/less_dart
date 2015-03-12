@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 2.4.0
+//source: less/tree/selector.js 2.4.0+
 
 part of tree.less;
 
@@ -86,6 +86,22 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //      newSelector.evaldCondition = evaldCondition;
 //      newSelector.mediaEmpty = this.mediaEmpty;
 //      return newSelector;
+//  };
+  }
+
+  ///
+  List<Selector> createEmptySelectors() {
+    Element el = new Element('', '&', this.index, this.currentFileInfo);
+    List<Selector> sels = [new Selector([el], null, null, this.index, this.currentFileInfo)];
+    sels[0].mediaEmpty = true;
+    return sels;
+
+//2.4.0+
+//  Selector.prototype.createEmptySelectors = function() {
+//      var el = new Element('', '&', this.index, this.currentFileInfo),
+//          sels = [new Selector([el], null, null, this.index, this.currentFileInfo)];
+//      sels[0].mediaEmpty = true;
+//      return sels;
 //  };
   }
 

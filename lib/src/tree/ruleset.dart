@@ -1344,6 +1344,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 // Ruleset and MixinDefinition shared code
 //-----------------------------------------------------------------------
 
+//2.4.0+
+//FIXME: following three functions are done like inside media
 class VariableMixin {
   List<Node> rules;
 
