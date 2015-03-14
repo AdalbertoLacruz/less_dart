@@ -1,3 +1,5 @@
+//2.4.0+7
+
 import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
@@ -93,57 +95,57 @@ void runAsync() {
     return {
        0: def('charsets'), //@import
        1: def('colors'),
-       2: def('comments'), //2.4.0
-       //3: def('comments2'), //TODO pending upgrade 2.2.0 Ruleset.eval and parserInput.start()
-       4: def('css-3'), //2.4.0
-       5: def('css-escapes'),
-       6: def('css-guards'), //2.4.0
-       7: def('css'),
-       8: def('detached-rulesets'), //2.4.0+7
-       801: def('directives-bubling'), //2.4.0+1
-       9: def('empty'),
-      10: def('extend-chaining', options: ['--log-level=1']),
-      11: def('extend-clearfix'),
-      12: def('extend-exact', options: ['--log-level=1']),
-      13: def('extend-media'),
-      14: def('extend-nest', options: ['--log-level=1']),
-      15: def('extend-selector'),
-      16: def('extend', options: ['--log-level=1']),
-      17: def('extract-and-length'), //2.4.0
-      18: def('functions'), //2.4.0 -> 2.4.0+2
-      19: def('ie-filters'),
-      20: def('import-inline'),
-      21: def('import-interpolation'), // 2.4.0
-      22: def('import-once'),
-      23: def('import-reference', options: ['--log-level=1']), //2.4.0+6
-      24: def('import'), //2.4.0
-      //25: def('javascript'),
+       2: def('comments'),
+       3: def('comments2', options: ['--strict-math=on']),
+       4: def('css'),
+       5: def('css-3'),
+       6: def('css-escapes'),
+       7: def('css-guards'),
+       8: def('detached-rulesets'),
+       9: def('directives-bubling'),
+      10: def('empty'),
+      11: def('extend', options: ['--log-level=1']),
+      12: def('extend-chaining', options: ['--log-level=1']),
+      13: def('extend-clearfix'),
+      14: def('extend-exact', options: ['--log-level=1']),
+      15: def('extend-media'),
+      16: def('extend-nest', options: ['--log-level=1']),
+      17: def('extend-selector'),
+      18: def('extract-and-length'),
+      19: def('functions'),
+      20: def('ie-filters'),
+      21: def('import'),
+      22: def('import-inline'),
+      23: def('import-interpolation'),
+      24: def('import-once'),
+      25: def('import-reference', options: ['--log-level=1']),
+      //26: def('javascript'),
       30: def('lazy-eval'),
       31: def('media'),
       32: def('merge'),
-      33: def('mixins-args'),
-      34: def('mixins-closure'),
-      35: def('mixins-guards-default-func'),
-      36: def('mixins-guards'), //2.4.0
-      37: def('mixins-important'), //2.4.0
-      38: def('mixins-interpolated'), //2.4.0
-      39: def('mixins-named-args'),
-      40: def('mixins-nested'),
-      41: def('mixins-pattern'),
-      42: def('mixins'),
+      33: def('mixins'),
+      34: def('mixins-args', options: ['--strict-math=on']),
+      35: def('mixins-closure'),
+      36: def('mixins-guards'),
+      37: def('mixins-guards-default-func'),
+      38: def('mixins-important'),
+      39: def('mixins-interpolated'),
+      40: def('mixins-named-args'),
+      41: def('mixins-nested'),
+      42: def('mixins-pattern'),
       43: def('no-output'),
       44: def('operations'),
-      45: def('parens'), //TODO 2.2.0
+      45: def('parens', options: ['--strict-math=on']),
       46: def('property-name-interp'),
       47: def('rulesets'),
       48: def('scope'),
-      49: def('selectors'), //2.4.0
-      50: def('strings'), //2.4.0
-      51: def('urls', options: ['--relative-urls', '--silent']), //2.4.0
-      52: def('variables-in-at-rules'),
-      53: def('variables'), //2.4.0
+      49: def('selectors'),
+      50: def('strings'),
+      51: def('urls', options: ['--relative-urls', '--silent']),
+      52: def('variables'),
+      53: def('variables-in-at-rules'),
       54: def('whitespace'),
-      55: def('strict-units/strict-units', options: ['--strict-math=on', '--strict-units=on']), //2.4.0
+      55: def('strict-units/strict-units', options: ['--strict-math=on', '--strict-units=on']),
 
       // compression
       60: def('compression/compression', options: ['-x']),
@@ -185,11 +187,11 @@ void runAsync() {
             {'from': '{pathimportesc}', 'to': escFile(absPath('less/debug/import'))}
           ]),
 
-      67: def('legacy/legacy'), //2.4.0+3
+      67: def('legacy/legacy'),
 
       // static-urls
       68: def('static-urls/urls',
-          options: ['--rootpath=folder (1)/']), //2.4.0
+          options: ['--rootpath=folder (1)/']),
 
       //url-args
       69: def('url-args/urls',
@@ -206,11 +208,11 @@ void runAsync() {
       72: def('index-map-inline', isExtendedTest: true,
           isSourcemapTest: true, cssName: 'index-map-inline-expected',
           options: ['--source-map-map-inline', '--banner=webSourceMap/banner.txt']),
-      //73: sourcemaps-empty  TODO
+      73: def('sourcemaps-empty/empty', options: ['--source-map-map-inline']),
 
       //include-path
       80: def('include-path/include-path',
-          options: ['--include-path=less/import;data']), //2.4.0
+          options: ['--include-path=less/import;data']),
 
       //errors
       100: def('errors/add-mixed-units', isErrorTest: true),
@@ -231,7 +233,7 @@ void runAsync() {
       116: def('errors/extend-no-selector', isErrorTest: true),
       117: def('errors/extend-not-at-end',  isErrorTest: true),
       118: def('errors/import-malformed', isErrorTest: true),
-      119: def('errors/import-missing', isErrorTest: true), //2.4.0
+      119: def('errors/import-missing', isErrorTest: true),
       120: def('errors/import-no-semi', isErrorTest: true),
       121: def('errors/import-subfolder1', isErrorTest: true),
       122: def('errors/import-subfolder2', isErrorTest: true),
@@ -265,16 +267,16 @@ void runAsync() {
       150: def('errors/property-in-root3', isErrorTest: true),
       151: def('errors/property-interp-not-defined', isErrorTest: true),
       152: def('errors/recursive-variable', isErrorTest: true),
-      1520: def('errors/single-character', isErrorTest: true),
-      153: def('errors/svg-gradient1', isErrorTest: true),
-      154: def('errors/svg-gradient2', isErrorTest: true), //2.4.0+
-      155: def('errors/svg-gradient3', isErrorTest: true), //2.4.0+
-      156: def('errors/svg-gradient4', isErrorTest: true), //2.4.0+
-      157: def('errors/svg-gradient5', isErrorTest: true), //2.4.0+
-      158: def('errors/svg-gradient6', isErrorTest: true), //2.4.0+
+      153: def('errors/single-character', isErrorTest: true),
+      154: def('errors/svg-gradient1', isErrorTest: true),
+      155: def('errors/svg-gradient2', isErrorTest: true),
+      156: def('errors/svg-gradient3', isErrorTest: true),
+      157: def('errors/svg-gradient4', isErrorTest: true),
+      158: def('errors/svg-gradient5', isErrorTest: true),
+      159: def('errors/svg-gradient6', isErrorTest: true),
       160: def('errors/unit-function', isErrorTest: true),
       //
-      199: def('extendedTest/svg', isExtendedTest: true), //2.4.0+
+      199: def('extendedTest/svg', isExtendedTest: true),
       200: def('extendedTest/url', isExtendedTest: true),
       //absolute path
       201: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
