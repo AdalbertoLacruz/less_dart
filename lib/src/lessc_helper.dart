@@ -1,4 +1,4 @@
-//source: lib/less-node/lessc-helper.js 1.7.5  -> 2.4.0
+//source: lib/less-node/lessc-helper.js 2.4.0+8
 
 library helper.less;
 
@@ -34,6 +34,7 @@ class LesscHelper {
     console.log("  --strict-imports         Force evaluation of imports.");
     console.log("  --insecure               Allow imports from insecure https hosts.");
     console.log("  -v, --version            Print version number and exit.");
+    console.log("  --verbose                Be verbose.");
     console.log("  -x, --compress           Compress output by removing some whitespaces.");
     console.log("  --source-map[=FILENAME]  Outputs a v3 sourcemap to the filename (or output filename.map)");
     console.log("  --source-map-rootpath=X  adds this path onto the sourcemap filename and less file paths");
@@ -72,7 +73,6 @@ class LesscHelper {
     console.log("                           that will output the information within a fake");
     console.log("                           media query which is compatible with the SASS");
     console.log("                           format, and 'all' which will do both.");
-    console.log("  --verbose                Be verbose.");
     console.log("");
     console.log("Report bugs to: http://github.com/less/less.js/issues");
     console.log("Home page: <http://lesscss.org/>");

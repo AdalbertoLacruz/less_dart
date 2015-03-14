@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.4.0 -> 2.4.0+1
+//source: less/to-css-visitor.js 2.4.0+6
 
 part of visitor.less;
 
@@ -103,6 +103,20 @@ class ToCSSVisitor extends VisitorBase{
 //          return;
 //      }
 //      return mediaNode;
+//  },
+  }
+
+  ///
+  Import visitImport(Import importNode, VisitArgs visitArgs) {
+    if (importNode.path.currentFileInfo.reference && importNode.css) return null;
+    return importNode;
+
+//2.4.0+6
+//  visitImport: function (importNode, visitArgs) {
+//      if (importNode.path.currentFileInfo.reference !== undefined && importNode.css) {
+//          return;
+//      }
+//      return importNode;
 //  },
   }
 
@@ -758,6 +772,7 @@ class ToCSSVisitor extends VisitorBase{
     if (node is Media)      return this.visitMedia; //before Directive
     if (node is Directive)  return this.visitDirective;
     if (node is Extend)     return this.visitExtend;
+    if (node is Import)     return this.visitImport;
     if (node is MixinDefinition) return this.visitMixinDefinition;
     if (node is Rule)       return this.visitRule;
     if (node is Ruleset)    return this.visitRuleset;

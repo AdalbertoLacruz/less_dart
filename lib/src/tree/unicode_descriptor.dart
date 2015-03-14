@@ -1,4 +1,4 @@
-//source: less/tree/unicode-descriptor.js 2.3.1
+//source: less/tree/unicode-descriptor.js 2.4.0
 
 part of tree.less;
 

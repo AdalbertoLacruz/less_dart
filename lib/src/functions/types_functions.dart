@@ -14,9 +14,18 @@ class TypesFunctions extends FunctionBase {
     // handle non-array values as an array of length 1
     // return null if index is invalid
     List<Node> items = (node.value is List) ? node.value : [node];
-    items.retainWhere((item) => item is! Comment);
+    //items.retainWhere((item) => item is! Comment);
     return items;
 
+//2.4.0+2
+//  getItemsFromNode = function(node) {
+//      // handle non-array values as an array of length 1
+//      // return 'undefined' if index is invalid
+//      var items = Array.isArray(node.value) ?
+//          node.value : Array(node);
+//
+//      return items;
+//  };
 //2.4.0
 //  getItemsFromNode = function(node) {
 //      // handle non-array values as an array of length 1

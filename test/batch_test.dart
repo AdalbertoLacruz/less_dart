@@ -99,7 +99,7 @@ void runAsync() {
        5: def('css-escapes'),
        6: def('css-guards'), //2.4.0
        7: def('css'),
-       8: def('detached-rulesets'),
+       8: def('detached-rulesets'), //2.4.0+7
        801: def('directives-bubling'), //2.4.0+1
        9: def('empty'),
       10: def('extend-chaining', options: ['--log-level=1']),
@@ -110,12 +110,12 @@ void runAsync() {
       15: def('extend-selector'),
       16: def('extend', options: ['--log-level=1']),
       17: def('extract-and-length'), //2.4.0
-      18: def('functions'), //2.4.0
+      18: def('functions'), //2.4.0 -> 2.4.0+2
       19: def('ie-filters'),
       20: def('import-inline'),
       21: def('import-interpolation'), // 2.4.0
       22: def('import-once'),
-      23: def('import-reference', options: ['--log-level=1']), //2.4.0
+      23: def('import-reference', options: ['--log-level=1']), //2.4.0+6
       24: def('import'), //2.4.0
       //25: def('javascript'),
       30: def('lazy-eval'),
@@ -185,7 +185,7 @@ void runAsync() {
             {'from': '{pathimportesc}', 'to': escFile(absPath('less/debug/import'))}
           ]),
 
-      67: def('legacy/legacy'),
+      67: def('legacy/legacy'), //2.4.0+3
 
       // static-urls
       68: def('static-urls/urls',
@@ -225,7 +225,6 @@ void runAsync() {
       109: def('errors/detached-ruleset-1', isErrorTest: true),
       110: def('errors/detached-ruleset-2', isErrorTest: true),
       111: def('errors/detached-ruleset-3', isErrorTest: true),
-      112: def('errors/detached-ruleset-4', isErrorTest: true),
       113: def('errors/detached-ruleset-5', isErrorTest: true),
       114: def('errors/detached-ruleset-6', isErrorTest: true),
       115: def('errors/divide-mixed-units', isErrorTest: true),

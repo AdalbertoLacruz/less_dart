@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.4.0
+//source: less/tree/import.js 2.4.0+6
 
 part of tree.less;
 
@@ -95,9 +95,9 @@ class Import extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
-    if (this.css) {
+    //if (this.css && this.path.currentFileInfo.reference == null) {
+    if (this.css && !this.path.currentFileInfo.reference) {
       output.add('@import ', this.currentFileInfo, this.index);
       this.path.genCSS(context, output);
       if (this.features != null) {
@@ -107,9 +107,9 @@ class Import extends Node {
       output.add(';');
     }
 
-//2.3.1
+//2.4.0+6
 //  Import.prototype.genCSS = function (context, output) {
-//      if (this.css) {
+//      if (this.css && this.path.currentFileInfo.reference === undefined) {
 //          output.add("@import ", this.currentFileInfo, this.index);
 //          this.path.genCSS(context, output);
 //          if (this.features) {

@@ -1,4 +1,4 @@
-// source: parser/chunker.js 2.2.0
+// source: parser/chunker.js 2.4.0
 
 part of parser.less;
 

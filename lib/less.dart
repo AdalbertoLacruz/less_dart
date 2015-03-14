@@ -62,7 +62,7 @@ class Less {
 
       File file = new File(filename);
       if (!file.existsSync()) {
-        logger.log('Error cannot open file ${_options.input}');
+        logger.error('Error cannot open file ${_options.input}');
         currentErrorCode = 3;
         return new Future.value(currentErrorCode);
       }
@@ -72,7 +72,7 @@ class Less {
         return parseLessFile(content);
       })
       .catchError((e){
-        logger.log('Error reading ${_options.input}');
+        logger.error('Error reading ${_options.input}');
         currentErrorCode = 3;
         return new Future.value(currentErrorCode);
       });
@@ -136,7 +136,7 @@ class Less {
         }
 
       } on LessExceptionError catch (e) {
-        logger.log(e.toString());
+        logger.error(e.toString());
         currentErrorCode = 2;
         return new Future.value(currentErrorCode);
       }
@@ -144,7 +144,7 @@ class Less {
       return new Future.value(currentErrorCode);
     })
     .catchError((e){
-      logger.log(e.toString());
+      logger.error(e.toString());
       currentErrorCode = 1;
       return new Future.value(currentErrorCode);
     });

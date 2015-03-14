@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 2.4.0
+//source: less/tree/dimension.js 2.4.0+3
 
 part of tree.less;
 
@@ -125,15 +125,16 @@ class Dimension extends Node implements CompareNode, OperateNode {
   /// we default to the first Dimension's unit,
   /// so `1px + 2` will yield `3px`.
   ///
-  //2.3.1 ok
   Dimension operate(Contexts context, String op, Dimension other) {
     num value = _operate(context, op, this.value, other.value);
     Unit unit = this.unit.clone();
 
     if (op == '+' || op == '-') {
       if (unit.numerator.isEmpty && unit.denominator.isEmpty) {
-        unit.numerator = other.unit.numerator.sublist(0);
-        unit.denominator = other.unit.denominator.sublist(0);
+        unit = other.unit.clone();
+        if (this.unit.backupUnit != null) {
+            unit.backupUnit = this.unit.backupUnit;
+        }
       } else if (other.unit.numerator.isEmpty && unit.denominator.isEmpty) {
         // do nothing
       } else {
@@ -167,7 +168,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
 
     return new Dimension(value, unit);
 
-//2.3.1
+//2.4.0+3
 //  Dimension.prototype.operate = function (context, op, other) {
 //      /*jshint noempty:false */
 //      var value = this._operate(context, op, this.value, other.value),
@@ -175,16 +176,18 @@ class Dimension extends Node implements CompareNode, OperateNode {
 //
 //      if (op === '+' || op === '-') {
 //          if (unit.numerator.length === 0 && unit.denominator.length === 0) {
-//              unit.numerator = other.unit.numerator.slice(0);
-//              unit.denominator = other.unit.denominator.slice(0);
+//              unit = other.unit.clone();
+//              if (this.unit.backupUnit) {
+//                  unit.backupUnit = this.unit.backupUnit;
+//              }
 //          } else if (other.unit.numerator.length === 0 && unit.denominator.length === 0) {
 //              // do nothing
 //          } else {
 //              other = other.convertTo(this.unit.usedUnits());
 //
-//              if(context.strictUnits && other.unit.toString() !== unit.toString()) {
-//                throw new Error("Incompatible units. Change the units or use the unit function. Bad units: '" + unit.toString() +
-//                  "' and '" + other.unit.toString() + "'.");
+//              if (context.strictUnits && other.unit.toString() !== unit.toString()) {
+//                  throw new Error("Incompatible units. Change the units or use the unit function. Bad units: '" + unit.toString() +
+//                      "' and '" + other.unit.toString() + "'.");
 //              }
 //
 //              value = this._operate(context, op, this.value, other.value);
@@ -201,7 +204,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
 //      return new Dimension(value, unit);
 //  };
   }
-
 
 //--- CompareNode
 

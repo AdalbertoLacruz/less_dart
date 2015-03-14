@@ -1,4 +1,4 @@
-//source: tree/directive.js 2.3.1 lines 92-122
+//source: tree/directive.js 2.4.0 lines 92-122
 
 part of tree.less;
 

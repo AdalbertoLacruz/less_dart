@@ -1,4 +1,4 @@
-//source: less/parser.js 2.4.0 lines 578-810
+//source: less/parser.js 2.4.0+7 lines 578-810
 
 part of parser.less;
 
@@ -117,7 +117,6 @@ class Mixin {
   }
 
   ///
-  //2.2.0 ok
   MixinReturner args(bool isCall) {
     Node arg;
     List argsComma = [];
@@ -170,11 +169,7 @@ class Mixin {
             expressionContainsNamed = true;
           }
 
-          // we do not support setting a ruleset as a default variable - it doesn't make sense
-          // However if we do want to add it, there is nothing blocking it, just don't error
-          // and remove isCall dependency below
-          value = null;
-          if (isCall) value = parsers.detachedRuleset();
+          value = parsers.detachedRuleset();
           if (value == null) value = parsers.expression();
 
           if (value == null) {
@@ -223,6 +218,120 @@ class Mixin {
     returner.args = isSemiColonSeperated ? argsSemiColon : argsComma;
     return returner;
 
+//2.4.0+7
+//    args: function (isCall) {
+//      var entities = parsers.entities,
+//          returner = { args:null, variadic: false },
+//          expressions = [], argsSemiColon = [], argsComma = [],
+//          isSemiColonSeparated, expressionContainsNamed, name, nameLoop, value, arg;
+//
+//      parserInput.save();
+//
+//      while (true) {
+//          if (isCall) {
+//              arg = parsers.detachedRuleset() || parsers.expression();
+//          } else {
+//              parserInput.commentStore.length = 0;
+//              if (parserInput.currentChar() === '.' && parserInput.$re(/^\.{3}/)) {
+//                  returner.variadic = true;
+//                  if (parserInput.$char(";") && !isSemiColonSeparated) {
+//                      isSemiColonSeparated = true;
+//                  }
+//                  (isSemiColonSeparated ? argsSemiColon : argsComma)
+//                      .push({ variadic: true });
+//                  break;
+//              }
+//              arg = entities.variable() || entities.literal() || entities.keyword();
+//          }
+//
+//          if (!arg) {
+//              break;
+//          }
+//
+//          nameLoop = null;
+//          if (arg.throwAwayComments) {
+//              arg.throwAwayComments();
+//          }
+//          value = arg;
+//          var val = null;
+//
+//          if (isCall) {
+//              // Variable
+//              if (arg.value && arg.value.length == 1) {
+//                  val = arg.value[0];
+//              }
+//          } else {
+//              val = arg;
+//          }
+//
+//          if (val && val instanceof tree.Variable) {
+//              if (parserInput.$char(':')) {
+//                  if (expressions.length > 0) {
+//                      if (isSemiColonSeparated) {
+//                          error("Cannot mix ; and , as delimiter types");
+//                      }
+//                      expressionContainsNamed = true;
+//                  }
+//
+//                  value = parsers.detachedRuleset() || parsers.expression();
+//
+//                  if (!value) {
+//                      if (isCall) {
+//                          error("could not understand value for named argument");
+//                      } else {
+//                          parserInput.restore();
+//                          returner.args = [];
+//                          return returner;
+//                      }
+//                  }
+//                  nameLoop = (name = val.name);
+//              } else if (!isCall && parserInput.$re(/^\.{3}/)) {
+//                  returner.variadic = true;
+//                  if (parserInput.$char(";") && !isSemiColonSeparated) {
+//                      isSemiColonSeparated = true;
+//                  }
+//                  (isSemiColonSeparated ? argsSemiColon : argsComma)
+//                      .push({ name: arg.name, variadic: true });
+//                  break;
+//              } else if (!isCall) {
+//                  name = nameLoop = val.name;
+//                  value = null;
+//              }
+//          }
+//
+//          if (value) {
+//              expressions.push(value);
+//          }
+//
+//          argsComma.push({ name:nameLoop, value:value });
+//
+//          if (parserInput.$char(',')) {
+//              continue;
+//          }
+//
+//          if (parserInput.$char(';') || isSemiColonSeparated) {
+//
+//              if (expressionContainsNamed) {
+//                  error("Cannot mix ; and , as delimiter types");
+//              }
+//
+//              isSemiColonSeparated = true;
+//
+//              if (expressions.length > 1) {
+//                  value = new(tree.Value)(expressions);
+//              }
+//              argsSemiColon.push({ name:name, value:value });
+//
+//              name = null;
+//              expressions = [];
+//              expressionContainsNamed = false;
+//          }
+//      }
+//
+//      parserInput.forget();
+//      returner.args = isSemiColonSeparated ? argsSemiColon : argsComma;
+//      return returner;
+//  },
 //2.2.0
 //  args: function (isCall) {
 //      var entities = parsers.entities,

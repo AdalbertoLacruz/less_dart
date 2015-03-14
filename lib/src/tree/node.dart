@@ -1,4 +1,4 @@
-//source: less/tree/node.js 2.3.1
+//source: less/tree/node.js 2.4.0
 
 part of tree.less;
 
@@ -12,6 +12,7 @@ class Node {
   /// hashCode own or inherited for object compare
   int id;
 
+  FileInfo currentFileInfo;
   bool isRuleset = false; //true in MixinDefinition & Ruleset
   var name;
   var operands;

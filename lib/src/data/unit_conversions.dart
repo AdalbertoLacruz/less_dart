@@ -1,4 +1,4 @@
-//source: less/data/unit-conversions.js 2.2.0
+//source: less/data/unit-conversions.js 2.4.0
 
 library unitconversions.less;
 
@@ -25,9 +25,9 @@ class UnitConversions {
     'ms': 0.001
   };
   static Map<String, double> angle = {
-    'rad': 1/(2*math.PI),
-    'deg': 1/360,
-    'grad': 1/400,
+    'rad':  1 / (2*math.PI),
+    'deg':  1 / 360,
+    'grad': 1 / 400,
     'turn': 1
   };
 

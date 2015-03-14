@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.4.0 lines 91-451
+// source: less/extend-visitor.js 2.4.0+4 lines 91-451
 
 part of visitor.less;
 
@@ -776,12 +776,16 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMediaOut (Media mediaNode) {
     int lastIndex = this.allExtendsStack.length - 1;
-    this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
+    //this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
     this.allExtendsStack.removeLast();
 
+//2.4.0+4
+//  visitMediaOut: function (mediaNode) {
+//      var lastIndex = this.allExtendsStack.length - 1;
+//      this.allExtendsStack.length = lastIndex;
+//  },
 //2.3.1
 //  visitMediaOut: function (mediaNode) {
 //      var lastIndex = this.allExtendsStack.length - 1;
@@ -806,12 +810,16 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitDirectiveOut (Directive directiveNode) {
     int lastIndex = this.allExtendsStack.length - 1;
-    this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
+    //this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
     this.allExtendsStack.removeLast();
 
+//2.4.0+4
+//  visitDirectiveOut: function (directiveNode) {
+//      var lastIndex = this.allExtendsStack.length - 1;
+//      this.allExtendsStack.length = lastIndex;
+//  }
 //2.3.1
 //  visitDirectiveOut: function (directiveNode) {
 //      var lastIndex = this.allExtendsStack.length - 1;

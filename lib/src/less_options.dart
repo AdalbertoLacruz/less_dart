@@ -167,7 +167,7 @@ class LessOptions {
 
   RegExp pluginRe = new RegExp(r'^([^=]+)(=(.*))?'); //plugin arguments split
 
-  String warningMessages = '';
+  //String warningMessages = '';
 
   ///
   LessOptions() {
@@ -358,8 +358,8 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.log('Unable to load plugin ${name} please make sure that it is installed under or at the same level as less\n');
-          printUsage();
+          logger.error('Unable to load plugin ${name} please make sure that it is installed under or at the same level as less\n');
+          //printUsage();
           parseError = true;
           return false;
         }
@@ -369,7 +369,7 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.log('Unable to interpret argument ${command} - if it is a plugin (less-plugin-${command}), make sure that it is installed under or at the same level as less\n');
+          logger.error('Unable to interpret argument ${command} - if it is a plugin (less-plugin-${command}), make sure that it is installed under or at the same level as less\n');
           printUsage();
           parseError = true;
           return false;
@@ -379,7 +379,7 @@ class LessOptions {
   }
 
   bool setParseError([String option]) {
-    if(option != null) logger.log('unrecognised less option $option');
+    if(option != null) logger.error('unrecognised less option $option');
     parseError = true;
     return false;
   }
@@ -390,7 +390,7 @@ class LessOptions {
   //2.4.0 ok
   bool checkArgFunc(String command, String option) {
     if(option == null) {
-      logger.log('$command option requires a parameter');
+      logger.error('$command option requires a parameter');
       return false;
     }
     return true;
@@ -405,7 +405,7 @@ class LessOptions {
     RegExp onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
     Match match;
     if ((match = onOff.firstMatch(arg)) == null){
-      logger.log(' unable to parse $arg as a boolean. use one of on/t/true/y/yes/off/f/false/n/no');
+      logger.error(' unable to parse $arg as a boolean. use one of on/t/true/y/yes/off/f/false/n/no');
       return null;
     }
     if (match[1] != null) return true;
@@ -446,7 +446,7 @@ class LessOptions {
         paths.insert(0, inputDirName);
       }
     } else {
-      logger.log('lessc: no input files\n');
+      logger.error('lessc: no input files\n');
       printUsage();
       parseError = true;
       return false;
@@ -455,7 +455,7 @@ class LessOptions {
     if (output.isNotEmpty) {
       outputBase = output;
       //output = path.normalize(path.absolute(output)); //use absolute path
-      if (warningMessages.isNotEmpty) logger.log(warningMessages);
+      //if (warningMessages.isNotEmpty) logger.log(warningMessages);
     }
 
     if(sourceMap) {
@@ -508,7 +508,7 @@ class LessOptions {
 
     if(depends) {
       if(outputBase.isEmpty) {
-        logger.log('option --depends requires an output path to be specified');
+        logger.error('option --depends requires an output path to be specified');
         parseError = true;
         return false;
       }
