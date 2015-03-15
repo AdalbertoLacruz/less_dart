@@ -136,7 +136,6 @@ class StringFunctions extends FunctionBase {
       return new Quoted('', result, null);
     }
 
-
 //2.4.0
 //  '%': function (string /* arg, arg, ...*/) {
 //      var args = Array.prototype.slice.call(arguments, 1),

@@ -32,12 +32,10 @@ class SvgFunctions extends FunctionBase {
     }
 
     Node direction = arguments[0];
-    //List<Node> stops = arguments.sublist(1);
     List<Node> stops;
     String gradientDirectionSvg;
     String gradientType = 'linear';
     String rectangleDimension = 'x="0" y="0" width="1" height="1"';
-    //bool useBase64 = true;
     Contexts renderEnv = new Contexts()
                             ..compress = false
                             ..numPrecision = context.numPrecision;

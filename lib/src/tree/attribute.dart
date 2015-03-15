@@ -12,7 +12,6 @@ class Attribute extends Node {
   Attribute(this.key, this.op, this.value);
 
   ///
-  //2.3.1 ok
   Attribute eval(Contexts context) => new Attribute(
         this.key is Node ? this.key.eval(context) : this.key,
         this.op,
@@ -25,8 +24,6 @@ class Attribute extends Node {
 //  };
 
   ///
-  //No in tests
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.toCSS(context));
 
@@ -37,7 +34,6 @@ class Attribute extends Node {
   }
 
   ///
-  //2.3.1 ok
   String toCSS(Contexts context) {
     String value = (this.key is Node) ? this.key.toCSS(context) : this.key;
 

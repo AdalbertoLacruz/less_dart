@@ -11,7 +11,6 @@ class Assignment extends Node {
   Assignment(String this.key, Node this.value);
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
 
@@ -22,7 +21,6 @@ class Assignment extends Node {
   }
 
   ///
-  //2.3.1 ok
   Assignment eval(Contexts context) {
     if (this.value is Node) return new Assignment(this.key, this.value.eval(context));
     return this;
@@ -37,7 +35,6 @@ class Assignment extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.key + '=');
     if (this.value is Node) {

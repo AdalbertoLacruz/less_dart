@@ -4,7 +4,7 @@ part of tree.less;
 
 //2.3.1 extends from Directive
 //class Media extends Node with OutputRulesetMixin, VariableMixin implements MarkReferencedNode {
-class Media extends Directive {
+class Media extends DirectiveBase {
   Node features;
   int index;
   FileInfo currentFileInfo;
@@ -16,7 +16,7 @@ class Media extends Directive {
   final String type = 'Media';
 
   ///
-  Media(value, List features, [int this.index, FileInfo this.currentFileInfo]) :super._() {
+  Media(value, List features, [int this.index, FileInfo this.currentFileInfo]):super() {
     //List<Node> selectors = emptySelectors();
     List<Node> selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
 
@@ -35,21 +35,9 @@ class Media extends Directive {
 //      this.rules = [new Ruleset(selectors, value)];
 //      this.rules[0].allowImports = true;
 //  };
-//2.3.1
-//  var Media = function (value, features, index, currentFileInfo) {
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo;
-//
-//      var selectors = this.emptySelectors();
-//
-//      this.features = new Value(features);
-//      this.rules = [new Ruleset(selectors, value)];
-//      this.rules[0].allowImports = true;
-//  };
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.features != null) this.features = visitor.visit(this.features);
     if (this.rules != null) this.rules = visitor.visitArray(this.rules);
@@ -66,7 +54,6 @@ class Media extends Directive {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add('@media ', this.currentFileInfo, this.index);
     this.features.genCSS(context, output);
@@ -81,7 +68,6 @@ class Media extends Directive {
   }
 
   ///
-  //2.3.1 ok
   eval(Contexts context) {
     if (context.mediaBlocks == null) {
       context.mediaBlocks = [];
@@ -115,7 +101,6 @@ class Media extends Directive {
     context.mediaPath.removeLast();
 
     return context.mediaPath.isEmpty ? media.evalTop(context) : media.evalNested(context);
-
 
 //2.3.1
 //  Media.prototype.eval = function (context) {
@@ -157,63 +142,9 @@ class Media extends Directive {
 //  };
   }
 
-//VariableMixin and in Directive
-//  variable(name) {
-////    variable: function (name) { return tree.Ruleset.prototype.variable.call(this.rules[0], name); },
-//  }
-//
-//  find() {
-////    find: function () { return tree.Ruleset.prototype.find.apply(this.rules[0], arguments); },
-//  }
-//
-//  rulesets() {
-////    rulesets: function () { return tree.Ruleset.prototype.rulesets.apply(this.rules[0]); },
-//  }
-
-  // removed in 2.4.0+1
-//  List<Selector> emptySelectors() {
-//    Element el = new Element('', '&', index, currentFileInfo);
-//    List<Selector> sels = [new Selector([el],null, null, index, currentFileInfo)
-//                              ..mediaEmpty = true];
-//    return sels;
-
-//2.3.1
-//  Media.prototype.emptySelectors = function() {
-//      var el = new Element('', '&', this.index, this.currentFileInfo),
-//          sels = [new Selector([el], null, null, this.index, this.currentFileInfo)];
-//      sels[0].mediaEmpty = true;
-//      return sels;
-//  };
-//  }
-
-  //--- MarkReferencedNode
-
-  //in Directive
-//  void markReferenced() {
-//    List<Node> rules = this.rules[0].rules;
-//    this.rules[0].markReferenced();
-//    this.isReferenced = true;
-//    for (int i = 0; i < rules.length; i++) {
-//      if (rules[i] is MarkReferencedNode) (rules[i] as MarkReferencedNode).markReferenced();
-//    }
-
-//2.3.1
-//  Media.prototype.markReferenced = function () {
-//      var i, rules = this.rules[0].rules;
-//      this.rules[0].markReferenced();
-//      this.isReferenced = true;
-//      for (i = 0; i < rules.length; i++) {
-//          if (rules[i].markReferenced) {
-//              rules[i].markReferenced();
-//          }
-//      }
-//  };
-//  }
-
   ///
   /// Returns Media or Ruleset
   ///
-  //2.3.1 ok
   Node evalTop(Contexts context) {
     Node result = this;
 
@@ -246,26 +177,9 @@ class Media extends Directive {
 //
 //      return result;
 //  };
-//2.3.1
-//  Media.prototype.evalTop = function (context) {
-//      var result = this;
-//
-//      // Render all dependent Media blocks.
-//      if (context.mediaBlocks.length > 1) {
-//          var selectors = this.emptySelectors();
-//          result = new Ruleset(selectors, context.mediaBlocks);
-//          result.multiMedia = true;
-//      }
-//
-//      delete context.mediaBlocks;
-//      delete context.mediaPath;
-//
-//      return result;
-//  };
   }
 
   ///
-  //2.3.1 ok
   Node evalNested(Contexts context) {
     var value; //Node or List
     List<Media> mediaPath = context.mediaPath.sublist(0)..add(this);
@@ -342,7 +256,6 @@ class Media extends Directive {
   /// Converts [[Node1], [Node2], [Node3]] to [[Node1, Node2, Node3]]
   /// permute List 3x1 to List 1x3
   ///
-  //2.3.1 ok
   List<List> permute(List<List> arr) {
     if (arr.isEmpty) {
       return [];
@@ -380,7 +293,6 @@ class Media extends Directive {
   }
 
   ///
-  //2.3.1 ok
   void bubbleSelectors(List<Selector> selectors) {
     if (selectors == null) return;
     this.rules = [new Ruleset(selectors.sublist(0), [this.rules[0]])];

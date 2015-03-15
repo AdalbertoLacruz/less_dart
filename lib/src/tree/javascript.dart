@@ -11,7 +11,6 @@ class JavaScript extends Node with JsEvalNodeMixin {
   final String type = 'JavaScript';
 
   ///
-  //2.3.1 ok
   JavaScript(String this.expression, bool this.escaped, int this.index, this.currentFileInfo);
 
   // Not supported javascript

@@ -42,7 +42,6 @@ class Import extends Node {
   final String type = 'Import';
 
   ///
-  //2.3.1 ok
   Import(Node this.path, Node this.features, ImportOptions this.options, int this.index,
       [FileInfo this.currentFileInfo]) {
     RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
@@ -74,7 +73,6 @@ class Import extends Node {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.features != null) this.features = visitor.visit(this.features);
 
@@ -96,7 +94,6 @@ class Import extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    //if (this.css && this.path.currentFileInfo.reference == null) {
     if (this.css && !this.path.currentFileInfo.reference) {
       output.add('@import ', this.currentFileInfo, this.index);
       this.path.genCSS(context, output);
@@ -124,7 +121,6 @@ class Import extends Node {
   ///
   /// get the file path to import.
   ///
-  //2.3.1 ok
   String getPath() {
     RegExp rPath = new RegExp(r'(\.[a-z]*$)|([\?;].*)$'); //1.7.5 *****
 
@@ -148,7 +144,6 @@ class Import extends Node {
   }
 
   ///
-  //2.3.1 ok
   bool isVariableImport() {
     var path = this.path;
     if (path is URL) path = path.value;
@@ -172,7 +167,6 @@ class Import extends Node {
   ///
   /// Resolves @var in the path
   ///
-  //2.3.1 ok
   Import evalForImport(Contexts context) {
     Node path = this.path;
     if (path is URL) path = path.value;
@@ -190,7 +184,6 @@ class Import extends Node {
   }
 
   ///
-  //2.3.1 ok
   Node evalPath(Contexts context) {
     Node path = this.path.eval(context);
     String rootpath = (this.currentFileInfo != null) ? this.currentFileInfo.rootpath : null;
@@ -232,7 +225,6 @@ class Import extends Node {
   /// Replaces the @import rule with the imported ruleset
   /// Returns Node or List<Node>
   ///
-  //2.3.1 ok
    eval(Contexts context) {
     Node features = (this.features != null) ? this.features.eval(context) : null;
 

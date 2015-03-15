@@ -16,7 +16,6 @@ class Call extends Node {
   Call(this.name, this.args, this.index, this.currentFileInfo);
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.args != null) this.args = visitor.visitArray(this.args);
 
@@ -41,7 +40,6 @@ class Call extends Node {
   /// we try to pass a variable to a function, like: `saturate(@color)`.
   /// The function should receive the value, not the variable.
   ///
-  //2.3.1 ok
   eval(Contexts context) {
     List<Expression> args = this.args.map((a) => a.eval(context)).toList();
     FunctionCaller funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
@@ -89,7 +87,6 @@ class Call extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.name + '(', this.currentFileInfo, this.index);
 

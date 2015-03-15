@@ -10,13 +10,6 @@ class Negative extends Node {
   Negative (Node this.value);
 
   ///
-  //2.3.1 Remove
-  void accept(Visitor visitor) {
-    this.value = visitor.visit(this.value);
-  }
-
-  ///
-  //2.3.1 ok  - not in tests
   void genCSS(Contexts context, Output output) {
     output.add('-');
     this.value.genCSS(context, output);
@@ -29,7 +22,6 @@ class Negative extends Node {
   }
 
   ///
-  //2.3.1 ok
   eval(Contexts context) {
     if (context.isMathOn()) {
       return (new Operation('*', [new Dimension(-1), this.value])).eval(context);

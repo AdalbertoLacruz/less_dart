@@ -15,7 +15,6 @@ class Combinator extends Node {
   final String type = 'Combinator';
 
   ///
-  //2.3.1 ok
   Combinator (String value) {
     if (value == ' ') {
       this.value = ' ';
@@ -40,7 +39,6 @@ class Combinator extends Node {
   ///
   /// Writes value in [output]
   ///
-  //2.3.1 ok
   genCSS(Contexts context, Output output) {
     String spaceOrEmpty = (isTrue(context.compress) || isTrue(this._noSpaceCombinators[this.value])) ? '' : ' ';
     output.add(spaceOrEmpty + this.value + spaceOrEmpty);

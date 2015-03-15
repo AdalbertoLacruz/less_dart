@@ -181,7 +181,6 @@ class Contexts {
   ///
   /// Some are common to options and contexts
   ///
-  //1.7.5+ ok
   void parseCopyProperties(options) {
     if(options is! LessOptions && options is! Contexts) return;
 
@@ -197,14 +196,10 @@ class Contexts {
     mime                = options.mime;
     useFileCache        = options.useFileCache;
     processImports      = options.processImports;
-    //javascriptEnabled   = options.javascriptEnabled; //removed 2.2.0
-    //strictMath          = options.strictMath; //removed 2.2.0
     numPrecision        = options.numPrecision;
     color               = options.color;
-    //silent              = options.silent; //removed 2.2.0
     customFunctions     = options.customFunctions; //dart version
-//    reference           = options.reference; // Used to indicate that the contents are imported by reference //TODO 2.2.0
-    pluginManager       = options.pluginManager; // Used as the plugin manager for the session //TODO
+    pluginManager       = options.pluginManager;
 
     if (options is Contexts) {
       Contexts context  = options as Contexts;
@@ -245,20 +240,17 @@ class Contexts {
   static void evalCopyProperties(Contexts newctx, options) {
     if (options == null) return;
 
-    //newctx.silent             = options.silent; //removed 2.2.0
-    //newctx.verbose            = options.verbose; //removed 2.2.0
     newctx.compress           = options.compress;
     newctx.ieCompat           = options.ieCompat;
     newctx.strictMath         = options.strictMath;
     newctx.strictUnits        = options.strictUnits;
     newctx.numPrecision       = options.numPrecision;
-    //newctx.cleancss           = options.cleancss; //removed 2.2.0
     newctx.sourceMap          = options.sourceMap;
     newctx.importMultiple     = options.importMultiple;
     newctx.urlArgs            = options.urlArgs;
     newctx.javascriptEnabled  = options.javascriptEnabled;
     newctx.dumpLineNumbers    = options.dumpLineNumbers; //removed 2.2.0
-    newctx.pluginManager      = options.pluginManager; // Used as the plugin manager for the session. TODO 2.2.0
+    newctx.pluginManager      = options.pluginManager;
 //    newctx.importantScope     = options.importantScope; // Used to bubble up !important statements. TODO 2.2.0
     newctx.paths              = options.paths;
     if (options is Contexts) {
@@ -272,7 +264,6 @@ class Contexts {
   ///
   /// parensStack push
   ///
-  //2.2.0 ok
   void inParenthesis() {
     if (this.parensStack == null) this.parensStack = [];
     this.parensStack.add(true);
@@ -289,7 +280,6 @@ class Contexts {
   ///
   /// parensStack pop. Always return true.
   ///
-  //2.2.0 ok
   bool outOfParenthesis() => this.parensStack.removeLast();
 
 //2.2.0
@@ -298,7 +288,6 @@ class Contexts {
 //  };
 
   ///
-  //2.2.0 ok
   bool isMathOn() => this.strictMath ? (this.parensStack != null && this.parensStack.isNotEmpty) : true;
 
 //2.2.0
@@ -320,7 +309,6 @@ class Contexts {
   ///
   /// Resolves '.' and '..' in the path
   ///
-  //2.2.0 ok
   String normalizePath(String path) {
     List<String> segments = path.split('/').reversed.toList();
     String segment;

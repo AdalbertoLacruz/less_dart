@@ -2,7 +2,7 @@
 
 [Less](http://lesscss.org/)-transformer for [pub-serve](http://pub.dartlang.org/doc/pub-serve.html), [pub-build](http://pub.dartlang.org/doc/pub-build.html) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run.html)
 
-This is a traslation from less 1.7.5 Javascript (over nodejs) to Dart. 
+This is a traslation from less 2.4.0 Javascript (over nodejs) to Dart. 
 Is a pure Dart implementation for the server/developper side.
 
 
@@ -101,9 +101,8 @@ You can also pass options to less_dart if necessary:
 
 ## Known issues
 
-- Sources from lessc 1.7.5+.
 - Pass the standard tests in windows (no tested in linux).
-- cleanCSS not implemented yet.
+- cleanCSS (as plugin) not implemented yet.
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
 - Added option `--banner=bannerfile.txt`. Could change in next versions according to official version.
 - Javascript evaluation not supported. 

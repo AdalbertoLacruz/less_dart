@@ -8,7 +8,6 @@ class Value extends Node {
   final String type = 'Value';
 
   ///
-  //2.3.1 ok
   Value(List<Node> this.value) {
     if (this.value == null) throw new LessExceptionError(new LessError(
         message: 'Value requires an array argument'));
@@ -23,7 +22,6 @@ class Value extends Node {
 //  };
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.value != null) this.value = visitor.visitArray(this.value);
 
@@ -36,7 +34,6 @@ class Value extends Node {
   }
 
   ///
-  //2.3.1 ok
   Node eval(Contexts context) {
     if (this.value.length == 1) {
       return this.value.first.eval(context);
@@ -59,7 +56,6 @@ class Value extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     for (int i = 0; i < this.value.length; i++) {
       this.value[i].genCSS(context, output);

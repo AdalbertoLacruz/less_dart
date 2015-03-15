@@ -10,7 +10,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   Map<String, bool> extendIndicies;
 
   ///
-  //2.3.1 ok
   ProcessExtendsVisitor() {
     this._visitor = new Visitor(this);
 
@@ -21,7 +20,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   run(Node root) {
     ExtendFinderVisitor extendFinder = new ExtendFinderVisitor();
     this.extendIndicies = {};
@@ -48,7 +46,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   checkExtendsForNonMatched(List<Extend> extendList) {
     Logger logger = new Logger();
     Map<String, bool> indicies = this.extendIndicies;
@@ -98,7 +95,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   /// we look at each selector at a time, as is done in visitRuleset
   ///
   ///
-  //2.3.1 ok
   List<Extend> doExtendChaining(List<Extend> extendsList, List<Extend> extendsListTarget, [int iterationCount = 0]) {
     int extendIndex; // extendsList iterator
     int targetExtendIndex; //extendsListTarget iterator
@@ -287,7 +283,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRule(Rule ruleNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -298,7 +293,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -309,7 +303,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitSelector(Selector selectorNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -320,7 +313,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     if (rulesetNode.root) return;
 
@@ -392,7 +384,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   /// Returns an array of selector matches that can then be replaced
   ///
-  //2.3.1 ok
   List<MatchSelector> findMatch(Extend extend, List<Selector> haystackSelectorPath) {
     int haystackSelectorIndex; // haystackSelectorPath iteration
     Selector hackstackSelector;
@@ -405,7 +396,6 @@ class ProcessExtendsVisitor extends VisitorBase {
     List<MatchSelector> potentialMatches = [];
     MatchSelector potentialMatch;
     List<MatchSelector> matches = [];
-
 
     // loop through the haystack elements
     for(haystackSelectorIndex = 0; haystackSelectorIndex < haystackSelectorPath.length; haystackSelectorIndex++) {
@@ -547,7 +537,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   /// The elements could be String or Node
   ///
-  //2.3.1 ok
   bool isElementValuesEqual(elementValue1, elementValue2) {
     if (elementValue1 is String || elementValue2 is String) {
       return elementValue1 == elementValue2;
@@ -634,7 +623,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   /// For a set of matches, replace each match with the replacement selector
   ///
-  //2.3.1 ok
   List<Selector> extendSelector (List<MatchSelector> matches, List<Selector> selectorPath, Selector replacementSelector) {
     int currentSelectorPathIndex = 0;
     int currentSelectorPathElementIndex = 0;
@@ -753,7 +741,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRulesetOut (Ruleset rulesetNode) { }
 
 //2.3.1
@@ -761,7 +748,6 @@ class ProcessExtendsVisitor extends VisitorBase {
 //  },
 
   ///
-  //2.3.1 ok
   void visitMedia (Media mediaNode, VisitArgs visitArgs) {
     List<Extend> newAllExtends = mediaNode.allExtends.sublist(0)..addAll(this.allExtendsStack.last);
     newAllExtends.addAll(this.doExtendChaining(newAllExtends, mediaNode.allExtends));
@@ -778,7 +764,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   void visitMediaOut (Media mediaNode) {
     int lastIndex = this.allExtendsStack.length - 1;
-    //this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
     this.allExtendsStack.removeLast();
 
 //2.4.0+4
@@ -786,16 +771,9 @@ class ProcessExtendsVisitor extends VisitorBase {
 //      var lastIndex = this.allExtendsStack.length - 1;
 //      this.allExtendsStack.length = lastIndex;
 //  },
-//2.3.1
-//  visitMediaOut: function (mediaNode) {
-//      var lastIndex = this.allExtendsStack.length - 1;
-//      this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
-//      this.allExtendsStack.length = lastIndex;
-//  },
   }
 
   ///
-  //2.3.1 ok
   void visitDirective (Directive directiveNode, VisitArgs visitArgs) {
     List<Extend> newAllExtends =  directiveNode.allExtends.sublist(0)..addAll(this.allExtendsStack.last);
     newAllExtends.addAll(this.doExtendChaining(newAllExtends, directiveNode.allExtends));
@@ -812,7 +790,6 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   void visitDirectiveOut (Directive directiveNode) {
     int lastIndex = this.allExtendsStack.length - 1;
-    //this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
     this.allExtendsStack.removeLast();
 
 //2.4.0+4
@@ -820,17 +797,11 @@ class ProcessExtendsVisitor extends VisitorBase {
 //      var lastIndex = this.allExtendsStack.length - 1;
 //      this.allExtendsStack.length = lastIndex;
 //  }
-//2.3.1
-//  visitDirectiveOut: function (directiveNode) {
-//      var lastIndex = this.allExtendsStack.length - 1;
-//      this.checkExtendsForNonMatched(this.allExtendsStack[lastIndex]);
-//      this.allExtendsStack.length = lastIndex;
-//  }
   }
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media)      return this.visitMedia; //before Directive
+    if (node is Media)      return this.visitMedia;
     if (node is Directive)  return this.visitDirective;
     if (node is MixinDefinition) return this.visitMixinDefinition;
     if (node is Rule)       return this.visitRule;
@@ -842,7 +813,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
-    if (node is Media)      return this.visitMediaOut; //before Directive
+    if (node is Media)      return this.visitMediaOut;
     if (node is Directive)  return this.visitDirectiveOut;
     if (node is Ruleset)    return this.visitRulesetOut;
 

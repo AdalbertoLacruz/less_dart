@@ -1,4 +1,7 @@
-- Custom Functions, keep color name
+## v0.2.0 (2015-03-16)
+
+- Less 2.4.0 code.
+- Custom Functions.
 
 ## v0.1.4 (2015-01-12)
 

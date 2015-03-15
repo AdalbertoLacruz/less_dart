@@ -10,11 +10,6 @@ class RulesetCall extends Node {
   RulesetCall(String this.variable);
 
   ///
-  //2.3.1 TODO remove
-  void accept(Visitor visitor) {}
-
-  ///
-  //2.3.1
   Ruleset eval(Contexts context) {
     DetachedRuleset detachedRuleset = new Variable(this.variable).eval(context);
     return detachedRuleset.callEval(context);

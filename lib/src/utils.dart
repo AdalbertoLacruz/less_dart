@@ -8,7 +8,6 @@ class Utils {
   ///
   /// [index] is the character position in [inputStream]
   ///
-  //2.2.0 ok
   static LocationPoint getLocation(int index, String inputStream) {
     int n = (index >= inputStream.length - 1) ? inputStream.length : index + 1;
     int line;

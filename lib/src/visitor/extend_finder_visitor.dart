@@ -10,7 +10,6 @@ class ExtendFinderVisitor extends VisitorBase {
   bool foundExtends = false;
 
   ///
-  //2.3.1 ok
   ExtendFinderVisitor() {
     this._visitor = new Visitor(this);
     this.contexts = [];
@@ -25,7 +24,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   Ruleset run(Ruleset root) {
     root = this._visitor.visit(root);
     root.allExtends = this.allExtendsStack[0];
@@ -40,7 +38,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRule(Rule ruleNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -51,7 +48,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -62,7 +58,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     if (rulesetNode.root) return;
 
@@ -161,7 +156,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRulesetOut(Ruleset rulesetNode) {
     if (!rulesetNode.root) this.contexts.removeLast();
 
@@ -174,7 +168,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
     mediaNode.allExtends = [];
     this.allExtendsStack.add(mediaNode.allExtends);
@@ -187,7 +180,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMediaOut(Media mediaNode) {
     this.allExtendsStack.removeLast();
 
@@ -198,7 +190,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
     directiveNode.allExtends = [];
     this.allExtendsStack.add(directiveNode.allExtends);
@@ -211,7 +202,6 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitDirectiveOut(Directive directiveNode) {
     this.allExtendsStack.removeLast();
 

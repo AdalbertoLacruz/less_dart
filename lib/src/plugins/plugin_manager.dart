@@ -15,7 +15,6 @@ class PluginManager {
   ///
   /// Adds all the plugins in the List
   ///
-  //2.4.0 ok
   void addPlugins(List<Plugin> plugins) {
     if (plugins != null) {
       plugins.forEach((plugin) {this.addPlugin(plugin);});
@@ -34,7 +33,6 @@ class PluginManager {
   ///
   /// Install a [plugin]
   ///
-  //2.4.0 ok
   void addPlugin(Plugin plugin) {
     this.installedPlugins.add(plugin);
     plugin.install(this);
@@ -50,7 +48,6 @@ class PluginManager {
   /// Adds a visitor. The visitor object has options on itself to determine
   /// when it should run.
   ///
-  //2.4.0 ok
   void addVisitor(VisitorBase visitor) {
     this.visitors.add(visitor);
 
@@ -64,7 +61,6 @@ class PluginManager {
   /// Adds a [preProcessor] class
   /// [priority] guidelines: 1 = before import, 1000 = import, 2000 = after import
   ///
-  //2.4.0 ok
   void addPreProcessor(Processor preProcessor, [int priority = 1000]) {
     int indexToInsertAt;
 
@@ -91,7 +87,6 @@ class PluginManager {
   /// Adds a [postProcessor] class
   /// [priority] guidelines: 1 = before compression, 1000 = compression, 2000 = after compression
   ///
-  //2.4.0 ok
   void addPostProcessor(Processor postProcessor, [int priority = 1000]) {
     int indexToInsertAt;
     for (indexToInsertAt = 0; indexToInsertAt < this.postProcessors.length; indexToInsertAt++) {
@@ -114,7 +109,6 @@ class PluginManager {
   }
 
   ///
-  //2.4.0 ok
   void addFileManager(FileManager manager) {
     this.fileManagers.add(manager);
 
@@ -130,7 +124,6 @@ class PluginManager {
   }
 
   ///
-  //2.4.0 ok
   List<Processor> getPreProcessors() {
     List<Processor> preProcessors = [];
     this.preProcessors.forEach((item){preProcessors.add(item.preProcessor);});
@@ -147,7 +140,6 @@ class PluginManager {
   }
 
   ///
-  //2.4.0 ok
   List<Processor> getPostProcessors() {
     List<Processor> postProcessors = [];
     this.postProcessors.forEach((item){postProcessors.add(item.postProcessor);});
@@ -164,7 +156,6 @@ class PluginManager {
   }
 
   ///
-  //2.4.0 ok
   List<VisitorBase> getVisitors() => this.visitors;
 
 //2.4.0
@@ -173,7 +164,6 @@ class PluginManager {
 //  };
 
   ///
-  //2.4.0 ok
   List<FileManager> getFileManagers() => this.fileManagers;
 
 //2.4.0

@@ -21,7 +21,6 @@ class DebugInfo {
   ///
   /// Generates the String with the information
   ///
-  //2.3.1 ok
   String toOutput(Contexts context, [String lineSeparator = '']) {
     StringBuffer result;
 
@@ -62,7 +61,6 @@ class DebugInfo {
   }
 
   ///
-  //2.3.1 ok
   StringBuffer asComment() {
     StringBuffer result = new StringBuffer('/* line ')
                                 ..write(lineNumber)
@@ -78,7 +76,6 @@ class DebugInfo {
   }
 
   ///
-  //2.3.1 ok
   StringBuffer asMediaQuery() {
     RegExp reFileNameWithProtocol = new RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
     String filenameWithProtocol = fileName;

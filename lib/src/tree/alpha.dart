@@ -10,7 +10,6 @@ class Alpha extends Node {
   Alpha(this.value);
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
 
@@ -21,7 +20,6 @@ class Alpha extends Node {
   }
 
   ///
-  //2.3.1 ok
   Alpha eval(Contexts context) {
     if (this.value is Node) return new Alpha(this.value.eval(context));
     return this;
@@ -34,7 +32,6 @@ class Alpha extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add('alpha(opacity=');
 

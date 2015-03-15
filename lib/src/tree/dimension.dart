@@ -15,7 +15,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
   /// [value] is double or String
   /// [unit] is Unit or String
   ///
-  //2.3.1 ok
   Dimension(value, [unit = null]) {
     this.value = (value is String) ? double.parse(value) : value.toDouble();
 
@@ -34,7 +33,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     this.unit = visitor.visit(this.unit);
 
@@ -45,15 +43,12 @@ class Dimension extends Node implements CompareNode, OperateNode {
   }
 
   ///
-  //2.3.1 ok
   Dimension eval(Contexts context) => this;
 
   ///
-  //2.3.1 ok
   Color toColor() => new Color([this.value, this.value, this.value]);
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     if ((context != null && isTrue(context.strictUnits)) && !this.unit.isSingular()) {
       throw new LessExceptionError(new LessError(
@@ -210,7 +205,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
   ///
   /// Returns -1, 0 or +1
   ///
-  //2.3.1 ok
   int compare(Node otherNode) {
     if (otherNode is! Dimension) return null;
 
@@ -255,7 +249,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
   ///
   /// Normalize the units to px, s, or rad
   ///
-  //2.3.1 ok
   Dimension unify() => convertTo({ 'length': 'px', 'duration': 's', 'angle': 'rad' });
 
 //2.3.1
@@ -268,7 +261,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
   /// [conversions] ==  'px', 's' , ...
   /// or { length: 'px', duration: 's', angle: 'rad' }
   ///
-  //2.3.1 ok
   Dimension convertTo(conversions) {
     double value = this.value;
     Unit unit = this.unit.clone();

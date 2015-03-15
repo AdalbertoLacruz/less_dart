@@ -18,7 +18,6 @@ class Keyword extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     if (this.value == '%') {
       throw new LessExceptionError(new LessError(
@@ -33,21 +32,4 @@ class Keyword extends Node {
 //      output.add(this.value);
 //  };
   }
-
-//    toCSS: tree.toCSS,
-
-
-//--- CompareNode
-
-//  /// Returns -1, 0 or +1
-//  //2.3.1 - don't remove used by Node.compareNodes
-//  int compare(Node other) {
-//    new Logger().log('Keyword: ${this.value} - ${other.type}: ${other.value}');
-//
-//    if (other is Keyword) {
-//      return (other.value == this.value) ? 0 : 1;
-//    } else {
-//      return -1;
-//    }
-//  }
 }

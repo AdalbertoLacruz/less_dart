@@ -21,7 +21,6 @@ class Extend extends Node {
   final String type = 'Extend';
 
   ///
-  //2.3.1 ok
   Extend(Node this.selector, String this.option, int this.index) {
     this.object_id = next_id++;
     this.parent_ids = [this.object_id];
@@ -59,7 +58,6 @@ class Extend extends Node {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     this.selector = visitor.visit(this.selector);
 
@@ -70,7 +68,6 @@ class Extend extends Node {
   }
 
   ///
-  //2.3.1 ok
   Extend eval(Contexts context) => new Extend(this.selector.eval(context), this.option, this.index);
 
 //2.3.1
@@ -79,7 +76,7 @@ class Extend extends Node {
 //  };
 
   ///
-  //2.3.1 ok - // removed clone(context)
+  //removed clone(context)
   Node clone() => new Extend (this.selector, this.option, this.index);
 
 //2.3.1
@@ -88,7 +85,6 @@ class Extend extends Node {
 //  };
 
   ///
-  //2.3.1 ok
   void findSelfSelectors(List<Selector> selectors) {
     List selfElements = [];
     List<Element> selectorElements;

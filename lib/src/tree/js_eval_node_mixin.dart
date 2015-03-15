@@ -8,7 +8,6 @@ class JsEvalNodeMixin {
 
   ///
   /// JavaScript evaluation - not supported
-  //2.3.1
   String evaluateJavaScript(String expression, Contexts context) {
     String result;
     JsEvalNodeMixin that = this;
@@ -55,7 +54,6 @@ class JsEvalNodeMixin {
 
     result = expression;
     return result;
-
 
 //2.3.1
 //  JsEvalNode.prototype.evaluateJavaScript = function (expression, context) {
@@ -106,7 +104,6 @@ class JsEvalNodeMixin {
   }
 
   ///
-  //2.3.1
   String jsify(Node obj) {
     if (obj.value is List && obj.value.length > 1) {
       List result = (obj.value as List).map((Node v) => v.toCSS(null)).toList();

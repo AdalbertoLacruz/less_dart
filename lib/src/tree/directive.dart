@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Directive extends Node with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
+class Directive extends DirectiveBase {
   String name;
   Node value;
   List<Ruleset> rules;
@@ -13,11 +13,8 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
 
   final String type = 'Directive';
 
-  Directive._();
-
-  ///
   Directive(String this.name, Node this.value,  rules, int this.index,
-      FileInfo this.currentFileInfo, DebugInfo this.debugInfo, [bool this.isReferenced = false]) {
+      FileInfo this.currentFileInfo, DebugInfo this.debugInfo, [bool this.isReferenced = false]):super() {
 
     if (rules != null) {
       if (rules is List) {
@@ -52,6 +49,24 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
 //      this.isReferenced = isReferenced;
 //  };
   }
+}
+
+/// Base class for Directive and Media
+class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
+  String name;
+  Node value;
+  List<Ruleset> rules;
+  int index;
+  FileInfo currentFileInfo;
+  DebugInfo debugInfo;
+  bool isReferenced = false;
+
+  final String type = 'DirectiveBase';
+
+  DirectiveBase();
+
+  ///
+
 
   ///
   void accept(Visitor visitor) {
@@ -71,20 +86,9 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
 //          this.value = visitor.visit(value);
 //      }
 //  };
-//2.3.1
-//  Directive.prototype.accept = function (visitor) {
-//      var value = this.value, rules = this.rules;
-//      if (rules) {
-//          this.rules = visitor.visit(rules);
-//      }
-//      if (value) {
-//          this.value = visitor.visit(value);
-//      }
-//  };
   }
 
   ///
-  //2.3.1 ok
   bool isRulesetLike(bool root)  => (this.rules != null) || !this.isCharset();
 
 //2.3.1
@@ -93,7 +97,6 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
 //  };
 
   ///
-  //2.3.1 ok
   bool isCharset() => '@charset' == this.name;
 
   ///
@@ -240,7 +243,6 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
   //--- MarkReferencedNode
 
   ///
-  //2.3.1 ok
   void markReferenced() {
     List<Node> rules;
     this.isReferenced = true;
@@ -268,7 +270,6 @@ class Directive extends Node with OutputRulesetMixin, VariableMixin implements G
   }
 
   ///
-  //2.3.1 ok
   bool getIsReferenced() => (this.currentFileInfo == null)
                           || !this.currentFileInfo.reference
                           || this.isReferenced;

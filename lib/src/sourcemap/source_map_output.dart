@@ -22,7 +22,6 @@ class SourceMapOutput extends Output{
   Map<String, String> normalizeCache = {};
 
   ///
-  //2.4.0
   SourceMapOutput({Map<String, int> this.contentsIgnoredCharsMap,
                    Ruleset this.rootNode,
                    Map<String, String> this.contentsMap,
@@ -80,7 +79,6 @@ class SourceMapOutput extends Output{
   }
 
   ///
-  //2.4.0 ok
   String normalizeFilename (String file) {
     if (normalizeCache.containsKey(file)) return normalizeCache[file];
 
@@ -115,7 +113,6 @@ class SourceMapOutput extends Output{
   ///
   /// genCSS call 'output.add'. This is 'output' for sourcemaps generation
   ///
-  //2.4.0 ok
   void add(String chunk, [FileInfo fileInfo, int index, mapLines = false]) {
     List<String> lines;
     List<String> sourceLines;
@@ -234,7 +231,6 @@ class SourceMapOutput extends Output{
   }
 
   ///
-  //2.4.0 ok
   String toCSS(Contexts context) {
     String sourceMapContent;
     String sourceMapURL = '';

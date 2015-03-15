@@ -22,7 +22,6 @@ class Entities {
   ///
   ///     "milky way" 'he\'s the one!'
   ///
-  //2.2.0 ok
   Quoted quoted() {
     List<String> str;
     int index = parserInput.i;
@@ -47,7 +46,6 @@ class Entities {
   /// A catch-all word, such as:
   ///
   ///     black border-collapse
-  //2.2.0 ok
   Node keyword() {
     String k = parserInput.$re(r'^%|^[_A-Za-z-][_A-Za-z0-9-]*');
     if (k != null) {
@@ -74,7 +72,6 @@ class Entities {
   ///
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
-  //2.2.0 ok
   Node call() {
     String name;
     String nameLC;
@@ -150,7 +147,6 @@ class Entities {
   ///     alpha(opacity=88)
   ///
   //Original in parsers.dart
-  //2.2.0 ok
   Alpha alpha() {
     var value;
 
@@ -177,7 +173,6 @@ class Entities {
   }
 
   ///
-  //2.2.0 ok
   List<Node> arguments() {
     List<Node> args = [];
     Node arg;
@@ -212,7 +207,6 @@ class Entities {
   }
 
   ///
-  //2.2.0 ok
   Node literal() {
     Node result = dimension();
     if (result == null) result = color();
@@ -236,7 +230,6 @@ class Entities {
   ///
   ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
   ///
-  //2.2.0 ok
   Assignment assignment() {
     String key;
     Node value;
@@ -275,14 +268,13 @@ class Entities {
   /// standard function calls. The difference is that the argument doesn't have
   /// to be enclosed within a string, so it can't be parsed as an Expression.
   ///
-  //2.2.0 ok
   URL url() {
     String anonymous;
     int index = parserInput.i;
     Node value;
 
     parserInput.autoCommentAbsorb = false;
-    
+
     if ((parserInput.currentChar() != 'u') || (parserInput.$re(r'^url\(') == null)) {
       parserInput.autoCommentAbsorb = true;
       return null;
@@ -331,7 +323,6 @@ class Entities {
   /// We use a different parser for variable definitions,
   /// see `parsers.variable`.
   ///
-  //2.2.0 ok
   Variable variable() {
     String name;
     int index = parserInput.i;
@@ -355,7 +346,6 @@ class Entities {
   ///
   /// A variable entity using the protective {} e.g. @{var}
   ///
-  //2.2.0 ok
   Variable variableCurly() {
     String curly;
     int index = parserInput.i;
@@ -423,7 +413,6 @@ class Entities {
   ///
   ///     0.5em 95%
   ///
-  //2.2.0 ok
   Dimension dimension() {
     if (parserInput.peekNotNumeric()) return null;
 
@@ -449,7 +438,6 @@ class Entities {
   ///
   /// U+0??  or U+00A1-00A9
   ///
-  //2.2.0 ok
   UnicodeDescriptor unicodeDescriptor() {
     String ud = parserInput.$re(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', true, 0);
     if (ud != null) return new UnicodeDescriptor(ud);
@@ -472,7 +460,7 @@ class Entities {
   ///
   ///     `window.location.href`
   ///
-  //2.2.0 TODO pending upgrade - requires changes in tree\JavaScript
+  //TODO pending upgrade - requires changes in tree\JavaScript (?)
   JavaScript javascript() {
     String str;
     int j = parserInput.i;

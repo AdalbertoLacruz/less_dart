@@ -13,7 +13,6 @@ class MixinCall extends Node {
   final String type = 'MixinCall';
 
   ///
-  //2.3.1 ok
   MixinCall(elements, List args, int this.index, FileInfo this.currentFileInfo, bool this.important) {
     this.selector = new Selector(elements);
     if (args != null && args.isNotEmpty) this.arguments = args;
@@ -29,7 +28,6 @@ class MixinCall extends Node {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.selector != null) this.selector = visitor.visit(this.selector);
     if (this.arguments != null) this.arguments = visitor.visitArray(this.arguments);
@@ -48,7 +46,6 @@ class MixinCall extends Node {
   ///
   /// Search the MixinDefinition and ...
   ///
-  //2.3.1 ok
   eval(Contexts context) {
     List<MixinFound> mixins;
     MatchConditionNode mixin;
@@ -354,7 +351,6 @@ class MixinCall extends Node {
   }
 
   /// Returns a String with the Mixin arguments
-  //2.3.1 ok
   String format(List<MixinArgs> args) {
     String result = this.selector.toCSS(null).trim();
     String argsStr = (args != null)? args.map((a){

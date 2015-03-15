@@ -30,7 +30,6 @@ class Condition extends Node {
   ///
   /// Compare (lvalue op rvalue) returning true or false
   ///
-  //2.3.1 ok
   bool eval(Contexts context) {
     bool comparation(String op, a, b) {
       switch (op) {

@@ -20,7 +20,6 @@ class ImportVisitor extends VisitorBase {
   ///
   /// Structure to search for @import in the tree.
   ///
-  //2.3.1
   ImportVisitor(ImportManager this.importer, [Contexts context, ImportDetector onceFileDetectionMap, ImportDetector recursionDetector]) {
     this._visitor = new Visitor(this);
     this.context = (context != null) ? context : new Contexts.eval();
@@ -138,7 +137,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   processImportNode(Import importNode, Contexts context, Node importParent) {
     Completer completer = new Completer();
     runners.add(completer.future);
@@ -193,7 +191,6 @@ class ImportVisitor extends VisitorBase {
       completer.complete();
     }
 
-
 //2.3.1
 //  processImportNode: function(importNode, context, importParent) {
 //      var evaldImportNode,
@@ -243,7 +240,6 @@ class ImportVisitor extends VisitorBase {
   /// Recursively analyze the imported root for more imports
   /// [root] is String or Ruleset
   ///
-  //2.3.1 ok
   Future onImported(Import importNode, Contexts context, root, bool importedAtRoot, String fullPath) {
     Completer completer = new Completer();
     ImportVisitor importVisitor = this;
@@ -339,7 +335,6 @@ class ImportVisitor extends VisitorBase {
 
 
   ///
-  //2.3.1 ok
   visitRule(Rule ruleNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -350,7 +345,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   visitDirective(Directive directiveNode, VisitArgs visitArgs) {
     this.context.frames.insert(0, directiveNode);
 
@@ -361,7 +355,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitDirectiveOut(Directive directiveNode) {
     this.context.frames.removeAt(0);
 
@@ -372,7 +365,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     this.context.frames.insert(0, mixinDefinitionNode);
 
@@ -383,7 +375,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMixinDefinitionOut(MixinDefinition mixinDefinitionNode) {
     this.context.frames.removeAt(0);
 
@@ -394,7 +385,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     this.context.frames.insert(0, rulesetNode);
 
@@ -405,7 +395,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitRulesetOut(Ruleset rulesetNode) {
     this.context.frames.removeAt(0);
 
@@ -416,7 +405,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   visitMedia(Media mediaNode, VisitArgs visitArgs) {
     this.context.frames.insert(0, mediaNode.rules[0]);
 
@@ -427,7 +415,6 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  //2.3.1 ok
   void visitMediaOut(Media mediaNode) {
     this.context.frames.removeAt(0);
 
@@ -439,7 +426,7 @@ class ImportVisitor extends VisitorBase {
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media)      return this.visitMedia; //before Directive
+    if (node is Media)      return this.visitMedia;
     if (node is Directive)  return this.visitDirective;
     if (node is Import)     return this.visitImport;
     if (node is MixinDefinition) return this.visitMixinDefinition;
@@ -451,7 +438,7 @@ class ImportVisitor extends VisitorBase {
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
-    if (node is Media)      return this.visitMediaOut; //before Directive
+    if (node is Media)      return this.visitMediaOut;
     if (node is Directive)  return this.visitDirectiveOut;
     if (node is MixinDefinition) return this.visitMixinDefinitionOut;
     if (node is Ruleset)    return this.visitRulesetOut;

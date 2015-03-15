@@ -150,7 +150,6 @@ class Parsers {
   ///
   /// CSS comments `/* */`, LeSS comments `//`
   ///
-  //2.2.0 ok
   Comment comment(){
     if (parserInput.commentStore.isNotEmpty) {
       CommentPointer comment = parserInput.commentStore.removeAt(0);
@@ -172,7 +171,6 @@ class Parsers {
   ///
   ///      @fink:
   ///
-  //2.2.0 ok
   String variable(){
     String name;
 
@@ -192,7 +190,6 @@ class Parsers {
   ///
   ///       @fink();
   ///
-  //2.2.0 ok
   RulesetCall rulesetCall(){
     String name;
 
@@ -303,14 +300,12 @@ class Parsers {
   }
 
   /// extendRule - used in a rule to extend all the parent selectors
-  //2.2.0 ok
   List<Extend> extendRule() => extend(true);
 
   ///
   /// Entities are the smallest recognized token,
   /// and can be found inside a rule's value.
   ///
-  //2.2.0 ok
   Node entity() {
     Node                result = comment();
     if (result == null) result = entities.literal();
@@ -335,7 +330,6 @@ class Parsers {
   /// because the `block` rule will be expecting it, but we still need to make sure
   /// it's there, if ';' was ommitted.
   ///
-  //2.2.0 ok
   bool end() {
     return (parserInput.$char(';') != null) || parserInput.peekChar('}');
 
@@ -435,7 +429,6 @@ class Parsers {
   /// in the input, to see if it's a ` ` character. More info on how
   /// we deal with this in *combinator.js*.
   ///
-  //2.2.0 ok
   Combinator combinator() {
     String c = parserInput.currentChar();
 
@@ -497,7 +490,6 @@ class Parsers {
   /// A CSS selector (see selector below)
   /// with less extensions e.g. the ability to extend and guard
   ///
-  //2.2.0 ok
   Selector lessSelector() => selector(true);
 
   ///
@@ -585,7 +577,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Attribute attribute() {
     if (parserInput.$char('[') == null) return null;
 
@@ -634,7 +625,6 @@ class Parsers {
   /// The `block` rule is used by `ruleset` and `mixin.definition`.
   /// It's a wrapper around the `primary` rule, with added `{}`.
   ///
-  //2.2.0 ok
   List<Node> block() {
     List<Node> content;
 
@@ -654,7 +644,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Ruleset blockRuleset() {
     List<Node> block = this.block();
 
@@ -672,7 +661,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   DetachedRuleset detachedRuleset() {
     Ruleset blockRuleset = this.blockRuleset();
     return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
@@ -775,7 +763,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0
   Rule rule([tryAnonymous = false]) {
     String c = parserInput.currentChar();
     String important;
@@ -895,128 +882,15 @@ class Parsers {
 //          parserInput.forget();
 //      }
 //  }
-//1.7.5
-//    Rule rule([tryAnonymous = false]) {
-//      String c = parserInput.currentChar();
-//      String important;
-//      bool isVariable;
-//      String merge = '';
-//      var name; //String or Node
-//      int startOfRule = parserInput.i;
-//      Node value;
-//
-//      if (c == '.' || c == '#' || c == '&') return null;
-//
-//      parserInput.save();
-//
-//      name = variable();
-//      if (name == null) name = ruleProperty();
-//
-//      if (name != null) {
-//        isVariable = name is String;
-//
-//        if (isVariable) value = detachedRuleset();
-//
-//        //comments();
-//        parserInput.commentStore.length = 0;
-//        if (value == null) {
-//          // prefer to try to parse first if its a variable or we are compressing
-//          // but always fallback on the other one
-//          if (!tryAnonymous && (context.compress || isVariable)) {
-//            value = this.value();
-//            if (value == null) value = anonymousValue();
-//          } else {
-//            value = anonymousValue();
-//            if (value == null) value = this.value();
-//          }
-//
-//          important = this.important();
-//
-//          // a name returned by this.ruleProperty() is always an array of the form:
-//          // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
-//          // where each item is a tree.Keyword or tree.Variable
-//          merge = !isVariable ? (name as List<Node>).removeLast().value : '';
-//          //merge = !isVariable && (name as List<Node>).removeLast().value;
-//        }
-//
-//        if (value != null && end()) {
-//          parserInput.forget();
-//          return new Rule(name, value, important, merge, startOfRule, context.currentFileInfo);
-//        } else {
-//          parserInput.furthest = parserInput.i;
-//          parserInput.restore();
-//          if (value != null && !tryAnonymous) return rule(true);
-//        }
-//      } else {
-//        parserInput.forget();
-//      }
-//
-//      return null;
-//
-//1.7.5
-//rule: function (tryAnonymous) {
-//    var name, value, startOfRule = i, c = input.charAt(startOfRule), important, merge, isVariable;
-//
-//    if (c === '.' || c === '#' || c === '&') { return; }
-//
-//    save();
-//
-//    name = this.variable() || this.ruleProperty();
-//    if (name) {
-//        isVariable = typeof name === "string";
-//
-//        if (isVariable) {
-//            value = this.detachedRuleset();
-//        }
-//
-//        this.comments();
-//        if (!value) {
-//            // prefer to try to parse first if its a variable or we are compressing
-//            // but always fallback on the other one
-//            value = !tryAnonymous && (env.compress || isVariable) ?
-//                (this.value() || this.anonymousValue()) :
-//                (this.anonymousValue() || this.value());
-//
-//            important = this.important();
-//
-//            // a name returned by this.ruleProperty() is always an array of the form:
-//            // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
-//            // where each item is a tree.Keyword or tree.Variable
-//            merge = !isVariable && name.pop().value;
-//        }
-//
-//        if (value && this.end()) {
-//            forget();
-//            return new (tree.Rule)(name, value, important, merge, startOfRule, env.currentFileInfo);
-//        } else {
-//            furthest = i;
-//            restore();
-//            if (value && !tryAnonymous) {
-//                return this.rule(true);
-//            }
-//        }
-//    } else {
-//        forget();
-//    }
-//},
   }
 
   ///
-  //2.2.0 ok
   Anonymous anonymousValue() {
-    //2.2.0
     String match = parserInput.$re(r'''^([^@+\/'"*`(;{}-]*);''', false, 1);
     if (match != null) {
       return new Anonymous(match);
     }
     return null;
-//1.7.5
-//    Match match = new RegExp(r'''^([^@+\/'"*`(;{}-]*);''').firstMatch(parserInput.current);
-//    if (match != null) {
-//      parserInput.i += match[0].length - 1;
-//      return new Anonymous(match[1]);
-//    }
-//    return null;
 
 //2.2.0
 //  anonymousValue: function () {
@@ -1025,24 +899,6 @@ class Parsers {
 //          return new(tree.Anonymous)(match[1]);
 //      }
 //  }
-//1.7.5
-//    Anonymous anonymousValue() {
-//      //Match match = new RegExp(r'^([^@+\/' + r"'" + r'"*`(;{}-]*);').firstMatch(currentChunk.current);
-//      Match match = new RegExp(r'''^([^@+\/'"*`(;{}-]*);''').firstMatch(parserInput.current);
-//    if (match != null) {
-//      parserInput.i += match[0].length - 1;
-//      return new Anonymous(match[1]);
-//    }
-//    return null;
-//1.7.5
-//anonymousValue: function () {
-//    var match;
-//    match = /^([^@+\/'"*`(;{}-]*);/.exec(current);
-//    if (match) {
-//        i += match[0].length - 1;
-//        return new(tree.Anonymous)(match[1]);
-//    }
-//},
   }
 
   ///
@@ -1055,7 +911,6 @@ class Parsers {
   /// file-system operation. The function used for importing is
   /// stored in `import`, which we pass to the Import constructor.
   ///
-  //2.2.0 ok
   Import import() {
     int index = parserInput.i;
     List<Node> features;
@@ -1179,7 +1034,7 @@ class Parsers {
 //      return options;
 //  },
 
-  ///TODO
+  ///
   String importOption() => parserInput.$re('^(less|css|multiple|once|inline|reference|optional)');
 
 //2.4.0
@@ -1189,16 +1044,8 @@ class Parsers {
 //          return opt[1];
 //      }
 //  },
-//2.2.0
-//  importOption: function() {
-//      var opt = parserInput.$re(/^(less|css|multiple|once|inline|reference)/);
-//      if (opt) {
-//          return opt[1];
-//      }
-//  }
 
   ///
-  //2.2.0 ok
   Expression mediaFeature() {
     Node e;
     List<Node> nodes = [];
@@ -1269,7 +1116,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   List<Node> mediaFeatures() {
     Node e;
     List<Node> features = [];
@@ -1312,7 +1158,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Media media() {
     DebugInfo debugInfo;
     List<Node> features;
@@ -1363,7 +1208,6 @@ class Parsers {
   ///
   ///     @charset "utf-8";
   ///
-  //2.2.0 ok
   Node directive() {
     bool hasBlock = true;
     bool hasExpression = false;
@@ -1574,7 +1418,6 @@ class Parsers {
   /// In a Rule, a Value represents everything after the `:`,
   /// and before the `;`.
   ///
-  //2.2.0 ok
   Value value() {
     Expression e;
     List<Expression> expressions = [];
@@ -1610,7 +1453,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   String important() {
     if (parserInput.currentChar() == '!') {
       return parserInput.$re(r'^! *important');
@@ -1626,7 +1468,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Expression sub() {
     Node a;
     Expression e;
@@ -1667,7 +1508,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Node multiplication() {
     Node a;
     bool isSpaced;
@@ -1739,7 +1579,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Node addition() {
     Node a;
     Node m;
@@ -1794,8 +1633,8 @@ class Parsers {
 //  }
   }
 
+  ///
   //to be passed to currentChunk.expect
-  //2.2.0 ok
   Node conditions() {
     Node a;
     Node b;
@@ -1839,7 +1678,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   Node condition() {
     int index = parserInput.i;
     bool negate = false;
@@ -1873,7 +1711,6 @@ class Parsers {
     }
     return null;
 
-
 //2.2.0
 //  condition: function () {
 //      var entities = this.entities, index = parserInput.i, negate = false,
@@ -1904,7 +1741,6 @@ class Parsers {
   /// An operand is anything that can be part of an operation,
   /// such as a Color, or a Variable
   ///
-  //2.2.0 ok
   Node operand() {
     String negate;
     Node o;
@@ -1924,6 +1760,7 @@ class Parsers {
     }
 
     return o;
+
 //2.2.0
 //  operand: function () {
 //      var entities = this.entities, negate;
@@ -1953,7 +1790,6 @@ class Parsers {
   ///     1px solid black
   ///     @var * 2
   ///
-  //2.2.0 ok
   Expression expression() {
     String delim;
     Node e;
@@ -2010,7 +1846,6 @@ class Parsers {
   }
 
   ///
-  //2.2.0 ok
   String property() => parserInput.$re(r'^(\*?-?[_a-zA-Z0-9-]+)\s*:');
 
 //2.2.0
@@ -2021,9 +1856,7 @@ class Parsers {
 //      }
 //  }
 
-  ///
   /// Returns List<String> or List<Node>
-  //2.2.0 ok
   List ruleProperty() {
     List<int> index = [];
     int length = 0;

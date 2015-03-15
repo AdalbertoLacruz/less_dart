@@ -15,7 +15,6 @@ class Variable extends Node {
   String type = "Variable";
 
   ///
-  //2.3.1 ok
   Variable(String this.name, [int this.index, FileInfo currentFileInfo]) {
     this.currentFileInfo = (currentFileInfo != null) ? currentFileInfo : new FileInfo();
 
@@ -28,7 +27,6 @@ class Variable extends Node {
   }
 
   ///
-  //2.3.1 ok
   Node eval(Contexts context) {
     Node variable;
     String name = this.name;
@@ -115,7 +113,6 @@ class Variable extends Node {
   }
 
   ///
-  //2.3.1 ok
    find(List obj, Function fun) {
      var r;
 

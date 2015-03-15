@@ -155,7 +155,6 @@ class PluginLoader {
   //}
 
   ///
-  //2.4.0 ok
   void printUsage(List<Plugin> plugins) {
     plugins.forEach((plugin){plugin.printUsage();});
 

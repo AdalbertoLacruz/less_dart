@@ -15,7 +15,6 @@ class Comment extends Node implements MarkReferencedNode {
   Comment(String this.value, [bool this.isLineComment = false, int this.index, FileInfo this.currentFileInfo]);
 
   /// Writes the comment in [output].
-  //2.2.0 ok
   genCSS(Contexts context, Output output) {
     if (this.debugInfo != null) {
       output.add(debugInfo.toOutput(context), this.currentFileInfo, this.index);
@@ -31,10 +30,7 @@ class Comment extends Node implements MarkReferencedNode {
 //    };
   }
 
-//   toCSS: tree.toCSS
-
   ///
-  //2.2.0 ok
   bool isSilent(Contexts context) {
     bool isReference = this.currentFileInfo != null
         && this.currentFileInfo.reference
@@ -60,7 +56,6 @@ class Comment extends Node implements MarkReferencedNode {
   }
 
   ///
-  //2.2.0 ok
   bool isRulesetLike(bool root) => root;
 
 //2.2.0

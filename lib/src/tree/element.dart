@@ -11,7 +11,6 @@ class Element extends Node {
   final String type = 'Element';
 
   ///
-  //2.3.1 ok
   Element(combinator, value, int this.index, FileInfo this.currentFileInfo) {
     this.combinator = (combinator is Combinator) ? combinator : new Combinator(combinator);
 
@@ -39,7 +38,6 @@ class Element extends Node {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     var value = this.value;
     this.combinator = visitor.visit(this.combinator);
@@ -56,7 +54,6 @@ class Element extends Node {
   }
 
   ///
-  //2.3.1 ok
   Element eval(Contexts context) => new Element(
                         this.combinator,
                         (this.value is Node) ? this.value.eval(context) : this.value,
@@ -72,7 +69,6 @@ class Element extends Node {
 //  };
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.toCSS(context), this.currentFileInfo, this.index);
 
@@ -85,7 +81,6 @@ class Element extends Node {
   ///
   /// Converts value to String: Combinator + value
   ///
-  //2.3.1 ok
   String toCSS(Contexts context) {
     if (context == null) context = new Contexts();
     var value = this.value;

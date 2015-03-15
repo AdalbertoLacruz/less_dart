@@ -7,7 +7,6 @@ class JoinSelectorVisitor extends VisitorBase{
   Visitor _visitor;
 
   ///
-  //2.3.1 ok
   JoinSelectorVisitor() {
     this.contexts = [[]];
     this._visitor = new Visitor(this);
@@ -20,7 +19,6 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  //2.3.1 ok
   Node run(Node root) => this._visitor.visit(root);
 
 //2.3.1
@@ -29,7 +27,6 @@ class JoinSelectorVisitor extends VisitorBase{
 //  },
 
   ///
-  //2.3.1 ok
   void visitRule(Rule ruleNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -40,7 +37,6 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  //2.3.1
   void visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
@@ -51,7 +47,6 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  //2.3.1 ok
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     List context = this.contexts.last;
     List paths = [];
@@ -91,7 +86,6 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  //2.3.1 ok
   void visitRulesetOut(Ruleset rulesetNode) {
     this.contexts.removeLast();
 
@@ -102,7 +96,6 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  //2.3.1 ok
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
     List context = this.contexts.last;
     mediaNode.rules[0].root = (context.isEmpty || (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
@@ -132,7 +125,7 @@ class JoinSelectorVisitor extends VisitorBase{
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media) return this.visitMedia; //before Directive
+    if (node is Media) return this.visitMedia;
     if (node is Directive) return this.visitDirective;
     if (node is MixinDefinition) return this.visitMixinDefinition;
     if (node is Rule) return this.visitRule;

@@ -28,7 +28,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   final String type = 'Selector';
 
   ///
-  //2.3.1 ok
   Selector (List<Node> this.elements, [List<Node> this.extendList, Node this.condition, int this.index,
                             FileInfo this.currentFileInfo, bool this.isReferenced]) {
     if (this.currentFileInfo == null) this.currentFileInfo = new FileInfo();
@@ -48,7 +47,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.elements != null) this.elements = visitor.visitArray(this.elements);
     if (this.extendList != null) this.extendList = visitor.visitArray(this.extendList);
@@ -69,7 +67,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  //2.3.1 ok
   Selector createDerived(List<Element> elements, [List<Node> extendList, bool evaldCondition]) {
     evaldCondition = (evaldCondition != null)? evaldCondition : this.evaldCondition;
 
@@ -110,7 +107,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   /// Returns number of matched Selector elements if match. 0 means not match.
   ///
-  //2.3.1 ok
   int match(Selector other) {
     List<String> thisStrElements = this.strElements;
     List<String> otherStrElements = other.strElements;
@@ -170,7 +166,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   /// Example: ['#sel1', '.sel2', ...]
   ///
-  //2.3.1 ok
   void cacheElements() {
     String css;
     RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
@@ -179,7 +174,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
     css = this.elements.map((Element v){
       return v.combinator.value
-//          + ((v.value is String) ? v.value : (v.value.value is String) ? v.value.value : '');
           + ((v.value is String) ? v.value : (v.value as Node).toCSS(null)); //ex. v.value Dimension
     }).toList().join('');
 
@@ -215,7 +209,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  //2.3.1 ok
   bool isJustParentSelector() => !this.mediaEmpty
                               && this.elements.length == 1
                               && this.elements[0].value == '&'
@@ -231,7 +224,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
 
   ///
-  //2.3.1 ok
   Selector eval(Contexts context) {
     bool evaldCondition;
     if (this.condition != null) evaldCondition = this.condition.eval(context); //evaldCondition null is ok
@@ -259,7 +251,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   /// Writes Selector as String in [output]:
   ///  ' selector'. White space prefixed.
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     Element element;
 
@@ -290,13 +281,9 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
   }
 
-//    toCSS: tree.toCSS,
-
-
   //--- MarkReferencedNode -------------
 
   ///
-  //2.3.1 ok
   void markReferenced() {
     this.isReferenced = true;
 
@@ -307,7 +294,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  //2.3.1 ok
   bool getIsReferenced() => !this.currentFileInfo.reference || isTrue(this.isReferenced);
 
 //2.3.1
@@ -316,7 +302,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
 
   ///
-  //2.3.1 ok
   bool getIsOutput() => this.evaldCondition;
 
 //2.3.1

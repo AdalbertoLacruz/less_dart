@@ -10,7 +10,6 @@ import '../contexts.dart';
 import '../functions/functions.dart';
 import '../less_error.dart';
 import '../less_options.dart';
-//import '../logger.dart';
 import '../output.dart';
 import '../data/colors.dart';
 import '../data/unit_conversions.dart';

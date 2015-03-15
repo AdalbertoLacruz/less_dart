@@ -11,12 +11,10 @@ class FileFileManager extends FileManager {
   FileFileManager(Environment environment) : super(environment);
 
   ///
-  //2.3.1 ok
   bool supports (String filename, String currentDirectory, Contexts options,
                    Environment environment) => true;
 
   ///
-  //2.3.1 ok
   bool supportsSync(String filename, String currentDirectory, Contexts options,
                       Environment environment) => true;
 
@@ -80,7 +78,6 @@ class FileFileManager extends FileManager {
   }
 
   /// Load Async the file
-  //2.3.1 ok
   Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
     Completer task = new Completer();
 
@@ -163,7 +160,6 @@ class FileFileManager extends FileManager {
   }
 
   /// Load sync the file
-  //2.3.1 ok
   FileLoaded loadFileSync(String filename, String currentDirectory, Contexts options, Environment environment) {
     FileLoaded fileLoaded = new FileLoaded();
     if (options == null) options = new Contexts();
@@ -245,5 +241,4 @@ class FileFileManager extends FileManager {
 
     return fileLoaded;
   }
-
 }

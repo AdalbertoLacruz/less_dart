@@ -15,7 +15,6 @@ class Rule extends Node implements MakeImportantNode {
   final String type = 'Rule';
 
   ///
-  //2.3.1 ok
   Rule(this.name, value, [String important, this.merge, int this.index, FileInfo this.currentFileInfo,
       bool this.inline = false, bool variable = null]) {
 
@@ -41,7 +40,6 @@ class Rule extends Node implements MakeImportantNode {
   }
 
   ///
-  //2.3.1 ok
   //function external to class. static?
   String evalName(Contexts context, List<Node> name) {
     Output output = new Output();
@@ -63,7 +61,6 @@ class Rule extends Node implements MakeImportantNode {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add(this.name + (context.compress ? ':' : ': '), this.currentFileInfo, this.index);
     try {
@@ -95,7 +92,6 @@ class Rule extends Node implements MakeImportantNode {
   }
 
   ///
-  //2.3.1 ok
   eval(Contexts context) {
     bool strictMathBypass = false;
     var name = this.name;
@@ -194,7 +190,6 @@ class Rule extends Node implements MakeImportantNode {
   }
 
   ///
-  //2.3.1  ok
   Rule makeImportant() => new Rule(this.name,
                                 this.value,
                                 '!important',

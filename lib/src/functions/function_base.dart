@@ -1,7 +1,7 @@
 part of functions.less;
 
 ///
-/// Implements the mechanism to call a method by string
+/// Implements the way to call a method by string
 ///
 class FunctionBase {
   /// Method registry: { 'externalName': {'name': internalName, 'listArguments': false}  }

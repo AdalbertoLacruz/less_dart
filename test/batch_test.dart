@@ -276,18 +276,19 @@ void runAsync() {
       159: def('errors/svg-gradient6', isErrorTest: true),
       160: def('errors/unit-function', isErrorTest: true),
       //
-      199: def('extendedTest/svg', isExtendedTest: true),
-      200: def('extendedTest/url', isExtendedTest: true),
+      200: def('extendedTest/svg', isExtendedTest: true),
+      201: def('extendedTest/url', isExtendedTest: true),
+      202: def('extendedTest/image-size', isExtendedTest: true),
       //absolute path
-      201: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
+      210: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
           replace: [{'from': '{pathabs}', 'to': absPath('less')}]),
       //sync import
-      202: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;}),
+      211: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;}),
       //options.variables
-      203: def('globalVars/simple', isExtendedTest: true,
+      212: def('globalVars/simple', isExtendedTest: true,
                 options: ['--banner=banner.txt'],
                 modifyOptions: (LessOptions options){options.variables = { 'my-color': new Color.fromKeyword('red') };}),
-      210: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
+      213: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
           options: ['--plugin=less-plugin-advanced-color-functions'])
     };
   }

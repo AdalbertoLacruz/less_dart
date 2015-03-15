@@ -7,11 +7,9 @@ class Visitor extends VisitorBase{
   VisitArgs _visitArgs = new VisitArgs(true);
 
   ///
-  //2.3.1 ok
   Visitor(VisitorBase this._implementation);
 
   /// Process a [node] and the subtree
-  //2.3.1 ok
   visit(node) {
     if (node == null) return node;
     if (node is! Node) return node;
@@ -82,7 +80,6 @@ class Visitor extends VisitorBase{
   }
 
   ///
-  //2.3.1 ok
   List visitArray(List nodes, [bool nonReplacing = false]) {
     if (nodes == null) return nodes;
 
@@ -141,7 +138,6 @@ class Visitor extends VisitorBase{
   /// Converts a mix of Node and List<Node> to List<Node>
   /// arr == [Node, [Node, Node...]] -> [Node, Node, Node, ...]
   ///
-  //2.3.1 ok
   List<Node> flatten(List<Node> arr, List<Node> out) {
     if (out == null) out = [];
 

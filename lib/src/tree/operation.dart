@@ -10,7 +10,6 @@ class Operation extends Node {
   final String type = 'Operation';
 
   ///
-  //2.3.1 ok
   Operation(String op, List this.operands, [bool this.isSpaced = false]) {
     this.op = op.trim();
 
@@ -23,7 +22,6 @@ class Operation extends Node {
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     this.operands = visitor.visit(this.operands);
 
@@ -34,7 +32,6 @@ class Operation extends Node {
   }
 
   ///
-  //2.3.1 ok
   eval(Contexts context) {
     Node a = this.operands[0].eval(context);
     Node b = this.operands[1].eval(context);
@@ -78,7 +75,6 @@ class Operation extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     this.operands[0].genCSS(context, output);
     if (this.isSpaced) output.add(' ');

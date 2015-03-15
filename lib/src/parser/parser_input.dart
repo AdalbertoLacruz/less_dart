@@ -54,7 +54,6 @@ class ParserInput {
   ///
   /// save input pointers in stack
   ///
-  //2.2.0 ok
   void save() {
     currentPos = i;
     saveStack.add(new StackItem(current, i, j));
@@ -63,7 +62,6 @@ class ParserInput {
   ///
   /// restore input pointers from stack
   ///
-  //2.2.0 ok
   void restore([String possibleErrorMessage]) {
     if (i > furthest
         || ((i == furthest) && (possibleErrorMessage != null)
@@ -93,13 +91,11 @@ class ParserInput {
   ///
   /// Remove input pointer from stack
   ///
-  //2.2.0 ok
   void forget() {
     saveStack.removeLast();
   }
 
   ///
-  //2.2.0 ok
   void sync() {
     if (i > currentPos) {
       current = current.substring(i - currentPos);
@@ -110,7 +106,6 @@ class ParserInput {
   ///
   /// Char at pos + [offset] is 32 (space), 13 (CR), 9 (tab) or 10 (LF)
   ///
-  //2.2.0 ok
   bool isWhitespace([int offset = 0]) {
     int pos = i + offset;
     if (pos < 0) return false;
@@ -138,7 +133,6 @@ class ParserInput {
   /// [tok] String or RegExp
   /// return String or List
   ///
-  //2.2.0 ok
   $(tok) {
     Match match;
     int length;
@@ -222,7 +216,6 @@ class ParserInput {
   /// [caseSensitive] true by default. false correspond to 'i'.
   /// [index] if match returns m[index]
   ///
-  //2.2.0 ok
   $re(String tok, [bool caseSensitive = true, int index]) {
     List<String> resultList = [];
     RegExp reg = new RegExp(tok, caseSensitive: caseSensitive);
@@ -296,7 +289,6 @@ class ParserInput {
   ///
   /// [tok] is a String.
   ///
-  //2.2.0 ok
   String $char(String tok) {
     if (currentChar() != tok) return null;
     skipWhitespace(1);
@@ -304,7 +296,6 @@ class ParserInput {
   }
 
   ///
-  //2.2.0 ok
   bool skipWhitespace(int length) {
     int oldi = i;
     int oldj = j;
@@ -505,7 +496,6 @@ class ParserInput {
   /// just return the match.
   /// [tok] is String or RegExp
   ///
-  //2.2.0 ok
   bool peek(tok) {
     if (tok is String) {
       return input[i] == tok;
@@ -526,20 +516,17 @@ class ParserInput {
   ///
   /// Specialization of peek()
   ///
-  //2.2.0 ok
   bool peekChar(String tok) {
     if (i >= input.length) return false;
     return input[i] == tok;
   }
 
   ///
-  //2.2.0 ok
   String getInput() {
     return input;
   }
 
   ///
-  //2.2.0 ok
   bool peekNotNumeric() {
     int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
@@ -567,14 +554,11 @@ class ParserInput {
   /// in the case it causes too much performance issues.
   ///
   void start(String str, bool chunkInput){
-    //input = str;
     i = j = currentPos = furthest = 0;
 
     if (chunkInput) {
       chunks = new Chunker(str, context).getChunks();
-      //chunks = chunker(str, failFunction); //TODO pte upgrade 2.2.0
     } else {
-      //env.input = str;
       chunks = [str];
     }
 
@@ -647,7 +631,6 @@ class ParserInput {
   /// We split it up into two parts (the part which parsed,
   /// and the part which didn't), so we can color them differently.
   ///
-  //TODO 2.2.0 pending full upgrade
   void isFinished() {
     ParserStatus endInfo = end();
     if (!endInfo.isFinished) {
@@ -698,62 +681,6 @@ class ParserInput {
 //      }, imports);
 //  }
   }
-
-
-////1.7.5
-//  void isFinished() {
-//    String getLine(List<String> lines, int line) {
-//        if ((line >= 0) && (line <= lines.length -1)) return lines[line];
-//        return null;
-//    }
-//
-//    if (i < input.length - 1) {
-//      i = furthest;
-//      LessErrorLocation loc = LessError.getLocation(i, input);
-//      List<String> lines = input.split('\n');
-//      if(lines.last.isEmpty) lines.removeLast();
-//      int line = loc.line + 1;
-//
-//      LessError e = new LessError();
-//      e.type = 'Parse';
-//      e.message = 'Unrecognised input';
-//      e.index = i;
-//      e.filename = env.currentFileInfo.filename;
-//      e.line = line;
-//      e.column = loc.column;
-//      e.extract = [
-//        getLine(lines, line-2),
-//        getLine(lines, line - 1),
-//        getLine(lines, line)
-//        ];
-//      e.color = env.color;
-//      e.isSimplyFormat = false;
-//
-//      throw new LessExceptionError(e);
-//    }
-//
-////    if (i < input.length - 1) {
-////        i = furthest;
-////        var loc = getLocation(i, input);
-////        lines = input.split('\n');
-////        line = loc.line + 1;
-////
-////        error = {
-////            type: "Parse",
-////            message: "Unrecognised input",
-////            index: i,
-////            filename: env.currentFileInfo.filename,
-////            line: line,
-////            column: loc.column,
-////            extract: [
-////                lines[line - 2],
-////                lines[line - 1],
-////                lines[line]
-////            ]
-////        };
-////    }
-//
-//  }
 }
 
 /*************************************************/

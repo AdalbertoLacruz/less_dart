@@ -13,7 +13,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   final String type = 'Quoted';
 
   ///
-  //2.4.0 ok
   Quoted(String str, String content, bool this.escaped, [int this.index, FileInfo this.currentFileInfo]){
     if (this.escaped == null) this.escaped = true;
     if(content != null) value = content;
@@ -31,7 +30,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     if (!this.escaped) {
       output.add(this.quote, this.currentFileInfo, this.index);
@@ -54,7 +52,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   }
 
   ///
-  //2.3.1 ok
   containsVariables() => new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(this.value);
 
 //2.3.1
@@ -63,7 +60,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //  };
 
   ///
-  //2.3.1 ok
   Node eval(Contexts context){
     Quoted that = this;
     String value = this.value;
@@ -125,7 +121,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //--- CompareNode
 
   /// Returns -1, 0 or +1 or null
-  //2.4.0 ok
   int compare(Node other) {
     // when comparing quoted strings allow the quote to differ
     // We need compare strings with: string.copareTo(otherString)

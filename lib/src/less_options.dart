@@ -220,9 +220,6 @@ class LessOptions {
       case 'depends':
         depends = true;
         break;
-//      case 'clean-css':
-//        cleancss = true;
-//        break;
       case 'max-line-len':
         if (checkArgFunc(command, arg[2])) {
           try {
@@ -316,10 +313,6 @@ class LessOptions {
           parseVariableOption(arg[2], modifyVariables);
         } else return setParseError(command);
         break;
-//      case "clean-option":  //TODO remove
-//        result = cleancssOptions.parse(arg[2]);
-//        if (cleancssOptions.parseError) parseError = true;
-//        return result;
       case 'url-args':
         if (checkArgFunc(command, arg[2])) {
             urlArgs = arg[2];
@@ -387,7 +380,6 @@ class LessOptions {
   ///
   /// Check the command has a argument
   ///
-  //2.4.0 ok
   bool checkArgFunc(String command, String option) {
     if(option == null) {
       logger.error('$command option requires a parameter');
@@ -400,7 +392,6 @@ class LessOptions {
   /// Checks the argument is yes/no or equivalent, returning true/false
   /// if not boolean returns null
   ///
-  //2.4.0 ok
   bool checkBooleanArg(String arg) {
     RegExp onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
     Match match;
@@ -414,7 +405,6 @@ class LessOptions {
   }
 
   ///
-  //2.4.0 ok
   parseVariableOption(String option, List<VariableDefinition> variables) {
     List<String> parts = option.split('=');
     variables.add(new VariableDefinition(parts[0], parts[1]));
@@ -427,7 +417,6 @@ class LessOptions {
   }
 
   /// Show help
-  //2.4.0 ok
   void printUsage() {
     LesscHelper.printUsage();
     pluginLoader.printUsage(plugins);
@@ -455,7 +444,6 @@ class LessOptions {
     if (output.isNotEmpty) {
       outputBase = output;
       //output = path.normalize(path.absolute(output)); //use absolute path
-      //if (warningMessages.isNotEmpty) logger.log(warningMessages);
     }
 
     if(sourceMap) {
@@ -500,12 +488,6 @@ class LessOptions {
       sourceMapOptions.sourceMapRootpath = path.relative(pathToMap, from: pathToInput);
     }
 
-//    if(cleancss && (sourceMap == true /* || sourceMap.isNotEmpty */)) { //TODO
-//      logger.log('the cleancss option is not compatible with sourcemap support at the moment. See Issue #1656');
-//      parseError = true;
-//      return false;
-//    }
-
     if(depends) {
       if(outputBase.isEmpty) {
         logger.error('option --depends requires an output path to be specified');
@@ -524,7 +506,6 @@ class LessOptions {
     op.verbose          = this.verbose;
     op.ieCompat         = this.ieCompat;
     op.compress         = this.compress;
-    //op.cleancss         = this.cleancss;
     op.cleancssOptions  = this.cleancssOptions;
     op.dumpLineNumbers  = this.dumpLineNumbers;
     op.sourceMap        = (this.sourceMap is bool) ? this.sourceMap : (this.sourceMap as String).isNotEmpty;

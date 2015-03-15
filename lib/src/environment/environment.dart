@@ -1,4 +1,5 @@
 //source: lib/less/environment.js 2.4.0
+
 library environment.less;
 
 import 'dart:async';
@@ -80,7 +81,6 @@ class Environment {
   ///
   /// Returns the UrlFileManager or FileFileManager to load the [filename]
   ///
-  ///2.3.1
   FileManager getFileManager(String filename, String currentDirectory, Contexts options, Environment environment, [bool isSync = false]) {
     FileManager fileManager;
 

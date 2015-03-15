@@ -5,7 +5,6 @@ part of tree.less;
 // Used in Directive & Media -
 class OutputRulesetMixin {
   ///
-  //2.3.1 ok
   void outputRuleset(Contexts context, Output output, List<Node> rules) {
     int ruleCnt = rules.length;
 

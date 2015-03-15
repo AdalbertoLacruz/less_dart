@@ -26,7 +26,6 @@ class FileManager {
   /// { filename: - full resolved path to file
   ///   contents: - the contents of the file, as a string }
   ///
-  //2.3.1
   Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) => null;
 
   ///
@@ -35,7 +34,6 @@ class FileManager {
   ///     filename: - full resolved path to file
   ///     contents: - the contents of the file, as a string }
   ///
-  //2.3.1
   FileLoaded loadFileSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
 
   ///
@@ -48,7 +46,6 @@ class FileManager {
   ///
   /// Given the full path to a file [filename], return the path component
   ///
-  //2.3.1 ok
   String getPath(String filename) {
     return pathLib.dirname(filename);
 
@@ -84,7 +81,6 @@ class FileManager {
   /// Append a .less extension to [path] if appropriate.
   /// Only called if less thinks one could be added.
   ///
-  //2.3.1 ok
   String tryAppendLessExtension(String path) {
     RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
     return re.hasMatch(path) ? path : path + '.less';
@@ -99,7 +95,6 @@ class FileManager {
   /// Whether the rootpath should be converted to be absolute.
   /// Only for browser compatibility
   ///
-  //2.3.1 ok
   bool alwaysMakePathsAbsolute() => false;
 
 
@@ -122,7 +117,6 @@ class FileManager {
   ///
   /// Joins together 2 paths
   ///
-  //2.3.1 untested.
   String join(String basePath, String laterPath) {
     return pathLib.join(basePath, laterPath);
 
@@ -146,7 +140,6 @@ class FileManager {
   ///   url = 'a/'   baseUrl = 'a/b/' returns '../'
   ///   url = 'a/b/' baseUrl = 'a/'   returns 'b/'
   ///
-  //2.3.1
   String pathDiff(String url, String baseUrl) {
     UrlParts urlParts = extractUrlParts(url);
     UrlParts baseUrlParts = extractUrlParts(baseUrl);
@@ -201,7 +194,6 @@ class FileManager {
   }
 
   ///
-  //2.3.1
   UrlParts extractUrlParts(String url, [String baseUrl]) {
     // urlParts[1] = protocol&hostname || /
     // urlParts[2] = / if path relative to host base

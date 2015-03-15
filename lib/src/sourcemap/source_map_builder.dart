@@ -16,7 +16,6 @@ class LessSourceMapBuilder {
   ///
   /// Generates the css & map contents
   ///
-  //2.4.0 ok
   String toCSS(Ruleset rootNode, Contexts context, ImportManager imports) {
 
     var sourceMapOutput = new SourceMapOutput(
@@ -30,7 +29,6 @@ class LessSourceMapBuilder {
             sourceMapRootpath: this.options.sourceMapRootpath,
             outputSourceFiles: this.options.outputSourceFiles,
             sourceMapFileInline: this.options.sourceMapFileInline
-            //writeSourceMap: this.options.writeSourceMap //TODO remove
         );
 
     String css = sourceMapOutput.toCSS(context).toString();
@@ -69,7 +67,6 @@ class LessSourceMapBuilder {
   }
 
   ///
-  //2.4.0 OK
   String getCSSAppendage() {
     String sourceMapURL = this.sourceMapURL;
 
@@ -104,7 +101,6 @@ class LessSourceMapBuilder {
   ///
   /// Get the map
   ///
-  //2.4.0 ok
   String getExternalSourceMap() => this.sourceMap;
 
 //2.4.0
@@ -114,7 +110,6 @@ class LessSourceMapBuilder {
 
 
   ///
-  //2.4.0 ok
   setExternalSourceMap(String sourceMap) {
     this.sourceMap = sourceMap;
 
@@ -125,7 +120,6 @@ class LessSourceMapBuilder {
   }
 
   ///
-  //2.4.0 ok
   bool isInline() => this.options.sourceMapFileInline;
 
 //2.4.0
@@ -135,7 +129,6 @@ class LessSourceMapBuilder {
 
 
   ///
-  //2.4.0 ok
   String getSourceMapURL() => this.sourceMapURL;
 
 //2.4.0
@@ -145,7 +138,6 @@ class LessSourceMapBuilder {
 
 
   ///
-  //2.4.0 ok
   String getOutputFilename() => this.options.sourceMapOutputFilename;
 
 //2.4.0
@@ -155,7 +147,6 @@ class LessSourceMapBuilder {
 
 
   ///
-  //2.4.0 ok
   String getInputFilename() => this.sourceMapInputFilename;
 
 //2.4.0

@@ -12,7 +12,6 @@ class UrlFileManager extends FileManager {
   ///
   /// True is can load the file
   ///
-  //2.3.1 ok
   bool supports (String filename, String currentDirectory, Contexts options, Environment environment) {
     return isUrlRe.hasMatch(filename) || isUrlRe.hasMatch(currentDirectory);
 
@@ -23,7 +22,7 @@ class UrlFileManager extends FileManager {
   }
 
   /// Load async the url
-  //2.3.1 TODO options.strictSSL
+  //TODO options.strictSSL
   Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
     StringBuffer dataBuffer = new StringBuffer();
     HttpClient client = new HttpClient();

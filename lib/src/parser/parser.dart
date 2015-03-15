@@ -10,7 +10,6 @@ import '../file_info.dart';
 import '../import_manager.dart';
 import '../less_error.dart';
 import '../less_options.dart';
-//import '../logger.dart';
 import '../utils.dart';
 import '../environment/environment.dart';
 import '../plugins/plugins.dart';
@@ -93,7 +92,6 @@ class Parser {
   ///
   /// NO @param [additionalData] An optional map which can contains vars - a map (key, value) of variables to apply
   ///
-  //2.4.0 ok
   Future parse(String str) {
     Ruleset root;
     Ruleset rulesetEvaluated;
@@ -153,7 +151,6 @@ class Parser {
   }
 
   ///
-  //2.4.0
   String serializeVars(List<VariableDefinition> vars) {
     String s = '';
     vars.forEach((vardef){

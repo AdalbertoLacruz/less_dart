@@ -14,7 +14,6 @@ class URL extends Node {
   URL(Node this.value, [int this.index, FileInfo this.currentFileInfo, bool this.isEvald = false]);
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     this.value = visitor.visit(this.value);
 
@@ -25,7 +24,6 @@ class URL extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add('url(');
     this.value.genCSS(context, output);
@@ -40,7 +38,6 @@ class URL extends Node {
   }
 
   ///
-  //2.3.1 ok
   URL eval(Contexts context) {
     Node val = this.value.eval(context);
     String rootpath;

@@ -27,7 +27,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
   var frames;
 
-
   /// Number of params
   int arity;
 
@@ -44,7 +43,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
   /// name, params, rules, condition, variadic, index, currentFileInfo, frames
   //index, currentFileInfo not in original. See order when calling with frames.
-  //2.3.1 ok
   MixinDefinition(String this.name, List<MixinArgs> this.params,
       List<Node> this.rules, Node this.condition, bool this.variadic,
       int this.index, FileInfo this.currentFileInfo, [this.frames]) {
@@ -81,7 +79,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   }
 
   ///
-  //2.3.1 ok
   void accept(Visitor visitor) {
     if (this.params != null && this.params.isNotEmpty) {
       this.params = visitor.visitArray(this.params);
@@ -121,7 +118,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   /// Build a Ruleset where the rules are the mixin params evaluated
   /// Build evaldArguments
   ///
-  //2.3.1 ok
   Ruleset evalParams(Contexts context, Contexts mixinEnv, List<MixinArgs> args, List evaldArguments) {
     Ruleset frame = new Ruleset(null, null);
     List<Node> varargs;
@@ -302,7 +298,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   // ---- begin MakeImportantNode
 
   ///
-  //2.4.0
   MixinDefinition makeImportant() {
     List<Node> rules = (this.rules == null)
         ? this.rules
@@ -333,7 +328,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   // ---- end MakeImportantNode
 
   ///
-  //2.3.1 ok
   MixinDefinition eval(Contexts context) {
     var frames = (this.frames != null) ? this.frames : context.frames.sublist(0);
     return new MixinDefinition(this.name, this.params, this.rules, this.condition,
@@ -346,7 +340,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   }
 
   ///
-  //2.4.0 ok
   Ruleset evalCall(Contexts context, List<MixinArgs> args, bool important) {
     List _arguments = [];
     List<Node> mixinFrames = (this.frames != null) ? (this.frames.sublist(0)..addAll(context.frames)) : context.frames;
@@ -391,7 +384,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   //--- MatchConditionNode
 
   ///
-  //2.3.1 ok
   bool matchCondition(List<MixinArgs> args, Contexts context) {
     List thisFrames = (this.frames != null) ? (this.frames.sublist(0)..addAll(context.frames)) : context.frames;
     List frames = [this.evalParams(context, new Contexts.eval(context, thisFrames), args, [])] // the parameter variables
@@ -417,7 +409,6 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   ///
   /// Check arguments call is according mixin definition
   ///
-  //2.3.1 ok
   bool matchArgs(List<MixinArgs> args, Contexts context) {
     int argsLength = 0;
     if (args != null) argsLength = args.length;

@@ -50,7 +50,6 @@ class ImportManager {
   List<String> queue = []; // Deprecated?
 
   ///
-  //2.3.1 ok
   ImportManager(Contexts this.context, FileInfo rootFileInfo){
     this.rootFilename = rootFileInfo.filename;
     if (context.paths != null) this.paths = context.paths;
@@ -73,7 +72,6 @@ class ImportManager {
   }
 
   /// Build the return content
-  //2.3.1 ok
   ImportedFile fileParsedFunc(String path, root, String fullPath) {
     this.queue.remove(path);
     bool importedEqualsRoot = (fullPath == this.rootFilename);
@@ -107,7 +105,6 @@ class ImportManager {
   ///   [currentFileInfo] the current file info (used for instance to work out relative paths)
   ///   [importOptions] import options
   ///
-  //2.3.1 ok
   Future push(String path, bool tryAppendLessExtension, FileInfo currentFileInfo, ImportOptions importOptions) {
     Completer task = new Completer();
 

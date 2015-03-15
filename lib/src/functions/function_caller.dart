@@ -139,9 +139,5 @@ class FunctionCaller {
 //
 //      return this.func.apply(this, args);
 //  };
-//2.4.0
-//functionCaller.prototype.call = function(args) {
-//    return this.func.apply(this, args);
-//};
   }
 }

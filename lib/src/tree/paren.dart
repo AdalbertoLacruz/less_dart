@@ -10,7 +10,6 @@ class Paren extends Node {
   Paren(Node this.value);
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     output.add('(');
     this.value.genCSS(context, output);
@@ -25,7 +24,6 @@ class Paren extends Node {
   }
 
   ///
-  //2.3.1 ok
   Paren eval(Contexts context) => new Paren(this.value.eval(context));
 
 //2.3.1

@@ -10,7 +10,6 @@ class Expression extends Node {
   final String type = 'Expression';
 
   ///
-  //2.3.1 ok
   Expression(List<Node> this.value) {
     if (this.value == null) {
       throw new LessExceptionError(new LessError(message: 'Expression requires an array parameter'));
@@ -26,7 +25,6 @@ class Expression extends Node {
   }
 
   ///
-  //2.3.1 ok
   accept(Visitor visitor){
     this.value = visitor.visitArray(this.value);
 
@@ -37,7 +35,6 @@ class Expression extends Node {
   }
 
   /// Returns Node or List<Node>
-  //2.3.1 ok
   eval(Contexts context) {
     var returnValue;
     bool inParenthesis = this.parens && !this.parensInOp;
@@ -94,7 +91,6 @@ class Expression extends Node {
   }
 
   ///
-  //2.3.1 ok
   void genCSS(Contexts context, Output output) {
     for (int i = 0; i < this.value.length; i++) {
       this.value[i].genCSS(context, output);
@@ -112,10 +108,7 @@ class Expression extends Node {
 //  };
   }
 
-//      toCSS: tree.toCSS,
-
   ///
-  //2.3.1 ok
   void throwAwayComments() {
     this.value.retainWhere((v) {
       return (v is! Comment);
