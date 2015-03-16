@@ -99,15 +99,19 @@ You can also pass options to less_dart if necessary:
 - other_flags - Let add other flags such as (--source-map, ...) in the lessc command line.
 
 
+## Differences with official (js) version
+
+- Javascript evaluation not supported. 
+  - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node)
+  - Alternatively you can use 'Custom Functions' (see test/custom_functions_test.dart') from your dart program.
+- Added option `--banner=bannerfile.txt`.
+
+
 ## Known issues
 
 - Pass the standard tests in windows (no tested in linux).
 - cleanCSS (as plugin) not implemented yet.
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
-- Added option `--banner=bannerfile.txt`. Could change in next versions according to official version.
-- Javascript evaluation not supported. 
-  - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node)
-  - Alternatively you can use 'Custom Functions' (see test/custom_functions_test.dart') from your dart program.
 
 
 ## [License](LICENSE)
