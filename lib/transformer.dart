@@ -19,6 +19,7 @@ import 'dart:math';
 import 'dart:io';
 import 'less.dart';
 import 'package:barback/barback.dart';
+import 'package:path/path.dart';
 
 const String INFO_TEXT = '[Info from less-dart]';
 const String BUILD_MODE_LESS = 'less';
@@ -33,7 +34,7 @@ const String BUILD_MODE_MIXED = 'mixed';
  * To mix several .less files in one, the input contents could be "@import 'filexx.less'; ..." directives
  * See http://lesscss.org/ for more information
  */
-class LessTransformer extends Transformer {
+class LessTransformer extends AggregateTransformer {
   final BarbackSettings settings;
   final TransformerOptions options;
 
@@ -48,50 +49,53 @@ class LessTransformer extends Transformer {
   LessTransformer.asPlugin(BarbackSettings settings):
     this(settings);
 
-  Future<bool> isPrimary (AssetId id) {
-    return new Future.value(_isEntryPoint(id));
+  @override
+  classifyPrimary(AssetId id) {
+    //listen to all less files changes
+    if (!id.path.endsWith('.less')) return null;
+    return url.dirname(id.path);
   }
 
-  Future apply(Transform transform) {
-    List<String> flags = _createFlags();  //to build process arguments
-    var id = transform.primaryInput.id;
-    String inputFile = id.path;
-    String outputFile = getOutputFileName(id);
+  Future apply(AggregateTransform transform) {
+    return transform.primaryInputs.toList().then((assets) {
+        return Future.wait(assets.map((asset) {
+          //If user doesn't specify entry_points process all less files,
+          //else only precess files specified on entry_points option.
+          if(options.entry_points.isEmpty || options.entry_points.contains(asset.id.path)) {
+              return asset.readAsString().then((content) {
+                List<String> flags = _createFlags();  //to build process arguments
+                          var id = asset.id;
+                String inputFile = id.path;
+                String outputFile = getOutputFileName(id);
+            
+                switch (options.build_mode) {
+                  case BUILD_MODE_DART:
+                    flags.add('-');
+                    break;
+                  case BUILD_MODE_MIXED:
+                    flags.add(inputFile);
+                    break;
+                  case BUILD_MODE_LESS:
+                  default:
+                    flags.add(inputFile);
+                    flags.add(outputFile);
+                }
+            
+                ProcessInfo processInfo = new ProcessInfo(options.executable, flags);
+                if (isBuildModeDart) processInfo.inputFile = inputFile;
+                if (isBuildModeMixed || isBuildModeDart) processInfo.outputFile = outputFile;
+                  return executeProcess(options.executable, flags, content, processInfo).then((output) {
+            
+                    if (isBuildModeMixed || isBuildModeDart){
+                      transform.addOutput(new Asset.fromString(new AssetId(id.package, outputFile), output));
+                    }
+                  });
+                });
+            }
 
-    switch (options.build_mode) {
-      case BUILD_MODE_DART:
-        flags.add('-');
-        break;
-      case BUILD_MODE_MIXED:
-        flags.add(inputFile);
-        break;
-      case BUILD_MODE_LESS:
-      default:
-        flags.add(inputFile);
-        flags.add(outputFile);
-    }
-
-    ProcessInfo processInfo = new ProcessInfo(options.executable, flags);
-    if (isBuildModeDart) processInfo.inputFile = inputFile;
-    if (isBuildModeMixed || isBuildModeDart) processInfo.outputFile = outputFile;
-
-    return transform.primaryInput.readAsString().then((content){
-      transform.consumePrimary();
-      return executeProcess(options.executable, flags, content, processInfo).then((output) {
-
-        if (isBuildModeMixed || isBuildModeDart){
-          transform.addOutput(new Asset.fromString(new AssetId(id.package, outputFile), output));
-        }
-      });
+          return new Future.value(null);
+      }));
     });
-  }
-
-  /*
-   * Only returns true in entry_point(s) file
-   */
-  bool _isEntryPoint(AssetId id) {
-    if (id.extension != '.less') return false;
-    return (options.entry_points.contains(id.path));
   }
 
   List<String> _createFlags(){
