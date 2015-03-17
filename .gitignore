@@ -3,3 +3,4 @@ packages
 result
 pubspec.lock
 .settings
+/.project
