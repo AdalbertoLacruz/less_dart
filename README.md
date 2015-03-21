@@ -5,7 +5,7 @@
 This is a traslation from less 2.4.0 Javascript (over nodejs) to Dart. 
 Is a pure Dart implementation for the server/developper side.
 
-As transformer could work with .html files, converting <less> tags to <style> tags.
+As transformer could work with .html files, converting `<less>` tags to `<style>` tags.
 
 
 ## Use as Compiler or Transformer
@@ -113,10 +113,10 @@ You can also pass options to less_dart if necessary:
 
 #### Html transformation
 
-When a .html file is processed, the transformer look for <less>...</less> tags and add below that, and at the same level, the equivalent <style>...</style>.
-All the <less> atrributes are copied, except 'replace'. With this attribute <less> tags are removed in the final file.
-The <less> tags in the final file are stamped with `style="display:none"` attribute, to avoid interferences, meanwhile is util for debugging.
-A .html could have various <less>...</less> pairs.
+When a .html file is processed, the transformer look for `<less>...</less>` tags and add below that, and at the same level, the equivalent `<style>...</style>`.
+All the `<less>` atrributes are copied, except 'replace'. With this attribute `<less>` tags are removed in the final file.
+The `<less>` tags in the final file are stamped with `style="display:none"` attribute, to avoid interferences, meanwhile is util for debugging.
+A .html could have various `<less>...</less>` pairs.
 
 ## Differences with official (js) version
 
