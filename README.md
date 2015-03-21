@@ -5,6 +5,8 @@
 This is a traslation from less 2.4.0 Javascript (over nodejs) to Dart. 
 Is a pure Dart implementation for the server/developper side.
 
+As transformer could work with .html files, converting <less> tags to <style> tags.
+
 
 ## Use as Compiler or Transformer
 
@@ -52,16 +54,17 @@ There is an example:
 
 ### Use as a Dart Transformer with pub-build or pub-serve
 
-Simply add the following lines to your `pubspec.yaml`:
+Simply add the following lines to your `pubspec.yaml` to work with the default options:
 
     dependencies:
       less_dart: any
     transformers:
-      - less_dart:
-      		entry_point: web/builder.less
+      - less_dart
 
-After adding the transformer your entry_point `.less` file will be automatically 
-transformed to corresponding `.css` file.
+After adding the transformer all your `.less` files will be automatically 
+transformed to corresponding `.css` files. Also the `.html` files will be processed.
+This is the standard default, but it could be modified by inclusion or exclusion paths.
+The exclusion paths start with '!'. And the '*' is supported in the paths.
 
 The power of Dart builder is chain transformers, so a less file will be converted 
 to a css file and this could be the source for a polymer transformer, by example. 
@@ -79,25 +82,41 @@ You can also pass options to less_dart if necessary:
           	- or/other.less
           output: /path/to/builded.css
           include_path: /path/to/directory/for/less/includes
-          cleancss: true or false
           compress: true or false
           build_mode: less, dart or mixed. (dart by default)
           other_flags:
             - to include in the lessc command line
-          
-- entry_point - Is the ONLY option required. Normally is a builder file with "@import 'filexx.less'; ..." directives.
-- entry_points - Alternative to entry_point. Let process several .less input files.
-- output - Only works with one entry_point file. Is the .css file generated. 
-		If not supplied (or several entry_points) then input .less with .css extension changed is used.
+          silence: true
+
+- entry_points (or entry_point equivalent):
+  - If not supplied process all '*.less' and '*.html' files.
+  - Could be a list of files to process, as example: ['web/file1.less', 'web/file2.less'].
+  - Could be also a pattern for inclusion, as example: ['*.less'].
+  - or have exclusion patterns that start with '!' as example: ['*.less', '!/lib/*.less'].
+ 
+- output - Only works when one '.less' file is processed. Is the .css file generated. 
+		If not supplied, or several '.less' are processed,  then input file '.less' with '.css' extension changed is used.
+		
 - include_path - see [Less Documentation include_path](http://lesscss.org/usage/#command-line-usage-include-paths).
-- cleancss - see [Less Documentation clean-css](http://lesscss.org/usage/#command-line-usage-clean-css).
+
 - compress - see [Less Documentation compress](http://lesscss.org/usage/#command-line-usage-compress).
+
 - build_mode -
 	- less - command `CMD> lessc --flags input.less output.css` is used. (output.css is in the same directory as input.less)
 	- dart - command `CMD> lessc --flags -` with stdin and stdout piped in the dart transformer process. See build folder for the css file.
 	- mixed - command `CMD> lessc --flags input.less` with stdout managed by the dart transformer process. See build folder for the css file.
+	
 - other_flags - Let add other flags such as (--source-map, ...) in the lessc command line.
 
+- silence - Only log error messages to transformer window.
+
+
+#### Html transformation
+
+When a .html file is processed, the transformer look for <less>...</less> tags and add below that, and at the same level, the equivalent <style>...</style>.
+All the <less> atrributes are copied, except 'replace'. With this attribute <less> tags are removed in the final file.
+The <less> tags in the final file are stamped with `style="display:none"` attribute, to avoid interferences, meanwhile is util for debugging.
+A .html could have various <less>...</less> pairs.
 
 ## Differences with official (js) version
 
@@ -109,6 +128,12 @@ You can also pass options to less_dart if necessary:
 
 ## Known issues
 
+- The transformer has been rebuild recently. If the new behaviour is not right, you coul use the previous version:
+
+      transformers:
+      - less_dart/deprecated/transformer:
+          entry_point: ...
+      
 - Pass the standard tests in windows (no tested in linux).
 - cleanCSS (as plugin) not implemented yet.
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.

@@ -1,3 +1,8 @@
+## v0.2.1 (2015-03-22)
+
+- Transformer support for '.html' files (<less>..</less> -> <style>..</style>)
+- Transformer accept entry_points with * and !.
+
 ## v0.2.0 (2015-03-16)
 
 - Less 2.4.0 code.
