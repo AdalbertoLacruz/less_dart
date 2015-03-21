@@ -92,7 +92,7 @@ You can also pass options to less_dart if necessary:
   - If not supplied process all '*.less' and '*.html' files.
   - Could be a list of files to process, as example: ['web/file1.less', 'web/file2.less'].
   - Could be also a pattern for inclusion, as example: ['*.less'].
-  - or have exclusion patterns that start with '!' as example: ['*.less', '!/lib/*.less'].
+  - Or have exclusion patterns that start with '!' as example: ['*.less', '!/lib/*.less'].
  
 - output - Only works when one '.less' file is processed. Is the .css file generated. 
 		If not supplied, or several '.less' are processed,  then input file '.less' with '.css' extension changed is used.
@@ -113,10 +113,14 @@ You can also pass options to less_dart if necessary:
 
 #### Html transformation
 
-When a .html file is processed, the transformer look for `<less>...</less>` tags and add below that, and at the same level, the equivalent `<style>...</style>`.
+When a .html file is processed, the transformer look for `<less>...</less>` tags and then the equivalent `<style>...</style>` tags are added below, and at the same level.
+
 All the `<less>` atrributes are copied, except 'replace'. With this attribute `<less>` tags are removed in the final file.
-The `<less>` tags in the final file are stamped with `style="display:none"` attribute, to avoid interferences, meanwhile is util for debugging.
+
+The `<less>` tags in the final file are stamped with `style="display:none"` attribute, to avoid interferences easing debugging.
+
 A .html could have various `<less>...</less>` pairs.
+
 
 ## Differences with official (js) version
 
