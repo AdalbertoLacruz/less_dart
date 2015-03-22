@@ -74,7 +74,7 @@ class FileTransformer extends AggregateTransformer {
             });
           } else if (id.extension.toLowerCase() == '.less') {
             LessTransformer lessProcess = new LessTransformer(content, id.path,
-                getOutputFileName(id, assets.length), options.build_mode);
+                getOutputFileName(id), options.build_mode);
             return lessProcess.transform(flags).then((process) {
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
@@ -107,11 +107,11 @@ class FileTransformer extends AggregateTransformer {
   ///
   /// For .less files returns the outputFilename
   ///
-  /// options.output only works if we process 1 .less file
+  /// options.output only works if we process one .less file
   /// else the name is file.less -> file.css
   ///
-  String getOutputFileName(id, int groupCount) {
-    if(groupCount > 1 || options.output == '') {
+  String getOutputFileName(id) {
+    if(!entryPoints.isLessSingle || options.output == '') {
       return id.changeExtension('.css').path;
     }
     return options.output;

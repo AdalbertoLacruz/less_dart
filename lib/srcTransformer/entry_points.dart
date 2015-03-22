@@ -10,6 +10,7 @@ part of transformer.less;
 class EntryPoints {
   List<RegExp> include = [];
   List<RegExp> exclude = [];
+  bool isLessSingle = false;
 
   EntryPoints();
 
@@ -53,6 +54,29 @@ class EntryPoints {
   void assureDefault(List<String> defaultValues) {
     if (include.isEmpty) {
       addPaths(defaultValues);
+    }
+    getLessSingle();
+  }
+
+  ///
+  /// Simple rule to know if only one less file is processed.
+  ///
+  /// include only content one '.less' path, with not wildcards
+  ///
+  void getLessSingle() {
+    int count = 0;
+    String path;
+
+    isLessSingle = true;
+    for (int i = 0; i < include.length; i++) {
+      path = include[i].pattern;
+      if (path.endsWith('.less')) {
+        count++;
+        if (path.contains('*') || count > 1) {
+          isLessSingle = false;
+          break;
+        }
+      }
     }
   }
 

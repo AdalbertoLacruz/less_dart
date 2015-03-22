@@ -2,28 +2,28 @@
 
 [Less](http://lesscss.org/)-transformer for [pub-serve](http://pub.dartlang.org/doc/pub-serve.html), [pub-build](http://pub.dartlang.org/doc/pub-build.html) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run.html)
 
-This is a traslation from less 2.4.0 Javascript (over nodejs) to Dart. 
-Is a pure Dart implementation for the server/developper side.
+This is a translation from Less 2.4.0 Javascript (over nodejs) to Dart. 
+Is a pure Dart implementation for the server/developer side.
 
-As transformer could work with .html files, converting `<less>` tags to `<style>` tags.
+As transformer could work with `.html` files, converting `<less>` tags to `<style>` tags.
 
 
 ## Use as Compiler or Transformer
 
-The package is a less compiler with wrappers for use in command line or as a dart 
+The package is a Less compiler with wrappers for use in command line or as a dart 
 transformer. Also, it could be used in other Dart programs.
 
 
-### pub-run usage
+### Pub-run usage
 
-If you get the full distribution (tar.gz file), the bin directory has the lessc.dart 
+If you get the full distribution (tar.gz file), the bin directory has the `lessc.dart` file 
 for use with pub run:
 
     CMD> pub run lessc [args] file.less file.css
 
 A working example: `CMD> pub run lessc test/less/charsets.less`
 
-Error output example: `CMD> pub run lessc --no-color test/less/errors/import-subfolder1.less`
+Example with error output: `CMD> pub run lessc --no-color test/less/errors/import-subfolder1.less`
 
 For help: `CMD> pub run lessc --help`
 
@@ -66,9 +66,9 @@ transformed to corresponding `.css` files. Also the `.html` files will be proces
 This is the standard default, but it could be modified by inclusion or exclusion paths.
 The exclusion paths start with '!'. And the '*' is supported in the paths.
 
-The power of Dart builder is chain transformers, so a less file will be converted 
-to a css file and this could be the source for a polymer transformer, by example. 
-Considerer to use the less transformer as the first in the chain.
+The power of Dart builder is chain transformers, so a `.less` file will be converted 
+to a `.css` file and this could be the source for a polymer transformer, by example. 
+Consider to use the less transformer as the first in the chain.
 
 
 #### Transformer Configuration
@@ -91,11 +91,12 @@ You can also pass options to less_dart if necessary:
 - entry_points (or entry_point equivalent):
   - If not supplied process all '*.less' and '*.html' files.
   - Could be a list of files to process, as example: ['web/file1.less', 'web/file2.less'].
-  - Could be also a pattern for inclusion, as example: ['*.less'].
-  - Or have exclusion patterns that start with '!' as example: ['*.less', '!/lib/*.less'].
+  - Could be, also, a pattern for inclusion, as example: ['*.less'].
+  - Or have exclusion patterns that start with '!', as example: ['*.less', '!/lib/*.less'].
  
-- output - Only works when one '.less' file is processed. Is the .css file generated. 
-		If not supplied, or several '.less' are processed,  then input file '.less' with '.css' extension changed is used.
+- output - Is the '.css' file generated.
+    Only works when one (only one) '.less' file is add to entry_points. No '*' must be found in the path. Is independent from '.html' files.
+		If not supplied, or several '.less' are processed, then input file '.less' with extension changed to '.css' is used.
 		
 - include_path - see [Less Documentation include_path](http://lesscss.org/usage/#command-line-usage-include-paths).
 
@@ -113,33 +114,66 @@ You can also pass options to less_dart if necessary:
 
 #### Html transformation
 
-When a .html file is processed, the transformer look for `<less>...</less>` tags and then the equivalent `<style>...</style>` tags are added below, and at the same level.
+When a `.html` file is processed, the transformer look for `<less>...</less>` tags and then the equivalent `<style>...</style>` tags are added below, and at the same level.
 
-All the `<less>` atrributes are copied, except 'replace'. With this attribute `<less>` tags are removed in the final file.
+All the `<less>` attributes are copied, except 'replace'. With this attribute `<less>` tags are removed in the final file.
 
-The `<less>` tags in the final file are stamped with `style="display:none"` attribute, to avoid interferences easing debugging.
+The `<less>` tags in the final file are stamped with `style="display:none"` attribute, to avoid conflicts, easing debugging.
 
-A .html could have various `<less>...</less>` pairs.
+A `.html` could have various `<less>...</less>` pairs.
 
+Example for a polymer component:
+
+	<polymer-element name="test">
+	  <template>
+	    <less>
+	      @color: red;
+	      :host {
+	        background-color: @color;
+	      }
+	    </less>
+	    <div>
+			...
+
+Will result in:
+
+	<polymer-element name="test">
+	  <template>
+	    <less style="display:none">
+	      @color: red;
+	      :host {
+	        background-color: @color;
+	      }
+	    </less>
+	    <style>
+	      :host {
+	        background-color: red;
+	      }
+	    </style>
+	    <div>
+	      ...
 
 ## Differences with official (js) version
 
-- Javascript evaluation not supported. 
-  - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node)
+- Javascript evaluation is not supported. 
+  - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node).
   - Alternatively you can use 'Custom Functions' (see test/custom_functions_test.dart') from your dart program.
 - Added option `--banner=bannerfile.txt`.
 
 
 ## Known issues
 
-- The transformer has been rebuild recently. If the new behaviour is not right, you coul use the previous version:
+- The transformer has been rebuild recently. If the new behavior is not right, you could use the previous version:
 
-      transformers:
-      - less_dart/deprecated/transformer:
-          entry_point: ...
+	      transformers:
+	      - less_dart/deprecated/transformer:
+	          entry_point: ...
+
       
 - Pass the standard tests in windows (no tested in linux).
+
 - cleanCSS (as plugin) not implemented yet.
+
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
 
 
