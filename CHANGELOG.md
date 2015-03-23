@@ -1,8 +1,8 @@
-## v0.2.1 (2015-03-22)
+## v0.2.1 (2015-03-23)
 
-- Transformer support for '.html' files (`<less>..</less>` -> `<style>..</style>`)
+- Transformer support for '.html' files (`<less>..</less>` -> `<style>..</style>`).
 - Transformer accept entry_points with * and !.
-- @options and @plugin directives
+- @options and @plugin directives.
 
 ## v0.2.0 (2015-03-16)
 

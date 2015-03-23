@@ -289,7 +289,7 @@ void runAsync() {
                 options: ['--banner=banner.txt'],
                 modifyOptions: (LessOptions options){options.variables = { 'my-color': new Color.fromKeyword('red') };}),
       213: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
-          options: ['--plugin=less-plugin-advanced-color-functions']),
+                options: ['--plugin=less-plugin-advanced-color-functions']),
       //@options and @plugin directives
       220: def('extendedTest/options-strict-math', isExtendedTest: true),
       221: def('extendedTest/options-import', isExtendedTest: true),
