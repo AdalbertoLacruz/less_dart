@@ -5,7 +5,7 @@
 This is a translation from Less 2.4.0 Javascript (over nodejs) to Dart. 
 Is a pure Dart implementation for the server/developer side.
 
-As transformer could work with `.html` files, converting `<less>` tags to `<style>` tags.
+As transformer could work with `.html` files, by converting `<less>` tags to `<style>` tags.
 
 
 ## Use as Compiler or Transformer
@@ -159,6 +159,8 @@ Will result in:
   - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node).
   - Alternatively you can use 'Custom Functions' (see test/custom_functions_test.dart') from your dart program.
 - Added option `--banner=bannerfile.txt`.
+- Added directive `@options "--flags";`. Intended to be the first line in a less file/tag, acts globally. This directive let specify individual options in batch processing. Example: `@options "--strict-math=on --strict-units=on --include-path=test/data";`.
+- Modified directive `@plugin "lib";`. lib is the plugin name and must exist as dart code in the plugins directory. By now only `@plugin "less-plugin-advanced-color-functions";` is operative.
 
 
 ## Known issues
@@ -181,6 +183,6 @@ Will result in:
 
 Copyright (c) 2009-2015 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
 
-Copyright (c) 2014-2015 [Adalberto Lacruz](Adalberto.Lacruz@gmail.com) for dart translation.
+Copyright (c) 2014-2015 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
 
 Licensed under the [Apache License](LICENSE).

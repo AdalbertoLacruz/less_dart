@@ -9,6 +9,7 @@ import '../environment/environment.dart';
 import '../tree/tree.dart';
 
 part 'extend_finder_visitor.dart';
+part 'ignition_visitor.dart';
 part 'join_selector_visitor.dart';
 part 'import_detector.dart';
 part 'import_visitor.dart';

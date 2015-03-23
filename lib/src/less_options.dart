@@ -175,6 +175,25 @@ class LessOptions {
   }
 
   ///
+  /// Add space delimited options.
+  ///
+  /// Let process @options directives
+  ///
+  bool fromCommandLine(String line) {
+    RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
+    Match match;
+    bool result = true;;
+
+    List<String> args = line.split(' ');
+    args.forEach((arg){
+      if ((match = regOption.firstMatch(arg)) != null){
+        result = result && parse(match);
+      }
+    });
+    return result;
+  }
+
+  ///
   /// Update less options from arg
   ///
   /// Example: '-include-path=lib/lessIncludes;lib/otherIncludes'
@@ -351,7 +370,7 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to load plugin ${name} please make sure that it is installed under or at the same level as less\n');
+          logger.error('Unable to load plugin ${name} please make sure that it is installed\n');
           //printUsage();
           parseError = true;
           return false;
@@ -362,8 +381,8 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to interpret argument ${command} - if it is a plugin (less-plugin-${command}), make sure that it is installed under or at the same level as less\n');
-          printUsage();
+          logger.error('Unable to interpret argument ${command}\nif it is a plugin (less-plugin-${command}), make sure that it is installed under or at the same level as less\n');
+          //printUsage();
           parseError = true;
           return false;
         }
