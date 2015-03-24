@@ -33,6 +33,9 @@ class FileTransformer extends AggregateTransformer {
   final TransformerOptions options;
 
   EntryPoints entryPoints;
+  
+  static AssetId assetId;
+  static int executedTimes = 0;
 
   FileTransformer(BarbackSettings settings):
     settings = settings,
@@ -48,7 +51,8 @@ class FileTransformer extends AggregateTransformer {
 
   @override
   classifyPrimary(AssetId id) {
-    if (entryPoints.check(id.path)) return id.extension.toLowerCase();
+    if (id.extension == '.less' || id.extension == '.html')
+      return id.extension.toLowerCase();
     return null;
   }
 
@@ -56,38 +60,55 @@ class FileTransformer extends AggregateTransformer {
   Future apply(AggregateTransform transform) {
     return transform.primaryInputs.toList().then((assets) {
       return Future.wait(assets.map((asset) {
-        return asset.readAsString().then((content) {
-          List<String> flags = _createFlags();  //to build process arguments
-          var id = asset.id;
-
-          if (id.extension.toLowerCase() == '.html') {
-            HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path);
-            return htmlProcess.transform(flags).then((process){
-              if (process.deliverToPipe) {
-                transform.addOutput(new Asset.fromString(new AssetId(id.package, id.path), process.outputContent));
+        //If user doesn't specify entry_points process all less and html files,
+        //else only process files specified on entry_points option.
+        if(options.entry_points.isEmpty || entryPoints.check(asset.id.path)) {
+          return asset.readAsString().then((content) {
+            List<String> flags = _createFlags();  //to build process arguments
+            print('asset.id: ${asset.id}');
+            var id = asset.id;
+            
+            //Avoid the transformer being executed 2 times fore every *.less file edit
+            if(assetId == asset.id && executedTimes == 0) {
+              executedTimes++;
+              assetId = id;
+            } else {
+              executedTimes = 0;
+              assetId = null;
+              return new Future.value();
+            }
+  
+            if (id.extension.toLowerCase() == '.html') {
+              HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path);
+              return htmlProcess.transform(flags).then((process){
+                if (process.deliverToPipe) {
+                  transform.addOutput(new Asset.fromString(new AssetId(id.package, id.path), process.outputContent));
+                  if (process.isError || !options.silence) print (process.message);
+                  if (process.isError) {
+                    print('**** ERROR ****  see build/' + process.outputFile + '\n');
+                    print(process.errorMessage);
+                  }
+                }
+              });
+            } else if (id.extension.toLowerCase() == '.less') {
+              LessTransformer lessProcess = new LessTransformer(content, id.path,
+                  getOutputFileName(id), options.build_mode);
+              return lessProcess.transform(flags).then((process) {
+                if (process.deliverToPipe) {
+                  transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
+                }
                 if (process.isError || !options.silence) print (process.message);
                 if (process.isError) {
-                  print('**** ERROR ****  see build/' + process.outputFile + '\n');
+                  String resultFile = process.deliverToPipe ? ('build/' + process.outputFile) :process.outputFile;
+                  print('**** ERROR ****  see ' + resultFile + '\n');
                   print(process.errorMessage);
                 }
-              }
-            });
-          } else if (id.extension.toLowerCase() == '.less') {
-            LessTransformer lessProcess = new LessTransformer(content, id.path,
-                getOutputFileName(id), options.build_mode);
-            return lessProcess.transform(flags).then((process) {
-              if (process.deliverToPipe) {
-                transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
-              }
-              if (process.isError || !options.silence) print (process.message);
-              if (process.isError) {
-                String resultFile = process.deliverToPipe ? ('build/' + process.outputFile) :process.outputFile;
-                print('**** ERROR ****  see ' + resultFile + '\n');
-                print(process.errorMessage);
-              }
-            });
-          }
-        });
+              });
+            }
+          });
+        }
+
+        return new Future.value();
       }));
     });
   }
