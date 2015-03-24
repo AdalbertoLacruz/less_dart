@@ -12,6 +12,7 @@ const int logLevelNone  = 0; // None
 class Logger {
   int logLevel;
   StringBuffer stderr;
+  StringBuffer capture;
 
   static Map<int, Logger> cache = {};
 
@@ -42,9 +43,27 @@ class Logger {
   }
 
   ///
+  /// route the messages to capture buffer
+  ///
+  void captureStart() {
+    capture = new StringBuffer();
+  }
+
+  ///
+  /// Returns captured messages and goes to normal log mode
+  ///
+  String captureStop() {
+    String result = capture.toString();
+    capture = null;
+    return result;
+  }
+
+  ///
   void log(String msg){
-    if (stderr.isNotEmpty)stderr.write('\n');
-    stderr.write('$msg');
+    StringBuffer buffer = capture == null ? stderr : capture;
+
+    if (buffer.isNotEmpty)buffer.write('\n');
+    buffer.write('$msg');
   }
 
   ///

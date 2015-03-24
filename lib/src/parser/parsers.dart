@@ -1204,6 +1204,54 @@ class Parsers {
   }
 
   ///
+  /// @options "--flags";
+  /// No standard less implementation
+  ///
+  Options options() {
+    int index = parserInput.i;
+    Quoted value;
+    String dir = parserInput.$re(r'^@options?\s+');
+    if (dir != null) {
+      if ((value = entities.quoted()) != null) {
+        if (parserInput.$(';') == null) {
+            parserInput.i = index;
+            parserInput.error('missing semi-colon on options');
+        }
+        return new Options(value, index, fileInfo);
+      } else {
+        parserInput.i = index;
+        parserInput.error('malformed options statement');
+      }
+    }
+
+    return null;
+  }
+
+  ///
+  /// @plugin "lib";
+  /// Differs implementation. Here is Options and no import
+  ///
+  Options plugin() {
+    int index = parserInput.i;
+    Quoted value;
+    String dir = parserInput.$re(r'^@plugin?\s+');
+    if (dir != null) {
+      if ((value = entities.quoted()) != null) {
+        if (parserInput.$(';') == null) {
+            parserInput.i = index;
+            parserInput.error('missing semi-colon on plugin');
+        }
+        return new Options(value, index, fileInfo, isPlugin: true);
+      } else {
+        parserInput.i = index;
+        parserInput.error('malformed plugin statement');
+      }
+    }
+
+    return null;
+  }
+
+  ///
   /// A CSS Directive
   ///
   ///     @charset "utf-8";
@@ -1222,6 +1270,8 @@ class Parsers {
     if (parserInput.currentChar() != '@') return null;
 
     value = import();
+    if (value == null) value = options();
+    if (value == null) value = plugin();
     if (value == null) value = media();
     if (value != null) return value;
 

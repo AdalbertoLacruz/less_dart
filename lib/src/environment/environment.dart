@@ -11,6 +11,7 @@ import 'package:path/path.dart' as pathLib;
 
 import '../contexts.dart';
 import '../less_error.dart';
+import '../less_options.dart';
 import '../logger.dart';
 
 part 'base64_string.dart';
@@ -27,6 +28,7 @@ class Environment {
 
   List<FileManager> fileManagers;
   Logger logger = new Logger();
+  LessOptions options;
 
   Environment._();
 

@@ -134,6 +134,8 @@ class Parser {
       root.firstRoot = true;
       parsers.isFinished();
 
+      new IgnitionVisitor().run(root); // @options directive process
+
       if (context.processImports) {
         return new ImportVisitor(this.imports).run(root).then((_){
             return new Future.value(root);

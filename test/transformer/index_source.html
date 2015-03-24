@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <less replace>
+      @red: #ff0000 ;
+      @blue: #0000ff ;
+      @green: #00ff00 ;
+      
+      .mixina (@style, @width, @color: black) {
+          border: @width @style @color;
+      }
+      
+      #divRed {
+        height: 100px;
+        background-color: @red;
+        .mixina(dotted, 2px);
+      }
+      
+      #hBlue {
+        text-align: center;
+        position: absolute;
+        background-color: @green;
+        color: @blue;
+      }
+    </less>
+    <title>Less Test Style</title>
+  </head>
+  <body>
+    <less no-shim>
+      #divBlue {
+        height: 200px;
+        color: blue;
+      }
+    </less>
+    <div id="divRed">
+      <h1 id="hBlue">Less Test</h1>
+    </div>
+  </body>
+</html>
