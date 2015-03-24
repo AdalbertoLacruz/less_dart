@@ -68,7 +68,7 @@ class FileTransformer extends AggregateTransformer {
             print('asset.id: ${asset.id}');
             var id = asset.id;
             
-            //TODO: Avoid the transformer being executed 2 times for every *.less file edit
+            //Avoid the transformer being executed 2 times for every *.less file edit
             if(assetId != asset.id && executedTimes == 0) {
               executedTimes++;
               assetId = id;
