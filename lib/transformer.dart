@@ -68,15 +68,15 @@ class FileTransformer extends AggregateTransformer {
             print('asset.id: ${asset.id}');
             var id = asset.id;
             
-            //TODO: Avoid the transformer being executed 2 times fore every *.less file edit
-//            if(assetId == asset.id && executedTimes == 0) {
-//              executedTimes++;
-//              assetId = id;
-//            } else {
-//              executedTimes = 0;
-//              assetId = null;
-//              return new Future.value();
-//            }
+            //TODO: Avoid the transformer being executed 2 times for every *.less file edit
+            if(assetId != asset.id && executedTimes == 0) {
+              executedTimes++;
+              assetId = id;
+            } else {
+              executedTimes = 0;
+              assetId = null;
+              return new Future.value();
+            }
   
             if (id.extension.toLowerCase() == '.html') {
               HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path);
