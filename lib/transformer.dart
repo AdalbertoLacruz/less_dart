@@ -55,11 +55,11 @@ class FileTransformer extends AggregateTransformer {
   @override
   Future apply(AggregateTransform transform) {
     return transform.primaryInputs.toList().then((assets) {
-        return Future.wait(assets.map((asset) {
-              return asset.readAsString().then((content) {
-                List<String> flags = _createFlags();  //to build process arguments
-                          var id = asset.id;
-            
+      return Future.wait(assets.map((asset) {
+        return asset.readAsString().then((content) {
+          List<String> flags = _createFlags();  //to build process arguments
+          var id = asset.id;
+
           if (id.extension.toLowerCase() == '.html') {
             HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path);
             return htmlProcess.transform(flags).then((process){
@@ -85,8 +85,8 @@ class FileTransformer extends AggregateTransformer {
                 print('**** ERROR ****  see ' + resultFile + '\n');
                 print(process.errorMessage);
               }
-                });
-            }
+            });
+          }
         });
       }));
     });
