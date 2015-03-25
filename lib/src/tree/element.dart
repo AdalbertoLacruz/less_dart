@@ -1,17 +1,29 @@
-//source: less/tree/element.js 2.4.0
+//source: less/tree/element.js 2.4.0 *
 
 part of tree.less;
 
+///
+/// A Selector Element
+///
+///     div
+///     + h1
+///     #socks
+///     input[type="text"]
+///
+/// Elements are the building blocks for Selectors,
+/// they are made out of a `Combinator` and an element name,
+/// such as a tag a class, or `*`.
+///
 class Element extends Node {
-  Combinator combinator;
-  var value = ''; // String or Node
-  int index;
-  FileInfo currentFileInfo;
+  Combinator  combinator;
+  var         value = ''; // String or Node
+  int         index;
+  FileInfo    currentFileInfo;
 
   final String type = 'Element';
 
   ///
-  Element(combinator, value, int this.index, FileInfo this.currentFileInfo) {
+  Element(combinator, value, this.index, this.currentFileInfo) {
     this.combinator = (combinator is Combinator) ? combinator : new Combinator(combinator);
 
     if (value is String) {
@@ -38,10 +50,11 @@ class Element extends Node {
   }
 
   ///
+  /// Tree navegation for visitors
+  ///
   void accept(Visitor visitor) {
-    var value = this.value;
-    this.combinator = visitor.visit(this.combinator);
-    if (value is Node) this.value = visitor.visit(value);
+    combinator = visitor.visit(combinator);
+    if (value is Node) value = visitor.visit(value);
 
 //2.3.1
 //  Element.prototype.accept = function (visitor) {
@@ -54,11 +67,13 @@ class Element extends Node {
   }
 
   ///
+  /// Replace variables by value
+  ///
   Element eval(Contexts context) => new Element(
-                        this.combinator,
-                        (this.value is Node) ? this.value.eval(context) : this.value,
-                        this.index,
-                        this.currentFileInfo);
+                        combinator,
+                        (value is Node) ? value.eval(context) : value,
+                        index,
+                        currentFileInfo);
 
   //2.3.1
 //  Element.prototype.eval = function (context) {
@@ -69,8 +84,10 @@ class Element extends Node {
 //  };
 
   ///
+  /// Writes the css code
+  ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.toCSS(context), this.currentFileInfo, this.index);
+    output.add(toCSS(context), currentFileInfo, index);
 
 //2.3.1
 //  Element.prototype.genCSS = function (context, output) {
@@ -94,10 +111,10 @@ class Element extends Node {
 
     value = (value is Node) ? value.toCSS(context) : value;
     context.firstSelector = firstSelector;
-    if (value.isEmpty && this.combinator.value.startsWith('&')) {
+    if (value.isEmpty && combinator.value.startsWith('&')) {
       return '';
     } else {
-      return this.combinator.toCSS(context) + value;
+      return combinator.toCSS(context) + value;
     }
 
 //2.3.1

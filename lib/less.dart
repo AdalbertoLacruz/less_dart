@@ -20,6 +20,7 @@ class Less {
   StringBuffer stdin  = new StringBuffer();
   StringBuffer stdout = new StringBuffer();
   StringBuffer stderr = new StringBuffer();
+  List<String> imports = []; //return list of imported files
 
   int currentErrorCode = 0;
   bool continueProcessing = true;
@@ -131,6 +132,7 @@ class Less {
 
       try {
         result = new ParseTree(tree, parser.imports).toCSS(_options.clone(), parser.context);
+        imports = result.imports;
 
         if (!_options.lint) {
           writeOutput(_options.output, result, _options);

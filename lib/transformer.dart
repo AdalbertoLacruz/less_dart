@@ -48,7 +48,11 @@ class FileTransformer extends AggregateTransformer {
 
   @override
   classifyPrimary(AssetId id) {
-    if (entryPoints.check(id.path)) return id.extension.toLowerCase();
+    // Build one group with all .less files and only .html's in entryPoint
+    // so a .less file change propagates to all affected
+    String extension = id.extension.toLowerCase();
+    if (extension == '.less') return 'less';
+    if (extension == '.html' || entryPoints.check(id.path)) return 'less';
     return null;
   }
 
@@ -56,6 +60,10 @@ class FileTransformer extends AggregateTransformer {
   Future apply(AggregateTransform transform) {
     return transform.primaryInputs.toList().then((assets) {
       return Future.wait(assets.map((asset) {
+        // files excluded of entry_points are not processed
+        // if user don't specify entry_points, the default value is all '*.less' and '*.html' files
+        if (!entryPoints.check(asset.id.path)) return new Future.value();
+
         return asset.readAsString().then((content) {
           List<String> flags = _createFlags();  //to build process arguments
           var id = asset.id;

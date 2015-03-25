@@ -29,6 +29,7 @@ class BaseTransformer {
   bool isError = false;
   String errorMessage = '';
   bool deliverToPipe = true; // deliver to barback
+  static Map<String, RegisterItem> register = {};
 
 
   bool get isBuildModeLess => buildMode == BUILD_MODE_LESS;   //input file, output file
@@ -38,6 +39,18 @@ class BaseTransformer {
   Stopwatch timeInProcess = new Stopwatch();
 
   BaseTransformer(this.inputContent, this.inputFile, this.outputFile, this.buildMode);
+
+  ///
+  /// check if [inputFile] has changed or need process
+  ///
+  static bool changed(String inputFile, String inputContent) {
+    if (register.containsKey(inputFile)) {
+      RegisterItem reg = register[inputFile];
+      if (reg.imports.isNotEmpty) return true; //Has dependencies
+      if (reg.contentHash == inputContent.hashCode) return false; //not inputContent changed
+    }
+    return true;
+  }
 
   void timerStart() {
     timeInProcess.start();
@@ -71,4 +84,13 @@ class BaseTransformer {
   var ms = (duration.inMilliseconds % 1000) ~/ 100;
   return result + "$s.${ms}s";
   }
+}
+
+///
+/// Register for last run
+class RegisterItem {
+  String path; // asset.id.path
+  List<String> imports; // dependencies path
+  int contentHash; //hash to know if content string has changed
+  RegisterItem(this.path, this.imports, this.contentHash);
 }
