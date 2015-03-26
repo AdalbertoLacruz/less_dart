@@ -4,6 +4,8 @@ class HtmlTransformer extends BaseTransformer{
   List elements;
   List<Future> runners = [];
 
+  List<String> imports = []; // aggregate dependencies
+
   HtmlTransformer(String inputContent, String inputFile): super(
       inputContent.replaceAll(new RegExp(r'\r\n'), '\n'),
       inputFile, inputFile, null
@@ -42,6 +44,11 @@ class HtmlTransformer extends BaseTransformer{
       outputContent = toString();
       timerStop();
       getMessage();
+
+      if(!isError) {
+        BaseTransformer.register[inputFile] = new RegisterItem(inputFile, imports, inputContent.hashCode);
+      }
+
       task.complete(this);
     });
     return task.future;
@@ -89,6 +96,7 @@ class HtmlTransformer extends BaseTransformer{
       less.transform(args).then((exitCode){
         if (exitCode == 0) {
           element.css = less.stdout.toString();
+          imports.addAll(less.imports);
         } else {
           element.css = less.stderr.toString();
           errorMessage += element.css + '\n';

@@ -33,6 +33,7 @@ class LessTransformer extends BaseTransformer {
         timerStop();
         if (exitCode == 0) {
           outputContent = less.stdout.toString();
+          BaseTransformer.register[inputFile] = new RegisterItem(inputFile, less.imports, inputContent.hashCode);
         } else {
           outputContent = less.stderr.toString();
           errorMessage = less.stderr.toString();
