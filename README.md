@@ -70,6 +70,8 @@ The power of Dart builder is chain transformers, so a `.less` file will be conve
 to a `.css` file and this could be the source for a polymer transformer, by example. 
 Consider to use the less transformer as the first in the chain.
 
+When pub build is started, a change in a `.less` file, or a `.html` file detected as entry point, trigger the transformer process again.
+
 
 #### Transformer Configuration
 
@@ -121,6 +123,8 @@ All the `<less>` attributes are copied, except 'replace'. With this attribute `<
 The `<less>` tags in the final file are stamped with `style="display:none"` attribute, to avoid conflicts, easing debugging.
 
 A `.html` could have various `<less>...</less>` pairs.
+
+Also, you could use `<style type="text/less">...</style>` as equivalent to `<less replace>...</less>`.
 
 Example for a polymer component:
 

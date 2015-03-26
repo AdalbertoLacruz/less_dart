@@ -1,3 +1,8 @@
+## v0.2.2 (2015-03-26)
+
+- Transformer continous working with pub serve
+- Transformer accept `.html` files with `<style type="text/less>` tags
+
 ## v0.2.1 (2015-03-23)
 
 - Transformer support for '.html' files (`<less>..</less>` -> `<style>..</style>`).
