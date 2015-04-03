@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 2.4.0
+//source: tree/mixin-definition.js 2.4.0 20150305
 
 part of tree.less;
 
@@ -137,6 +137,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
     mixinEnv = new Contexts.eval(mixinEnv,
                              [frame]..addAll(mixinEnv.frames));
+    frame.functionRegistry = new FunctionRegistry.inherit((context.frames[0] as VariableMixin).functionRegistry);
 
     if (args != null) {
       args = args.sublist(0);
@@ -216,7 +217,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
     }
     return frame;
 
-//2.3.1
+//2.4.0 20150305
 //  Definition.prototype.evalParams = function (context, mixinEnv, args, evaldArguments) {
 //      /*jshint boss:true */
 //      var frame = new Ruleset(null, null),
@@ -225,16 +226,17 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 //          i, j, val, name, isNamedFound, argIndex, argsLength = 0;
 //
 //      mixinEnv = new contexts.Eval(mixinEnv, [frame].concat(mixinEnv.frames));
+//      frame.functionRegistry = context.frames[0].functionRegistry.inherit();
 //
 //      if (args) {
 //          args = args.slice(0);
 //          argsLength = args.length;
 //
-//          for(i = 0; i < argsLength; i++) {
+//          for (i = 0; i < argsLength; i++) {
 //              arg = args[i];
 //              if (name = (arg && arg.name)) {
 //                  isNamedFound = false;
-//                  for(j = 0; j < params.length; j++) {
+//                  for (j = 0; j < params.length; j++) {
 //                      if (!evaldArguments[j] && name === params[j].name) {
 //                          evaldArguments[j] = arg.value.eval(context);
 //                          frame.prependRule(new Rule(name, arg.value.eval(context)));

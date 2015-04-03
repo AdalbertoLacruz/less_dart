@@ -3,9 +3,9 @@
 [Less](http://lesscss.org/)-transformer for [pub-serve](http://pub.dartlang.org/doc/pub-serve.html), [pub-build](http://pub.dartlang.org/doc/pub-build.html) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run.html)
 
 This is a translation from Less 2.4.0 Javascript (over nodejs) to Dart. 
-Is a pure Dart implementation for the server/developer side.
+It is a pure Dart implementation for the server/developer side.
 
-As transformer could work with `.html` files, by converting `<less>` tags to `<style>` tags.
+As transformer could work also with `.html` files, by converting `<less>` tags to `<style>` tags.
 
 
 ## Use as Compiler or Transformer
@@ -66,8 +66,8 @@ transformed to corresponding `.css` files. Also the `.html` files will be proces
 This is the standard default, but it could be modified by inclusion or exclusion paths.
 The exclusion paths start with '!'. And the '*' is supported in the paths.
 
-The power of Dart builder is chain transformers, so a `.less` file will be converted 
-to a `.css` file and this could be the source for a polymer transformer, by example. 
+The power of Dart builder is to chain transformers, so a `.less` file will be converted 
+to a `.css` file and this could be the source for a polymer transformer, as an example. 
 Consider to use the less transformer as the first in the chain.
 
 When pub build is started, a change in a `.less` file, or a `.html` file detected as entry point, trigger the transformer process again.
@@ -157,14 +157,22 @@ Will result in:
 	    <div>
 	      ...
 
+
+## Custom Transformer, Custom Plugin, Custom Functions
+You could clone the package to your local environment and modify it to add plugins. But, ...
+
+Other way, is to inherit the transformer in your application. Create a file 
+`lib\transformer.dart` which extends the less_dart `FileTransformer` (see example in: `test\custom_transformer.dart`). The `customOptions` method could be override to modify the less options defining a custom plugin with custom functions.
+
+
 ## Differences with official (js) version
 
 - Javascript evaluation is not supported. 
   - If this is a problem use [less_node](https://pub.dartlang.org/packages/less_node).
-  - Alternatively you can use 'Custom Functions' (see test/custom_functions_test.dart') from your dart program.
+  - Alternatively you can use 'Custom Functions' (see example in: `test/custom_functions_test.dart`) from your dart program, or your custom transformer.
 - Added option `--banner=bannerfile.txt`.
 - Added directive `@options "--flags";`. Intended to be the first line in a less file/tag, acts globally. This directive let specify individual options in batch processing. Example: `@options "--strict-math=on --strict-units=on --include-path=test/data";`.
-- Modified directive `@plugin "lib";`. lib is the plugin name and must exist as dart code in the plugins directory. By now only `@plugin "less-plugin-advanced-color-functions";` is operative.
+- Modified directive `@plugin "lib";`. lib is the plugin name and must exist as dart code in the plugins directory. By now only `@plugin "less-plugin-advanced-color-functions";` is operative. You could define your custom plugins as indicated above.
 
 
 ## Known issues

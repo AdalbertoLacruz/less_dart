@@ -37,9 +37,6 @@ class Contexts {
   /// For error reporting and importing and making urls relative etc.
   FileInfo currentFileInfo;
 
-  /// options.customFunctions
-  FunctionBase customFunctions;
-
   /// for default() function evaluation
   FunctionBase defaultFunc;
 
@@ -198,7 +195,6 @@ class Contexts {
     processImports      = options.processImports;
     numPrecision        = options.numPrecision;
     color               = options.color;
-    customFunctions     = options.customFunctions; //dart version
     pluginManager       = options.pluginManager;
 
     if (options is Contexts) {

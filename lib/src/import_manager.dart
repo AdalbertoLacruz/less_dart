@@ -1,4 +1,4 @@
-//source: less/import-manager.js 2.4.0
+//source: less/import-manager.js 2.4.0 20150305 *
 
 library importmanager.less;
 
@@ -50,11 +50,11 @@ class ImportManager {
   List<String> queue = []; // Deprecated?
 
   ///
-  ImportManager(Contexts this.context, FileInfo rootFileInfo){
-    this.rootFilename = rootFileInfo.filename;
-    if (context.paths != null) this.paths = context.paths;
-    this.mime = context.mime;
-    this.environment = new Environment();
+  ImportManager(this.context, FileInfo rootFileInfo){
+    rootFilename = rootFileInfo.filename;
+    if (context.paths != null) paths = context.paths;
+    mime = context.mime;
+    environment = new Environment();
 
 //2.3.1
 //  var ImportManager = function(context, rootFileInfo) {
@@ -73,11 +73,10 @@ class ImportManager {
 
   /// Build the return content
   ImportedFile fileParsedFunc(String path, root, String fullPath) {
-    this.queue.remove(path);
-    bool importedEqualsRoot = (fullPath == this.rootFilename);
+    queue.remove(path);
 
-    if (fullPath != null) this.files[fullPath] = root; // Store the root
-
+    bool importedEqualsRoot = (fullPath == rootFilename);
+    if (fullPath != null) files[fullPath] = root; // Store the root
     return new ImportedFile(root, importedEqualsRoot, fullPath);
   }
 
@@ -108,18 +107,19 @@ class ImportManager {
   Future push(String path, bool tryAppendLessExtension, FileInfo currentFileInfo, ImportOptions importOptions) {
     Completer task = new Completer();
 
-    this.queue.add(path);
+    queue.add(path);
     FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, context);
-    FileManager fileManager = environment.getFileManager(path, currentFileInfo.currentDirectory, this.context, environment);
+    FileManager fileManager = environment.getFileManager(path, currentFileInfo.currentDirectory, context, environment);
 
     if (fileManager == null) {
       task.completeError(new LessError(message: 'Could not find a file-manager for ${path}'));
       return task.future;
     }
 
+//(js)if (tryAppendLessExtension) path = fileManager.tryAppendExtension(path, importOptions.plugin ? ".js" : ".less");
     if (tryAppendLessExtension) path = fileManager.tryAppendLessExtension(path);
 
-    fileManager.loadFile(path, currentFileInfo.currentDirectory, this.context, environment).then((FileLoaded loadedFile){
+    fileManager.loadFile(path, currentFileInfo.currentDirectory, context, environment).then((FileLoaded loadedFile){
       String resolvedFilename = loadedFile.filename;
       String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
 
@@ -154,6 +154,11 @@ class ImportManager {
         newFileInfo.reference = true;
       }
 
+//(js)  if (importOptions.plugin) {
+//          new FunctionImporter(newEnv, newFileInfo).eval(contents, function (e, root) {
+//              fileParsedFunc(e, root, resolvedFilename);
+//          });
+//      } else if (importOptions.inline) {
       if (isTrue(importOptions.inline)) {
         task.complete(fileParsedFunc(path, contents, resolvedFilename));
       } else {
@@ -175,22 +180,22 @@ class ImportManager {
 
     return task.future;
 
-//2.3.1
+//2.4.0 20150305
 //  ImportManager.prototype.push = function (path, tryAppendLessExtension, currentFileInfo, importOptions, callback) {
 //      var importManager = this;
-//      this.queue.push(path); *
+//      this.queue.push(path);
 //
 //      var fileParsedFunc = function (e, root, fullPath) {
 //          importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue
 //
 //          var importedEqualsRoot = fullPath === importManager.rootFilename;
 //          if (importOptions.optional && e) {
-//          callback(null, {rules:[]}, false, null);
+//              callback(null, {rules:[]}, false, null);
 //          }
 //          else {
-//          importManager.files[fullPath] = root;
-//          if (e && !importManager.error) { importManager.error = e; }
-//          callback(e, root, importedEqualsRoot, fullPath);
+//              importManager.files[fullPath] = root;
+//              if (e && !importManager.error) { importManager.error = e; }
+//              callback(e, root, importedEqualsRoot, fullPath);
 //          }
 //      };
 //
@@ -209,7 +214,7 @@ class ImportManager {
 //      }
 //
 //      if (tryAppendLessExtension) {
-//          path = fileManager.tryAppendLessExtension(path);
+//          path = fileManager.tryAppendExtension(path, importOptions.plugin ? ".js" : ".less");
 //      }
 //
 //      var loadFileCallback = function(loadedFile) {
@@ -225,7 +230,7 @@ class ImportManager {
 //          // - If path of imported file is '../mixins.less' and rootpath is 'less/',
 //          //   then rootpath should become 'less/../'
 //          newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
-//          if(newFileInfo.relativeUrls) {
+//          if (newFileInfo.relativeUrls) {
 //              newFileInfo.rootpath = fileManager.join(
 //                  (importManager.context.rootpath || ""),
 //                  fileManager.pathDiff(newFileInfo.currentDirectory, newFileInfo.entryPath));
@@ -245,7 +250,11 @@ class ImportManager {
 //              newFileInfo.reference = true;
 //          }
 //
-//          if (importOptions.inline) {
+//          if (importOptions.plugin) {
+//              new FunctionImporter(newEnv, newFileInfo).eval(contents, function (e, root) {
+//                  fileParsedFunc(e, root, resolvedFilename);
+//              });
+//          } else if (importOptions.inline) {
 //              fileParsedFunc(null, contents, resolvedFilename);
 //          } else {
 //              new Parser(newEnv, importManager, newFileInfo).parse(contents, function (e, root) {

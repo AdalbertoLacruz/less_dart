@@ -113,6 +113,11 @@ class ToCSSVisitor extends VisitorBase{
 //  },
   }
 
+  /// remove
+  Options visitOptions(Options optionsNode, VisitArgs visitArgs) {
+    return null;
+  }
+
   ///
   bool hasVisibleChild(Directive directiveNode) {
     //prepare list of childs
@@ -641,6 +646,7 @@ class ToCSSVisitor extends VisitorBase{
     if (node is Extend)     return this.visitExtend;
     if (node is Import)     return this.visitImport;
     if (node is MixinDefinition) return this.visitMixinDefinition;
+    if (node is Options)    return this.visitOptions;
     if (node is Rule)       return this.visitRule;
     if (node is Ruleset)    return this.visitRuleset;
 

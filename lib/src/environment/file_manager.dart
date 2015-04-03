@@ -1,4 +1,4 @@
-//source: lib/less/environment/abstract-file-manager.js 2.4.0
+//source: lib/less/environment/abstract-file-manager.js 2.4.0 20150226
 
 part of environment.less;
 
@@ -78,18 +78,28 @@ class FileManager {
   }
 
   ///
+  /// Append a [ext] extension to [path] if appropriate.
+  ///
+  String tryAppendExtension(String path, String ext) {
+    RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
+    return re.hasMatch(path) ? path : path + ext;
+
+//2.4.0 20150226
+//  abstractFileManager.prototype.tryAppendExtension = function(path, ext) {
+//      return /(\.[a-z]*$)|([\?;].*)$/.test(path) ? path : path + ext;
+//  };
+  }
+
+  ///
   /// Append a .less extension to [path] if appropriate.
   /// Only called if less thinks one could be added.
   ///
-  String tryAppendLessExtension(String path) {
-    RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
-    return re.hasMatch(path) ? path : path + '.less';
+  String tryAppendLessExtension(String path) => tryAppendExtension(path, '.less');
 
-//2.3.1
-//abstractFileManager.prototype.tryAppendLessExtension = function(path) {
-//    return /(\.[a-z]*$)|([\?;].*)$/.test(path) ? path : path + '.less';
-//};
-  }
+//2.4.0 20150226
+//  abstractFileManager.prototype.tryAppendLessExtension = function(path) {
+//      return this.tryAppendExtension(path, '.less');
+//  };
 
   ///
   /// Whether the rootpath should be converted to be absolute.

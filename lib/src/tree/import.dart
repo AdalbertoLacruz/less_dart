@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.4.0+6
+//source: less/tree/import.js 2.4.0 20150305 *
 
 part of tree.less;
 
@@ -31,26 +31,23 @@ class Import extends Node {
   int           index;
   FileInfo      currentFileInfo;
 
-  bool      css = false;
-  LessError errorImport;
-  String    importedFilename;
-  var       root;
-
-  // bool or Function - initialized in import_visitor
-  var       skip;
+  bool          css = false;
+  LessError     errorImport;
+  String        importedFilename;
+  var           root; // Ruleset or String
+  var           skip; // bool or Function - initialized in import_visitor
 
   final String type = 'Import';
 
   ///
-  Import(Node this.path, Node this.features, ImportOptions this.options, int this.index,
-      [FileInfo this.currentFileInfo]) {
+  Import(this.path, this.features, this.options, this.index, [this.currentFileInfo]) {
     RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
 
-    if (this.options.less != null || isTrue(this.options.inline)) {
-      this.css = !isTrue(this.options.less) || isTrue(this.options.inline);
+    if (options.less != null || isTrue(options.inline)) {
+      css = !isTrue(options.less) || isTrue(this.options.inline);
     } else {
       String pathValue = getPath();
-      if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) this.css = true;
+      if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) css = true;
     }
 
 //2.3.1
@@ -74,19 +71,19 @@ class Import extends Node {
 
   ///
   void accept(Visitor visitor) {
-    if (this.features != null) this.features = visitor.visit(this.features);
+    if (features != null) features = visitor.visit(features);
+    path = visitor.visit(path);
 
-    this.path = visitor.visit(this.path);
+    //(js)if (!this.options.plugin && !this.options.inline && this.root) ...
+    if (!isTrue(options.inline) && root != null) root = visitor.visit(root);
 
-    if (!isTrue(this.options.inline) && this.root != null) this.root = visitor.visit(this.root);
-
-//2.3.1
+//2.4.0 20150225
 //  Import.prototype.accept = function (visitor) {
 //      if (this.features) {
 //          this.features = visitor.visit(this.features);
 //      }
 //      this.path = visitor.visit(this.path);
-//      if (!this.options.inline && this.root) {
+//      if (!this.options.plugin && !this.options.inline && this.root) {
 //          this.root = visitor.visit(this.root);
 //      }
 //  };
@@ -94,17 +91,29 @@ class Import extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    if (this.css && !this.path.currentFileInfo.reference) {
-      output.add('@import ', this.currentFileInfo, this.index);
-      this.path.genCSS(context, output);
-      if (this.features != null) {
+    if (css && !path.currentFileInfo.reference) { //TODO
+      output.add('@import ', currentFileInfo, index);
+      path.genCSS(context, output);
+      if (features != null) {
         output.add(' ');
-        this.features.genCSS(context, output);
+        features.genCSS(context, output);
       }
       output.add(';');
     }
 
-//2.4.0+6
+//2.4.0 20150305
+//  Import.prototype.genCSS = function (context, output) {
+//      if (this.css) {
+//          output.add("@import ", this.currentFileInfo, this.index);
+//          this.path.genCSS(context, output);
+//          if (this.features) {
+//              output.add(" ");
+//              this.features.genCSS(context, output);
+//          }
+//          output.add(';');
+//      }
+//  };
+//2.4.0 20150228
 //  Import.prototype.genCSS = function (context, output) {
 //      if (this.css && this.path.currentFileInfo.reference === undefined) {
 //          output.add("@import ", this.currentFileInfo, this.index);
@@ -122,13 +131,10 @@ class Import extends Node {
   /// get the file path to import.
   ///
   String getPath() {
-    RegExp rPath = new RegExp(r'(\.[a-z]*$)|([\?;].*)$'); //1.7.5 *****
-
-    if (this.path is Quoted) {
-        String path = this.path.value;
-          return this.path.value;
-    } else if (this.path is URL) {
-      return this.path.value.value;
+    if (path is Quoted) {
+      return path.value;
+    } else if (path is URL) {
+      return path.value.value;
     }
     return null;
 
@@ -145,7 +151,7 @@ class Import extends Node {
 
   ///
   bool isVariableImport() {
-    var path = this.path;
+    Node path = this.path;
     if (path is URL) path = path.value;
     if (path is Quoted) return path.containsVariables();
     return true;
@@ -170,8 +176,7 @@ class Import extends Node {
   Import evalForImport(Contexts context) {
     Node path = this.path;
     if (path is URL) path = path.value;
-    return new Import(path.eval(context), this.features, this.options,
-        this.index, this.currentFileInfo);
+    return new Import(path.eval(context), features, options, index, currentFileInfo);
 
 //2.3.1
 //  Import.prototype.evalForImport = function (context) {
@@ -198,7 +203,6 @@ class Import extends Node {
       }
       path.value = context.normalizePath(path.value);
     }
-
     return path;
 
 //2.3.1
@@ -228,28 +232,69 @@ class Import extends Node {
    eval(Contexts context) {
     Node features = (this.features != null) ? this.features.eval(context) : null;
 
-    if (this.skip != null) {
-      if (skip is Function) this.skip = this.skip();
-      if (this.skip) return [];
+    if (skip != null) {
+      if (skip is Function) skip = skip();
+      if (skip) return [];
     }
 
-    if (isTrue(this.options.inline)) {
-      // Todo needs to reference css file not import
-      Anonymous contents = new Anonymous(this.root, 0, new FileInfo()..filename = this.importedFilename, true, true);
+//(js)if (this.options.plugin) {
+//        registry = context.frames[0] && context.frames[0].functionRegistry;
+//        if ( registry && this.root.functions ) {
+//            registry.addMultiple( this.root.functions );
+//        }
+//        return [];
+//    } else if (this.options.inline) {...
+    if (isTrue(options.inline)) {
+      Anonymous contents = new Anonymous(root, 0, new FileInfo()..filename = importedFilename, true, true);
       return (this.features != null) ? new Media([contents], this.features.value) : [contents];
-
-    } else if (isTrue(this.css)) {
-      Import newImport = new Import(this.evalPath(context), features, this.options, this.index);
-      if (!isTrue(newImport.css) && this.errorImport != null) throw new LessExceptionError(this.errorImport);
+    } else if (isTrue(css)) {
+      Import newImport = new Import(evalPath(context), features, options, index);
+      if (!isTrue(newImport.css) && errorImport != null) throw new LessExceptionError(errorImport);
       return newImport;
-
     } else {
-      Ruleset ruleset = new Ruleset(null, this.root.rules.sublist(0));
+      Ruleset ruleset = new Ruleset(null, root.rules.sublist(0));
       ruleset.evalImports(context);
       return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
     }
 
-//2.3.1
+//2.4.0 20150305
+//  Import.prototype.eval = function (context) {
+//      var ruleset, registry,
+//          features = this.features && this.features.eval(context);
+//
+//      if (this.skip) {
+//          if (typeof this.skip === "function") {
+//              this.skip = this.skip();
+//          }
+//          if (this.skip) {
+//              return [];
+//          }
+//      }
+//
+//      if (this.options.plugin) {
+//          registry = context.frames[0] && context.frames[0].functionRegistry;
+//          if ( registry && this.root.functions ) {
+//              registry.addMultiple( this.root.functions );
+//          }
+//          return [];
+//      } else if (this.options.inline) {
+//          var contents = new Anonymous(this.root, 0, {filename: this.importedFilename}, true, true);
+//          return this.features ? new Media([contents], this.features.value) : [contents];
+//      } else if (this.css) {
+//          var newImport = new Import(this.evalPath(context), features, this.options, this.index);
+//          if (!newImport.css && this.error) {
+//              throw this.error;
+//          }
+//          return newImport;
+//      } else {
+//          ruleset = new Ruleset(null, this.root.rules.slice(0));
+//
+//          ruleset.evalImports(context);
+//
+//          return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
+//      }
+//  }
+//2.4.0 20150225
 //  Import.prototype.eval = function (context) {
 //      var ruleset, features = this.features && this.features.eval(context);
 //
@@ -262,7 +307,9 @@ class Import extends Node {
 //          }
 //      }
 //
-//      if (this.options.inline) {
+//      if (this.options.plugin) {
+//          return [];
+//      } else if (this.options.inline) {
 //          var contents = new Anonymous(this.root, 0, {filename: this.importedFilename}, true, true);
 //          return this.features ? new Media([contents], this.features.value) : [contents];
 //      } else if (this.css) {
@@ -279,16 +326,21 @@ class Import extends Node {
 //          return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
 //      }
 //  };
+
   }
 }
 
-/// Example: options['less'] = true;  options.less = true;
+///
+/// Manages the options in: @import (options) "...";
+/// Example: options = new ImportOptions(); options['less'] = true;  options.less = true;
+///
 class ImportOptions {
   bool less;
   bool css;
   bool multiple;
   bool once;
   bool inline;
+  //bool plugin;  //Here @plugin directive is based in @options, no on import
   bool reference;
   bool optional;
 
@@ -309,6 +361,9 @@ class ImportOptions {
       case 'inline':
         inline = value;
         break;
+//      case 'plugin':
+//        plugin = value;
+//        break;
       case 'reference':
         reference = value;
         break;

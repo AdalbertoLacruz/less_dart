@@ -1,4 +1,3 @@
-//import 'dart:async';
 import 'dart:io';
 
 import '../lib/srcTransformer/base_transformer.dart';
@@ -28,7 +27,7 @@ main () async {
 
   //html transformer
   String content = new File('test/transformer/index_source.html').readAsStringSync();
-  HtmlTransformer htmlProcess = new HtmlTransformer(content, 'transformer/index.html');
+  HtmlTransformer htmlProcess = new HtmlTransformer(content, 'transformer/index.html', null);
   htmlProcess = await htmlProcess.transform(flags);
   print(htmlProcess.message);
   result = (htmlProcess.outputContent == new File('test/transformer/index_result.html').readAsStringSync());
@@ -36,7 +35,7 @@ main () async {
 
   //less transformer
   content = new File('test/less/charsets.less').readAsStringSync();
-  LessTransformer lessProcess = new LessTransformer(content, 'charsets.less', 'charsets.css', 'dart');
+  LessTransformer lessProcess = new LessTransformer(content, 'charsets.less', 'charsets.css', 'dart', null);
   flags = ['-no-color', '--include-path=test/less'];
   lessProcess = await lessProcess.transform(flags);
   print(lessProcess.message);

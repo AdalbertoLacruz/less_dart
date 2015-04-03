@@ -2,8 +2,8 @@ part of transformer.less;
 
 class LessTransformer extends BaseTransformer {
 
-  LessTransformer(String inputContent, String inputFile, String outputFile, String buildMode)
-      :super(inputContent, inputFile, outputFile, buildMode);
+  LessTransformer(String inputContent, String inputFile, String outputFile, String buildMode, Function modifyOptions)
+      :super(inputContent, inputFile, outputFile, buildMode, modifyOptions);
 
   Future<LessTransformer> transform(List<String> args) {
     timerStart();
@@ -29,7 +29,7 @@ class LessTransformer extends BaseTransformer {
     runZoned((){
       Less less = new Less();
       less.stdin.write(inputContent);
-      less.transform(args).then((exitCode){
+      less.transform(args, modifyOptions: modifyOptions).then((exitCode){
         timerStop();
         if (exitCode == 0) {
           outputContent = less.stdout.toString();

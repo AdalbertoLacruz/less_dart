@@ -763,7 +763,6 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitMediaOut (Media mediaNode) {
-    int lastIndex = this.allExtendsStack.length - 1;
     this.allExtendsStack.removeLast();
 
 //2.4.0+4
@@ -789,7 +788,6 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitDirectiveOut (Directive directiveNode) {
-    int lastIndex = this.allExtendsStack.length - 1;
     this.allExtendsStack.removeLast();
 
 //2.4.0+4

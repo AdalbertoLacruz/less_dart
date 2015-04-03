@@ -10,6 +10,7 @@ class Options extends Node {
   int       index;
   FileInfo  currentFileInfo;
   bool      isPlugin;
+  List<FunctionBase> functions;
 
   final String type = 'Options';
 
@@ -43,5 +44,14 @@ class Options extends Node {
         lessOptions.pluginManager.addPlugin(lessOptions.plugins.last);
       }
     }
+  }
+
+  /// load the plugin functions
+  @override
+  Options eval(Contexts context){
+    if (context.frames.isNotEmpty) {
+      (context.frames[0] as VariableMixin).functionRegistry.add(functions);
+    }
+    return this;
   }
 }

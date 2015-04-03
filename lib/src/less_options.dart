@@ -17,17 +17,6 @@ class LessOptions {
   /// Whether to chunk input. more performant but causes parse issues.
   bool chunkInput = false;  // Must be false in 2.2.0
 
-  ///
-  /// Extends Less functions as alternative to javascript
-  ///
-  /// Example(see test/custom_functions_test.dart):
-  /// class MyFunctions extends FunctionBase {
-  ///   Dimension myFunction(Node a) => New Dimension(a.value);
-  /// }
-  /// options.custonFunctions = new MyFunctions();
-  ///
-  FunctionBase customFunctions;
-
   /// whether we are currently importing multiple copies
   bool importMultiple = false;
 
@@ -441,6 +430,23 @@ class LessOptions {
     pluginLoader.printUsage(plugins);
   }
 
+  ///
+  /// Define a custom [plugin] named [name] and load it if [load] is true
+  ///
+  /// It is a helper for modifyOptions in less.transform
+  ///
+  /// Example1: definePlugin('myPlugin', new MyPlugin());
+  /// Exmaple2: definePlugin('myPlugin', new MyPlugin(), true, '');
+  ///
+  void definePlugin(String name, Plugin plugin, [bool load = false, String options = '']) {
+    pluginLoader.define(name, plugin);
+
+    if(load) {
+      Plugin pluginLoaded = pluginLoader.tryLoadPlugin(name, options);
+      if (pluginLoaded != null) plugins.add(pluginLoaded);
+    }
+  }
+
   /*
    * check options combinations
    */
@@ -539,7 +545,6 @@ class LessOptions {
     op.variables          = this.variables;
 
     op.showTreeLevel      = this.showTreeLevel; //debug
-    op.customFunctions    = this.customFunctions;
 
     return op;
   }

@@ -12,8 +12,9 @@ import 'src/parser/parser.dart';
 import 'src/render/render.dart';
 import 'src/tree/tree.dart';
 
-export 'src/functions/functions.dart' show FunctionBase, defineMethod;
 export 'src/less_options.dart';
+export 'src/functions/functions.dart' show FunctionBase, defineMethod;
+export 'src/plugins/plugins.dart';
 export 'src/tree/tree.dart';
 
 class Less {

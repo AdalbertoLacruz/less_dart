@@ -1,4 +1,4 @@
-//source: less/plugin-manager.js 2.4.0
+//source: less/plugin-manager.js 2.4.0 20150226
 
 part of plugins.less;
 
@@ -9,8 +9,23 @@ class PluginManager {
   List<Plugin> installedPlugins = [];
   List<FileManager> fileManagers = [];
   List<FunctionBase> customFunctions = [];
+  bool isLoaded = false; //true if plugin been loaded previously
 
   PluginManager();
+
+//2.4.0 20150226
+//  /**
+//   * Attempts to load a plugin from a resolved file name
+//   * @param {String} fileName
+//   */
+//  PluginManager.prototype.importPlugin = function(fileName) {
+//      var Loader = this.less.PluginLoader,
+//          plugin = Loader && new Loader( this.less ).tryImportPlugin(fileName);
+//
+//      if (plugin && (-1 === this.installedPlugins.indexOf(plugin))) {
+//          this.addPlugin(plugin);
+//      }
+//  };
 
   ///
   /// Adds all the plugins in the List
@@ -35,9 +50,14 @@ class PluginManager {
   ///
   void addPlugin(Plugin plugin) {
     this.installedPlugins.add(plugin);
+    isLoaded = plugin.isLoaded;
+
     plugin.install(this);
 
-//2.4.0 ok
+    plugin.isLoaded = true;
+    isLoaded = false;
+
+//2.4.0
 //  PluginManager.prototype.addPlugin = function(plugin) {
 //      this.installedPlugins.push(plugin);
 //      plugin.install(this.less, this);
@@ -49,6 +69,7 @@ class PluginManager {
   /// when it should run.
   ///
   void addVisitor(VisitorBase visitor) {
+    if (isLoaded) return;
     this.visitors.add(visitor);
 
 //2.4.0
@@ -62,6 +83,8 @@ class PluginManager {
   /// [priority] guidelines: 1 = before import, 1000 = import, 2000 = after import
   ///
   void addPreProcessor(Processor preProcessor, [int priority = 1000]) {
+    if (isLoaded) return;
+
     int indexToInsertAt;
 
     for (indexToInsertAt = 0; indexToInsertAt < this.preProcessors.length; indexToInsertAt++) {
@@ -88,6 +111,8 @@ class PluginManager {
   /// [priority] guidelines: 1 = before compression, 1000 = compression, 2000 = after compression
   ///
   void addPostProcessor(Processor postProcessor, [int priority = 1000]) {
+    if (isLoaded) return;
+
     int indexToInsertAt;
     for (indexToInsertAt = 0; indexToInsertAt < this.postProcessors.length; indexToInsertAt++) {
       if (this.postProcessors[indexToInsertAt].priority >= priority) break;
@@ -110,6 +135,7 @@ class PluginManager {
 
   ///
   void addFileManager(FileManager manager) {
+    if (isLoaded) return;
     this.fileManagers.add(manager);
 
 //2.4.0
@@ -120,6 +146,7 @@ class PluginManager {
 
   ///
   void addCustomFunctions(FunctionBase custom) {
+    // we let load many times, because scope
     this.customFunctions.add(custom);
   }
 
@@ -143,6 +170,7 @@ class PluginManager {
   List<Processor> getPostProcessors() {
     List<Processor> postProcessors = [];
     this.postProcessors.forEach((item){postProcessors.add(item.postProcessor);});
+
     return postProcessors;
 
 //2.4.0
@@ -173,6 +201,11 @@ class PluginManager {
 
   ///
   List<FunctionBase> getCustomFunction() => this.customFunctions;
+
+  ///
+  void resetCustomFunction() {
+    this.customFunctions = [];
+  }
 }
 
 // *******************************

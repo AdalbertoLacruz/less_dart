@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 2.4.0
+// source: less/tree/ruleset.js 2.4.0 20150305
 
 part of tree.less;
 
@@ -102,6 +102,10 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     if (this.debugInfo != null) ruleset.debugInfo = this.debugInfo;
     if (!hasOnePassingSelector) rules.length = 0;
 
+    // inherit a function registry from the frames stack when possible;
+    FunctionRegistry parentFR = context.frames.isEmpty ? null : (context.frames[0] as VariableMixin).functionRegistry;
+    ruleset.functionRegistry = new FunctionRegistry.inherit(parentFR);
+
     // push the current ruleset to the frames stack
     List ctxFrames = context.frames;
     ctxFrames.insert(0, ruleset);
@@ -197,7 +201,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     return ruleset;
 
-//2.3.1
+//2.4.0 20150305
 //  Ruleset.prototype.eval = function (context) {
 //      var thisSelectors = this.selectors, selectors,
 //          selCnt, selector, i, hasOnePassingSelector = false;
@@ -229,13 +233,17 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 //      ruleset.firstRoot = this.firstRoot;
 //      ruleset.allowImports = this.allowImports;
 //
-//      if(this.debugInfo) {
+//      if (this.debugInfo) {
 //          ruleset.debugInfo = this.debugInfo;
 //      }
 //
 //      if (!hasOnePassingSelector) {
 //          rules.length = 0;
 //      }
+//
+//      // inherit a function registry from the frames stack when possible;
+//      // otherwise from the global registry
+//      ruleset.functionRegistry = ((context.frames[0] && context.frames[0].functionRegistry) || globalFunctionRegistry).inherit();
 //
 //      // push the current ruleset to the frames stack
 //      var ctxFrames = context.frames;
@@ -314,7 +322,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 //              if (rule.selectors[0].isJustParentSelector()) {
 //                  rsRules.splice(i--, 1);
 //
-//                  for(var j = 0; j < rule.rules.length; j++) {
+//                  for (var j = 0; j < rule.rules.length; j++) {
 //                      subRule = rule.rules[j];
 //                      if (!(subRule instanceof Rule) || !subRule.variable) {
 //                          rsRules.splice(++i, 0, subRule);
@@ -1329,8 +1337,11 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 class VariableMixin {
   List<Node> rules;
 
-  Map _lookups = {};
+  FunctionRegistry functionRegistry;
 
+  List _funcs;
+  Map _lookups = {};
+  Node paren;
   var _rulesets;
 
   /// List of Variable Nodes, by @name
@@ -1338,12 +1349,15 @@ class VariableMixin {
 
   ///
   void resetCache(){
+    this._funcs = null;
+    if (functionRegistry != null) functionRegistry.resetCache();
     this._rulesets = null;
     this._variables = null;
     this._lookups = {};
 
-//2.3.1
+//2.4.0 20150305
 //  Ruleset.prototype.resetCache = function () {
+//      this._funcs = null;
 //      this._rulesets = null;
 //      this._variables = null;
 //      this._lookups = {};

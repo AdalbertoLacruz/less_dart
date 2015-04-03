@@ -1,4 +1,4 @@
-// source: lib/less/functions/function-caller.js 2.4.0+2
+// source: lib/less/functions/function-caller.js 2.4.0 20150305
 
 part of functions.less;
 
@@ -35,14 +35,15 @@ class FunctionCaller {
       ];
     defaultCache = new DefaultFunc();
 
-//2.4.0
-//var functionCaller = function(name, context, index, currentFileInfo) {
-//    this.name = name.toLowerCase();
-//    this.func = functionRegistry.get(this.name);
-//    this.index = index;
-//    this.context = context;
-//    this.currentFileInfo = currentFileInfo;
-//};
+//2.4.0 20150305
+//  var functionCaller = function(name, context, index, currentFileInfo) {
+//      this.name = name.toLowerCase();
+//      this.index = index;
+//      this.context = context;
+//      this.currentFileInfo = currentFileInfo;
+//
+//      this.func = context.frames[0].functionRegistry.get(this.name);
+//  };
   }
 
   factory FunctionCaller(String name, Contexts context, int index, FileInfo currentFileInfo) {
@@ -53,8 +54,8 @@ class FunctionCaller {
       ..index = index
       ..currentFileInfo = currentFileInfo
       ..found = null;
-    if (context.pluginManager != null) {
-      cache.customCache = context.pluginManager.getCustomFunction();
+    if (context.frames != null) {
+      cache.customCache = (context.frames[0] as VariableMixin).functionRegistry.get();
     } else {
       cache.customCache = [];
     }

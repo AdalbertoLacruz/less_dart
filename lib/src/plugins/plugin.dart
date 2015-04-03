@@ -6,6 +6,7 @@ class Plugin {
   Logger logger;
   String cmdOptions;
   LessOptions lessOptions;
+  bool isLoaded = false; //true after first load
 
   // Less required minimal version
   List<int> minVersion = [2, 1, 0];

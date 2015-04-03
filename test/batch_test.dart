@@ -118,7 +118,13 @@ void runAsync() {
       22: def('import-inline'),
       23: def('import-interpolation'),
       24: def('import-once'),
-      25: def('import-reference', options: ['--log-level=1']),
+      25: def('import-plugin',
+          modifyOptions: (LessOptions options) {options.definePlugin('TestFunctionsPlugin', new TestFunctionsPlugin());}),
+      26: def('import-plugin-scoped',
+          modifyOptions: (LessOptions options) {options.definePlugin('TestFunctionsPlugin', new TestFunctionsPlugin());}),
+      27: def('import-plugin-tiered',
+          modifyOptions: (LessOptions options) {options.definePlugin('TestFunctionsPlugin', new TestFunctionsPlugin());}),
+      28: def('import-reference', options: ['--log-level=1']),
       //26: def('javascript'),
       30: def('lazy-eval'),
       31: def('media'),
@@ -188,27 +194,29 @@ void runAsync() {
           ]),
 
       67: def('legacy/legacy'),
+      68: def('postProcessorPlugin/postProcessor',
+          modifyOptions: (LessOptions options) {options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(), true, '');}),
 
       // static-urls
-      68: def('static-urls/urls',
+      69: def('static-urls/urls',
           options: ['--rootpath=folder (1)/']),
 
       //url-args
-      69: def('url-args/urls',
+      70: def('url-args/urls',
           options: ['--url-args=424242']),
 
       //sourcemaps
-      70: def('index', isExtendedTest: true,
+      75: def('index', isExtendedTest: true,
           isSourcemapTest: true, cssName: 'index-expected',
           options: ['--source-map=webSourceMap/index.map', '--banner=webSourceMap/banner.txt']),
-      71: def('index-less-inline', isExtendedTest: true,
+      76: def('index-less-inline', isExtendedTest: true,
           isSourcemapTest: true, cssName: 'index-less-inline-expected',
           options: ['--source-map=webSourceMap/index-less-inline.map', '--source-map-less-inline',
                     '--banner=webSourceMap/banner.txt']),
-      72: def('index-map-inline', isExtendedTest: true,
+      77: def('index-map-inline', isExtendedTest: true,
           isSourcemapTest: true, cssName: 'index-map-inline-expected',
           options: ['--source-map-map-inline', '--banner=webSourceMap/banner.txt']),
-      73: def('sourcemaps-empty/empty', options: ['--source-map-map-inline']),
+      78: def('sourcemaps-empty/empty', options: ['--source-map-map-inline']),
 
       //include-path
       80: def('include-path/include-path',
@@ -492,4 +500,34 @@ void runAsync() {
     bool pass;
     List<Map<String, String>> replace;
     String stderr;
+  }
+
+  // ---------------------------------------------- plugin
+  class TestPostProcessor extends Processor {
+    TestPostProcessor(options):super(options);
+
+    String process(String css, Map options) {
+        return 'hr {height:50px;}\n' + css;
+    }
+  }
+
+  class TestPostProcessorPlugin extends Plugin {
+    TestPostProcessorPlugin(): super();
+
+    install(PluginManager pluginManager) {
+      Processor processor = new TestPostProcessor(null);
+      pluginManager.addPostProcessor(processor);
+    }
+  }
+
+   // ---------------------------------------------- plugin
+  class TestFunctions extends FunctionBase {
+    Anonymous test() => new Anonymous('PASS');
+  }
+
+  class TestFunctionsPlugin extends Plugin {
+    install(PluginManager pluginManager) {
+      FunctionBase fun = new TestFunctions();
+      pluginManager.addCustomFunctions(fun);
+    }
   }

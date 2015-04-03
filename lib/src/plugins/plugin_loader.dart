@@ -1,4 +1,4 @@
-//source: lib/less-node/plugin-loader.js 2.4.0
+//source: lib/less-node/plugin-loader.js 2.4.0 20150226-2
 
 part of plugins.less;
 
@@ -22,6 +22,37 @@ class PluginLoader {
 //    pluginManager = options.pluginManager;
   }
 
+  ///
+  /// Add a [plugin] to list of available plugins, with [name]
+  /// Example pluginLoader.define('myPlugin', New MyPlugin());
+  ///
+  void define(String name, Plugin plugin) {
+    installable[name] = plugin;
+  }
+
+//2.4.0 20150226-2
+//  PluginLoader.prototype.tryImportPlugin = function(resolvedFileName) {
+//      var plugin;
+//      try {
+//          plugin = require(resolvedFileName);
+//          if (plugin) {
+//              // support plugins being a function
+//              // so that the plugin can be more usable programmatically
+//              if (typeof plugin === "function") {
+//                  plugin = new plugin();
+//              }
+//              if (plugin.minVersion) {
+//                  if (this.compareVersion(plugin.minVersion, this.less.version) < 0) {
+//                      console.log("plugin at" + resolvedFileName + " requires version " + this.versionToString(plugin.minVersion));
+//                      return null;
+//                  }
+//              }
+//              return plugin;
+//          }
+//      } catch(e) {}
+//
+//      return null;
+//  };
 
   ///
   Plugin tryLoadPlugin(String name, String argument) {
@@ -169,15 +200,13 @@ class PluginLoader {
 //  };
   }
 
-  /// Load plugins and custom functions
+  /// Load plugins
   void start() {
-    if (options.plugins.isNotEmpty || options.customFunctions != null) {
+    if (options.plugins.isNotEmpty) {
       if (options.pluginManager == null) options.pluginManager = new PluginManager();
       pluginManager = options.pluginManager;
 
       pluginManager.addPlugins(options.plugins);
-
-      if (options.customFunctions != null) pluginManager.addCustomFunctions(options.customFunctions);
     }
   }
 }

@@ -1,3 +1,7 @@
+- Custom transformer, custom plugin
+- Breaking Change: Custom functions go into custom plugin
+- @plugin directive with scope for custom functions
+
 ## v0.2.2 (2015-03-26)
 
 - Transformer continous working with pub serve

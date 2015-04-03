@@ -1,3 +1,6 @@
+///
+/// Example of custom functions definition inside a custom plugin
+///
 import 'dart:io';
 import 'package:less_dart/less.dart';
 
@@ -8,7 +11,7 @@ main() {
   args.add('-no-color');
   args.add('less/functions.less');
   less.transform(args, modifyOptions: (LessOptions options){
-    options.customFunctions = new MyFunctions();
+    options.definePlugin('myplugin', new MyPlugin(), true, '');
   }).then((exitCode){
     stderr.write(less.stderr.toString());
     stdout.writeln('\nstdout:');
@@ -17,7 +20,6 @@ main() {
 }
 
 class MyFunctions extends FunctionBase {
-
   Dimension add(Node a, Node b) {
     return new Dimension(a.value + b.value);
   }
@@ -33,5 +35,25 @@ class MyFunctions extends FunctionBase {
     } else {
       return null;
     }
+  }
+}
+
+class MyProcessor extends Processor {
+  MyProcessor(options):super(options);
+
+  String process(String input, Map options) {
+      return '/* MyPlugin post processor */\n' + input;
+  }
+}
+
+class MyPlugin extends Plugin {
+  MyPlugin(): super();
+
+  install(PluginManager pluginManager) {
+    FunctionBase myFunctions = new MyFunctions();
+    pluginManager.addCustomFunctions(myFunctions);
+
+    Processor myProcessor = new MyProcessor(null);
+    pluginManager.addPostProcessor(myProcessor);
   }
 }

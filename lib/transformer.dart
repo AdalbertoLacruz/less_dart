@@ -18,9 +18,12 @@ library less.transformer;
 
 import 'dart:async';
 
-import 'srcTransformer/base_transformer.dart';
+import 'package:less_dart/less.dart';
+import 'package:less_dart/srcTransformer/base_transformer.dart';
 
 import 'package:barback/barback.dart';
+
+export 'package:less_dart/less.dart';
 
 /*
  * Transformer used by 'pub build' & 'pub serve' to convert .less files to .css
@@ -69,7 +72,7 @@ class FileTransformer extends AggregateTransformer {
           var id = asset.id;
 
           if (id.extension.toLowerCase() == '.html') {
-            HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path);
+            HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path, customOptions);
             return htmlProcess.transform(flags).then((process){
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, id.path), process.outputContent));
@@ -82,7 +85,7 @@ class FileTransformer extends AggregateTransformer {
             });
           } else if (id.extension.toLowerCase() == '.less') {
             LessTransformer lessProcess = new LessTransformer(content, id.path,
-                getOutputFileName(id), options.build_mode);
+                getOutputFileName(id), options.build_mode, customOptions);
             return lessProcess.transform(flags).then((process) {
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
@@ -123,6 +126,9 @@ class FileTransformer extends AggregateTransformer {
       return id.changeExtension('.css').path;
     }
     return options.output;
+  }
+
+  void customOptions(LessOptions options) {
   }
 }
 

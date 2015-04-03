@@ -4,8 +4,10 @@ import 'dart:async';
 import '../contexts.dart';
 import '../import_manager.dart';
 import '../less_error.dart';
+import '../less_options.dart';
 import '../logger.dart';
 import '../environment/environment.dart';
+import '../plugins/plugins.dart';
 import '../tree/tree.dart';
 
 part 'extend_finder_visitor.dart';

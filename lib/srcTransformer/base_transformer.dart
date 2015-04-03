@@ -30,6 +30,7 @@ class BaseTransformer {
   String errorMessage = '';
   bool deliverToPipe = true; // deliver to barback
   static Map<String, RegisterItem> register = {};
+  Function modifyOptions;
 
 
   bool get isBuildModeLess => buildMode == BUILD_MODE_LESS;   //input file, output file
@@ -38,7 +39,7 @@ class BaseTransformer {
 
   Stopwatch timeInProcess = new Stopwatch();
 
-  BaseTransformer(this.inputContent, this.inputFile, this.outputFile, this.buildMode);
+  BaseTransformer(this.inputContent, this.inputFile, this.outputFile, this.buildMode, this.modifyOptions);
 
   ///
   /// check if [inputFile] has changed or need process

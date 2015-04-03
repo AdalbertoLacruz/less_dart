@@ -6,9 +6,9 @@ class HtmlTransformer extends BaseTransformer{
 
   List<String> imports = []; // aggregate dependencies
 
-  HtmlTransformer(String inputContent, String inputFile): super(
+  HtmlTransformer(String inputContent, String inputFile, Function modifyOptions): super(
       inputContent.replaceAll(new RegExp(r'\r\n'), '\n'),
-      inputFile, inputFile, null
+      inputFile, inputFile, null, modifyOptions
   );
 
   ///
@@ -73,7 +73,7 @@ class HtmlTransformer extends BaseTransformer{
     runZoned((){
       Less less = new Less();
       less.stdin.write(element.inner);
-      less.transform(args).then((exitCode){
+      less.transform(args, modifyOptions: modifyOptions).then((exitCode){
         if (exitCode == 0) {
           element.css = less.stdout.toString();
           imports.addAll(less.imports);
@@ -93,11 +93,9 @@ class HtmlTransformer extends BaseTransformer{
   /// Converts elements to html string
   ///
   String toString() {
-    StringBuffer output = new StringBuffer();
-
     if (elements.length == 1) deliverToPipe = false;
-    elements.forEach((element) => output.write(element.toString()));
 
+    StringBuffer output = elements.fold(new StringBuffer(), (out, element) => out..write(element.toString()));
     return output.toString();
   }
 }
