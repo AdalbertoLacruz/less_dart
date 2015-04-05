@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 2.4.0 20150305
+// source: less/tree/ruleset.js 2.4.0 20150306
 
 part of tree.less;
 
@@ -1339,7 +1339,6 @@ class VariableMixin {
 
   FunctionRegistry functionRegistry;
 
-  List _funcs;
   Map _lookups = {};
   Node paren;
   var _rulesets;
@@ -1349,15 +1348,13 @@ class VariableMixin {
 
   ///
   void resetCache(){
-    this._funcs = null;
     if (functionRegistry != null) functionRegistry.resetCache();
     this._rulesets = null;
     this._variables = null;
     this._lookups = {};
 
-//2.4.0 20150305
+//2.4.0 20150306
 //  Ruleset.prototype.resetCache = function () {
-//      this._funcs = null;
 //      this._rulesets = null;
 //      this._variables = null;
 //      this._lookups = {};

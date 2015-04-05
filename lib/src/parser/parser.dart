@@ -101,7 +101,7 @@ class Parser {
 
     if (context.pluginManager != null) {
       context.pluginManager.getPreProcessors().forEach((Processor preProcessor){
-        str = preProcessor.process(str, { context: context, imports: imports, fileInfo: fileInfo });
+        str = preProcessor.process(str, { 'context': context, 'imports': imports, 'fileInfo': fileInfo });
       });
     }
 

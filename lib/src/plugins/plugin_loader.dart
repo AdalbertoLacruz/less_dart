@@ -1,4 +1,4 @@
-//source: lib/less-node/plugin-loader.js 2.4.0 20150226-2
+//source: lib/less-node/plugin-loader.js 2.4.0 20150306
 
 part of plugins.less;
 
@@ -29,30 +29,6 @@ class PluginLoader {
   void define(String name, Plugin plugin) {
     installable[name] = plugin;
   }
-
-//2.4.0 20150226-2
-//  PluginLoader.prototype.tryImportPlugin = function(resolvedFileName) {
-//      var plugin;
-//      try {
-//          plugin = require(resolvedFileName);
-//          if (plugin) {
-//              // support plugins being a function
-//              // so that the plugin can be more usable programmatically
-//              if (typeof plugin === "function") {
-//                  plugin = new plugin();
-//              }
-//              if (plugin.minVersion) {
-//                  if (this.compareVersion(plugin.minVersion, this.less.version) < 0) {
-//                      console.log("plugin at" + resolvedFileName + " requires version " + this.versionToString(plugin.minVersion));
-//                      return null;
-//                  }
-//              }
-//              return plugin;
-//          }
-//      } catch(e) {}
-//
-//      return null;
-//  };
 
   ///
   Plugin tryLoadPlugin(String name, String argument) {

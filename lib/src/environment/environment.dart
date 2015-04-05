@@ -93,10 +93,11 @@ class Environment {
       logger.warn("getFileManager called with null directory.. Please report this issue. continuing.");
     }
     if (fileManagers == null) {
-      fileManagers = [new UrlFileManager(environment), new FileFileManager(environment)]; //order is important
+      fileManagers = [new FileFileManager(environment), new UrlFileManager(environment)]; //order is important
+      if (options.pluginManager != null) fileManagers.addAll(options.pluginManager.getFileManagers());
     }
 
-    for (int i = 0; i < fileManagers.length; i++) {
+    for (int i = fileManagers.length - 1; i >= 0; i--) {
       fileManager = fileManagers[i];
 
       if (isSync && fileManager.supportsSync(filename, currentDirectory, options, environment)) {

@@ -12,10 +12,14 @@ import 'src/parser/parser.dart';
 import 'src/render/render.dart';
 import 'src/tree/tree.dart';
 
+export 'src/contexts.dart';
+export 'src/file_info.dart';
 export 'src/less_options.dart';
+export 'src/environment/environment.dart';
 export 'src/functions/functions.dart' show FunctionBase, defineMethod;
 export 'src/plugins/plugins.dart';
 export 'src/tree/tree.dart';
+export 'src/visitor/visitor_base.dart';
 
 class Less {
   StringBuffer stdin  = new StringBuffer();

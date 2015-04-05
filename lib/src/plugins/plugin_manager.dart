@@ -1,4 +1,4 @@
-//source: less/plugin-manager.js 2.4.0 20150226
+//source: less/plugin-manager.js 2.4.0 2015306
 
 part of plugins.less;
 
@@ -12,20 +12,6 @@ class PluginManager {
   bool isLoaded = false; //true if plugin been loaded previously
 
   PluginManager();
-
-//2.4.0 20150226
-//  /**
-//   * Attempts to load a plugin from a resolved file name
-//   * @param {String} fileName
-//   */
-//  PluginManager.prototype.importPlugin = function(fileName) {
-//      var Loader = this.less.PluginLoader,
-//          plugin = Loader && new Loader( this.less ).tryImportPlugin(fileName);
-//
-//      if (plugin && (-1 === this.installedPlugins.indexOf(plugin))) {
-//          this.addPlugin(plugin);
-//      }
-//  };
 
   ///
   /// Adds all the plugins in the List
