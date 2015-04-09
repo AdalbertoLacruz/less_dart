@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.4.0+4 lines 91-451
+// source: less/extend-visitor.js 2.5.0 lines 91-451
 
 part of visitor.less;
 
@@ -11,7 +11,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   ProcessExtendsVisitor() {
-    this._visitor = new Visitor(this);
+    _visitor = new Visitor(this);
 
 //2.3.1
 //  var ProcessExtendsVisitor = function() {
@@ -22,13 +22,13 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   run(Node root) {
     ExtendFinderVisitor extendFinder = new ExtendFinderVisitor();
-    this.extendIndicies = {};
+    extendIndicies = {};
     extendFinder.run(root);
     if (!extendFinder.foundExtends) return root;
-    root.allExtends = root.allExtends.sublist(0)..addAll(this.doExtendChaining(root.allExtends, root.allExtends));
-    this.allExtendsStack = [root.allExtends];
-    var newRoot = this._visitor.visit(root);
-    this.checkExtendsForNonMatched(root.allExtends);
+    root.allExtends = root.allExtends.sublist(0)..addAll(doExtendChaining(root.allExtends, root.allExtends));
+    allExtendsStack = [root.allExtends];
+    var newRoot = _visitor.visit(root);
+    checkExtendsForNonMatched(root.allExtends);
     return newRoot;
 
 //2.3.1
@@ -48,7 +48,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   checkExtendsForNonMatched(List<Extend> extendList) {
     Logger logger = new Logger();
-    Map<String, bool> indicies = this.extendIndicies;
+    Map<String, bool> indicies = extendIndicies;
     extendList.retainWhere((extend) {
       return (!extend.hasFoundMatches && extend.parent_ids.length == 1);
     });
@@ -316,7 +316,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     if (rulesetNode.root) return;
 
-    List<Extend>          allExtends = this.allExtendsStack.last;
+    List<Extend>          allExtends = allExtendsStack.last;
     ProcessExtendsVisitor extendVisitor = this;
     List<MatchSelector>   matches;
     List<Selector>        selectorPath;
@@ -332,7 +332,7 @@ class ProcessExtendsVisitor extends VisitorBase {
         List<Extend> extendList = selectorPath.last.extendList;
         if (extendList != null && extendList.isNotEmpty) continue;
 
-        matches = this.findMatch(allExtends[extendIndex], selectorPath);
+        matches = findMatch(allExtends[extendIndex], selectorPath);
 
         if (matches.isNotEmpty) {
           allExtends[extendIndex].hasFoundMatches = true;
@@ -571,7 +571,7 @@ class ProcessExtendsVisitor extends VisitorBase {
             return false;
           }
         }
-        if (!this.isElementValuesEqual(elementValue1.elements[i].value, elementValue2.elements[i].value)) {
+        if (!isElementValuesEqual(elementValue1.elements[i].value, elementValue2.elements[i].value)) {
           return false;
         }
       }
@@ -749,9 +749,9 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitMedia (Media mediaNode, VisitArgs visitArgs) {
-    List<Extend> newAllExtends = mediaNode.allExtends.sublist(0)..addAll(this.allExtendsStack.last);
-    newAllExtends.addAll(this.doExtendChaining(newAllExtends, mediaNode.allExtends));
-    this.allExtendsStack.add(newAllExtends);
+    List<Extend> newAllExtends = mediaNode.allExtends.sublist(0)..addAll(allExtendsStack.last);
+    newAllExtends.addAll(doExtendChaining(newAllExtends, mediaNode.allExtends));
+    allExtendsStack.add(newAllExtends);
 
 //2.3.1
 //  visitMedia: function (mediaNode, visitArgs) {
@@ -763,7 +763,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitMediaOut (Media mediaNode) {
-    this.allExtendsStack.removeLast();
+    allExtendsStack.removeLast();
 
 //2.4.0+4
 //  visitMediaOut: function (mediaNode) {
@@ -774,9 +774,9 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitDirective (Directive directiveNode, VisitArgs visitArgs) {
-    List<Extend> newAllExtends =  directiveNode.allExtends.sublist(0)..addAll(this.allExtendsStack.last);
-    newAllExtends.addAll(this.doExtendChaining(newAllExtends, directiveNode.allExtends));
-    this.allExtendsStack.add(newAllExtends);
+    List<Extend> newAllExtends =  directiveNode.allExtends.sublist(0)..addAll(allExtendsStack.last);
+    newAllExtends.addAll(doExtendChaining(newAllExtends, directiveNode.allExtends));
+    allExtendsStack.add(newAllExtends);
 
 //2.3.1
 //  visitDirective: function (directiveNode, visitArgs) {
@@ -788,7 +788,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitDirectiveOut (Directive directiveNode) {
-    this.allExtendsStack.removeLast();
+    allExtendsStack.removeLast();
 
 //2.4.0+4
 //  visitDirectiveOut: function (directiveNode) {
@@ -799,21 +799,21 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media)      return this.visitMedia;
-    if (node is Directive)  return this.visitDirective;
-    if (node is MixinDefinition) return this.visitMixinDefinition;
-    if (node is Rule)       return this.visitRule;
-    if (node is Ruleset)    return this.visitRuleset;
-    if (node is Selector)   return this.visitSelector;
+    if (node is Media)      return visitMedia;
+    if (node is Directive)  return visitDirective;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Rule)       return visitRule;
+    if (node is Ruleset)    return visitRuleset;
+    if (node is Selector)   return visitSelector;
 
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
-    if (node is Media)      return this.visitMediaOut;
-    if (node is Directive)  return this.visitDirectiveOut;
-    if (node is Ruleset)    return this.visitRulesetOut;
+    if (node is Media)      return visitMediaOut;
+    if (node is Directive)  return visitDirectiveOut;
+    if (node is Ruleset)    return visitRulesetOut;
 
     return null;
   }

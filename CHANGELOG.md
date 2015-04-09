@@ -1,3 +1,5 @@
+## v0.3.0 (2015-04-09)
+
 - Custom transformer, custom plugin
 - Breaking Change: Custom functions go into custom plugin
 - @plugin directive with scope for custom functions

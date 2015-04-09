@@ -1,4 +1,4 @@
-// source: lib/less/functions/data-uri.js 2.4.0
+// source: lib/less/functions/data-uri.js 2.5.0
 
 part of functions.less;
 
@@ -45,7 +45,8 @@ class DataUriFunctions extends FunctionBase {
       filePath = filePath.substring(0, fragmentStart);
     }
 
-    FileManager fileManager = environment.getFileManager(filePath, currentDirectory, this.context, environment, true);
+    FileManager fileManager = environment.getFileManager(filePath,
+        currentDirectory, this.context, environment, true);
     if (fileManager == null) return fallback();
 
     bool useBase64 = false;
@@ -66,13 +67,16 @@ class DataUriFunctions extends FunctionBase {
       useBase64 = new RegExp(r';base64$').hasMatch(mimetype);
     }
 
-    FileLoaded fileSync = fileManager.loadFileAsBytesSync(filePath, currentDirectory, context, environment);
+    FileLoaded fileSync = fileManager.loadFileAsBytesSync(filePath,
+        currentDirectory, context, environment);
     if (fileSync.codeUnits == null) {
       logger.warn('Skipped data-uri embedding of ${filePath} because file not found');
       return fallback();
     }
     List<int> buf = fileSync.codeUnits;
-    String sbuf = useBase64 ? Base64String.encode(buf) : Uri.encodeComponent(new String.fromCharCodes(buf));
+    String sbuf = useBase64
+        ? Base64String.encode(buf)
+        : Uri.encodeComponent(new String.fromCharCodes(buf));
 
     String uri = 'data:${mimetype},${sbuf}${fragment}';
 
@@ -86,7 +90,7 @@ class DataUriFunctions extends FunctionBase {
         return fallback();
       }
     }
-    return new URL(new Quoted('"' + uri + '"', uri, false, this.index, this.currentFileInfo), this.index, this.currentFileInfo);
+    return new URL(new Quoted('"' + uri + '"', uri, false, index, currentFileInfo), index, currentFileInfo);
 
 //2.4.0
 //  fallback = function(functionThis, node) {

@@ -1,4 +1,4 @@
-//source: less/parser.js 2.4.0 20150321-1640 lines 280-511
+//source: less/parser.js 2.5.0 lines 290-551
 
 part of parser.less;
 

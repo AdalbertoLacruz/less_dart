@@ -1,4 +1,4 @@
-// source: lib/less/functions/default.js 2.4.0
+// source: lib/less/functions/default.js 2.5.0
 
 part of functions.less;
 
@@ -8,8 +8,8 @@ class DefaultFunc extends FunctionBase {
 
   @defineMethod(name: 'default')
   Node eval() {
-    var v = this.value_;
-    LessError e = this.error_;
+    var v = value_;
+    LessError e = error_;
 
     if (e != null) throw new LessExceptionError(e);
     if (v != null) return (v > 0) ? new Keyword.True() : new Keyword.False();
@@ -27,14 +27,14 @@ class DefaultFunc extends FunctionBase {
   }
 
   void value(v) {
-    this.value_ = v;
+    value_ = v;
   }
 
   void error(LessError e) {
-    this.error_ = e;
+    error_ = e;
   }
 
   void reset() {
-    this.value_ = this.error_ = null;
+    value_ = error_ = null;
   }
 }

@@ -1,4 +1,4 @@
-//source: less/join-selector-visitor.js 2.4.0 20150319
+//source: less/join-selector-visitor.js 2.5.0
 
 part of visitor.less;
 
@@ -8,8 +8,8 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   JoinSelectorVisitor() {
-    this.contexts = [[]];
-    this._visitor = new Visitor(this);
+    contexts = [[]];
+    _visitor = new Visitor(this);
 
 //2.3.1
 //  var JoinSelectorVisitor = function() {
@@ -19,7 +19,7 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  Node run(Node root) => this._visitor.visit(root);
+  Node run(Node root) => _visitor.visit(root);
 
 //2.3.1
 //  run: function (root) {
@@ -87,7 +87,7 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitRulesetOut(Ruleset rulesetNode) {
-    this.contexts.removeLast();
+    contexts.removeLast();
 
 //2.3.1
 //  visitRulesetOut: function (rulesetNode) {
@@ -125,18 +125,18 @@ class JoinSelectorVisitor extends VisitorBase{
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media) return this.visitMedia;
-    if (node is Directive) return this.visitDirective;
-    if (node is MixinDefinition) return this.visitMixinDefinition;
-    if (node is Rule) return this.visitRule;
-    if (node is Ruleset) return this.visitRuleset;
+    if (node is Media) return visitMedia;
+    if (node is Directive) return visitDirective;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Rule) return visitRule;
+    if (node is Ruleset) return visitRuleset;
 
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
-    if (node is Ruleset) return this.visitRulesetOut;
+    if (node is Ruleset) return visitRulesetOut;
 
     return null;
   }

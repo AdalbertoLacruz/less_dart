@@ -55,9 +55,9 @@ class FunctionBase {
 
   /// Call the last valid name of method
   call(List args) {
-    if (this.name == null) return null;
+    if (name == null) return null;
 
-    FunctionRegistryItem item = registry[this.name];
+    FunctionRegistryItem item = registry[name];
     List arguments = item.listArguments ? [args] : args;
     InstanceMirror instanceMirror = reflect(this);
     return instanceMirror.invoke(new Symbol(item.name), arguments).reflectee;

@@ -1,4 +1,4 @@
-//source: less/tree/javascript.js 2.4.0
+//source: less/tree/javascript.js 2.5.0
 
 part of tree.less;
 
@@ -15,7 +15,7 @@ class JavaScript extends Node with JsEvalNodeMixin {
 
   // Not supported javascript
   eval(context) {
-    return new Anonymous(this.expression);
+    return new Anonymous(expression);
 
 //2.3.1
 //  JavaScript.prototype.eval = function(context) {

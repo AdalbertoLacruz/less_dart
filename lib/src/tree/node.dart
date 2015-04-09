@@ -1,4 +1,4 @@
-//source: less/tree/node.js 2.4.0
+//source: less/tree/node.js 2.5.0
 
 part of tree.less;
 
@@ -43,7 +43,7 @@ class Node {
   ///
   String toCSS(Contexts context) {
      Output output = new Output();
-     this.genCSS(context, output);
+     genCSS(context, output);
      //if (context != null) context.avoidDartOptimization = true; //avoid dart context prune
      return output.toString();
 
@@ -66,7 +66,7 @@ class Node {
   /// Writes in [output] the node transformed to CSS.
   ///
   void genCSS(Contexts context, Output output){
-    output.add(this.value);
+    output.add(value);
 
 ///2.3.1
 //  Node.prototype.genCSS = function (context, output) {
@@ -76,7 +76,7 @@ class Node {
 
   ///
   accept(VisitorBase visitor) {
-    this.value = visitor.visit(this.value);
+    value = visitor.visit(value);
 
 //2.3.1
 //  Node.prototype.accept = function (visitor) {
@@ -229,7 +229,7 @@ class Node {
   StringBuffer toTree(LessOptions options) {
     Contexts env = new Contexts.eval(options);
      Output output = new Output();
-     this.genTree(env, output);
+     genTree(env, output);
      return output.value;
   }
 
@@ -247,12 +247,12 @@ class Node {
     output.add('${tabStr}$type ($nameNode)\n');
     env.tabLevel++;
 
-    if (this.selectors is List) process.addAll(this.selectors);
-    if (this.rules is List) process.addAll(this.rules);
-    if (this.elements is List) process.addAll(this.elements);
-    if (this.name is List) process.addAll(this.name);
-    if (this.value is List) process.addAll(this.value);
-    if (this.operands is List) process.addAll(this.operands);
+    if (selectors is List) process.addAll(selectors);
+    if (rules is List) process.addAll(rules);
+    if (elements is List) process.addAll(elements);
+    if (name is List) process.addAll(name);
+    if (value is List) process.addAll(value);
+    if (operands is List) process.addAll(operands);
 
     if (process.isNotEmpty) {
       for (i = 0; i < process.length; i++) {

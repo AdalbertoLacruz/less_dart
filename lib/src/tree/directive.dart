@@ -1,4 +1,4 @@
-//source: less/tree/directive.js 2.4.0 20150319
+//source: less/tree/directive.js 2.5.0
 
 part of tree.less;
 
@@ -73,11 +73,8 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
 
   ///
   void accept(Visitor visitor) {
-//    Node value = this.value;
-//    Ruleset rules = this.rules;
-
-    if (this.rules != null) this.rules = visitor.visitArray(this.rules);
-    if (this.value != null) this.value = visitor.visit(this.value);
+    if (rules != null) rules = visitor.visitArray(rules);
+    if (value != null) value = visitor.visit(value);
 
 //2.4.0+
 //  Directive.prototype.accept = function (visitor) {
@@ -92,7 +89,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   }
 
   ///
-  bool isRulesetLike()  => (this.rules != null) || !this.isCharset();
+  bool isRulesetLike()  => (rules != null) || !isCharset();
 
 //2.3.1
 //  Directive.prototype.isRulesetLike = function() {
@@ -100,13 +97,12 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
 //  };
 
   ///
-  bool isCharset() => '@charset' == this.name;
+  bool isCharset() => '@charset' == name;
 
   ///
   void genCSS(Contexts context, Output output) {
-    Node value = this.value;
-    var rules = this.rules;
-    output.add(this.name, this.currentFileInfo, this.index);
+    output.add(name, currentFileInfo, index);
+
     if (value != null) {
       output.add(' ');
       value.genCSS(context, output);
@@ -156,8 +152,8 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
     context.mediaPath = mediaPathBackup;
     context.mediaBlocks = mediaBlocksBackup;
 
-    return new Directive(this.name, value, rules,
-        this.index, this.currentFileInfo, this.debugInfo, this.isReferenced, this.isRooted);
+    return new Directive(name, value, rules,
+        index, currentFileInfo, debugInfo, isReferenced, isRooted);
 
 //2.4.0 20150319
 //  Directive.prototype.eval = function (context) {
@@ -193,9 +189,8 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   ///
   //untested
   Node variable(String name) {
-    //return this.variables()[name];
-    if (this.rules != null && this.rules.isNotEmpty) {
-      return this.rules[0].value(name);
+    if (rules != null && rules.isNotEmpty) {
+      return rules[0].value(name);
     }
     return null;
 
@@ -211,11 +206,12 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   ///
   //untested
   List<MixinFound> find (Selector selector, [self, Function filter]) {
-    if (this.rules != null && this.rules.isNotEmpty) {
+    if (rules != null && rules.isNotEmpty) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
-      return this.rules[0].find(selector, self, filter);
+      return rules[0].find(selector, self, filter);
     }
     return null;
+
 //2.4.0+
 //  Directive.prototype.find = function () {
 //      if (this.rules) {
@@ -228,9 +224,9 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   ///
   //untested
   List<Node> rulesets(){
-    if (this.rules != null && this.rules.isNotEmpty) {
+    if (rules != null && rules.isNotEmpty) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
-      return this.rules[0].rulesets();
+      return rules[0].rulesets();
     }
     return null;
 
@@ -248,7 +244,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   ///
   void markReferenced() {
     List<Node> rules;
-    this.isReferenced = true;
+    isReferenced = true;
 
     if (this.rules != null) {
       rules = this.rules;
@@ -273,9 +269,9 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   }
 
   ///
-  bool getIsReferenced() => (this.currentFileInfo == null)
-                          || !this.currentFileInfo.reference
-                          || this.isReferenced;
+  bool getIsReferenced() => (currentFileInfo == null)
+                          || !currentFileInfo.reference
+                          || isReferenced;
 
 //2.3.1
 //  Directive.prototype.getIsReferenced = function () {

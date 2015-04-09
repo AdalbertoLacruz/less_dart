@@ -2,7 +2,7 @@
 
 [Less](http://lesscss.org/)-transformer for [pub-serve](http://pub.dartlang.org/doc/pub-serve.html), [pub-build](http://pub.dartlang.org/doc/pub-build.html) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run.html)
 
-This is a translation from Less 2.4.0 Javascript (over nodejs) to Dart. 
+This is a translation from Less 2.5.0 Javascript (over nodejs) to Dart. 
 It is a pure Dart implementation for the server/developer side.
 
 As transformer could work also with `.html` files, by converting `<less>` tags to `<style>` tags.

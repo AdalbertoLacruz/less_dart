@@ -1,4 +1,4 @@
-//source: less/tree/url.js 2.4.0
+//source: less/tree/url.js 2.5.0
 
 part of tree.less;
 
@@ -15,7 +15,7 @@ class URL extends Node {
 
   ///
   void accept(Visitor visitor) {
-    this.value = visitor.visit(this.value);
+    value = visitor.visit(value);
 
 //2.3.1
 //  URL.prototype.accept = function (visitor) {
@@ -26,7 +26,7 @@ class URL extends Node {
   ///
   void genCSS(Contexts context, Output output) {
     output.add('url(');
-    this.value.genCSS(context, output);
+    value.genCSS(context, output);
     output.add(')');
 
 //2.3.1
@@ -39,12 +39,12 @@ class URL extends Node {
 
   ///
   URL eval(Contexts context) {
-    Node val = this.value.eval(context);
+    Node val = value.eval(context);
     String rootpath;
 
-    if (!this.isEvald) {
+    if (!isEvald) {
       // Add the base path if the URL is relative
-      rootpath = (this.currentFileInfo != null) ? this.currentFileInfo.rootpath : null;
+      rootpath = (currentFileInfo != null) ? currentFileInfo.rootpath : null;
       if ((rootpath.isNotEmpty) && (val.value is String) && context.isPathRelative(val.value)) {
         if (val is! Quoted) {
           rootpath = rootpath.replaceAllMapped(new RegExp(r'''[\(\)'"\s]'''), (match){
@@ -70,7 +70,7 @@ class URL extends Node {
         }
       }
     }
-    return new URL(val, this.index, this.currentFileInfo, true);
+    return new URL(val, index, currentFileInfo, true);
 
 //2.3.1
 //  URL.prototype.eval = function (context) {

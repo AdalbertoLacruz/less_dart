@@ -1,4 +1,4 @@
-//source: less/tree/extend.js 2.4.0
+//source: less/tree/extend.js 2.5.0
 
 part of tree.less;
 
@@ -22,17 +22,17 @@ class Extend extends Node {
 
   ///
   Extend(Node this.selector, String this.option, int this.index) {
-    this.object_id = next_id++;
-    this.parent_ids = [this.object_id];
+    object_id = next_id++;
+    parent_ids = [object_id];
 
     switch(option) {
       case 'all':
-        this.allowBefore = true;
-        this.allowAfter = true;
+        allowBefore = true;
+        allowAfter = true;
         break;
       default:
-        this.allowBefore = false;
-        this.allowAfter = false;
+        allowBefore = false;
+        allowAfter = false;
         break;
     }
 
@@ -59,7 +59,7 @@ class Extend extends Node {
 
   ///
   void accept(Visitor visitor) {
-    this.selector = visitor.visit(this.selector);
+    selector = visitor.visit(selector);
 
 //2.3.1
 //  Extend.prototype.accept = function (visitor) {
@@ -68,7 +68,7 @@ class Extend extends Node {
   }
 
   ///
-  Extend eval(Contexts context) => new Extend(this.selector.eval(context), this.option, this.index);
+  Extend eval(Contexts context) => new Extend(selector.eval(context), option, index);
 
 //2.3.1
 //  Extend.prototype.eval = function (context) {
@@ -77,7 +77,7 @@ class Extend extends Node {
 
   ///
   //removed clone(context)
-  Node clone() => new Extend (this.selector, this.option, this.index);
+  Node clone() => new Extend(selector, option, index);
 
 //2.3.1
 //  Extend.prototype.clone = function (context) {

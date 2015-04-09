@@ -1,4 +1,4 @@
-//source: less/tree/quoted.js 2.4.0
+//source: less/tree/quoted.js 2.5.0
 
 part of tree.less;
 
@@ -31,12 +31,12 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 
   ///
   void genCSS(Contexts context, Output output) {
-    if (!this.escaped) {
-      output.add(this.quote, this.currentFileInfo, this.index);
+    if (!escaped) {
+      output.add(quote, currentFileInfo, index);
     }
-    output.add(this.value);
-    if (!this.escaped) {
-      output.add(this.quote);
+    output.add(value);
+    if (!escaped) {
+      output.add(quote);
     }
 
 //2.3.1
@@ -52,7 +52,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   }
 
   ///
-  containsVariables() => new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(this.value);
+  containsVariables() => new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(value);
 
 //2.3.1
 //  Quoted.prototype.containsVariables = function() {
@@ -91,7 +91,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //      value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement); // JS Not supported
     value = iterativeReplace(value, reVar, interpolationReplacement);
 
-    return new Quoted(this.quote + value + this.quote, value, this.escaped, this.index, this.currentFileInfo);
+    return new Quoted(quote + value + quote, value, escaped, index, currentFileInfo);
 
 //2.3.1
 //  Quoted.prototype.eval = function (context) {

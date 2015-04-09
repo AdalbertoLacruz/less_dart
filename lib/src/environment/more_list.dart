@@ -5,8 +5,9 @@ part of environment.less;
 ///
 class MoreList {
 
-
+  ///
   /// Add [element] if not found
+  ///
   static addUnique(List to, element) {
     if (!to.contains(element)) to.add(element);
   }

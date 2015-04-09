@@ -1,4 +1,4 @@
-//2.4.0 20150315
+//2.5.0
 
 import 'dart:async';
 import 'dart:io';
@@ -645,7 +645,7 @@ class RemoveProperty extends VisitorBase {
   }
 
   Function visitFtn(Node node) {
-    if (node is Rule)       return this.visitRule;
+    if (node is Rule)       return visitRule;
     return null;
   }
 

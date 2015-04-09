@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 2.4.0+
+//source: less/tree/selector.js 2.5.0
 
 part of tree.less;
 
@@ -48,9 +48,9 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   void accept(Visitor visitor) {
-    if (this.elements != null) this.elements = visitor.visitArray(this.elements);
-    if (this.extendList != null) this.extendList = visitor.visitArray(this.extendList);
-    if (this.condition != null) this.condition = visitor.visit(this.condition);
+    if (elements != null) elements = visitor.visitArray(elements);
+    if (extendList != null) extendList = visitor.visitArray(extendList);
+    if (condition != null) condition = visitor.visit(condition);
 
 //2.3.1
 //  Selector.prototype.accept = function (visitor) {
@@ -71,9 +71,9 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
     evaldCondition = (evaldCondition != null)? evaldCondition : this.evaldCondition;
 
     Selector newSelector = new Selector(elements, extendList != null ? extendList : this.extendList, null,
-        this.index, this.currentFileInfo, this.isReferenced)
+        index, currentFileInfo, isReferenced)
         ..evaldCondition = evaldCondition
-        ..mediaEmpty = this.mediaEmpty;
+        ..mediaEmpty = mediaEmpty;
     return newSelector;
 
 //2.3.1
@@ -88,8 +88,8 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   List<Selector> createEmptySelectors() {
-    Element el = new Element('', '&', this.index, this.currentFileInfo);
-    List<Selector> sels = [new Selector([el], null, null, this.index, this.currentFileInfo)];
+    Element el = new Element('', '&', index, currentFileInfo);
+    List<Selector> sels = [new Selector([el], null, null, index, currentFileInfo)];
     sels[0].mediaEmpty = true;
     return sels;
 
@@ -170,19 +170,19 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
     String css;
     RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
-    if (this._elements != null) return; // cache exist
+    if (_elements != null) return; // cache exist
 
-    css = this.elements.map((Element v){
+    css = elements.map((Element v){
       return v.combinator.value
           + ((v.value is String) ? v.value : (v.value as Node).toCSS(null)); //ex. v.value Dimension
     }).toList().join('');
 
     Iterable<Match> matchs = re.allMatches(css);
     if (matchs != null) {
-      this._elements = matchs.map((m) => m[0]).toList();
-      if (this._elements.isNotEmpty && this._elements[0] == '&') this._elements.removeAt(0);
+      _elements = matchs.map((m) => m[0]).toList();
+      if (_elements.isNotEmpty && _elements[0] == '&') _elements.removeAt(0);
     } else {
-      this._elements = [];
+      _elements = [];
     }
 
 
@@ -209,11 +209,11 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  bool isJustParentSelector() => !this.mediaEmpty
-                              && this.elements.length == 1
-                              && this.elements[0].value == '&'
-                              && (   this.elements[0].combinator.value == ' '
-                                  || this.elements[0].combinator.value == '');
+  bool isJustParentSelector() => !mediaEmpty
+                              && elements.length == 1
+                              && elements[0].value == '&'
+                              && (   elements[0].combinator.value == ' '
+                                  || elements[0].combinator.value == '');
 
   //2.3.1
 //  Selector.prototype.isJustParentSelector = function() {
@@ -226,7 +226,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   Selector eval(Contexts context) {
     bool evaldCondition;
-    if (this.condition != null) evaldCondition = this.condition.eval(context); //evaldCondition null is ok
+    if (condition != null) evaldCondition = condition.eval(context); //evaldCondition null is ok
     List<Element> elements = this.elements;
     List<Node> extendList = this.extendList;
 
@@ -254,13 +254,13 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   void genCSS(Contexts context, Output output) {
     Element element;
 
-    if ((context == null || !context.firstSelector) && this.elements[0].combinator.value == '') {
-      output.add(' ', this.currentFileInfo, this.index);
+    if ((context == null || !context.firstSelector) && elements[0].combinator.value == '') {
+      output.add(' ', currentFileInfo, index);
     }
-    if (!isNotEmpty(this._css)) {
+    if (!isNotEmpty(_css)) {
       // todo caching? speed comparison?
-      for (int i = 0; i < this.elements.length; i++) {
-        element = this.elements[i];
+      for (int i = 0; i < elements.length; i++) {
+        element = elements[i];
         element.genCSS(context, output);
       }
     }
@@ -285,7 +285,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   void markReferenced() {
-    this.isReferenced = true;
+    isReferenced = true;
 
 //2.3.1
 //  Selector.prototype.markReferenced = function () {
@@ -294,7 +294,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  bool getIsReferenced() => !this.currentFileInfo.reference || isTrue(this.isReferenced);
+  bool getIsReferenced() => !currentFileInfo.reference || isTrue(isReferenced);
 
 //2.3.1
 //  Selector.prototype.getIsReferenced = function() {
@@ -302,7 +302,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
 
   ///
-  bool getIsOutput() => this.evaldCondition;
+  bool getIsOutput() => evaldCondition;
 
 //2.3.1
 //  Selector.prototype.getIsOutput = function() {

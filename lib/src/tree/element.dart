@@ -1,4 +1,4 @@
-//source: less/tree/element.js 2.4.0 *
+//source: less/tree/element.js 2.5.0
 
 part of tree.less;
 

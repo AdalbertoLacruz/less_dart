@@ -1,4 +1,4 @@
-//source: less/tree/attribute.js 2.4.0
+//source: less/tree/attribute.js 2.5.0
 
 part of tree.less;
 
@@ -13,9 +13,9 @@ class Attribute extends Node {
 
   ///
   Attribute eval(Contexts context) => new Attribute(
-        this.key is Node ? this.key.eval(context) : this.key,
-        this.op,
-        this.value is Node ?  this.value.eval(context) : this.value);
+        key is Node ? key.eval(context) : key,
+        op,
+        value is Node ?  value.eval(context) : value);
 
 //2.3.1
 //  Attribute.prototype.eval = function (context) {
@@ -25,7 +25,7 @@ class Attribute extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.toCSS(context));
+    output.add(toCSS(context));
 
 //2.3.1
 //  Attribute.prototype.genCSS = function (context, output) {
@@ -35,10 +35,10 @@ class Attribute extends Node {
 
   ///
   String toCSS(Contexts context) {
-    String value = (this.key is Node) ? this.key.toCSS(context) : this.key;
+    String value = (key is Node) ? key.toCSS(context) : key;
 
-    if (this.op != null) {
-      value += this.op;
+    if (op != null) {
+      value += op;
       value += (this.value is Node) ? this.value.toCSS(context) : this.value;
     }
 

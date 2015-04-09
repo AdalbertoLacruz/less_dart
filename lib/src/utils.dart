@@ -1,4 +1,4 @@
-// source: less/utils.js 2.4.0
+// source: less/utils.js 2.5.0
 
 library utils.less;
 

@@ -1,4 +1,4 @@
-// source: lib/less-node/image-size.js 2.4.0 20150329
+// source: lib/less-node/image-size.js 2.5.0
 
 part of functions.less;
 

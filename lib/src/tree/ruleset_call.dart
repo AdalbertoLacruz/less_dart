@@ -1,4 +1,4 @@
-//source: less/tree/ruleset-call.js 2.4.0
+//source: less/tree/ruleset-call.js 2.5.0
 
 part of tree.less;
 
@@ -11,7 +11,7 @@ class RulesetCall extends Node {
 
   ///
   Ruleset eval(Contexts context) {
-    DetachedRuleset detachedRuleset = new Variable(this.variable).eval(context);
+    DetachedRuleset detachedRuleset = new Variable(variable).eval(context);
     return detachedRuleset.callEval(context);
 
 //2.3.1

@@ -1,4 +1,4 @@
-// source: lib/less/functions/svg.js 2.4.0+
+// source: lib/less/functions/svg.js 2.5.0
 
 part of functions.less;
 
@@ -107,7 +107,7 @@ class SvgFunctions extends FunctionBase {
 
     returner = 'data:image/svg+xml,' + Uri.encodeComponent(returner);
     //returner = 'data:image/svg+xml,' + returner;
-    return new URL(new Quoted("'" + returner + "'", returner, false, this.index, this.currentFileInfo), this.index, this.currentFileInfo);
+    return new URL(new Quoted("'" + returner + "'", returner, false, index, currentFileInfo), index, currentFileInfo);
 
 //2.4.0+
 //  functionRegistry.add("svg-gradient", function(direction) {

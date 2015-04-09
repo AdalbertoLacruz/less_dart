@@ -1,4 +1,4 @@
-//source: lib/less/environment.js 2.4.0
+//source: lib/less/environment.js 2.5.0
 
 library environment.less;
 
@@ -64,9 +64,9 @@ class Environment {
     String type = mime.lookupMimeType(filename);
     if (type == null) {
       String ext = pathLib.extension(filename);
-          throw new LessExceptionError(new LessError(
-              message: 'Optional dependency "mime" is required for $ext'));
-        }
+      throw new LessExceptionError(new LessError(
+          message: 'Optional dependency "mime" is required for $ext'));
+    }
     return type;
   }
 

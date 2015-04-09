@@ -1,4 +1,4 @@
-//source: less/tree/comment.js 2.4.0 20150321
+//source: less/tree/comment.js 2.5.0
 
 part of tree.less;
 
@@ -14,12 +14,14 @@ class Comment extends Node implements MarkReferencedNode {
 
   Comment(String this.value, [bool this.isLineComment = false, int this.index, FileInfo this.currentFileInfo]);
 
+  ///
   /// Writes the comment in [output].
+  ///
   genCSS(Contexts context, Output output) {
-    if (this.debugInfo != null) {
-      output.add(debugInfo.toOutput(context), this.currentFileInfo, this.index);
+    if (debugInfo != null) {
+      output.add(debugInfo.toOutput(context), currentFileInfo, index);
     }
-    output.add(this.value);
+    output.add(value);
 
 //2.2.0
 //    Comment.prototype.genCSS = function (context, output) {
@@ -32,12 +34,12 @@ class Comment extends Node implements MarkReferencedNode {
 
   ///
   bool isSilent(Contexts context) {
-    bool isReference = this.currentFileInfo != null
-        && this.currentFileInfo.reference
-        && !this.isReferenced;
+    bool isReference = currentFileInfo != null
+        && currentFileInfo.reference
+        && !isReferenced;
 
-    bool isCompressed = context.compress && this.value[2] != '!'; //2.2.0
-    return this.isLineComment || isReference || isCompressed;
+    bool isCompressed = context.compress && value[2] != '!';
+    return isLineComment || isReference || isCompressed;
 
 //2.2.0
 //    Comment.prototype.isSilent = function(context) {
@@ -52,6 +54,6 @@ class Comment extends Node implements MarkReferencedNode {
 
   ///
   void markReferenced() {
-    this.isReferenced = true;
+    isReferenced = true;
   }
 }

@@ -1,4 +1,4 @@
-// source: lib/less/functions/color.js 2.4.0 20150315
+// source: lib/less/functions/color.js 2.5.0
 
 part of functions.less;
 
@@ -80,7 +80,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: rgb(90, 129, 32)
   ///   Output: #5a8120
   ///
-  Color rgb(r, g, b) => this.rgba(r, g, b, 1.0);
+  Color rgb(r, g, b) => rgba(r, g, b, 1.0);
 
   ///
   /// Creates a transparent color object from decimal red, green, blue and alpha (RGBA) values.
@@ -117,7 +117,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsl(90, 100%, 50%)
   ///   Output: #80ff00
   ///
-  Color hsl(h, s, l) => this.hsla(h, s, l, 1.0);
+  Color hsl(h, s, l) => hsla(h, s, l, 1.0);
 
   ///
   /// Creates a transparent color object from hue, saturation, lightness and alpha (HSLA) values.
@@ -156,7 +156,7 @@ class ColorFunctions extends FunctionBase {
     m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s;
     m1 = l * 2 - m2;
 
-    return this.rgba(
+    return rgba(
         hue(h + 1 / 3) * 255,
         hue(h) * 255,
         hue(h - 1 / 3) * 255,
@@ -196,7 +196,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsv(90, 100%, 50%)
   ///   Output: #408000
   ///
-  Color hsv(h, s, v) => this.hsva(h, s, v, 1.0);
+  Color hsv(h, s, v) => hsva(h, s, v, 1.0);
 
   ///
   /// Creates a transparent color object from hue, saturation, value and alpha (HSVA) values.
@@ -232,7 +232,7 @@ class ColorFunctions extends FunctionBase {
         [3, 1, 0],
         [0, 1, 2]];
 
-    return this.rgba(
+    return rgba(
         vs[perm[i][0]] * 255,
         vs[perm[i][1]] * 255,
         vs[perm[i][2]] * 255,
@@ -885,8 +885,8 @@ class ColorFunctions extends FunctionBase {
       return c;
     }
     throw new LessExceptionError(new LessError(
-              type: 'Argument',
-              message: 'argument must be a color keyword or 3/6 digit hex e.g. #FFF'));
+        type: 'Argument',
+        message: 'argument must be a color keyword or 3/6 digit hex e.g. #FFF'));
 
 //2.2.0
 //    color: function(c) {
@@ -908,10 +908,10 @@ class ColorFunctions extends FunctionBase {
   ///
   /// returns a [color] [amount]% points *lighter*
   ///
-  Color tint(Color color, Dimension amount) => this.mix(this.rgb(255, 255, 255), color, amount);
+  Color tint(Color color, Dimension amount) => mix(rgb(255, 255, 255), color, amount);
 
   ///
   /// returns a [color] [amount]% points *darker*
   ///
-  Color shade(Color color, Dimension amount) => this.mix(this.rgb(0, 0, 0), color, amount);
+  Color shade(Color color, Dimension amount) => mix(rgb(0, 0, 0), color, amount);
 }

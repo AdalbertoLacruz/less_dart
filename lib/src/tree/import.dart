@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.4.0 20150321 *
+//source: less/tree/import.js 2.5.0
 
 part of tree.less;
 
@@ -44,7 +44,7 @@ class Import extends Node {
     RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
 
     if (options.less != null || isTrue(options.inline)) {
-      css = !isTrue(options.less) || isTrue(this.options.inline);
+      css = !isTrue(options.less) || isTrue(options.inline);
     } else {
       String pathValue = getPath();
       if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) css = true;
@@ -167,7 +167,7 @@ class Import extends Node {
   ///
   Node evalPath(Contexts context) {
     Node path = this.path.eval(context);
-    String rootpath = (this.currentFileInfo != null) ? this.currentFileInfo.rootpath : null;
+    String rootpath = (currentFileInfo != null) ? currentFileInfo.rootpath : null;
 
     if (path is! URL) {
       if (rootpath != null) {

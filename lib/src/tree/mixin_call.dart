@@ -1,4 +1,4 @@
-//source: tree/mixin-call.js 2.4.0
+//source: tree/mixin-call.js 2.5.0
 
 part of tree.less;
 
@@ -14,7 +14,7 @@ class MixinCall extends Node {
 
   ///
   MixinCall(elements, List args, int this.index, FileInfo this.currentFileInfo, bool this.important) {
-    this.selector = new Selector(elements);
+    selector = new Selector(elements);
     if (args != null && args.isNotEmpty) this.arguments = args;
 
 //2.3.1
@@ -29,8 +29,8 @@ class MixinCall extends Node {
 
   ///
   void accept(Visitor visitor) {
-    if (this.selector != null) this.selector = visitor.visit(this.selector);
-    if (this.arguments != null) this.arguments = visitor.visitArray(this.arguments);
+    if (selector != null) selector = visitor.visit(selector);
+    if (arguments != null) arguments = visitor.visitArray(arguments);
 
 //2.3.1
 //  MixinCall.prototype.accept = function (visitor) {
@@ -103,8 +103,8 @@ class MixinCall extends Node {
       return defFalseEitherCase;
     }
 
-    if (this.arguments != null) {
-      args = this.arguments.map((a) {
+    if (arguments != null) {
+      args = arguments.map((a) {
         return new MixinArgs(name: a.name, value: a.value.eval(context));
       }).toList();
     }
@@ -113,7 +113,7 @@ class MixinCall extends Node {
 
     // Search MixinDefinition
     for (i = 0; i < context.frames.length; i++) {
-      if ((mixins = (context.frames[i] as VariableMixin).find(this.selector, null, noArgumentsFilter)).isNotEmpty) {
+      if ((mixins = (context.frames[i] as VariableMixin).find(selector, null, noArgumentsFilter)).isNotEmpty) {
         isOneFound = true;
 
         // To make `default()` function independent of definition order we have two "subpasses" here.
@@ -158,9 +158,9 @@ class MixinCall extends Node {
           if ((count[defTrue] + count[defFalse]) > 1) {
             throw new LessExceptionError(new LessError(
                 type: 'Runtime',
-                message: 'Ambiguous use of `default()` found when matching for `' + this.format(args) + '`',
-                index: this.index,
-                filename: this.currentFileInfo.filename));
+                message: 'Ambiguous use of `default()` found when matching for `' + format(args) + '`',
+                index: index,
+                filename: currentFileInfo.filename));
           }
         }
 
@@ -172,16 +172,16 @@ class MixinCall extends Node {
               if (mixin is! MixinDefinition) {
                 originalRuleset = (mixin as Ruleset).originalRuleset;
                 if (originalRuleset == null) originalRuleset = mixin;
-                mixin = new MixinDefinition('', [], mixin.rules, null, false, this.index, this.currentFileInfo);
+                mixin = new MixinDefinition('', [], mixin.rules, null, false, index, currentFileInfo);
                 (mixin as MixinDefinition).originalRuleset = originalRuleset;
                 if (originalRuleset != null) (mixin as MixinDefinition).id = originalRuleset.id;
               }
-              rules.addAll((mixin as MixinDefinition).evalCall(context, args, this.important).rules);
+              rules.addAll((mixin as MixinDefinition).evalCall(context, args, important).rules);
             } catch (e, s) {
               //in js creates a new error and lost type: NameError -> SyntaxError
               LessError error = LessError.transform(e,
-                  index: this.index,
-                  filename: this.currentFileInfo.filename,
+                  index: index,
+                  filename: currentFileInfo.filename,
                   stackTrace: s);
               throw new LessExceptionError(error);
             }
@@ -189,7 +189,7 @@ class MixinCall extends Node {
         }
 
         if (match) {
-          if (this.currentFileInfo == null || !this.currentFileInfo.reference) {
+          if (currentFileInfo == null || !currentFileInfo.reference) {
             for (i = 0; i < rules.length; i++) {
               rule = rules[i];
               if (rule is MarkReferencedNode) (rule as MarkReferencedNode).markReferenced();
@@ -203,16 +203,16 @@ class MixinCall extends Node {
     if (isOneFound) {
       throw new LessExceptionError(new LessError(
           type: 'Runtime',
-          message: 'No matching definition was found for `' + this.format(args) + '`',
-          index: this.index,
-          filename: this.currentFileInfo.filename
+          message: 'No matching definition was found for `' + format(args) + '`',
+          index: index,
+          filename: currentFileInfo.filename
       ));
     } else {
       throw new LessExceptionError(new LessError(
           type: 'Name',
-          message: this.selector.toCSS(context).trim() + ' is undefined',
-          index: this.index,
-          filename: this.currentFileInfo.filename
+          message: selector.toCSS(context).trim() + ' is undefined',
+          index: index,
+          filename: currentFileInfo.filename
       ));
     }
 
@@ -352,7 +352,7 @@ class MixinCall extends Node {
 
   /// Returns a String with the Mixin arguments
   String format(List<MixinArgs> args) {
-    String result = this.selector.toCSS(null).trim();
+    String result = selector.toCSS(null).trim();
     String argsStr = (args != null)? args.map((a){
       String argValue = '';
       if (isNotEmpty(a.name)) argValue += a.name + ':';

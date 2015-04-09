@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 2.4.0
+//source: less/tree/dimension.js 2.5.0
 
 part of tree.less;
 
@@ -30,9 +30,7 @@ class Unit extends Node implements CompareNode {
   }
 
   ///
-  Unit clone()=> new Unit(this.numerator.sublist(0),
-                          this.denominator.sublist(0),
-                          this.backupUnit);
+  Unit clone()=> new Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);
 
 //2.3.1
 //  Unit.prototype.clone = function () {
@@ -44,12 +42,12 @@ class Unit extends Node implements CompareNode {
     // Dimension checks the unit is singular and throws an error if in strict math mode.
     bool stricUnits = (context != null && context.strictUnits != null) ? context.strictUnits : false;
 
-    if (this.numerator.length == 1) {
-      output.add(this.numerator[0]); // the ideal situation
-    } else if (!stricUnits && this.backupUnit != null) {
-      output.add(this.backupUnit);
-    } else if (!stricUnits && this.denominator.isNotEmpty) {
-      output.add(this.denominator[0]);
+    if (numerator.length == 1) {
+      output.add(numerator[0]); // the ideal situation
+    } else if (!stricUnits && backupUnit != null) {
+      output.add(backupUnit);
+    } else if (!stricUnits && denominator.isNotEmpty) {
+      output.add(denominator[0]);
     }
 
 //2.4.0
@@ -68,9 +66,9 @@ class Unit extends Node implements CompareNode {
 
   ///
   String toString() {
-    String returnStr = this.numerator.join('*');
-    for (int i = 0; i < this.denominator.length; i++) {
-      returnStr += '/' + this.denominator[i];
+    String returnStr = numerator.join('*');
+    for (int i = 0; i < denominator.length; i++) {
+      returnStr += '/' + denominator[i];
     }
     return returnStr;
 
@@ -107,7 +105,7 @@ class Unit extends Node implements CompareNode {
   ///
   bool isLength(Contexts context) {
     RegExp re = new RegExp(r'px|em|%|in|cm|mm|pc|pt|ex'); //i?
-    return re.hasMatch(this.toCSS(context));
+    return re.hasMatch(toCSS(context));
 
 //2.3.1
 //  Unit.prototype.isLength = function () {
@@ -118,7 +116,7 @@ class Unit extends Node implements CompareNode {
   ///
   /// True if numerator & denominator isEmpty
   ///
-  bool isEmpty() => this.numerator.isEmpty && this.denominator.isEmpty;
+  bool isEmpty() => numerator.isEmpty && denominator.isEmpty;
 
 //2.3.1
 //  Unit.prototype.isEmpty = function () {
@@ -126,7 +124,7 @@ class Unit extends Node implements CompareNode {
 //  };
 
   ///
-  bool isSingular() => (this.numerator.length <= 1 && this.denominator.isEmpty);
+  bool isSingular() => (numerator.length <= 1 && denominator.isEmpty);
 
 //2.3.1
 //  Unit.prototype.isSingular = function() {
@@ -141,12 +139,12 @@ class Unit extends Node implements CompareNode {
   void map(Function callback) {
     int i;
 
-    for (i = 0; i < this.numerator.length; i++) {
-      this.numerator[i] = callback(this.numerator[i], false);
+    for (i = 0; i < numerator.length; i++) {
+      numerator[i] = callback(numerator[i], false);
     }
 
-    for (i = 0; i < this.denominator.length; i++) {
-      this.denominator[i] = callback(this.denominator[i], true);
+    for (i = 0; i < denominator.length; i++) {
+      denominator[i] = callback(denominator[i], true);
     }
 
 //2.3.1
@@ -180,7 +178,7 @@ class Unit extends Node implements CompareNode {
       if (UnitConversions.groups.containsKey(groupName)) {//redundant?
         group = UnitConversions.groups[groupName];
 
-        this.map(mapUnit);
+        map(mapUnit);
       }
     }
 
@@ -219,34 +217,34 @@ class Unit extends Node implements CompareNode {
     String atomicUnit;
     int i;
 
-    for (i = 0; i < this.numerator.length; i++) {
-      atomicUnit = this.numerator[i];
+    for (i = 0; i < numerator.length; i++) {
+      atomicUnit = numerator[i];
       if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] + 1;
     }
 
-    for (i = 0; i < this.denominator.length; i++) {
-      atomicUnit = this.denominator[i];
+    for (i = 0; i < denominator.length; i++) {
+      atomicUnit = denominator[i];
       if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] -1;
     }
 
-    this.numerator = [];
-    this.denominator = [];
+    numerator = [];
+    denominator = [];
 
     for (atomicUnit in counter.keys) {
       if (counter.containsKey(atomicUnit)) {
         int count = counter[atomicUnit];
         if (count > 0) {
-          for (i = 0; i < count; i++) this.numerator.add(atomicUnit);
+          for (i = 0; i < count; i++) numerator.add(atomicUnit);
         } else if (count < 0) {
-          for (i = 0; i < -count; i++) this.denominator.add(atomicUnit);
+          for (i = 0; i < -count; i++) denominator.add(atomicUnit);
         }
       }
     }
 
-    this.numerator.sort();
-    this.denominator.sort();
+    numerator.sort();
+    denominator.sort();
 
 //2.3.1
 //  Unit.prototype.cancel = function () {

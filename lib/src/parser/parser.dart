@@ -1,4 +1,4 @@
-// source: less/parser.js 2.4.0 index.js
+// source: less/parser.js 2.5.0 index.js
 
 library parser.less;
 

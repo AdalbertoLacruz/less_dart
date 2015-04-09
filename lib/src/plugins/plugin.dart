@@ -20,19 +20,25 @@ class Plugin {
     this.lessOptions = options;
   }
 
+  ///
   install(PluginManager pluginManager) {}
 
+  ///
   ///Removes " at the start/end
+  ///
   String normalizeCommand(String cmdOptions) {
     String command = cmdOptions.startsWith('"') ? cmdOptions.substring(1) : cmdOptions;
     command = command.endsWith('"') ? command.substring(0, command.length - 1) : command;
     return command;
   }
 
+  ///
   void printUsage(){}
 
+  ///
   void printOptions() {}
 
+  ///
   setOptions(cmdOptions) {}
 }
 

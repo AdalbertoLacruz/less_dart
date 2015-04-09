@@ -1,4 +1,4 @@
-//source: less/data/colors.js 2.4.0
+//source: less/data/colors.js 2.5.0
 
 library colors.less;
 

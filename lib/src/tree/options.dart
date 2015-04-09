@@ -31,8 +31,8 @@ class Options extends Node {
     if (!result) {
       LessError error = new LessError(
           message: 'bad options (${capture})',
-          index: this.index,
-          filename: this.currentFileInfo.filename);
+          index: index,
+          filename: currentFileInfo.filename);
        throw new LessExceptionError(error);
     }
 

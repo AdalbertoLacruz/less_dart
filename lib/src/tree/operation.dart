@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 2.4.0
+//source: less/tree/operation.js 2.5.0
 
 part of tree.less;
 
@@ -23,7 +23,7 @@ class Operation extends Node {
 
   ///
   void accept(Visitor visitor) {
-    this.operands = visitor.visit(this.operands);
+    operands = visitor.visit(operands);
 
 //2.3.1
 //  Operation.prototype.accept = function (visitor) {
@@ -33,8 +33,8 @@ class Operation extends Node {
 
   ///
   eval(Contexts context) {
-    Node a = this.operands[0].eval(context);
-    Node b = this.operands[1].eval(context);
+    Node a = operands[0].eval(context);
+    Node b = operands[1].eval(context);
 
     if (context.isMathOn()) {
       if (a is Dimension && b is Color) a = (a as Dimension).toColor();
@@ -45,9 +45,9 @@ class Operation extends Node {
             message: 'Operation on an invalid type'
         ));
       }
-      return (a as OperateNode).operate(context, this.op, b);
+      return (a as OperateNode).operate(context, op, b);
     } else {
-      return new Operation(this.op, [a, b], this.isSpaced);
+      return new Operation(op, [a, b], isSpaced);
     }
 
 //2.3.1
@@ -76,10 +76,10 @@ class Operation extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    this.operands[0].genCSS(context, output);
-    if (this.isSpaced) output.add(' ');
-    output.add(this.op);
-    if (this.isSpaced) output.add(' ');
+    operands[0].genCSS(context, output);
+    if (isSpaced) output.add(' ');
+    output.add(op);
+    if (isSpaced) output.add(' ');
     this.operands[1].genCSS(context, output);
 
 //2.3.1

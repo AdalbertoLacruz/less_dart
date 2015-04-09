@@ -1,4 +1,4 @@
-//source: less/tree/variable.js 2.4.0
+//source: less/tree/variable.js 2.5.0
 
 part of tree.less;
 
@@ -32,21 +32,21 @@ class Variable extends Node {
     String name = this.name;
 
     if (name.startsWith('@@')) {
-      name = '@' + new Variable(name.substring(1), this.index, this.currentFileInfo).eval(context).value;
+      name = '@' + new Variable(name.substring(1), index, currentFileInfo).eval(context).value;
     }
 
-    if (this.evaluating) {
+    if (evaluating) {
       LessError error = new LessError(
           type: 'Name',
           message: 'Recursive variable definition for $name',
-          filename: this.currentFileInfo.filename,
-          index: this.index,
+          filename: currentFileInfo.filename,
+          index: index,
           context: context
       );
       throw new LessExceptionError(error);
     }
 
-    this.evaluating = true;
+    evaluating = true;
 
     variable = find(context.frames, (frame){
       Rule v = frame.variable(name);
@@ -60,14 +60,14 @@ class Variable extends Node {
     });
 
     if (variable != null) {
-      this.evaluating = false;
+      evaluating = false;
       return variable;
     } else {
       LessError error = new LessError(
           type: 'Name',
           message: 'variable $name is undefined',
-          filename: this.currentFileInfo.filename,
-          index: this.index,
+          filename: currentFileInfo.filename,
+          index: index,
           context: context
       );
       throw new LessExceptionError(error);

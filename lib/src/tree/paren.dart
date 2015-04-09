@@ -1,4 +1,4 @@
-//source: less/tree/paren.js 2.4.0
+//source: less/tree/paren.js 2.5.0
 
 part of tree.less;
 
@@ -12,7 +12,7 @@ class Paren extends Node {
   ///
   void genCSS(Contexts context, Output output) {
     output.add('(');
-    this.value.genCSS(context, output);
+    value.genCSS(context, output);
     output.add(')');
 
 //2.3.1
@@ -24,7 +24,7 @@ class Paren extends Node {
   }
 
   ///
-  Paren eval(Contexts context) => new Paren(this.value.eval(context));
+  Paren eval(Contexts context) => new Paren(value.eval(context));
 
 //2.3.1
 //  Paren.prototype.eval = function (context) {

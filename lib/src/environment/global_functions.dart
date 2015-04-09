@@ -1,11 +1,14 @@
 part of environment.less;
 
-
-/// resolves null as false. #
+///
+/// Resolves null as false.
+///
 bool isTrue(bool value) => value != null ? value : false;
 
-/// resolves null as empty. Return false if null.
-/// Supports String, List, Map. #
+///
+/// Resolves null as empty. Return false if null.
+/// Supports String, List, Map.
+///
 bool isNotEmpty(value){
   if (value is String) return value.isNotEmpty;
   if (value is List) return value.isNotEmpty;
@@ -13,7 +16,9 @@ bool isNotEmpty(value){
   return false; //if value is null
 }
 
-/// if [value] is null return default
+///
+/// if [value] is null return default.
+///
 getValueOrDefault(value, defaultValue) {
   if (value == null) {
     return defaultValue;
@@ -22,7 +27,9 @@ getValueOrDefault(value, defaultValue) {
   }
 }
 
-/// -[value]. Considers null value.
+///
+/// -[value] num. Considers null value.
+///
 negate(num value) {
   return (value == null) ? null : -value;
 }

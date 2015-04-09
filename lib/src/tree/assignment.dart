@@ -1,4 +1,4 @@
-//source: less/tree/assignment.js 2.4.0
+//source: less/tree/assignment.js 2.5.0
 
 part of tree.less;
 
@@ -12,7 +12,7 @@ class Assignment extends Node {
 
   ///
   void accept(Visitor visitor) {
-    this.value = visitor.visit(this.value);
+    value = visitor.visit(value);
 
 //2.3.1
 //  Assignment.prototype.accept = function (visitor) {
@@ -22,7 +22,7 @@ class Assignment extends Node {
 
   ///
   Assignment eval(Contexts context) {
-    if (this.value is Node) return new Assignment(this.key, this.value.eval(context));
+    if (value is Node) return new Assignment(key, value.eval(context));
     return this;
 
 //2.3.1
@@ -36,11 +36,11 @@ class Assignment extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.key + '=');
-    if (this.value is Node) {
-      this.value.genCSS(context, output);
+    output.add(key + '=');
+    if (value is Node) {
+      value.genCSS(context, output);
     } else {
-      output.add(this.value);
+      output.add(value);
     }
 
 //2.3.1

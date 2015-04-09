@@ -1,4 +1,4 @@
-//source: less/tree/expression.js 2.4.0
+//source: less/tree/expression.js 2.5.0
 
 part of tree.less;
 
@@ -26,7 +26,7 @@ class Expression extends Node {
 
   ///
   accept(Visitor visitor){
-    this.value = visitor.visitArray(this.value);
+    value = visitor.visitArray(value);
 
 //2.3.1
 //  Expression.prototype.accept = function (visitor) {
@@ -37,24 +37,24 @@ class Expression extends Node {
   /// Returns Node or List<Node>
   eval(Contexts context) {
     var returnValue;
-    bool inParenthesis = this.parens && !this.parensInOp;
+    bool inParenthesis = parens && !parensInOp;
     bool doubleParen = false;
 
     if (inParenthesis) context.inParenthesis();
 
-    if (this.value.length > 1) {
-      returnValue = new Expression(this.value.map((e){
+    if (value.length > 1) {
+      returnValue = new Expression(value.map((e){
         return (e != null) ? e.eval(context) : null;
       }).toList());
-    } else if (this.value.length == 1) {
-      if (this.value.first.parens && !this.value.first.parensInOp) doubleParen = true;
-      returnValue = this.value.first.eval(context);
+    } else if (value.length == 1) {
+      if (value.first.parens && !value.first.parensInOp) doubleParen = true;
+      returnValue = value.first.eval(context);
     } else {
       returnValue = this;
     }
     if (inParenthesis) context.outOfParenthesis();
 
-    if (this.parens && this.parensInOp && !(context.isMathOn()) && !doubleParen) {
+    if (parens && parensInOp && !(context.isMathOn()) && !doubleParen) {
       returnValue = new Paren(returnValue);
     }
 
@@ -92,9 +92,9 @@ class Expression extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    for (int i = 0; i < this.value.length; i++) {
-      this.value[i].genCSS(context, output);
-      if (i + 1 < this.value.length) output.add(' ');
+    for (int i = 0; i < value.length; i++) {
+      value[i].genCSS(context, output);
+      if (i + 1 < value.length) output.add(' ');
     }
 
 //2.3.1
@@ -110,7 +110,7 @@ class Expression extends Node {
 
   ///
   void throwAwayComments() {
-    this.value.retainWhere((v) {
+    value.retainWhere((v) {
       return (v is! Comment);
     });
 

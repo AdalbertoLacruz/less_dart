@@ -14,7 +14,7 @@ class IgnitionVisitor extends VisitorBase {
   LessOptions lessOptions;
 
   IgnitionVisitor() {
-    this._visitor = new Visitor(this);
+    _visitor = new Visitor(this);
     environment = new Environment();
     context = new Contexts.eval();
   }
@@ -28,7 +28,7 @@ class IgnitionVisitor extends VisitorBase {
       pluginManager.resetCustomFunction();
     }
 
-    return this._visitor.visit(root);
+    return _visitor.visit(root);
   }
 
 
@@ -50,7 +50,7 @@ class IgnitionVisitor extends VisitorBase {
   }
 
   Function visitFtn(Node node) {
-    if (node is Options)          return visitOptions;
+    if (node is Options) return visitOptions;
 
     return null;
   }

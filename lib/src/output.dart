@@ -9,7 +9,7 @@ class Output {
 
   /// [s] is String or s.toString(). #
   void add(s, [FileInfo currentFileInfo, int index, mapLines]) {
-    this.value.write(s);
+    value.write(s);
   }
 
   String toString() => value.toString();

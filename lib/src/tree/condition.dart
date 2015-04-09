@@ -1,4 +1,4 @@
-//source: less/tree/condition.js 2.4.0
+//source: less/tree/condition.js 2.5.0
 
 part of tree.less;
 
@@ -17,8 +17,8 @@ class Condition extends Node {
 
   ///
   void accept(Visitor visitor) {
-    this.lvalue = visitor.visit(this.lvalue);
-    this.rvalue = visitor.visit(this.rvalue);
+    lvalue = visitor.visit(lvalue);
+    rvalue = visitor.visit(rvalue);
 
 //2.3.1
 //  Condition.prototype.accept = function (visitor) {
@@ -48,8 +48,8 @@ class Condition extends Node {
           }
         }
     }
-    bool result = comparation(this.op, this.lvalue.eval(context), this.rvalue.eval(context));
-    return this.negate ? !result : result;
+    bool result = comparation(op, lvalue.eval(context), rvalue.eval(context));
+    return negate ? !result : result;
 
 //2.3.1
 //  Condition.prototype.eval = function (context) {

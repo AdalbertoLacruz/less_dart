@@ -1,9 +1,8 @@
-//source: less/tree/media.js 2.4.0 20150320
+//source: less/tree/media.js 2.5.0
 
 part of tree.less;
 
 //2.3.1 extends from Directive
-//class Media extends Node with OutputRulesetMixin, VariableMixin implements MarkReferencedNode {
 class Media extends DirectiveBase {
   Node features;
   int index;
@@ -39,8 +38,8 @@ class Media extends DirectiveBase {
 
   ///
   void accept(Visitor visitor) {
-    if (this.features != null) this.features = visitor.visit(this.features);
-    if (this.rules != null) this.rules = visitor.visitArray(this.rules);
+    if (features != null) features = visitor.visit(features);
+    if (rules != null) rules = visitor.visitArray(rules);
 
 //2.3.1
 //  Media.prototype.accept = function (visitor) {
@@ -55,9 +54,9 @@ class Media extends DirectiveBase {
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add('@media ', this.currentFileInfo, this.index);
-    this.features.genCSS(context, output);
-    outputRuleset(context, output, this.rules);
+    output.add('@media ', currentFileInfo, index);
+    features.genCSS(context, output);
+    outputRuleset(context, output, rules);
 
 //2.3.1
 //  Media.prototype.genCSS = function (context, output) {
@@ -74,10 +73,10 @@ class Media extends DirectiveBase {
       context.mediaPath = [];
     }
 
-    Media media = new Media (null, [], this.index, this.currentFileInfo);
-    if (this.debugInfo != null) {
-      this.rules[0].debugInfo = this.debugInfo;
-      media.debugInfo = this.debugInfo;
+    Media media = new Media (null, [], index, currentFileInfo);
+    if (debugInfo != null) {
+      rules[0].debugInfo = debugInfo;
+      media.debugInfo = debugInfo;
     }
     bool strictMathBypass = false;
     if (!context.strictMath) {
@@ -86,7 +85,7 @@ class Media extends DirectiveBase {
     }
 
     try {
-      media.features = this.features.eval(context);
+      media.features = features.eval(context);
     } finally {
       if (strictMathBypass) context.strictMath = false;
     }
@@ -95,8 +94,8 @@ class Media extends DirectiveBase {
     context.mediaBlocks.add(media);
 
     this.rules[0].functionRegistry = new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
-    context.frames.insert(0, this.rules[0]);
-    media.rules = [this.rules[0].eval(context)];
+    context.frames.insert(0, rules[0]);
+    media.rules = [rules[0].eval(context)];
     context.frames.removeAt(0);
 
     context.mediaPath.removeLast();
@@ -152,7 +151,7 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      List<Selector> selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
+      List<Selector> selectors = (new Selector([], null, null, index, currentFileInfo)).createEmptySelectors();
       result = new Ruleset(selectors, context.mediaBlocks)
                     ..multiMedia = true;
     }
@@ -202,7 +201,7 @@ class Media extends DirectiveBase {
     //    b and c and d
     //    b and c and e
 
-    this.features = new Value(this.permute(path).map((path) {
+    features = new Value(permute(path).map((path) {
       path = path.map((fragment){
         return (fragment is Node) ? fragment : new Anonymous(fragment);
       }).toList();
@@ -264,7 +263,7 @@ class Media extends DirectiveBase {
       return arr[0];
     } else {
       List result = [];
-      List rest = this.permute(arr.sublist(1));
+      List rest = permute(arr.sublist(1));
       for (int i = 0; i < rest.length; i++) {
         for (int j = 0; j < arr[0].length; j++) {
           if (rest[i] is! List) rest[i] = [rest[i]]; //avoid problems with addAll
@@ -296,7 +295,7 @@ class Media extends DirectiveBase {
   ///
   void bubbleSelectors(List<Selector> selectors) {
     if (selectors == null) return;
-    this.rules = [new Ruleset(selectors.sublist(0), [this.rules[0]])];
+    rules = [new Ruleset(selectors.sublist(0), [rules[0]])];
 
 //2.3.1
 //  Media.prototype.bubbleSelectors = function (selectors) {

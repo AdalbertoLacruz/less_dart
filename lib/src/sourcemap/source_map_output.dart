@@ -1,4 +1,4 @@
-// source: less/source-map-output.js 2.4.0
+// source: less/source-map-output.js 2.5.0
 
 part of sourcemap.less;
 
@@ -85,13 +85,13 @@ class SourceMapOutput extends Output{
     String result;
     String filename = file.replaceAll('\\', '/');
 
-    if (this.sourceMapBasepath != null && filename.startsWith(this.sourceMapBasepath)) {
-      filename = filename.substring(this.sourceMapBasepath.length);
+    if (sourceMapBasepath != null && filename.startsWith(sourceMapBasepath)) {
+      filename = filename.substring(sourceMapBasepath.length);
       if (filename.startsWith('\\') || filename.startsWith('/')) {
         filename = filename.substring(1);
       }
     }
-    result = (this.sourceMapRootpath != null) ? this.sourceMapRootpath + filename : filename;
+    result = (sourceMapRootpath != null) ? sourceMapRootpath + filename : filename;
     result = path.normalize(result);
     normalizeCache[file] = result;
     return result;
@@ -126,15 +126,15 @@ class SourceMapOutput extends Output{
     if (chunk.isEmpty) return;
 
     if (fileInfo != null) {
-      String inputSource = this.contentsMap[fileInfo.filename];
+      String inputSource = contentsMap[fileInfo.filename];
 
       // remove vars/banner added to the top of the file
-      if (this.contentsIgnoredCharsMap[fileInfo.filename] != null) {
+      if (contentsIgnoredCharsMap[fileInfo.filename] != null) {
         // adjust the index
-        index -= this.contentsIgnoredCharsMap[fileInfo.filename];
+        index -= contentsIgnoredCharsMap[fileInfo.filename];
         if (index < 0) index = 0;
         // adjust the source
-        inputSource = inputSource.substring(this.contentsIgnoredCharsMap[fileInfo.filename]);
+        inputSource = inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
       }
       inputSource = inputSource.substring(0, index);
       sourceLines = inputSource.split('\n');
@@ -148,25 +148,25 @@ class SourceMapOutput extends Output{
       if (!mapLines) {
         SourcemapData data = new SourcemapData(
             originalIndex: index, originalLine: sourceLines.length - 1, originalColumn: sourceColumns.length, originalFile:normalizeFilename(fileInfo.filename),
-            generatedIndex: indexGenerated, generatedLine: this.lineNumber, generatedColumn: this.column, generatedFile: normalizeFilename(this.outputFilename));
-        if (data != null) this.sourceMapGenerator.addLocation(data.original, data.generated, null);
+            generatedIndex: indexGenerated, generatedLine: lineNumber, generatedColumn: column, generatedFile: normalizeFilename(outputFilename));
+        if (data != null) sourceMapGenerator.addLocation(data.original, data.generated, null);
       } else { // @import (inline)
         for (int i = 0; i < lines.length; i++) {
           SourcemapData data = new SourcemapData(
           originalIndex: index, originalLine: sourceLines.length + i - 1,
             originalColumn: (i == 0) ? sourceColumns.length : 0, originalFile:normalizeFilename(fileInfo.filename),
-          generatedIndex: indexGenerated, generatedLine: this.lineNumber + i,
-            generatedColumn: (i == 0) ? this.column : 0, generatedFile: normalizeFilename(this.outputFilename));
-          if (data != null) this.sourceMapGenerator.addLocation(data.original, data.generated, null);
+          generatedIndex: indexGenerated, generatedLine: lineNumber + i,
+            generatedColumn: (i == 0) ? column : 0, generatedFile: normalizeFilename(outputFilename));
+          if (data != null) sourceMapGenerator.addLocation(data.original, data.generated, null);
         }
       }
     }
 
     if (lines.length == 1) {
-      this.column += columns.length;
+      column += columns.length;
     } else {
-      this.lineNumber += lines.length - 1;
-      this.column = columns.length;
+      lineNumber += lines.length - 1;
+      column = columns.length;
     }
 
     super.add(chunk);
@@ -237,21 +237,21 @@ class SourceMapOutput extends Output{
     Map<String, String> contents = {};
     Map json;
 
-    if (this.outputSourceFiles) { //--source-map-less-inline
-      for (var filename in this.contentsMap.keys) {
-        String source = this.contentsMap[filename];
-        if (this.contentsIgnoredCharsMap[filename] != null) {
-          source = source.substring(this.contentsIgnoredCharsMap[filename]);
+    if (outputSourceFiles) { //--source-map-less-inline
+      for (var filename in contentsMap.keys) {
+        String source = contentsMap[filename];
+        if (contentsIgnoredCharsMap[filename] != null) {
+          source = source.substring(contentsIgnoredCharsMap[filename]);
         }
         contents[normalizeFilename(filename)] = source;
       }
     }
 
-    this.rootNode.genCSS(context, this);
+    rootNode.genCSS(context, this);
 
     if (!super.isEmpty) {
-      if (this.outputSourceFiles) {//--source-map-less-inline
-        json = this.sourceMapGenerator.build(normalizeFilename(this.outputFilename));
+      if (outputSourceFiles) {//--source-map-less-inline
+        json = sourceMapGenerator.build(normalizeFilename(outputFilename));
         List<String> sourcesContent = [];
         for (var filename in json['sources']) {
           sourcesContent.add(contents[filename]);
@@ -259,18 +259,18 @@ class SourceMapOutput extends Output{
         json['sourcesContent'] = sourcesContent;
         sourceMapContent = JSON.encode(json);
       } else {
-        sourceMapContent = this.sourceMapGenerator.toJson(normalizeFilename(this.outputFilename));
+        sourceMapContent = sourceMapGenerator.toJson(normalizeFilename(outputFilename));
       }
 
-      if (this.sourceMapURL.isNotEmpty) {
+      if (sourceMapURL.isNotEmpty) {
         sourceMapURL = this.sourceMapURL;
-      } else if (this.sourceMapFilename.isNotEmpty){
-        sourceMapURL = normalizeFilename(this.sourceMapFilename);
+      } else if (sourceMapFilename.isNotEmpty){
+        sourceMapURL = normalizeFilename(sourceMapFilename);
       }
 
       //export results
       this.sourceMapURL = sourceMapURL;
-      this.sourceMap = sourceMapContent;
+      sourceMap = sourceMapContent;
     }
 
     return super.toString();

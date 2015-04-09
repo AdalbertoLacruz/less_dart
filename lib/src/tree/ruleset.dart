@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 2.4.0 20150321
+// source: less/tree/ruleset.js 2.5.0
 
 part of tree.less;
 
@@ -29,15 +29,13 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   ///
   void accept(Visitor visitor){
-    if (this.paths != null) {
-      visitor.visitArray(this.paths, true);
-    } else if (this.selectors != null) {
-      this.selectors = visitor.visitArray(this.selectors);
+    if (paths != null) {
+      visitor.visitArray(paths, true);
+    } else if (selectors != null) {
+      selectors = visitor.visitArray(selectors);
     }
 
-    if (isNotEmpty(this.rules)) {
-      this.rules = visitor.visitArray(this.rules);
-    }
+    if (isNotEmpty(rules)) rules = visitor.visitArray(rules);
 
 //2.3.1
 //  Ruleset.prototype.accept = function (visitor) {
@@ -89,17 +87,17 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     }
 
     List<Node> rules = (this.rules != null)? this.rules.sublist(0) : null; //clone
-    Ruleset ruleset = new Ruleset(selectors, rules, this.strictImports);
+    Ruleset ruleset = new Ruleset(selectors, rules, strictImports);
     Node rule;
     Node subRule;
 
     ruleset.originalRuleset = this;
-    ruleset.id = this.id;
-    ruleset.root = this.root;
-    ruleset.firstRoot = this.firstRoot;
-    ruleset.allowImports = this.allowImports;
+    ruleset.id = id;
+    ruleset.root = root;
+    ruleset.firstRoot = firstRoot;
+    ruleset.allowImports = allowImports;
 
-    if (this.debugInfo != null) ruleset.debugInfo = this.debugInfo;
+    if (debugInfo != null) ruleset.debugInfo = debugInfo;
     if (!hasOnePassingSelector) rules.length = 0;
 
     // inherit a function registry from the frames stack when possible; (in js from the top)
@@ -174,13 +172,13 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     for (i = 0; i < rsRules.length; i++) {
       rule = rsRules[i];
       // for rulesets, check if it is a css guard and can be removed
-      if (rule is Ruleset && (rule as Ruleset).selectors != null && (rule as Ruleset).selectors.length == 1) {
+      if (rule is Ruleset && rule.selectors != null && rule.selectors.length == 1) {
         // check if it can be folded in (e.g. & where)
         if (rule.selectors[0].isJustParentSelector()) {
           rsRules.removeAt(i--);
 
-          for (int j = 0; j < (rule as Ruleset).rules.length; j++) {
-            subRule = (rule as Ruleset).rules[j];
+          for (int j = 0; j < rule.rules.length; j++) {
+            subRule = rule.rules[j];
             if (!(subRule is Rule) || !(subRule as Rule).variable) {
               rsRules.insert(++i, subRule);
             }
@@ -362,7 +360,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         importRules = (evalImport is List) ? evalImport : [evalImport];
         rules.replaceRange(i, i+1, importRules);
         i += importRules.length - 1;
-        this.resetCache();
+        resetCache();
       }
     }
 
@@ -388,13 +386,13 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   ///
   Ruleset makeImportant(){
-    Ruleset result = new Ruleset(this.selectors, this.rules.map((r){
+    Ruleset result = new Ruleset(selectors, rules.map((r){
       if (r is MakeImportantNode) {
         return r.makeImportant();
       } else {
         return r;
       }
-    }).toList(), this.strictImports);
+    }).toList(), strictImports);
 
     return result;
 
@@ -425,8 +423,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   ///
   /// lets you call a css selector with a guard
   ///
-  bool matchCondition(List<MixinArgs>args, Contexts context) {
-    Selector lastSelector = this.selectors.last;
+  bool matchCondition(List<MixinArgs> args, Contexts context) {
+    Selector lastSelector = selectors.last;
     if (!lastSelector.evaldCondition) return false;
     if (lastSelector.condition != null &&
         !lastSelector.condition.eval(new Contexts.eval(context, context.frames))) return false;
@@ -476,10 +474,10 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     List<Node> ruleNodes = [];
 
     Node rule;
-    List path;
+    List<Node> path;
 
-    if (this.firstRoot) context.tabLevel = 0;
-    if (!this.root) context.tabLevel++;
+    if (firstRoot) context.tabLevel = 0;
+    if (!root) context.tabLevel++;
     String tabRuleStr = context.compress ? '' : '  ' * (context.tabLevel);
     String tabSetStr = context.compress ? '' : '  ' * (context.tabLevel - 1);
     String sep;
@@ -493,8 +491,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     int charsetNodeIndex = 0;
     int importNodeIndex = 0;
-    for (i = 0; i < this.rules.length; i ++) {
-      rule = this.rules[i];
+    for (i = 0; i < rules.length; i ++) {
+      rule = rules[i];
       if (rule is Comment) {
         if (importNodeIndex == i) importNodeIndex++;
         ruleNodes.add(rule);
@@ -513,7 +511,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     // If this is the root node, we don't render
     // a selector, or {}.
-    if (!this.root) {
+    if (!root) {
       if (debugInfo != null) {
         output.add(debugInfo.toOutput(context, tabSetStr));
         output.add(tabSetStr);
@@ -531,11 +529,11 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         if (i > 0) output.add(sep);
 
         context.firstSelector = true;
-        (path[0] as Node).genCSS(context, output);
+        path[0].genCSS(context, output);
 
         context.firstSelector = false;
         for (j = 1; j < pathSubCnt; j++) {
-          (path[j] as Node).genCSS(context, output);
+          path[j].genCSS(context, output);
         }
       }
 
@@ -567,12 +565,12 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       }
     }
 
-    if (!this.root) {
+    if (!root) {
       output.add(context.compress ? '}' : '\n$tabSetStr}');
       context.tabLevel--;
     }
 
-    if (!output.isEmpty && !context.compress && this.firstRoot) output.add('\n');
+    if (!output.isEmpty && !context.compress && firstRoot) output.add('\n');
 
 //2.4.0 20150321
 //  Ruleset.prototype.genCSS = function (context, output) {
@@ -704,16 +702,16 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   ///
   void markReferenced(){
-    if (this.selectors != null) {
-      for (int s = 0; s < this.selectors.length; s++) {
-        this.selectors[s].markReferenced();
+    if (selectors != null) {
+      for (int s = 0; s < selectors.length; s++) {
+        selectors[s].markReferenced();
       }
     }
 
-    if (this.rules != null) {
-      for (int s = 0; s < this.rules.length; s++) {
-        if (this.rules[s] is MarkReferencedNode) {
-          (this.rules[s] as MarkReferencedNode).markReferenced();
+    if (rules != null) {
+      for (int s = 0; s < rules.length; s++) {
+        if (rules[s] is MarkReferencedNode) {
+          (rules[s] as MarkReferencedNode).markReferenced();
         }
       }
     }
@@ -742,9 +740,9 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     List<Selector> path;
     Selector selector;
 
-    if (this.paths != null) {
-      for (int i = 0; i < this.paths.length; i++) {
-        path = this.paths[i];
+    if (paths != null) {
+      for (int i = 0; i < paths.length; i++) {
+        path = paths[i];
         for (int j = 0; j < path.length; j++) {
           if (path[j] is GetIsReferencedNode && path[j].getIsReferenced()) {
             return true;
@@ -753,9 +751,9 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       }
     }
 
-    if (this.selectors != null) {
-      for (int i = 0; i < this.selectors.length; i++) {
-        selector = this.selectors[i];
+    if (selectors != null) {
+      for (int i = 0; i < selectors.length; i++) {
+        selector = selectors[i];
         if (selector is GetIsReferencedNode && selector.getIsReferenced()) {
           return true;
         }
@@ -1340,9 +1338,9 @@ class VariableMixin {
   ///
   void resetCache(){
     if (functionRegistry != null) functionRegistry.resetCache();
-    this._rulesets = null;
-    this._variables = null;
-    this._lookups = {};
+    _rulesets = null;
+    _variables = null;
+    _lookups = {};
 
 //2.4.0 20150306
 //  Ruleset.prototype.resetCache = function () {
@@ -1356,8 +1354,8 @@ class VariableMixin {
   /// Returns the variables list if exist, else creates it.
   ///
   Map<String, Node> variables(){
-    if (this._variables == null) {
-      this._variables = (this.rules == null) ? {} : this.rules.fold({}, (hash, r){
+    if (_variables == null) {
+      _variables = (rules == null) ? {} : rules.fold({}, (hash, r){
         if (r is Rule && r.variable) {
           hash[r.name] = r;
         }
@@ -1375,7 +1373,7 @@ class VariableMixin {
         return hash;
       });
     }
-    return this._variables;
+    return _variables;
 
 //2.3.1
 //Ruleset.prototype.variables = function () {
@@ -1405,7 +1403,7 @@ class VariableMixin {
   ///
   /// Returns the Variable Node (@variable = value).
   ///
-  Node variable(String name) => this.variables()[name];
+  Node variable(String name) => variables()[name];
 
 //2.3.1
 //  Ruleset.prototype.variable = function (name) {
@@ -1425,7 +1423,6 @@ class VariableMixin {
     for (int i = 0; i < rules.length; i++) {
       rule = rules[i];
       if (rule.isRuleset) filtRules.add(rule);
-      //if (rule is Ruleset) filtRules.add(rule);
     }
 
     return filtRules;
@@ -1461,7 +1458,7 @@ class VariableMixin {
     List<MixinFound> foundMixins;
     String key = selector.toCSS(null); // ' selector'
 
-    if (this._lookups.containsKey(key)) return this._lookups[key];
+    if (_lookups.containsKey(key)) return _lookups[key];
 
     this.rulesets().forEach((Node rule) {//List of MixinDefinition and Ruleset
       if (rule != self) {
@@ -1484,7 +1481,7 @@ class VariableMixin {
         }
       }
     });
-    this._lookups[key] = rules;
+    _lookups[key] = rules;
     return rules;
 
 //2.3.1

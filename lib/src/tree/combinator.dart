@@ -1,4 +1,4 @@
-//source: tree/combinator.js 2.4.0
+//source: tree/combinator.js 2.5.0
 
 part of tree.less;
 
@@ -18,10 +18,10 @@ class Combinator extends Node {
   Combinator (String value) {
     if (value == ' ') {
       this.value = ' ';
-      this.emptyOrWhitespace = true;
+      emptyOrWhitespace = true;
     } else if (value != null) {
       this.value = value.trim();
-      this.emptyOrWhitespace = this.value.isEmpty;
+      emptyOrWhitespace = this.value.isEmpty;
     }
 
 //2.3.1
@@ -40,8 +40,8 @@ class Combinator extends Node {
   /// Writes value in [output]
   ///
   genCSS(Contexts context, Output output) {
-    String spaceOrEmpty = (isTrue(context.compress) || isTrue(this._noSpaceCombinators[this.value])) ? '' : ' ';
-    output.add(spaceOrEmpty + this.value + spaceOrEmpty);
+    String spaceOrEmpty = (isTrue(context.compress) || isTrue(_noSpaceCombinators[value])) ? '' : ' ';
+    output.add(spaceOrEmpty + value + spaceOrEmpty);
 
 //2.3.1
 //  Combinator.prototype.genCSS = function (context, output) {

@@ -1,4 +1,4 @@
-// source: lib/less/functions/string.js 2.4.0 20150331
+// source: lib/less/functions/string.js 2.5.0
 
 part of functions.less;
 

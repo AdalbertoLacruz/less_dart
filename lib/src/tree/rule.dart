@@ -1,4 +1,4 @@
-//source: less/tree/rule.js 2.4.0
+//source: less/tree/rule.js 2.5.0
 
 part of tree.less;
 
@@ -62,19 +62,19 @@ class Rule extends Node implements MakeImportantNode {
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.name + (context.compress ? ':' : ': '), this.currentFileInfo, this.index);
+    output.add(name + (context.compress ? ':' : ': '), currentFileInfo, index);
     try {
-      if (this.value != null) this.value.genCSS(context, output);
+      if (value != null) value.genCSS(context, output);
     } catch (e) {
       LessError error = LessError.transform(e,
-          index: this.index,
-          filename: this.currentFileInfo.filename,
+          index: index,
+          filename: currentFileInfo.filename,
           context: context);
       throw new LessExceptionError(error);
     }
     String out = '';
-    if (!this.inline) out = (context.lastRule && context.compress) ? '' : ';';
-    output.add(this.important + out, this.currentFileInfo, this.index);
+    if (!inline) out = (context.lastRule && context.compress) ? '' : ';';
+    output.add(important + out, currentFileInfo, index);
 
 //2.3.1
 //  Rule.prototype.genCSS = function (context, output) {
@@ -115,8 +115,8 @@ class Rule extends Node implements MakeImportantNode {
       if (!this.variable && (evaldValue is DetachedRuleset)) {
         throw new LessExceptionError(new LessError(
             message: 'Rulesets cannot be evaluated on a property.',
-            index: this.index,
-            filename: this.currentFileInfo.filename,
+            index: index,
+            filename: currentFileInfo.filename,
             context: context
          ));
       }
@@ -127,13 +127,13 @@ class Rule extends Node implements MakeImportantNode {
         important = importantResult.important;
       }
 
-      return new Rule(name, evaldValue, important, this.merge, this.index, this.currentFileInfo,
-        this.inline, variable);
+      return new Rule(name, evaldValue, important, merge, index, currentFileInfo,
+        inline, variable);
 
     } catch (e) {
       LessError error = LessError.transform(e,
-          index: this.index,
-          filename: this.currentFileInfo.filename);
+          index: index,
+          filename: currentFileInfo.filename);
       throw new LessExceptionError(error);
     } finally {
       if (strictMathBypass) context.strictMath = false;
@@ -190,11 +190,7 @@ class Rule extends Node implements MakeImportantNode {
   }
 
   ///
-  Rule makeImportant() => new Rule(this.name,
-                                this.value,
-                                '!important',
-                                this.merge,
-                                this.index, this.currentFileInfo, this.inline);
+  Rule makeImportant() => new Rule(name, value, '!important', merge,index, currentFileInfo, inline);
 
 //2.3.1
 //  Rule.prototype.makeImportant = function () {

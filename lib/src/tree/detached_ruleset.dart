@@ -13,7 +13,7 @@ class DetachedRuleset extends Node {
 
   ///
   void accept(Visitor visitor) {
-    this.ruleset = visitor.visit(this.ruleset);
+    ruleset = visitor.visit(ruleset);
 
 //2.3.1
 //  DetachedRuleset.prototype.accept = function (visitor) {
@@ -24,7 +24,7 @@ class DetachedRuleset extends Node {
   ///
   DetachedRuleset eval(Contexts context) {
     List<Node> frames = getValueOrDefault(this.frames, context.frames.sublist(0));
-    return new DetachedRuleset(this.ruleset, frames);
+    return new DetachedRuleset(ruleset, frames);
 
 //2.3.1
 //  DetachedRuleset.prototype.eval = function (context) {
@@ -35,8 +35,8 @@ class DetachedRuleset extends Node {
 
   ///
   Ruleset callEval(Contexts context) {
-    Contexts ctx = (this.frames != null) ? new Contexts.eval(context, this.frames.sublist(0)..addAll(context.frames)) : context;
-    return this.ruleset.eval(ctx);
+    Contexts ctx = (frames != null) ? new Contexts.eval(context, frames.sublist(0)..addAll(context.frames)) : context;
+    return ruleset.eval(ctx);
 
 //2.3.1
 //  DetachedRuleset.prototype.callEval = function (context) {

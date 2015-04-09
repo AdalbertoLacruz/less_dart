@@ -1,4 +1,4 @@
-//source: less/tree/call.js 2.4.0
+//source: less/tree/call.js 2.5.0
 
 part of tree.less;
 
@@ -17,7 +17,7 @@ class Call extends Node {
 
   ///
   void accept(Visitor visitor) {
-    if (this.args != null) this.args = visitor.visitArray(this.args);
+    if (args != null) args = visitor.visitArray(args);
 
 //2.3.1
 //  Call.prototype.accept = function (visitor) {
@@ -42,7 +42,7 @@ class Call extends Node {
   ///
   eval(Contexts context) {
     List<Expression> args = this.args.map((a) => a.eval(context)).toList();
-    FunctionCaller funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
+    FunctionCaller funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
     var result;
 
     if (funcCaller.isValid()) {
@@ -54,14 +54,14 @@ class Call extends Node {
         message = (message.isEmpty) ? '' : ': ' + message;
         LessError error = LessError.transform(e,
             type: 'Runtime',
-            index: this.index,
-            filename: this.currentFileInfo.filename
+            index: index,
+            filename: currentFileInfo.filename
         );
-        error.message = 'error evaluating function `${this.name}`${message}';
+        error.message = 'error evaluating function `${name}`${message}';
         throw new LessExceptionError(error);
       }
     }
-    return new Call(this.name, args, this.index, this.currentFileInfo);
+    return new Call(name, args, index, currentFileInfo);
 
 //2.3.1
 //    Call.prototype.eval = function (context) {
@@ -88,11 +88,11 @@ class Call extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.name + '(', this.currentFileInfo, this.index);
+    output.add(name + '(', currentFileInfo, index);
 
-    for (int i = 0; i < this.args.length; i++){
-      this.args[i].genCSS(context, output);
-      if (i + 1 < this.args.length) output.add(', ');
+    for (int i = 0; i < args.length; i++){
+      args[i].genCSS(context, output);
+      if (i + 1 < args.length) output.add(', ');
     }
 
     output.add(')');

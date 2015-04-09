@@ -1,4 +1,4 @@
-//source: lib/less/source-map-builder.js 2.4.0
+//source: lib/less/source-map-builder.js 2.5.0
 
 part of sourcemap.less;
 
@@ -22,22 +22,22 @@ class LessSourceMapBuilder {
             contentsIgnoredCharsMap: imports.contentsIgnoredChars,
             rootNode: rootNode,
             contentsMap: imports.contents,
-            sourceMapFilename: this.options.sourceMapFilename,
-            sourceMapURL: this.options.sourceMapURL,
-            outputFilename: this.options.sourceMapOutputFilename,
-            sourceMapBasepath: this.options.sourceMapBasepath,
-            sourceMapRootpath: this.options.sourceMapRootpath,
-            outputSourceFiles: this.options.outputSourceFiles,
-            sourceMapFileInline: this.options.sourceMapFileInline
+            sourceMapFilename: options.sourceMapFilename,
+            sourceMapURL: options.sourceMapURL,
+            outputFilename: options.sourceMapOutputFilename,
+            sourceMapBasepath: options.sourceMapBasepath,
+            sourceMapRootpath: options.sourceMapRootpath,
+            outputSourceFiles: options.outputSourceFiles,
+            sourceMapFileInline: options.sourceMapFileInline
         );
 
     String css = sourceMapOutput.toCSS(context).toString();
-    this.sourceMap = sourceMapOutput.sourceMap;
-    this.sourceMapURL = sourceMapOutput.sourceMapURL;
-    if (this.options.sourceMapInputFilename.isNotEmpty) {
-      this.sourceMapInputFilename = sourceMapOutput.normalizeFilename(this.options.sourceMapInputFilename);
+    sourceMap = sourceMapOutput.sourceMap;
+    sourceMapURL = sourceMapOutput.sourceMapURL;
+    if (options.sourceMapInputFilename.isNotEmpty) {
+      sourceMapInputFilename = sourceMapOutput.normalizeFilename(options.sourceMapInputFilename);
     }
-    return css + this.getCSSAppendage();
+    return css + getCSSAppendage();
 
 //2.4.0
 //  SourceMapBuilder.prototype.toCSS = function(rootNode, options, imports) {
@@ -70,9 +70,9 @@ class LessSourceMapBuilder {
   String getCSSAppendage() {
     String sourceMapURL = this.sourceMapURL;
 
-    if (this.options.sourceMapFileInline) {
-      if (this.sourceMap == null) return '';
-      sourceMapURL = 'data:application/json;base64,' + Base64String.encode(this.sourceMap);
+    if (options.sourceMapFileInline) {
+      if (sourceMap == null) return '';
+      sourceMapURL = 'data:application/json;base64,' + Base64String.encode(sourceMap);
     }
 
     if (sourceMapURL.isNotEmpty) {
@@ -101,7 +101,7 @@ class LessSourceMapBuilder {
   ///
   /// Get the map
   ///
-  String getExternalSourceMap() => this.sourceMap;
+  String getExternalSourceMap() => sourceMap;
 
 //2.4.0
 //  SourceMapBuilder.prototype.getExternalSourceMap = function() {
@@ -120,7 +120,7 @@ class LessSourceMapBuilder {
   }
 
   ///
-  bool isInline() => this.options.sourceMapFileInline;
+  bool isInline() => options.sourceMapFileInline;
 
 //2.4.0
 //  SourceMapBuilder.prototype.isInline = function() {
@@ -129,7 +129,7 @@ class LessSourceMapBuilder {
 
 
   ///
-  String getSourceMapURL() => this.sourceMapURL;
+  String getSourceMapURL() => sourceMapURL;
 
 //2.4.0
 //  SourceMapBuilder.prototype.getSourceMapURL = function() {
@@ -138,7 +138,7 @@ class LessSourceMapBuilder {
 
 
   ///
-  String getOutputFilename() => this.options.sourceMapOutputFilename;
+  String getOutputFilename() => options.sourceMapOutputFilename;
 
 //2.4.0
 //  SourceMapBuilder.prototype.getOutputFilename = function() {
@@ -147,7 +147,7 @@ class LessSourceMapBuilder {
 
 
   ///
-  String getInputFilename() => this.sourceMapInputFilename;
+  String getInputFilename() => sourceMapInputFilename;
 
 //2.4.0
 //  SourceMapBuilder.prototype.getInputFilename = function() {

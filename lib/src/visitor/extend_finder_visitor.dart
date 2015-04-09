@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.4.0 lines 7-89
+// source: less/extend-visitor.js 2.5.0 lines 13-89
 
 part of visitor.less;
 
@@ -11,9 +11,9 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   ExtendFinderVisitor() {
-    this._visitor = new Visitor(this);
-    this.contexts = [];
-    this.allExtendsStack = [[]];
+    _visitor = new Visitor(this);
+    contexts = [];
+    allExtendsStack = [[]];
 
 //2.3.1
 //  var ExtendFinderVisitor = function() {
@@ -25,8 +25,8 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   Ruleset run(Ruleset root) {
-    root = this._visitor.visit(root);
-    root.allExtends = this.allExtendsStack[0];
+    root = _visitor.visit(root);
+    root.allExtends = allExtendsStack[0];
     return root;
 
 //2.3.1
@@ -96,16 +96,16 @@ class ExtendFinderVisitor extends VisitorBase {
       }
 
       for (j = 0; j < extendList.length; j++) {
-        this.foundExtends = true;
+        foundExtends = true;
         extend = extendList[j];
         extend.findSelfSelectors(selectorPath);
         extend.ruleset = rulesetNode;
         if (j == 0) extend.firstExtendOnThisSelectorPath = true;
-        this.allExtendsStack.last.add(extend);
+        allExtendsStack.last.add(extend);
       }
     }
 
-    this.contexts.add(rulesetNode.selectors);
+    contexts.add(rulesetNode.selectors);
 
 //2.3.1
 //  visitRuleset: function (rulesetNode, visitArgs) {
@@ -157,7 +157,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitRulesetOut(Ruleset rulesetNode) {
-    if (!rulesetNode.root) this.contexts.removeLast();
+    if (!rulesetNode.root) contexts.removeLast();
 
 //2.3.1
 //  visitRulesetOut: function (rulesetNode) {
@@ -170,7 +170,7 @@ class ExtendFinderVisitor extends VisitorBase {
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
     mediaNode.allExtends = [];
-    this.allExtendsStack.add(mediaNode.allExtends);
+    allExtendsStack.add(mediaNode.allExtends);
 
 //2.3.1
 //  visitMedia: function (mediaNode, visitArgs) {
@@ -181,7 +181,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitMediaOut(Media mediaNode) {
-    this.allExtendsStack.removeLast();
+    allExtendsStack.removeLast();
 
 //2.3.1
 //  visitMediaOut: function (mediaNode) {
@@ -192,7 +192,7 @@ class ExtendFinderVisitor extends VisitorBase {
   ///
   void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
     directiveNode.allExtends = [];
-    this.allExtendsStack.add(directiveNode.allExtends);
+    allExtendsStack.add(directiveNode.allExtends);
 
 //2.3.1
 //  visitDirective: function (directiveNode, visitArgs) {
@@ -203,7 +203,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitDirectiveOut(Directive directiveNode) {
-    this.allExtendsStack.removeLast();
+    allExtendsStack.removeLast();
 
 //2.3.1
 //  visitDirectiveOut: function (directiveNode) {
@@ -213,20 +213,20 @@ class ExtendFinderVisitor extends VisitorBase {
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media)      return this.visitMedia; //before Directive
-    if (node is Directive)  return this.visitDirective;
-    if (node is MixinDefinition) return this.visitMixinDefinition;
-    if (node is Rule)       return this.visitRule;
-    if (node is Ruleset)    return this.visitRuleset;
+    if (node is Media)      return visitMedia; //before Directive
+    if (node is Directive)  return visitDirective;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Rule)       return visitRule;
+    if (node is Ruleset)    return visitRuleset;
 
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
-    if (node is Media)      return this.visitMediaOut; //before Directive
-    if (node is Directive)  return this.visitDirectiveOut;
-    if (node is Ruleset)    return this.visitRulesetOut;
+    if (node is Media)      return visitMediaOut; //before Directive
+    if (node is Directive)  return visitDirectiveOut;
+    if (node is Ruleset)    return visitRulesetOut;
 
     return null;
   }

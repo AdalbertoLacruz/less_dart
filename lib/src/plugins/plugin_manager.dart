@@ -1,4 +1,4 @@
-//source: less/plugin-manager.js 2.4.0 2015306
+//source: less/plugin-manager.js 2.5.0
 
 part of plugins.less;
 
@@ -18,7 +18,7 @@ class PluginManager {
   ///
   void addPlugins(List<Plugin> plugins) {
     if (plugins != null) {
-      plugins.forEach((plugin) {this.addPlugin(plugin);});
+      plugins.forEach((plugin) {addPlugin(plugin);});
     }
 
 //2.4.0
@@ -56,7 +56,7 @@ class PluginManager {
   ///
   void addVisitor(VisitorBase visitor) {
     if (isLoaded) return;
-    this.visitors.add(visitor);
+    visitors.add(visitor);
 
 //2.4.0
 //  PluginManager.prototype.addVisitor = function(visitor) {
@@ -100,10 +100,10 @@ class PluginManager {
     if (isLoaded) return;
 
     int indexToInsertAt;
-    for (indexToInsertAt = 0; indexToInsertAt < this.postProcessors.length; indexToInsertAt++) {
+    for (indexToInsertAt = 0; indexToInsertAt < postProcessors.length; indexToInsertAt++) {
       if (this.postProcessors[indexToInsertAt].priority >= priority) break;
     }
-    this.postProcessors.insert(
+    postProcessors.insert(
         indexToInsertAt,
         new ProcessorItem(postProcessor: postProcessor, priority: priority));
 
@@ -122,7 +122,7 @@ class PluginManager {
   ///
   void addFileManager(FileManager manager) {
     if (isLoaded) return;
-    this.fileManagers.add(manager);
+    fileManagers.add(manager);
 
 //2.4.0
 //  PluginManager.prototype.addFileManager = function(manager) {
@@ -133,7 +133,7 @@ class PluginManager {
   ///
   void addCustomFunctions(FunctionBase custom) {
     // we let load many times, because scope
-    this.customFunctions.add(custom);
+    customFunctions.add(custom);
   }
 
   ///
@@ -170,7 +170,7 @@ class PluginManager {
   }
 
   ///
-  List<VisitorBase> getVisitors() => this.visitors;
+  List<VisitorBase> getVisitors() => visitors;
 
 //2.4.0
 //  PluginManager.prototype.getVisitors = function() {
@@ -178,7 +178,7 @@ class PluginManager {
 //  };
 
   ///
-  List<FileManager> getFileManagers() => this.fileManagers;
+  List<FileManager> getFileManagers() => fileManagers;
 
 //2.4.0
 //  PluginManager.prototype.getFileManagers = function() {
@@ -186,11 +186,11 @@ class PluginManager {
 //  };
 
   ///
-  List<FunctionBase> getCustomFunction() => this.customFunctions;
+  List<FunctionBase> getCustomFunction() => customFunctions;
 
   ///
   void resetCustomFunction() {
-    this.customFunctions = [];
+    customFunctions = [];
   }
 }
 

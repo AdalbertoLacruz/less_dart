@@ -1,4 +1,4 @@
-//source: lib/less/environment/abstract-file-manager.js 2.4.0 20150226
+//source: lib/less/environment/abstract-file-manager.js 2.5.0
 
 part of environment.less;
 

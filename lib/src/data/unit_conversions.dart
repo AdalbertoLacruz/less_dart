@@ -1,4 +1,4 @@
-//source: less/data/unit-conversions.js 2.4.0
+//source: less/data/unit-conversions.js 2.5.0
 
 library unitconversions.less;
 

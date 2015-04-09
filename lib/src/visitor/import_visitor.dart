@@ -1,4 +1,4 @@
-// source: less/import-visitor.js 2.4.0 20150320
+// source: less/import-visitor.js 2.5.0
 
 part of visitor.less;
 
@@ -21,7 +21,7 @@ class ImportVisitor extends VisitorBase {
   /// Structure to search for @import in the tree.
   ///
   ImportVisitor(ImportManager this.importer, [Contexts context, ImportDetector onceFileDetectionMap, ImportDetector recursionDetector]) {
-    this._visitor = new Visitor(this);
+    _visitor = new Visitor(this);
     this.context = (context != null) ? context : new Contexts.eval();
 
     this.onceFileDetectionMap = ImportDetector.own(onceFileDetectionMap);
@@ -44,7 +44,7 @@ class ImportVisitor extends VisitorBase {
   /// Replaces @import nodes with the file content
   ///
   Future run(Node root) {
-    this._visitor.visit(root);
+    _visitor.visit(root);
 
 //    return Future
 //        .wait(runners, eagerError: true)
@@ -266,7 +266,7 @@ class ImportVisitor extends VisitorBase {
 
       if (!inlineCSS && (isTrue(context.importMultiple) || !duplicateImport)) {
         recursionDetector[fullPath] = true;
-        new ImportVisitor(this.importer, context, onceFileDetectionMap, recursionDetector).run(root).then((_){
+        new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector).run(root).then((_){
           completer.complete();
         }).catchError((e){
           completer.completeError(e);
@@ -369,7 +369,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    this.context.frames.insert(0, directiveNode);
+    context.frames.insert(0, directiveNode);
 
 //2.3.1
 //  visitDirective: function (directiveNode, visitArgs) {
@@ -379,7 +379,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void visitDirectiveOut(Directive directiveNode) {
-    this.context.frames.removeAt(0);
+    context.frames.removeAt(0);
 
 //2.3.1
 //  visitDirectiveOut: function (directiveNode) {
@@ -389,7 +389,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
-    this.context.frames.insert(0, mixinDefinitionNode);
+    context.frames.insert(0, mixinDefinitionNode);
 
 //2.3.1
 //  visitMixinDefinition: function (mixinDefinitionNode, visitArgs) {
@@ -399,7 +399,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void visitMixinDefinitionOut(MixinDefinition mixinDefinitionNode) {
-    this.context.frames.removeAt(0);
+    context.frames.removeAt(0);
 
 //2.3.1
 //  visitMixinDefinitionOut: function (mixinDefinitionNode) {
@@ -409,7 +409,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    this.context.frames.insert(0, rulesetNode);
+    context.frames.insert(0, rulesetNode);
 
 //2.3.1
 //  visitRuleset: function (rulesetNode, visitArgs) {
@@ -419,7 +419,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void visitRulesetOut(Ruleset rulesetNode) {
-    this.context.frames.removeAt(0);
+    context.frames.removeAt(0);
 
 //2.3.1
 //  visitRulesetOut: function (rulesetNode) {
@@ -429,7 +429,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    this.context.frames.insert(0, mediaNode.rules[0]);
+    context.frames.insert(0, mediaNode.rules[0]);
 
 //2.3.1
 //  visitMedia: function (mediaNode, visitArgs) {
@@ -439,7 +439,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void visitMediaOut(Media mediaNode) {
-    this.context.frames.removeAt(0);
+    context.frames.removeAt(0);
 
 //2.3.1
 //  visitMediaOut: function (mediaNode) {
@@ -449,23 +449,23 @@ class ImportVisitor extends VisitorBase {
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) {
-    if (node is Media)      return this.visitMedia;
-    if (node is Directive)  return this.visitDirective;
-    if (node is Import)     return this.visitImport;
-    if (node is MixinDefinition) return this.visitMixinDefinition;
-    if (node is Rule)       return this.visitRule;
-    if (node is Ruleset)    return this.visitRuleset;
+    if (node is Media)      return visitMedia;
+    if (node is Directive)  return visitDirective;
+    if (node is Import)     return visitImport;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Rule)       return visitRule;
+    if (node is Ruleset)    return visitRuleset;
 
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   Function visitFtnOut(Node node) {
-    if (node is Media)      return this.visitMediaOut;
-    if (node is Directive)  return this.visitDirectiveOut;
-    if (node is MixinDefinition) return this.visitMixinDefinitionOut;
-    if (node is Rule)       return this.visitRuleOut;
-    if (node is Ruleset)    return this.visitRulesetOut;
+    if (node is Media)      return visitMediaOut;
+    if (node is Directive)  return visitDirectiveOut;
+    if (node is MixinDefinition) return visitMixinDefinitionOut;
+    if (node is Rule)       return visitRuleOut;
+    if (node is Ruleset)    return visitRulesetOut;
 
     return null;
   }

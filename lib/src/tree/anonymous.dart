@@ -1,4 +1,4 @@
-//source: less/tree/anonymous.js 2.4.0
+//source: less/tree/anonymous.js 2.5.0
 
 part of tree.less;
 
@@ -15,8 +15,7 @@ class Anonymous extends Node implements CompareNode {
            this.mapLines = false, bool this.rulesetLike = false]);
 
   ///
-  Node eval(env) => new Anonymous(this.value, this.index,
-      this.currentFileInfo, this.mapLines, this.rulesetLike);
+  Node eval(context) => new Anonymous(value, index, currentFileInfo, mapLines, rulesetLike);
 
 //2.3.1
 //  Anonymous.prototype.eval = function () {
@@ -36,11 +35,11 @@ class Anonymous extends Node implements CompareNode {
   }
 
   ///
-  bool isRulesetLike() => this.rulesetLike;
+  bool isRulesetLike() => rulesetLike;
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
+    output.add(value, currentFileInfo, index, mapLines);
 
 //2.3.1
 //  Anonymous.prototype.genCSS = function (context, output) {

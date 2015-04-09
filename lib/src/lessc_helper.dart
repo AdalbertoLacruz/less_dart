@@ -1,4 +1,4 @@
-//source: lib/less-node/lessc-helper.js 2.4.0+8
+//source: lib/less-node/lessc-helper.js 2.5.0
 
 library helper.less;
 

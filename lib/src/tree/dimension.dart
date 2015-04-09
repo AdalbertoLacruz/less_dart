@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 2.4.0+3
+//source: less/tree/dimension.js 2.5.0
 
 part of tree.less;
 
@@ -34,7 +34,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
 
   ///
   void accept(Visitor visitor) {
-    this.unit = visitor.visit(this.unit);
+    unit = visitor.visit(unit);
 
 //2.3.1
 //  Dimension.prototype.accept = function (visitor) {
@@ -46,11 +46,11 @@ class Dimension extends Node implements CompareNode, OperateNode {
   Dimension eval(Contexts context) => this;
 
   ///
-  Color toColor() => new Color([this.value, this.value, this.value]);
+  Color toColor() => new Color([value, value, value]);
 
   ///
   void genCSS(Contexts context, Output output) {
-    if ((context != null && isTrue(context.strictUnits)) && !this.unit.isSingular()) {
+    if ((context != null && isTrue(context.strictUnits)) && !unit.isSingular()) {
       throw new LessExceptionError(new LessError(
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
     }
@@ -65,7 +65,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
 
     if (context != null && context.compress) {
       // Zero values doesn't need a unit
-      if (value == 0 && this.unit.isLength(context)) {
+      if (value == 0 && unit.isLength(context)) {
         output.add(strValue);
         return;
       }
@@ -77,7 +77,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
     }
 
     output.add(strValue);
-    this.unit.genCSS(context, output);
+    unit.genCSS(context, output);
 
 //2.3.1
 //  Dimension.prototype.genCSS = function (context, output) {

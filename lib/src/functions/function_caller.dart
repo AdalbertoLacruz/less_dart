@@ -1,4 +1,4 @@
-// source: lib/less/functions/function-caller.js 2.4.0 20150305
+// source: lib/less/functions/function-caller.js 2.5.0
 
 part of functions.less;
 

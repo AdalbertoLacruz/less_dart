@@ -1,4 +1,4 @@
-//source: lib/less-node/plugin-loader.js 2.4.0 20150306
+//source: lib/less-node/plugin-loader.js 2.5.0
 
 part of plugins.less;
 
@@ -18,6 +18,7 @@ class PluginLoader {
   PluginLoader(this.options) {
     this.environment = new Environment();
     this.logger = environment.logger;
+
 //    if (options.pluginManager == null) options.pluginManager = new PluginManager();
 //    pluginManager = options.pluginManager;
   }
@@ -36,8 +37,8 @@ class PluginLoader {
 
     if (installable.containsKey(name)) {
       plugin = installable[name];
-      if (this.compareVersion(plugin.minVersion, LessIndex.version) < 0) {
-        logger.log('plugin ${name} requires version ${this.versionToString(plugin.minVersion)}');
+      if (compareVersion(plugin.minVersion, LessIndex.version) < 0) {
+        logger.log('plugin ${name} requires version ${versionToString(plugin.minVersion)}');
         return null;
       }
       plugin.init(options);

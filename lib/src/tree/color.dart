@@ -1,4 +1,4 @@
-//source: less/tree/color.js 2.4.0
+//source: less/tree/color.js 2.5.0
 
 part of tree.less;
 
@@ -134,7 +134,7 @@ class Color extends Node implements CompareNode, OperateNode {
 
   ///
   void genCSS(Contexts context, Output output) {
-    output.add(this.toCSS(context));
+    output.add(toCSS(context));
   }
 
   ///
@@ -144,7 +144,7 @@ class Color extends Node implements CompareNode, OperateNode {
     // `value` is set if this color was originally
     // converted from a named color string so we need
     // to respect this and try to output named color too.
-    if (this.value != null) return this.value;
+    if (value != null) return value;
 
     bool compress = (context != null) ? context.compress : false;
 
@@ -154,14 +154,14 @@ class Color extends Node implements CompareNode, OperateNode {
     // Values are capped between `0` and `255`, rounded and zero-padded.
     num alpha = fround(context, this.alpha);
     if (alpha < 1) {
-      List resultList = this.rgb.map((c){
+      List resultList = rgb.map((c){
         return clamp(c.round(), 255);
       }).toList();
       resultList.add(numToString(clamp(alpha, 1)));
       return 'rgba(' + resultList.join(',' + (compress ? '' : ' ')) + ')';
     }
 
-    String color = this.toRGB();
+    String color = toRGB();
     if (compress) {
       List splitcolor = color.split('');
 
@@ -387,7 +387,7 @@ class Color extends Node implements CompareNode, OperateNode {
   ///
   /// Returns a String such as #aarrggbb
   ///
-  String toARGB() => toHex([this.alpha * 255]..addAll(this.rgb));
+  String toARGB() => toHex([alpha * 255]..addAll(rgb));
 
 
 //--- CompareNode
@@ -450,7 +450,7 @@ class Color extends Node implements CompareNode, OperateNode {
   void genTree(Contexts env, Output output) {
     String tabStr = '  ' * env.tabLevel;
     String result = 'null';
-    if (this.rgb != null)  result = toRGB();
+    if (rgb != null)  result = toRGB();
 
     output.add('${tabStr}$type ($result)\n');
   }

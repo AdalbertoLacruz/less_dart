@@ -1,4 +1,4 @@
-//source: less/functions/function-registry.js 2.4.0 20150305 - partially
+//source: less/functions/function-registry.js 2.5.0 - partially
 
 part of functions.less;
 

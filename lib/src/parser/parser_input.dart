@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 2.4.0 20150315-1729
+// source: parser/parser-input.js 2.5.0
 
 part of parser.less;
 
@@ -218,6 +218,7 @@ class ParserInput {
   String $str(String tok) {
     int tokLength = tok.length;
 
+    // https://jsperf.com/string-startswith/21
     if (!input.startsWith(tok, i)) return null;
     skipWhitespace(tokLength);
     return tok;
@@ -513,10 +514,6 @@ class ParserInput {
   ///
   //parser.js 2.2.0 56-62
   String expectChar(String arg, [String msg]) {
-//    if (currentChar() == arg) {
-//      skipWhitespace(1);
-//      return arg;
-//    }
     if ($char(arg) != null) return arg;
 
     String message = msg != null ? msg : "expected '$arg' got '${currentChar()}'";
@@ -562,6 +559,7 @@ class ParserInput {
   ///
   bool peek(tok) {
     if (tok is String) {
+      // https://jsperf.com/string-startswith/21
       return input.startsWith(tok, i);
     } else {
       RegExp r = (tok as RegExp);
@@ -592,9 +590,7 @@ class ParserInput {
   }
 
   ///
-  String getInput() {
-    return input;
-  }
+  String getInput() => input;
 
   ///
   bool peekNotNumeric() {

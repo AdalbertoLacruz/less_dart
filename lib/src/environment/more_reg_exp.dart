@@ -10,6 +10,7 @@ class MoreRegExp {
   /// flags:
   ///   g : global (for replace)
   ///   i : case insensible
+  ///
   MoreRegExp(String this.pattern, [String flags]) {
     if (flags != null) {
       caseSensitive = !flags.contains('i');

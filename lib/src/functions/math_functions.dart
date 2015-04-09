@@ -1,4 +1,4 @@
-// source: lib/less/functions/math.js 2.4.0
+// source: lib/less/functions/math.js 2.5.0
 
 part of functions.less;
 
