@@ -1,4 +1,4 @@
-// source: lib/less-node/image-size.js 2.4.0
+// source: lib/less-node/image-size.js 2.4.0 20150329
 
 part of functions.less;
 
@@ -9,21 +9,50 @@ class ImageSizeFunctions extends FunctionBase {
   @defineMethod(skip: true)
   ImageDimension imageSizeFtn(Quoted filePathNode) {
     String filePath = filePathNode.value;
-    String currentDirectory = filePathNode.currentFileInfo.relativeUrls
-        ? filePathNode.currentFileInfo.currentDirectory
-        : filePathNode.currentFileInfo.entryPath;
-    filePath = environment.pathJoin(currentDirectory, filePath);
-    return imageSizeProcessor.sizeOf(filePath);
+    String currentDirectory = currentFileInfo.relativeUrls
+        ? currentFileInfo.currentDirectory
+        : currentFileInfo.entryPath;
 
-//2.4.0
-//  function imageSize(filePathNode) {
+    int fragmentStart = filePath.indexOf('#');
+    if (fragmentStart != -1) filePath = filePath.substring(0, fragmentStart);
+
+    FileManager fileManager = environment.getFileManager(filePath, currentDirectory, context, environment, true);
+    FileLoaded fileSync = fileManager.existSync(filePath, currentDirectory, context, environment);
+    if (fileSync.error != null) throw fileSync.error;
+
+    return imageSizeProcessor.sizeOf(fileSync.filename);
+
+//2.4.0 20150329
+//  function imageSize(functionContext, filePathNode) {
 //      var filePath = filePathNode.value;
-//      var currentDirectory = filePathNode.currentFileInfo.relativeUrls ?
-//          filePathNode.currentFileInfo.currentDirectory : filePathNode.currentFileInfo.entryPath;
+//      var currentFileInfo = functionContext.currentFileInfo;
+//      var currentDirectory = currentFileInfo.relativeUrls ?
+//      currentFileInfo.currentDirectory : currentFileInfo.entryPath;
+//
+//      var fragmentStart = filePath.indexOf('#');
+//      var fragment = '';
+//      if (fragmentStart !== -1) {
+//          fragment = filePath.slice(fragmentStart);
+//          filePath = filePath.slice(0, fragmentStart);
+//      }
+//
+//      var fileManager = environment.getFileManager(filePath, currentDirectory, functionContext.context, environment, true);
+//
+//      if (!fileManager) {
+//          throw {
+//              type: "File",
+//              message: "Can not set up FileManager for " + filePathNode
+//          };
+//      }
+//
+//      var fileSync = fileManager.loadFileSync(filePath, currentDirectory, functionContext.context, environment);
+//
+//      if (fileSync.error) {
+//          throw fileSync.error;
+//      }
 //
 //      var sizeOf = require('image-size');
-//      filePath = path.join(currentDirectory, filePath);
-//      return sizeOf(filePath);
+//      return sizeOf(fileSync.filename);
 //  }
   }
 //
@@ -46,15 +75,14 @@ class ImageSizeFunctions extends FunctionBase {
       new Dimension(size.height, 'px')
       ]);
 
-//2.4.0
-//  var imageFunctions = {
-//      "image-size": function(filePathNode) {
-//          var size = imageSize(filePathNode);
-//          return new Expression([
-//              new Dimension(size.width, "px"),
-//              new Dimension(size.height, "px")
-//          ]);
-//      },
+//2.4.0 20150321
+//  "image-size": function(filePathNode) {
+//      var size = imageSize(this, filePathNode);
+//      return new Expression([
+//          new Dimension(size.width, "px"),
+//          new Dimension(size.height, "px")
+//      ]);
+//  },
   }
 
   ///
@@ -72,11 +100,11 @@ class ImageSizeFunctions extends FunctionBase {
     if (size == null) return null;
     return new Dimension(size.width, 'px');
 
-//2.4.0
-//      "image-width": function(filePathNode) {
-//          var size = imageSize(filePathNode);
-//          return new Dimension(size.width, "px");
-//      },
+//2.4.0 20150321
+//  "image-width": function(filePathNode) {
+//      var size = imageSize(this, filePathNode);
+//      return new Dimension(size.width, "px");
+//  },
   }
 
   ///
@@ -94,11 +122,10 @@ class ImageSizeFunctions extends FunctionBase {
     if (size == null) return null;
     return new Dimension(size.height, 'px');
 
-//2.4.0
-//      "image-height": function(filePathNode) {
-//          var size = imageSize(filePathNode);
-//          return new Dimension(size.height, "px");
-//      }
-//  };
+//2.4.0 20150321
+//  "image-height": function(filePathNode) {
+//      var size = imageSize(this, filePathNode);
+//      return new Dimension(size.height, "px");
+//  }
   }
 }

@@ -24,7 +24,7 @@ class LesscHelper {
     console.log("");
     console.log("options:");
     console.log("  -h, --help               Print help (this message) and exit.");
-    console.log("  --include-path=PATHS     Set include paths. Separated by `:'. Use `;' on Windows.");
+    console.log("  --include-path=PATHS     Sets include paths. Separated by `:'. `;' also supported on windows.");
     console.log("  -M, --depends            Output a makefile import dependency list to stdout");
     console.log("  --no-color               Disable colorized output.");
     console.log("  --no-ie-compat           Disable IE compatibility checks.");

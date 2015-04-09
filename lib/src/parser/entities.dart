@@ -1,4 +1,4 @@
-//source: less/parser.js 2.4.0 lines 280-511
+//source: less/parser.js 2.4.0 20150321-1640 lines 280-511
 
 part of parser.less;
 
@@ -23,43 +23,61 @@ class Entities {
   ///     "milky way" 'he\'s the one!'
   ///
   Quoted quoted() {
-    List<String> str;
+    String str;
     int index = parserInput.i;
+    bool isEscaped = false;
 
-    str = parserInput.$re(r'^(~)?("((?:[^"\\\r\n]|\\.)*)"|' + r"'((?:[^'\\\r\n]|\\.)*)')");
-    if (str != null) return new Quoted(str[2], str[3] != null ? str[3] : str[4],
-        str[1] != null, index, fileInfo);
-    return null;
+    parserInput.save();
+    if (parserInput.$char('~') != null) isEscaped = true;
+    str = parserInput.$quoted();
+    if (str == null) {
+      parserInput.restore();
+      return null;
+    }
+    parserInput.forget();
+    return new Quoted(str[0], str.substring(1, str.length - 1), isEscaped, index, fileInfo);
 
-//2.2.0
+//2.4.0 20150315-1345
 //  quoted: function () {
-//      var str, index = parserInput.i;
+//      var str, index = parserInput.i, isEscaped = false;
 //
-//      str = parserInput.$re(/^(~)?("((?:[^"\\\r\n]|\\.)*)"|'((?:[^'\\\r\n]|\\.)*)')/);
-//      if (str) {
-//          return new(tree.Quoted)(str[2], str[3] || str[4], Boolean(str[1]), index, fileInfo);
+//      parserInput.save();
+//      if (parserInput.$char("~")) {
+//          isEscaped = true;
 //      }
-//  }
+//      str = parserInput.$quoted();
+//      if (!str) {
+//          parserInput.restore();
+//          return;
+//      }
+//      parserInput.forget();
+//
+//      return new(tree.Quoted)(str.charAt(0), str.substr(1, str.length - 2), isEscaped, index, fileInfo);
+//  },
   }
 
   ///
   /// A catch-all word, such as:
   ///
   ///     black border-collapse
+  ///
   Node keyword() {
-    String k = parserInput.$re(r'^%|^[_A-Za-z-][_A-Za-z0-9-]*');
+    String k = parserInput.$char("%");
+    if (k == null) k = parserInput.$re(r'^[_A-Za-z-][_A-Za-z0-9-]*');
+
     if (k != null) {
       Node color = new Color.fromKeyword(k);
       return (color != null) ? color : new Keyword(k);
     }
     return null;
 
-//2.2.0
+//2.4.0 20150321 1640
 //  keyword: function () {
-//      var k = parserInput.$re(/^%|^[_A-Za-z-][_A-Za-z0-9-]*/);
+//      var k = parserInput.$char("%") || parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]*/);
 //      if (k) {
 //          return tree.Color.fromKeyword(k) || new(tree.Keyword)(k);
 //      }
+//  },
   }
 
   ///
@@ -79,6 +97,7 @@ class Entities {
     Node alpha;
     int index = parserInput.i;
 
+    // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.peek(new RegExp(r'^url\(', caseSensitive: false))) return null;
 
     parserInput.save();
@@ -93,7 +112,10 @@ class Entities {
 
     if (nameLC == 'alpha') {
       alpha = this.alpha();
-      if (alpha != null) return alpha;
+      if (alpha != null) {
+        parserInput.forget();
+        return alpha;
+      }
     }
 
     args = arguments();
@@ -106,6 +128,40 @@ class Entities {
     parserInput.forget();
     return new Call(name, args, index, fileInfo);
 
+//2.4.0 20150315
+//  call: function () {
+//      var name, nameLC, args, alpha, index = parserInput.i;
+//
+//      if (parserInput.peek(/^url\(/i)) {
+//          return;
+//      }
+//
+//      parserInput.save();
+//
+//      name = parserInput.$re(/^([\w-]+|%|progid:[\w\.]+)\(/);
+//      if (!name) { parserInput.forget(); return; }
+//
+//      name = name[1];
+//      nameLC = name.toLowerCase();
+//
+//      if (nameLC === 'alpha') {
+//          alpha = parsers.alpha();
+//          if (alpha) {
+//              parserInput.forget();
+//              return alpha;
+//          }
+//      }
+//
+//      args = this.arguments();
+//
+//      if (! parserInput.$char(')')) {
+//          parserInput.restore("Could not parse call arguments or missing ')'");
+//          return;
+//      }
+//
+//      parserInput.forget();
+//      return new(tree.Call)(name, args, index, fileInfo);
+//  },
 //2.2.0
 //  call: function () {
 //      var name, nameLC, args, alpha, index = parserInput.i;
@@ -150,6 +206,7 @@ class Entities {
   Alpha alpha() {
     var value;
 
+    // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.$re(r'^\opacity=', false) == null) return null; // i
     value = parserInput.$re(r'^\d+');
     if (value == null) {
@@ -234,31 +291,48 @@ class Entities {
     String key;
     Node value;
 
+    parserInput.save();
     key = parserInput.$re(r'^\w+(?=\s?=)', false);
-    if (key == null) return null;
+    if (key == null) {
+      parserInput.restore();
+      return null;
+    }
 
-    if (parserInput.$char('=') == null) return null;
+    if (parserInput.$char('=') == null) {
+      parserInput.restore();
+      return null;
+    }
 
     value = parsers.entity();
-    if (value != null) return new Assignment(key, value);
+    if (value != null) {
+      parserInput.forget();
+      return new Assignment(key, value);
+    } else {
+      parserInput.restore();
+      return null;
+    }
 
-    return null;
-
-//2.2.0
+//2.4.0 20150315-1739
 //  assignment: function () {
 //      var key, value;
+//      parserInput.save();
 //      key = parserInput.$re(/^\w+(?=\s?=)/i);
 //      if (!key) {
+//          parserInput.restore();
 //          return;
 //      }
 //      if (!parserInput.$char('=')) {
+//          parserInput.restore();
 //          return;
 //      }
 //      value = parsers.entity();
 //      if (value) {
+//          parserInput.forget();
 //          return new(tree.Assignment)(key, value);
+//      } else {
+//          parserInput.restore();
 //      }
-//  }
+//  },
   }
 
   ///
@@ -275,7 +349,7 @@ class Entities {
 
     parserInput.autoCommentAbsorb = false;
 
-    if ((parserInput.currentChar() != 'u') || (parserInput.$re(r'^url\(') == null)) {
+    if (parserInput.$str('url(') == null) {
       parserInput.autoCommentAbsorb = true;
       return null;
     }
@@ -292,13 +366,13 @@ class Entities {
     parserInput.expectChar(')');
     return new URL(value, index, fileInfo);
 
-//2.2.0
+//2.4.0 20150315
 //  url: function () {
 //      var value, index = parserInput.i;
 //
 //      parserInput.autoCommentAbsorb = false;
 //
-//      if (parserInput.currentChar() !== 'u' || !parserInput.$re(/^url\(/)) {
+//      if (!parserInput.$str("url(")) {
 //          parserInput.autoCommentAbsorb = true;
 //          return;
 //      }
@@ -312,7 +386,7 @@ class Entities {
 //
 //      return new(tree.URL)((value.value != null || value instanceof tree.Variable) ?
 //                          value : new(tree.Anonymous)(value), index, fileInfo);
-//  }
+//  },
   }
 
   ///
@@ -460,55 +534,49 @@ class Entities {
   ///
   ///     `window.location.href`
   ///
-  //TODO pending upgrade - requires changes in tree\JavaScript (?)
   JavaScript javascript() {
-    String str;
-    int j = parserInput.i;
-    bool e = false;
+    String js;
+    int index = parserInput.i;
 
-    if (parserInput.charAt(j) == '~') { // Escaped strings
-      j++;
-      e = true;
+    parserInput.save();
+
+    String escape = parserInput.$char('~');
+    String jsQuote = parserInput.$char('`');
+
+    if (jsQuote == null) {
+      parserInput.restore();
+      return null;
     }
-    if (parserInput.charAt(j) != '`') return null;
 
-    if (context.javascriptEnabled == null || !context.javascriptEnabled ) {
-      parserInput.error('You are using JavaScript, which has been disabled.');
+    js = parserInput.$re(r'^[^`]*`');
+    if (js != null) {
+      parserInput.forget();
+      return new JavaScript(js.substring(0, js.length - 1), escape != null, index, fileInfo);
     }
-
-    if (e) parserInput.$char('~');
-
-    str = parserInput.$re(r'^`([^`]*)`');
-    if (str != null) return new JavaScript(str, e, parserInput.i, fileInfo);
-
+    parserInput.restore('invalid javascript definition');
     return null;
 
-//2.2.0
+//2.4.0 20150321 1640
 //  javascript: function () {
 //      var js, index = parserInput.i;
 //
-//      js = parserInput.$re(/^(~)?`([^`]*)`/);
-//      if (js) {
-//          return new(tree.JavaScript)(js[2], Boolean(js[1]), index, fileInfo);
+//      parserInput.save();
+//
+//      var escape = parserInput.$char("~");
+//      var jsQuote = parserInput.$char("`");
+//
+//      if (!jsQuote) {
+//          parserInput.restore();
+//          return;
 //      }
-//  }
-
-//1.7.5
-//    javascript: function () {
-//        var str, j = i, e;
 //
-//        if (input.charAt(j) === '~') { j++; e = true; } // Escaped strings
-//        if (input.charAt(j) !== '`') { return; }
-//        if (env.javascriptEnabled !== undefined && !env.javascriptEnabled) {
-//            error("You are using JavaScript, which has been disabled.");
-//        }
-//
-//        if (e) { $char('~'); }
-//
-//        str = $re(/^`([^`]*)`/);
-//        if (str) {
-//            return new(tree.JavaScript)(str[1], i, e);
-//        }
+//      js = parserInput.$re(/^[^`]*`/);
+//      if (js) {
+//          parserInput.forget();
+//          return new(tree.JavaScript)(js.substr(0, js.length - 1), Boolean(escape), index, fileInfo);
+//      }
+//      parserInput.restore("invalid javascript definition");
 //    }
+//},
   }
 }

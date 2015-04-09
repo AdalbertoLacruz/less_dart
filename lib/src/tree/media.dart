@@ -1,4 +1,4 @@
-//source: less/tree/media.js 2.4.0+1
+//source: less/tree/media.js 2.4.0 20150320
 
 part of tree.less;
 
@@ -10,7 +10,7 @@ class Media extends DirectiveBase {
   FileInfo currentFileInfo;
 
   bool isReferenced = false;
-  bool isRulesetLike(bool root) => true;
+  bool isRulesetLike() => true;
   List<Ruleset> rules;
 
   final String type = 'Media';
@@ -94,6 +94,7 @@ class Media extends DirectiveBase {
     context.mediaPath.add(media);
     context.mediaBlocks.add(media);
 
+    this.rules[0].functionRegistry = new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
     context.frames.insert(0, this.rules[0]);
     media.rules = [this.rules[0].eval(context)];
     context.frames.removeAt(0);
@@ -102,7 +103,7 @@ class Media extends DirectiveBase {
 
     return context.mediaPath.isEmpty ? media.evalTop(context) : media.evalNested(context);
 
-//2.3.1
+//2.4.0 20150320
 //  Media.prototype.eval = function (context) {
 //      if (!context.mediaBlocks) {
 //          context.mediaBlocks = [];
@@ -110,7 +111,7 @@ class Media extends DirectiveBase {
 //      }
 //
 //      var media = new Media(null, [], this.index, this.currentFileInfo);
-//      if(this.debugInfo) {
+//      if (this.debugInfo) {
 //          this.rules[0].debugInfo = this.debugInfo;
 //          media.debugInfo = this.debugInfo;
 //      }
@@ -131,6 +132,7 @@ class Media extends DirectiveBase {
 //      context.mediaPath.push(media);
 //      context.mediaBlocks.push(media);
 //
+//      this.rules[0].functionRegistry = context.frames[0].functionRegistry.inherit();
 //      context.frames.unshift(this.rules[0]);
 //      media.rules = [this.rules[0].eval(context)];
 //      context.frames.shift();
@@ -150,7 +152,6 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      //List<Selector> selectors = this.emptySelectors();
       List<Selector> selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
       result = new Ruleset(selectors, context.mediaBlocks)
                     ..multiMedia = true;

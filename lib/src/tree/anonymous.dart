@@ -36,7 +36,7 @@ class Anonymous extends Node implements CompareNode {
   }
 
   ///
-  bool isRulesetLike(bool root) => this.rulesetLike;
+  bool isRulesetLike() => this.rulesetLike;
 
   ///
   void genCSS(Contexts context, Output output) {

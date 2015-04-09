@@ -19,6 +19,18 @@ class FunctionRegistry {
   }
 
   ///
+  /// Search in context.frames the first FunctionRegistry != null
+  ///
+  static FunctionRegistry foundInherit(List frames) {
+    VariableMixin frame;
+    for (int i = 0; i < frames.length; i++) {
+      frame = frames[i];
+      if (frame.functionRegistry != null) return frame.functionRegistry;
+    }
+    return null;
+  }
+
+  ///
   /// add the @plugin [functions]
   ///
   add(List<FunctionBase> functions) {

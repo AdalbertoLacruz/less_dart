@@ -1,4 +1,4 @@
-// source: less/import-visitor.js 2.4.0
+// source: less/import-visitor.js 2.4.0 20150320
 
 part of visitor.less;
 
@@ -280,7 +280,7 @@ class ImportVisitor extends VisitorBase {
 
     return completer.future;
 
-//2.3.1
+//2.4.0 20150320
 //  onImported: function (importNode, context, e, root, importedAtRoot, fullPath) {
 //      if (e) {
 //          if (!e.filename) {
@@ -291,6 +291,7 @@ class ImportVisitor extends VisitorBase {
 //
 //      var importVisitor = this,
 //          inlineCSS = importNode.options.inline,
+//          isPlugin = importNode.options.plugin,
 //          duplicateImport = importedAtRoot || fullPath in importVisitor.recursionDetector;
 //
 //      if (!context.importMultiple) {
@@ -311,7 +312,7 @@ class ImportVisitor extends VisitorBase {
 //          importNode.root = root;
 //          importNode.importedFilename = fullPath;
 //
-//          if (!inlineCSS && (context.importMultiple || !duplicateImport)) {
+//          if (!inlineCSS && !isPlugin && (context.importMultiple || !duplicateImport)) {
 //              importVisitor.recursionDetector[fullPath] = true;
 //
 //              var oldContext = this.context;
@@ -336,11 +337,33 @@ class ImportVisitor extends VisitorBase {
 
   ///
   visitRule(Rule ruleNode, VisitArgs visitArgs) {
-    visitArgs.visitDeeper = false;
+    if (ruleNode is DetachedRuleset) {
+      context.frames.insert(0, ruleNode);
+    } else {
+      visitArgs.visitDeeper = false;
+    }
 
-//2.3.1
+//2.4.0 20150320
 //  visitRule: function (ruleNode, visitArgs) {
-//      visitArgs.visitDeeper = false;
+//      if (ruleNode.value.type === "DetachedRuleset") { ??@plugin??
+//          this.context.frames.unshift(ruleNode);
+//      } else {
+//          visitArgs.visitDeeper = false;
+//      }
+//  },
+  }
+
+  ///
+  visitRuleOut(Rule ruleNode) {
+    if (ruleNode is DetachedRuleset) {
+      context.frames.removeAt(0);
+    }
+
+//2.4.0 20150320
+//  visitRuleOut : function(ruleNode) {
+//      if (ruleNode.value.type === "DetachedRuleset") {
+//          this.context.frames.shift();
+//      }
 //  },
   }
 
@@ -441,6 +464,7 @@ class ImportVisitor extends VisitorBase {
     if (node is Media)      return this.visitMediaOut;
     if (node is Directive)  return this.visitDirectiveOut;
     if (node is MixinDefinition) return this.visitMixinDefinitionOut;
+    if (node is Rule)       return this.visitRuleOut;
     if (node is Ruleset)    return this.visitRulesetOut;
 
     return null;

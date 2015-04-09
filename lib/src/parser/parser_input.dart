@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 2.4.0
+// source: parser/parser-input.js 2.4.0 20150315-1729
 
 part of parser.less;
 
@@ -96,14 +96,6 @@ class ParserInput {
   }
 
   ///
-  void sync() {
-    if (i > currentPos) {
-      current = current.substring(i - currentPos);
-      currentPos = i;
-    }
-  }
-
-  ///
   /// Char at pos + [offset] is 32 (space), 13 (CR), 9 (tab) or 10 (LF)
   ///
   bool isWhitespace([int offset = 0]) {
@@ -129,96 +121,22 @@ class ParserInput {
   bool isWhitespacePos() => isWhitespace();
 
   ///
-  /// Parse from a token, regexp or string, and move forward if match
-  /// [tok] String or RegExp
-  /// return String or List
-  ///
-  $(tok) {
-    Match match;
-    int length;
-    List<String> resultList = [];
-
-    // Either match a single character in the input,
-    // or match a regexp in the current chunk (`current`).
-    //
-    if (tok is String) {
-      if (currentChar() != tok) return null;
-      skipWhitespace(1);
-      return tok;
-    }
-
-    //regexp
-    sync();
-    RegExp rtok = (tok as RegExp);
-    match = rtok.firstMatch(current);
-    if (match == null) return null;
-
-    length = match[0].length;
-
-    // The match is confirmed, add the match length to `i`,
-    // and consume any extra white-space characters (' ' || '\n')
-    // which come after that. The reason for this is that LeSS's
-    // grammar is mostly white-space insensitive.
-    //
-    skipWhitespace(length);
-    if (match.groupCount < 2) {
-      return match[0];
-    } else {
-      for (int item = 0; item <= match.groupCount; item++) {
-        resultList.add(match[item]);
-      }
-      return resultList;
-    }
-
-//  function $(tok) {
-//      var tokType = typeof tok,
-//          match, length;
-//
-//      // Either match a single character in the input,
-//      // or match a regexp in the current chunk (`current`).
-//      //
-//      if (tokType === "string") {
-//          if (input.charAt(i) !== tok) {
-//              return null;
-//          }
-//          skipWhitespace(1);
-//          return tok;
-//      }
-//
-//      // regexp
-//      sync ();
-//      if (! (match = tok.exec(current))) {
-//          return null;
-//      }
-//
-//      length = match[0].length;
-//
-//      // The match is confirmed, add the match length to `i`,
-//      // and consume any extra white-space characters (' ' || '\n')
-//      // which come after that. The reason for this is that LeSS's
-//      // grammar is mostly white-space insensitive.
-//      //
-//      skipWhitespace(length);
-//
-//      if(typeof(match) === 'string') {
-//          return match;
-//      } else {
-//          return match.length === 1 ? match[0] : match;
-//      }
-//  }
-  }
-
-  ///
   /// Specialization of $(tok).
   /// Parse from a RegExp and returns String or List<String> with the match.
   ///
-  /// [tok] is String to search.
+  /// [tok] is String to search. Could be RegExp
   /// [caseSensitive] true by default. false correspond to 'i'.
   /// [index] if match returns m[index]
   ///
-  $re(String tok, [bool caseSensitive = true, int index]) {
+  $re(tok, [bool caseSensitive = true, int index]) {
     List<String> resultList = [];
-    RegExp reg = new RegExp(tok, caseSensitive: caseSensitive);
+    RegExp reg;
+
+    if (tok is String) {
+      reg = new RegExp(tok, caseSensitive: caseSensitive);
+    } else {
+      reg = tok;
+    }
 
     if (i > currentPos) {
       current = current.substring(i - currentPos);
@@ -284,8 +202,7 @@ class ParserInput {
 //
 
   ///
-  /// Specialization of $(tok).
-  /// return a String if [tok] is found.
+  /// return a String if [tok] character is found.
   ///
   /// [tok] is a String.
   ///
@@ -293,6 +210,94 @@ class ParserInput {
     if (currentChar() != tok) return null;
     skipWhitespace(1);
     return tok;
+  }
+
+  ///
+  /// Returns tok if found at current position
+  ///
+  String $str(String tok) {
+    int tokLength = tok.length;
+
+    if (!input.startsWith(tok, i)) return null;
+    skipWhitespace(tokLength);
+    return tok;
+
+//2.4.0 20150315
+//  parserInput.$str = function(tok) {
+//      var tokLength = tok.length;
+//
+//      for (var i = 0; i < tokLength; i++) {
+//          if (input.charAt(parserInput.i + i) !== tok.charAt(i)) {
+//              return null;
+//          }
+//      }
+//
+//      skipWhitespace(tokLength);
+//      return tok;
+//  };
+  }
+
+  ///
+  /// Returns a "..." or '...' string if found, else null
+  ///
+  String $quoted() {
+    String nextChar;
+    String str;
+
+    String startChar = currentChar();
+    if (startChar != "'" && startChar != '"') return null;
+
+    int currentPosition = i;
+    for (int i = 1; i + currentPosition < input.length; i++) {
+      nextChar = charAt(i + currentPosition);
+      switch (nextChar) {
+        case '\\':
+          i++;
+          continue;
+        case '\r':
+        case '\n':
+          break;
+        case "'":
+        case '"':
+          if (nextChar == startChar) {
+            str = input.substring(currentPosition, currentPosition + i + 1);
+            skipWhitespace(i + 1);
+            return str;
+          }
+          break;
+        default:
+      }
+    }
+    return null;
+
+//2.4.0 20150315-1345
+//  parserInput.$quoted = function() {
+//
+//      var startChar = input.charAt(parserInput.i);
+//      if (startChar !== "'" && startChar !== '"') {
+//          return;
+//      }
+//      var length = input.length,
+//          currentPosition = parserInput.i;
+//
+//      for (var i = 1; i + currentPosition < length; i++) {
+//          var nextChar = input.charAt(i + currentPosition);
+//          switch(nextChar) {
+//              case "\\":
+//                  i++;
+//                  continue;
+//              case "\r":
+//              case "\n":
+//                  break;
+//              case startChar:
+//                  var str = input.substr(currentPosition, i + 1);
+//                  skipWhitespace(i + 1);
+//                  return str;
+//              default:
+//          }
+//      }
+//      return null;
+//  };
   }
 
   ///
@@ -312,20 +317,19 @@ class ParserInput {
         nextChar = charAt(i + 1);
         if (nextChar == '/') {
           comment = new CommentPointer(index: i, isLineComment: true);
-          int nextNewLine = input.indexOf('\n', i +1);
+          int nextNewLine = input.indexOf('\n', i + 2);
+
           if (nextNewLine < 0) nextNewLine = endIndex;
           i = nextNewLine;
           comment.text = input.substring(comment.index, i);
           commentStore.add(comment);
           continue;
         } else if (nextChar == '*') {
-          String haystack = input.substring(i);
-          RegExp reg = new RegExp(r'^\/\*(?:[^*]|\*+[^\/*])*\*+\/');
-          Match comment_search_result = reg.firstMatch(haystack);
-          if (comment_search_result != null) {
+          int nextStarSlash = input.indexOf('*/', i + 2);
+          if (nextStarSlash >= 0) {
             comment = new CommentPointer(
                 index: i,
-                text: comment_search_result[0],
+                text: input.substring(i, nextStarSlash + 2),
                 isLineComment: false);
             i += comment.text.length - 1;
             commentStore.add(comment);
@@ -352,6 +356,66 @@ class ParserInput {
 
     return (oldi != i || oldj != j);
 
+//2.4.0 20150315 1345
+//  var skipWhitespace = function(length) {
+//      var oldi = parserInput.i, oldj = j,
+//          curr = parserInput.i - currentPos,
+//          endIndex = parserInput.i + current.length - curr,
+//          mem = (parserInput.i += length),
+//          inp = input,
+//          c, nextChar, comment;
+//
+//      for (; parserInput.i < endIndex; parserInput.i++) {
+//          c = inp.charCodeAt(parserInput.i);
+//
+//          if (parserInput.autoCommentAbsorb && c === CHARCODE_FORWARD_SLASH) {
+//              nextChar = inp.charAt(parserInput.i + 1);
+//              if (nextChar === '/') {
+//                  comment = {index: parserInput.i, isLineComment: true};
+//                  var nextNewLine = inp.indexOf("\n", parserInput.i + 2);
+//                  if (nextNewLine < 0) {
+//                      nextNewLine = endIndex;
+//                  }
+//                  parserInput.i = nextNewLine;
+//                  comment.text = inp.substr(comment.i, parserInput.i - comment.i);
+//                  parserInput.commentStore.push(comment);
+//                  continue;
+//              } else if (nextChar === '*') {
+//                  var nextStarSlash = inp.indexOf("*/", parserInput.i + 2);
+//                  if (nextStarSlash >= 0) {
+//                      comment = {
+//                          index: parserInput.i,
+//                          text: inp.substr(parserInput.i, nextStarSlash + 2 - parserInput.i),
+//                          isLineComment: false
+//                      };
+//                      parserInput.i += comment.text.length - 1;
+//                      parserInput.commentStore.push(comment);
+//                      continue;
+//                  }
+//              }
+//              break;
+//          }
+//
+//          if ((c !== CHARCODE_SPACE) && (c !== CHARCODE_LF) && (c !== CHARCODE_TAB) && (c !== CHARCODE_CR)) {
+//              break;
+//          }
+//      }
+//
+//      current = current.slice(length + parserInput.i - mem + curr);
+//      currentPos = parserInput.i;
+//
+//      if (!current.length) {
+//          if (j < chunks.length - 1)
+//          {
+//              current = chunks[++j];
+//              skipWhitespace(0); // skip space at the beginning of a chunk
+//              return true; // things changed
+//          }
+//          parserInput.finished = true;
+//      }
+//
+//      return oldi !== parserInput.i || oldj !== j;
+//  };
 //2.2.0
 //    var skipWhitespace = function(length) {
 //        var oldi = parserInput.i, oldj = j,
@@ -420,11 +484,11 @@ class ParserInput {
   /// [index] ????
   /// return String or List<String>
   ///
-  // parser.js 2.2.0 46-54
+  // parser.js 2.4.0 40-52
   expect(arg, [String msg, int index]) {
     String message = msg;
 
-    var result = (arg is Function) ? arg() : $(arg);
+    var result = (arg is Function) ? arg() : $re(arg);
     if (result != null) return result;
 
     if (message == null) {
@@ -432,14 +496,14 @@ class ParserInput {
     }
     error(message);
 
-//2.2.0
+//2.4.0 20150315
 //  function expect(arg, msg, index) {
 //      // some older browsers return typeof 'function' for RegExp
-//      var result = (Object.prototype.toString.call(arg) === '[object Function]') ? arg.call(parsers) : parserInput.$(arg);
+//      var result = (Object.prototype.toString.call(arg) === '[object Function]') ? arg.call(parsers) : parserInput.$re(arg);
 //      if (result) {
 //          return result;
 //      }
-//      error(msg || (typeof(arg) === 'string' ? "expected '" + arg + "' got '" + parserInput.currentChar() + "'"
+//      error(msg || (typeof arg === 'string' ? "expected '" + arg + "' got '" + parserInput.currentChar() + "'"
 //                                             : "unexpected token"));
 //  }
   }
@@ -498,19 +562,25 @@ class ParserInput {
   ///
   bool peek(tok) {
     if (tok is String) {
-      return input[i] == tok;
+      return input.startsWith(tok, i);
     } else {
       RegExp r = (tok as RegExp);
       return r.hasMatch(current);
     }
 
-//  function peek(tok) {
-//      if (typeof(tok) === 'string') {
-//          return input.charAt(i) === tok;
+//2.4.0 20150315-1729
+//  parserInput.peek = function(tok) {
+//      if (typeof tok === 'string') {
+//          for (var i = 0; i < tok.length; i++) {
+//              if (input.charAt(parserInput.i + i) !== tok.charAt(i)) {
+//                  return false;
+//              }
+//          }
+//          return true;
 //      } else {
 //          return tok.test(current);
 //      }
-//  }
+//  };
   }
 
   ///

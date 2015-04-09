@@ -33,7 +33,7 @@ class Node {
   bool isCharset() => false;
 
   ///
-  bool isRulesetLike(bool root) => false;
+  bool isRulesetLike() => false;
 
   ///
   throwAwayComments() { return null; }

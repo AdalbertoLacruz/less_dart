@@ -1,4 +1,4 @@
-// source: lib/less/functions/string.js 2.4.0
+// source: lib/less/functions/string.js 2.4.0 20150331
 
 part of functions.less;
 
@@ -71,22 +71,28 @@ class StringFunctions extends FunctionBase {
   ///     'This is a new string.';
   ///     bar-2;
   ///
-  Quoted replace(Node string, Quoted pattern, Quoted replacement, [Quoted flags]) {
-    //string is Quoted, Keyword
+  Quoted replace(Node string, Quoted pattern, Node replacement, [Node flags]) {
+    //string, replacement, flags is Quoted ('value') or Keyword (value)
+
     String flagsValue = flags != null ? flags.value : '';
     MoreRegExp re = new MoreRegExp(pattern.value, flagsValue);
-    String result = re.replace(string.value, replacement.value);
+
+    String replacementStr = (replacement is Quoted) ?
+        replacement.value : replacement.toCSS(null);
+    String result = re.replace(string.value, replacementStr);
+
     String quote = (string is Quoted) ? string.quote : '';
     bool escaped = (string is Quoted) ? string.escaped : false;
     return new Quoted(quote, result, escaped);
 
-//2.2.0
-//    replace: function (string, pattern, replacement, flags) {
-//        var result = string.value;
-//
-//        result = result.replace(new RegExp(pattern.value, flags ? flags.value : ''), replacement.value);
-//        return new Quoted(string.quote || '', result, string.escaped);
-//    }
+//2.4.0 20150331
+//  replace: function (string, pattern, replacement, flags) {
+//      var result = string.value;
+//      replacement = (replacement.type === "Quoted") ?
+//          replacement.value : replacement.toCSS();
+//      result = result.replace(new RegExp(pattern.value, flags ? flags.value : ''), replacement);
+//      return new Quoted(string.quote || '', result, string.escaped);
+//  },
   }
 
   ///
@@ -124,19 +130,18 @@ class StringFunctions extends FunctionBase {
 
     for (int i = 1; i < args.length; i++) {
       result = sda.replaceMap(result, (Match m) {
-        String value =  m[0].toLowerCase() == '%s' ? args[i].value : args[i].toCSS(context);
+        String value =  (args[i] is Quoted &&  m[0].toLowerCase() == '%s') ? args[i].value : args[i].toCSS(context);
         return az.hasMatch(m[0]) ? Uri.encodeComponent(value) : value;
       });
     }
     result.replaceAll(new RegExp(r'%%'), '%');
     if (qstr is Quoted) {
-      //return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);
       return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);
     } else {
       return new Quoted('', result, null);
     }
 
-//2.4.0
+//2.4.0 20150331
 //  '%': function (string /* arg, arg, ...*/) {
 //      var args = Array.prototype.slice.call(arguments, 1),
 //          result = string.value;
@@ -144,7 +149,8 @@ class StringFunctions extends FunctionBase {
 //      for (var i = 0; i < args.length; i++) {
 //          /*jshint loopfunc:true */
 //          result = result.replace(/%[sda]/i, function(token) {
-//              var value = token.match(/s/i) ? args[i].value : args[i].toCSS();
+//              var value = ((args[i].type === "Quoted") &&
+//                  token.match(/s/i)) ? args[i].value : args[i].toCSS();
 //              return token.match(/[A-Z]$/) ? encodeURIComponent(value) : value;
 //          });
 //      }

@@ -7,7 +7,6 @@ import 'cleancss_options.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
 import 'logger.dart';
-import 'functions/functions.dart';
 import 'plugins/plugins.dart';
 import 'tree/tree.dart';
 
@@ -248,9 +247,12 @@ class LessOptions {
         break;
       case 'include-path':
         if (checkArgFunc(command, arg[2])) {
-          paths = arg[2].split(Platform.isWindows ? ';' : ':');
+          // ; supported on windows.
+          // : supported on windows and linux, excluding a drive letter like C:\ so C:\file:D:\file parses to 2
+          paths = arg[2].split(Platform.isWindows ? new RegExp(r':(?!\\)|;') : ':');
 
-//            _options.paths = arg[2].split(os.type().match(/Windows/) ? ';' : ':')
+//            options.paths = match[2]
+//                .split(os.type().match(/Windows/) ? /:(?!\\)|;/ : ':')
 //                .map(function(p) {
 //                    if (p) {
 //                        return path.resolve(process.cwd(), p);  //ABSOLUTE PATH TODO ?
@@ -404,7 +406,7 @@ class LessOptions {
     RegExp onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
     Match match;
     if ((match = onOff.firstMatch(arg)) == null){
-      logger.error(' unable to parse $arg as a boolean. use one of on/t/true/y/yes/off/f/false/n/no');
+      logger.error(' unable to parse $arg as a boolean. Use one of on/t/true/y/yes/off/f/false/n/no');
       return null;
     }
     if (match[1] != null) return true;

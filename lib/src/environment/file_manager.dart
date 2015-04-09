@@ -44,6 +44,11 @@ class FileManager {
   FileLoaded loadFileAsBytesSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
 
   ///
+  /// Check if [filename] exists in the include paths
+  ///
+  FileLoaded existSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+
+  ///
   /// Given the full path to a file [filename], return the path component
   ///
   String getPath(String filename) {

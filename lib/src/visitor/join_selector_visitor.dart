@@ -1,4 +1,4 @@
-//source: less/join-selector-visitor.js 2.4.0
+//source: less/join-selector-visitor.js 2.4.0 20150319
 
 part of visitor.less;
 
@@ -111,14 +111,14 @@ class JoinSelectorVisitor extends VisitorBase{
   void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
     List context = this.contexts.last;
     if (directiveNode.rules != null && directiveNode.rules.isNotEmpty) {
-      directiveNode.rules[0].root = context.isEmpty;
+      directiveNode.rules[0].root = (directiveNode.isRooted || context.isEmpty);
     }
 
-//2.4.1+1
+//2.4.0 20150319
 //  visitDirective: function (directiveNode, visitArgs) {
 //      var context = this.contexts[this.contexts.length - 1];
 //      if (directiveNode.rules && directiveNode.rules.length) {
-//          directiveNode.rules[0].root = (context.length === 0 || null);
+//          directiveNode.rules[0].root = (directiveNode.isRooted || context.length === 0 || null);
 //      }
 //  }
   }

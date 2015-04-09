@@ -1,4 +1,4 @@
-//source: less/tree/directive.js 2.4.0+1
+//source: less/tree/directive.js 2.4.0 20150319
 
 part of tree.less;
 
@@ -10,11 +10,12 @@ class Directive extends DirectiveBase {
   FileInfo currentFileInfo;
   DebugInfo debugInfo;
   bool isReferenced = false;
+  bool isRooted = false;
 
   final String type = 'Directive';
 
   Directive(String this.name, Node this.value,  rules, int this.index,
-      FileInfo this.currentFileInfo, DebugInfo this.debugInfo, [bool this.isReferenced = false]):super() {
+      FileInfo this.currentFileInfo, DebugInfo this.debugInfo, [bool this.isReferenced = false, bool this.isRooted = false]):super() {
 
     if (rules != null) {
       if (rules is List) {
@@ -26,8 +27,8 @@ class Directive extends DirectiveBase {
       this.rules.forEach((rule) {rule.allowImports = true;});
     }
 
-//2.4.0+1
-//  var Directive = function (name, value, rules, index, currentFileInfo, debugInfo, isReferenced) {
+//2.4.0 20150319
+//  var Directive = function (name, value, rules, index, currentFileInfo, debugInfo, isReferenced, isRooted) {
 //      var i;
 //
 //      this.name  = name;
@@ -47,6 +48,7 @@ class Directive extends DirectiveBase {
 //      this.currentFileInfo = currentFileInfo;
 //      this.debugInfo = debugInfo;
 //      this.isReferenced = isReferenced;
+//      this.isRooted = isRooted || false;
 //  };
   }
 }
@@ -60,6 +62,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   FileInfo currentFileInfo;
   DebugInfo debugInfo;
   bool isReferenced = false;
+  bool isRooted = false;
 
   final String type = 'DirectiveBase';
 
@@ -89,7 +92,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   }
 
   ///
-  bool isRulesetLike(bool root)  => (this.rules != null) || !this.isCharset();
+  bool isRulesetLike()  => (this.rules != null) || !this.isCharset();
 
 //2.3.1
 //  Directive.prototype.isRulesetLike = function() {
@@ -154,9 +157,9 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
     context.mediaBlocks = mediaBlocksBackup;
 
     return new Directive(this.name, value, rules,
-        this.index, this.currentFileInfo, this.debugInfo, this.isReferenced);
+        this.index, this.currentFileInfo, this.debugInfo, this.isReferenced, this.isRooted);
 
-//2.4.0+1
+//2.4.0 20150319
 //  Directive.prototype.eval = function (context) {
 //      var mediaPathBackup, mediaBlocksBackup, value = this.value, rules = this.rules;
 //
@@ -181,7 +184,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
 //      context.mediaBlocks = mediaBlocksBackup;
 //
 //      return new Directive(this.name, value, rules,
-//          this.index, this.currentFileInfo, this.debugInfo, this.isReferenced);
+//          this.index, this.currentFileInfo, this.debugInfo, this.isReferenced, this.isRooted);
 //  };
   }
 

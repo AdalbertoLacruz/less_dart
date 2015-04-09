@@ -1,4 +1,4 @@
-//source: less/tree/comment.js 2.4.0
+//source: less/tree/comment.js 2.4.0 20150321
 
 part of tree.less;
 
@@ -54,12 +54,4 @@ class Comment extends Node implements MarkReferencedNode {
   void markReferenced() {
     this.isReferenced = true;
   }
-
-  ///
-  bool isRulesetLike(bool root) => root;
-
-//2.2.0
-//  Comment.prototype.isRulesetLike = function(root) {
-//      return Boolean(root);
-//  };
 }

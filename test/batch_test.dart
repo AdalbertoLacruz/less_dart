@@ -1,4 +1,4 @@
-//2.4.0+7
+//2.4.0 20150315
 
 import 'dart:async';
 import 'dart:io';
@@ -118,30 +118,30 @@ Map<int, Config> configFill() {
     22: def('import-inline'),
     23: def('import-interpolation'),
     24: def('import-once'),
-    25: def('import-plugin',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestFunctionsPlugin', new TestFunctionsPlugin());}),
-    26: def('import-plugin-scoped',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestFunctionsPlugin', new TestFunctionsPlugin());}),
-    27: def('import-plugin-tiered',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestFunctionsPlugin', new TestFunctionsPlugin());}),
-    28: def('import-reference', options: ['--log-level=1']),
+    25: def('import-reference', options: ['--log-level=1']),
     //26: def('javascript'),
-    30: def('lazy-eval'),
-    31: def('media'),
-    32: def('merge'),
-    33: def('mixins'),
-    34: def('mixins-args', options: ['--strict-math=on']),
-    35: def('mixins-closure'),
-    36: def('mixins-guards'),
-    37: def('mixins-guards-default-func'),
-    38: def('mixins-important'),
-    39: def('mixins-interpolated'),
-    40: def('mixins-named-args'),
-    41: def('mixins-nested'),
-    42: def('mixins-pattern'),
-    43: def('no-output'),
-    44: def('operations'),
-    45: def('parens', options: ['--strict-math=on']),
+    27: def('lazy-eval'),
+    28: def('media'),
+    29: def('merge'),
+    30: def('mixins'),
+    31: def('mixins-args', options: ['--strict-math=on']),
+    32: def('mixins-closure'),
+    33: def('mixins-guards'),
+    34: def('mixins-guards-default-func'),
+    35: def('mixins-important'),
+    36: def('mixins-interpolated'),
+    37: def('mixins-named-args'),
+    38: def('mixins-nested'),
+    39: def('mixins-pattern'),
+    40: def('no-output'),
+    41: def('operations'),
+    42: def('parens', options: ['--strict-math=on']),
+    43: def('plugin',
+        modifyOptions: (LessOptions options) {
+          options.definePlugin('plugin-global', new PluginGlobal());
+          options.definePlugin('plugin-local', new PluginLocal());
+          options.definePlugin('plugin-transitive', new PluginTransitive());
+        }),
     46: def('property-name-interp'),
     47: def('rulesets'),
     48: def('scope'),
@@ -226,8 +226,8 @@ Map<int, Config> configFill() {
     88: def('sourcemaps-empty/empty', options: ['--source-map-map-inline']),
 
     //include-path
-    90: def('include-path/include-path',
-        options: ['--include-path=less/import;data']),
+    90: def('include-path/include-path', options: ['--include-path=less/import:data']),
+    91: def('include-path-string/include-path-string', options: ['--include-path=data']),
 
     //errors
     100: def('errors/add-mixed-units', isErrorTest: true),
@@ -270,26 +270,28 @@ Map<int, Config> configFill() {
     138: def('errors/parens-error-2', isErrorTest: true),
     139: def('errors/parens-error-3', isErrorTest: true),
     140: def('errors/parse-error-curly-bracket', isErrorTest: true),
-    141: def('errors/parse-error-extra-parens', isErrorTest: true),
-    142: def('errors/parse-error-missing-bracket', isErrorTest: true),
-    143: def('errors/parse-error-missing-parens', isErrorTest: true),
-    144: def('errors/parse-error-with-import', isErrorTest: true),
-    145: def('errors/percentage-missing-space', isErrorTest: true),
-    146: def('errors/property-asterisk-only-name', isErrorTest: true),
-    147: def('errors/property-ie5-hack', isErrorTest: true),
-    148: def('errors/property-in-root', isErrorTest: true),
-    149: def('errors/property-in-root2', isErrorTest: true),
-    150: def('errors/property-in-root3', isErrorTest: true),
-    151: def('errors/property-interp-not-defined', isErrorTest: true),
-    152: def('errors/recursive-variable', isErrorTest: true),
-    153: def('errors/single-character', isErrorTest: true),
-    154: def('errors/svg-gradient1', isErrorTest: true),
-    155: def('errors/svg-gradient2', isErrorTest: true),
-    156: def('errors/svg-gradient3', isErrorTest: true),
-    157: def('errors/svg-gradient4', isErrorTest: true),
-    158: def('errors/svg-gradient5', isErrorTest: true),
-    159: def('errors/svg-gradient6', isErrorTest: true),
-    160: def('errors/unit-function', isErrorTest: true),
+    141: def('errors/parse-error-media-no-block-1', isErrorTest: true),
+    142: def('errors/parse-error-media-no-block-2', isErrorTest: true),
+    143: def('errors/parse-error-media-no-block-3', isErrorTest: true),
+    144: def('errors/parse-error-missing-bracket', isErrorTest: true),
+    145: def('errors/parse-error-missing-parens', isErrorTest: true),
+    146: def('errors/parse-error-with-import', isErrorTest: true),
+    147: def('errors/percentage-missing-space', isErrorTest: true),
+    148: def('errors/property-asterisk-only-name', isErrorTest: true),
+    149: def('errors/property-ie5-hack', isErrorTest: true),
+    150: def('errors/property-in-root', isErrorTest: true),
+    151: def('errors/property-in-root2', isErrorTest: true),
+    152: def('errors/property-in-root3', isErrorTest: true),
+    153: def('errors/property-interp-not-defined', isErrorTest: true),
+    154: def('errors/recursive-variable', isErrorTest: true),
+    155: def('errors/single-character', isErrorTest: true),
+    156: def('errors/svg-gradient1', isErrorTest: true),
+    157: def('errors/svg-gradient2', isErrorTest: true),
+    158: def('errors/svg-gradient3', isErrorTest: true),
+    159: def('errors/svg-gradient4', isErrorTest: true),
+    160: def('errors/svg-gradient5', isErrorTest: true),
+    161: def('errors/svg-gradient6', isErrorTest: true),
+    162: def('errors/unit-function', isErrorTest: true),
     //
     200: def('extendedTest/svg', isExtendedTest: true),
     201: def('extendedTest/url', isExtendedTest: true),
@@ -534,17 +536,49 @@ class TestFileManagerPlugin extends Plugin {
   }
 }
 
- // ---------------------------------------------- TestFunctionsPlugin plugin
-class TestFunctions extends FunctionBase {
-  Anonymous test() => new Anonymous('PASS');
+ // ---------------------------------------------- FunctionsPlugin plugin
+class PluginGlobalFunctions extends FunctionBase {
+  @defineMethod(name: 'test-shadow')
+  Anonymous testShadow() => new Anonymous('global');
+
+  @defineMethod(name: 'test-global')
+  Anonymous testGlobal() => new Anonymous('global');
 }
 
-class TestFunctionsPlugin extends Plugin {
+class PluginLocalFunctions extends FunctionBase {
+  @defineMethod(name: 'test-shadow')
+  Anonymous testShadow() => new Anonymous('local');
+
+  @defineMethod(name: 'test-local')
+  Anonymous testLocal() => new Anonymous('local');
+}
+
+class PluginTransitiveFunctions extends FunctionBase {
+  @defineMethod(name: 'test-transitive')
+  Anonymous testTransitive() => new Anonymous('transitive');
+}
+
+class PluginGlobal extends Plugin {
   install(PluginManager pluginManager) {
-    FunctionBase fun = new TestFunctions();
+    FunctionBase fun = new PluginGlobalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
+
+class PluginLocal extends Plugin {
+  install(PluginManager pluginManager) {
+    FunctionBase fun = new PluginLocalFunctions();
+    pluginManager.addCustomFunctions(fun);
+  }
+}
+
+class PluginTransitive extends Plugin {
+  install(PluginManager pluginManager) {
+    FunctionBase fun = new PluginTransitiveFunctions();
+    pluginManager.addCustomFunctions(fun);
+  }
+}
+
 
 // ---------------------------------------------- TestPostProcessorPlugin plugin
 class TestPostProcessor extends Processor {

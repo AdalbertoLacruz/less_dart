@@ -172,7 +172,7 @@ class FileFileManager extends FileManager {
     } else {
       fileLoaded.error = new LessError(
           type: 'File',
-          message: "'{filename}' wasn't found. Tried - {filenamesTried.join(', ')}"
+          message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
       );
     }
 
@@ -235,7 +235,28 @@ class FileFileManager extends FileManager {
     } else {
       fileLoaded.error = new LessError(
           type: 'File',
-          message: "'{filename}' wasn't found. Tried - {filenamesTried.join(', ')}"
+          message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
+      );
+    }
+
+    return fileLoaded;
+  }
+
+  ///
+  /// Check if [filename] exists in the include paths
+  ///
+  FileLoaded existSync(String filename, String currentDirectory, Contexts options, Environment environment) {
+    FileLoaded fileLoaded = new FileLoaded();
+    if (options == null) options = new Contexts();
+
+    List<String> paths = createListPaths(filename, currentDirectory, options);
+    String fullFilename = findFileSync(filename, paths);
+    if (fullFilename != null) {
+      fileLoaded.filename = fullFilename;
+    } else {
+      fileLoaded.error = new LessError(
+          type: 'File',
+          message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
       );
     }
 

@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 2.4.0 20150305
+//source: tree/mixin-definition.js 2.4.0 20150323
 
 part of tree.less;
 
@@ -135,9 +135,12 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
         (params != null) ? params.length : 0,
         (args != null)   ? args.length : 0);
 
+    if (mixinEnv.frames != null && mixinEnv.frames.isNotEmpty && (mixinEnv.frames[0] as VariableMixin).functionRegistry != null) {
+      frame.functionRegistry = new FunctionRegistry.inherit((mixinEnv.frames[0] as VariableMixin).functionRegistry);
+    }
+
     mixinEnv = new Contexts.eval(mixinEnv,
                              [frame]..addAll(mixinEnv.frames));
-    frame.functionRegistry = new FunctionRegistry.inherit((context.frames[0] as VariableMixin).functionRegistry);
 
     if (args != null) {
       args = args.sublist(0);
@@ -217,6 +220,86 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
     }
     return frame;
 
+//2.4.0 20150323
+//  Definition.prototype.evalParams = function (context, mixinEnv, args, evaldArguments) {
+//      /*jshint boss:true */
+//      var frame = new Ruleset(null, null),
+//          varargs, arg,
+//          params = this.params.slice(0),
+//          i, j, val, name, isNamedFound, argIndex, argsLength = 0;
+//
+//      if (mixinEnv.frames && mixinEnv.frames[0] && mixinEnv.frames[0].functionRegistry) {
+//          frame.functionRegistry = mixinEnv.frames[0].functionRegistry.inherit();
+//      }
+//      mixinEnv = new contexts.Eval(mixinEnv, [frame].concat(mixinEnv.frames));
+//
+//      if (args) {
+//          args = args.slice(0);
+//          argsLength = args.length;
+//
+//          for (i = 0; i < argsLength; i++) {
+//              arg = args[i];
+//              if (name = (arg && arg.name)) {
+//                  isNamedFound = false;
+//                  for (j = 0; j < params.length; j++) {
+//                      if (!evaldArguments[j] && name === params[j].name) {
+//                          evaldArguments[j] = arg.value.eval(context);
+//                          frame.prependRule(new Rule(name, arg.value.eval(context)));
+//                          isNamedFound = true;
+//                          break;
+//                      }
+//                  }
+//                  if (isNamedFound) {
+//                      args.splice(i, 1);
+//                      i--;
+//                      continue;
+//                  } else {
+//                      throw { type: 'Runtime', message: "Named argument for " + this.name +
+//                          ' ' + args[i].name + ' not found' };
+//                  }
+//              }
+//          }
+//      }
+//      argIndex = 0;
+//      for (i = 0; i < params.length; i++) {
+//          if (evaldArguments[i]) { continue; }
+//
+//          arg = args && args[argIndex];
+//
+//          if (name = params[i].name) {
+//              if (params[i].variadic) {
+//                  varargs = [];
+//                  for (j = argIndex; j < argsLength; j++) {
+//                      varargs.push(args[j].value.eval(context));
+//                  }
+//                  frame.prependRule(new Rule(name, new Expression(varargs).eval(context)));
+//              } else {
+//                  val = arg && arg.value;
+//                  if (val) {
+//                      val = val.eval(context);
+//                  } else if (params[i].value) {
+//                      val = params[i].value.eval(mixinEnv);
+//                      frame.resetCache();
+//                  } else {
+//                      throw { type: 'Runtime', message: "wrong number of arguments for " + this.name +
+//                          ' (' + argsLength + ' for ' + this.arity + ')' };
+//                  }
+//
+//                  frame.prependRule(new Rule(name, val));
+//                  evaldArguments[i] = val;
+//              }
+//          }
+//
+//          if (params[i].variadic && args) {
+//              for (j = argIndex; j < argsLength; j++) {
+//                  evaldArguments[j] = args[j].value.eval(context);
+//              }
+//          }
+//          argIndex++;
+//      }
+//
+//      return frame;
+//  };
 //2.4.0 20150305
 //  Definition.prototype.evalParams = function (context, mixinEnv, args, evaldArguments) {
 //      /*jshint boss:true */

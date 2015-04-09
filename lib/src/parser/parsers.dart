@@ -1,4 +1,4 @@
-//source: less/parser.js 2.4.0 lines 192-end
+//source: less/parser.js 2.4.0 20150321-1640 lines 192-end
 
 part of parser.less;
 
@@ -27,7 +27,7 @@ part of parser.less;
 ///         Ruleset (Selector [Element '>', '.child'], [...])
 ///     ])
 ///
-///  In general, most rules will try to parse a token with the `$()` function, and if the return
+///  In general, most rules will try to parse a token with the `$re()` function, and if the return
 ///  value is truly, will return a new node, of the relevant type. Sometimes, we need to check
 ///  first, before parsing, that's when we use `peek()`.
 ///
@@ -95,50 +95,58 @@ class Parsers {
       if (node != null) {
         root.add(node);
       } else {
-        if (!(parserInput.$re(r'^[\s\n]+') != null  || parserInput.$re(r'^;+') != null)) break;
+        bool foundSemiColon = false;
+        while (parserInput.$char(";") != null){
+          foundSemiColon = true;
+        }
+        if (!foundSemiColon) break;
       }
     }
 
     return root;
 
-//2.4.0
+//2.4.0 20150321
 //  primary: function () {
-//       var mixin = this.mixin, root = [], node;
+//      var mixin = this.mixin, root = [], node;
 //
-//       while (true) ****
-//       {
-//           while (true) {
-//               node = this.comment();
-//               if (!node) { break; }
-//               root.push(node);
-//           }
-//           // always process comments before deciding if finished
-//           if (parserInput.finished) {
-//               break;
-//           }
-//           if (parserInput.peek('}')) {
-//               break;
-//           }
+//      while (true)
+//      {
+//          while (true) {
+//              node = this.comment();
+//              if (!node) { break; }
+//              root.push(node);
+//          }
+//          // always process comments before deciding if finished
+//          if (parserInput.finished) {
+//              break;
+//          }
+//          if (parserInput.peek('}')) {
+//              break;
+//          }
 //
-//           node = this.extendRule();
-//           if (node) {
-//               root = root.concat(node);
-//               continue;
-//           }
+//          node = this.extendRule();
+//          if (node) {
+//              root = root.concat(node);
+//              continue;
+//          }
 //
-//           node = mixin.definition() || this.rule() || this.ruleset() ||
-//               mixin.call() || this.rulesetCall() || this.directive();
-//           if (node) {
-//               root.push(node);
-//           } else {
-//               if (!(parserInput.$re(/^[\s\n]+/) || parserInput.$re(/^;+/))) {
-//                   break;
-//               }
-//           }
-//       }
+//          node = mixin.definition() || this.rule() || this.ruleset() ||
+//              mixin.call() || this.rulesetCall() || this.directive();
+//          if (node) {
+//              root.push(node);
+//          } else {
+//              var foundSemiColon = false;
+//              while (parserInput.$char(";")) {
+//                  foundSemiColon = true;
+//              }
+//              if (!foundSemiColon) {
+//                  break;
+//              }
+//          }
+//      }
 //
-//       return root;
-//   },
+//      return root;
+//  },
   }
 
   /// check if input is empty. Else throw error.
@@ -221,9 +229,7 @@ class Parsers {
     int           index = parserInput.i;
     String        option;
 
-    if ((isRule ? parserInput.$re(r'^&:extend\(') : parserInput.$re(r'^:extend\(')) == null) {
-      return null;
-    }
+    if (parserInput.$str(isRule ? '&:extend(' : ':extend(') ==  null) return null;
 
     do {
       option = null;
@@ -256,11 +262,13 @@ class Parsers {
 
     return extendedList;
 
-//2.4.0
+//2.4.0 20150315
 //  extend: function(isRule) {
 //      var elements, e, index = parserInput.i, option, extendList, extend;
 //
-//      if (!(isRule ? parserInput.$re(/^&:extend\(/) : parserInput.$re(/^:extend\(/))) { return; }
+//      if (!parserInput.$str(isRule ? "&:extend(" : ":extend(")) {
+//          return;
+//      }
 //
 //      do {
 //          option = null;
@@ -511,8 +519,8 @@ class Parsers {
     String when;
 
     while ((isLess && (extendList = this.extend()) != null) ||
-        (isLess && (when = parserInput.$re(r'^when')) != null) ||
-        (e = element()) != null) {
+           (isLess && (when = parserInput.$str('when')) != null) ||
+           (e = element()) != null) {
       if (when != null) {
         condition = parserInput.expect(conditions, 'expected condition');
       } else if (condition != null) {
@@ -541,11 +549,11 @@ class Parsers {
 
     return null;
 
-//2.4.0
+//2.4.0 20150315
 //  selector: function (isLess) {
 //      var index = parserInput.i, elements, extendList, c, e, allExtends, when, condition;
 //
-//      while ((isLess && (extendList = this.extend())) || (isLess && (when = parserInput.$re(/^when/))) || (e = this.element())) {
+//      while ((isLess && (extendList = this.extend())) || (isLess && (when = parserInput.$str("when"))) || (e = this.element())) {
 //          if (when) {
 //              condition = expect(this.conditions, 'expected condition');
 //          } else if (condition) {
@@ -772,7 +780,7 @@ class Parsers {
     int startOfRule = parserInput.i;
     Node value;
 
-    if (c == '.' || c == '#' || c == '&') return null;
+    if (c == '.' || c == '#' || c == '&' || c == ':') return null;
 
     parserInput.save();
 
@@ -789,7 +797,7 @@ class Parsers {
         // a name returned by this.ruleProperty() is always an array of the form:
         // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
         // where each item is a tree.Keyword or tree.Variable
-        merge = !isVariable ? (name as List<Node>).removeLast().value : '';
+        merge = (!isVariable && name.length > 1)? (name as List<Node>).removeLast().value : '';
 
         // prefer to try to parse first if its a variable or we are compressing
         // but always fallback on the other one
@@ -801,7 +809,7 @@ class Parsers {
           value = anonymousValue();
           if (value != null) {
             parserInput.forget();
-            // anonymous values absorb the end ';' which is reequired for them to work
+            // anonymous values absorb the end ';' which is required for them to work
             return new Rule(name, value, '', merge, startOfRule, fileInfo); //TODO important '' is false
           }
         }
@@ -824,6 +832,64 @@ class Parsers {
 
     return null;
 
+//2.4.0 20150315 1739
+//  rule: function (tryAnonymous) {
+//      var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
+//
+//      if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
+//
+//      parserInput.save();
+//
+//      name = this.variable() || this.ruleProperty();
+//      if (name) {
+//          isVariable = typeof name === "string";
+//
+//          if (isVariable) {
+//              value = this.detachedRuleset();
+//          }
+//
+//          parserInput.commentStore.length = 0;
+//          if (!value) {
+//              // a name returned by this.ruleProperty() is always an array of the form:
+//              // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
+//              // where each item is a tree.Keyword or tree.Variable
+//              merge = !isVariable && name.length > 1 && name.pop().value;
+//
+//              // prefer to try to parse first if its a variable or we are compressing
+//              // but always fallback on the other one
+//              var tryValueFirst = !tryAnonymous && (context.compress || isVariable);
+//
+//              if (tryValueFirst) {
+//                  value = this.value();
+//              }
+//              if (!value) {
+//                  value = this.anonymousValue();
+//                  if (value) {
+//                      parserInput.forget();
+//                      // anonymous values absorb the end ';' which is reequired for them to work
+//                      return new (tree.Rule)(name, value, false, merge, startOfRule, fileInfo);
+//                  }
+//              }
+//              if (!tryValueFirst && !value) {
+//                  value = this.value();
+//              }
+//
+//              important = this.important();
+//          }
+//
+//          if (value && this.end()) {
+//              parserInput.forget();
+//              return new (tree.Rule)(name, value, important, merge, startOfRule, fileInfo);
+//          } else {
+//              parserInput.restore();
+//              if (value && !tryAnonymous) {
+//                  return this.rule(true);
+//              }
+//          }
+//      } else {
+//          parserInput.forget();
+//      }
+//  },
 //2.2.0
 //  rule: function (tryAnonymous) {
 //      var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
@@ -928,7 +994,8 @@ class Parsers {
       if (path == null) path = entities.url();
       if (path != null) {
         features = mediaFeatures();
-        if (parserInput.$(';') == null) {
+
+        if (parserInput.$char(';') == null) {
           parserInput.i = index;
           parserInput.error('missing semi-colon or unrecognised media features on import');
         }
@@ -942,7 +1009,7 @@ class Parsers {
 
     return null;
 
-//2.2.0
+//2.4.0 20150315
 //  "import": function () {
 //      var path, features, index = parserInput.i;
 //
@@ -954,7 +1021,7 @@ class Parsers {
 //          if ((path = this.entities.quoted() || this.entities.url())) {
 //              features = this.mediaFeatures();
 //
-//              if (!parserInput.$(';')) {
+//              if (!parserInput.$char(';')) {
 //                  parserInput.i = index;
 //                  error("missing semi-colon or unrecognised media features on import");
 //              }
@@ -967,7 +1034,7 @@ class Parsers {
 //              error("malformed import statement");
 //          }
 //      }
-//  }
+//  },
   }
 
   ///
@@ -1168,39 +1235,60 @@ class Parsers {
       debugInfo = getDebugInfo(parserInput.i);
     }
 
-    if (parserInput.$re(r'^@media') != null) {
+    parserInput.save();
+
+    if (parserInput.$str('@media') != null) {
       features = mediaFeatures();
 
       rules = block();
-      if (rules != null) {
-        media = new Media(rules, features, parserInput.i, fileInfo);
-        if (isNotEmpty(context.dumpLineNumbers)) media.debugInfo = debugInfo;
-        return media;
+
+      if (rules == null) {
+        parserInput.restore('media definitions require block statements after any features');
+        return null;
       }
+
+      parserInput.forget();
+
+      media = new Media(rules, features, parserInput.i, fileInfo);
+      if (isNotEmpty(context.dumpLineNumbers)) media.debugInfo = debugInfo;
+      return media;
+
     }
+    parserInput.restore();
     return null;
 
-//2.2.0
-//    media: function () {
-//        var features, rules, media, debugInfo;
+//2.4.0 20150320
+//  media: function () {
+//      var features, rules, media, debugInfo;
 //
-//        if (context.dumpLineNumbers) {
-//            debugInfo = getDebugInfo(parserInput.i);
-//        }
+//      if (context.dumpLineNumbers) {
+//          debugInfo = getDebugInfo(parserInput.i);
+//      }
 //
-//        if (parserInput.$re(/^@media/)) {
-//            features = this.mediaFeatures();
+//      parserInput.save();
 //
-//            rules = this.block();
-//            if (rules) {
-//                media = new(tree.Media)(rules, features, parserInput.i, fileInfo);
-//                if (context.dumpLineNumbers) {
-//                    media.debugInfo = debugInfo;
-//                }
-//                return media;
-//            }
-//        }
-//    }
+//      if (parserInput.$str("@media")) {
+//          features = this.mediaFeatures();
+//
+//          rules = this.block();
+//
+//          if (!rules) {
+//              parserInput.restore("media definitions require block statements after any features");
+//              return;
+//          }
+//
+//          parserInput.forget();
+//
+//          media = new(tree.Media)(rules, features, parserInput.i, fileInfo);
+//          if (context.dumpLineNumbers) {
+//              media.debugInfo = debugInfo;
+//          }
+//
+//          return media;
+//      }
+//
+//      parserInput.restore();
+//  },
   }
 
   ///
@@ -1213,7 +1301,7 @@ class Parsers {
     String dir = parserInput.$re(r'^@options?\s+');
     if (dir != null) {
       if ((value = entities.quoted()) != null) {
-        if (parserInput.$(';') == null) {
+        if (parserInput.$char(';') == null) {
             parserInput.i = index;
             parserInput.error('missing semi-colon on options');
         }
@@ -1235,9 +1323,10 @@ class Parsers {
     int index = parserInput.i;
     Quoted value;
     String dir = parserInput.$re(r'^@plugin?\s+');
+
     if (dir != null) {
       if ((value = entities.quoted()) != null) {
-        if (parserInput.$(';') == null) {
+        if (parserInput.$char(';') == null) {
             parserInput.i = index;
             parserInput.error('missing semi-colon on plugin');
         }
@@ -1247,8 +1336,33 @@ class Parsers {
         parserInput.error('malformed plugin statement');
       }
     }
-
     return null;
+
+//2.4.0 20150315
+//  plugin: function () {
+//      var path,
+//          index = parserInput.i,
+//          dir   = parserInput.$re(/^@plugin?\s+/);
+//
+//      if (dir) {
+//          var options = { plugin : true };
+//
+//          if ((path = this.entities.quoted() || this.entities.url())) {
+//
+//              if (!parserInput.$char(';')) {
+//                  parserInput.i = index;
+//                  error("missing semi-colon on plugin");
+//              }
+//
+//              return new(tree.Import)(path, null, options, index, fileInfo);
+//          }
+//          else
+//          {
+//              parserInput.i = index;
+//              error("malformed plugin statement");
+//          }
+//      }
+//  },
   }
 
   ///
@@ -1262,6 +1376,7 @@ class Parsers {
     bool hasIdentifier = false;
     bool hasUnknown = false;
     int index = parserInput.i;
+    bool isRooted = true;
     String name;
     String nonVendorSpecificName;
     Ruleset rules;
@@ -1306,6 +1421,7 @@ class Parsers {
       case "@right-middle":
       case "@right-bottom":
         hasBlock = true;
+        isRooted = true;
         break;
       */
 
@@ -1326,9 +1442,12 @@ class Parsers {
         break;
       case '@host':
       case '@page':
+        hasUnknown = true;
+        break;
       case '@document':
       case '@supports':
         hasUnknown = true;
+        isRooted = false;
         break;
     }
 
@@ -1350,22 +1469,21 @@ class Parsers {
     if (rules != null || (!hasBlock && value != null && parserInput.$char(';') != null)) {
       parserInput.forget();
       return new Directive(name, value, rules, index, fileInfo,
-          isNotEmpty(context.dumpLineNumbers)
-          ? getDebugInfo(index)
-          : null);
+          isNotEmpty(context.dumpLineNumbers) ? getDebugInfo(index) : null,
+          false, isRooted);
     }
 
     parserInput.restore('directive options not recognised');
     return null;
 
-//2.2.0
+//2.4.0 20150319
 //  directive: function () {
 //      var index = parserInput.i, name, value, rules, nonVendorSpecificName,
-//          hasIdentifier, hasExpression, hasUnknown, hasBlock = true;
+//          hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
 //
 //      if (parserInput.currentChar() !== '@') { return; }
 //
-//      value = this['import']() || this.media();
+//      value = this['import']() || this.plugin() || this.media();
 //      if (value) {
 //          return value;
 //      }
@@ -1402,6 +1520,7 @@ class Parsers {
 //          case "@right-middle":
 //          case "@right-bottom":
 //              hasBlock = true;
+//              isRooted = true;
 //              break;
 //          */
 //          case "@counter-style":
@@ -1421,9 +1540,12 @@ class Parsers {
 //              break;
 //          case "@host":
 //          case "@page":
+//              hasUnknown = true;
+//              break;
 //          case "@document":
 //          case "@supports":
 //              hasUnknown = true;
+//              isRooted = false;
 //              break;
 //      }
 //
@@ -1452,12 +1574,15 @@ class Parsers {
 //
 //      if (rules || (!hasBlock && value && parserInput.$char(';'))) {
 //          parserInput.forget();
-//          return new(tree.Directive)(name, value, rules, index, fileInfo,
-//              context.dumpLineNumbers ? getDebugInfo(index) : null);
+//          return new (tree.Directive)(name, value, rules, index, fileInfo,
+//              context.dumpLineNumbers ? getDebugInfo(index) : null,
+//              false,
+//              isRooted
+//          );
 //      }
 //
 //      parserInput.restore("directive options not recognised");
-//  }
+//  },
   }
 
   ///
@@ -1736,14 +1861,35 @@ class Parsers {
     Condition c;
     String op;
 
-    if (parserInput.$re(r'^not') != null) negate = true;
+    if (parserInput.$str('not') != null) negate = true;
     parserInput.expectChar('(');
 
     a = addition();
     if (a == null) a = entities.keyword();
     if (a == null) a = entities.quoted();
     if (a != null) {
-      op = parserInput.$re(r'^(?:>=|<=|=<|[<=>])');
+      if (parserInput.$char('>') != null) {
+        if (parserInput.$char('=') != null) {
+          op = '>=';
+        } else {
+          op = '>';
+        }
+      } else if (parserInput.$char('<') != null) {
+        if (parserInput.$char('=') != null) {
+          op = '<=';
+        } else {
+          op = '<';
+        }
+      } else if (parserInput.$char('=') != null) {
+        if (parserInput.$char('>') != null) {
+          op = '=>';
+        } else if (parserInput.$char('<') != null) {
+          op = '=<';
+        } else {
+          op = '=';
+        }
+      }
+
       if (op != null) {
         b = addition();
         if (b == null) b = entities.keyword();
@@ -1757,20 +1903,42 @@ class Parsers {
         c = new Condition('=', a, new Keyword.True(), index, negate);
       }
       parserInput.expectChar(')');
-      return parserInput.$re(r'^and') != null ? new Condition('and', c, condition()) : c;
+      return parserInput.$str('and') != null ? new Condition('and', c, condition()) : c;
     }
     return null;
 
-//2.2.0
+//2.4.0 20150321-1640
 //  condition: function () {
 //      var entities = this.entities, index = parserInput.i, negate = false,
 //          a, b, c, op;
 //
-//      if (parserInput.$re(/^not/)) { negate = true; }
+//      if (parserInput.$str("not")) { negate = true; }
 //      expectChar('(');
 //      a = this.addition() || entities.keyword() || entities.quoted();
 //      if (a) {
-//          op = parserInput.$re(/^(?:>=|<=|=<|[<=>])/);
+//          if (parserInput.$char('>')) {
+//              if (parserInput.$char('=')) {
+//                  op = ">=";
+//              } else {
+//                  op = '>';
+//              }
+//          } else
+//          if (parserInput.$char('<')) {
+//              if (parserInput.$char('=')) {
+//                  op = "<=";
+//              } else {
+//                  op = '<';
+//              }
+//          } else
+//          if (parserInput.$char('=')) {
+//              if (parserInput.$char('>')) {
+//                  op = "=>";
+//              } else if (parserInput.$char('<')) {
+//                  op = '=<';
+//              } else {
+//                  op = '=';
+//              }
+//          }
 //          if (op) {
 //              b = this.addition() || entities.keyword() || entities.quoted();
 //              if (b) {
@@ -1782,9 +1950,9 @@ class Parsers {
 //              c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, negate);
 //          }
 //          expectChar(')');
-//          return parserInput.$re(/^and/) ? new(tree.Condition)('and', c, this.condition()) : c;
+//          return parserInput.$str("and") ? new(tree.Condition)('and', c, this.condition()) : c;
 //      }
-//  }
+//  },
   }
 
   ///
@@ -1915,6 +2083,13 @@ class Parsers {
 
     parserInput.save();
 
+    String simpleProperty = parserInput.$re(r'^([_a-zA-Z0-9-]+)\s*:');
+    if (simpleProperty != null) {
+      name = [new Keyword(simpleProperty)];
+      parserInput.forget();
+      return name;
+    }
+
     bool match(String re) {
       int i = parserInput.i;
       String chunk = parserInput.$re(re);
@@ -1952,11 +2127,18 @@ class Parsers {
     parserInput.restore();
     return null;
 
-//2.2.0
+//2.4.0 20150315 1739
 //  ruleProperty: function () {
 //      var name = [], index = [], s, k;
 //
 //      parserInput.save();
+//
+//      var simpleProperty = parserInput.$re(/^([_a-zA-Z0-9-]+)\s*:/);
+//      if (simpleProperty) {
+//          name = [new(tree.Keyword)(simpleProperty[1])];
+//          parserInput.forget();
+//          return name;
+//      }
 //
 //      function match(re) {
 //          var i = parserInput.i,
@@ -1988,12 +2170,13 @@ class Parsers {
 //              name[k] = (s.charAt(0) !== '@') ?
 //                  new(tree.Keyword)(s) :
 //                  new(tree.Variable)('@' + s.slice(2, -1),
-//                      index[k], fileInfo);
-//          }
-//          return name;
-//      }
-//      parserInput.restore();
-//  }
+//                        index[k], fileInfo);
+//            }
+//            return name;
+//        }
+//        parserInput.restore();
+//    }
+//}
   }
 
   ///

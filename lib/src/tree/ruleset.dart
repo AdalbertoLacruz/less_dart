@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 2.4.0 20150306
+// source: less/tree/ruleset.js 2.4.0 20150321
 
 part of tree.less;
 
@@ -14,7 +14,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   bool firstRoot = false;
   bool isReferenced = false;
   bool isRuleset = true;
-  bool isRulesetLike(bool root) => true;
+  bool isRulesetLike() => true;
   bool multiMedia = false;
   Node originalRuleset;
 
@@ -102,8 +102,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     if (this.debugInfo != null) ruleset.debugInfo = this.debugInfo;
     if (!hasOnePassingSelector) rules.length = 0;
 
-    // inherit a function registry from the frames stack when possible;
-    FunctionRegistry parentFR = context.frames.isEmpty ? null : (context.frames[0] as VariableMixin).functionRegistry;
+    // inherit a function registry from the frames stack when possible; (in js from the top)
+    FunctionRegistry parentFR = FunctionRegistry.foundInherit(context.frames);
     ruleset.functionRegistry = new FunctionRegistry.inherit(parentFR);
 
     // push the current ruleset to the frames stack
@@ -474,8 +474,6 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     int j;
     List<Node> charsetRuleNodes = [];
     List<Node> ruleNodes = [];
-    List<Node> rulesetNodes = [];
-    int rulesetNodeCnt;
 
     Node rule;
     List path;
@@ -486,24 +484,29 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     String tabSetStr = context.compress ? '' : '  ' * (context.tabLevel - 1);
     String sep;
 
-    bool isRulesetLikeNode(Node rule, bool root) {
+    bool isRulesetLikeNode(Node rule) {
       // if it has nested rules, then it should be treated like a ruleset
       // medias and comments do not have nested rules, but should be treated like rulesets anyway
       // some directives and anonymous nodes are ruleset like, others are not
-      return rule.isRulesetLike(root);
+      return rule.isRulesetLike();
     }
 
+    int charsetNodeIndex = 0;
+    int importNodeIndex = 0;
     for (i = 0; i < this.rules.length; i ++) {
       rule = this.rules[i];
-      if (isRulesetLikeNode(rule, this.root)) {
-        rulesetNodes.add(rule);
+      if (rule is Comment) {
+        if (importNodeIndex == i) importNodeIndex++;
+        ruleNodes.add(rule);
+      } else if (rule.isCharset()) {
+        ruleNodes.insert(charsetNodeIndex, rule);
+        charsetNodeIndex++;
+        importNodeIndex++;
+      } else if (rule is Import) {
+        ruleNodes.insert(importNodeIndex, rule);
+        importNodeIndex++;
       } else {
-        // charsets should float on top of everything
-        if (rule.isCharset()) {
-          charsetRuleNodes.add(rule);
-        } else {
-          ruleNodes.add(rule);
-        }
+        ruleNodes.add(rule);
       }
     }
     ruleNodes.insertAll(0, charsetRuleNodes);
@@ -543,11 +546,12 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     for (i = 0; i < ruleNodes.length; i++) {
       rule = ruleNodes[i];
 
-      // @page{ directive ends up with root elements inside it, a mix of rules and rulesets
-      // In this instance we do not know whether it is the last property
-      if (i + 1 == ruleNodes.length && (!this.root || rulesetNodes.isEmpty || this.firstRoot)) {
-        context.lastRule = true;
+      if (i + 1 == ruleNodes.length) {
+          context.lastRule = true;
       }
+
+      bool currentLastRule = context.lastRule;
+      if (isRulesetLikeNode(rule)) context.lastRule = false;
 
       if (rule is Node) {
         rule.genCSS(context, output);
@@ -555,6 +559,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         output.add(rule.value.toString());
       }
 
+      context.lastRule = currentLastRule;
       if (!context.lastRule) {
         output.add(context.compress ? '' : '\n$tabRuleStr');
       } else {
@@ -567,146 +572,132 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       context.tabLevel--;
     }
 
-    sep = (context.compress ? '' : '\n') + (this.root ? tabRuleStr : tabSetStr);
-    rulesetNodeCnt = rulesetNodes.length;
-    if (rulesetNodeCnt > 0) {
-      if (ruleNodes.length > 0 && sep.isNotEmpty) output.add(sep);
-      rulesetNodes[0].genCSS(context, output);
-      for (i = 1; i < rulesetNodeCnt; i++) {
-        if (sep.isNotEmpty) output.add(sep);
-        rulesetNodes[i].genCSS(context, output);
-      }
-    }
-
     if (!output.isEmpty && !context.compress && this.firstRoot) output.add('\n');
 
-//2.3.1
-//    Ruleset.prototype.genCSS = function (context, output) {
-//        var i, j,
-//            charsetRuleNodes = [],
-//            ruleNodes = [],
-//            rulesetNodes = [],
-//            rulesetNodeCnt,
-//            debugInfo,     // Line number debugging
-//            rule,
-//            path;
+//2.4.0 20150321
+//  Ruleset.prototype.genCSS = function (context, output) {
+//      var i, j,
+//          charsetRuleNodes = [],
+//          ruleNodes = [],
+//          debugInfo,     // Line number debugging
+//          rule,
+//          path;
 //
-//        context.tabLevel = (context.tabLevel || 0);
+//      context.tabLevel = (context.tabLevel || 0);
 //
-//        if (!this.root) {
-//            context.tabLevel++;
-//        }
+//      if (!this.root) {
+//          context.tabLevel++;
+//      }
 //
-//        var tabRuleStr = context.compress ? '' : Array(context.tabLevel + 1).join("  "),
-//            tabSetStr = context.compress ? '' : Array(context.tabLevel).join("  "),
-//            sep;
+//      var tabRuleStr = context.compress ? '' : Array(context.tabLevel + 1).join("  "),
+//          tabSetStr = context.compress ? '' : Array(context.tabLevel).join("  "),
+//          sep;
 //
-//        function isRulesetLikeNode(rule, root) {
-//             // if it has nested rules, then it should be treated like a ruleset
-//             // medias and comments do not have nested rules, but should be treated like rulesets anyway
-//             // some directives and anonymous nodes are ruleset like, others are not
-//             if (typeof rule.isRulesetLike === "boolean")
-//             {
-//                 return rule.isRulesetLike;
-//             } else if (typeof rule.isRulesetLike === "function")
-//             {
-//                 return rule.isRulesetLike(root);
-//             }
+//      function isRulesetLikeNode(rule) {
+//          // if it has nested rules, then it should be treated like a ruleset
+//          // medias and comments do not have nested rules, but should be treated like rulesets anyway
+//          // some directives and anonymous nodes are ruleset like, others are not
+//          if (typeof rule.isRulesetLike === "boolean") {
+//              return rule.isRulesetLike;
+//          } else if (typeof rule.isRulesetLike === "function") {
+//              return rule.isRulesetLike();
+//          }
 //
-//             //anything else is assumed to be a rule
-//             return false;
-//        }
+//          //anything else is assumed to be a rule
+//          return false;
+//      }
 //
-//        for (i = 0; i < this.rules.length; i++) {
-//            rule = this.rules[i];
-//            if (isRulesetLikeNode(rule, this.root)) {
-//                rulesetNodes.push(rule);
-//            } else {
-//                //charsets should float on top of everything
-//                if (rule.isCharset && rule.isCharset()) {
-//                    charsetRuleNodes.push(rule);
-//                } else {
-//                    ruleNodes.push(rule);
-//                }
-//            }
-//        }
-//        ruleNodes = charsetRuleNodes.concat(ruleNodes);
+//      var charsetNodeIndex = 0;
+//      var importNodeIndex = 0;
+//      for (i = 0; i < this.rules.length; i++) {
+//          rule = this.rules[i];
+//          if (rule.type === "Comment") {
+//              if (importNodeIndex === i) {
+//                  importNodeIndex++;
+//              }
+//              ruleNodes.push(rule);
+//          } else if (rule.isCharset && rule.isCharset()) {
+//              ruleNodes.splice(charsetNodeIndex, 0, rule);
+//              charsetNodeIndex++;
+//              importNodeIndex++;
+//          } else if (rule.type === "Import") {
+//              ruleNodes.splice(importNodeIndex, 0, rule);
+//              importNodeIndex++;
+//          } else {
+//              ruleNodes.push(rule);
+//          }
+//      }
+//      ruleNodes = charsetRuleNodes.concat(ruleNodes);
 //
-//        // If this is the root node, we don't render
-//        // a selector, or {}.
-//        if (!this.root) {
-//            debugInfo = getDebugInfo(context, this, tabSetStr);
+//      // If this is the root node, we don't render
+//      // a selector, or {}.
+//      if (!this.root) {
+//          debugInfo = getDebugInfo(context, this, tabSetStr);
 //
-//            if (debugInfo) {
-//                output.add(debugInfo);
-//                output.add(tabSetStr);
-//            }
+//          if (debugInfo) {
+//              output.add(debugInfo);
+//              output.add(tabSetStr);
+//          }
 //
-//            var paths = this.paths, pathCnt = paths.length,
-//                pathSubCnt;
+//          var paths = this.paths, pathCnt = paths.length,
+//              pathSubCnt;
 //
-//            sep = context.compress ? ',' : (',\n' + tabSetStr);
+//          sep = context.compress ? ',' : (',\n' + tabSetStr);
 //
-//            for (i = 0; i < pathCnt; i++) {
-//                path = paths[i];
-//                if (!(pathSubCnt = path.length)) { continue; }
-//                if (i > 0) { output.add(sep); }
+//          for (i = 0; i < pathCnt; i++) {
+//              path = paths[i];
+//              if (!(pathSubCnt = path.length)) { continue; }
+//              if (i > 0) { output.add(sep); }
 //
-//                context.firstSelector = true;
-//                path[0].genCSS(context, output);
+//              context.firstSelector = true;
+//              path[0].genCSS(context, output);
 //
-//                context.firstSelector = false;
-//                for (j = 1; j < pathSubCnt; j++) {
-//                    path[j].genCSS(context, output);
-//                }
-//            }
+//              context.firstSelector = false;
+//              for (j = 1; j < pathSubCnt; j++) {
+//                  path[j].genCSS(context, output);
+//              }
+//          }
 //
-//            output.add((context.compress ? '{' : ' {\n') + tabRuleStr);
-//        }
+//          output.add((context.compress ? '{' : ' {\n') + tabRuleStr);
+//      }
 //
-//        // Compile rules and rulesets
-//        for (i = 0; i < ruleNodes.length; i++) {
-//            rule = ruleNodes[i];
+//      // Compile rules and rulesets
+//      for (i = 0; i < ruleNodes.length; i++) {
+//          rule = ruleNodes[i];
 //
-//            // @page{ directive ends up with root elements inside it, a mix of rules and rulesets
-//            // In this instance we do not know whether it is the last property
-//            if (i + 1 === ruleNodes.length && (!this.root || rulesetNodes.length === 0 || this.firstRoot)) {
-//                context.lastRule = true;
-//            }
+//          if (i + 1 === ruleNodes.length) {
+//              context.lastRule = true;
+//          }
 //
-//            if (rule.genCSS) {
-//                rule.genCSS(context, output);
-//            } else if (rule.value) {
-//                output.add(rule.value.toString());
-//            }
+//          var currentLastRule = context.lastRule;
+//          if (isRulesetLikeNode(rule)) {
+//              context.lastRule = false;
+//          }
 //
-//            if (!context.lastRule) {
-//                output.add(context.compress ? '' : ('\n' + tabRuleStr));
-//            } else {
-//                context.lastRule = false;
-//            }
-//        }
+//          if (rule.genCSS) {
+//              rule.genCSS(context, output);
+//          } else if (rule.value) {
+//              output.add(rule.value.toString());
+//          }
 //
-//        if (!this.root) {
-//            output.add((context.compress ? '}' : '\n' + tabSetStr + '}'));
-//            context.tabLevel--;
-//        }
+//          context.lastRule = currentLastRule;
 //
-//        sep = (context.compress ? "" : "\n") + (this.root ? tabRuleStr : tabSetStr);
-//        rulesetNodeCnt = rulesetNodes.length;
-//        if (rulesetNodeCnt) {
-//            if (ruleNodes.length && sep) { output.add(sep); }
-//            rulesetNodes[0].genCSS(context, output);
-//            for (i = 1; i < rulesetNodeCnt; i++) {
-//                if (sep) { output.add(sep); }
-//                rulesetNodes[i].genCSS(context, output);
-//            }
-//        }
+//          if (!context.lastRule) {
+//              output.add(context.compress ? '' : ('\n' + tabRuleStr));
+//          } else {
+//              context.lastRule = false;
+//          }
+//      }
 //
-//        if (!output.isEmpty() && !context.compress && this.firstRoot) {
-//            output.add('\n');
-//        }
-//    };
+//      if (!this.root) {
+//          output.add((context.compress ? '}' : '\n' + tabSetStr + '}'));
+//          context.tabLevel--;
+//      }
+//
+//      if (!output.isEmpty() && !context.compress && this.firstRoot) {
+//          output.add('\n');
+//      }
+//  };
   }
 
   //--- MarkReferencedNode

@@ -1,4 +1,4 @@
-// source: lib/less/functions/color.js 2.4.0
+// source: lib/less/functions/color.js 2.4.0 20150315
 
 part of functions.less;
 
@@ -418,33 +418,45 @@ class ColorFunctions extends FunctionBase {
   /// Parameters:
   ///   color: A color object.
   ///   amount: A percentage 0-100%.
+  ///   method: Optional, set to relative for the adjustment to be relative to the current value.
   ///   Returns: color
   /// Example: saturate(hsl(90, 80%, 50%), 20%)
   ///   Output: #80ff00 // hsl(90, 100%, 50%)
   ///
-  Color saturate(color, [Dimension amount]) {
+  Color saturate(color, [Dimension amount, Keyword method]) {
     // filter: saturate(3.2);
     // should be kept as is, so check for color
     if (color is! Color) return null;
 
     HSLType hsl = color.toHSL();
 
-    hsl.s += amount.value / 100;
+    if (method != null && method.value == 'relative') {
+      hsl.s +=  hsl.s * amount.value / 100;
+    } else {
+      hsl.s += amount.value / 100;
+    }
+
     hsl.s = clamp(hsl.s);
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
-//    saturate: function (color, amount) {
-//        // filter: saturate(3.2);
-//        // should be kept as is, so check for color
-//        if (!color.rgb) {
-//            return null;
-//        }
-//        var hsl = color.toHSL();
+//2.4.0 20150315
+//  saturate: function (color, amount, method) {
+//      // filter: saturate(3.2);
+//      // should be kept as is, so check for color
+//      if (!color.rgb) {
+//          return null;
+//      }
+//      var hsl = color.toHSL();
 //
-//        hsl.s += amount.value / 100;
-//        hsl.s = clamp(hsl.s);
-//        return hsla(hsl);
-//    }
+//      if (typeof method !== "undefined" && method.value === "relative") {
+//          hsl.s +=  hsl.s * amount.value / 100;
+//      }
+//      else {
+//          hsl.s += amount.value / 100;
+//      }
+//      hsl.s = clamp(hsl.s);
+//      return hsla(hsl);
+//  },
   }
 
   ///
@@ -453,24 +465,35 @@ class ColorFunctions extends FunctionBase {
   /// Parameters:
   ///   color: A color object.
   ///   amount: A percentage 0-100%.
+  ///   method: Optional, set to relative for the adjustment to be relative to the current value.
   ///   Returns: color
   /// Example: desaturate(hsl(90, 80%, 50%), 20%)
   ///   Output: #80cc33 // hsl(90, 60%, 50%)
   ///
-  Color desaturate(Color color, Dimension amount) {
+  Color desaturate(Color color, Dimension amount, [Keyword method]) {
     HSLType hsl = color.toHSL();
 
-    hsl.s -= amount.value / 100;
+    if (method != null && method.value == 'relative') {
+      hsl.s -=  hsl.s * amount.value / 100;
+    } else {
+      hsl.s -= amount.value / 100;
+    }
     hsl.s = clamp(hsl.s);
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
-//    desaturate: function (color, amount) {
-//        var hsl = color.toHSL();
+//2.4.0 20150315
+//  desaturate: function (color, amount, method) {
+//      var hsl = color.toHSL();
 //
-//        hsl.s -= amount.value / 100;
-//        hsl.s = clamp(hsl.s);
-//        return hsla(hsl);
-//    }
+//      if (typeof method !== "undefined" && method.value === "relative") {
+//          hsl.s -=  hsl.s * amount.value / 100;
+//      }
+//      else {
+//          hsl.s -= amount.value / 100;
+//      }
+//      hsl.s = clamp(hsl.s);
+//      return hsla(hsl);
+//  },
   }
 
   ///
@@ -479,24 +502,35 @@ class ColorFunctions extends FunctionBase {
   /// Parameters:
   ///   color: A color object.
   ///   amount: A percentage 0-100%.
+  ///   method: Optional, set to relative for the adjustment to be relative to the current value.
   ///   Returns: color
   /// Example: lighten(hsl(90, 80%, 50%), 20%)
   ///   Output: #b3f075 // hsl(90, 80%, 70%)
   ///
-  Color lighten(Color color, Dimension amount) {
+  Color lighten(Color color, Dimension amount, [Keyword method]) {
     HSLType hsl = color.toHSL();
 
-    hsl.l += amount.value / 100;
+    if (method != null && method.value == 'relative') {
+      hsl.l +=  hsl.l * amount.value / 100;
+    } else {
+      hsl.l += amount.value / 100;
+    }
     hsl.l = clamp(hsl.l);
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
-//    lighten: function (color, amount) {
-//        var hsl = color.toHSL();
+//2.4.0 20150315
+//  lighten: function (color, amount, method) {
+//      var hsl = color.toHSL();
 //
-//        hsl.l += amount.value / 100;
-//        hsl.l = clamp(hsl.l);
-//        return hsla(hsl);
-//    }
+//      if (typeof method !== "undefined" && method.value === "relative") {
+//          hsl.l +=  hsl.l * amount.value / 100;
+//      }
+//      else {
+//          hsl.l += amount.value / 100;
+//      }
+//      hsl.l = clamp(hsl.l);
+//      return hsla(hsl);
+//  },
   }
 
   ///
@@ -505,24 +539,35 @@ class ColorFunctions extends FunctionBase {
   /// Parameters:
   ///   color: A color object.
   ///   amount: A percentage 0-100%.
+  ///   method: Optional, set to relative for the adjustment to be relative to the current value.
   ///   Returns: color
   /// Example: darken(hsl(90, 80%, 50%), 20%)
   ///   Output: #4d8a0f // hsl(90, 80%, 30%)
   ///
-  Color darken(Color color, Dimension amount) {
+  Color darken(Color color, Dimension amount, [Keyword method]) {
     HSLType hsl = color.toHSL();
 
-    hsl.l -= amount.value / 100;
+    if (method != null && method.value == 'relative') {
+      hsl.l -=  hsl.l * amount.value / 100;
+    } else {
+      hsl.l -= amount.value / 100;
+    }
     hsl.l = clamp(hsl.l);
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
-//    darken: function (color, amount) {
-//        var hsl = color.toHSL();
+//2.4.0 20150315
+//  darken: function (color, amount, method) {
+//      var hsl = color.toHSL();
 //
-//        hsl.l -= amount.value / 100;
-//        hsl.l = clamp(hsl.l);
-//        return hsla(hsl);
-//    }
+//      if (typeof method !== "undefined" && method.value === "relative") {
+//          hsl.l -=  hsl.l * amount.value / 100;
+//      }
+//      else {
+//          hsl.l -= amount.value / 100;
+//      }
+//      hsl.l = clamp(hsl.l);
+//      return hsla(hsl);
+//  },
   }
 
   ///
@@ -531,24 +576,35 @@ class ColorFunctions extends FunctionBase {
   /// Parameters:
   ///   color: A color object.
   ///   amount: A percentage 0-100%.
+  ///   method: Optional, set to relative for the adjustment to be relative to the current value.
   ///   Returns: color
   /// Example: fadein(hsla(90, 90%, 50%, 0.5), 10%)
   ///   Output: rgba(128, 242, 13, 0.6) // hsla(90, 90%, 50%, 0.6)
   ///
-  Color fadein(Color color, Dimension amount) {
+  Color fadein(Color color, Dimension amount, [Keyword method]) {
     HSLType hsl = color.toHSL();
 
-    hsl.a += amount.value / 100;
+    if (method != null && method.value == 'relative') {
+      hsl.a +=  hsl.a * amount.value / 100;
+    } else {
+      hsl.a += amount.value / 100;
+    }
     hsl.a = clamp(hsl.a);
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
-//    fadein: function (color, amount) {
-//        var hsl = color.toHSL();
+//2.4.0 20150315
+//  fadein: function (color, amount, method) {
+//      var hsl = color.toHSL();
 //
-//        hsl.a += amount.value / 100;
-//        hsl.a = clamp(hsl.a);
-//        return hsla(hsl);
-//    }
+//      if (typeof method !== "undefined" && method.value === "relative") {
+//          hsl.a +=  hsl.a * amount.value / 100;
+//      }
+//      else {
+//          hsl.a += amount.value / 100;
+//      }
+//      hsl.a = clamp(hsl.a);
+//      return hsla(hsl);
+//  },
   }
 
   ///
@@ -557,24 +613,35 @@ class ColorFunctions extends FunctionBase {
   /// Parameters:
   ///   color: A color object.
   ///   amount: A percentage 0-100%.
+  ///   method: Optional, set to relative for the adjustment to be relative to the current value.
   ///   Returns: color
   /// Example: fadeout(hsla(90, 90%, 50%, 0.5), 10%)
   ///   Output: rgba(128, 242, 13, 0.4) // hsla(90, 90%, 50%, 0.4)
   ///
-  Color fadeout(Color color, Dimension amount) {
+  Color fadeout(Color color, Dimension amount, [Keyword method]) {
     HSLType hsl = color.toHSL();
 
-    hsl.a -= amount.value / 100;
+    if (method != null && method.value == 'relative') {
+      hsl.a -=  hsl.a * amount.value / 100;
+    } else {
+      hsl.a -= amount.value / 100;
+    }
     hsl.a = clamp(hsl.a);
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
-//    fadeout: function (color, amount) {
-//        var hsl = color.toHSL();
+//2.4.0 20150315
+//  fadeout: function (color, amount, method) {
+//      var hsl = color.toHSL();
 //
-//        hsl.a -= amount.value / 100;
-//        hsl.a = clamp(hsl.a);
-//        return hsla(hsl);
-//    }
+//      if (typeof method !== "undefined" && method.value === "relative") {
+//          hsl.a -=  hsl.a * amount.value / 100;
+//      }
+//      else {
+//          hsl.a -= amount.value / 100;
+//      }
+//      hsl.a = clamp(hsl.a);
+//      return hsla(hsl);
+//  },
   }
 
   ///

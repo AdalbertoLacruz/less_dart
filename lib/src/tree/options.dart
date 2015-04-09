@@ -51,6 +51,7 @@ class Options extends Node {
   Options eval(Contexts context){
     if (context.frames.isNotEmpty) {
       (context.frames[0] as VariableMixin).functionRegistry.add(functions);
+      functions = null; //only load once to avoid mixin propagation
     }
     return this;
   }

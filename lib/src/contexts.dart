@@ -1,4 +1,4 @@
-// source: less/contexts.js 2.4.0  TODO pending full revision
+// source: less/contexts.js 2.4.0 20150315  TODO pending full revision
 
 library contexts.less;
 
@@ -217,13 +217,13 @@ class Contexts {
     evalCopyProperties(context, options);
 
     context.frames          = (frames != null) ? frames : [];
-    //this.importantScope = this.importantScope || [];
-
     return context;
 
-//2.2.0
+//2.4.0 20150315
 //  contexts.Eval = function(options, frames) {
 //      copyFromOriginal(options, this, evalCopyProperties);
+//
+//      if (typeof this.paths === "string") { this.paths = [this.paths]; }
 //
 //      this.frames = frames || [];
 //      this.importantScope = this.importantScope || [];

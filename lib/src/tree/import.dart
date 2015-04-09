@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.4.0 20150310 *
+//source: less/tree/import.js 2.4.0 20150321 *
 
 part of tree.less;
 
@@ -76,13 +76,13 @@ class Import extends Node {
 
     if (!isTrue(options.inline) && root != null) root = visitor.visit(root);
 
-//2.4.0 20150310
+//2.4.0 20150320
 //  Import.prototype.accept = function (visitor) {
 //      if (this.features) {
 //          this.features = visitor.visit(this.features);
 //      }
 //      this.path = visitor.visit(this.path);
-//      if (!this.options.inline && this.root) {
+//      if (!this.options.plugin && !this.options.inline && this.root) {
 //          this.root = visitor.visit(this.root);
 //      }
 //  };
@@ -117,24 +117,13 @@ class Import extends Node {
   ///
   /// get the file path to import.
   ///
-  String getPath() {
-    if (path is Quoted) {
-      return path.value;
-    } else if (path is URL) {
-      return path.value.value;
-    }
-    return null;
+  String getPath() => (path is URL) ? path.value.value : path.value;
 
-//2.3.1
+//2.4.0 20150321
 //  Import.prototype.getPath = function () {
-//      if (this.path instanceof Quoted) {
-//          return this.path.value;
-//      } else if (this.path instanceof URL) {
-//          return this.path.value.value;
-//      }
-//      return null;
+//      return (this.path instanceof URL) ?
+//          this.path.value.value : this.path.value;
 //  };
-  }
 
   ///
   bool isVariableImport() {
@@ -237,9 +226,18 @@ class Import extends Node {
       return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
     }
 
-//2.4.0 20150310
+//2.4.0 20150320
 //  Import.prototype.eval = function (context) {
-//      var ruleset, features = this.features && this.features.eval(context);
+//      var ruleset, registry,
+//          features = this.features && this.features.eval(context);
+//
+//      if (this.options.plugin) {
+//          registry = context.frames[0] && context.frames[0].functionRegistry;
+//          if ( registry && this.root && this.root.functions ) {
+//              registry.addMultiple( this.root.functions );
+//          }
+//          return [];
+//      }
 //
 //      if (this.skip) {
 //          if (typeof this.skip === "function") {
