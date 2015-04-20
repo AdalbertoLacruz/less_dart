@@ -135,6 +135,8 @@ class LessOptions {
 
 // ****************** Internal
 
+  bool cleanCss = false; //clean-css optimizations
+
   CleancssOptions cleancssOptions = new CleancssOptions();
 
   String filename = ''; //same as input
@@ -170,7 +172,7 @@ class LessOptions {
   bool fromCommandLine(String line) {
     RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
     Match match;
-    bool result = true;;
+    bool result = true;
 
     List<String> args = line.split(' ');
     args.forEach((arg){
@@ -547,6 +549,7 @@ class LessOptions {
     op.variables          = this.variables;
 
     op.showTreeLevel      = this.showTreeLevel; //debug
+    op.cleanCss           = this.cleanCss;
 
     return op;
   }

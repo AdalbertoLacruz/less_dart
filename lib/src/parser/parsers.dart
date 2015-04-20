@@ -801,7 +801,7 @@ class Parsers {
 
         // prefer to try to parse first if its a variable or we are compressing
         // but always fallback on the other one
-        bool tryValueFirst = !tryAnonymous && (context.compress || isVariable);
+        bool tryValueFirst = !tryAnonymous && (context.compress || isVariable || context.cleanCss);
 
         if (tryValueFirst) value = this.value();
 
@@ -1294,6 +1294,7 @@ class Parsers {
   ///
   /// @options "--flags";
   /// No standard less implementation
+  /// To load a plugin use @plugin, this don't work for that
   ///
   Options options() {
     int index = parserInput.i;
@@ -1330,6 +1331,7 @@ class Parsers {
             parserInput.i = index;
             parserInput.error('missing semi-colon on plugin');
         }
+        if(value.value.contains('clean-css')) context.cleanCss = true; //parser needs this
         return new Options(value, index, fileInfo, isPlugin: true);
       } else {
         parserInput.i = index;

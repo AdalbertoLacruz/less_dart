@@ -310,12 +310,15 @@ Map<int, Config> configFill() {
     //@options and @plugin directives
     220: def('extendedTest/options-strict-math', isExtendedTest: true),
     221: def('extendedTest/options-import', isExtendedTest: true),
-    222: def('extendedTest/options-plugin', isExtendedTest: true)
+    222: def('extendedTest/options-plugin', isExtendedTest: true),
+    //clean-css
+    300: def('cleancss/main', options: ['--clean-css="readable"'], isCleancssTest: true),
+    310: def('colors', isCleancssTest: true)
   };
 }
 
 Config def(name, {List options, String cssName, List<Map> replace,
-  bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
+  bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
   bool isSourcemapTest: false, Function modifyOptions}) {
 
   String baseLess = 'less'; //base directory for less sources
@@ -333,6 +336,10 @@ Config def(name, {List options, String cssName, List<Map> replace,
         {'from': '{404status}', 'to': ''}
       ];
     }
+  } else if (isCleancssTest) {
+    baseCss = 'cleancss';
+    isExtendedTest = true;
+    if (options == null) options = ['--clean-css'];
   }
   String CSSName = cssName == null ? name : cssName;
   return new Config()

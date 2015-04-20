@@ -34,9 +34,10 @@ class PluginLoader {
   ///
   Plugin tryLoadPlugin(String name, String argument) {
     Plugin plugin;
+    String pluginName = installable.containsKey(name) ? name : 'less-plugin-' + name;
 
-    if (installable.containsKey(name)) {
-      plugin = installable[name];
+    if (installable.containsKey(pluginName)) {
+      plugin = installable[pluginName];
       if (compareVersion(plugin.minVersion, LessIndex.version) < 0) {
         logger.log('plugin ${name} requires version ${versionToString(plugin.minVersion)}');
         return null;

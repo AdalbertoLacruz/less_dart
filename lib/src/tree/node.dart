@@ -12,6 +12,8 @@ class Node {
   /// hashCode own or inherited for object compare
   int id;
 
+  bool cleanCss = false; // true optimize with cleanCss inside
+
   FileInfo currentFileInfo;
   bool isRuleset = false; //true in MixinDefinition & Ruleset
   var name;

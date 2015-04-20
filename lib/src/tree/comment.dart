@@ -38,7 +38,7 @@ class Comment extends Node implements MarkReferencedNode {
         && currentFileInfo.reference
         && !isReferenced;
 
-    bool isCompressed = context.compress && value[2] != '!';
+    bool isCompressed = context.compress && (value.length > 2)&& (value[2] != '!');
     return isLineComment || isReference || isCompressed;
 
 //2.2.0

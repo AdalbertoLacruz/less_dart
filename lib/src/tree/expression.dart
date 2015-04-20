@@ -94,7 +94,12 @@ class Expression extends Node {
   void genCSS(Contexts context, Output output) {
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i + 1 < value.length) output.add(' ');
+
+      if (cleanCss) {
+        if (output.last != ')' && i + 1 < value.length) output.add(' ');
+      } else {
+        if (i + 1 < value.length) output.add(' ');
+      }
     }
 
 //2.3.1

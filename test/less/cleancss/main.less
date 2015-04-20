@@ -1,0 +1,44 @@
+/* clean-css optimization tests */
+
+#call {
+  function: add(2, 3);
+}
+#color {
+  color: yellow;
+  transparent: rgba(0, 0, 0, 0);
+  alpha: rgba(20, 20, 20, 0.56);
+  hex6: #456789;
+  hex3: #445566;
+  coral: #ff7f50;
+}
+#dimension {
+  border: 0px;
+  border: 5px;
+  transform: rotate(0deg);
+  transform: rotate(45deg);
+}
+// Directive remove empty block
+@-ms-viewport {
+  
+}
+#expression {
+  background: url('/images/icon-team.svg') 0 0 / contain; //remove after ) space
+  -moz-transform: translate(0, 11em) rotate(-90deg);
+}
+#fonts {
+  font-weight: bold;   //700
+  font-weight: normal; //400
+  font-weight: 700;
+}
+#selectors {
+  // attribute remove quotes
+  input[type = "text"] {
+    color: white;
+  }
+  a[href ^= "http://"]{
+    color:black
+  }
+  p:not ([class *= "lead"]){
+    color:#000
+  }
+}

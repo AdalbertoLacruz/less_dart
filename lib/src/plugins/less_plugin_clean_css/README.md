@@ -1,37 +1,33 @@
-[![NPM version](https://badge.fury.io/js/less-plugin-clean-css.svg)](http://badge.fury.io/js/less-plugin-clean-css) [![Dependencies](https://david-dm.org/less/less-plugin-clean-css.svg)](https://david-dm.org/less/less-plugin-clean-css) [![devDependency Status](https://david-dm.org/less/less-plugin-clean-css/dev-status.svg)](https://david-dm.org/less/less-plugin-clean-css#info=devDependencies) [![optionalDependency Status](https://david-dm.org/less/less-plugin-clean-css/optional-status.svg)](https://david-dm.org/less/less-plugin-clean-css#info=optionalDependencies)
-
 less-plugin-clean-css
 =====================
 
-Compresses the css output from less using clean-css.
+Compresses the css output from less based on clean-css 3.2.0.
 
-## Source & original copyright
+-- Partially implemented --
 
-https://github.com/less/less-plugin-clean-css
+## Usage
 
-## lessc usage
+In the less command line: --clean-css="--options"
 
-```
-npm install -g less-plugin-clean-css
-```
+As directive inside the less code: @plugin "clean-css=options";
 
-and then on the command line,
+## Options
+By now are usable:
 
-```
-lessc file.less --clean-css="--s1 --advanced --compatibility=ie8"
-```
+	--readable			keep line breaks for readability
 
-See [clean-css](https://github.com/jakubpawlowicz/clean-css) for the available command options - the only differences are `advanced` and `rebase` which we default to false, because it is not always entirely safe.
+	--skip-advanced     Disable advanced optimizations (more time demanding or less secure)
 
-## Programmatic usage
 
-```
-var LessPluginCleanCSS = require('less-plugin-clean-css'),
-    cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
-less.render(lessString, { plugins: [cleanCSSPlugin] })
-  .then(
-```
+## Optimizations
+See the working [optimizations](optimizations).
 
-## Browser usage
+## [License](LICENSE)
 
-Browser usage is not supported at this time.
+[Clean-css](https://github.com/jakubpawlowicz/clean-css) is released under the MIT License.
+
+Source & original copyright for [less-plugin-clean-css](https://github.com/less/less-plugin-clean-css).
+
+Copyright (c) 2015 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart implementation.
+
+Licensed under the [Apache License](LICENSE).

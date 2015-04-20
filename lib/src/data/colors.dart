@@ -2,7 +2,7 @@
 
 library colors.less;
 
- const Map<String,String> colors =  const  {
+ const Map<String, String> colors =  const  {
     'aliceblue':'#f0f8ff',
     'antiquewhite':'#faebd7',
     'aqua':'#00ffff',
@@ -56,8 +56,8 @@ library colors.less;
     'ghostwhite':'#f8f8ff',
     'gold':'#ffd700',
     'goldenrod':'#daa520',
-    'gray':'#808080',
     'grey':'#808080',
+    'gray':'#808080',
     'green':'#008000',
     'greenyellow':'#adff2f',
     'honeydew':'#f0fff0',

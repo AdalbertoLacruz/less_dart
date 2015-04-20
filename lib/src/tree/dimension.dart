@@ -63,7 +63,13 @@ class Dimension extends Node implements CompareNode, OperateNode {
       strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
     }
 
-    if (context != null && context.compress) {
+    if (cleanCss) {
+      if (value == 0 && (unit.isLength(context) || unit.isAngle(context))) {
+        output.add(strValue);
+        return;
+      }
+      if (value > 0 && value < 1) strValue = strValue.substring(1);
+    } else if (context != null && context.compress) {
       // Zero values doesn't need a unit
       if (value == 0 && unit.isLength(context)) {
         output.add(strValue);

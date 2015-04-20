@@ -25,10 +25,9 @@ class ParseTree {
     try {
       evaldRoot = new TransformTree().call(root, options);
 
-      if (options.compress) {
-        //TODO
-        //environment.logger.warn("The compress option has been deprecated. We recommend you use a dedicated css minifier, for instance see less-plugin-clean-css.");
-      }
+//      if (options.compress) {
+//        //environment.logger.warn("The compress option has been deprecated. We recommend you use a dedicated css minifier, for instance see less-plugin-clean-css.");
+//      }
 
       toCSSOptions = new Contexts()
                           ..compress = options.compress

@@ -88,11 +88,12 @@ class Call extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
+    String separator = cleanCss ? ',' : ', ';
     output.add(name + '(', currentFileInfo, index);
 
     for (int i = 0; i < args.length; i++){
       args[i].genCSS(context, output);
-      if (i + 1 < args.length) output.add(', ');
+      if (i + 1 < args.length) output.add(separator);
     }
 
     output.add(')');

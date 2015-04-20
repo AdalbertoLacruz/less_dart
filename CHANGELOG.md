@@ -1,3 +1,5 @@
+- clean-css plugin with some optimizations
+
 ## v0.3.0 (2015-04-09)
 
 - Less 2.5.0 code.

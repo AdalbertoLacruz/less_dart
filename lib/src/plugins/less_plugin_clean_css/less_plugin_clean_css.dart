@@ -1,9 +1,14 @@
 library less_plugin_clean_css.plugins.less;
 
 import '../plugins.dart';
+import '../../less_options.dart';
+import '../../environment/environment.dart';
+import '../../tree/tree.dart';
+import '../../visitor/visitor_base.dart';
 
 part 'clean_css_options.dart';
 part 'clean_css_processor.dart';
+part 'clean_css_visitor.dart';
 
 class LessPluginCleanCss extends Plugin {
   CleanCssOptions cleanCssOptions;
@@ -15,6 +20,15 @@ class LessPluginCleanCss extends Plugin {
 
   ///
   install(PluginManager pluginManager) {
+    if (cleanCssOptions == null) setOptions('');
+    lessOptions.cleanCss = true;
+    if (cleanCssOptions.compress) {
+      lessOptions.compress = true;
+    }
+
+    VisitorBase cleanCssVisitor = new CleanCssVisitor(cleanCssOptions);
+    pluginManager.addVisitor(cleanCssVisitor);
+
     Processor cleanCssProcessor = new CleanCssProcessor(cleanCssOptions);
     pluginManager.addPostProcessor(cleanCssProcessor);
 

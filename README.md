@@ -172,7 +172,7 @@ Other way, is to inherit the transformer in your application. Create a file
   - Alternatively you can use 'Custom Functions' (see example in: `test/custom_functions_test.dart`) from your dart program, or your custom transformer.
 - Added option `--banner=bannerfile.txt`.
 - Added directive `@options "--flags";`. Intended to be the first line in a less file/tag, acts globally. This directive let specify individual options in batch processing. Example: `@options "--strict-math=on --strict-units=on --include-path=test/data";`.
-- Modified directive `@plugin "lib";`. lib is the plugin name and must exist as dart code in the plugins directory. By now only `@plugin "less-plugin-advanced-color-functions";` is operative. You could define your custom plugins as indicated above.
+- Modified directive `@plugin "lib";`. lib is the plugin name and must exist as dart code in the plugins directory. By now are operative `@plugin "less-plugin-advanced-color-functions";`  and `@plugin "less-plugin-clean-css"` partially. You could define your custom plugins as indicated above.
 
 
 ## Known issues
@@ -186,7 +186,7 @@ Other way, is to inherit the transformer in your application. Create a file
       
 - Pass the standard tests in windows (no tested in linux).
 
-- cleanCSS (as plugin) not implemented yet.
+- cleanCSS (as plugin) partially implemented.
 
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
 

@@ -1,0 +1,36 @@
+/* clean-css optimization tests */
+#call {
+  function: add(2,3);
+}
+#color {
+  color: #ff0;
+  transparent: transparent;
+  alpha: rgba(20,20,20,.56);
+  hex6: #456789;
+  hex3: #456;
+  coral: coral;
+}
+#dimension {
+  border: 0;
+  border: 5px;
+  transform: rotate(0);
+  transform: rotate(45deg);
+}
+#expression {
+  background: url(/images/icon-team.svg)0 0 / contain;
+  -moz-transform: translate(0,11em)rotate(-90deg);
+}
+#fonts {
+  font-weight: 700;
+  font-weight: 400;
+  font-weight: 700;
+}
+#selectors input[type=text] {
+  color: #fff;
+}
+#selectors a[href^="http://"] {
+  color: #000;
+}
+#selectors p:not ([class*=lead]) {
+  color: #000;
+}

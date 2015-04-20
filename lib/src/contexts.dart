@@ -19,7 +19,7 @@ class Contexts {
   bool chunkInput;
 
   /// options.cleancss
-  //bool cleancss = false;
+  bool cleanCss = false;
 
   /// options.color
   bool color = false;
@@ -196,6 +196,7 @@ class Contexts {
     numPrecision        = options.numPrecision;
     color               = options.color;
     pluginManager       = options.pluginManager;
+    cleanCss            = options.cleanCss;
 
     if (options is Contexts) {
       Contexts context  = options as Contexts;
@@ -249,6 +250,7 @@ class Contexts {
     newctx.pluginManager      = options.pluginManager;
 //    newctx.importantScope     = options.importantScope; // Used to bubble up !important statements. TODO 2.2.0
     newctx.paths              = options.paths;
+    newctx.cleanCss           = options.cleanCss;
     if (options is Contexts) {
       Contexts context  = options as Contexts;
 

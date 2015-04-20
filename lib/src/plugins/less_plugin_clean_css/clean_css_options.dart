@@ -12,6 +12,9 @@ class CleanCssOptions extends PluginOptions {
   /// enables compatibility mode: ie7, ie8 *
   String compatibility = '';
 
+  /// Use -nocompress for false
+  bool compress = true;
+
   /// whether to keep line breaks (default is false)
   bool keepBreaks = false;
 
@@ -27,6 +30,7 @@ class CleanCssOptions extends PluginOptions {
   /// set to false to skip shorthand compacting (default is true unless sourceMap is set when it's false)
   bool shorthandCompacting = true;
 
+
   CleanCssOptions(String cmdOptions) {
     RegExp reName = new RegExp(r'^-+');
     List<String> cleanOptionArgs = cmdOptions.split(' ');
@@ -38,6 +42,8 @@ class CleanCssOptions extends PluginOptions {
       argName = argSplit[0].replaceFirst(reName, '');
 
       switch(argName) {
+        case '': //defaults
+          break;
         case 'keep-line-breaks':
         case 'b':
           keepBreaks = true;
@@ -79,6 +85,9 @@ class CleanCssOptions extends PluginOptions {
           break;
         case 'rounding-precision':
           roundingPrecision = int.parse(argSplit[1]);
+          break;
+        case 'readable':
+          compress = false;
           break;
         default:
           throw new UnsupportedError("unrecognised clean-css option '${argSplit[0]}'");

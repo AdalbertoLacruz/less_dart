@@ -9,7 +9,7 @@ class CleanCssProcessor extends Processor {
   CleanCssProcessor(cleanCssOptions):super(cleanCssOptions);
 
   String process(String input, Map options) {
-      return input.toUpperCase(); //TODO for test
+      return input;
   }
 }
 

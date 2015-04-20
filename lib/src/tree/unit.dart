@@ -114,6 +114,12 @@ class Unit extends Node implements CompareNode {
   }
 
   ///
+  bool isAngle(Contexts context) {
+    RegExp re = new RegExp(r'rad|deg|grad|turn'); //i?
+    return re.hasMatch(toCSS(context));
+  }
+
+  ///
   /// True if numerator & denominator isEmpty
   ///
   bool isEmpty() => numerator.isEmpty && denominator.isEmpty;

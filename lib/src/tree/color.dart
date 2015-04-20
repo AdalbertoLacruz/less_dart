@@ -18,6 +18,7 @@ class Color extends Node implements CompareNode, OperateNode {
   num get g => this.rgb[1];
   num get b => this.rgb[2];
 
+
   ///
   /// The end goal here, is to parse the arguments
   /// into an integer triplet, such as `128, 255, 0`
@@ -101,6 +102,9 @@ class Color extends Node implements CompareNode, OperateNode {
 //  };
   }
 
+  /// Don't use spaces to css
+  bool isCompress(Contexts context) => cleanCss || ((context != null) ? context.compress : false);
+
   ///
   Node eval(env) => this;
 
@@ -141,37 +145,37 @@ class Color extends Node implements CompareNode, OperateNode {
   /// Returns this color as string. Transparent, #rrggbb, #rgb.
   ///
   String toCSS(context) {
+    String color;
+    num alpha = this.fround(context, this.alpha);
+
+    if (cleanCss) {
+      color = toRGB();
+      if (alpha == 0 && color == '#000000') return transparentKeyword;
+      if (alpha == 1) {
+        String key = getColorKey(color);
+        color = tryHex3(color);
+        if (key != null && key.length < color.length) return key;
+      }
+      if (alpha < 1) return toRGBFunction(context);
+      return color;
+    }
+
+    //less standard output
+
     // `value` is set if this color was originally
     // converted from a named color string so we need
     // to respect this and try to output named color too.
     if (value != null) return value;
 
-    bool compress = (context != null) ? context.compress : false;
 
     // If we have some transparency, the only way to represent it
     // is via `rgba`. Otherwise, we use the hex representation,
     // which has better compatibility with older browsers.
     // Values are capped between `0` and `255`, rounded and zero-padded.
-    num alpha = fround(context, this.alpha);
-    if (alpha < 1) {
-      List resultList = rgb.map((c){
-        return clamp(c.round(), 255);
-      }).toList();
-      resultList.add(numToString(clamp(alpha, 1)));
-      return 'rgba(' + resultList.join(',' + (compress ? '' : ' ')) + ')';
-    }
+    if (alpha < 1) return toRGBFunction(context);
 
-    String color = toRGB();
-    if (compress) {
-      List splitcolor = color.split('');
-
-      // Convert color to short format
-      if (splitcolor[1] == splitcolor[2]
-          && splitcolor[3] == splitcolor[4]
-          && splitcolor[5] == splitcolor[6]) {
-        color = '#' + splitcolor[1] + splitcolor[3] + splitcolor[5];
-      }
-    }
+    color = toRGB();
+    if (isCompress(context)) color = tryHex3(color);
     return color;
 
 //2.3.1
@@ -433,6 +437,63 @@ class Color extends Node implements CompareNode, OperateNode {
 //          return (c < 16 ? '0' : '') + c.toString(16);
 //      }).join('');
 //  }
+  }
+
+  ///
+  /// [hex] == '#rrggbb' => '#rgb'
+  /// else return unchanged
+  ///
+  String tryHex3(String hex) {
+    if (hex.length != 7) return hex;
+
+    if ( hex[1] == hex[2]
+      && hex[3] == hex[4]
+      && hex[5] == hex[6]) {
+      return '#' + hex[1] + hex[3] + hex[5];
+    } else {
+      return hex;
+    }
+
+//  List splitcolor = color.split('');
+//
+//  // Convert color to short format
+//  if (splitcolor[1] == splitcolor[2]
+//      && splitcolor[3] == splitcolor[4]
+//      && splitcolor[5] == splitcolor[6]) {
+//    color = '#' + splitcolor[1] + splitcolor[3] + splitcolor[5];
+//  }
+  }
+
+  ///
+  /// => 'rgba(r, g, b, a)'
+  ///
+  String toRGBFunction(Contexts context) {
+    num alpha = fround(context, this.alpha);
+
+    List resultList = rgb.map((c){
+      return clamp(c.round(), 255);
+    }).toList();
+    String alphaStr = numToString(clamp(alpha, 1));
+    resultList.add( cleanCss ? alphaStr.substring(1) : alphaStr); //0.1 -> .1
+    return 'rgba(' + resultList.join(',' + (isCompress(context) ? '' : ' ')) + ')';
+
+//      alpha = this.fround(context, this.alpha);
+//      if (alpha < 1) {
+//          return "rgba(" + this.rgb.map(function (c) {
+//              return clamp(Math.round(c), 255);
+//          }).concat(clamp(alpha, 1))
+//              .join(',' + (compress ? '' : ' ')) + ")";
+//      }
+  }
+
+  ///
+  /// [value] == '#rrggbb' returns the color key
+  ///
+  String getColorKey(String value) {
+    for (String key in colors.keys) {
+      if (colors[key] == value) return key;
+    }
+    return null;
   }
 
   ///
