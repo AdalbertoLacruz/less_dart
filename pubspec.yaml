@@ -1,7 +1,7 @@
 name: less_dart
-version: 0.3.0
+version: 0.3.1
 author: Adalberto Lacruz <adalberto.lacruz@gmail.com>
-description: Native Dart Less compiler/transformer to build .css files from .less files.
+description: Native Dart Less compiler/transformer/compressor for .less files and html style tags to css.
 homepage: https://github.com/AdalbertoLacruz/less_dart
 dependencies:
   barback: '>=0.13.0 <0.16.0'

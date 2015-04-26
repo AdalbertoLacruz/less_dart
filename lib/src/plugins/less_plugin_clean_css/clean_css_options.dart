@@ -12,14 +12,11 @@ class CleanCssOptions extends PluginOptions {
   /// enables compatibility mode: ie7, ie8 *
   String compatibility = '';
 
-  /// Use -nocompress for false
-  bool compress = true;
-
   /// whether to keep line breaks (default is false)
   bool keepBreaks = false;
 
   /// * for keeping all (default), 1 for keeping first one only, 0 for removing all
-  var keepSpecialComments = '*';
+  String keepSpecialComments = '*';
 
   /// set to false to skip URL rebasing
   bool rebase = true;
@@ -49,15 +46,15 @@ class CleanCssOptions extends PluginOptions {
           keepBreaks = true;
           break;
         case 's0':
-          keepSpecialComments = 0;
+          keepSpecialComments = '0';
           break;
         case 's1':
-          keepSpecialComments = 1;
+          keepSpecialComments = '1';
           break;
         case 'keepSpecialComments':
           String specialCommentOption = argSplit[1];
           if (specialCommentOption != '*') {
-            keepSpecialComments = int.parse(specialCommentOption);
+            keepSpecialComments = int.parse(specialCommentOption).toString();
           }
           break;
         // for compatibility - does nothing
@@ -85,9 +82,6 @@ class CleanCssOptions extends PluginOptions {
           break;
         case 'rounding-precision':
           roundingPrecision = int.parse(argSplit[1]);
-          break;
-        case 'readable':
-          compress = false;
           break;
         default:
           throw new UnsupportedError("unrecognised clean-css option '${argSplit[0]}'");

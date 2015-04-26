@@ -12,6 +12,9 @@ class Comment extends Node implements MarkReferencedNode {
 
   final String type ="Comment";
 
+  bool get isImportant => (value.length > 2) && (value.startsWith('/*!'));
+
+  ///
   Comment(String this.value, [bool this.isLineComment = false, int this.index, FileInfo this.currentFileInfo]);
 
   ///

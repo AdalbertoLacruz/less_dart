@@ -40,6 +40,8 @@ class Combinator extends Node {
   /// Writes value in [output]
   ///
   genCSS(Contexts context, Output output) {
+    if (context != null && context.cleanCss) return genCleanCSS(context, output);
+
     String spaceOrEmpty = (isTrue(context.compress) || isTrue(_noSpaceCombinators[value])) ? '' : ' ';
     output.add(spaceOrEmpty + value + spaceOrEmpty);
 
@@ -48,5 +50,10 @@ class Combinator extends Node {
 //      var spaceOrEmpty = (context.compress || _noSpaceCombinators[this.value]) ? '' : ' ';
 //      output.add(spaceOrEmpty + this.value + spaceOrEmpty);
 //  };
+  }
+
+  /// clean-css output
+  genCleanCSS(Contexts context, Output output) {
+    output.add(value);
   }
 }

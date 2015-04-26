@@ -145,22 +145,11 @@ class Color extends Node implements CompareNode, OperateNode {
   /// Returns this color as string. Transparent, #rrggbb, #rgb.
   ///
   String toCSS(context) {
+    if (cleanCss) return toCleanCSS(context);
+
+    bool compress = (context != null) ? context.compress : false;
     String color;
-    num alpha = this.fround(context, this.alpha);
-
-    if (cleanCss) {
-      color = toRGB();
-      if (alpha == 0 && color == '#000000') return transparentKeyword;
-      if (alpha == 1) {
-        String key = getColorKey(color);
-        color = tryHex3(color);
-        if (key != null && key.length < color.length) return key;
-      }
-      if (alpha < 1) return toRGBFunction(context);
-      return color;
-    }
-
-    //less standard output
+    num alpha;
 
     // `value` is set if this color was originally
     // converted from a named color string so we need
@@ -172,10 +161,11 @@ class Color extends Node implements CompareNode, OperateNode {
     // is via `rgba`. Otherwise, we use the hex representation,
     // which has better compatibility with older browsers.
     // Values are capped between `0` and `255`, rounded and zero-padded.
+    alpha = this.fround(context, this.alpha);
     if (alpha < 1) return toRGBFunction(context);
 
     color = toRGB();
-    if (isCompress(context)) color = tryHex3(color);
+    if (compress) color = tryHex3(color);
     return color;
 
 //2.3.1
@@ -216,6 +206,24 @@ class Color extends Node implements CompareNode, OperateNode {
 //  };
   }
 
+  /// clean-css output
+  String toCleanCSS(context) {
+    String color;
+    num alpha = this.fround(context, this.alpha);
+
+    color = toRGB();
+    if (alpha == 0 && color == '#000000') return transparentKeyword;
+    if (alpha == 1) {
+      String key = getColorKey(color);
+      color = tryHex3(color);
+      if (key != null) {
+        if (key.length < color.length) return key;
+        if (key.length == color.length && value != null && key == value) return key;
+      }
+    }
+    if (alpha < 1) return toRGBFunction(context);
+    return color;
+  }
 
 //--- OperateNode
 
@@ -474,7 +482,7 @@ class Color extends Node implements CompareNode, OperateNode {
       return clamp(c.round(), 255);
     }).toList();
     String alphaStr = numToString(clamp(alpha, 1));
-    resultList.add( cleanCss ? alphaStr.substring(1) : alphaStr); //0.1 -> .1
+    resultList.add( cleanCss ? alphaStr.replaceFirst('0.', '.') : alphaStr); //0.1 -> .1
     return 'rgba(' + resultList.join(',' + (isCompress(context) ? '' : ' ')) + ')';
 
 //      alpha = this.fround(context, this.alpha);

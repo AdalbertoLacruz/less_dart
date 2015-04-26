@@ -4,7 +4,7 @@ class TransformerOptions {
   final List<String> entry_points;  // entry_point: web/builder.less - main file to build or [file1.less, ...,fileN.less]
   final String include_path; // include_path: /lib/lessIncludes - variable and mixims files
   final String output;       // output: web/output.css - result file. If '' same as web/input.css
-  final bool cleancss;       // cleancss: true - compress output by using clean-css
+  final String cleancss;     // cleancss: "options" - compress output by using clean-css
   final bool compress;       // compress: true - compress output by removing some whitespaces
 
   final String executable;   // executable: lessc - command to execute lessc  - NOT USED
@@ -12,7 +12,7 @@ class TransformerOptions {
   final List other_flags;    // other options in the command line
   final bool silence;        // Only error messages in log
 
-  TransformerOptions({List<String> this.entry_points, String this.include_path, String this.output, bool this.cleancss, bool this.compress,
+  TransformerOptions({List<String> this.entry_points, String this.include_path, String this.output, String this.cleancss, bool this.compress,
     String this.executable, String this.build_mode, List this.other_flags, bool this.silence});
 
   factory TransformerOptions.parse(Map configuration){
@@ -42,11 +42,17 @@ class TransformerOptions {
       return result;
     }
 
+    String readBoolString(value) {
+      if (value is bool && value) return '';
+      if (value is String) return value;
+      return null;
+    }
+
     return new TransformerOptions (
         entry_points: readEntryPoints(configuration['entry_point'], configuration['entry_points']),
         include_path: config('include_path', ''),
         output: config('output', ''),
-        cleancss: config('cleancss', false),
+        cleancss: readBoolString(configuration['cleancss']),
         compress: config('compress', false),
 
         executable: config('executable', 'lessc'),

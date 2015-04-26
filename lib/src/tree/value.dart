@@ -57,6 +57,8 @@ class Value extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
+    if (context != null && context.cleanCss) return genCleanCSS(context, output);
+
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
       if (i+1 < value.length) output.add((context != null && context.compress) ? ',' : ', ');
@@ -72,5 +74,13 @@ class Value extends Node {
 //          }
 //      }
 //  };
+  }
+
+  ///
+  void genCleanCSS(Contexts context, Output output) {
+    for (int i = 0; i < value.length; i++) {
+      value[i].genCSS(context, output);
+      if (i+1 < value.length) output.add(',');
+    }
   }
 }

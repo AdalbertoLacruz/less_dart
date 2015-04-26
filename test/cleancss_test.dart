@@ -6,9 +6,10 @@ main() {
   Less less = new Less();
 
   args.add('--no-color');
-  args.add('--clean-css');
-  //args.add('--clean-css="readable"');
-  args.add('less/css-3.less');
+
+  args.add('--clean-css="b"');
+  args.add('less/cleancss/main.less');
+
   args.add('result/cleancss.css');
   less.transform(args).then((exitCode){
     stderr.write(less.stderr.toString());

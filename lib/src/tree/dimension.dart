@@ -9,6 +9,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
   double value;
   Unit unit;
 
+  int precision; //cleancss
   final String type = 'Dimension';
 
   ///
@@ -55,6 +56,8 @@ class Dimension extends Node implements CompareNode, OperateNode {
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
     }
 
+    if (cleanCss) return genCleanCSS(context, output);
+
     double value = fround(context, this.value);
     String strValue = numToString(value); //10.0 -> '10'
 
@@ -63,17 +66,11 @@ class Dimension extends Node implements CompareNode, OperateNode {
       strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
     }
 
-    if (cleanCss) {
-      if (value == 0 && (unit.isLength(context) || unit.isAngle(context))) {
-        output.add(strValue);
-        return;
-      }
-      if (value > 0 && value < 1) strValue = strValue.substring(1);
-    } else if (context != null && context.compress) {
+    if (context != null && context.compress) {
       // Zero values doesn't need a unit
       if (value == 0 && unit.isLength(context)) {
         output.add(strValue);
-        return;
+        return null;
       }
 
       // Float values doesn't need a leading zero
@@ -117,7 +114,32 @@ class Dimension extends Node implements CompareNode, OperateNode {
 //  };
   }
 
-//      toCSS: tree.toCSS,
+  /// clean-css output
+  void genCleanCSS(Contexts context, Output output) {
+    double value = fround(context, this.value, precision);
+    String strValue = numToString(value); //10.0 -> '10'
+
+    if (value != 0 && value < 0.000001 && value > -0.000001) {
+      // would be output 1e-6 etc.
+      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+    }
+
+    if (value == 0 && (unit.isLength(context) || unit.isAngle(context))) {
+      output.add(strValue);
+      return;
+    }
+    if (value > 0 && value < 1) strValue = strValue.substring(1); //0.5
+    if (value < 0 && value > -1) strValue = '-' + strValue.substring(2); // -0.5
+
+    output.add(strValue);
+    unit.genCSS(context, output);
+  }
+
+  /// True if unit is [unitString]
+  bool isUnit(String unitString) {
+    if (unit == null) return false;
+    return unit.isUnit(unitString);
+  }
 
 //--- OperateNode
 

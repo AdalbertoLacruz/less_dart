@@ -3,6 +3,7 @@
  * Thanks to juha.komulainen@evident.fi for inspiration and some code
  * (Copyright (c) 2013 Evident Solutions Oy) from package http://pub.dartlang.org/packages/sass
  *
+ * less_dart v 0.3.1  20150423 cleancss options
  * less_dart v 0.2.1  20150321 .html, * ! in entry_points
  * less_dart v 0.2.1  20150317 https://github.com/luisvt - AggregateTransform
  * less_dart v 0.1.4  20150112 'build_mode: dart' as default
@@ -107,7 +108,7 @@ class FileTransformer extends AggregateTransformer {
     List<String> flags = [];
 
     flags.add('--no-color');
-    //if (options.cleancss) flags.add('--clean-css');
+    if (options.cleancss != null) flags.add('--clean-css="${options.cleancss}"');
     if (options.compress) flags.add('--compress');
     if (options.include_path != '') flags.add('--include-path=${options.include_path}');
     if (options.other_flags != null) flags.addAll(options.other_flags);

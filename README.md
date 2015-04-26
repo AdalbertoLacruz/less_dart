@@ -1,4 +1,4 @@
-##Native Dart Less compiler/transformer to build .css files from .less files
+## Native Dart Less compiler/transformer/compressor for .less files and html style tags to css
 
 [Less](http://lesscss.org/)-transformer for [pub-serve](http://pub.dartlang.org/doc/pub-serve.html), [pub-build](http://pub.dartlang.org/doc/pub-build.html) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run.html)
 
@@ -84,6 +84,7 @@ You can also pass options to less_dart if necessary:
           	- or/other.less
           output: /path/to/builded.css
           include_path: /path/to/directory/for/less/includes
+		  cleancss: trur or false or "option1 option2"
           compress: true or false
           build_mode: less, dart or mixed. (dart by default)
           other_flags:
@@ -101,6 +102,12 @@ You can also pass options to less_dart if necessary:
 		If not supplied, or several '.less' are processed, then input file '.less' with extension changed to '.css' is used.
 		
 - include_path - see [Less Documentation include_path](http://lesscss.org/usage/#command-line-usage-include-paths).
+
+- cleancss - Compress/optimize with clean-css plugin.
+	- true: Use default options
+	- "option1 option2..." Specifies options to be used.
+	- See [Plugin Info](lib/src/plugins/less_plugin_clean_css/README.md).
+
 
 - compress - see [Less Documentation compress](http://lesscss.org/usage/#command-line-usage-compress).
 
@@ -186,7 +193,7 @@ Other way, is to inherit the transformer in your application. Create a file
       
 - Pass the standard tests in windows (no tested in linux).
 
-- cleanCSS (as plugin) partially implemented.
+- cleanCSS (as plugin) not fully implemented.
 
 - Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
 

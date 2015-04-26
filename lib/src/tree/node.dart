@@ -118,13 +118,18 @@ class Node {
   ///
   /// Adjust the precision of [value] according to [context].numPrecision.
   /// 8 By default.
+  /// [precision] to forze
   ///
-  num fround(Contexts context, num value) {
+  num fround(Contexts context, num value, [int precision]) {
   if (value is int) return value;
 
   //precision
   //int precision = (context != null) ? getValueOrDefault(context.numPrecision, 8) : null;
-  int precision = (context != null) ? context.numPrecision : null;
+  //int precision = (context != null) ? context.numPrecision : null;
+  if (precision == null || precision == -1) {
+    precision = null;
+    precision = (context != null) ? context.numPrecision : null;
+  }
 
   // add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999....) are properly rounded...
   double result = value + 2e-16;

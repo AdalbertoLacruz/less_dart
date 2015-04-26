@@ -12,6 +12,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   bool allowImports = false;
   bool extendOnEveryPath = false; // used in ExtendFinderVisitor
   bool firstRoot = false;
+  bool keepBreaks = false; // for clean-css keep '\n'
   bool isReferenced = false;
   bool isRuleset = true;
   bool isRulesetLike() => true;
@@ -466,6 +467,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 //  };
   }
 
+  bool isCompress(Contexts context) => context.compress || cleanCss;
+
   ///
   void genCSS(Contexts context, Output output) {
     int i;
@@ -478,8 +481,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     if (firstRoot) context.tabLevel = 0;
     if (!root) context.tabLevel++;
-    String tabRuleStr = context.compress ? '' : '  ' * (context.tabLevel);
-    String tabSetStr = context.compress ? '' : '  ' * (context.tabLevel - 1);
+    String tabRuleStr = isCompress(context) ? '' : '  ' * (context.tabLevel);
+    String tabSetStr = isCompress(context) ? '' : '  ' * (context.tabLevel - 1);
     String sep;
 
     bool isRulesetLikeNode(Node rule) {
@@ -521,7 +524,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       int pathCnt = paths.length;
       int pathSubCnt;
 
-      sep = context.compress ? ',' : ',\n${tabSetStr}';
+      sep = isCompress(context) ? ',' : ',\n${tabSetStr}';
 
       for (i = 0; i < pathCnt; i++) {
         path = paths[i];
@@ -537,7 +540,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         }
       }
 
-      output.add((context.compress ? '{' : ' {\n') + tabRuleStr);
+      output.add((isCompress(context) ? '{' : ' {\n') + tabRuleStr);
     }
 
     // Compile rules and rulesets
@@ -559,18 +562,26 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
       context.lastRule = currentLastRule;
       if (!context.lastRule) {
-        output.add(context.compress ? '' : '\n$tabRuleStr');
+        if(firstRoot && cleanCss && keepBreaks && output.last != '\n') {
+          output.add('\n');
+        } else {
+          output.add(isCompress(context) ? '' : '\n$tabRuleStr');
+        }
       } else {
         context.lastRule = false;
       }
     }
 
     if (!root) {
-      output.add(context.compress ? '}' : '\n$tabSetStr}');
+      if (cleanCss && keepBreaks) {
+        output.add('}\n');
+      } else {
+        output.add(isCompress(context) ? '}' : '\n$tabSetStr}');
+      }
       context.tabLevel--;
     }
 
-    if (!output.isEmpty && !context.compress && firstRoot) output.add('\n');
+    if (!output.isEmpty && !isCompress(context) && firstRoot) output.add('\n');
 
 //2.4.0 20150321
 //  Ruleset.prototype.genCSS = function (context, output) {

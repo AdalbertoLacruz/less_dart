@@ -62,6 +62,8 @@ class Rule extends Node implements MakeImportantNode {
 
   ///
   void genCSS(Contexts context, Output output) {
+    if (cleanCss) return genCleanCSS(context, output);
+
     output.add(name + (context.compress ? ':' : ': '), currentFileInfo, index);
     try {
       if (value != null) value.genCSS(context, output);
@@ -89,6 +91,23 @@ class Rule extends Node implements MakeImportantNode {
 //      }
 //      output.add(this.important + ((this.inline || (context.lastRule && context.compress)) ? "" : ";"), this.currentFileInfo, this.index);
 //  };
+  }
+
+  /// clean-css output
+  void genCleanCSS(Contexts context, Output output) {
+    output.add(name + ':', currentFileInfo, index);
+    try {
+      if (value != null) value.genCSS(context, output);
+    } catch (e) {
+      LessError error = LessError.transform(e,
+          index: index,
+          filename: currentFileInfo.filename,
+          context: context);
+      throw new LessExceptionError(error);
+    }
+    String out = '';
+    if (!inline) out = (context.lastRule) ? '' : ';';
+    output.add(important + out, currentFileInfo, index);
   }
 
   ///

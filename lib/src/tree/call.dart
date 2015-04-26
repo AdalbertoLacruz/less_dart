@@ -88,12 +88,13 @@ class Call extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    String separator = cleanCss ? ',' : ', ';
+    if (cleanCss) return genCleanCSS(context, output);
+
     output.add(name + '(', currentFileInfo, index);
 
     for (int i = 0; i < args.length; i++){
       args[i].genCSS(context, output);
-      if (i + 1 < args.length) output.add(separator);
+      if (i + 1 < args.length) output.add(', ');
     }
 
     output.add(')');
@@ -111,5 +112,17 @@ class Call extends Node {
 //
 //      output.add(")");
 //  };
+  }
+
+  /// clean-css output
+  void genCleanCSS(Contexts context, Output output) {
+    output.add(name + '(', currentFileInfo, index);
+
+    for (int i = 0; i < args.length; i++){
+      args[i].genCSS(context, output);
+      if (i + 1 < args.length) output.add(',');
+    }
+
+    output.add(')');
   }
 }

@@ -191,8 +191,9 @@ class ContentElement {
   String tabCss(){
     StringBuffer resultBuffer = new StringBuffer();
     List<String> lines = css.split('\n');
+    if (lines.last == '') lines.removeLast(); //no empty line
 
-    for(int i = 0; i < lines.length - 1; i++) {
+    for(int i = 0; i < lines.length; i++) {
       resultBuffer.writeln(tabStr2 + lines[i]);
     }
 

@@ -1,7 +1,7 @@
 less-plugin-clean-css
 =====================
 
-Compresses the css output from less based on clean-css 3.2.0.
+Compresses the css output from less based on clean-css 3.2.5.
 
 -- Partially implemented --
 
@@ -14,13 +14,15 @@ As directive inside the less code: @plugin "clean-css=options";
 ## Options
 By now are usable:
 
-	--readable			keep line breaks for readability
-
-	--skip-advanced     Disable advanced optimizations (more time demanding or less secure)
+	-b, --keep-line-breaks      Keep line breaks
+	--s0						Remove all special comments, i.e. /*! comment */
+	--s1						Remove all special comments but the first one
+	--skip-advanced				Disable advanced optimization (more time demanding or less secure)
+	--rounding-precision=[N]	Rounds to `N` decimal places. Defaults to 2. -1 disables rounding.
 
 
 ## Optimizations
-See the working [optimizations](optimizations).
+See the working [optimizations](OPTIMIZATIONS.md).
 
 ## [License](LICENSE)
 

@@ -1,4 +1,4 @@
-/* clean-css optimization tests */
+/*! clean-css optimization tests */
 
 #call {
   function: add(2, 3);
@@ -16,19 +16,33 @@
   border: 5px;
   transform: rotate(0deg);
   transform: rotate(45deg);
+  margin:-0.5em -1em;
+  height: 28.28427125px; // round to 2
 }
-// Directive remove empty block
+/*! Directive remove empty block and comment */
 @-ms-viewport {
   
 }
 #expression {
-  background: url('/images/icon-team.svg') 0 0 / contain; //remove after ) space
+  background: url('/images/icon-team.svg') 0 0 / contain; //! remove after )/ space
   -moz-transform: translate(0, 11em) rotate(-90deg);
 }
 #fonts {
   font-weight: bold;   //700
   font-weight: normal; //400
   font-weight: 700;
+  font: normal small/20px 'Trebuchet MS', Verdana, sans-serif;
+  font: bold small;
+}
+#important {
+  height: 20px ! important;
+}
+#rules {
+  outline: none;
+  outline: none solid 1px;
+  background: none;
+  background: transparent;
+  background: transparent no-repeat;
 }
 #selectors {
   // attribute remove quotes

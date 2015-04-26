@@ -312,8 +312,10 @@ Map<int, Config> configFill() {
     221: def('extendedTest/options-import', isExtendedTest: true),
     222: def('extendedTest/options-plugin', isExtendedTest: true),
     //clean-css
-    300: def('cleancss/main', options: ['--clean-css="readable"'], isCleancssTest: true),
-    310: def('colors', isCleancssTest: true)
+    300: def('cleancss/main', options: ['--clean-css="keep-line-breaks s1"'], isCleancssTest: true),
+    310: def('colors', isCleancssTest: true),
+    311: def('css-3', isCleancssTest: true),
+    312: def('css', isCleancssTest: true)
   };
 }
 

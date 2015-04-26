@@ -31,6 +31,7 @@ class ParseTree {
 
       toCSSOptions = new Contexts()
                           ..compress = options.compress
+                          ..cleanCss = options.cleanCss
                           ..dumpLineNumbers = options.dumpLineNumbers
                           ..strictUnits = options.strictUnits
                           ..numPrecision = 8;

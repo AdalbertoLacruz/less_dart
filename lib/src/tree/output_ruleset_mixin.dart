@@ -6,6 +6,8 @@ part of tree.less;
 class OutputRulesetMixin {
   ///
   void outputRuleset(Contexts context, Output output, List<Node> rules) {
+    if (context.cleanCss) return outputCleanRuleset(context, output, rules);
+
     int ruleCnt = rules.length;
 
     if (context.tabLevel == null) context.tabLevel = 0;
@@ -17,7 +19,7 @@ class OutputRulesetMixin {
       for (int i = 0; i < ruleCnt; i++) rules[i].genCSS(context, output);
       output.add('}');
       context.tabLevel--;
-      return;
+      return null;
     }
 
     // Non-compressed
@@ -69,5 +71,17 @@ class OutputRulesetMixin {
 //
 //      context.tabLevel--;
 //  };
+  }
+  void outputCleanRuleset(Contexts context, Output output, List<Node> rules) {
+    int ruleCnt = rules.length;
+
+    if (context.tabLevel == null) context.tabLevel = 0;
+    context.tabLevel++;
+
+    output.add('{');
+    for (int i = 0; i < ruleCnt; i++) rules[i].genCSS(context, output);
+    output.add('}');
+
+    context.tabLevel--;
   }
 }
