@@ -94,8 +94,8 @@ class CleanCssVisitor extends VisitorBase {
 
   ///
   /// Remove spaces around '!important'
-  /// Change background: none -> background 0 0
-  /// Change background: transparent -> backaground 0 0
+  /// Change background: none; -> background 0 0;
+  /// Change background: transparent; -> backaground 0 0;
   /// Change font-weight: normal -> font-weight:400
   /// Change font-weight: bold -> font-weight: 700
   /// Change outline: none -> outline: 0; (0px)

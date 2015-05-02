@@ -2,5 +2,6 @@ ignore
 packages
 result
 pubspec.lock
+.pub
 .settings
 /.project

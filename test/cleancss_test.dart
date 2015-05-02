@@ -7,7 +7,7 @@ main() {
 
   args.add('--no-color');
 
-  args.add('--clean-css="b"');
+  args.add('--clean-css');
   args.add('less/cleancss/main.less');
 
   args.add('result/cleancss.css');

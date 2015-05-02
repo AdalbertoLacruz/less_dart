@@ -1425,7 +1425,7 @@ class VariableMixin {
   /// Returns a List of MixinDefinition or Ruleset contained in this.rules
   ///
   List<Node> rulesets(){
-    if (this.rules == null) return null;
+    if (this.rules == null) return [];
 
     List<Node> filtRules = [];
     List<Node> rules = this.rules;
@@ -1438,9 +1438,9 @@ class VariableMixin {
 
     return filtRules;
 
-//2.3.1
+//2.5.0 20150426
 //  Ruleset.prototype.rulesets = function () {
-//      if (!this.rules) { return null; }
+//      if (!this.rules) { return []; }
 //
 //      var filtRules = [], rules = this.rules, cnt = rules.length,
 //          i, rule;

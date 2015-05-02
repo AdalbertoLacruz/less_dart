@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 2.5.0
+//source: tree/mixin-definition.js 2.5.0 20150419
 
 part of tree.less;
 
@@ -399,13 +399,13 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
     if (condition != null && !condition.eval(new Contexts.eval(context, frames))) return false;
     return true;
 
-//2.3.1
+//2.5.0 20150419
 //  Definition.prototype.matchCondition = function (args, context) {
 //      if (this.condition && !this.condition.eval(
 //          new contexts.Eval(context,
 //              [this.evalParams(context, /* the parameter variables*/
 //                  new contexts.Eval(context, this.frames ? this.frames.concat(context.frames) : context.frames), args, [])]
-//              .concat(this.frames) // the parent namespace/mixin frames
+//              .concat(this.frames || []) // the parent namespace/mixin frames
 //              .concat(context.frames)))) { // the current environment frames
 //          return false;
 //      }
