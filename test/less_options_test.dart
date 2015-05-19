@@ -1,13 +1,13 @@
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 import '../lib/src/less_options.dart';
 import '../lib/src/logger.dart';
 
 main(){
-  SimpleConfiguration config = new SimpleConfiguration();
-  config.throwOnTestFailures = false;
-  config.stopTestOnExpectFailure = false;
-  unittestConfiguration = config;
+//  SimpleConfiguration config = new SimpleConfiguration();
+//  config.throwOnTestFailures = false;
+//  config.stopTestOnExpectFailure = false;
+//  unittestConfiguration = config;
 
   less_options_test();
 }
@@ -15,6 +15,8 @@ main(){
 less_options_test(){
   group('less_options', (){
     int testCount = 0;
+    int testCases = 52;  // Change this if test are added
+
     bool result;
     LessOptions options;
 
@@ -29,7 +31,8 @@ less_options_test(){
 
     tearDown((){
       testCount++;
-      if(testCount == testCases.length) print('stderr: ${new Logger().stderr.toString()}');
+      //if(testCount == testCases.length) print('stderr: ${new Logger().stderr.toString()}');
+      if(testCount == testCases) print('stderr: ${new Logger().stderr.toString()}');
     });
 
     test('-v', (){

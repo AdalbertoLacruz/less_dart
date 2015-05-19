@@ -9,7 +9,6 @@ class Dimension extends Node implements CompareNode, OperateNode {
   double value;
   Unit unit;
 
-  int precision; //cleancss
   final String type = 'Dimension';
 
   ///
@@ -56,7 +55,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
     }
 
-    if (cleanCss) return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     double value = fround(context, this.value);
     String strValue = numToString(value); //10.0 -> '10'
@@ -116,7 +115,7 @@ class Dimension extends Node implements CompareNode, OperateNode {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    double value = fround(context, this.value, precision);
+    double value = fround(context, this.value, cleanCss.precision);
     String strValue = numToString(value); //10.0 -> '10'
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {

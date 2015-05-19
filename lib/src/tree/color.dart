@@ -103,7 +103,7 @@ class Color extends Node implements CompareNode, OperateNode {
   }
 
   /// Don't use spaces to css
-  bool isCompress(Contexts context) => cleanCss || ((context != null) ? context.compress : false);
+  bool isCompress(Contexts context) => cleanCss != null || ((context != null) ? context.compress : false);
 
   ///
   Node eval(env) => this;
@@ -145,7 +145,7 @@ class Color extends Node implements CompareNode, OperateNode {
   /// Returns this color as string. Transparent, #rrggbb, #rgb.
   ///
   String toCSS(context) {
-    if (cleanCss) return toCleanCSS(context);
+    if (cleanCss != null && cleanCss.compatibility.properties.colors) return toCleanCSS(context);
 
     bool compress = (context != null) ? context.compress : false;
     String color;
@@ -212,7 +212,9 @@ class Color extends Node implements CompareNode, OperateNode {
     num alpha = this.fround(context, this.alpha);
 
     color = toRGB();
-    if (alpha == 0 && color == '#000000') return transparentKeyword;
+    if (cleanCss.compatibility.colors.opacity) {
+      if (alpha == 0 && color == '#000000') return transparentKeyword;
+    }
     if (alpha == 1) {
       String key = getColorKey(color);
       color = tryHex3(color);
@@ -482,7 +484,7 @@ class Color extends Node implements CompareNode, OperateNode {
       return clamp(c.round(), 255);
     }).toList();
     String alphaStr = numToString(clamp(alpha, 1));
-    resultList.add( cleanCss ? alphaStr.replaceFirst('0.', '.') : alphaStr); //0.1 -> .1
+    resultList.add( cleanCss != null ? alphaStr.replaceFirst('0.', '.') : alphaStr); //0.1 -> .1
     return 'rgba(' + resultList.join(',' + (isCompress(context) ? '' : ' ')) + ')';
 
 //      alpha = this.fround(context, this.alpha);

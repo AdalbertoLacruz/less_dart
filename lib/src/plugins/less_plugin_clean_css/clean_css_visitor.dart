@@ -7,6 +7,7 @@ part of less_plugin_clean_css.plugins.less;
 /// In the last phase marks node.cleanCss = true to avoid conflicts with eval().
 ///
 class CleanCssVisitor extends VisitorBase {
+  CleanCssContext cleancsscontext = new CleanCssContext();
   CleanCssOptions cleanCssOptions;
   bool isReplacing = true;
   bool keepOneComment = false;
@@ -17,8 +18,12 @@ class CleanCssVisitor extends VisitorBase {
   CleanCssVisitor(this.cleanCssOptions) {
     lessOptions = new Environment().options;
     _visitor = new Visitor(this);
+
     if (cleanCssOptions.keepSpecialComments == '*') keepAllComments = true;
     if (cleanCssOptions.keepSpecialComments == '1') keepOneComment = true;
+
+    cleancsscontext.compatibility = cleanCssOptions.compatibility;
+    Output.separators[')'] = !cleancsscontext.compatibility.properties.spaceAfterClosingBrace;
   }
 
   ///
@@ -31,7 +36,7 @@ class CleanCssVisitor extends VisitorBase {
   /// Example: add(2, 3) => add(2,3)
   ///
   Call visitCall(Call callNode, VisitArgs visitArgs) {
-    callNode.cleanCss = true;
+    callNode.cleanCss = cleancsscontext;
     return callNode;
   }
 
@@ -41,7 +46,7 @@ class CleanCssVisitor extends VisitorBase {
   /// Use color name if shorter, or #rgb if possible
   ///
   Color visitColor(Color colorNode, VisitArgs visitArgs) {
-    colorNode.cleanCss = true;
+    colorNode.cleanCss = cleancsscontext;
     return colorNode;
   }
 
@@ -60,9 +65,9 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove units in 0
   ///
   Dimension visitDimension(Dimension dimensionNode, VisitArgs visitArgs) {
-    dimensionNode.cleanCss = true;
+    dimensionNode.cleanCss = new CleanCssContext();;
     if (dimensionNode.isUnit('px')) {
-      dimensionNode.precision = cleanCssOptions.roundingPrecision;
+      dimensionNode.cleanCss.precision = cleanCssOptions.roundingPrecision;
     }
 
     return dimensionNode;
@@ -88,7 +93,7 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove spaces after ')' '/' url() 0 0 / content -> url()0 0 /content
   ///
   Expression visitExpression (Expression expressionNode, VisitArgs visitArgs) {
-    expressionNode.cleanCss = true;
+    expressionNode.cleanCss = cleancsscontext;
     return expressionNode;
   }
 
@@ -104,7 +109,7 @@ class CleanCssVisitor extends VisitorBase {
     Keyword keyword;
     Color color;
 
-    ruleNode.cleanCss = true;
+    ruleNode.cleanCss = cleancsscontext;
 
     // ' ! important'
     if (ruleNode.important.isNotEmpty) {
@@ -161,8 +166,8 @@ class CleanCssVisitor extends VisitorBase {
     Quoted quoted;
     String valueStr;
 
-    rulesetNode.cleanCss = true;
-    rulesetNode.keepBreaks = cleanCssOptions.keepBreaks;
+    rulesetNode.cleanCss = new CleanCssContext();
+    rulesetNode.cleanCss.keepBreaks = cleanCssOptions.keepBreaks;
 
     if (!rulesetNode.root) {
       selectors = rulesetNode.selectors;
@@ -259,7 +264,9 @@ class CleanCssVisitor extends VisitorBase {
     value = value.replaceAll(' (', '(');
     value = value.replaceAll('( ', '(');
     value = value.replaceAll(' )', ')');
-    value = value.replaceAll(') ', ')');
+    if (!cleancsscontext.compatibility.properties.spaceAfterClosingBrace) {
+      value = value.replaceAll(') ', ')');
+    }
     value = value.replaceAll(': ', ':');
     return value;
   }

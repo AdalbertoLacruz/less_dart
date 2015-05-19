@@ -2,10 +2,13 @@ library less_plugin_clean_css.plugins.less;
 
 import '../plugins.dart';
 import '../../less_options.dart';
+import '../../output.dart';
 import '../../environment/environment.dart';
 import '../../tree/tree.dart';
 import '../../visitor/visitor_base.dart';
 
+part 'clean_css_compatibility.dart';
+part 'clean_css_context.dart';
 part 'clean_css_options.dart';
 part 'clean_css_processor.dart';
 part 'clean_css_visitor.dart';

@@ -9,7 +9,7 @@ class Output {
   String last = '';
   String separator;
 
-  Map<String, bool> separators = {
+  static Map<String, bool> separators = {
     '(': true,
     ')': true,
     '/': true,
@@ -47,8 +47,8 @@ class Output {
     this.separator = null;
 
     if (source.isEmpty) return source;
-    if (separators.containsKey(last)) return source;
-    if (separators.containsKey(source[0])) return source;
+    if (separators.containsKey(last) && separators[last]) return source;
+    if (separators.containsKey(source[0]) && separators[source[0]]) return source;
 
     result = separator + s;
     return result;

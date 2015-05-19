@@ -1,4 +1,4 @@
-## v.0.3.1 (2015-04-26)
+## v.0.3.1 (2015-04-19)
 
 - clean-css plugin with some optimizations
 

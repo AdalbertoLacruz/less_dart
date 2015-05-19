@@ -62,7 +62,7 @@ class Rule extends Node implements MakeImportantNode {
 
   ///
   void genCSS(Contexts context, Output output) {
-    if (cleanCss) return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     output.add(name + (context.compress ? ':' : ': '), currentFileInfo, index);
     try {

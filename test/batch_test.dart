@@ -313,6 +313,10 @@ Map<int, Config> configFill() {
     222: def('extendedTest/options-plugin', isExtendedTest: true),
     //clean-css
     300: def('cleancss/main', options: ['--clean-css="keep-line-breaks s1"'], isCleancssTest: true),
+    301: def('cleancss/main-skip-advanced', options: ['--clean-css="skip-advanced"'], isCleancssTest: true),
+    302: def('cleancss/colors-no', options: ['--clean-css="compatibility=*,-properties.colors"'], isCleancssTest: true),
+    303: def('cleancss/main-ie7', options: ['--clean-css="compatibility=ie7"'], isCleancssTest: true),
+    304: def('cleancss/main-ie8', options: ['--clean-css="compatibility=ie8"'], isCleancssTest: true),
     310: def('colors', isCleancssTest: true),
     311: def('css-3', isCleancssTest: true),
     312: def('css', isCleancssTest: true)

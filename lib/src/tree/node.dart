@@ -12,7 +12,7 @@ class Node {
   /// hashCode own or inherited for object compare
   int id;
 
-  bool cleanCss = false; // true optimize with cleanCss inside
+  CleanCssContext cleanCss; // Info to optimize the node with cleanCss
 
   FileInfo currentFileInfo;
   bool isRuleset = false; //true in MixinDefinition & Ruleset

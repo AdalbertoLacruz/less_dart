@@ -12,7 +12,6 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   bool allowImports = false;
   bool extendOnEveryPath = false; // used in ExtendFinderVisitor
   bool firstRoot = false;
-  bool keepBreaks = false; // for clean-css keep '\n'
   bool isReferenced = false;
   bool isRuleset = true;
   bool isRulesetLike() => true;
@@ -467,7 +466,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 //  };
   }
 
-  bool isCompress(Contexts context) => context.compress || cleanCss;
+  bool isCompress(Contexts context) => context.compress || cleanCss != null;
 
   ///
   void genCSS(Contexts context, Output output) {
@@ -562,7 +561,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
       context.lastRule = currentLastRule;
       if (!context.lastRule) {
-        if(firstRoot && cleanCss && keepBreaks && output.last != '\n') {
+        if(firstRoot && cleanCss != null && cleanCss.keepBreaks && output.last != '\n') {
           output.add('\n');
         } else {
           output.add(isCompress(context) ? '' : '\n$tabRuleStr');
@@ -573,7 +572,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     }
 
     if (!root) {
-      if (cleanCss && keepBreaks) {
+      if (cleanCss != null && cleanCss.keepBreaks) {
         output.add('}\n');
       } else {
         output.add(isCompress(context) ? '}' : '\n$tabSetStr}');

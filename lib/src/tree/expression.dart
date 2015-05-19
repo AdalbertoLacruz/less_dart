@@ -92,7 +92,7 @@ class Expression extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    if (cleanCss) return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);

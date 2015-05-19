@@ -14,15 +14,16 @@ As directive inside the less code: @plugin "clean-css=options";
 ## Options
 By now are usable:
 
-	-b, --keep-line-breaks      Keep line breaks
-	--s0						Remove all special comments, i.e. /*! comment */
-	--s1						Remove all special comments but the first one
-	--skip-advanced				Disable advanced optimization (more time demanding or less secure)
-	--rounding-precision=[N]	Rounds to `N` decimal places. Defaults to 2. -1 disables rounding.
+	-b, --keep-line-breaks      	Keep line breaks
+	--s0							Remove all special comments, i.e. /*! comment */
+	--s1							Remove all special comments but the first one
+	--skip-advanced					Disable advanced optimization (more time demanding or less secure)
+	--rounding-precision=[N]		Rounds to `N` decimal places. Defaults to 2. -1 disables rounding.
+	-c, --compatibility [ie7|ie8]   Force compatibility mode
 
 
 ## Optimizations
-See the working [optimizations](OPTIMIZATIONS.md).
+See the implemented [optimizations](OPTIMIZATIONS.md).
 
 ## [License](LICENSE)
 

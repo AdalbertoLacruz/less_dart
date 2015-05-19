@@ -88,7 +88,7 @@ class Call extends Node {
 
   ///
   void genCSS(Contexts context, Output output) {
-    if (cleanCss) return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     output.add(name + '(', currentFileInfo, index);
 

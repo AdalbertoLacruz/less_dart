@@ -15,6 +15,7 @@ import '../output.dart';
 import '../data/colors.dart';
 import '../data/unit_conversions.dart';
 import '../environment/environment.dart';
+import '../plugins/less_plugin_clean_css/less_plugin_clean_css.dart';
 import '../visitor/visitor_base.dart';
 
 part 'alpha.dart';

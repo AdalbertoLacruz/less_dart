@@ -10,7 +10,7 @@ class CleanCssOptions extends PluginOptions {
   bool aggressiveMerging = true;
 
   /// enables compatibility mode: ie7, ie8 *
-  String compatibility = '';
+  CleanCssCompatibility compatibility;
 
   /// whether to keep line breaks (default is false)
   bool keepBreaks = false;
@@ -33,6 +33,7 @@ class CleanCssOptions extends PluginOptions {
     List<String> cleanOptionArgs = cmdOptions.split(' ');
     List<String> argSplit;
     String argName;
+    String compatibilitySource = '';
 
     for (int i = 0; i < cleanOptionArgs.length; i++) {
       argSplit = cleanOptionArgs[i].split('=');
@@ -57,7 +58,6 @@ class CleanCssOptions extends PluginOptions {
             keepSpecialComments = int.parse(specialCommentOption).toString();
           }
           break;
-        // for compatibility - does nothing
         case 'skip-advanced':
           advanced = false;
           break;
@@ -78,7 +78,7 @@ class CleanCssOptions extends PluginOptions {
           break;
         case 'c':
         case 'compatibility':
-          compatibility = argSplit[1];
+          compatibilitySource = argSplit[1];
           break;
         case 'rounding-precision':
           roundingPrecision = int.parse(argSplit[1]);
@@ -87,6 +87,7 @@ class CleanCssOptions extends PluginOptions {
           throw new UnsupportedError("unrecognised clean-css option '${argSplit[0]}'");
       }
     }
+    compatibility = new CleanCssCompatibility(compatibilitySource);
   }
 }
 

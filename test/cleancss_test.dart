@@ -7,8 +7,9 @@ main() {
 
   args.add('--no-color');
 
-  args.add('--clean-css');
-  args.add('less/cleancss/main.less');
+  //args.add('--clean-css="compatibility=*,-properties.colors"');
+  args.add('--clean-css="compatibility=ie8"');
+  args.add('less/cleancss/main-ie8.less');
 
   args.add('result/cleancss.css');
   less.transform(args).then((exitCode){
