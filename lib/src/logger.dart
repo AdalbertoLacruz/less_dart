@@ -42,6 +42,12 @@ class Logger {
     return cache[id];
   }
 
+  /// remove cache for this id
+  void reset() {
+    int id = Zone.current[#id];
+    cache[id] = null;
+  }
+
   ///
   /// route the messages to capture buffer
   ///

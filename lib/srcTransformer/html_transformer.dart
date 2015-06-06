@@ -82,10 +82,12 @@ class HtmlTransformer extends BaseTransformer{
           errorMessage += element.css + '\n';
           isError = true;
         }
+        less.loggerReset();
         task.complete();
       });
     },
-    zoneValues: {#id: new Random().nextInt(10000)});
+    //zoneValues: {#id: new Random().nextInt(10000)});
+    zoneValues: {#id: GenId.next});
     return task.future;
   }
 

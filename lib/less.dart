@@ -39,6 +39,10 @@ class Less {
     Environment environment = new Environment()..options = _options;
   }
 
+  void loggerReset() {
+    logger.reset();
+  }
+
   ///
   /// Transform a less file to css file.
   ///

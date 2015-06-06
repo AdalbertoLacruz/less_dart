@@ -95,3 +95,9 @@ class RegisterItem {
   int contentHash; //hash to know if content string has changed
   RegisterItem(this.path, this.imports, this.contentHash);
 }
+
+/// Less Id for runZoned
+class GenId {
+  static int k = 1;
+  static get next => k++;
+}

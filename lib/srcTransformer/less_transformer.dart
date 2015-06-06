@@ -40,10 +40,12 @@ class LessTransformer extends BaseTransformer {
           isError = true;
         }
         getMessage();
+        less.loggerReset();
         task.complete(this);
       });
     },
-    zoneValues: {#id: new Random().nextInt(10000)});
+    //zoneValues: {#id: new Random().nextInt(10000)});
+    zoneValues: {#id: GenId.next});
 
     return task.future;
   }
