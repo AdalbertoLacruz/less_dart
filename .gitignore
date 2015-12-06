@@ -2,6 +2,8 @@ ignore
 packages
 result
 pubspec.lock
+.packages
 .pub
 .settings
+.tags1
 /.project

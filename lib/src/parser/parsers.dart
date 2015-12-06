@@ -700,6 +700,17 @@ class Parsers {
     while (true) {
       s = lessSelector();
       if (s == null) break;
+
+      // --polymer-mixin: {}
+      // No standard js implementation
+      if (parserInput.peekChar(':') && s.elements.length == 1) {
+        if (s.elements[0].value is String && s.elements[0].value.startsWith('--')) {
+          s.elements[0].value = s.elements[0].value + ':';
+          parserInput.$char(':'); //move pointer
+        }
+      }
+      // end no standard
+
       if (selectors != null) {
         selectors.add(s);
       } else {
@@ -1292,6 +1303,34 @@ class Parsers {
   }
 
   ///
+  /// @apply(--mixin-name);
+  /// No standard less implementation
+  /// Pass-throught to css to let polymer work
+  ///
+  Apply apply() {
+    int index = parserInput.i;
+    String name;
+    if (parserInput.$re(r'^@apply?\s*') != null) {
+      parserInput.save();
+      if (parserInput.$char('(') != null) {
+        name = parserInput.$re(r'^[0-9A-Za-z-]+');
+        if (name == null) {
+          parserInput.restore("Bad argument");
+          return null;
+        }
+        if (parserInput.$char(')') != null) {
+          parserInput.forget();
+          return new Apply(new Anonymous(name), index, fileInfo);
+        }
+        parserInput.restore("Expected ')'");
+      }
+      parserInput.restore();
+    }
+    return null;
+  }
+
+
+  ///
   /// @options "--flags";
   /// No standard less implementation
   /// To load a plugin use @plugin, this don't work for that
@@ -1389,6 +1428,7 @@ class Parsers {
     value = import();
     if (value == null) value = options();
     if (value == null) value = plugin();
+    if (value == null) value = apply();
     if (value == null) value = media();
     if (value != null) return value;
 

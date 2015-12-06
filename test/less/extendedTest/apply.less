@@ -1,0 +1,10 @@
+@col: red;
+--polymer-mixin: {
+  background-color: @col;
+}
+body {
+  --foo: green;
+  color: var(--foo, red);
+  background-color: blue;
+  @apply(--polymer-mixin);
+}

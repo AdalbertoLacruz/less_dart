@@ -20,6 +20,7 @@ import '../visitor/visitor_base.dart';
 
 part 'alpha.dart';
 part 'anonymous.dart';
+part 'apply.dart';
 part 'assignment.dart';
 part 'attribute.dart';
 part 'call.dart';

@@ -22,6 +22,9 @@ List runOnly;
 /// true runs the test one after one
 bool sync = true;
 
+/// test directory
+String dirPath = 'test/';
+
 /// Write to resultDart.css, resultNode.css and .txt the config[testNumResults].
 /// example: int testNumResults = 16;
 int testNumResults;
@@ -158,10 +161,10 @@ Map<int, Config> configFill() {
 
     // globalVars
     61: def('globalVars/simple',
-        options: ['--global-var=my-color=red', '--banner=banner.txt']),
+        options: ['--global-var=my-color=red', '--banner='+dirPath+'banner.txt']),
     62: def('globalVars/extended',
         options: ['--global-var=the-border=1px', '--global-var=base-color=#111',
-                  '--global-var=red=#842210', '--banner=banner.txt']),
+                  '--global-var=red=#842210', '--banner='+dirPath+'banner.txt']),
 
     // modifyVars
     63: def('modifyVars/extended',
@@ -173,24 +176,24 @@ Map<int, Config> configFill() {
         options: ['--line-numbers=comments'],
         cssName: 'debug/linenumbers-comments',
         replace: [
-          {'from': '{path}', 'to': absPath('less/debug')},
-          {'from': '{pathimport}', 'to': absPath('less/debug/import')}
+          {'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
+          {'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')}
         ]),
     65: def('debug/linenumbers',
         options: ['--line-numbers=mediaquery'],
         cssName: 'debug/linenumbers-mediaquery',
         replace: [
-          {'from': '{pathesc}', 'to': escFile(absPath('less/debug'))},
-          {'from': '{pathimportesc}', 'to': escFile(absPath('less/debug/import'))}
+          {'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
+          {'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
         ]),
     66: def('debug/linenumbers',
         options: ['--line-numbers=all'],
         cssName: 'debug/linenumbers-all',
         replace: [
-          {'from': '{path}', 'to': absPath('less/debug')},
-          {'from': '{pathimport}', 'to': absPath('less/debug/import')},
-          {'from': '{pathesc}', 'to': escFile(absPath('less/debug'))},
-          {'from': '{pathimportesc}', 'to': escFile(absPath('less/debug/import'))}
+          {'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
+          {'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')},
+          {'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
+          {'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
         ]),
 
     67: def('legacy/legacy'),
@@ -215,19 +218,24 @@ Map<int, Config> configFill() {
     //sourcemaps
     85: def('index', isExtendedTest: true,
         isSourcemapTest: true, cssName: 'index-expected',
-        options: ['--source-map=webSourceMap/index.map', '--banner=webSourceMap/banner.txt']),
+        options: ['--source-map=' + dirPath + 'webSourceMap/index.map',
+                  '--banner=' + dirPath + 'webSourceMap/banner.txt']),
     86: def('index-less-inline', isExtendedTest: true,
         isSourcemapTest: true, cssName: 'index-less-inline-expected',
-        options: ['--source-map=webSourceMap/index-less-inline.map', '--source-map-less-inline',
-                  '--banner=webSourceMap/banner.txt']),
+        options: ['--source-map=' + dirPath + 'webSourceMap/index-less-inline.map',
+                  '--source-map-less-inline',
+                  '--banner=' + dirPath + 'webSourceMap/banner.txt']),
     87: def('index-map-inline', isExtendedTest: true,
         isSourcemapTest: true, cssName: 'index-map-inline-expected',
-        options: ['--source-map-map-inline', '--banner=webSourceMap/banner.txt']),
+        options: ['--source-map-map-inline',
+                  '--banner=' + dirPath + 'webSourceMap/banner.txt']),
     88: def('sourcemaps-empty/empty', options: ['--source-map-map-inline']),
 
     //include-path
-    90: def('include-path/include-path', options: ['--include-path=less/import:data']),
-    91: def('include-path-string/include-path-string', options: ['--include-path=data']),
+    90: def('include-path/include-path',
+        options: ['--include-path=' + dirPath + 'less/import:' + dirPath + 'data']),
+    91: def('include-path-string/include-path-string',
+        options: ['--include-path=' + dirPath + 'data']),
 
     //errors
     100: def('errors/add-mixed-units', isErrorTest: true),
@@ -298,12 +306,12 @@ Map<int, Config> configFill() {
     202: def('extendedTest/image-size', isExtendedTest: true),
     //absolute path
     210: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
-        replace: [{'from': '{pathabs}', 'to': absPath('less')}]),
+        replace: [{'from': '{pathabs}', 'to': absPath(dirPath + 'less')}]),
     //sync import
     211: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;}),
     //options.variables
     212: def('globalVars/simple', isExtendedTest: true,
-              options: ['--banner=banner.txt'],
+              options: ['--banner=' + dirPath + 'banner.txt'],
               modifyOptions: (LessOptions options){options.variables = { 'my-color': new Color.fromKeyword('red') };}),
     213: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
               options: ['--plugin=less-plugin-advanced-color-functions']),
@@ -311,6 +319,8 @@ Map<int, Config> configFill() {
     220: def('extendedTest/options-strict-math', isExtendedTest: true),
     221: def('extendedTest/options-import', isExtendedTest: true),
     222: def('extendedTest/options-plugin', isExtendedTest: true),
+    //@apply
+    230: def('extendedTest/apply', isExtendedTest: true),
     //clean-css
     300: def('cleancss/main', options: ['--clean-css="keep-line-breaks s1"'], isCleancssTest: true),
     301: def('cleancss/main-skip-advanced', options: ['--clean-css="skip-advanced"'], isCleancssTest: true),
@@ -327,23 +337,23 @@ Config def(name, {List options, String cssName, List<Map> replace,
   bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
   bool isSourcemapTest: false, Function modifyOptions}) {
 
-  String baseLess = 'less'; //base directory for less sources
-  String baseCss = 'css';   //base directory for css comparation
+  String baseLess = dirPath + 'less'; //base directory for less sources
+  String baseCss  = dirPath + 'css';  //base directory for css comparation
 
   if (isSourcemapTest) {
-    baseLess = 'webSourceMap';
-    baseCss = 'webSourceMap';
+    baseLess = dirPath + 'webSourceMap';
+    baseCss  = dirPath + 'webSourceMap';
   } else if (isErrorTest) {
     if (options == null) options = ['--strict-math=on', '--strict-units=on'];
     if (replace == null) {
       replace = [
-        {'from': '{path}', 'to': path.normalize('less/errors') + path.separator},
+        {'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
         {'from': '{pathhref}', 'to': ''},
         {'from': '{404status}', 'to': ''}
       ];
     }
   } else if (isCleancssTest) {
-    baseCss = 'cleancss';
+    baseCss = dirPath + 'cleancss';
     isExtendedTest = true;
     if (options == null) options = ['--clean-css'];
   }
@@ -351,7 +361,7 @@ Config def(name, {List options, String cssName, List<Map> replace,
   return new Config()
     ..lessFile = path.normalize('${baseLess}/${name}.less')
     ..cssFile = path.normalize('${baseCss}/${CSSName}.css')
-    ..errorFile = path.normalize('less/${name}.txt')
+    ..errorFile = path.normalize(dirPath + 'less/${name}.txt')
     ..options = options
     ..replace = replace
     ..isErrorTest = isErrorTest
@@ -449,11 +459,11 @@ Future testRun(int c) {
         }
 
         if (c == testNumResults) {
-          new File('result/expected.txt')
+          new File(dirPath + 'result/expected.txt')
             ..createSync(recursive: true)
             ..writeAsStringSync(errorContentReplaced);
-          new File('result/result.txt').writeAsStringSync(config[c].stderr);
-          new File('result/result.css').writeAsStringSync(less.stdout.toString());
+          new File(dirPath + 'result/result.txt').writeAsStringSync(config[c].stderr);
+          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
         }
 
         completer.complete();
@@ -468,10 +478,10 @@ Future testRun(int c) {
         }
 
         if (c == testNumResults) {
-          new File('result/expected.css')
+          new File(dirPath + 'result/expected.css')
             ..createSync(recursive: true)
             ..writeAsStringSync(cssGoodReplaced);
-          new File('result/result.css').writeAsStringSync(less.stdout.toString());
+          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
         }
 
         if (less.stdout.toString() == cssGoodReplaced) {
@@ -488,7 +498,7 @@ Future testRun(int c) {
 }
 
 void writeTestResult(int c, String content) {
-  String name = 'result/TestFile${c}.css';
+  String name = dirPath + 'result/TestFile${c}.css';
   new File(name)
     ..createSync(recursive: true)
     ..writeAsStringSync(content);

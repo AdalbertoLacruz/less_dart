@@ -1,3 +1,7 @@
+## v.0.3.3 (2015-12-06)
+
+- Basic support for Custom CSS mixins as used in Polymer 1.0:  `@apply(--mixin-name);`
+
 ## v.0.3.2 (2015-06-06)
 
 - Repair transformer bugs
