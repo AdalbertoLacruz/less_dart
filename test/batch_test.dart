@@ -304,6 +304,7 @@ Map<int, Config> configFill() {
     200: def('extendedTest/svg', isExtendedTest: true),
     201: def('extendedTest/url', isExtendedTest: true),
     202: def('extendedTest/image-size', isExtendedTest: true),
+    203: def('extendedTest/function-rem', isExtendedTest: true),
     //absolute path
     210: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
         replace: [{'from': '{pathabs}', 'to': absPath(dirPath + 'less')}]),

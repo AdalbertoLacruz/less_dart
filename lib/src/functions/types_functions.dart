@@ -292,4 +292,34 @@ class TypesFunctions extends FunctionBase {
 //      return new Dimension(getItemsFromNode(values).length);
 //  }
   }
+
+  ///
+  /// Converts from px, pt or em to rem units
+  ///
+  /// Parameters:
+  ///   number: a number with or without units (px by default).
+  ///   base: (optional) number (16px, 12pt, 1em)
+  ///   Returns: the number converted to em
+  /// Example: rem(16), rem(32px), rem(28pt, 14)
+  ///   Output: 1rem, 2rem, 2rem
+  ///
+  Dimension rem(Node fontSize, [Node baseFont]) {
+    var base = 16; //px
+    if (fontSize is Dimension) {
+      switch (fontSize.unit.toCSS(null)) {
+        case 'px':
+          base = 16;
+          break;
+        case 'pt':
+          base = 12;
+          break;
+        case 'em':
+          base = 1;
+          break;
+        default:
+      }
+    }
+    base = baseFont != null ? baseFont.value : base;
+    return new Dimension(fontSize.value/base, 'rem');
+  }
 }

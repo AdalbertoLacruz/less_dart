@@ -183,7 +183,9 @@ Other way, is to inherit the transformer in your application. Create a file
 - Basic support for Custom CSS mixins as used by Polymer 1.0.
   - `--mixin-name: {...}`
   - `@apply(--mixin-name);`
-
+- function rem to convert from px, pt or em to rem, defined as rem(fontSize, [baseFont]):
+  - `rem(16), rem(16px), rem(12pt), rem(1em), rem(20, 20)`
+  - `1rem, 1rem, 1rem, 1rem, 1rem`
 
 
 ## Known issues
@@ -204,8 +206,8 @@ Other way, is to inherit the transformer in your application. Create a file
 
 ## [License](LICENSE)
 
-Copyright (c) 2009-2015 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
+Copyright (c) 2009-2016 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
 
-Copyright (c) 2014-2015 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
+Copyright (c) 2014-2016 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
 
 Licensed under the [Apache License](LICENSE).

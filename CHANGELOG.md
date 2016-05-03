@@ -1,3 +1,7 @@
+## v.0.3.4 (2016-05-03)
+
+- rem function to convert from px, pt or em
+
 ## v.0.3.3 (2015-12-06)
 
 - Basic support for Custom CSS mixins as used in Polymer 1.0:  `@apply(--mixin-name);`
