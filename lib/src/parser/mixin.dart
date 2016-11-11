@@ -18,6 +18,9 @@ class Mixin {
     this.fileInfo = context.currentFileInfo;
   }
 
+
+  static final _callRegExp = new RegExp(r'^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
+
   ///
   /// A Mixin call, with an optional argument list
   ///
@@ -46,7 +49,7 @@ class Mixin {
 
     while (true) {
       elemIndex = parserInput.i;
-      e = parserInput.$re(r'^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+');
+      e = parserInput.$re(_callRegExp);
       if (e == null) break;
       elem = new Element(c, e, elemIndex, fileInfo);
       if (elements != null) {
@@ -334,6 +337,8 @@ class Mixin {
 //  },
   }
 
+  static final _definitionRegExp = new RegExp(r'^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);
+
   ///
   /// A Mixin definition, with a list of parameters
   ///
@@ -365,7 +370,7 @@ class Mixin {
 
     parserInput.save();
 
-    name = parserInput.$re(r'^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(');
+    name = parserInput.$re(_definitionRegExp);
     if (name != null) {
       MixinReturner argInfo = args(false);
       params = argInfo.args;

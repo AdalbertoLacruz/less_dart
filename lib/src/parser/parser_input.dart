@@ -128,15 +128,34 @@ class ParserInput {
   /// [caseSensitive] true by default. false correspond to 'i'.
   /// [index] if match returns m[index]
   ///
-  $re(tok, [bool caseSensitive = true, int index]) {
-    List<String> resultList = [];
-    RegExp reg;
-
-    if (tok is String) {
-      reg = new RegExp(tok, caseSensitive: caseSensitive);
-    } else {
-      reg = tok;
+  $reStr(String tok, [bool caseSensitive = true, int index]) {
+    return $re(new RegExp(tok, caseSensitive: caseSensitive), index);
+  }
+  ///
+  /// Specialization of $(tok).
+  /// Parse from a RegExp and returns String or List<String> with the match.
+  ///
+  /// [tok] is String to search. Could be RegExp
+  /// [caseSensitive] true by default. false correspond to 'i'.
+  /// [index] if match returns m[index]
+  ///
+  $reAny(tok, [bool caseSensitive = true, int index]) {
+    if (tok is String){
+      return $reStr(tok, caseSensitive, index);
     }
+    return $re(tok, index);
+  }
+
+  ///
+  /// Specialization of $(tok).
+  /// Parse from a RegExp and returns String or List<String> with the match.
+  ///
+  /// [tok] is String to search. Could be RegExp
+  /// [caseSensitive] true by default. false correspond to 'i'.
+  /// [index] if match returns m[index]
+  ///
+  $re(RegExp reg, [int index]) {
+    List<String> resultList = [];
 
     if (i > currentPos) {
       current = current.substring(i - currentPos);
@@ -175,6 +194,10 @@ class ParserInput {
 //          return m.length === 1 ? m[0] : m;
 //      }
 
+  Match $reMatch(String tok, [bool caseSensitive = true]) {
+    RegExp reg = new RegExp(tok, caseSensitive: caseSensitive);
+    return $reMatchRegExp(reg);
+  }
   ///
   /// Same as $re, but returns first match.
   /// Parse from a RegExp and returns Match.
@@ -182,8 +205,7 @@ class ParserInput {
   /// [tok] is String to search.
   /// [caseSensitive] true by default. false correspond to 'i'.
   ///
-  Match $reMatch(String tok, [bool caseSensitive = true]) {
-    RegExp reg = new RegExp(tok, caseSensitive: caseSensitive);
+  Match $reMatchRegExp(RegExp reg) {
 
     if (i > currentPos) {
       current = current.substring(i - currentPos);
