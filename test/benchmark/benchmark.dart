@@ -5,19 +5,21 @@ import 'package:path/path.dart' as path;
 import 'vm_common.dart';
 
 main() async{
-  Less less = new Less();
-  var sampleFile1 = "benchmark/big1.less";
-  var content = readSampleFile(sampleFile1);
-//  for (var i = 0; i < 10 ; i++)
-  {
-    DateTime start = new DateTime.now();
+  final Less less = new Less();
+  final sampleFile1 = "benchmark/big1.less";
+  final content = readSampleFile(sampleFile1);
+
+  const N = 1;
+  for (var i = 0; i < N; i++) {
+    final stopwatch = new Stopwatch()..start();
     await less.parseLessFile(content);
-    String newContent = less.stdout.toString();
-      print("Time:${new DateTime.now().difference(start).inMilliseconds}");
-//    print("new content: $newContent");
-    print("error: ${less.stderr.toString()}");
+    print("Time: ${stopwatch.elapsedMilliseconds}");
+    if (less.stderr.isNotEmpty){
+      print("error: ${less.stderr}");
       print("----------------------");
+    }
   }
+
 //  mainJs();
 }
 
