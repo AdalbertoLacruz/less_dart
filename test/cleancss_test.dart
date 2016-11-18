@@ -1,20 +1,20 @@
 import 'dart:io';
 import 'package:less_dart/less.dart';
 
+import 'package:test/test.dart';
+
 main() {
-  List<String> args = [];
-  Less less = new Less();
-
-  args.add('--no-color');
-
-  //args.add('--clean-css="compatibility=*,-properties.colors"');
-  args.add('--clean-css="compatibility=ie8"');
-  args.add('less/cleancss/main-ie8.less');
-
-  args.add('result/cleancss.css');
-  less.transform(args).then((exitCode){
-    stderr.write(less.stderr.toString());
-    stdout.writeln('\nstdout:');
-    stdout.write(less.stdout.toString());
+  test('Transform test/less/cleancss/main-ie8.less with --clean-css', () async {
+    final Less less = new Less();
+    final exitCode = await less.transform([
+      '--no-color',
+      '--clean-css="compatibility=ie8"',
+      'test/less/cleancss/main-ie8.less',
+    ]);
+    if (exitCode != 0) {
+      stderr.write(less.stderr.toString());
+      stdout.write(less.stdout.toString());
+    }
+    expect(exitCode, 0);
   });
 }

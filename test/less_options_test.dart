@@ -3,6 +3,8 @@ import 'package:test/test.dart';
 import '../lib/src/less_options.dart';
 import '../lib/src/logger.dart';
 
+import 'dart:io';
+
 main(){
 //  SimpleConfiguration config = new SimpleConfiguration();
 //  config.throwOnTestFailures = false;
@@ -14,9 +16,6 @@ main(){
 
 less_options_test(){
   group('less_options', (){
-    int testCount = 0;
-    int testCases = 52;  // Change this if test are added
-
     bool result;
     LessOptions options;
 
@@ -27,12 +26,6 @@ less_options_test(){
 
     setUp((){
       options = new LessOptions();
-    });
-
-    tearDown((){
-      testCount++;
-      //if(testCount == testCases.length) print('stderr: ${new Logger().stderr.toString()}');
-      if(testCount == testCases) print('stderr: ${new Logger().stderr.toString()}');
     });
 
     test('-v', (){
@@ -146,7 +139,8 @@ less_options_test(){
     });
 
     test('-include-path', (){
-      result = options.parse(getArgument('-include-path=lib/lessIncludes;lib/otherIncludes'));
+      final sep = Platform.isWindows ? ';' : ':';
+      result = options.parse(getArgument('-include-path=lib/lessIncludes${sep}lib/otherIncludes'));
       expect(result, true);
       expect(options.paths, contains('lib/otherIncludes'));
 
@@ -330,7 +324,7 @@ less_options_test(){
       expect(result, false);
     });
 
-    test('-url-args no argument', (){
+    test('-url-args no argument', () {
       result = options.parse(getArgument('-url-args'));
       expect(result, false);
     });
