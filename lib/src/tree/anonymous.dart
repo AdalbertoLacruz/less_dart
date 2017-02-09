@@ -47,7 +47,7 @@ class Anonymous extends Node implements CompareNode {
 //      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
 //  };
   }
-  // TODO: implement name
+
   @override
   String get name => null;
 }

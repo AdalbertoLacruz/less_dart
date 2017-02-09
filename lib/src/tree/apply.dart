@@ -22,7 +22,7 @@ class Apply extends Node<Anonymous> {
     value.genCSS(context, output);
     output.add(');');
   }
-  // TODO: implement name
+
   @override
   String get name => null;
 }

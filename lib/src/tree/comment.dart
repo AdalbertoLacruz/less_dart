@@ -60,7 +60,7 @@ class Comment extends Node<String> implements MarkReferencedNode {
   void markReferenced() {
     isReferenced = true;
   }
-  // TODO: implement name
+
   @override
   String get name => null;
 }
