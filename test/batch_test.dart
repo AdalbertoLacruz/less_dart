@@ -3,8 +3,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
+import 'package:test/test.dart';
 
 import '../lib/less.dart';
+
 
 Map<int, Config> config;
 String errorTests;
@@ -19,9 +21,6 @@ Stopwatch timeInProcess;
 /// runOnly = [1, 2]; only run test 1 and 2
 List runOnly;
 
-/// true runs the test one after one
-bool sync = true;
-
 /// test directory
 String dirPath = 'test/';
 
@@ -33,64 +32,30 @@ bool useExtendedTest = true;
 
 main() {
   config = configFill();
-  timeInProcess = new Stopwatch()..start();
 
-  if (sync) {
-    runSync();
-  } else {
-    runAsync();
-  }
+  group('simple', () {
+    for (int id in config.keys) {
+      if (!config[id].isExtendedText) {
+        declareTest(id);
+      }
+    }
+  });
+
+  group('extended', () {
+    for (int id in config.keys) {
+      if (config[id].isExtendedText) {
+        declareTest(id);
+      }
+    }
+  });
 }
 
- runSync() async {
-  for (int c in config.keys) {
-    if (useExtendedTest || !config[c].isExtendedText) {
-      //console needs differentiate each run
-      await runZoned(() async {
-            if (runOnly != null && !runOnly.contains(c)) {
-
-            } else {
-              await testRun(c).then((_){
-                testCount++;
-                printResult(c);
-                if (config[c].pass) passCount++;
-              });
-            }
-          },
-          zoneValues: {#id: c});
-    }
-  }
-  timeInProcess.stop();
-  stdout.writeln('\n${passCount} test pass of ${testCount} in time ${timeInProcess.elapsed}');
-  if (errorTests != null) stdout.writeln(errorTests);
-}
-
-void runAsync() {
-  for (int c in config.keys) {
-    if (useExtendedTest || !config[c].isExtendedText) {
-      //console needs differentiate each run
-      runZoned((){
-        if (runOnly != null && !runOnly.contains(c)){
-
-        } else {
-          run.add(testRun(c));
-        }
-      },
-      zoneValues: {#id: c});
-    }
-  }
-
-  Future.wait(run).whenComplete((){
-    stdout.writeln('TEST RESULTS');
-    for (int c in config.keys) {
-      if (config[c].pass == null)continue;
-      testCount++;
-      printResult(c);
-      if (config[c].pass) passCount++;
-    }
-    timeInProcess.stop();
-    stdout.writeln('\n${passCount} test pass of ${testCount} in time ${timeInProcess.elapsed}');
-    if (errorTests != null) stdout.writeln(errorTests);
+declareTest(int id) {
+  final Config c = config[id];
+  test(c.name, () async {
+    await runZoned(() async {
+      await testRun(id);
+    }, zoneValues: {#id: id});
   });
 }
 
@@ -359,7 +324,7 @@ Config def(name, {List options, String cssName, List<Map> replace,
     if (options == null) options = ['--clean-css'];
   }
   String CSSName = cssName == null ? name : cssName;
-  return new Config()
+  return new Config(name)
     ..lessFile = path.normalize('${baseLess}/${name}.less')
     ..cssFile = path.normalize('${baseCss}/${CSSName}.css')
     ..errorFile = path.normalize(dirPath + 'less/${name}.txt')
@@ -385,16 +350,15 @@ String escFile(String fileName) {
 // c:\CWD\pathName\ or c:/CWD/pathName/
 String absPath(String pathName) => path.normalize(path.absolute(pathName)) + path.separator;
 
-Future testRun(int c) {
+testRun(int c) async {
   List<String> args = [];
-  Completer completer = new Completer();
   String fileError = config[c].errorFile;
   String fileOutputName;
   String fileResult = config[c].cssFile;
   String fileToTest = config[c].lessFile;
   Less less = new Less();
 
-  args.add('-no-color');
+  args.add('--no-color');
   if (config[c].options != null) args.addAll(config[c].options);
 
   if (config[c].isReplaceSource) {
@@ -414,88 +378,46 @@ Future testRun(int c) {
     fileOutputName = path.withoutExtension(config[c].lessFile) + '.css';
     args.add(fileOutputName);
   }
-  less.transform(args, modifyOptions: config[c].modifyOptions).then((exitCode){
-    config[c].stderr = less.stderr.toString();
+  final exitCode = await less.transform(args, modifyOptions: config[c].modifyOptions);
+  config[c].stderr = less.stderr.toString();
 
-    if (exitCode == 3) { // input file error
-      config[c].pass = false;
-      config[c].isErrorTest = false; //force stderr output
-      return completer.complete();
+  expect(exitCode, isNot(equals(3)));
+
+  if (config[c].isSourcemapTest) {
+    String expectedCss = new File(config[c].cssFile).readAsStringSync();
+    String resultCss = new File(fileOutputName).readAsStringSync();
+    expect(resultCss, equals(expectedCss));
+
+    String mapFileName = path.withoutExtension(config[c].lessFile) + '.map';
+    String expectedMapFileName = path.withoutExtension(config[c].cssFile) + '.map';
+    if (new File(mapFileName).existsSync()) {
+      String resultMap = new File(mapFileName).readAsStringSync();
+      String expectedResultMap = new File(expectedMapFileName).readAsStringSync();
+      expect(resultMap, equals(expectedResultMap));
+    }
+  } else if (config[c].isErrorTest) {
+    final errorContent = await new File(fileError).readAsString();
+
+    String errorContentReplaced = errorContent;
+    if (config[c].replace != null ) {
+      for (int i = 0; i < config[c].replace.length; i++) {
+        errorContentReplaced = errorContentReplaced.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
+      }
     }
 
-    if (config[c].isSourcemapTest) {
-      String expectedCss = new File(config[c].cssFile).readAsStringSync();
-      String resultCss = new File(fileOutputName).readAsStringSync();
+    expect(config[c].stderr, equals(errorContentReplaced));
+  } else {
+    final cssGood = await new File(fileResult).readAsString();
 
-      if (resultCss == expectedCss) {
-        config[c].pass = true;
-      } else {
-        config[c].pass = false;
+    String cssGoodReplaced = cssGood;
+    if (config[c].replace != null ) {
+      for (int i = 0; i < config[c].replace.length; i++) {
+        cssGoodReplaced = cssGoodReplaced.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
-      String mapFileName = path.withoutExtension(config[c].lessFile) + '.map';
-      String expectedMapFileName = path.withoutExtension(config[c].cssFile) + '.map';
-      if (new File(mapFileName).existsSync()) {
-        String resultMap = new File(mapFileName).readAsStringSync();
-        new File(expectedMapFileName).readAsString().then((expectedMap){
-          if (resultMap != expectedMap) config[c].pass = false;
-          completer.complete();
-        });
-      } else {
-        completer.complete();
-      }
-    } else if (config[c].isErrorTest) {
-      new File(fileError).readAsString().then((errorContent){
-        String errorContentReplaced = errorContent;
-        if (config[c].replace != null ) {
-          for (int i = 0; i < config[c].replace.length; i++) {
-            errorContentReplaced = errorContentReplaced.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
-          }
-        }
-
-        if (config[c].stderr == errorContentReplaced) {
-          config[c].pass = true;
-        } else {
-          config[c].pass = false;
-          writeTestResult(c, config[c].stderr);
-        }
-
-        if (c == testNumResults) {
-          new File(dirPath + 'result/expected.txt')
-            ..createSync(recursive: true)
-            ..writeAsStringSync(errorContentReplaced);
-          new File(dirPath + 'result/result.txt').writeAsStringSync(config[c].stderr);
-          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
-        }
-
-        completer.complete();
-      });
-    } else {
-      new File(fileResult).readAsString().then((cssGood){
-        String cssGoodReplaced = cssGood;
-        if (config[c].replace != null ) {
-          for (int i = 0; i < config[c].replace.length; i++) {
-            cssGoodReplaced = cssGoodReplaced.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
-          }
-        }
-
-        if (c == testNumResults) {
-          new File(dirPath + 'result/expected.css')
-            ..createSync(recursive: true)
-            ..writeAsStringSync(cssGoodReplaced);
-          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
-        }
-
-        if (less.stdout.toString() == cssGoodReplaced) {
-          config[c].pass = true;
-        } else {
-          config[c].pass = false;
-          writeTestResult(c, less.stdout.toString());
-        }
-        completer.complete();
-      });
     }
-  });
-  return completer.future;
+
+    expect(less.stdout.toString(), equals(cssGoodReplaced));
+  }
 }
 
 void writeTestResult(int c, String content) {
@@ -505,22 +427,8 @@ void writeTestResult(int c, String content) {
     ..writeAsStringSync(content);
 }
 
-printResult(int c) {
-  String passResult = config[c].pass ? 'pass' : '  NO pass';
-  if (!config[c].pass) {
-    if (errorTests == null) errorTests = 'Errors in:';
-    errorTests += ' ' + c.toString();
-  }
-  String result = '>${c.toString()} ${config[c].lessFile}: ${passResult}';
-  stdout.writeln(result);
-  if (config[c].stderr.isNotEmpty && !config[c].isErrorTest) {
-    stdout.writeln('stderr:');
-    stdout.writeln(config[c].stderr);
-    stdout.writeln();
-  }
-}
-
 class Config {
+  final name;
   String cssFile;
   String errorFile;
   bool isErrorTest;
@@ -530,9 +438,10 @@ class Config {
   String lessFile;
   Function modifyOptions; // (LessOptions options){}
   List<String> options;
-  bool pass;
   List<Map<String, String>> replace;
   String stderr;
+
+  Config(this.name);
 }
 
  // ---------------------------------------------- TestFunctionsPlugin plugin

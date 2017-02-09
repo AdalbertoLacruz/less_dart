@@ -19,7 +19,7 @@ class Mixin {
   }
 
 
-  static final _callRegExp = new RegExp(r'^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
+  static final _callRegExp = new RegExp(r'[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
 
   ///
   /// A Mixin call, with an optional argument list
@@ -337,7 +337,7 @@ class Mixin {
 //  },
   }
 
-  static final _definitionRegExp = new RegExp(r'^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);
+  static final _definitionRegExp = new RegExp(r'([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);
 
   ///
   /// A Mixin definition, with a list of parameters
@@ -358,6 +358,7 @@ class Mixin {
   /// Once we've got our params list, and a closing `)`, we parse
   /// the `{...}` block.
   ///
+  static final _reDefinition = new RegExp(r'[^{]*\}');
   MixinDefinition definition() {
     Condition cond;
     int index = parserInput.i; //not in original
@@ -366,7 +367,7 @@ class Mixin {
     List<Node> ruleset;
     bool variadic = false;
 
-    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') || parserInput.peek(new RegExp(r'^[^{]*\}'))) return null;
+    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') || parserInput.peek(_reDefinition)) return null;
 
     parserInput.save();
 

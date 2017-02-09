@@ -56,7 +56,7 @@ class Entities {
 //  },
   }
 
-  static final RegExp  _keywordRegEx = new RegExp(r'^[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
+  static final RegExp  _keywordRegEx = new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
   ///
   /// A catch-all word, such as:
   ///
@@ -81,7 +81,8 @@ class Entities {
 //  },
   }
 
-  static final _callRegExp = new RegExp(r'^([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
+  static final _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
+  static final _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
   ///
   /// A function call
   ///
@@ -100,7 +101,7 @@ class Entities {
     int index = parserInput.i;
 
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
-    if (parserInput.peek(new RegExp(r'^url\(', caseSensitive: false))) return null;
+    if (parserInput.peek(_reCallUrl)) return null;
 
     parserInput.save();
 
@@ -199,8 +200,8 @@ class Entities {
 //  }
   }
 
-  static final _alphaRegExp1 = new RegExp(r'^\opacity=', caseSensitive: false);
-  static final _alphaRegExp2 = new RegExp(r'^\d+', caseSensitive: true);
+  static final _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
+  static final _alphaRegExp2 = new RegExp(r'\d+', caseSensitive: true);
   ///
   /// IE's alpha function
   ///
@@ -285,7 +286,7 @@ class Entities {
 //  }
   }
 
-  static final _assignmentRegExp = new RegExp(r'^\w+(?=\s?=)', caseSensitive: false);
+  static final _assignmentRegExp = new RegExp(r'\w+(?=\s?=)', caseSensitive: false);
   ///
   /// Assignments are argument entities for calls.
   /// They are present in ie filter properties as shown below.
@@ -340,7 +341,7 @@ class Entities {
 //  },
   }
 
-  static final _urlRegExp = new RegExp(r'''^(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
+  static final _urlRegExp = new RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
   ///
   /// Parse url() tokens
   ///
@@ -395,7 +396,7 @@ class Entities {
 //  },
   }
 
-  static final _variableRegExp = new RegExp(r'^@@?[\w-]+', caseSensitive: true);
+  static final _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
   ///
   /// A Variable entity, such as `@fink`, in
   ///
@@ -424,7 +425,7 @@ class Entities {
 //  }
   }
 
-  static final _variableCurlyRegExp = new RegExp(r'^@\{([\w-]+)\}', caseSensitive: true);
+  static final _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
   ///
   /// A variable entity using the protective {} e.g. @{var}
   ///
@@ -447,9 +448,9 @@ class Entities {
 //  }
    }
 
-  static final _colorRegExp1 = new RegExp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
+  static final _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
 
-  static final _colorRegExp2 = new RegExp(r'^#([\w]+).*');
+  static final _colorRegExp2 = new RegExp(r'#([\w]+).*');
   static final _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
 
   ///
@@ -463,11 +464,11 @@ class Entities {
     Match rgb;
 
     if (parserInput.currentChar() == '#'
-        && (rgb = parserInput.$reMatchRegExp(_colorRegExp1)) != null) {
+        && (rgb = parserInput.$reMatch(_colorRegExp1)) != null) {
 
       // strip colons, brackets, whitespaces and other characters that should not
       // definitely be part of color string
-      Match colorCandidateMatch = _colorRegExp2.firstMatch(rgb.input);
+      Match colorCandidateMatch = _colorRegExp2.matchAsPrefix(rgb.input, rgb.start);
       String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
@@ -495,7 +496,7 @@ class Entities {
 //  },
   }
 
-  static final _dimensionRegExp = new RegExp(r'^([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
+  static final _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
   ///
   /// A Dimension, that is, a number and a unit
   ///
@@ -521,7 +522,7 @@ class Entities {
 //  }
   }
 
-  static final _unicodeDescriptorRegExp = new RegExp(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
+  static final _unicodeDescriptorRegExp = new RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
 
   ///
   /// A unicode descriptor, as is used in unicode-range
@@ -545,7 +546,7 @@ class Entities {
 //  }
   }
 
-  static final _javascriptRegExp = new RegExp(r'^[^`]*`', caseSensitive: true);
+  static final _javascriptRegExp = new RegExp(r'[^`]*`', caseSensitive: true);
 
   ///
   /// JavaScript code to be evaluated
