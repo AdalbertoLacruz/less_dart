@@ -2,21 +2,21 @@
 
 part of tree.less;
 
-class Rule extends Node implements MakeImportantNode {
+class Rule extends Node<Node> implements MakeImportantNode {
   var name; //String or List<Keyword>
-  Node value;
   String important = '';
   String merge;
   int index;
-  FileInfo currentFileInfo;
   bool inline;
   bool variable = false;
 
   final String type = 'Rule';
 
   ///
-  Rule(this.name, value, [String important, this.merge, int this.index, FileInfo this.currentFileInfo,
+  Rule(this.name,Node value, [String important, this.merge, int this.index, FileInfo currentFileInfo,
       bool this.inline = false, bool variable = null]) {
+    this.value = value;
+    this.currentFileInfo = currentFileInfo;
 
     this.value = (value is Node) ? value : new Value([value]);
     if (important != null && important.isNotEmpty) this.important = ' ' + important.trim();

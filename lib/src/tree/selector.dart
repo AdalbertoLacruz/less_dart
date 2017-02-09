@@ -4,11 +4,10 @@ part of tree.less;
 
 /// Selectors such as body, h1, ...
 class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
-  List<Element> elements; //body, ...
+//  List<Element> elements; //body, ...
   List<Node> extendList;
   Node condition;
   int index;
-  FileInfo currentFileInfo;
   bool isReferenced = false;
 
   String _css;
@@ -28,8 +27,10 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   final String type = 'Selector';
 
   ///
-  Selector (List<Node> this.elements, [List<Node> this.extendList, Node this.condition, int this.index,
-                            FileInfo this.currentFileInfo, bool this.isReferenced]) {
+  Selector (List<Node> elements, [List<Node> this.extendList, Node this.condition, int this.index,
+                            FileInfo currentFileInfo, bool this.isReferenced]) {
+    this.elements = elements;
+    this.currentFileInfo = currentFileInfo;
     if (this.currentFileInfo == null) this.currentFileInfo = new FileInfo();
     if (this.condition == null) this.evaldCondition = true;
 

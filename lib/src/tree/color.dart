@@ -5,11 +5,10 @@ part of tree.less;
 ///
 /// RGB Colors - #ff0014, #eee
 ///
-class Color extends Node implements CompareNode, OperateNode {
+class Color extends Node<String> implements CompareNode, OperateNode {
   List<num> rgb;
   num alpha;
 
-  String value;
   static String transparentKeyword = 'transparent';
 
   final String type = 'Color';
@@ -525,6 +524,9 @@ class Color extends Node implements CompareNode, OperateNode {
 
     output.add('${tabStr}$type ($result)\n');
   }
+
+  @override
+  String get name => null;
 }
 
 class HSLType {

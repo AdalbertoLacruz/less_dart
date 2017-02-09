@@ -2,7 +2,7 @@
 
 part of visitor.less;
 
-class Visitor extends VisitorBase {
+class Visitor<T> extends VisitorBase<T> {
   VisitorBase _implementation; //Join_Selector_visitor, ...
   VisitArgs _visitArgs = new VisitArgs(true);
 
@@ -201,5 +201,9 @@ class Visitor extends VisitorBase {
 //
 //      return out;
 //  }
+  }
+  @override
+  T run(T root) {
+    // TODO: implement run
   }
 }

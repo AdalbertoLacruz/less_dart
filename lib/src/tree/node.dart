@@ -2,7 +2,7 @@
 
 part of tree.less;
 
-class Node {
+abstract class Node<T> {
 
   List<Extend> allExtends; //Ruleset
   DebugInfo debugInfo;
@@ -16,15 +16,15 @@ class Node {
 
   FileInfo currentFileInfo;
   bool isRuleset = false; //true in MixinDefinition & Ruleset
-  var name;
+  dynamic get name;
   var operands;
   Node originalRuleset; //see mixin_call
   bool parens = false; //Expression
   bool parensInOp = false; //See parsers.operand & Expression
   var rules; //Ruleset
   var selectors;
-  String type;
-  var value;
+  String get type;
+  T value;
 
   ///
   Node() {
@@ -258,7 +258,7 @@ class Node {
     if (rules is List) process.addAll(rules);
     if (elements is List) process.addAll(elements);
     if (name is List) process.addAll(name);
-    if (value is List) process.addAll(value);
+    if (value is List) process.addAll(value as List);
     if (operands is List) process.addAll(operands);
 
     if (process.isNotEmpty) {

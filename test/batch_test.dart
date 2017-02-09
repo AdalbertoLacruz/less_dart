@@ -299,7 +299,7 @@ Map<int, Config> configFill() {
   };
 }
 
-Config def(name, {List options, String cssName, List<Map> replace,
+Config def(name, {List<String> options, String cssName, List<Map> replace,
   bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
   bool isSourcemapTest: false, Function modifyOptions}) {
 
@@ -461,8 +461,9 @@ class TestFileManager extends FileManager {
 }
 
 class TestFileManagerPlugin extends Plugin {
-  Environment environment = new Environment();
+  List<int> minVersion = [2, 1, 0];
 
+  @override
   install(PluginManager pluginManager) {
     FileManager fileManager = new TestFileManager(environment);
     pluginManager.addFileManager(fileManager);
@@ -492,6 +493,7 @@ class PluginTransitiveFunctions extends FunctionBase {
 }
 
 class PluginGlobal extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   install(PluginManager pluginManager) {
     FunctionBase fun = new PluginGlobalFunctions();
     pluginManager.addCustomFunctions(fun);
@@ -499,6 +501,7 @@ class PluginGlobal extends Plugin {
 }
 
 class PluginLocal extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   install(PluginManager pluginManager) {
     FunctionBase fun = new PluginLocalFunctions();
     pluginManager.addCustomFunctions(fun);
@@ -506,6 +509,7 @@ class PluginLocal extends Plugin {
 }
 
 class PluginTransitive extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   install(PluginManager pluginManager) {
     FunctionBase fun = new PluginTransitiveFunctions();
     pluginManager.addCustomFunctions(fun);
@@ -523,6 +527,7 @@ class TestPostProcessor extends Processor {
 }
 
 class TestPostProcessorPlugin extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   TestPostProcessorPlugin(): super();
 
   install(PluginManager pluginManager) {
@@ -548,6 +553,7 @@ class TestPreProcessor extends Processor {
 }
 
 class TestPreProcessorPlugin extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   TestPreProcessorPlugin(): super();
 
   install(PluginManager pluginManager) {
@@ -557,11 +563,11 @@ class TestPreProcessorPlugin extends Plugin {
 }
 
 // ---------------------------------------------- TestVisitorPlugin plugin
-class RemoveProperty extends VisitorBase {
+class RemoveProperty extends VisitorBase<Ruleset> {
   Visitor _visitor;
-  bool isReplacing = true;
 
   RemoveProperty() {
+    isReplacing = true;
     _visitor = new Visitor(this);
   }
 
@@ -586,6 +592,7 @@ class RemoveProperty extends VisitorBase {
 }
 
 class TestVisitorPlugin extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   TestVisitorPlugin(): super();
 
   install(PluginManager pluginManager) {

@@ -2,18 +2,18 @@
 
 part of tree.less;
 
-class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
+class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
   bool escaped;
-  int index;
-  FileInfo currentFileInfo;
 
-  String value = '';
   String quote; // ' or "
 
   final String type = 'Quoted';
 
   ///
-  Quoted(String str, String content, bool this.escaped, [int this.index, FileInfo this.currentFileInfo]){
+  Quoted(String str, String content, bool this.escaped, [int index, FileInfo currentFileInfo]){
+    value = '';
+    this.index = index;
+    this.currentFileInfo = currentFileInfo;
     if (this.escaped == null) this.escaped = true;
     if(content != null) value = content;
     quote = str.isNotEmpty ? str[0] : '';

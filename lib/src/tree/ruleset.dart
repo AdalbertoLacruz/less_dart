@@ -13,10 +13,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   bool extendOnEveryPath = false; // used in ExtendFinderVisitor
   bool firstRoot = false;
   bool isReferenced = false;
-  bool isRuleset = true;
   bool isRulesetLike() => true;
   bool multiMedia = false;
-  Node originalRuleset;
 
   /// The paths are [[Selector]]
   List<List<Selector>> paths;
@@ -25,7 +23,9 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   final String type = 'Ruleset';
 
-  Ruleset(this.selectors, this.rules, [this.strictImports = false]);
+  Ruleset(this.selectors, this.rules, [this.strictImports = false]){
+    isRuleset = true;
+  }
 
   ///
   void accept(Visitor visitor){
@@ -357,7 +357,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     for (int i = 0; i < rules.length; i++) {
       if (rules[i] is Import) {
         evalImport = rules[i].eval(context);
-        importRules = (evalImport is List) ? evalImport : [evalImport];
+        importRules = (evalImport is List<Node>) ? evalImport : <Node>[evalImport];
         rules.replaceRange(i, i+1, importRules);
         i += importRules.length - 1;
         resetCache();
@@ -868,7 +868,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     if (elementsToPak.length == 0) {
       replacementParen = new Paren(null);
     } else {
-      List  insideParent = [];
+      List<Node>  insideParent = [];
       for (int j = 0; j < elementsToPak.length; j++) {
         insideParent.add(new Element(null, elementsToPak[j], originalElement.index, originalElement.currentFileInfo));
       }
@@ -961,9 +961,9 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
           // on to the current list of selectors to add
           mergeElementsOnToSelectors(currentElements, newSelectors);
 
-          List nestedPaths = [];
+          List<List<Selector>> nestedPaths = [];
           bool replaced;
-          List replacedNewSelectors = [];
+          List<List<Selector>> replacedNewSelectors = <List<Selector>>[];
 
           replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
           hadParentSelector = hadParentSelector || replaced;
@@ -1333,8 +1333,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
 //2.4.0+
 //FIXME: following three functions are done like inside media
-class VariableMixin {
-  List<Node> rules;
+abstract class VariableMixin {
+  List<Node> get rules;
 
   FunctionRegistry functionRegistry;
 

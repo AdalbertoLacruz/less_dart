@@ -2,13 +2,14 @@
 
 part of tree.less;
 
-class Assignment extends Node {
+class Assignment extends Node<Node> {
   String key;
-  Node value;
 
   final String type = 'Assignment';
 
-  Assignment(String this.key, Node this.value);
+  Assignment(String this.key, Node value){
+    this.value = value;
+  }
 
   ///
   void accept(Visitor visitor) {

@@ -39,6 +39,7 @@ class MyProcessor extends Processor {
 }
 
 class MyPlugin extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   MyPlugin(): super();
 
   install(PluginManager pluginManager) {

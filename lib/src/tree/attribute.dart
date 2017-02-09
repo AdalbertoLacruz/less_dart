@@ -5,11 +5,12 @@ part of tree.less;
 class Attribute extends Node {
   var key; // String or Node
   String op; // '=', '^=', ...
-  var value; // String or Node
 
   final String type = 'Attribute';
 
-  Attribute(this.key, this.op, this.value);
+  Attribute(this.key, this.op, value){
+    this.value = value;
+  }
 
   ///
   Attribute eval(Contexts context) => new Attribute(

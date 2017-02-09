@@ -2,11 +2,9 @@
 
 part of tree.less;
 
-class Comment extends Node implements MarkReferencedNode {
-  String value;
+class Comment extends Node<String> implements MarkReferencedNode {
   bool isLineComment;
   int index;
-  FileInfo currentFileInfo;
 
   bool isReferenced = false;
 
@@ -15,7 +13,10 @@ class Comment extends Node implements MarkReferencedNode {
   bool get isImportant => (value.length > 2) && (value.startsWith('/*!'));
 
   ///
-  Comment(String this.value, [bool this.isLineComment = false, int this.index, FileInfo this.currentFileInfo]);
+  Comment(String value, [bool this.isLineComment = false, int this.index, FileInfo currentFileInfo]){
+    this.value = value;
+    this.currentFileInfo = currentFileInfo;
+  }
 
   ///
   /// Writes the comment in [output].
@@ -59,4 +60,7 @@ class Comment extends Node implements MarkReferencedNode {
   void markReferenced() {
     isReferenced = true;
   }
+  // TODO: implement name
+  @override
+  String get name => null;
 }

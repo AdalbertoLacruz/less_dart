@@ -2,12 +2,13 @@
 
 part of tree.less;
 
-class Alpha extends Node {
-  var value; // String, Variable, Dimension
+class Alpha<T> extends Node<T> {
 
   final String type = 'Alpha';
 
-  Alpha(this.value);
+  Alpha(T value){
+    this.value = value;
+  }
 
   ///
   void accept(Visitor visitor) {

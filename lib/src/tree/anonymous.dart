@@ -3,16 +3,17 @@
 part of tree.less;
 
 class Anonymous extends Node implements CompareNode {
-  var value; //String, Unit, ...
   int index;
-  FileInfo currentFileInfo;
   bool mapLines;
   bool rulesetLike;
 
   String type = 'Anonymous';
 
-  Anonymous(this.value, [int this.index, FileInfo this.currentFileInfo,
-           this.mapLines = false, bool this.rulesetLike = false]);
+  Anonymous(value, [int this.index, FileInfo currentFileInfo,
+           this.mapLines = false, bool this.rulesetLike = false]){
+    this.value = value;
+    this.currentFileInfo = currentFileInfo;
+  }
 
   ///
   Node eval(context) => new Anonymous(value, index, currentFileInfo, mapLines, rulesetLike);
@@ -46,4 +47,7 @@ class Anonymous extends Node implements CompareNode {
 //      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
 //  };
   }
+  // TODO: implement name
+  @override
+  String get name => null;
 }
