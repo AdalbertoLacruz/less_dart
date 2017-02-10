@@ -1,5 +1,5 @@
 #!/bin/bash
-npm install less
+npm install less@2.5.0
 echo "Benchmark.less"
 echo "NodeJs"
 time nodejs ./node_modules/less/bin/lessc ./benchmark.less >/dev/null
