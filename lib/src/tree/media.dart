@@ -11,7 +11,7 @@ class Media extends DirectiveBase {
   final String type = 'Media';
 
   ///
-  Media(value, List<Node> features, [int index, FileInfo currentFileInfo]):super() {
+  Media(value, List features, [int index, FileInfo currentFileInfo]):super() {
     this.index = index;
     this.currentFileInfo = currentFileInfo;
     isReferenced = false;
@@ -182,14 +182,14 @@ class Media extends DirectiveBase {
   Node evalNested(Contexts context) {
     var value; //Node or List
     List<Media> mediaPath = context.mediaPath.sublist(0)..add(this);
-    List<List<Node>> path = [];
+    List<List> path = [];
 
     // Extract the media-query conditions separated with `,` (OR).
     for (int i = 0; i < mediaPath.length; i++) {
       value = (mediaPath[i].features is Value)
           ? mediaPath[i].features.value
           : mediaPath[i].features;
-      path.add((value is List<Node>) ? value :  <Node>[value]);
+      path.add((value is List) ? value : [value]);
     }
 
     // Trace all permutations to generate the resulting media-query.
@@ -255,17 +255,19 @@ class Media extends DirectiveBase {
   /// Converts [[Node1], [Node2], [Node3]] to [[Node1, Node2, Node3]]
   /// permute List 3x1 to List 1x3
   ///
-  List<List> permute(List<List> arr) {
+  List permute(List<List> arr) {
     if (arr.isEmpty) {
       return [];
     } else if (arr.length == 1) {
-      return arr[0];
+      return arr.first;
     } else {
-      List<List> result = <List>[];
+      List result = [];
       List rest = permute(arr.sublist(1));
       for (int i = 0; i < rest.length; i++) {
         for (int j = 0; j < arr[0].length; j++) {
-          if (rest[i] is! List) rest[i] = [rest[i]]; //avoid problems with addAll
+          if (rest[i] is! List) {
+            rest[i] = [rest[i]]; //avoid problems with addAll
+          }
           result.add([arr[0][j]]..addAll(rest[i]));
         }
       }

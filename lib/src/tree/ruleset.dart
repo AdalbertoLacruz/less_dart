@@ -3,10 +3,8 @@
 part of tree.less;
 
 class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, MakeImportantNode, MarkReferencedNode, MatchConditionNode {
-  List<Selector> selectors;
-
   /// THE TREE
-  List<Node> rules;
+//  List<Node> rules;
   bool strictImports;
 
   bool allowImports = false;
@@ -23,8 +21,10 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   final String type = 'Ruleset';
 
-  Ruleset(this.selectors, this.rules, [this.strictImports = false]){
-    isRuleset = true;
+  Ruleset(List<Selector> selectors,List<Node> rules, [this.strictImports = false]){
+    this.isRuleset = true;
+    this.selectors = selectors;
+    this.rules = rules;
   }
 
   ///

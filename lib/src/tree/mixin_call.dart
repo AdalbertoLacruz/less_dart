@@ -178,6 +178,7 @@ class MixinCall extends Node {
               }
               rules.addAll((mixin as MixinDefinition).evalCall(context, args, important).rules);
             } catch (e, s) {
+              print("$e, $s");
               //in js creates a new error and lost type: NameError -> SyntaxError
               LessError error = LessError.transform(e,
                   index: index,

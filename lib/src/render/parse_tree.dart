@@ -43,6 +43,7 @@ class ParseTree {
         result.css = evaldRoot.toCSS(toCSSOptions).toString();
       }
     } catch (e, s) {
+      print("$e $s");
       LessError error = LessError.transform(e, context: context);
       throw new LessExceptionError(error);
     }
