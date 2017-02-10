@@ -2,12 +2,13 @@
 
 part of tree.less;
 
-class Paren extends Node {
-  Node value;
+class Paren extends Node<Node> {
 
   final String type = 'Paren';
 
-  Paren(Node this.value);
+  Paren(Node value){
+    this.value = value;
+  }
 
   ///
   void genCSS(Contexts context, Output output) {

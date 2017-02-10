@@ -56,6 +56,7 @@ class Entities {
 //  },
   }
 
+  static final RegExp  _keywordRegEx = new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
   ///
   /// A catch-all word, such as:
   ///
@@ -63,7 +64,7 @@ class Entities {
   ///
   Node keyword() {
     String k = parserInput.$char("%");
-    if (k == null) k = parserInput.$re(r'^[_A-Za-z-][_A-Za-z0-9-]*');
+    if (k == null) k = parserInput.$re(_keywordRegEx);
 
     if (k != null) {
       Node color = new Color.fromKeyword(k);
@@ -80,6 +81,8 @@ class Entities {
 //  },
   }
 
+  static final _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
+  static final _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
   ///
   /// A function call
   ///
@@ -98,11 +101,11 @@ class Entities {
     int index = parserInput.i;
 
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
-    if (parserInput.peek(new RegExp(r'^url\(', caseSensitive: false))) return null;
+    if (parserInput.peek(_reCallUrl)) return null;
 
     parserInput.save();
 
-    name = parserInput.$re(r'^([\w-]+|%|progid:[\w\.]+)\(', true, 1);
+    name = parserInput.$re(_callRegExp, 1);
     if (name == null) {
       parserInput.forget();
       return null;
@@ -197,6 +200,8 @@ class Entities {
 //  }
   }
 
+  static final _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
+  static final _alphaRegExp2 = new RegExp(r'\d+', caseSensitive: true);
   ///
   /// IE's alpha function
   ///
@@ -207,8 +212,8 @@ class Entities {
     var value;
 
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
-    if (parserInput.$re(r'^\opacity=', false) == null) return null; // i
-    value = parserInput.$re(r'^\d+');
+    if (parserInput.$re(_alphaRegExp1) == null) return null; // i
+    value = parserInput.$re(_alphaRegExp2);
     if (value == null) {
       value = parserInput.expect(this.variable, 'Could not parse alpha');
     }
@@ -281,6 +286,7 @@ class Entities {
 //  }
   }
 
+  static final _assignmentRegExp = new RegExp(r'\w+(?=\s?=)', caseSensitive: false);
   ///
   /// Assignments are argument entities for calls.
   /// They are present in ie filter properties as shown below.
@@ -292,7 +298,7 @@ class Entities {
     Node value;
 
     parserInput.save();
-    key = parserInput.$re(r'^\w+(?=\s?=)', false);
+    key = parserInput.$re(_assignmentRegExp);
     if (key == null) {
       parserInput.restore();
       return null;
@@ -335,6 +341,7 @@ class Entities {
 //  },
   }
 
+  static final _urlRegExp = new RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
   ///
   /// Parse url() tokens
   ///
@@ -357,7 +364,7 @@ class Entities {
     value = quoted();
     if (value == null) value = variable();
     if (value == null) {
-      anonymous = parserInput.$re(r'''^(?:(?:\\[\(\)'"])|[^\(\)'"])+''');
+      anonymous = parserInput.$re(_urlRegExp);
       if (anonymous == null) anonymous = '';
       value = new Anonymous(anonymous);
     }
@@ -389,6 +396,7 @@ class Entities {
 //  },
   }
 
+  static final _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
   ///
   /// A Variable entity, such as `@fink`, in
   ///
@@ -402,7 +410,7 @@ class Entities {
     int index = parserInput.i;
 
     if (parserInput.currentChar() == '@') {
-      name = parserInput.$re(r'^@@?[\w-]+');
+      name = parserInput.$re(_variableRegExp);
       if (name != null) return new Variable(name, index, fileInfo);
     }
     return null;
@@ -417,6 +425,7 @@ class Entities {
 //  }
   }
 
+  static final _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
   ///
   /// A variable entity using the protective {} e.g. @{var}
   ///
@@ -424,7 +433,7 @@ class Entities {
     String curly;
     int index = parserInput.i;
 
-    if (parserInput.currentChar() == '@' && (curly = parserInput.$re(r'^@\{([\w-]+)\}', true, 1)) != null) {
+    if (parserInput.currentChar() == '@' && (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
       return new Variable('@${curly}', index, fileInfo);
     }
     return null;
@@ -439,6 +448,11 @@ class Entities {
 //  }
    }
 
+  static final _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
+
+  static final _colorRegExp2 = new RegExp(r'#([\w]+).*');
+  static final _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
+
   ///
   /// A Hexadecimal color
   ///
@@ -450,15 +464,15 @@ class Entities {
     Match rgb;
 
     if (parserInput.currentChar() == '#'
-        && (rgb = parserInput.$reMatch(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})')) != null) {
+        && (rgb = parserInput.$reMatch(_colorRegExp1)) != null) {
 
       // strip colons, brackets, whitespaces and other characters that should not
       // definitely be part of color string
-      Match colorCandidateMatch = new RegExp(r'^#([\w]+).*').firstMatch(rgb.input);
+      Match colorCandidateMatch = _colorRegExp2.matchAsPrefix(rgb.input, rgb.start);
       String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
-      if (new RegExp(r'^[A-Fa-f0-9]+$').firstMatch(colorCandidateString) == null) {
+      if (_colorRegExp3.firstMatch(colorCandidateString) == null) {
         parserInput.error('Invalid HEX color code');
       }
       return new Color(rgb[1]);
@@ -482,6 +496,7 @@ class Entities {
 //  },
   }
 
+  static final _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
   ///
   /// A Dimension, that is, a number and a unit
   ///
@@ -490,7 +505,7 @@ class Entities {
   Dimension dimension() {
     if (parserInput.peekNotNumeric()) return null;
 
-    List<String> value = parserInput.$re(r'^([+-]?\d*\.?\d+)(%|[a-z]+)?', false);
+    List<String> value = parserInput.$re(_dimensionRegExp);
     if (value != null) return new Dimension(value[1], value[2]);
     return null;
 
@@ -507,13 +522,15 @@ class Entities {
 //  }
   }
 
+  static final _unicodeDescriptorRegExp = new RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
+
   ///
   /// A unicode descriptor, as is used in unicode-range
   ///
   /// U+0??  or U+00A1-00A9
   ///
   UnicodeDescriptor unicodeDescriptor() {
-    String ud = parserInput.$re(r'^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', true, 0);
+    String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
     if (ud != null) return new UnicodeDescriptor(ud);
 
     return null;
@@ -528,6 +545,8 @@ class Entities {
 //      }
 //  }
   }
+
+  static final _javascriptRegExp = new RegExp(r'[^`]*`', caseSensitive: true);
 
   ///
   /// JavaScript code to be evaluated
@@ -548,7 +567,7 @@ class Entities {
       return null;
     }
 
-    js = parserInput.$re(r'^[^`]*`');
+    js = parserInput.$re(_javascriptRegExp);
     if (js != null) {
       parserInput.forget();
       return new JavaScript(js.substring(0, js.length - 1), escape != null, index, fileInfo);

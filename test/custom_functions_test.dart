@@ -4,18 +4,22 @@
 import 'dart:io';
 import 'package:less_dart/less.dart';
 
-main() {
-  List<String> args = [];
-  Less less = new Less();
+import 'package:test/test.dart';
 
-  args.add('-no-color');
-  args.add('less/functions.less');
-  less.transform(args, modifyOptions: (LessOptions options){
-    options.definePlugin('myplugin', new MyPlugin(), true, '');
-  }).then((exitCode){
-    stderr.write(less.stderr.toString());
-    stdout.writeln('\nstdout:');
-    stdout.write(less.stdout.toString());
+main() {
+  test('Transform test/less/functions.less with plugin', () async {
+    final Less less = new Less();
+    final exitCode = await less.transform([
+      '-no-color',
+      'test/less/functions.less',
+    ], modifyOptions: (LessOptions options) {
+      options.definePlugin('myplugin', new MyPlugin(), true, '');
+    });
+    if (exitCode != 0) {
+      stderr.write(less.stderr.toString());
+      stdout.write(less.stdout.toString());
+    }
+    expect(exitCode, 0);
   });
 }
 
@@ -47,6 +51,7 @@ class MyProcessor extends Processor {
 }
 
 class MyPlugin extends Plugin {
+  List<int> minVersion = [2, 1, 0];
   MyPlugin(): super();
 
   install(PluginManager pluginManager) {

@@ -6,11 +6,11 @@ class ToCSSVisitor extends VisitorBase{
   Contexts _context;
 
   bool charset = false;
-  bool isReplacing = true;
   Visitor _visitor;
 
   ///
   ToCSSVisitor(Contexts context) {
+    isReplacing = true;
     _visitor = new Visitor(this);
     _context = context;
 

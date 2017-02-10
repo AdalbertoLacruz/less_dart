@@ -20,4 +20,6 @@ class RulesetCall extends Node {
 //      return detachedRuleset.callEval(context);
 //  };
   }
+  @override
+  get name => null;
 }

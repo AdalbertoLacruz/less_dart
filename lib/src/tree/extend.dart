@@ -121,4 +121,6 @@ class Extend extends Node {
 //      this.selfSelectors = [{ elements: selfElements }];
 //  };
   }
+  @override
+  String get name => null;
 }

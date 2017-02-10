@@ -2,12 +2,13 @@
 
 part of tree.less;
 
-class Alpha extends Node {
-  var value; // String, Variable, Dimension
+class Alpha<T> extends Node<T> {
 
   final String type = 'Alpha';
 
-  Alpha(this.value);
+  Alpha(T value){
+    this.value = value;
+  }
 
   ///
   void accept(Visitor visitor) {
@@ -21,7 +22,9 @@ class Alpha extends Node {
 
   ///
   Alpha eval(Contexts context) {
-    if (value is Node) return new Alpha(value.eval(context));
+    if (value is Node) {
+      return new Alpha((value as Node).eval(context));
+    }
     return this;
 
 //2.3.1
@@ -36,7 +39,7 @@ class Alpha extends Node {
     output.add('alpha(opacity=');
 
     if (value is Node) {
-      value.genCSS(context, output);
+      (value as Node).genCSS(context, output);
     } else {
       output.add(value);
     }

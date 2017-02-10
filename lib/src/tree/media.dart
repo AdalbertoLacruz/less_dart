@@ -5,17 +5,16 @@ part of tree.less;
 //2.3.1 extends from Directive
 class Media extends DirectiveBase {
   Node features;
-  int index;
-  FileInfo currentFileInfo;
 
-  bool isReferenced = false;
   bool isRulesetLike() => true;
-  List<Ruleset> rules;
 
   final String type = 'Media';
 
   ///
-  Media(value, List features, [int this.index, FileInfo this.currentFileInfo]):super() {
+  Media(value, List features, [int index, FileInfo currentFileInfo]):super() {
+    this.index = index;
+    this.currentFileInfo = currentFileInfo;
+    isReferenced = false;
     //List<Node> selectors = emptySelectors();
     List<Node> selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
 
@@ -95,7 +94,7 @@ class Media extends DirectiveBase {
 
     this.rules[0].functionRegistry = new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
     context.frames.insert(0, rules[0]);
-    media.rules = [rules[0].eval(context)];
+    media.rules = <Ruleset>[rules[0].eval(context)];
     context.frames.removeAt(0);
 
     context.mediaPath.removeLast();
@@ -183,14 +182,14 @@ class Media extends DirectiveBase {
   Node evalNested(Contexts context) {
     var value; //Node or List
     List<Media> mediaPath = context.mediaPath.sublist(0)..add(this);
-    List<List<Node>> path = [];
+    List<List> path = [];
 
     // Extract the media-query conditions separated with `,` (OR).
     for (int i = 0; i < mediaPath.length; i++) {
       value = (mediaPath[i].features is Value)
           ? mediaPath[i].features.value
           : mediaPath[i].features;
-      path.add((value is List) ? value :  [value]);
+      path.add((value is List) ? value : [value]);
     }
 
     // Trace all permutations to generate the resulting media-query.
@@ -256,17 +255,19 @@ class Media extends DirectiveBase {
   /// Converts [[Node1], [Node2], [Node3]] to [[Node1, Node2, Node3]]
   /// permute List 3x1 to List 1x3
   ///
-  List<List> permute(List<List> arr) {
+  List permute(List<List> arr) {
     if (arr.isEmpty) {
       return [];
     } else if (arr.length == 1) {
-      return arr[0];
+      return arr.first;
     } else {
       List result = [];
       List rest = permute(arr.sublist(1));
       for (int i = 0; i < rest.length; i++) {
         for (int j = 0; j < arr[0].length; j++) {
-          if (rest[i] is! List) rest[i] = [rest[i]]; //avoid problems with addAll
+          if (rest[i] is! List) {
+            rest[i] = [rest[i]]; //avoid problems with addAll
+          }
           result.add([arr[0][j]]..addAll(rest[i]));
         }
       }
@@ -295,7 +296,7 @@ class Media extends DirectiveBase {
   ///
   void bubbleSelectors(List<Selector> selectors) {
     if (selectors == null) return;
-    rules = [new Ruleset(selectors.sublist(0), [rules[0]])];
+    rules = [new Ruleset(selectors.sublist(0), <Node>[rules[0]])];
 
 //2.3.1
 //  Media.prototype.bubbleSelectors = function (selectors) {

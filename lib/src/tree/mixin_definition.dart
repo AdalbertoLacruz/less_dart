@@ -23,16 +23,11 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
   //not in original
   int index;
-  FileInfo currentFileInfo;
 
   var frames;
 
   /// Number of params
   int arity;
-
-  bool evalFirst = true;
-
-  bool isRuleset = true;
 
   Ruleset originalRuleset;
 
@@ -45,7 +40,11 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   //index, currentFileInfo not in original. See order when calling with frames.
   MixinDefinition(String this.name, List<MixinArgs> this.params,
       List<Node> this.rules, Node this.condition, bool this.variadic,
-      int this.index, FileInfo this.currentFileInfo, [this.frames]) {
+      int this.index, FileInfo currentFileInfo, [this.frames]) {
+    evalFirst = true;
+
+    isRuleset = true;
+    this.currentFileInfo = currentFileInfo;
 
     selectors = [new Selector([new Element(null, name, this.index, this.currentFileInfo)])];
     arity = this.params.length;
@@ -310,7 +309,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
         ? this.rules
         : this.rules.map((r){
           if (r is MakeImportantNode) {
-            return r.makeImportant();
+            return (r as MakeImportantNode).makeImportant();
           } else {
             return r;
           }

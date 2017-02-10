@@ -2,12 +2,13 @@
 
 part of tree.less;
 
-class Keyword extends Node {
-  String value;
+class Keyword extends Node<String> {
 
   final String type = 'Keyword';
 
-  Keyword(String this.value);
+  Keyword(String value){
+    this.value = value;
+  }
 
   Keyword.True() {
     this.value = 'true';

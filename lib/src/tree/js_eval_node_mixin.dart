@@ -2,8 +2,7 @@
 
 part of tree.less;
 
-class JsEvalNodeMixin {
-  FileInfo currentFileInfo;
+abstract class JsEvalNodeMixin implements Node {
   int index;
 
   ///

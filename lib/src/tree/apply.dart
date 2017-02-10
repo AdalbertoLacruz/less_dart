@@ -5,15 +5,16 @@ part of tree.less;
 ///
 /// @apply(--mixin-name); directive
 ///
-class Apply extends Node {
-  Anonymous value;
+class Apply extends Node<Anonymous> {
   int       index;
-  FileInfo  currentFileInfo;
 
   final String type = 'Apply';
 
   ///
-  Apply(this.value, this.index, this.currentFileInfo);
+  Apply(Anonymous value, this.index,FileInfo currentFileInfo){
+    this.value = value;
+    this.currentFileInfo = currentFileInfo;
+  }
 
   ///
   void genCSS(Contexts context, Output output) {
@@ -21,4 +22,7 @@ class Apply extends Node {
     value.genCSS(context, output);
     output.add(');');
   }
+
+  @override
+  String get name => null;
 }

@@ -6,16 +6,16 @@ part of less_plugin_clean_css.plugins.less;
 ///
 /// In the last phase marks node.cleanCss = true to avoid conflicts with eval().
 ///
-class CleanCssVisitor extends VisitorBase {
+class CleanCssVisitor extends VisitorBase<Ruleset> {
   CleanCssContext cleancsscontext = new CleanCssContext();
   CleanCssOptions cleanCssOptions;
-  bool isReplacing = true;
   bool keepOneComment = false;
   bool keepAllComments = false;
   LessOptions lessOptions;
   Visitor _visitor;
 
   CleanCssVisitor(this.cleanCssOptions) {
+    isReplacing = true;
     lessOptions = new Environment().options;
     _visitor = new Visitor(this);
 

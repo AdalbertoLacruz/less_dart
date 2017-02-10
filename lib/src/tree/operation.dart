@@ -4,13 +4,13 @@ part of tree.less;
 
 class Operation extends Node {
   String op;
-  List<Node> operands;
   bool isSpaced;
 
   final String type = 'Operation';
 
   ///
-  Operation(String op, List this.operands, [bool this.isSpaced = false]) {
+  Operation(String op, List<Node> operands, [bool this.isSpaced = false]) {
+    this.operands = operands;
     this.op = op.trim();
 
 //2.3.1

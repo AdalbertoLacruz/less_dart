@@ -9,11 +9,12 @@ class Call extends Node {
   String name;
   List<Expression> args;
   int index;
-  FileInfo currentFileInfo;
 
   final String type = 'Call';
 
-  Call(this.name, this.args, this.index, this.currentFileInfo);
+  Call(this.name, this.args, this.index, FileInfo currentFileInfo){
+    this.currentFileInfo = currentFileInfo;
+  }
 
   ///
   void accept(Visitor visitor) {

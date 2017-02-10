@@ -5,15 +5,15 @@ part of visitor.less;
 ///
 /// Visitor to run after parse input file, before imports
 ///
-class IgnitionVisitor extends VisitorBase {
+class IgnitionVisitor extends VisitorBase<Ruleset> {
   Environment environment;
   Visitor _visitor;
 
   Contexts context;
-  bool isReplacing = true;
   LessOptions lessOptions;
 
   IgnitionVisitor() {
+    isReplacing = true;
     _visitor = new Visitor(this);
     environment = new Environment();
     context = new Contexts.eval();
