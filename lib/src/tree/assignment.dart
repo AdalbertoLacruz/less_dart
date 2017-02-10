@@ -54,4 +54,7 @@ class Assignment extends Node<Node> {
 //      }
 //  };
   }
+
+  @override
+  get name => null;
 }

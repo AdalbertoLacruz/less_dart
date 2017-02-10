@@ -57,4 +57,7 @@ class Attribute extends Node {
 //      return '[' + value + ']';
 //  };
   }
+
+  @override
+  get name => null;
 }

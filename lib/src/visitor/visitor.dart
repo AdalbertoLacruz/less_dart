@@ -203,6 +203,5 @@ class Visitor<T> extends VisitorBase<T> {
 //  }
   }
   @override
-  T run(T root) {
-  }
+  T run(T root) => null;
 }

@@ -16,7 +16,7 @@ abstract class Node<T> {
 
   FileInfo currentFileInfo;
   bool isRuleset = false; //true in MixinDefinition & Ruleset
-  dynamic get name;
+  dynamic get name => null;
   var operands;
   Node originalRuleset; //see mixin_call
   bool parens = false; //Expression

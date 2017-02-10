@@ -79,7 +79,7 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
-    String iterativeReplace(String value, RegExp regexp, Function replacementFnc) {
+    String iterativeReplace(String value, RegExp regexp, String replacementFnc(Match match) ) {
       String evaluatedValue = value;
       do {
         value = evaluatedValue;
@@ -141,4 +141,7 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
 //      }
 //  };
   }
+
+  @override
+  get name => null;
 }

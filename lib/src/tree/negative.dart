@@ -2,12 +2,13 @@
 
 part of tree.less;
 
-class Negative extends Node {
-  Node value;
+class Negative extends Node<Node> {
 
   final String type = 'Negative';
 
-  Negative (Node this.value);
+  Negative (Node value){
+    this.value = value;
+  }
 
   ///
   void genCSS(Contexts context, Output output) {

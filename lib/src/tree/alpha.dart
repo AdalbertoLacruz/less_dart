@@ -22,7 +22,9 @@ class Alpha<T> extends Node<T> {
 
   ///
   Alpha eval(Contexts context) {
-    if (value is Node) return new Alpha(value.eval(context));
+    if (value is Node) {
+      return new Alpha((value as Node).eval(context));
+    }
     return this;
 
 //2.3.1
@@ -37,7 +39,7 @@ class Alpha<T> extends Node<T> {
     output.add('alpha(opacity=');
 
     if (value is Node) {
-      value.genCSS(context, output);
+      (value as Node).genCSS(context, output);
     } else {
       output.add(value);
     }

@@ -5,17 +5,17 @@ part of tree.less;
 ///
 /// @options "--flags" directive
 ///
-class Options extends Node {
-  Quoted    value;
+class Options extends Node<Quoted> {
   int       index;
-  FileInfo  currentFileInfo;
   bool      isPlugin;
   List<FunctionBase> functions;
 
   final String type = 'Options';
 
-  Options(this.value, this.index, this.currentFileInfo, {bool this.isPlugin: false});
-
+  Options(Quoted value, this.index, FileInfo currentFileInfo, {bool this.isPlugin: false}){
+    this.value = value;
+    this.currentFileInfo = currentFileInfo;
+  }
   /// Load the options and plugins
   void apply(Environment environment) {
     LessOptions lessOptions = environment.options;
@@ -55,4 +55,6 @@ class Options extends Node {
     }
     return this;
   }
+  
+  get name => null;
 }

@@ -388,7 +388,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   Ruleset makeImportant(){
     Ruleset result = new Ruleset(selectors, rules.map((r){
       if (r is MakeImportantNode) {
-        return r.makeImportant();
+        return (r as MakeImportantNode).makeImportant();
       } else {
         return r;
       }
@@ -1333,9 +1333,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
 //2.4.0+
 //FIXME: following three functions are done like inside media
-abstract class VariableMixin {
-  List<Node> get rules;
-
+abstract class VariableMixin implements Node {
   FunctionRegistry functionRegistry;
 
   Map _lookups = {};

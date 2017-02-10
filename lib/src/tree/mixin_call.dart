@@ -4,7 +4,6 @@ part of tree.less;
 
 class MixinCall extends Node {
   int index;
-  FileInfo currentFileInfo;
   bool important;
 
   Selector selector;
@@ -13,7 +12,8 @@ class MixinCall extends Node {
   final String type = 'MixinCall';
 
   ///
-  MixinCall(elements, List args, int this.index, FileInfo this.currentFileInfo, bool this.important) {
+  MixinCall(elements, List args, int this.index, FileInfo currentFileInfo, bool this.important) {
+    this.currentFileInfo = currentFileInfo;
     selector = new Selector(elements);
     if (args != null && args.isNotEmpty) this.arguments = args;
 

@@ -2,15 +2,14 @@
 
 part of tree.less;
 
-class Expression extends Node {
-  List<Node> value;
-  bool parens = false;  // ()
-  bool parensInOp = false;
-
+class Expression extends Node<List<Node>> {
   final String type = 'Expression';
 
   ///
-  Expression(List<Node> this.value) {
+  Expression(List<Node> value) {
+    this.value = value;
+    parens = false;
+    parensInOp = false;
     if (this.value == null) {
       throw new LessExceptionError(new LessError(message: 'Expression requires an array parameter'));
     }
