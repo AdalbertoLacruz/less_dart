@@ -1,3 +1,10 @@
+## v.1.0.0 (2017-02-06)
+
+- min sdk 1.21.1
+- enable strong mode
+- boost speed
+- analysis clean up
+
 ## v.0.3.4 (2016-05-03)
 
 - rem function to convert from px, pt or em

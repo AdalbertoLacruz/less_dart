@@ -5,12 +5,9 @@ part of tree.less;
 class Variable extends Node {
   String name;
   int index;
-  FileInfo currentFileInfo;
 
   /// Recursivity control
   bool evaluating = false;
-
-  var value;
 
   String type = "Variable";
 

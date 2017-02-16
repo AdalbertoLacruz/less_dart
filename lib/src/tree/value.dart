@@ -2,13 +2,13 @@
 
 part of tree.less;
 
-class Value extends Node {
-  List<Node> value;
+class Value extends Node<List<Node>> {
 
   final String type = 'Value';
 
   ///
-  Value(List<Node> this.value) {
+  Value(List<Node> value) {
+    this.value = value;
     if (this.value == null) throw new LessExceptionError(new LessError(
         message: 'Value requires an array argument'));
   }
@@ -83,4 +83,7 @@ class Value extends Node {
       if (i+1 < value.length) output.add(',');
     }
   }
+
+  @override
+  String get name => null;
 }

@@ -242,7 +242,6 @@ class StyleElement extends ContentElement {
 /// <less...>...</less>
 ///
 class LessElement extends ContentElement {
-  bool hasLessCode = true;
   bool isReplace = false;
   String cssOpenTag; // <style...>
   String cssCloseTag = '</style>';
@@ -261,6 +260,7 @@ class LessElement extends ContentElement {
   }
 
   LessElement(Match fragment) {
+    hasLessCode = true;
     analyzeContent(fragment, openTagReg, closeTagReg);
 
     cssOpenTag = openTag.replaceFirst('less', 'style');

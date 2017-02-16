@@ -2,10 +2,11 @@
 
 part of tree.less;
 
-class UnicodeDescriptor extends Node {
-  String value;
+class UnicodeDescriptor extends Node<String> {
 
   final String type = 'UnicodeDescriptor';
 
-  UnicodeDescriptor(String this.value);
+  UnicodeDescriptor(String value){
+    this.value = value;
+  }
 }

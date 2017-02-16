@@ -7,4 +7,5 @@ pubspec.lock
 .settings
 .tags
 .tags1
+node_modules/
 /.project

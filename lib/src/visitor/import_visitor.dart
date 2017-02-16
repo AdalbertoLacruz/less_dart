@@ -6,7 +6,6 @@ class ImportVisitor extends VisitorBase {
   ImportManager   importer;
 
   Contexts        context;
-  bool            isReplacing = false;
   LessError       lessError;
   ImportDetector  onceFileDetectionMap;
   ImportDetector  recursionDetector;
@@ -21,6 +20,7 @@ class ImportVisitor extends VisitorBase {
   /// Structure to search for @import in the tree.
   ///
   ImportVisitor(ImportManager this.importer, [Contexts context, ImportDetector onceFileDetectionMap, ImportDetector recursionDetector]) {
+    isReplacing = false;
     _visitor = new Visitor(this);
     this.context = (context != null) ? context : new Contexts.eval();
 

@@ -1,7 +1,7 @@
 part of plugins.less;
 
 /// Base clase for Plugin definition
-class Plugin {
+abstract class Plugin {
   Environment environment;
   Logger logger;
   String cmdOptions;
@@ -9,7 +9,7 @@ class Plugin {
   bool isLoaded = false; //true after first load
 
   // Less required minimal version
-  List<int> minVersion = [2, 1, 0];
+  List<int> get minVersion;
 
   Plugin(){
     this.environment = new Environment();

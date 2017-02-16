@@ -11,8 +11,8 @@ class UnitConversions {
     'duration': duration,
     'angle': angle};
 
-  static Map<String, double> length = {
-     'm': 1,
+  static Map<String, double> length = <String, double>{
+     'm': 1.0,
     'cm': 0.01,
     'mm': 0.001,
     'in': 0.0254,
@@ -20,15 +20,15 @@ class UnitConversions {
     'pt': 0.0254 / 72,
     'pc': 0.0254 / 72 * 12
   };
-  static Map<String, double> duration = {
-     's': 1,
+  static Map<String, double> duration = <String, double>{
+     's': 1.0,
     'ms': 0.001
   };
-  static Map<String, double> angle = {
+  static Map<String, double> angle = <String, double>{
     'rad':  1 / (2*math.PI),
     'deg':  1 / 360,
     'grad': 1 / 400,
-    'turn': 1
+    'turn': 1.0
   };
 
 //2.2.0

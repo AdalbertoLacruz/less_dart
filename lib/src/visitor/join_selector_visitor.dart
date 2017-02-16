@@ -49,7 +49,7 @@ class JoinSelectorVisitor extends VisitorBase{
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     List context = this.contexts.last;
-    List paths = [];
+    List<List<Selector>> paths = [];
     List<Node> selectors;
 
     this.contexts.add(paths);

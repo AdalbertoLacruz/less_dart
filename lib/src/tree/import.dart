@@ -29,7 +29,6 @@ class Import extends Node {
   Node          features;
   ImportOptions options;
   int           index;
-  FileInfo      currentFileInfo;
 
   bool          css = false;
   LessError     errorImport;
@@ -40,7 +39,8 @@ class Import extends Node {
   final String type = 'Import';
 
   ///
-  Import(this.path, this.features, this.options, this.index, [this.currentFileInfo]) {
+  Import(this.path, this.features, this.options, this.index, [FileInfo currentFileInfo]) {
+    this.currentFileInfo = currentFileInfo;
     RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
 
     if (options.less != null || isTrue(options.inline)) {
@@ -266,6 +266,9 @@ class Import extends Node {
 //      }
 //  };
   }
+  // TODO: implement name
+  @override
+  get name => null;
 }
 
 ///

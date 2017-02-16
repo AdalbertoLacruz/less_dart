@@ -2,26 +2,24 @@
 
 part of tree.less;
 
-class Directive extends DirectiveBase {
-  String name;
-  Node value;
-  List<Ruleset> rules;
-  int index;
-  FileInfo currentFileInfo;
-  DebugInfo debugInfo;
-  bool isReferenced = false;
-  bool isRooted = false;
+class Directive extends DirectiveBase<Node> {
 
   final String type = 'Directive';
 
-  Directive(String this.name, Node this.value,  rules, int this.index,
-      FileInfo this.currentFileInfo, DebugInfo this.debugInfo, [bool this.isReferenced = false, bool this.isRooted = false]):super() {
-
+  Directive(String name, Node value,  rules, int index,
+      FileInfo currentFileInfo, DebugInfo debugInfo, [bool isReferenced = false, bool isRooted = false]):super() {
+    this.name = name;
+    this.value = value;
+    this.index = index;
+    this.currentFileInfo = currentFileInfo;
+    this.debugInfo = debugInfo;
+    this.isReferenced = isReferenced;
+    this.isRooted = isRooted;
     if (rules != null) {
-      if (rules is List) {
+      if (rules is List<Ruleset>) {
         this.rules = rules;
       } else {
-        this.rules = [rules];
+        this.rules = [rules as Ruleset];
         this.rules[0].selectors = (new Selector([], null, null, this.index, currentFileInfo)).createEmptySelectors();
       }
       this.rules.forEach((rule) {rule.allowImports = true;});
@@ -54,17 +52,13 @@ class Directive extends DirectiveBase {
 }
 
 /// Base class for Directive and Media
-class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
+class DirectiveBase<T> extends Node<Node> with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
   String name;
-  Node value;
-  List<Ruleset> rules;
   int index;
-  FileInfo currentFileInfo;
-  DebugInfo debugInfo;
   bool isReferenced = false;
   bool isRooted = false;
 
-  final String type = 'DirectiveBase';
+  String get type => 'DirectiveBase';
 
   DirectiveBase();
 
@@ -145,7 +139,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
     if (value != null) value = value.eval(context);
     if (rules != null) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
-      rules = [rules[0].eval(context)];
+      rules = <Ruleset>[rules[0].eval(context)];
       rules[0].root = true;
     }
     // restore media bubbling information

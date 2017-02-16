@@ -2,16 +2,17 @@
 
 part of tree.less;
 
-class URL extends Node {
-  Node      value;
+class URL extends Node<Node> {
   int       index;
-  FileInfo  currentFileInfo;
   bool      isEvald;
 
   String type = 'Url';
 
   ///
-  URL(Node this.value, [int this.index, FileInfo this.currentFileInfo, bool this.isEvald = false]);
+  URL(Node value, [int this.index, FileInfo currentFileInfo, bool this.isEvald = false]){
+    this.value = value;
+    this.currentFileInfo = currentFileInfo;
+  }
 
   ///
   void accept(Visitor visitor) {

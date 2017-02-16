@@ -5,13 +5,14 @@ part of tree.less;
 class JavaScript extends Node with JsEvalNodeMixin {
   String expression;
   bool escaped;
-  int index;
-  FileInfo currentFileInfo;
 
   final String type = 'JavaScript';
 
   ///
-  JavaScript(String this.expression, bool this.escaped, int this.index, this.currentFileInfo);
+  JavaScript(String this.expression, bool this.escaped, int index, FileInfo currentFileInfo){
+    this.index = index;
+    this.currentFileInfo = currentFileInfo;
+  }
 
   // Not supported javascript
   eval(context) {

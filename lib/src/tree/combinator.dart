@@ -3,7 +3,6 @@
 part of tree.less;
 
 class Combinator extends Node {
-  String value = '';
   bool emptyOrWhitespace;
 
   Map<String, bool> _noSpaceCombinators = {
@@ -16,6 +15,7 @@ class Combinator extends Node {
 
   ///
   Combinator (String value) {
+    this.value = '';
     if (value == ' ') {
       this.value = ' ';
       emptyOrWhitespace = true;
@@ -56,4 +56,7 @@ class Combinator extends Node {
   genCleanCSS(Contexts context, Output output) {
     output.add(value);
   }
+
+  @override
+  get name => null;
 }

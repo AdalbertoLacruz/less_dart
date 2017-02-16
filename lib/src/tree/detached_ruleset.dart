@@ -6,10 +6,11 @@ class DetachedRuleset extends Node {
   Ruleset ruleset;
   List<Node> frames;
 
-  bool evalFirst = true;
   final String type = 'DetachedRuleset';
 
-  DetachedRuleset(this.ruleset, [this.frames]);
+  DetachedRuleset(this.ruleset, [this.frames]){
+    evalFirst = true;
+  }
 
   ///
   void accept(Visitor visitor) {

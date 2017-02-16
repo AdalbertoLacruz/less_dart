@@ -16,14 +16,14 @@ part of tree.less;
 ///
 class Element extends Node {
   Combinator  combinator;
-  var         value = ''; // String or Node
   int         index;
-  FileInfo    currentFileInfo;
 
   final String type = 'Element';
 
   ///
-  Element(combinator, value, this.index, this.currentFileInfo) {
+  Element(combinator, value, this.index, FileInfo currentFileInfo) {
+    this.value = '';
+    this.currentFileInfo = currentFileInfo;
     this.combinator = (combinator is Combinator) ? combinator : new Combinator(combinator);
 
     if (value is String) {

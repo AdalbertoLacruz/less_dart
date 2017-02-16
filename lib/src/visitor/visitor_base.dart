@@ -19,12 +19,12 @@ part 'process_extends_visitor.dart';
 part 'to_css_visitor.dart';
 part 'visitor.dart';
 
-class VisitorBase {
+abstract class VisitorBase<T> {
   bool isPreEvalVisitor = false; //plugins
   bool isPreVisitor = false; //plugins
   bool isReplacing = false;
 
-  run(root){}
+  T run(T root);
 
   static Node noop(node) => node; //TODO delete not used
 

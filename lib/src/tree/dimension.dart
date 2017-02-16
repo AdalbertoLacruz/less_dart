@@ -5,8 +5,7 @@ part of tree.less;
 ///
 /// A number with a unit
 ///
-class Dimension extends Node implements CompareNode, OperateNode {
-  double value;
+class Dimension extends Node<double> implements CompareNode, OperateNode {
   Unit unit;
 
   final String type = 'Dimension';
