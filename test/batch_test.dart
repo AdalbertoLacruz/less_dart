@@ -1,4 +1,7 @@
-//2.5.0
+//Less 2.5.0
+// use:
+// cmd> pub run test test/batch_test.dart
+//
 
 import 'dart:async';
 import 'dart:io';
@@ -17,12 +20,12 @@ Stopwatch timeInProcess;
 
 // ------------- CONFIGURATION -------
 
+/// test directory
+String dirPath = 'test/';
+
 /// runOlny = null; runs all test.
 /// runOnly = [1, 2]; only run test 1 and 2
 List runOnly;
-
-/// test directory
-String dirPath = 'test/';
 
 /// Write to resultDart.css, resultNode.css and .txt the config[testNumResults].
 /// example: int testNumResults = 16;
@@ -35,7 +38,7 @@ main() {
 
   group('simple', () {
     for (int id in config.keys) {
-      if (!config[id].isExtendedText) {
+      if (!config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
         declareTest(id);
       }
     }
@@ -43,7 +46,7 @@ main() {
 
   group('extended', () {
     for (int id in config.keys) {
-      if (config[id].isExtendedText) {
+      if (config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
         declareTest(id);
       }
     }
@@ -52,7 +55,8 @@ main() {
 
 declareTest(int id) {
   final Config c = config[id];
-  test(c.name, () async {
+  String ref = "(#${id.toString()})";
+  test(c.name + ref, () async {
     await runZoned(() async {
       await testRun(id);
     }, zoneValues: {#id: id});
@@ -563,7 +567,7 @@ class TestPreProcessorPlugin extends Plugin {
 }
 
 // ---------------------------------------------- TestVisitorPlugin plugin
-class RemoveProperty extends VisitorBase<Ruleset> {
+class RemoveProperty extends VisitorBase {
   Visitor _visitor;
 
   RemoveProperty() {

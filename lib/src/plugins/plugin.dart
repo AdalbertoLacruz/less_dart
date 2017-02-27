@@ -39,7 +39,7 @@ abstract class Plugin {
   void printOptions() {}
 
   ///
-  setOptions(cmdOptions) {}
+  setOptions(String cmdOptions) {}
 }
 
 // Base class for cmd options

@@ -122,10 +122,10 @@ class Mixin {
   ///
   MixinReturner args(bool isCall) {
     Node arg;
-    List argsComma = [];
-    List argsSemiColon = [];
+    List<MixinArgs> argsComma = [];
+    List<MixinArgs> argsSemiColon = [];
     bool expressionContainsNamed = false;
-    List expressions = [];
+    List<Node> expressions = [];
     String name;
     String nameLoop;
     bool isSemiColonSeperated = false;

@@ -3,7 +3,7 @@
 part of visitor.less;
 
 class ExtendFinderVisitor extends VisitorBase {
-  List<List> allExtendsStack;
+  List<List<Extend>> allExtendsStack;
   List<List<Selector>> contexts;
   Visitor _visitor;
 

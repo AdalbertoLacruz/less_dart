@@ -7,12 +7,12 @@ class MixinCall extends Node {
   bool important;
 
   Selector selector;
-  List<Node> arguments;
+  List<MixinArgs> arguments;
 
   final String type = 'MixinCall';
 
   ///
-  MixinCall(elements, List args, int this.index, FileInfo currentFileInfo, bool this.important) {
+  MixinCall(elements, List<MixinArgs> args, int this.index, FileInfo currentFileInfo, bool this.important) {
     this.currentFileInfo = currentFileInfo;
     selector = new Selector(elements);
     if (args != null && args.isNotEmpty) this.arguments = args;
@@ -28,7 +28,7 @@ class MixinCall extends Node {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (selector != null) selector = visitor.visit(selector);
     if (arguments != null) arguments = visitor.visitArray(arguments);
 
@@ -46,7 +46,9 @@ class MixinCall extends Node {
   ///
   /// Search the MixinDefinition and ...
   ///
-  eval(Contexts context) {
+  //In js returns a List<Node>. Changed to Nodeset.rules = List<Node>
+  //List<Node> eval(Contexts context) {
+  Node eval(Contexts context) {
     List<MixinFound> mixins;
     MatchConditionNode mixin;
     List<Node> mixinPath;
@@ -196,7 +198,8 @@ class MixinCall extends Node {
               if (rule is MarkReferencedNode) (rule as MarkReferencedNode).markReferenced();
             }
           }
-          return rules;
+          //return rules;
+          return new Nodeset(rules);
         }
       }
     }

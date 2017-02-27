@@ -24,7 +24,7 @@ class Expression extends Node<List<Node>> {
   }
 
   ///
-  accept(Visitor visitor){
+  accept(covariant Visitor visitor){
     value = visitor.visitArray(value);
 
 //2.3.1
@@ -34,7 +34,7 @@ class Expression extends Node<List<Node>> {
   }
 
   /// Returns Node or List<Node>
-  eval(Contexts context) {
+  eval(Contexts context) { //TODO check reurn type
     var returnValue;
     bool inParenthesis = parens && !parensInOp;
     bool doubleParen = false;

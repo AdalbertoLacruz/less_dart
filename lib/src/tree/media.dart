@@ -5,13 +5,12 @@ part of tree.less;
 //2.3.1 extends from Directive
 class Media extends DirectiveBase {
   Node features;
-
   bool isRulesetLike() => true;
 
   final String type = 'Media';
 
   ///
-  Media(value, List features, [int index, FileInfo currentFileInfo]):super() {
+  Media(value, List<Node> features, [int index, FileInfo currentFileInfo]):super() {
     this.index = index;
     this.currentFileInfo = currentFileInfo;
     isReferenced = false;

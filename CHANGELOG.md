@@ -1,9 +1,10 @@
-## v.1.0.0 (2017-02-06)
+## v.1.0.0 (2017-02-27)
 
-- min sdk 1.21.1
+- min sdk 1.22.0
 - enable strong mode
 - boost speed
 - analysis clean up
+- Some bugs romoval
 
 ## v.0.3.4 (2016-05-03)
 

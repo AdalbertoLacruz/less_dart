@@ -11,7 +11,7 @@ class Alpha<T> extends Node<T> {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     value = visitor.visit(value);
 
 //2.3.1

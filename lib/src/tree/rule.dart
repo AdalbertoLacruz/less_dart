@@ -13,7 +13,7 @@ class Rule extends Node<Node> implements MakeImportantNode {
   final String type = 'Rule';
 
   ///
-  Rule(this.name,Node value, [String important, this.merge, int this.index, FileInfo currentFileInfo,
+  Rule(this.name, Node value, [String important, String this.merge, int this.index, FileInfo currentFileInfo,
       bool this.inline = false, bool variable = null]) {
     this.value = value;
     this.currentFileInfo = currentFileInfo;

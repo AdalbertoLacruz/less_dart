@@ -48,7 +48,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (elements != null) elements = visitor.visitArray(elements);
     if (extendList != null) extendList = visitor.visitArray(extendList);
     if (condition != null) condition = visitor.visit(condition);
@@ -227,7 +227,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   Selector eval(Contexts context) {
     bool evaldCondition;
-    if (condition != null) evaldCondition = condition.eval(context); //evaldCondition null is ok
+    if (condition != null) evaldCondition = condition.eval(context).evaluated; //evaldCondition null is ok
     List<Element> elements = this.elements;
     List<Node> extendList = this.extendList;
 

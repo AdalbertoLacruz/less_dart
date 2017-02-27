@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 
 import '../lib/src/less_options.dart';
-import '../lib/src/logger.dart';
+//import '../lib/src/logger.dart';
 
 import 'dart:io';
 

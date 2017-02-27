@@ -149,10 +149,10 @@ class TransformerOptions {
 
   final String executable;   // executable: lessc - command to execute lessc  - NOT USED
   final String build_mode;   // build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
-  final List other_flags;    // other options in the command line
+  final List<String> other_flags;    // other options in the command line
 
   TransformerOptions({List<String> this.entry_points, String this.include_path, String this.output, bool this.cleancss, bool this.compress,
-    String this.executable, String this.build_mode, List this.other_flags});
+    String this.executable, String this.build_mode, this.other_flags});
 
   factory TransformerOptions.parse(Map configuration){
 

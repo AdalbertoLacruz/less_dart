@@ -5,7 +5,7 @@ part of visitor.less;
 ///
 /// Visitor to run after parse input file, before imports
 ///
-class IgnitionVisitor extends VisitorBase<Ruleset> {
+class IgnitionVisitor extends VisitorBase {
   Environment environment;
   Visitor _visitor;
 

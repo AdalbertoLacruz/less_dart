@@ -36,7 +36,7 @@ class Less {
   Less(){
     logger = new Logger(stderr); // care the order
     _options = new LessOptions();
-    Environment environment = new Environment()..options = _options;
+    new Environment()..options = _options; //make global
   }
 
   void loggerReset() {

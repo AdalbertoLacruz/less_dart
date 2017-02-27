@@ -58,7 +58,7 @@ class Extend extends Node {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     selector = visitor.visit(selector);
 
 //2.3.1
@@ -86,7 +86,7 @@ class Extend extends Node {
 
   ///
   void findSelfSelectors(List<Selector> selectors) {
-    List selfElements = [];
+    List<Element> selfElements = [];
     List<Element> selectorElements;
 
     for (int i = 0; i < selectors.length; i++) {

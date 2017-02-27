@@ -15,14 +15,16 @@ abstract class Node<T> {
   CleanCssContext cleanCss; // Info to optimize the node with cleanCss
 
   FileInfo currentFileInfo;
+  bool evaluated = null; //result from bool eval, used in condition
   bool isRuleset = false; //true in MixinDefinition & Ruleset
   dynamic get name => null;
   var operands;
   Node originalRuleset; //see mixin_call
   bool parens = false; //Expression
   bool parensInOp = false; //See parsers.operand & Expression
-  var rules; //Ruleset
-  var selectors;
+  //var rules; //Ruleset
+  @virtual List<Node> rules; //Ruleset
+  List<Selector> selectors;
   String get type;
   T value;
 
@@ -77,7 +79,7 @@ abstract class Node<T> {
   }
 
   ///
-  accept(VisitorBase visitor) {
+  void accept(VisitorBase visitor) {
     value = visitor.visit(value);
 
 //2.3.1
@@ -89,7 +91,8 @@ abstract class Node<T> {
   ///
   /// Default eval - returns the node
   ///
-  eval(Contexts context) => this;
+  @virtual
+  Node eval(Contexts context) => this;
 
 //2.3.1
 //  Node.prototype.eval = function () { return this; };
@@ -242,7 +245,7 @@ abstract class Node<T> {
 
   void genTree(Contexts env, Output output) {
     int i;
-    Node rule;
+    //Node rule;
     String tabStr = '  ' * env.tabLevel;
     List process = [];
 
@@ -298,6 +301,7 @@ abstract class MatchConditionNode {
   bool matchArgs(List<MixinArgs> args, Contexts context);
 }
 
-abstract class OperateNode {
-  Node operate(Contexts context, String op, Node other);
+abstract class OperateNode<T> {
+  //Node operate(Contexts context, String op, Node other);
+  T operate(Contexts context, String op, T other);
 }

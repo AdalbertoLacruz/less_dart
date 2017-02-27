@@ -22,7 +22,7 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  Node run (Ruleset root) => _visitor.visit(root);
+  Ruleset run (Ruleset root) => _visitor.visit(root);
 
 //2.3.1
 //  run: function (root) {
@@ -131,7 +131,7 @@ class ToCSSVisitor extends VisitorBase{
     }
 
     for (int r = 0; r < bodyRules.length; r++) {
-      var rule = bodyRules[r];
+      rule = bodyRules[r];
       if (rule is GetIsReferencedNode && rule.getIsReferenced()) {
         // the directive contains something that was referenced (likely by extend)
         // therefore it needs to be shown in output too
@@ -524,7 +524,7 @@ class ToCSSVisitor extends VisitorBase{
     if (rules == null) return;
 
     Map<String, List<Rule>> groups = {};
-    var parts;
+    //var parts;
     var rule;
     var key;
 
@@ -544,13 +544,11 @@ class ToCSSVisitor extends VisitorBase{
     }
 
     groups.forEach((k, parts) { //key as String, value as List
-
       toExpression(List<Rule> values) {
         return new Expression(values.map((p){
           return p.value;
         }).toList());
       }
-
       toValue(List<Rule> values) {
         return new Value(values.map((p){
           return p;
@@ -559,8 +557,8 @@ class ToCSSVisitor extends VisitorBase{
 
       if (parts.length > 1) {
         Rule rule = parts[0];
-        List spacedGroups = [];
-        List lastSpacedGroup = [];
+        List<Node> spacedGroups = [];
+        List<Node> lastSpacedGroup = [];
         parts.forEach((p) {
           if (p.merge == '+') {
             if (lastSpacedGroup.isNotEmpty) {

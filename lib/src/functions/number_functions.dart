@@ -67,7 +67,7 @@ class NumberFunctions extends FunctionBase {
 
     if (order.length == 1) return order[0];
     String arguments = order.map((a) => a.toCSS(this.context)).toList().join(this.context.compress ? ',' : ', ');
-    return new Anonymous((isMin ? 'min' : 'max') + '(${args})');
+    return new Anonymous((isMin ? 'min' : 'max') + '(${arguments})');
 
 //    var minMax = function (isMin, args) {
 //        args = Array.prototype.slice.call(args);
@@ -123,7 +123,7 @@ class NumberFunctions extends FunctionBase {
   ///
   ///
   @defineMethod(listArguments: true)
-  Node min(List arguments) => _minmax(true, arguments);
+  Node min(List<Node> arguments) => _minmax(true, arguments);
 
   ///
   /// Returns the highest of one or more values.
@@ -135,7 +135,7 @@ class NumberFunctions extends FunctionBase {
   ///
   ///
   @defineMethod(listArguments: true)
-  Node max(List arguments) => _minmax(false, arguments);
+  Node max(List<Node> arguments) => _minmax(false, arguments);
 
   ///
   /// Convert a number from one unit into another.

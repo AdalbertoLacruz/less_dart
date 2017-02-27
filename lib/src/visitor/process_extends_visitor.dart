@@ -20,14 +20,14 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  run(Node root) {
+  Ruleset run(Ruleset root) {
     ExtendFinderVisitor extendFinder = new ExtendFinderVisitor();
     extendIndicies = {};
     extendFinder.run(root);
     if (!extendFinder.foundExtends) return root;
     root.allExtends = root.allExtends.sublist(0)..addAll(doExtendChaining(root.allExtends, root.allExtends));
     allExtendsStack = [root.allExtends];
-    var newRoot = _visitor.visit(root);
+    Ruleset newRoot = _visitor.visit(root);
     checkExtendsForNonMatched(root.allExtends);
     return newRoot;
 

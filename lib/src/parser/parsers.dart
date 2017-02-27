@@ -66,7 +66,7 @@ class Parsers {
   List<Node> primary(){
     Node node;
     List<Node> nodeList;
-    List root = [];
+    List<Node> root = [];
 
     while(true){
       while(true) {
@@ -2172,7 +2172,7 @@ class Parsers {
   /// Returns List<String> or List<Node>
   List ruleProperty() {
     List<int> index = [];
-    int length = 0;
+    // int length = 0;
     List name = [];
     String s;
 

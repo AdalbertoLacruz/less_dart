@@ -8,4 +8,5 @@ pubspec.lock
 .tags
 .tags1
 node_modules/
+/.atom
 /.project

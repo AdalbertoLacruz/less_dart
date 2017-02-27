@@ -16,6 +16,9 @@
   position: absolute;
   background-color: #00ff00;
   color: #0000ff;
+  height: 30px;
+  get-unit: px;
+  get-unit-empty: ;
 }
 #hGrey {
   text-align: center;
@@ -23,4 +26,5 @@
   background-color: #c0c0c0;
   color: white;
 }
+
 /*# sourceMappingURL=index.map */

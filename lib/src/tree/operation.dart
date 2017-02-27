@@ -22,7 +22,7 @@ class Operation extends Node {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     operands = visitor.visit(operands);
 
 //2.3.1

@@ -85,7 +85,7 @@ class Contexts {
   List<bool> parensStack;
 
   /// options.paths
-  List paths;
+  List<String> paths;
 
   /// options.pluginManager
   PluginManager pluginManager;
@@ -199,7 +199,7 @@ class Contexts {
     cleanCss            = options.cleanCss;
 
     if (options is Contexts) {
-      Contexts context  = options as Contexts;
+      Contexts context  = options;
 
       files                 = context.files;
       contents              = context.contents;
@@ -213,7 +213,7 @@ class Contexts {
   /// [options] is LessOptions or Context
   ///
   //2.2.0 TODO
-  factory Contexts.eval([options, List frames]) {
+  factory Contexts.eval([options, List<Node> frames]) {
     Contexts context = new Contexts();
     evalCopyProperties(context, options);
 
@@ -252,7 +252,7 @@ class Contexts {
     newctx.paths              = options.paths;
     newctx.cleanCss           = options.cleanCss;
     if (options is Contexts) {
-      Contexts context  = options as Contexts;
+      Contexts context  = options;
 
       newctx.defaultFunc    = context.defaultFunc;
       newctx.importantScope = context.importantScope;

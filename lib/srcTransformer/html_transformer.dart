@@ -24,7 +24,7 @@ class HtmlTransformer extends BaseTransformer{
   /// Example: <less no-shim> => <less no-shim style="display:none">  <style no-shim>
   ///
   Future<HtmlTransformer> transform(List<String> args) {
-    Completer task = new Completer();
+    Completer<HtmlTransformer> task = new Completer();
     timerStart();
 
     flags = args.sublist(0);
@@ -53,7 +53,7 @@ class HtmlTransformer extends BaseTransformer{
   ///
   /// [content] is the html file content
   ///
-  List parse(String content) {
+  List<ContentElement> parse(String content) {
     List<ContentElement> result = [];
 
     result.addAll(LessElement.parse(content));
@@ -207,7 +207,6 @@ class ContentElement {
 /// <style type="text/less"> ... </style>
 ///
 class StyleElement extends ContentElement {
-  bool hasLessCode = true;
   static RegExp outerTagReg = new RegExp(r'<style[^>]*>(.|\n)*?<\/style>');
   static RegExp openTagReg = new RegExp(r'<style[^>]*>');
   static RegExp closeTagReg = new RegExp(r'<\/style>');
@@ -227,6 +226,7 @@ class StyleElement extends ContentElement {
   }
 
   StyleElement(Match fragment) {
+    hasLessCode = true;
     analyzeContent(fragment, openTagReg, closeTagReg);
     openTagResult = openTagResult.replaceFirst(styleTypeReg, 'type="text/css"');
   }

@@ -19,13 +19,13 @@ transformer. Also, it could be used in other Dart programs.
 If you get the full distribution (tar.gz file), the bin directory has the `lessc.dart` file
 for use with pub run:
 
-    CMD> pub run lessc [args] file.less file.css
+    CMD> pub run bin/lessc [args] file.less file.css
 
-A working example: `CMD> pub run lessc test/less/charsets.less`
+A working example: `CMD> pub run bin/lessc test/less/charsets.less`
 
-Example with error output: `CMD> pub run lessc --no-color test/less/errors/import-subfolder1.less`
+Example with error output: `CMD> pub run bin/lessc --no-color test/less/errors/import-subfolder1.less`
 
-For help: `CMD> pub run lessc --help`
+For help: `CMD> pub run bin/lessc --help`
 
 
 ### How to use in other dart programs
@@ -190,24 +190,23 @@ Other way, is to inherit the transformer in your application. Create a file
 
 ## Known issues
 
-- The transformer has been rebuild recently. If the new behavior is not right, you could use the previous version:
+- The transformer has complex funcionality. There is an older and simpler version.
 
 	      transformers:
 	      - less_dart/deprecated/transformer:
 	          entry_point: ...
 
-
-- Pass the standard tests in windows (no tested in linux).
-
 - cleanCSS (as plugin) not fully implemented.
 
-- Error color output. Implemented, but not tested in linux. In windows cmd don't support the color commands.
+- Error color output. In windows cmd don't support the color commands. [ConEmu](https://conemu.github.io/) is an alternative.
 
+## Contribuitors
+[DisDis](https://github.com/DisDis)
 
 ## [License](LICENSE)
 
-Copyright (c) 2009-2016 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
+Copyright (c) 2009-2017 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
 
-Copyright (c) 2014-2016 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
+Copyright (c) 2014-2017 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
 
 Licensed under the [Apache License](LICENSE).

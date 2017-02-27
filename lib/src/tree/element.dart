@@ -52,7 +52,7 @@ class Element extends Node {
   ///
   /// Tree navegation for visitors
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     combinator = visitor.visit(combinator);
     if (value is Node) value = visitor.visit(value);
 

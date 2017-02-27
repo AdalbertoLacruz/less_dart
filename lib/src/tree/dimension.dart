@@ -5,7 +5,7 @@ part of tree.less;
 ///
 /// A number with a unit
 ///
-class Dimension extends Node<double> implements CompareNode, OperateNode {
+class Dimension extends Node<double> implements CompareNode, OperateNode<Dimension> {
   Unit unit;
 
   final String type = 'Dimension';
@@ -32,7 +32,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     unit = visitor.visit(unit);
 
 //2.3.1
@@ -286,6 +286,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode {
   /// Converts a number from one unit into another
   /// [conversions] ==  'px', 's' , ...
   /// or { length: 'px', duration: 's', angle: 'rad' }
+  /// String | Map<String, String>
   ///
   Dimension convertTo(conversions) {
     double value = this.value;
@@ -294,7 +295,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode {
     String groupName;
     Map<String, double> group;
     String targetUnit; //new unit
-    Map derivedConversions = {};
+    Map<String, String> derivedConversions = {};
     Map<String, String> conversionsMap;
 
     if (conversions is String) {

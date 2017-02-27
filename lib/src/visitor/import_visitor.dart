@@ -43,7 +43,8 @@ class ImportVisitor extends VisitorBase {
   ///
   /// Replaces @import nodes with the file content
   ///
-  Future run(Node root) {
+//run version with Future
+  Future runAsync(Ruleset root) {
     _visitor.visit(root);
 
 //    return Future
@@ -266,7 +267,7 @@ class ImportVisitor extends VisitorBase {
 
       if (!inlineCSS && (isTrue(context.importMultiple) || !duplicateImport)) {
         recursionDetector[fullPath] = true;
-        new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector).run(root).then((_){
+        new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector).runAsync(root).then((_){
           completer.complete();
         }).catchError((e){
           completer.completeError(e);

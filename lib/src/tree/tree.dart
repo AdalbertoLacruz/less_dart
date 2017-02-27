@@ -3,6 +3,7 @@
 library tree.less;
 
 import 'dart:math' as math;
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
 import '../file_info.dart';
@@ -44,6 +45,7 @@ part 'mixin_call.dart';
 part 'mixin_definition.dart';
 part 'negative.dart';
 part 'node.dart';
+part 'nodeset.dart';
 part 'operation.dart';
 part 'paren.dart';
 part 'options.dart';

@@ -19,7 +19,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   bool variadic;
 
   /// Same as name
-  List<Node> selectors;
+  //List<Node> selectors;
 
   //not in original
   int index;
@@ -29,7 +29,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   /// Number of params
   int arity;
 
-  Ruleset originalRuleset;
+  //Ruleset originalRuleset; //defined in Node
 
   /// Arguments number required
   int required;
@@ -78,7 +78,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (params != null && params.isNotEmpty) {
       params = visitor.visitArray(params);
     }
@@ -138,8 +138,10 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
       frame.functionRegistry = new FunctionRegistry.inherit((mixinEnv.frames[0] as VariableMixin).functionRegistry);
     }
 
-    mixinEnv = new Contexts.eval(mixinEnv,
-                             [frame]..addAll(mixinEnv.frames));
+    //mixinEnv = new Contexts.eval(mixinEnv, [frame]..addAll(mixinEnv.frames));
+    List<Node> toEval = [frame];
+    toEval.addAll(mixinEnv.frames);
+    mixinEnv = new Contexts.eval(mixinEnv, toEval);
 
     if (args != null) {
       args = args.sublist(0);
@@ -347,7 +349,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
   ///
   Ruleset evalCall(Contexts context, List<MixinArgs> args, bool important) {
-    List _arguments = [];
+    List<Node> _arguments = [];
     List<Node> mixinFrames = (frames != null) ? (frames.sublist(0)..addAll(context.frames)) : context.frames;
     Ruleset frame = evalParams(context, new Contexts.eval(context, mixinFrames), args, _arguments);
     List<Node> rules;
@@ -360,7 +362,13 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
     ruleset = new Ruleset(null, rules);
     ruleset.originalRuleset = this;
     ruleset.id = id;
-    ruleset = ruleset.eval(new Contexts.eval(context, [this, frame]..addAll(mixinFrames)));
+
+    //ruleset = ruleset.eval(new Contexts.eval(context, [this, frame]..addAll(mixinFrames)));
+    List<Node> toEval = [this];
+    toEval.add(frame);
+    toEval.addAll(mixinFrames);
+    ruleset = ruleset.eval(new Contexts.eval(context, toEval));
+
     if (important) {
       ruleset = ruleset.makeImportant();
     }
@@ -391,11 +399,13 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
   ///
   bool matchCondition(List<MixinArgs> args, Contexts context) {
-    List thisFrames = (this.frames != null) ? (this.frames.sublist(0)..addAll(context.frames)) : context.frames;
-    List frames = [evalParams(context, new Contexts.eval(context, thisFrames), args, [])] // the parameter variables
-      ..addAll(this.frames != null ? this.frames : [] ) // the parent namespace/mixin frames
-      ..addAll(context.frames); // the current environment frames
-    if (condition != null && !condition.eval(new Contexts.eval(context, frames))) return false;
+    List<Node> thisFrames = (this.frames != null) ? (this.frames.sublist(0)..addAll(context.frames)) : context.frames;
+
+    List<Node> frames = [evalParams(context, new Contexts.eval(context, thisFrames), args, [])]; // the parameter variables
+    frames.addAll(this.frames != null ? this.frames : [] ); // the parent namespace/mixin frames
+    frames.addAll(context.frames); // the current environment frames
+
+    if (condition != null && !condition.eval(new Contexts.eval(context, frames)).evaluated) return false;
     return true;
 
 //2.5.0 20150419

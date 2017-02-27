@@ -21,14 +21,14 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   final String type = 'Ruleset';
 
-  Ruleset(List<Selector> selectors,List<Node> rules, [this.strictImports = false]){
+  Ruleset(List<Selector> selectors, List<Node> rules, [this.strictImports = false]){
     this.isRuleset = true;
     this.selectors = selectors;
     this.rules = rules;
   }
 
   ///
-  void accept(Visitor visitor){
+  void accept(covariant Visitor visitor){
     if (paths != null) {
       visitor.visitArray(paths, true);
     } else if (selectors != null) {
@@ -129,7 +129,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     // Evaluate mixin calls.
     for (i = 0; i < rsRuleCnt; i++) {
       if (rsRules[i] is MixinCall) {
-        rules = (rsRules[i] as MixinCall).eval(context)..retainWhere((r){
+        //rules = (rsRules[i] as MixinCall).eval(context)..retainWhere((r){
+        rules = (rsRules[i] as MixinCall).eval(context).rules..retainWhere((r){
           if (r is Rule && r.variable) {
             // do not pollute the scope if the variable is
             // already there. consider returning false here
@@ -162,7 +163,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       rule = rsRules[i];
       if (!rule.evalFirst) {
         ruleEvaluated = rule.eval(context);
-        if (ruleEvaluated is! List) ruleEvaluated = [ruleEvaluated];
+        //if (ruleEvaluated is! List) ruleEvaluated = [ruleEvaluated];
+        ruleEvaluated = (ruleEvaluated is Nodeset) ?  ruleEvaluated.rules : [ruleEvaluated];
         rsRules.replaceRange(i, i+1, ruleEvaluated);
         i += ruleEvaluated.length -1;
       }
@@ -350,14 +352,15 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   void evalImports(Contexts context) {
     List<Node> rules = this.rules;
     List<Node> importRules;
-    var evalImport;
+    Node evalImport;
 
     if (rules == null) return;
 
     for (int i = 0; i < rules.length; i++) {
       if (rules[i] is Import) {
         evalImport = rules[i].eval(context);
-        importRules = (evalImport is List<Node>) ? evalImport : <Node>[evalImport];
+        //importRules = (evalImport is List<Node>) ? evalImport : <Node>[evalImport];
+        importRules = (evalImport is Nodeset) ? evalImport.rules : [evalImport];
         rules.replaceRange(i, i+1, importRules);
         i += importRules.length - 1;
         resetCache();
@@ -427,7 +430,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     Selector lastSelector = selectors.last;
     if (!lastSelector.evaldCondition) return false;
     if (lastSelector.condition != null &&
-        !lastSelector.condition.eval(new Contexts.eval(context, context.frames))) return false;
+        !lastSelector.condition.eval(new Contexts.eval(context, context.frames)).evaluated) return false;
 
     return true;
 
@@ -1338,7 +1341,7 @@ abstract class VariableMixin implements Node {
 
   Map _lookups = {};
   Node paren;
-  var _rulesets;
+  //var _rulesets;
 
   /// List of Variable Nodes, by @name
   Map<String, Node> _variables;
@@ -1346,7 +1349,7 @@ abstract class VariableMixin implements Node {
   ///
   void resetCache(){
     if (functionRegistry != null) functionRegistry.resetCache();
-    _rulesets = null;
+    //_rulesets = null;
     _variables = null;
     _lookups = {};
 

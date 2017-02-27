@@ -70,7 +70,7 @@ class Import extends Node {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (features != null) features = visitor.visit(features);
     path = visitor.visit(path);
 
@@ -203,19 +203,23 @@ class Import extends Node {
 
   ///
   /// Replaces the @import rule with the imported ruleset
-  /// Returns Node or List<Node>
+  /// Returns Node (or List<Node> as Nodeset)
   ///
-   eval(Contexts context) {
+  // In js returns Node or List<Node>
+  //eval(Contexts context) {
+   Node eval(Contexts context) {
     Node features = (this.features != null) ? this.features.eval(context) : null;
 
     if (skip != null) {
       if (skip is Function) skip = skip();
-      if (skip) return [];
+      //if (skip) return [];
+      if (skip) return new Nodeset([]);
     }
 
     if (isTrue(options.inline)) {
       Anonymous contents = new Anonymous(root, 0, new FileInfo()..filename = importedFilename, true, true);
-      return (this.features != null) ? new Media([contents], this.features.value) : [contents];
+      //return (this.features != null) ? new Media([contents], this.features.value) : [contents];
+      return (this.features != null) ? new Media([contents], this.features.value) : new Nodeset([contents]);
     } else if (isTrue(css)) {
       Import newImport = new Import(evalPath(context), features, options, index);
       if (!isTrue(newImport.css) && errorImport != null) throw new LessExceptionError(errorImport);
@@ -223,7 +227,8 @@ class Import extends Node {
     } else {
       Ruleset ruleset = new Ruleset(null, root.rules.sublist(0));
       ruleset.evalImports(context);
-      return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
+      //return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
+      return (this.features != null) ? new Media(ruleset.rules, this.features.value) : new Nodeset(ruleset.rules); //TODO
     }
 
 //2.4.0 20150320
@@ -281,7 +286,7 @@ class ImportOptions {
   bool multiple;
   bool once;
   bool inline;
-  //bool plugin;  //Here @plugin directive is based in @options, no on import
+  //bool plugin;  //Here @plugin directive is based in @options, not on import
   bool reference;
   bool optional;
 

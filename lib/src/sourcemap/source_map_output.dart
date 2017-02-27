@@ -112,15 +112,16 @@ class SourceMapOutput extends Output{
 
   ///
   /// genCSS call 'output.add'. This is 'output' for sourcemaps generation
+  /// [s] String | Node
   ///
-  void add(String chunk, [FileInfo fileInfo, int index, mapLines = false]) {
+  void add(Object s, [FileInfo fileInfo, int index, bool mapLines = false]) {
     List<String> lines;
     List<String> sourceLines;
     String columns;
     String sourceColumns;
-
-    SourceLocation original;
-    SourceLocation generated;
+    
+    if (s == null) return;
+    String chunk = s is String ? s : s.toString();
 
     //ignore adding empty strings
     if (chunk.isEmpty) return;

@@ -10,7 +10,7 @@ abstract class JsEvalNodeMixin implements Node {
   String evaluateJavaScript(String expression, Contexts context) {
     String result;
     JsEvalNodeMixin that = this;
-    Map evalContext = {};
+    //Map evalContext = {};
 
     if (!isTrue(context.javascriptEnabled)) {
       throw new LessExceptionError(new LessError(

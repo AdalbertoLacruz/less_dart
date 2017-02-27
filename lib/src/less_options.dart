@@ -191,7 +191,7 @@ class LessOptions {
   bool parse(arg) {
     if (arg == null) return setParseError('empty');
     String command = arg[1];
-    bool result;
+    //bool result;
 
     switch (command) {
       case 'v':
@@ -257,7 +257,7 @@ class LessOptions {
 //                .split(os.type().match(/Windows/) ? /:(?!\\)|;/ : ':')
 //                .map(function(p) {
 //                    if (p) {
-//                        return path.resolve(process.cwd(), p);  //ABSOLUTE PATH TODO ?
+//                        return path.resolve(process.cwd(), p);  //ABSOLUTE PATH -TODO ?
 //                    }
 //                });
         } else return setParseError(command);

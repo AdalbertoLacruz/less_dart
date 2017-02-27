@@ -2,7 +2,7 @@
 
 part of visitor.less;
 
-class Visitor<T> extends VisitorBase<T> {
+class Visitor extends VisitorBase {
   VisitorBase _implementation; //Join_Selector_visitor, ...
   VisitArgs _visitArgs = new VisitArgs(true);
 
@@ -80,7 +80,9 @@ class Visitor<T> extends VisitorBase<T> {
   }
 
   ///
-  List visitArray(List nodes, [bool nonReplacing = false]) {
+  /// [nodes] List<Node> | List<List<>> | List<MixinArgs> ...
+  ///
+  List<T> visitArray<T>(List<T> nodes, [bool nonReplacing = false]) {
     if (nodes == null) return nodes;
 
     // Non-replacing
@@ -90,7 +92,7 @@ class Visitor<T> extends VisitorBase<T> {
     }
 
     // Replacing
-    List out = [];
+    List<T> out = [];
     for (int i = 0; i < nodes.length; i++) {
       var evald = visit(nodes[i]);
       if (evald == null) continue;
@@ -135,10 +137,12 @@ class Visitor<T> extends VisitorBase<T> {
   }
 
   ///
-  /// Converts a mix of Node and List<Node> to List<Node>
+  /// Converts a mix of Node and List<T> to List<T>
+  /// T is Node | MixinArgs (for visitArray commpatibility)
   /// arr == [Node, [Node, Node...]] -> [Node, Node, Node, ...]
+  /// MixinArgs don't need to be flatten and don't must be here
   ///
-  List<Node> flatten(List<Node> arr, List<Node> out) {
+  List<T> flatten<T>(List<T> arr, List<T> out) {
     if (out == null) out = [];
 
     var item; //Node or List
@@ -148,7 +152,9 @@ class Visitor<T> extends VisitorBase<T> {
     for (int i = 0 ; i < arr.length; i++) {
       item = arr[i];
       if (item == null) continue;
-      if (item is Node) {
+
+      //if (item is Node) {
+      if (item is! List) {
         out.add(item);
         continue;
       }
@@ -157,7 +163,8 @@ class Visitor<T> extends VisitorBase<T> {
       for (int j = 0; j < nestedCnt; j++) {
         nestedItem = (item as List)[j];
         if (nestedItem == null) continue;
-        if (nestedItem is Node) {
+        //if (nestedItem is Node) {
+        if (nestedItem is! List) {
           out.add(nestedItem);
         } else if (nestedItem is List) {
           flatten(nestedItem, out);
@@ -202,6 +209,7 @@ class Visitor<T> extends VisitorBase<T> {
 //      return out;
 //  }
   }
-  @override
-  T run(T root) => null;
+
+  //@override
+  //T run(T root) => null;
 }

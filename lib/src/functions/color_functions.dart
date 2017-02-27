@@ -21,8 +21,10 @@ class ColorFunctions extends FunctionBase {
   //}
 
   ///
+  /// [n] num | Node<Dimension> | error anything else
+  /// 
   @defineMethod(skip: true)
-  number(n) {
+  num number(n) {
     if (n is Dimension) {
       return n.unit.isUnit('%') ? n.value / 100 : n.value;
     } else if (n is num) {
@@ -49,7 +51,7 @@ class ColorFunctions extends FunctionBase {
 
   ///
   @defineMethod(skip: true)
-  scaled(n, size) {
+  num scaled(n, size) {
     if (n is Dimension && n.unit.isUnit('%')) {
       return (n.value * size / 100);
     } else {

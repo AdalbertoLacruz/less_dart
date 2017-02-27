@@ -19,7 +19,7 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  Node run(Node root) => _visitor.visit(root);
+  Ruleset run(Ruleset root) => _visitor.visit(root);
 
 //2.3.1
 //  run: function (root) {
@@ -48,9 +48,9 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    List context = this.contexts.last;
+    List<List<Selector>> context = this.contexts.last;
     List<List<Selector>> paths = [];
-    List<Node> selectors;
+    List<Selector> selectors;
 
     this.contexts.add(paths);
 

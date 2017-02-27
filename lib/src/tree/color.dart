@@ -5,7 +5,7 @@ part of tree.less;
 ///
 /// RGB Colors - #ff0014, #eee
 ///
-class Color extends Node<String> implements CompareNode, OperateNode {
+class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   List<num> rgb;
   num alpha;
 
@@ -267,7 +267,10 @@ class Color extends Node<String> implements CompareNode, OperateNode {
     double b = this.b / 255;
     double a = this.alpha.toDouble();
 
-    List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
+    //List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
+    List maxList = [['r', r], ['g', g], ['b', b]];
+    maxList.sort((x, y) => y[1] - x[1]); // big to little
+    
     double max = maxList.first[1];
     double min = maxList[2][1];
     double h;
@@ -333,7 +336,10 @@ class Color extends Node<String> implements CompareNode, OperateNode {
     double b = this.b / 255;
     double a = this.alpha.toDouble();
 
-    List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
+    //List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
+    List maxList = [['r', r], ['g', g], ['b', b]];
+    maxList.sort((x, y) => y[1] - x[1]); // big to little
+
     double max = maxList.first[1];
     double min = maxList[2][1];
     double h;

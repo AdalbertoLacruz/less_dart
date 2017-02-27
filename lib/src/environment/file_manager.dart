@@ -227,7 +227,7 @@ class FileManager {
 
     UrlParts returner = new UrlParts();
     List<String> directories;
-    String baseUrlParts;
+    //String baseUrlParts;
 
     if (urlParts.isEmpty) {
       LessError error = new LessError(

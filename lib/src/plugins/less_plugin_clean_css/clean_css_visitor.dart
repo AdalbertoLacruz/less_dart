@@ -6,7 +6,7 @@ part of less_plugin_clean_css.plugins.less;
 ///
 /// In the last phase marks node.cleanCss = true to avoid conflicts with eval().
 ///
-class CleanCssVisitor extends VisitorBase<Ruleset> {
+class CleanCssVisitor extends VisitorBase {
   CleanCssContext cleancsscontext = new CleanCssContext();
   CleanCssOptions cleanCssOptions;
   bool keepOneComment = false;

@@ -16,7 +16,7 @@ class Condition extends Node {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     lvalue = visitor.visit(lvalue);
     rvalue = visitor.visit(rvalue);
 
@@ -28,10 +28,13 @@ class Condition extends Node {
   }
 
   ///
-  /// Compare (lvalue op rvalue) returning true or false
+  /// Compare (lvalue op rvalue) returning true or false (in this.evaluated)
   ///
-  bool eval(Contexts context) {
-    bool comparation(String op, a, b) {
+  Node eval(Contexts context) {
+    bool comparation(String op, Node aNode, Node bNode) {
+      var a = aNode is Condition ? aNode.evaluated : aNode;
+      var b = bNode is Condition ? bNode.evaluated : bNode;
+
       switch (op) {
         case 'and': return a && b;
         case 'or':  return a || b;
@@ -48,8 +51,9 @@ class Condition extends Node {
           }
         }
     }
-    bool result = comparation(op, lvalue.eval(context), rvalue.eval(context));
-    return negate ? !result : result;
+    evaluated = comparation(op, lvalue.eval(context), rvalue.eval(context));
+    evaluated = negate ? !evaluated : evaluated;
+    return this;  //this.evaluated was the js return
 
 //2.3.1
 //  Condition.prototype.eval = function (context) {

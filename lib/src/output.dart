@@ -20,8 +20,8 @@ class Output {
     '}': true
   };
 
-  /// [s] is String or s.toString(). #
-  void add(s, [FileInfo currentFileInfo, int index, mapLines]) {
+  /// [s] String | Node. (Node.toString())
+  void add(Object s, [FileInfo currentFileInfo, int index, bool mapLines]) {
     if (separator != null) s = compose(s);
     last = (s is String && s.isNotEmpty) ? s[s.length-1] : ''; //for cleanCss
     value.write(s);

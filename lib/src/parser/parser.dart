@@ -94,7 +94,7 @@ class Parser {
   ///
   Future parse(String str) {
     Ruleset root;
-    Ruleset rulesetEvaluated;
+    //Ruleset rulesetEvaluated;
 
     if (fileInfo == null) fileInfo = context.currentFileInfo;
     if (imports == null) imports = new ImportManager(context, fileInfo);
@@ -137,7 +137,7 @@ class Parser {
       new IgnitionVisitor().run(root); // @options directive process
 
       if (context.processImports) {
-        return new ImportVisitor(this.imports).run(root).then((_){
+        return new ImportVisitor(this.imports).runAsync(root).then((_){
             return new Future.value(root);
         }).catchError((e){
           LessError error = LessError.transform(e, type: 'Import', context: context);

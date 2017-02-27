@@ -17,7 +17,7 @@ class Call extends Node {
   }
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (args != null) args = visitor.visitArray(args);
 
 //2.3.1

@@ -96,7 +96,7 @@ class Entities {
   Node call() {
     String name;
     String nameLC;
-    List args;
+    List<Expression> args;
     Node alpha;
     int index = parserInput.i;
 

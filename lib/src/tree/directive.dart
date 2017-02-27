@@ -2,11 +2,11 @@
 
 part of tree.less;
 
-class Directive extends DirectiveBase<Node> {
-
+//class Directive extends DirectiveBase<Node> {
+class Directive extends DirectiveBase {
   final String type = 'Directive';
 
-  Directive(String name, Node value,  rules, int index,
+  Directive(String name, Node value, rules, int index,
       FileInfo currentFileInfo, DebugInfo debugInfo, [bool isReferenced = false, bool isRooted = false]):super() {
     this.name = name;
     this.value = value;
@@ -52,11 +52,15 @@ class Directive extends DirectiveBase<Node> {
 }
 
 /// Base class for Directive and Media
-class DirectiveBase<T> extends Node<Node> with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
+//class DirectiveBase<T> extends Node<Node> with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
+class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
   String name;
   int index;
   bool isReferenced = false;
   bool isRooted = false;
+
+  @checked
+  List<Ruleset> rules; //more restrictive type
 
   String get type => 'DirectiveBase';
 
@@ -64,9 +68,8 @@ class DirectiveBase<T> extends Node<Node> with OutputRulesetMixin, VariableMixin
 
   ///
 
-
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (rules != null) rules = visitor.visitArray(rules);
     if (value != null) value = visitor.visit(value);
 

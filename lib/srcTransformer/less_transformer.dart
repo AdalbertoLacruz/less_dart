@@ -8,7 +8,7 @@ class LessTransformer extends BaseTransformer {
   Future<LessTransformer> transform(List<String> args) {
     timerStart();
 
-    Completer task = new Completer();
+    Completer<LessTransformer> task = new Completer();
 
     flags = args.sublist(0);
     switch (buildMode) {

@@ -22,7 +22,7 @@ class Value extends Node<List<Node>> {
 //  };
 
   ///
-  void accept(Visitor visitor) {
+  void accept(covariant Visitor visitor) {
     if (value != null) value = visitor.visitArray(value);
 
 //2.3.1

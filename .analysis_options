@@ -2,8 +2,9 @@ analyzer:
   strong-mode: true
   errors:
 # see https://github.com/dart-lang/sdk/blob/stable/pkg/analyzer/lib/src/generated/error.dart
+# error | warning | ignore
 #      unused_local_variable: ignore
-#      invalid_assignment: warning
+      invalid_assignment: error
       assignment_to_const: error
       assignment_to_final: error
       missing_return: error
@@ -11,6 +12,6 @@ analyzer:
       undefined_function: error
       undefined_method: error
       undefined_class: error
-#     strong_mode_invalid_field_override: ignore
+      strong_mode_invalid_field_override: error
 #  exclude:
 #    - 'test/**'
