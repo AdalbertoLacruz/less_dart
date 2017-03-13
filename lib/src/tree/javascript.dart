@@ -3,10 +3,10 @@
 part of tree.less;
 
 class JavaScript extends Node with JsEvalNodeMixin {
-  String expression;
-  bool escaped;
+  @override final String type = 'JavaScript';
 
-  final String type = 'JavaScript';
+  bool    escaped;
+  String  expression;
 
   ///
   JavaScript(String this.expression, bool this.escaped, int index, FileInfo currentFileInfo){
@@ -15,7 +15,8 @@ class JavaScript extends Node with JsEvalNodeMixin {
   }
 
   // Not supported javascript
-  eval(context) {
+  @override
+  Anonymous eval(Contexts context) {
     return new Anonymous(expression);
 
 //2.3.1

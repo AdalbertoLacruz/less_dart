@@ -3,7 +3,7 @@ part of environment.less;
 // https://gist.github.com/ahiipsa/4754533 20130211
 // 20141114 String.codeUnits StringBuffer.write
 class Base64String {
-  static const List<String> _encodingTable = const [
+  static const List<String> _encodingTable = const <String>[
       'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
       'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
       'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
@@ -11,7 +11,7 @@ class Base64String {
       '8', '9', '+', '/'];
 
   /// [income] String or List<int>
-  static String encode(income) {
+  static String encode(dynamic income) {
     List<String> characters = new List<String>();
     List<int> data;
     int i;

@@ -82,17 +82,16 @@ class Parser {
   }
 
   ///
-  Parser.fromImporter(Contexts this.context, ImportManager this.imports, FileInfo this.fileInfo) {
-  }
+  Parser.fromImporter(Contexts this.context, ImportManager this.imports, FileInfo this.fileInfo);
 
   ///
   /// Parse an input string into an abstract syntax tree.
   ///
   /// [str] A string containing 'less' markup
   ///
-  /// NO @param [additionalData] An optional map which can contains vars - a map (key, value) of variables to apply
+  /// NO @param additionalData. An optional map which can contains vars - a map (key, value) of variables to apply
   ///
-  Future parse(String str) {
+  Future<Ruleset> parse(String str) {
     Ruleset root;
     //Ruleset rulesetEvaluated;
 
@@ -101,7 +100,7 @@ class Parser {
 
     if (context.pluginManager != null) {
       context.pluginManager.getPreProcessors().forEach((Processor preProcessor){
-        str = preProcessor.process(str, { 'context': context, 'imports': imports, 'fileInfo': fileInfo });
+        str = preProcessor.process(str, <String, dynamic>{ 'context': context, 'imports': imports, 'fileInfo': fileInfo });
       });
     }
 
@@ -138,24 +137,24 @@ class Parser {
 
       if (context.processImports) {
         return new ImportVisitor(this.imports).runAsync(root).then((_){
-            return new Future.value(root);
-        }).catchError((e){
+            return new Future<Ruleset>.value(root);
+        }).catchError((Object e){
           LessError error = LessError.transform(e, type: 'Import', context: context);
           throw new LessExceptionError(error);
         });
       }
     } catch (e, s) {
       LessExceptionError error = new LessExceptionError(LessError.transform(e, stackTrace: s, context: context));
-      return new Future.error(error);
+      return new Future<Ruleset>.error(error);
     }
 
-    return new Future.value(root);
+    return new Future<Ruleset>.value(root);
   }
 
   ///
   String serializeVars(List<VariableDefinition> vars) {
     String s = '';
-    vars.forEach((vardef){
+    vars.forEach((VariableDefinition vardef){
       s += vardef.name.startsWith('@') ? '' : '@';
       s += vardef.name + ': ' + vardef.value;
       s += vardef.value.endsWith(';') ? '' : ';';

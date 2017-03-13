@@ -4,20 +4,28 @@ part of functions.less;
 
 class MathFunctions extends FunctionBase {
 
-  @defineMethod(skip: true)
-  Dimension _math(Function fn, unit, Node n) {
+  ///
+  /// Applies Function [fn] to Node [n].
+  /// [unit] String ex: 'rad'
+  ///
+  @defineMethodSkip
+  Dimension _math(Function fn, String unit, Node n) {
     if (n is! Dimension) {
      throw new LessExceptionError(new LessError(
          type: 'Argument',
          message: 'argument must be a number'));
     }
+
     Dimension node = n as Dimension;
+    Unit nodeUnit;
+
     if (unit == null) {
-     unit = node.unit;
+     nodeUnit = node.unit;
     } else {
      node = node.unify();
+     nodeUnit = new Unit(<String>[unit]);
     }
-    return new Dimension(fn(node.value.toDouble()), unit);
+    return new Dimension(fn(node.value.toDouble()), nodeUnit);
   }
 
 //function _math(fn, unit, n) {
@@ -32,13 +40,13 @@ class MathFunctions extends FunctionBase {
 //    return new Dimension(fn(parseFloat(n.value)), unit);
 //}
 
-  @defineMethod(skip: true)
+  @defineMethodSkip
   num _ceil(num n) => n.ceil();
 
-  @defineMethod(skip: true)
+  @defineMethodSkip
   num _floor(num n) => n.floor();
 
-  @defineMethod(skip: true)
+  @defineMethodSkip
   num _abs(num n) => n.abs();
 
 //var mathFunctions = {

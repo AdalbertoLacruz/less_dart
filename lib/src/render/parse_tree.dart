@@ -50,8 +50,8 @@ class ParseTree {
 
     if (options.pluginManager != null) {
       List<Processor> postProcessors = options.pluginManager.getPostProcessors();
-      postProcessors.forEach((postProcessor){
-        result.css = postProcessor.process(result.css, {
+      postProcessors.forEach((Processor postProcessor){
+        result.css = postProcessor.process(result.css, <String, dynamic>{
           'sourceMap': sourceMapBuilder,
           'options': options,
           'imports': this.imports
@@ -63,8 +63,8 @@ class ParseTree {
       result.map = sourceMapBuilder.getExternalSourceMap();
     }
 
-    result.imports = [];
-    this.imports.files.forEach((String file, node){
+    result.imports = <String>[];
+    this.imports.files.forEach((String file, dynamic node){ //node is Ruleset
       if (file != this.imports.rootFilename) result.imports.add(file);
     });
 

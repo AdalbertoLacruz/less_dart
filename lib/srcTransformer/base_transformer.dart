@@ -29,7 +29,7 @@ class BaseTransformer {
   bool isError = false;
   String errorMessage = '';
   bool deliverToPipe = true; // deliver to barback
-  static Map<String, RegisterItem> register = {};
+  static Map<String, RegisterItem> register = <String, RegisterItem>{};
   Function modifyOptions;
 
 
@@ -64,7 +64,7 @@ class BaseTransformer {
   ///
   /// Format the log message
   ///
-  getMessage(){
+  void getMessage(){
     message = messHead;
     if (isError) message += 'ERROR ';
     message += messExe;
@@ -79,10 +79,10 @@ class BaseTransformer {
   ///
   //from barback - Copyright (c) 2013, the Dart project authors
   String niceDuration(Duration duration) {
-  var result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
+  String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
 
-  var s = duration.inSeconds % 59;
-  var ms = (duration.inMilliseconds % 1000) ~/ 100;
+  int s = duration.inSeconds % 59;
+  int ms = (duration.inMilliseconds % 1000) ~/ 100;
   return result + "$s.${ms}s";
   }
 }
@@ -93,11 +93,12 @@ class RegisterItem {
   String path; // asset.id.path
   List<String> imports; // dependencies path
   int contentHash; //hash to know if content string has changed
+  
   RegisterItem(this.path, this.imports, this.contentHash);
 }
 
 /// Less Id for runZoned
 class GenId {
   static int k = 1;
-  static get next => k++;
+  static int get next => k++;
 }

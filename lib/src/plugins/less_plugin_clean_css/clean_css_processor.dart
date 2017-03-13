@@ -6,9 +6,10 @@ class CleanCssProcessor extends Processor {
 
   //CleanCssOptions cleanCssOptions;
 
-  CleanCssProcessor(cleanCssOptions):super(cleanCssOptions);
+  CleanCssProcessor(CleanCssOptions cleanCssOptions):super(cleanCssOptions);
 
-  String process(String input, Map options) {
+  @override
+  String process(String input, Map<String, dynamic> options) {
       return input;
   }
 }

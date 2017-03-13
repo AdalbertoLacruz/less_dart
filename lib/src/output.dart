@@ -9,7 +9,7 @@ class Output {
   String last = '';
   String separator;
 
-  static Map<String, bool> separators = {
+  static Map<String, bool> separators = <String, bool>{
     '(': true,
     ')': true,
     '/': true,
@@ -38,9 +38,10 @@ class Output {
   }
 
   ///
-  /// Prefix s with separator if adecuate
+  /// Prefix [s] with separator if adecuate.
+  /// [s] = String | Node
   ///
-  String compose(s) {
+  String compose(dynamic s) {
     String result;
     String source = s is String ? s : s.toString();
     String separator = this.separator != null ? this.separator : '';
@@ -54,5 +55,6 @@ class Output {
     return result;
   }
 
+  @override
   String toString() => value.toString();
 }

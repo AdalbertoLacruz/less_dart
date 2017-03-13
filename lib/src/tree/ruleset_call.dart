@@ -3,13 +3,15 @@
 part of tree.less;
 
 class RulesetCall extends Node {
-  String variable;
+  @override String get    name => null;
+  @override final String  type = 'RulesetCall';
 
-  final String type = 'RulesetCall';
+  String variable;
 
   RulesetCall(String this.variable);
 
   ///
+  @override
   Ruleset eval(Contexts context) {
     DetachedRuleset detachedRuleset = new Variable(variable).eval(context);
     return detachedRuleset.callEval(context);
@@ -20,6 +22,4 @@ class RulesetCall extends Node {
 //      return detachedRuleset.callEval(context);
 //  };
   }
-  @override
-  get name => null;
 }

@@ -3,19 +3,20 @@
 part of tree.less;
 
 class Condition extends Node {
-  String op;
-  Node lvalue;
-  Node rvalue;
-  int index;
-  bool negate;
+  @override final String type = 'Condition';
 
-  final String type = 'Condition';
+  int     index;
+  Node    lvalue;
+  bool    negate;
+  String  op;
+  Node    rvalue;
 
   Condition (String op, Node this.lvalue, Node this.rvalue, [int this.index, bool this.negate = false]) {
     this.op = op.trim();
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     lvalue = visitor.visit(lvalue);
     rvalue = visitor.visit(rvalue);
@@ -30,16 +31,22 @@ class Condition extends Node {
   ///
   /// Compare (lvalue op rvalue) returning true or false (in this.evaluated)
   ///
+  @override
   Node eval(Contexts context) {
+
     bool comparation(String op, Node aNode, Node bNode) {
-      var a = aNode is Condition ? aNode.evaluated : aNode;
-      var b = bNode is Condition ? bNode.evaluated : bNode;
+      //var a = aNode is Condition ? aNode.evaluated : aNode; // bool | Node
+      //var b = bNode is Condition ? bNode.evaluated : bNode; // bool | Node
+
+      bool a = aNode is Condition ? aNode.evaluated : false;
+      bool b = bNode is Condition ? bNode.evaluated : false;
 
       switch (op) {
         case 'and': return a && b;
         case 'or':  return a || b;
         default:
-          switch (Node.compareNodes(a, b)) {
+          //switch (Node.compareNodes(a, b)) {
+          switch (Node.compareNodes(aNode, bNode)) {
             case -1:
               return (op == '<' || op == '=<' || op == '<=');
             case 0:
@@ -51,6 +58,7 @@ class Condition extends Node {
           }
         }
     }
+
     evaluated = comparation(op, lvalue.eval(context), rvalue.eval(context));
     evaluated = negate ? !evaluated : evaluated;
     return this;  //this.evaluated was the js return

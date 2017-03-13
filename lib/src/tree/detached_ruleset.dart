@@ -3,16 +3,17 @@
 part of tree.less;
 
 class DetachedRuleset extends Node {
-  Ruleset ruleset;
-  List<Node> frames;
+  @override final String type = 'DetachedRuleset';
 
-  final String type = 'DetachedRuleset';
+  List<Node>  frames;
+  Ruleset     ruleset;
 
   DetachedRuleset(this.ruleset, [this.frames]){
     evalFirst = true;
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     ruleset = visitor.visit(ruleset);
 
@@ -23,8 +24,10 @@ class DetachedRuleset extends Node {
   }
 
   ///
+  @override
   DetachedRuleset eval(Contexts context) {
-    List<Node> frames = getValueOrDefault(this.frames, context.frames.sublist(0));
+    //List<Node> frames = getValueOrDefault(this.frames, context.frames.sublist(0));
+    List<Node> frames = this.frames ?? context.frames.sublist(0);
     return new DetachedRuleset(ruleset, frames);
 
 //2.3.1

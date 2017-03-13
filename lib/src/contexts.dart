@@ -28,10 +28,10 @@ class Contexts {
   bool compress = false;
 
   /// Map - filename to contents of all the files
-  Map<String, String> contents = {};
+  Map<String, String> contents = <String, String>{};
 
   /// map - filename to lines at the begining of each file to ignore
-  Map<String, int> contentsIgnoredChars = {};
+  Map<String, int> contentsIgnoredChars = <String, int>{};
 
   /// Information about the current file.
   /// For error reporting and importing and making urls relative etc.
@@ -46,11 +46,11 @@ class Contexts {
   String input;   // for LessError
 
   /// List of files that have been imported, used for import-once
-  Map<String, Node> files = {};
+  Map<String, Node> files = <String, Node>{};
 
   bool firstSelector = false; //Ruleset
 
-  List<Node> frames = []; //Ruleset/MixinDefinition/Directive
+  List<Node> frames = <Node>[]; //Ruleset/MixinDefinition/Directive = VariableMixin
 
   /// options.javascriptEnabled
   bool javascriptEnabled = true;
@@ -59,7 +59,7 @@ class Contexts {
   bool ieCompat = true;
 
   /// used to bubble up !important statements
-  List<ImportantRule> importantScope = [];
+  List<ImportantRule> importantScope = <ImportantRule>[];
 
   /// options.importMultiple
   bool importMultiple = false;
@@ -99,7 +99,7 @@ class Contexts {
   /// option.rootpath
   String rootpath;
 
-  List selectors; // Ruleset
+  List<List<Selector>> selectors; // used in Ruleset
 
   /// options.silent
   //bool silent;
@@ -143,17 +143,20 @@ class Contexts {
   /// parse is used whilst parsing
   ///
   //2.2.0 TODO
-  Contexts.parse(options){
+  Contexts.parse(dynamic options){
     if (options == null) return;
     parseCopyProperties(options);
 
-    if (contents == null) contents = {};
-    if (contentsIgnoredChars == null) contentsIgnoredChars = {};
-    if (files == null) files = {};
+    if (contents == null) contents = <String, String>{};
+    if (contentsIgnoredChars == null) contentsIgnoredChars = <String, int>{};
+    if (files == null) files = <String, Node>{};
 //      if (this.paths is "String") this.paths = [this.paths];
 
     if (currentFileInfo == null) {
-      String filename = options.filename != '' ? options.filename : 'input';
+      //String filename = options.filename != '' ? options.filename : 'input';
+      String filename = (options.filename?.isNotEmpty ?? false)
+        ? options.filename
+        : 'input';
       String entryPath = filename.replaceAll(new RegExp(r'[^\/\\]*$'), '');
       if (options != null) options.filename = null;
       currentFileInfo = new FileInfo()
@@ -178,7 +181,7 @@ class Contexts {
   ///
   /// Some are common to options and contexts
   ///
-  void parseCopyProperties(options) {
+  void parseCopyProperties(dynamic options) {
     if(options is! LessOptions && options is! Contexts) return;
 
     paths               = options.paths;
@@ -213,11 +216,11 @@ class Contexts {
   /// [options] is LessOptions or Context
   ///
   //2.2.0 TODO
-  factory Contexts.eval([options, List<Node> frames]) {
+  factory Contexts.eval([dynamic options, List<Node> frames]) {
     Contexts context = new Contexts();
     evalCopyProperties(context, options);
 
-    context.frames          = (frames != null) ? frames : [];
+    context.frames          = (frames != null) ? frames : <Node>[];
     return context;
 
 //2.4.0 20150315
@@ -233,8 +236,9 @@ class Contexts {
 
   ///
   /// Copy properties for eval
+  /// [options] is LessOptions or Context
   ///
-  static void evalCopyProperties(Contexts newctx, options) {
+  static void evalCopyProperties(Contexts newctx, dynamic options) {
     if (options == null) return;
 
     newctx.compress           = options.compress;
@@ -263,7 +267,7 @@ class Contexts {
   /// parensStack push
   ///
   void inParenthesis() {
-    if (parensStack == null) parensStack = [];
+    if (parensStack == null) parensStack = <bool>[];
     parensStack.add(true);
 
 //2.2.0
@@ -310,7 +314,7 @@ class Contexts {
   String normalizePath(String path) {
     List<String> segments = path.split('/').reversed.toList();
     String segment;
-    List<String> pathList = [];
+    List<String> pathList = <String>[];
 
     while (segments.isNotEmpty) {
       segment = segments.removeLast();

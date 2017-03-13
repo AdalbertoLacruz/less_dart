@@ -56,7 +56,7 @@ class LessError {
   ///
   /// Completes the error with line, col in input
   ///
-  addFileInformation(Contexts context) {
+  void addFileInformation(Contexts context) {
     if (this.filename == null) this.filename = (context.currentFileInfo != null) ? context.currentFileInfo.filename : null;
     if (this.type == null) this.type = 'Syntax';
 
@@ -72,7 +72,7 @@ class LessError {
       this.callLine = callLine + 1;
       this.callExtract = lines[callLine];
       this.column = col;
-      this.extract = [
+      this.extract = <String>[
         getLine(lines, line - 1),
         getLine(lines, line),
         getLine(lines, line + 1)
@@ -86,7 +86,7 @@ class LessError {
   ///
   /// Transforms un error [e] to LessError and completes some error information
   ///
-  static transform(e, {int index, String filename, String message, String type, StackTrace stackTrace, Contexts context}) {
+  static LessError transform(Object e, {int index, String filename, String message, String type, StackTrace stackTrace, Contexts context}) {
     LessError error;
     if (e is LessExceptionError) error = e.error;
     if (error == null) error = (e is LessError) ? e : new LessError();
@@ -104,7 +104,7 @@ class LessError {
   ///
   /// For a [e] error get the message, with default ''
   ///
-  static String getMessage(e) {
+  static String getMessage(Object e) {
     if (e is LessExceptionError) return e.error.message;
     if (e is LessError) return e.message;
     return '';
@@ -170,7 +170,7 @@ class LessExceptionError implements Exception {
     if (error.type == null) error.type = 'Syntax';
     if (error.message == null) error.message = 'Error:';
     String message = '';
-    List<String> errorLines = [];
+    List<String> errorLines = <String>[];
     String errorTxt;
     String errorPosition; // '....^'
     int lineCounterWidth = (error.line + 1).toString().length;
@@ -230,22 +230,23 @@ class LessExceptionError implements Exception {
   // less/lessc_helper.js 1.7.5 lines 07-20
   String stylize(String str, int style) {
     if (!_color) return (str);
-    Map<int, List<int>> styles = {
-      STYLE_RESET:      [0,0],
-      STYLE_BOLD:       [1, 22],
-      STYLE_INVERSE:    [7,  27],
-      STYLE_UNDERLINE:  [4,  24],
-      STYLE_YELLOW:     [33, 39],
-      STYLE_GREEN:      [32, 39],
-      STYLE_RED:        [31, 39],
-      STYLE_GREY:       [90, 39]
+    Map<int, List<int>> styles = <int, List<int>>{
+      STYLE_RESET:      <int>[ 0,  0],
+      STYLE_BOLD:       <int>[ 1, 22],
+      STYLE_INVERSE:    <int>[ 7, 27],
+      STYLE_UNDERLINE:  <int>[ 4, 24],
+      STYLE_YELLOW:     <int>[33, 39],
+      STYLE_GREEN:      <int>[32, 39],
+      STYLE_RED:        <int>[31, 39],
+      STYLE_GREY:       <int>[90, 39]
     };
     String esc = '\u001b[';
 
-    return ('${esc}${styles[style][0]}m${str}${esc}${styles[style][1]}m'); //TODO test in linux
+    return ('$esc${styles[style][0]}m$str$esc${styles[style][1]}m'); //TODO test in linux
     //return (str);
   }
 
+  @override
   String toString() {
     //if (error.silent) return '';
     if (error.message == null) error.message = '';

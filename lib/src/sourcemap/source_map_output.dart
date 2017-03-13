@@ -19,7 +19,7 @@ class SourceMapOutput extends Output{
   int column = 0;
   int indexGenerated = 0;
   int lineNumber = 0;
-  Map<String, String> normalizeCache = {};
+  Map<String, String> normalizeCache = <String, String>{};
 
   ///
   SourceMapOutput({Map<String, int> this.contentsIgnoredCharsMap,
@@ -114,12 +114,13 @@ class SourceMapOutput extends Output{
   /// genCSS call 'output.add'. This is 'output' for sourcemaps generation
   /// [s] String | Node
   ///
+  @override
   void add(Object s, [FileInfo fileInfo, int index, bool mapLines = false]) {
     List<String> lines;
     List<String> sourceLines;
     String columns;
     String sourceColumns;
-    
+
     if (s == null) return;
     String chunk = s is String ? s : s.toString();
 
@@ -235,11 +236,11 @@ class SourceMapOutput extends Output{
   String toCSS(Contexts context) {
     String sourceMapContent;
     String sourceMapURL = '';
-    Map<String, String> contents = {};
-    Map json;
+    Map<String, String> contents = <String, String>{};
+    Map<dynamic, dynamic> json; //<String, dynamic> dynamic = String | int
 
     if (outputSourceFiles) { //--source-map-less-inline
-      for (var filename in contentsMap.keys) {
+      for (String filename in contentsMap.keys) {
         String source = contentsMap[filename];
         if (contentsIgnoredCharsMap[filename] != null) {
           source = source.substring(contentsIgnoredCharsMap[filename]);
@@ -253,8 +254,8 @@ class SourceMapOutput extends Output{
     if (!super.isEmpty) {
       if (outputSourceFiles) {//--source-map-less-inline
         json = sourceMapGenerator.build(normalizeFilename(outputFilename));
-        List<String> sourcesContent = [];
-        for (var filename in json['sources']) {
+        List<String> sourcesContent = <String>[];
+        for (String filename in json['sources']) {
           sourcesContent.add(contents[filename]);
         }
         json['sourcesContent'] = sourcesContent;

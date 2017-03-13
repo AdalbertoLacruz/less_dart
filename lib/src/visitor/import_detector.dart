@@ -4,7 +4,7 @@ part of visitor.less;
 /// Map<String, bool> used for recursionDetector and onceFileDetectionMap
 ///
 class ImportDetector {
-  Map<String, bool> _item = {};
+  Map<String, bool> _item = <String, bool>{};
 
   /// Copy the [source] importDetector
   void addAll(ImportDetector source) => _item.addAll(source._item);

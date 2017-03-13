@@ -5,18 +5,18 @@ part of tree.less;
 ///
 /// RGB Colors - #ff0014, #eee
 ///
-class Color extends Node<String> implements CompareNode, OperateNode<Color> {
-  List<num> rgb;
-  num alpha;
+class Color extends Node implements CompareNode, OperateNode<Color> {
+  @override String get        name => null;
+  @override final String      type = 'Color';
+  @override covariant String  value; //TODO used?
 
+  num           alpha;
+  List<num>     rgb;
   static String transparentKeyword = 'transparent';
-
-  final String type = 'Color';
 
   num get r => this.rgb[0];
   num get g => this.rgb[1];
   num get b => this.rgb[2];
-
 
   ///
   /// The end goal here, is to parse the arguments
@@ -28,18 +28,18 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   /// or String length=6 # 'deb887' or length=3 # 'f01'.
   /// [alpha] 0 < alpha < 1. Default = 1.
   ///
-  Color(rgb, [num this.alpha = 1]){
+  Color(dynamic rgb, [num this.alpha = 1]){
     if (alpha == 0) alpha = 0; // convert to int
     if (alpha == 1) alpha = 1;
 
     RegExp hex6 = new RegExp('.{2}');
 
-    if (rgb is List<int>) {           // [0, 0 , 0]
+    if (rgb is List<num>) {           // [0, 0 , 0]
       this.rgb = rgb;
     } else if (rgb.length == 6 ) {    // # 'deb887'
-      this.rgb = hex6.allMatches(rgb).map((c) => int.parse(c[0], radix: 16)).toList();
+      this.rgb = hex6.allMatches(rgb).map((Match c) => int.parse(c[0], radix: 16)).toList();
     } else {                          // # 'f01'
-      this.rgb = rgb.split('').map((c) => int.parse(c + c, radix: 16)).toList();
+      this.rgb = rgb.split('').map((String c) => int.parse(c + c, radix: 16)).toList();
     }
 
 //2.2.0
@@ -74,7 +74,7 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
     if(colors.containsKey(key)) {
       c = new Color(colors[key].substring(1));
     } else if (key == transparentKeyword) {
-      c = new Color([0, 0, 0], 0);
+      c = new Color(<int>[0, 0, 0], 0);
     }
 
     if (c != null) {
@@ -105,7 +105,8 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   bool isCompress(Contexts context) => cleanCss != null || ((context != null) ? context.compress : false);
 
   ///
-  Node eval(env) => this;
+  @override
+  Node eval(Contexts env) => this;
 
   ///
   /// Calculates the luma (perceptual brightness) of a color object
@@ -136,6 +137,7 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add(toCSS(context));
   }
@@ -143,7 +145,8 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   ///
   /// Returns this color as string. Transparent, #rrggbb, #rgb.
   ///
-  String toCSS(context) {
+  @override
+  String toCSS(Contexts context) {
     if (cleanCss != null && cleanCss.compatibility.properties.colors) return toCleanCSS(context);
 
     bool compress = (context != null) ? context.compress : false;
@@ -206,7 +209,7 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   }
 
   /// clean-css output
-  String toCleanCSS(context) {
+  String toCleanCSS(Contexts context) {
     String color;
     num alpha = this.fround(context, this.alpha);
 
@@ -234,8 +237,9 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   /// our result, in the form of an integer triplet,
   /// we create a new Color node to hold the result.
   ///
+  @override
   Color operate(Contexts context, String op, Color other) {
-    List<num> rgb = [0, 0, 0];
+    List<num> rgb = <num>[0, 0, 0];
     num alpha = this.alpha * (1 - other.alpha) + other.alpha;
     for (int c = 0; c < 3; c++) {
       rgb[c] = _operate(context, op, this.rgb[c], other.rgb[c]);
@@ -268,9 +272,9 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
     double a = this.alpha.toDouble();
 
     //List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
-    List maxList = [['r', r], ['g', g], ['b', b]];
-    maxList.sort((x, y) => y[1] - x[1]); // big to little
-    
+    List<List<dynamic>> maxList = <List<dynamic>>[<dynamic>['r', r], <dynamic>['g', g], <dynamic>['b', b]];
+    maxList.sort((dynamic x, dynamic y) => y[1] - x[1]); // big to little
+
     double max = maxList.first[1];
     double min = maxList[2][1];
     double h;
@@ -337,8 +341,8 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
     double a = this.alpha.toDouble();
 
     //List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
-    List maxList = [['r', r], ['g', g], ['b', b]];
-    maxList.sort((x, y) => y[1] - x[1]); // big to little
+    List<List<dynamic>> maxList = <List<dynamic>>[<dynamic>['r', r], <dynamic>['g', g], <dynamic>['b', b]];
+    maxList.sort((dynamic x, dynamic y) => y[1] - x[1]); // big to little
 
     double max = maxList.first[1];
     double min = maxList[2][1];
@@ -406,7 +410,7 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   ///
   /// Returns a String such as #aarrggbb
   ///
-  String toARGB() => toHex([alpha * 255]..addAll(rgb));
+  String toARGB() => toHex(<num>[alpha * 255]..addAll(rgb));
 
 
 //--- CompareNode
@@ -414,6 +418,7 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   ///
   /// Returns -1, 0 for different, equal
   ///
+  @override
   int compare(Node x) {
     if (x is! Color) return -1;
 
@@ -485,8 +490,8 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
   String toRGBFunction(Contexts context) {
     num alpha = fround(context, this.alpha);
 
-    List resultList = rgb.map((c){
-      return clamp(c.round(), 255);
+    List<String> resultList = rgb.map((num c){
+      return clamp(c.round(), 255).toString();
     }).toList();
     String alphaStr = numToString(clamp(alpha, 1));
     resultList.add( cleanCss != null ? alphaStr.replaceFirst('0.', '.') : alphaStr); //0.1 -> .1
@@ -523,16 +528,14 @@ class Color extends Node<String> implements CompareNode, OperateNode<Color> {
 //  }
 
   // Dart only
+  @override
   void genTree(Contexts env, Output output) {
     String tabStr = '  ' * env.tabLevel;
     String result = 'null';
     if (rgb != null)  result = toRGB();
 
-    output.add('${tabStr}$type ($result)\n');
+    output.add('$tabStr$type ($result)\n');
   }
-
-  @override
-  String get name => null;
 }
 
 class HSLType {

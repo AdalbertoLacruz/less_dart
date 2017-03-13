@@ -2,16 +2,19 @@
 
 part of tree.less;
 
-class Assignment extends Node<Node> {
+class Assignment extends Node {
+  @override String get      name => null;
+  @override final String    type = 'Assignment';
+  @override covariant Node  value;
+  
   String key;
-
-  final String type = 'Assignment';
 
   Assignment(String this.key, Node value){
     this.value = value;
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     value = visitor.visit(value);
 
@@ -22,6 +25,7 @@ class Assignment extends Node<Node> {
   }
 
   ///
+  @override
   Assignment eval(Contexts context) {
     if (value is Node) return new Assignment(key, value.eval(context));
     return this;
@@ -36,6 +40,7 @@ class Assignment extends Node<Node> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add(key + '=');
     if (value is Node) {
@@ -54,7 +59,4 @@ class Assignment extends Node<Node> {
 //      }
 //  };
   }
-
-  @override
-  get name => null;
 }

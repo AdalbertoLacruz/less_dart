@@ -18,7 +18,7 @@ class LessSourceMapBuilder {
   ///
   String toCSS(Ruleset rootNode, Contexts context, ImportManager imports) {
 
-    var sourceMapOutput = new SourceMapOutput(
+    SourceMapOutput sourceMapOutput = new SourceMapOutput(
             contentsIgnoredCharsMap: imports.contentsIgnoredChars,
             rootNode: rootNode,
             contentsMap: imports.contents,
@@ -76,7 +76,7 @@ class LessSourceMapBuilder {
     }
 
     if (sourceMapURL.isNotEmpty) {
-      return '/*# sourceMappingURL=${sourceMapURL} */';
+      return '/*# sourceMappingURL=$sourceMapURL */';
     }
     return '';
 
@@ -110,7 +110,7 @@ class LessSourceMapBuilder {
 
 
   ///
-  setExternalSourceMap(String sourceMap) {
+  void setExternalSourceMap(String sourceMap) {
     this.sourceMap = sourceMap;
 
 //2.4.0

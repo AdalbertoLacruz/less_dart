@@ -3,13 +3,11 @@
 part of tree.less;
 
 class Variable extends Node {
-  String name;
-  int index;
+  @override String name;
+  @override String type = "Variable";
 
-  /// Recursivity control
-  bool evaluating = false;
-
-  String type = "Variable";
+  bool  evaluating = false; // Recursivity control
+  int   index;
 
   ///
   Variable(String this.name, [int this.index, FileInfo currentFileInfo]) {
@@ -24,6 +22,7 @@ class Variable extends Node {
   }
 
   ///
+  @override
   Node eval(Contexts context) {
     Node variable;
     String name = this.name;
@@ -45,7 +44,7 @@ class Variable extends Node {
 
     evaluating = true;
 
-    variable = find(context.frames, (frame){
+    variable = find(context.frames, (VariableMixin frame){
       Rule v = frame.variable(name);
       if (v != null) {
         if (v.important.isNotEmpty) {
@@ -110,8 +109,8 @@ class Variable extends Node {
   }
 
   ///
-   find(List obj, Function fun) {
-     var r;
+   Node find(List<Node> obj, Function fun) {
+     Node r;
 
      for (int i = 0; i < obj.length; i++) {
        r = fun(obj[i]);

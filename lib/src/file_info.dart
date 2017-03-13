@@ -2,9 +2,9 @@ library fileInfo.less;
 
 import 'contexts.dart';
 
-/**
- * File Information
- */
+///
+/// File Information
+///
 class FileInfo {
   /// path to the current file, absolute
   String currentDirectory;
@@ -27,18 +27,18 @@ class FileInfo {
   /// path to append to normal URLs for this node
   String rootpath;
 
-  /**
-   * Empty default FileInfo creator.
-   * ex.: FileInfo currentFileInfo = new FileInfo();
-   * #
-   */
+  ///
+  /// Empty default FileInfo creator.
+  /// ex.: FileInfo currentFileInfo = new FileInfo();
+  /// #
+  ///
   FileInfo();
 
-  /**
-   * Returns a new FileInfo for use in the fileLoader.
-   * ex.: FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, env);
-   * #
-   */
+  ///
+  /// Returns a new FileInfo for use in the fileLoader.
+  /// ex.: FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, env);
+  /// #
+  ///
   FileInfo.cloneForLoader(FileInfo current, Contexts context) {
     this.relativeUrls   = context.relativeUrls;
     this.entryPath      = current.entryPath;

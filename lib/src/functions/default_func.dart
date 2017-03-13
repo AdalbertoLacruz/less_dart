@@ -3,12 +3,12 @@
 part of functions.less;
 
 class DefaultFunc extends FunctionBase {
-  var value_;
-  var error_;
+  int value_;
+  LessError error_;
 
-  @defineMethod(name: 'default')
+  @DefineMethod(name: 'default')
   Node eval() {
-    var v = value_;
+    int v = value_;
     LessError e = error_;
 
     if (e != null) throw new LessExceptionError(e);
@@ -26,7 +26,7 @@ class DefaultFunc extends FunctionBase {
 //    }
   }
 
-  void value(v) {
+  void value(int v) {
     value_ = v;
   }
 

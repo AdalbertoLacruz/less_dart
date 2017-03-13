@@ -13,7 +13,7 @@ import '../lib/less.dart';
 
 Map<int, Config> config;
 String errorTests;
-List<Future> run = [];
+//List<Future> run = <Future>[];
 int passCount = 0;
 int testCount = 0;
 Stopwatch timeInProcess;
@@ -25,7 +25,7 @@ String dirPath = 'test/';
 
 /// runOlny = null; runs all test.
 /// runOnly = [1, 2]; only run test 1 and 2
-List runOnly;
+List<int> runOnly;
 
 /// Write to resultDart.css, resultNode.css and .txt the config[testNumResults].
 /// example: int testNumResults = 16;
@@ -33,7 +33,7 @@ int testNumResults;
 
 bool useExtendedTest = true;
 
-main() {
+void main() {
   config = configFill();
 
   group('simple', () {
@@ -53,22 +53,22 @@ main() {
   });
 }
 
-declareTest(int id) {
+void declareTest(int id) {
   final Config c = config[id];
   String ref = "(#${id.toString()})";
   test(c.name + ref, () async {
     await runZoned(() async {
       await testRun(id);
-    }, zoneValues: {#id: id});
+    }, zoneValues: <Symbol, int>{#id: id});
   });
 }
 
 Map<int, Config> configFill() {
-  return {
+  return <int, Config>{
      0: def('charsets'), //@import
      1: def('colors'),
      2: def('comments'),
-     3: def('comments2', options: ['--strict-math=on']),
+     3: def('comments2', options: <String>['--strict-math=on']),
      4: def('css'),
      5: def('css-3'),
      6: def('css-escapes'),
@@ -76,12 +76,12 @@ Map<int, Config> configFill() {
      8: def('detached-rulesets'),
      9: def('directives-bubling'),
     10: def('empty'),
-    11: def('extend', options: ['--log-level=1']),
-    12: def('extend-chaining', options: ['--log-level=1']),
+    11: def('extend', options: <String>['--log-level=1']),
+    12: def('extend-chaining', options: <String>['--log-level=1']),
     13: def('extend-clearfix'),
-    14: def('extend-exact', options: ['--log-level=1']),
+    14: def('extend-exact', options: <String>['--log-level=1']),
     15: def('extend-media'),
-    16: def('extend-nest', options: ['--log-level=1']),
+    16: def('extend-nest', options: <String>['--log-level=1']),
     17: def('extend-selector'),
     18: def('extract-and-length'),
     19: def('functions'),
@@ -90,13 +90,13 @@ Map<int, Config> configFill() {
     22: def('import-inline'),
     23: def('import-interpolation'),
     24: def('import-once'),
-    25: def('import-reference', options: ['--log-level=1']),
+    25: def('import-reference', options: <String>['--log-level=1']),
     //26: def('javascript'),
     27: def('lazy-eval'),
     28: def('media'),
     29: def('merge'),
     30: def('mixins'),
-    31: def('mixins-args', options: ['--strict-math=on']),
+    31: def('mixins-args', options: <String>['--strict-math=on']),
     32: def('mixins-closure'),
     33: def('mixins-guards'),
     34: def('mixins-guards-default-func'),
@@ -107,7 +107,7 @@ Map<int, Config> configFill() {
     39: def('mixins-pattern'),
     40: def('no-output'),
     41: def('operations'),
-    42: def('parens', options: ['--strict-math=on']),
+    42: def('parens', options: <String>['--strict-math=on']),
     43: def('plugin',
         modifyOptions: (LessOptions options) {
           options.definePlugin('plugin-global', new PluginGlobal());
@@ -119,50 +119,50 @@ Map<int, Config> configFill() {
     48: def('scope'),
     49: def('selectors'),
     50: def('strings'),
-    51: def('urls', options: ['--relative-urls', '--silent']),
+    51: def('urls', options: <String>['--relative-urls', '--silent']),
     52: def('variables'),
     53: def('variables-in-at-rules'),
     54: def('whitespace'),
-    55: def('strict-units/strict-units', options: ['--strict-math=on', '--strict-units=on']),
+    55: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
 
     // compression
-    60: def('compression/compression', options: ['-x']),
+    60: def('compression/compression', options: <String>['-x']),
 
     // globalVars
     61: def('globalVars/simple',
-        options: ['--global-var=my-color=red', '--banner='+dirPath+'banner.txt']),
+        options: <String>['--global-var=my-color=red', '--banner='+dirPath+'banner.txt']),
     62: def('globalVars/extended',
-        options: ['--global-var=the-border=1px', '--global-var=base-color=#111',
+        options: <String>['--global-var=the-border=1px', '--global-var=base-color=#111',
                   '--global-var=red=#842210', '--banner='+dirPath+'banner.txt']),
 
     // modifyVars
     63: def('modifyVars/extended',
-        options: ['--modify-var=the-border=1px', '--modify-var=base-color=#111',
+        options: <String>['--modify-var=the-border=1px', '--modify-var=base-color=#111',
                   '--modify-var=red=#842210']),
 
     // debug line-numbers
     64: def('debug/linenumbers',
-        options: ['--line-numbers=comments'],
+        options: <String>['--line-numbers=comments'],
         cssName: 'debug/linenumbers-comments',
-        replace: [
-          {'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
-          {'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')}
+        replace: <Map<String, String>>[
+          <String, String>{'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
+          <String, String>{'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')}
         ]),
     65: def('debug/linenumbers',
-        options: ['--line-numbers=mediaquery'],
+        options: <String>['--line-numbers=mediaquery'],
         cssName: 'debug/linenumbers-mediaquery',
-        replace: [
-          {'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
-          {'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
+        replace: <Map<String, String>>[
+          <String, String>{'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
+          <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
         ]),
     66: def('debug/linenumbers',
-        options: ['--line-numbers=all'],
+        options: <String>['--line-numbers=all'],
         cssName: 'debug/linenumbers-all',
-        replace: [
-          {'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
-          {'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')},
-          {'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
-          {'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
+        replace: <Map<String, String>>[
+          <String, String>{'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
+          <String, String>{'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')},
+          <String, String>{'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
+          <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
         ]),
 
     67: def('legacy/legacy'),
@@ -178,33 +178,33 @@ Map<int, Config> configFill() {
 
     // static-urls
     79: def('static-urls/urls',
-        options: ['--rootpath=folder (1)/']),
+        options: <String>['--rootpath=folder (1)/']),
 
     //url-args
     80: def('url-args/urls',
-        options: ['--url-args=424242']),
+        options: <String>['--url-args=424242']),
 
     //sourcemaps
     85: def('index', isExtendedTest: true,
         isSourcemapTest: true, cssName: 'index-expected',
-        options: ['--source-map=' + dirPath + 'webSourceMap/index.map',
+        options: <String>['--source-map=' + dirPath + 'webSourceMap/index.map',
                   '--banner=' + dirPath + 'webSourceMap/banner.txt']),
     86: def('index-less-inline', isExtendedTest: true,
         isSourcemapTest: true, cssName: 'index-less-inline-expected',
-        options: ['--source-map=' + dirPath + 'webSourceMap/index-less-inline.map',
+        options: <String>['--source-map=' + dirPath + 'webSourceMap/index-less-inline.map',
                   '--source-map-less-inline',
                   '--banner=' + dirPath + 'webSourceMap/banner.txt']),
     87: def('index-map-inline', isExtendedTest: true,
         isSourcemapTest: true, cssName: 'index-map-inline-expected',
-        options: ['--source-map-map-inline',
+        options: <String>['--source-map-map-inline',
                   '--banner=' + dirPath + 'webSourceMap/banner.txt']),
-    88: def('sourcemaps-empty/empty', options: ['--source-map-map-inline']),
+    88: def('sourcemaps-empty/empty', options: <String>['--source-map-map-inline']),
 
     //include-path
     90: def('include-path/include-path',
-        options: ['--include-path=' + dirPath + 'less/import:' + dirPath + 'data']),
+        options: <String>['--include-path=' + dirPath + 'less/import:' + dirPath + 'data']),
     91: def('include-path-string/include-path-string',
-        options: ['--include-path=' + dirPath + 'data']),
+        options: <String>['--include-path=' + dirPath + 'data']),
 
     //errors
     100: def('errors/add-mixed-units', isErrorTest: true),
@@ -276,15 +276,15 @@ Map<int, Config> configFill() {
     203: def('extendedTest/function-rem', isExtendedTest: true),
     //absolute path
     210: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
-        replace: [{'from': '{pathabs}', 'to': absPath(dirPath + 'less')}]),
+        replace: <Map<String, String>>[<String, String>{'from': '{pathabs}', 'to': absPath(dirPath + 'less')}]),
     //sync import
     211: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;}),
     //options.variables
     212: def('globalVars/simple', isExtendedTest: true,
-              options: ['--banner=' + dirPath + 'banner.txt'],
-              modifyOptions: (LessOptions options){options.variables = { 'my-color': new Color.fromKeyword('red') };}),
+              options: <String>['--banner=' + dirPath + 'banner.txt'],
+              modifyOptions: (LessOptions options){options.variables = <String, Node>{ 'my-color': new Color.fromKeyword('red') };}),
     213: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
-              options: ['--plugin=less-plugin-advanced-color-functions']),
+              options: <String>['--plugin=less-plugin-advanced-color-functions']),
     //@options and @plugin directives
     220: def('extendedTest/options-strict-math', isExtendedTest: true),
     221: def('extendedTest/options-import', isExtendedTest: true),
@@ -292,18 +292,18 @@ Map<int, Config> configFill() {
     //@apply
     230: def('extendedTest/apply', isExtendedTest: true),
     //clean-css
-    300: def('cleancss/main', options: ['--clean-css="keep-line-breaks s1"'], isCleancssTest: true),
-    301: def('cleancss/main-skip-advanced', options: ['--clean-css="skip-advanced"'], isCleancssTest: true),
-    302: def('cleancss/colors-no', options: ['--clean-css="compatibility=*,-properties.colors"'], isCleancssTest: true),
-    303: def('cleancss/main-ie7', options: ['--clean-css="compatibility=ie7"'], isCleancssTest: true),
-    304: def('cleancss/main-ie8', options: ['--clean-css="compatibility=ie8"'], isCleancssTest: true),
+    300: def('cleancss/main', options: <String>['--clean-css="keep-line-breaks s1"'], isCleancssTest: true),
+    301: def('cleancss/main-skip-advanced', options: <String>['--clean-css="skip-advanced"'], isCleancssTest: true),
+    302: def('cleancss/colors-no', options: <String>['--clean-css="compatibility=*,-properties.colors"'], isCleancssTest: true),
+    303: def('cleancss/main-ie7', options: <String>['--clean-css="compatibility=ie7"'], isCleancssTest: true),
+    304: def('cleancss/main-ie8', options: <String>['--clean-css="compatibility=ie8"'], isCleancssTest: true),
     310: def('colors', isCleancssTest: true),
     311: def('css-3', isCleancssTest: true),
     312: def('css', isCleancssTest: true)
   };
 }
 
-Config def(name, {List<String> options, String cssName, List<Map> replace,
+Config def(String name, {List<String> options, String cssName, List<Map<String, String>> replace,
   bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
   bool isSourcemapTest: false, Function modifyOptions}) {
 
@@ -314,24 +314,24 @@ Config def(name, {List<String> options, String cssName, List<Map> replace,
     baseLess = dirPath + 'webSourceMap';
     baseCss  = dirPath + 'webSourceMap';
   } else if (isErrorTest) {
-    if (options == null) options = ['--strict-math=on', '--strict-units=on'];
+    if (options == null) options = <String>['--strict-math=on', '--strict-units=on'];
     if (replace == null) {
-      replace = [
-        {'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
-        {'from': '{pathhref}', 'to': ''},
-        {'from': '{404status}', 'to': ''}
+      replace = <Map<String, String>>[
+        <String, String>{'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
+        <String, String>{'from': '{pathhref}', 'to': ''},
+        <String, String>{'from': '{404status}', 'to': ''}
       ];
     }
   } else if (isCleancssTest) {
     baseCss = dirPath + 'cleancss';
     isExtendedTest = true;
-    if (options == null) options = ['--clean-css'];
+    if (options == null) options = <String>['--clean-css'];
   }
   String CSSName = cssName == null ? name : cssName;
   return new Config(name)
-    ..lessFile = path.normalize('${baseLess}/${name}.less')
-    ..cssFile = path.normalize('${baseCss}/${CSSName}.css')
-    ..errorFile = path.normalize(dirPath + 'less/${name}.txt')
+    ..lessFile = path.normalize('$baseLess/$name.less')
+    ..cssFile = path.normalize('$baseCss/$CSSName.css')
+    ..errorFile = path.normalize(dirPath + 'less/$name.txt')
     ..options = options
     ..replace = replace
     ..isErrorTest = isErrorTest
@@ -354,8 +354,8 @@ String escFile(String fileName) {
 // c:\CWD\pathName\ or c:/CWD/pathName/
 String absPath(String pathName) => path.normalize(path.absolute(pathName)) + path.separator;
 
-testRun(int c) async {
-  List<String> args = [];
+Future<Null> testRun(int c) async {
+  List<String> args = <String>[];
   String fileError = config[c].errorFile;
   String fileOutputName;
   String fileResult = config[c].cssFile;
@@ -382,7 +382,7 @@ testRun(int c) async {
     fileOutputName = path.withoutExtension(config[c].lessFile) + '.css';
     args.add(fileOutputName);
   }
-  final exitCode = await less.transform(args, modifyOptions: config[c].modifyOptions);
+  final int exitCode = await less.transform(args, modifyOptions: config[c].modifyOptions);
   config[c].stderr = less.stderr.toString();
 
   expect(exitCode, isNot(equals(3)));
@@ -400,7 +400,7 @@ testRun(int c) async {
       expect(resultMap, equals(expectedResultMap));
     }
   } else if (config[c].isErrorTest) {
-    final errorContent = await new File(fileError).readAsString();
+    final String errorContent = await new File(fileError).readAsString();
 
     String errorContentReplaced = errorContent;
     if (config[c].replace != null ) {
@@ -409,9 +409,24 @@ testRun(int c) async {
       }
     }
 
-    expect(config[c].stderr, equals(errorContentReplaced));
+    if (c == testNumResults) {
+          new File(dirPath + 'result/expected.txt')
+            ..createSync(recursive: true)
+            ..writeAsStringSync(errorContentReplaced);
+          new File(dirPath + 'result/result.txt').writeAsStringSync(config[c].stderr);
+          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
+    }
+
+    try {
+      expect(config[c].stderr, equals(errorContentReplaced));
+    } on TestFailure catch (e) {
+      writeTestResult(c, 'css', less.stdout.toString());
+      writeTestResult(c, 'txt', config[c].stderr);
+      throw e;
+    }
+
   } else {
-    final cssGood = await new File(fileResult).readAsString();
+    final String cssGood = await new File(fileResult).readAsString();
 
     String cssGoodReplaced = cssGood;
     if (config[c].replace != null ) {
@@ -420,19 +435,34 @@ testRun(int c) async {
       }
     }
 
-    expect(less.stdout.toString(), equals(cssGoodReplaced));
+    if (c == testNumResults) {
+          new File(dirPath + 'result/expected.css')
+            ..createSync(recursive: true)
+            ..writeAsStringSync(cssGoodReplaced);
+          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
+    }
+
+    try {
+      expect(less.stdout.toString(), equals(cssGoodReplaced));
+    } on TestFailure catch (e) {
+      writeTestResult(c, 'css', less.stdout.toString());
+      writeTestResult(c, 'txt', config[c].stderr);
+      throw e;
+    }
+
+
   }
 }
 
-void writeTestResult(int c, String content) {
-  String name = dirPath + 'result/TestFile${c}.css';
+void writeTestResult(int c, String fileType, String content) {
+  String name = dirPath + 'result/TestFile$c.$fileType';
   new File(name)
     ..createSync(recursive: true)
     ..writeAsStringSync(content);
 }
 
 class Config {
-  final name;
+  final String name;
   String cssFile;
   String errorFile;
   bool isErrorTest;
@@ -452,10 +482,11 @@ class Config {
 class TestFileManager extends FileManager {
   TestFileManager(Environment environment) : super(environment);
 
+  @override
   bool supports (String filename, String currentDirectory, Contexts options,
                    Environment environment) => true;
-
-  Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
+  @override
+  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
     RegExp testRe = new RegExp(r'.*\.test$');
     if (testRe.hasMatch(filename)) {
       return environment.fileManagers[0].loadFile('colors.test', currentDirectory, options, environment);
@@ -465,10 +496,10 @@ class TestFileManager extends FileManager {
 }
 
 class TestFileManagerPlugin extends Plugin {
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
 
   @override
-  install(PluginManager pluginManager) {
+  void install(PluginManager pluginManager) {
     FileManager fileManager = new TestFileManager(environment);
     pluginManager.addFileManager(fileManager);
   }
@@ -476,45 +507,51 @@ class TestFileManagerPlugin extends Plugin {
 
  // ---------------------------------------------- FunctionsPlugin plugin
 class PluginGlobalFunctions extends FunctionBase {
-  @defineMethod(name: 'test-shadow')
+  @DefineMethod(name: 'test-shadow')
   Anonymous testShadow() => new Anonymous('global');
 
-  @defineMethod(name: 'test-global')
+  @DefineMethod(name: 'test-global')
   Anonymous testGlobal() => new Anonymous('global');
 }
 
 class PluginLocalFunctions extends FunctionBase {
-  @defineMethod(name: 'test-shadow')
+  @DefineMethod(name: 'test-shadow')
   Anonymous testShadow() => new Anonymous('local');
 
-  @defineMethod(name: 'test-local')
+  @DefineMethod(name: 'test-local')
   Anonymous testLocal() => new Anonymous('local');
 }
 
 class PluginTransitiveFunctions extends FunctionBase {
-  @defineMethod(name: 'test-transitive')
+  @DefineMethod(name: 'test-transitive')
   Anonymous testTransitive() => new Anonymous('transitive');
 }
 
 class PluginGlobal extends Plugin {
-  List<int> minVersion = [2, 1, 0];
-  install(PluginManager pluginManager) {
+  @override List<int> minVersion = <int>[2, 1, 0];
+
+  @override
+  void install(PluginManager pluginManager) {
     FunctionBase fun = new PluginGlobalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
 
 class PluginLocal extends Plugin {
-  List<int> minVersion = [2, 1, 0];
-  install(PluginManager pluginManager) {
+  @override List<int> minVersion = <int>[2, 1, 0];
+
+  @override
+  void install(PluginManager pluginManager) {
     FunctionBase fun = new PluginLocalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
 
 class PluginTransitive extends Plugin {
-  List<int> minVersion = [2, 1, 0];
-  install(PluginManager pluginManager) {
+  @override List<int> minVersion = <int>[2, 1, 0];
+
+  @override
+  void install(PluginManager pluginManager) {
     FunctionBase fun = new PluginTransitiveFunctions();
     pluginManager.addCustomFunctions(fun);
   }
@@ -523,18 +560,21 @@ class PluginTransitive extends Plugin {
 
 // ---------------------------------------------- TestPostProcessorPlugin plugin
 class TestPostProcessor extends Processor {
-  TestPostProcessor(options):super(options);
+  TestPostProcessor(PluginOptions options):super(options);
 
-  String process(String css, Map options) {
+  @override
+  String process(String css, Map<String, dynamic> options) {
       return 'hr {height:50px;}\n' + css;
   }
 }
 
 class TestPostProcessorPlugin extends Plugin {
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
+
   TestPostProcessorPlugin(): super();
 
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     Processor processor = new TestPostProcessor(null);
     pluginManager.addPostProcessor(processor);
   }
@@ -543,9 +583,10 @@ class TestPostProcessorPlugin extends Plugin {
 
 // ---------------------------------------------- TestPreProcessorPlugin plugin
 class TestPreProcessor extends Processor {
-  TestPreProcessor(options):super(options);
+  TestPreProcessor(PluginOptions options):super(options);
 
-  String process(String src, Map options) {
+  @override
+  String process(String src, Map<String, dynamic> options) {
     String injected = '@color: red;\n';
     Map<String, int> ignored = options['imports'].contentsIgnoredChars;
     FileInfo fileInfo = options['fileInfo'];
@@ -557,10 +598,12 @@ class TestPreProcessor extends Processor {
 }
 
 class TestPreProcessorPlugin extends Plugin {
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
+
   TestPreProcessorPlugin(): super();
 
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     Processor processor = new TestPreProcessor(null);
     pluginManager.addPreProcessor(processor);
   }
@@ -575,31 +618,37 @@ class RemoveProperty extends VisitorBase {
     _visitor = new Visitor(this);
   }
 
+  @override
   Ruleset run(Ruleset root) {
     return _visitor.visit(root);
   }
 
-  visitRule(Rule ruleNode, VisitArgs visitArgs) {
+  ///returns Node | List<Node>
+  dynamic visitRule(Rule ruleNode, VisitArgs visitArgs) {
     if (ruleNode.name != '-some-aribitrary-property') {
       return ruleNode;
     } else {
-      return [];
+      return <Node>[];
     }
   }
 
+  @override
   Function visitFtn(Node node) {
     if (node is Rule)       return visitRule;
     return null;
   }
 
+  @override
   Function visitFtnOut(Node node) => null;
 }
 
 class TestVisitorPlugin extends Plugin {
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
+
   TestVisitorPlugin(): super();
 
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     VisitorBase visitor = new RemoveProperty();
     pluginManager.addVisitor(visitor);
   }

@@ -5,8 +5,7 @@ part of tree.less;
 /// Nodeset let encapsulate the List and return Node, as Nodeset.rules
 ///
 class Nodeset extends Node {
-
-  final String type = 'Nodeset';
+  @override final String type = 'Nodeset';
 
   Nodeset(List<Node> rules) {
     this.rules = rules;
@@ -14,7 +13,8 @@ class Nodeset extends Node {
 
   ///
   /// Control test. Nodeset must be destroyed before this point
-  /// 
+  ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add('/* Nodeset error */');
   }

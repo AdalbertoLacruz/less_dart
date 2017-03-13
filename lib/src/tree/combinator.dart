@@ -3,15 +3,16 @@
 part of tree.less;
 
 class Combinator extends Node {
+  @override String get    name => null;
+  @override final String  type = 'Combinator';
+
   bool emptyOrWhitespace;
 
-  Map<String, bool> _noSpaceCombinators = {
+  Map<String, bool> _noSpaceCombinators = <String, bool>{
     '': true,
     ' ': true,
     '|': true
   };
-
-  final String type = 'Combinator';
 
   ///
   Combinator (String value) {
@@ -39,7 +40,8 @@ class Combinator extends Node {
   ///
   /// Writes value in [output]
   ///
-  genCSS(Contexts context, Output output) {
+  @override
+  void genCSS(Contexts context, Output output) {
     if (context != null && context.cleanCss) return genCleanCSS(context, output);
 
     String spaceOrEmpty = (isTrue(context.compress) || isTrue(_noSpaceCombinators[value])) ? '' : ' ';
@@ -53,10 +55,7 @@ class Combinator extends Node {
   }
 
   /// clean-css output
-  genCleanCSS(Contexts context, Output output) {
+  void genCleanCSS(Contexts context, Output output) {
     output.add(value);
   }
-
-  @override
-  get name => null;
 }

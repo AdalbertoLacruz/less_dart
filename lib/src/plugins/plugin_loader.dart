@@ -9,7 +9,7 @@ class PluginLoader {
   PluginManager pluginManager;
 
   //Plugins to install
-  Map<String, Plugin> installable = {
+  Map<String, Plugin> installable = <String, Plugin>{
     'less-plugin-clean-css': new LessPluginCleanCss(),
     'less-plugin-advanced-color-functions': new LessPluginAdvancedColorFunctions()
   };
@@ -39,7 +39,7 @@ class PluginLoader {
     if (installable.containsKey(pluginName)) {
       plugin = installable[pluginName];
       if (compareVersion(plugin.minVersion, LessIndex.version) < 0) {
-        logger.log('plugin ${name} requires version ${versionToString(plugin.minVersion)}');
+        logger.log('plugin $name requires version ${versionToString(plugin.minVersion)}');
         return null;
       }
       plugin.init(options);
@@ -48,7 +48,7 @@ class PluginLoader {
         try {
           plugin.setOptions(argument);
         } catch (e) {
-          logger.log('Error setting options on plugin ${name}\n${e.toString()}');
+          logger.log('Error setting options on plugin $name\n${e.toString()}');
           return null;
         }
       }
@@ -115,7 +115,7 @@ class PluginLoader {
   ///
   String versionToString(List<int> version) {
     String versionString = '';
-    version.forEach((v){
+    version.forEach((int v){
       versionString += (versionString.isNotEmpty ? '.' : '') + v.toString();
     });
 
@@ -165,7 +165,7 @@ class PluginLoader {
 
   ///
   void printUsage(List<Plugin> plugins) {
-    plugins.forEach((plugin){plugin.printUsage();});
+    plugins.forEach((Plugin plugin){plugin.printUsage();});
 
 //2.4.0
 //  PluginLoader.prototype.printUsage = function(plugins) {

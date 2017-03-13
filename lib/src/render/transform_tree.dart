@@ -25,20 +25,20 @@ class TransformTree {
     //     ])
     //   )
     if (variables != null) {
-      List<Node> vars = [];
+      List<Node> vars = <Node>[];
 
       variables.forEach((String k, Node value){
         if (value is! Value) {
-          if (value is! Expression) value = new Expression([value]);
-          value = new Value([value]);
+          if (value is! Expression) value = new Expression(<Node>[value]);
+          value = new Value(<Node>[value]);
         }
         vars.add(new Rule('@' + k, value, null, null, 0));
       });
-      evalEnv.frames = [new Ruleset(null, vars)];
+      evalEnv.frames = <Node>[new Ruleset(null, vars)];
     }
 
-    List<VisitorBase> preEvalVisitors = [];
-    List<VisitorBase> visitors = [
+    List<VisitorBase> preEvalVisitors = <VisitorBase>[];
+    List<VisitorBase> visitors = <VisitorBase>[
                      new JoinSelectorVisitor(),
                      new ProcessExtendsVisitor(),
                      new ToCSSVisitor(new Contexts()

@@ -44,8 +44,8 @@ class StringFunctions extends FunctionBase {
                                     ..replaceAll(new RegExp(r':'), '%3A')
                                     ..replaceAll(new RegExp(r'#'), '%23')
                                     ..replaceAll(new RegExp(r';'), '%3B')
-                                    ..replaceAll(new RegExp(r'('), '%28')
-                                    ..replaceAll(new RegExp(r')'), '%29'));
+                                    ..replaceAll(new RegExp(r'\('), '%28')
+                                    ..replaceAll(new RegExp(r'\)'), '%29'));
 
 //    escape: function (str) {
 //        return new Anonymous(encodeURI(str.value).replace(/=/g, "%3D").replace(/:/g, "%3A").replace(/#/g, "%23").replace(/;/g, "%3B").replace(/\(/g, "%28").replace(/\)/g, "%29"));
@@ -121,7 +121,7 @@ class StringFunctions extends FunctionBase {
   ///   Output:
   ///     format-a-d: "repetitions: 3 file: "directory/file.less"";
   ///
-  @defineMethod(name: '%', listArguments: true)
+  @DefineMethod(name: '%', listArguments: true)
   Quoted format(List<Node> args) {
     Node qstr = args[0];
     String result = qstr.value;
@@ -136,7 +136,8 @@ class StringFunctions extends FunctionBase {
     }
     result.replaceAll(new RegExp(r'%%'), '%');
     if (qstr is Quoted) {
-      return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);
+      //return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);
+      return new Quoted((qstr.quote ?? ''), result, qstr.escaped, qstr.index, currentFileInfo);
     } else {
       return new Quoted('', result, null);
     }

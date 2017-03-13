@@ -8,8 +8,8 @@ part of transformer.less;
 ///
 
 class EntryPoints {
-  List<RegExp> include = [];
-  List<RegExp> exclude = [];
+  List<RegExp> include = <RegExp>[];
+  List<RegExp> exclude = <RegExp>[];
   bool isLessSingle = false;
 
   EntryPoints();

@@ -12,12 +12,12 @@ class ImageSize {
   ///
   /// Reads the file as bytes (List<int>)
   ///
-  loadCodeUnits() => new File(filePath).readAsBytesSync();
+  List<int> loadCodeUnits() => new File(filePath).readAsBytesSync();
 
   ///
   /// Reads the file as String
   ///
-  loadContents() => new File(filePath).readAsStringSync();
+  String loadContents() => new File(filePath).readAsStringSync();
 
   ///
   /// Read the file and returns the width & heigth dimensions
@@ -58,7 +58,7 @@ class ImageDimension {
 class BmpImage {
   List<int> codeUnits;
 
-  List<int> bmpSignature = [66, 77]; // 'BM'
+  List<int> bmpSignature = <int>[66, 77]; // 'BM'
 
   BmpImage(this.codeUnits);
 
@@ -80,8 +80,8 @@ class BmpImage {
 class GifImage {
   List<int> codeUnits;
 
-  List<int> gif87Signature = [71, 73, 70, 56, 55, 97]; // 'GIF87a'
-  List<int> gif89Signature = [71, 73, 70, 56, 57, 97]; // 'GIF89a'
+  List<int> gif87Signature = <int>[71, 73, 70, 56, 55, 97]; // 'GIF87a'
+  List<int> gif89Signature = <int>[71, 73, 70, 56, 57, 97]; // 'GIF89a'
 
   GifImage(this.codeUnits);
 
@@ -104,7 +104,7 @@ class GifImage {
 class JpgImage {
   List<int> codeUnits;
 
-  Map<String, String> validJFIFMarkers = {
+  Map<String, String> validJFIFMarkers = <String, String>{
     'ffdb': '0001010101', // Samsung D807 JPEG
     'ffe0': '4a46494600', // Standard JPEG
     'ffe1': '4578696600', // Camera JPEG, with EXIF data
@@ -123,7 +123,7 @@ class JpgImage {
     List<int> SOIMarker = codeUnits.sublist(0, 2);
     List<int> JFIFMarker = codeUnits.sublist(2, 4);
 
-    if (!MoreList.compare(SOIMarker, [255, 216])) return false; // ffd8
+    if (!MoreList.compare(SOIMarker, <int>[255, 216])) return false; // ffd8
 
     String jfif = MoreList.foldHex(JFIFMarker);
     if (!validJFIFMarkers.containsKey(jfif)) return false;
@@ -182,8 +182,8 @@ class JpgImage {
 class PngImage {
   List<int> codeUnits;
 
-  List<int> pngSignature = [80, 78, 71, 13, 10, 26, 10]; // 'PNG\r\n\x1a\n'
-  List<int> ihdrSignature = [73, 72, 68, 82]; // 'IHDR'
+  List<int> pngSignature = <int>[80, 78, 71, 13, 10, 26, 10]; // 'PNG\r\n\x1a\n'
+  List<int> ihdrSignature = <int>[73, 72, 68, 82]; // 'IHDR'
 
   PngImage(this.codeUnits);
 
@@ -207,7 +207,7 @@ class PngImage {
 class PsdImage {
   List<int> codeUnits;
 
-  List<int> psdSignature = [56, 66, 80, 83]; // '8BPS'
+  List<int> psdSignature = <int>[56, 66, 80, 83]; // '8BPS'
 
   PsdImage(this.codeUnits);
 
@@ -247,7 +247,7 @@ class SvgImage {
     if (viewboxMatch != null && viewboxMatch[2] != null) {
       List<String> dim = viewboxMatch[2].split(' ');
       if (dim.length == 4) {
-        List<int> dimi = dim.map((i)=> int.parse(i)).toList();
+        List<int> dimi = dim.map((String s)=> int.parse(s)).toList();
         ratio = (dimi[2] - dimi[0]) / (dimi[3] - dimi[1]);
       }
     }
@@ -297,9 +297,9 @@ class WebpImage {
 
   /// check is webp file
   bool isWebp() {
-    bool riffHeader = MoreList.compare([82, 73, 70, 70], codeUnits.sublist(0, 4)); // 'RIFF'
-    bool webpHeader = MoreList.compare([87, 69, 66, 80], codeUnits.sublist(8, 12)); // 'WEBP'
-    bool vp8Header = MoreList.compare([86, 80, 56], codeUnits.sublist(12, 15)); // 'VP8'
+    bool riffHeader = MoreList.compare(<int>[82, 73, 70, 70], codeUnits.sublist(0, 4)); // 'RIFF'
+    bool webpHeader = MoreList.compare(<int>[87, 69, 66, 80], codeUnits.sublist(8, 12)); // 'WEBP'
+    bool vp8Header = MoreList.compare(<int>[86, 80, 56], codeUnits.sublist(12, 15)); // 'VP8'
     return (riffHeader && webpHeader && vp8Header);
   }
 
@@ -328,13 +328,13 @@ class WebpImage {
     List<int> buffer = codeUnits.sublist(20, 30);
 
     // Lossless webp stream signature
-    if (MoreList.compare([86, 80, 56, 32], chunkHeader) && buffer[0] != 47) {  // 'VP8 ' 0x2f
+    if (MoreList.compare(<int>[86, 80, 56, 32], chunkHeader) && buffer[0] != 47) {  // 'VP8 ' 0x2f
       return calculateWebpLossy(buffer);
     }
 
     //Lossy webp stream signature
     String signature = MoreList.foldHex(buffer.sublist(3, 6));
-    if (MoreList.compare([86, 80, 56, 76], chunkHeader) && signature != '9d012a') { // 'VP8L'
+    if (MoreList.compare(<int>[86, 80, 56, 76], chunkHeader) && signature != '9d012a') { // 'VP8L'
       return calculateWebpLossless(buffer);
     }
 

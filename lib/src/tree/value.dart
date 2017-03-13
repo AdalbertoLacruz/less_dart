@@ -2,9 +2,10 @@
 
 part of tree.less;
 
-class Value extends Node<List<Node>> {
-
-  final String type = 'Value';
+class Value extends Node {
+  @override String get            name => null;
+  @override final String          type = 'Value';
+  @override covariant List<Node>  value;
 
   ///
   Value(List<Node> value) {
@@ -22,6 +23,7 @@ class Value extends Node<List<Node>> {
 //  };
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     if (value != null) value = visitor.visitArray(value);
 
@@ -34,6 +36,7 @@ class Value extends Node<List<Node>> {
   }
 
   ///
+  @override
   Node eval(Contexts context) {
     if (value.length == 1) {
       return value.first.eval(context);
@@ -56,6 +59,7 @@ class Value extends Node<List<Node>> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (context != null && context.cleanCss) return genCleanCSS(context, output);
 
@@ -83,7 +87,4 @@ class Value extends Node<List<Node>> {
       if (i+1 < value.length) output.add(',');
     }
   }
-
-  @override
-  String get name => null;
 }

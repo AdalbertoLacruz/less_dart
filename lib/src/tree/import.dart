@@ -25,18 +25,19 @@ part of tree.less;
  */
 
 class Import extends Node {
-  Node          path;
-  Node          features;
-  ImportOptions options;
-  int           index;
+  // TODO: implement name ??
+  @override String get    name => null;
+  @override final String  type = 'Import';
 
   bool          css = false;
   LessError     errorImport;
+  Node          features;
   String        importedFilename;
-  var           root; // Ruleset or String
-  var           skip; // bool or Function - initialized in import_visitor
-
-  final String type = 'Import';
+  int           index;
+  ImportOptions options;
+  dynamic           root; // Ruleset or String
+  dynamic           skip; // bool or Function - initialized in import_visitor
+  Node          path;
 
   ///
   Import(this.path, this.features, this.options, this.index, [FileInfo currentFileInfo]) {
@@ -70,6 +71,7 @@ class Import extends Node {
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     if (features != null) features = visitor.visit(features);
     path = visitor.visit(path);
@@ -89,6 +91,7 @@ class Import extends Node {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (css && !path.currentFileInfo.reference) {
       output.add('@import ', currentFileInfo, index);
@@ -206,20 +209,20 @@ class Import extends Node {
   /// Returns Node (or List<Node> as Nodeset)
   ///
   // In js returns Node or List<Node>
-  //eval(Contexts context) {
-   Node eval(Contexts context) {
+  @override
+  Node eval(Contexts context) {
     Node features = (this.features != null) ? this.features.eval(context) : null;
 
     if (skip != null) {
       if (skip is Function) skip = skip();
       //if (skip) return [];
-      if (skip) return new Nodeset([]);
+      if (skip) return new Nodeset(<Node>[]);
     }
 
     if (isTrue(options.inline)) {
       Anonymous contents = new Anonymous(root, 0, new FileInfo()..filename = importedFilename, true, true);
       //return (this.features != null) ? new Media([contents], this.features.value) : [contents];
-      return (this.features != null) ? new Media([contents], this.features.value) : new Nodeset([contents]);
+      return (this.features != null) ? new Media(<Node>[contents], this.features.value) : new Nodeset(<Node>[contents]);
     } else if (isTrue(css)) {
       Import newImport = new Import(evalPath(context), features, options, index);
       if (!isTrue(newImport.css) && errorImport != null) throw new LessExceptionError(errorImport);
@@ -271,9 +274,6 @@ class Import extends Node {
 //      }
 //  };
   }
-  // TODO: implement name
-  @override
-  get name => null;
 }
 
 ///

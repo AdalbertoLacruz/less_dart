@@ -3,17 +3,16 @@
 part of visitor.less;
 
 class ExtendFinderVisitor extends VisitorBase {
-  List<List<Extend>> allExtendsStack;
-  List<List<Selector>> contexts;
-  Visitor _visitor;
-
-  bool foundExtends = false;
+  List<List<Extend>>    allExtendsStack;
+  List<List<Selector>>  contexts;
+  bool                  foundExtends = false;
+  Visitor               _visitor;
 
   ///
   ExtendFinderVisitor() {
     _visitor = new Visitor(this);
-    contexts = [];
-    allExtendsStack = [[]];
+    contexts = <List<Selector>>[];
+    allExtendsStack = <List<Extend>>[<Extend>[]];
 
 //2.3.1
 //  var ExtendFinderVisitor = function() {
@@ -24,6 +23,7 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
+  @override
   Ruleset run(Ruleset root) {
     root = _visitor.visit(root);
     root.allExtends = allExtendsStack[0];
@@ -63,9 +63,9 @@ class ExtendFinderVisitor extends VisitorBase {
 
     int i;
     int j;
-    Extend extend;
-    List<Node> allSelectorsExtendList = [];
-    List<Extend> extendList;
+    List<Extend>  allSelectorsExtendList = <Extend>[];
+    Extend        extend;
+    List<Extend>  extendList;
 
     // get &:extend(.a); rules which apply to all selectors in this ruleset
     List<Node> rules = rulesetNode.rules;
@@ -81,16 +81,16 @@ class ExtendFinderVisitor extends VisitorBase {
     // and the ones which apply to an individual extend
     List<List<Selector>> paths = rulesetNode.paths;
     for (i = 0; i < paths.length; i++) {
-      List<Selector> selectorPath = paths[i];
-      Selector selector = selectorPath.last;
-      List<Node> selExtendList = selector.extendList;
+      List<Selector>  selectorPath = paths[i];
+      Selector        selector = selectorPath.last;
+      List<Extend>    selExtendList = selector.extendList;
 
       extendList = selExtendList != null
           ? (selExtendList.sublist(0)..addAll(allSelectorsExtendList))
           : allSelectorsExtendList;
 
       if (extendList != null) {
-        extendList = extendList.map((allSelectorsExtend) {
+        extendList = extendList.map((Extend allSelectorsExtend) {
           return allSelectorsExtend.clone();
         }).toList();
       }
@@ -169,7 +169,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    mediaNode.allExtends = [];
+    mediaNode.allExtends = <Extend>[];
     allExtendsStack.add(mediaNode.allExtends);
 
 //2.3.1
@@ -191,7 +191,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    directiveNode.allExtends = [];
+    directiveNode.allExtends = <Extend>[];
     allExtendsStack.add(directiveNode.allExtends);
 
 //2.3.1
@@ -212,6 +212,7 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   /// func visitor.visit distribuitor
+  @override
   Function visitFtn(Node node) {
     if (node is Media)      return visitMedia; //before Directive
     if (node is Directive)  return visitDirective;
@@ -223,6 +224,7 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   /// funcOut visitor.visit distribuitor
+  @override
   Function visitFtnOut(Node node) {
     if (node is Media)      return visitMediaOut; //before Directive
     if (node is Directive)  return visitDirectiveOut;

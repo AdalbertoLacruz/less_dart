@@ -1,20 +1,17 @@
 import 'dart:io';
 import 'package:less_dart/less.dart';
-import 'package:test/test.dart';
 
-main() {
-  test('Transform less/charsets.less', () async {
+void main() {
     final Less less = new Less();
-    final exitCode = await less.transform([
+    less.transform(<String>[
       '-no-color',
       '--strict-math=on'
       '--strict-units=on',
-      'test/less/charsets.less'
-    ]);
-    if (exitCode != 0) {
+      'test/less/detached-rulesets.less'
+    ]).then((int lessExitCode) {
       stderr.write(less.stderr.toString());
+      stdout.writeln('\nstdout:');
       stdout.write(less.stdout.toString());
-    }
-    expect(exitCode, 0);
-  });
+      exitCode = lessExitCode;
+    });
 }

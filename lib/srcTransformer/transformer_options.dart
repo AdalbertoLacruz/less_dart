@@ -15,21 +15,21 @@ class TransformerOptions {
   TransformerOptions({this.entry_points, this.include_path, this.output, this.cleancss, this.compress,
     this.executable, this.build_mode, this.other_flags, this.silence});
 
-  factory TransformerOptions.parse(Map configuration){
+  factory TransformerOptions.parse(Map<String, dynamic> configuration){
 
-    config(key, defaultValue) {
-      var value = configuration[key];
-      return value != null ? value : defaultValue;
+    T config<T>(String key, T defaultValue) {
+      T value = configuration[key];
+      return value ?? defaultValue;
     }
 
-    List<String> readStringList(value) {
+    List<String> readStringList(dynamic value) {
       if (value is List<String>) return value;
-      if (value is String) return [value];
+      if (value is String) return <String>[value];
       return null;
     }
 
-    List<String> readEntryPoints(entryPoint, entryPoints) {
-      List<String> result = [];
+    List<String> readEntryPoints(dynamic entryPoint, dynamic entryPoints) {
+      List<String> result = <String>[];
       List<String> value;
 
       value = readStringList(entryPoint);
@@ -42,7 +42,7 @@ class TransformerOptions {
       return result;
     }
 
-    String readBoolString(value) {
+    String readBoolString(dynamic value) {
       if (value is bool && value) return '';
       if (value is String) return value;
       return null;

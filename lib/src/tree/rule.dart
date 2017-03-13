@@ -2,15 +2,16 @@
 
 part of tree.less;
 
-class Rule extends Node<Node> implements MakeImportantNode {
-  var name; //String or List<Keyword>
-  String important = '';
-  String merge;
-  int index;
-  bool inline;
-  bool variable = false;
+class Rule extends Node implements MakeImportantNode {
+  @override dynamic         name; //String or List<Keyword>
+  @override final String    type = 'Rule';
+  @override covariant Node  value;
 
-  final String type = 'Rule';
+  String  important = '';
+  int     index;
+  bool    inline;
+  String  merge;
+  bool    variable = false;
 
   ///
   Rule(this.name, Node value, [String important, String this.merge, int this.index, FileInfo currentFileInfo,
@@ -18,7 +19,7 @@ class Rule extends Node<Node> implements MakeImportantNode {
     this.value = value;
     this.currentFileInfo = currentFileInfo;
 
-    this.value = (value is Node) ? value : new Value([value]);
+    this.value = (value is Node) ? value : new Value(<Node>[value]);
     if (important != null && important.isNotEmpty) this.important = ' ' + important.trim();
 
     this.variable = (variable != null)
@@ -61,6 +62,7 @@ class Rule extends Node<Node> implements MakeImportantNode {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (cleanCss != null) return genCleanCSS(context, output);
 
@@ -111,16 +113,17 @@ class Rule extends Node<Node> implements MakeImportantNode {
   }
 
   ///
-  eval(Contexts context) {
+  @override
+  Rule eval(Contexts context) {
     bool strictMathBypass = false;
-    var name = this.name;
+    dynamic name = this.name; // String || List<Node> (Variable, Keyword, ...)
     bool variable = this.variable;
-    var evaldValue;
+    Node evaldValue;
 
     if (name is! String) {
       // expand 'primitive' name directly to get
       // things faster (~10% for benchmark.less):
-      name = ((name as List).length == 1) && (name[0] is Keyword) ? (name[0] as Keyword).value : evalName(context, name);
+      name = ((name as List<Node>).length == 1) && (name[0] is Keyword) ? (name[0] as Keyword).value : evalName(context, name);
       variable = false; // never treat expanded interpolation as new variable name
     }
     if (name == 'font' && !context.strictMath) {
@@ -209,6 +212,7 @@ class Rule extends Node<Node> implements MakeImportantNode {
   }
 
   ///
+  @override
   Rule makeImportant() => new Rule(name, value, '!important', merge,index, currentFileInfo, inline);
 
 //2.3.1

@@ -8,7 +8,7 @@ class LessTransformer extends BaseTransformer {
   Future<LessTransformer> transform(List<String> args) {
     timerStart();
 
-    Completer<LessTransformer> task = new Completer();
+    Completer<LessTransformer> task = new Completer<LessTransformer>();
 
     flags = args.sublist(0);
     switch (buildMode) {
@@ -29,7 +29,7 @@ class LessTransformer extends BaseTransformer {
     runZoned((){
       Less less = new Less();
       less.stdin.write(inputContent);
-      less.transform(args, modifyOptions: modifyOptions).then((exitCode){
+      less.transform(args, modifyOptions: modifyOptions).then((int exitCode){
         timerStop();
         if (exitCode == 0) {
           outputContent = less.stdout.toString();
@@ -45,7 +45,7 @@ class LessTransformer extends BaseTransformer {
       });
     },
     //zoneValues: {#id: new Random().nextInt(10000)});
-    zoneValues: {#id: GenId.next});
+    zoneValues: <Symbol, int>{#id: GenId.next});
 
     return task.future;
   }

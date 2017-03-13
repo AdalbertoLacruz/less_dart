@@ -2,9 +2,9 @@
 
 part of tree.less;
 
-class Keyword extends Node<String> {
-
-  final String type = 'Keyword';
+class Keyword extends Node {
+  @override final String      type = 'Keyword';
+  @override covariant String  value;
 
   Keyword(String value){
     this.value = value;
@@ -19,6 +19,7 @@ class Keyword extends Node<String> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (value == '%') {
       throw new LessExceptionError(new LessError(

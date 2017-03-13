@@ -3,16 +3,15 @@
 part of tree.less;
 
 class MixinCall extends Node {
-  int index;
-  bool important;
+  @override final String type = 'MixinCall';
 
-  Selector selector;
   List<MixinArgs> arguments;
-
-  final String type = 'MixinCall';
+  bool            important;
+  int             index;
+  Selector        selector;
 
   ///
-  MixinCall(elements, List<MixinArgs> args, int this.index, FileInfo currentFileInfo, bool this.important) {
+  MixinCall(List<Node> elements, List<MixinArgs> args, int this.index, FileInfo currentFileInfo, bool this.important) {
     this.currentFileInfo = currentFileInfo;
     selector = new Selector(elements);
     if (args != null && args.isNotEmpty) this.arguments = args;
@@ -28,6 +27,7 @@ class MixinCall extends Node {
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     if (selector != null) selector = visitor.visit(selector);
     if (arguments != null) arguments = visitor.visitArray(arguments);
@@ -48,20 +48,21 @@ class MixinCall extends Node {
   ///
   //In js returns a List<Node>. Changed to Nodeset.rules = List<Node>
   //List<Node> eval(Contexts context) {
+  @override
   Node eval(Contexts context) {
     List<MixinFound> mixins;
     MatchConditionNode mixin;
     List<Node> mixinPath;
     List<MixinArgs> args;
-    List<Node> rules = [];
+    List<Node> rules = <Node>[];
     bool match = false;
     int i, m, f; // for counters
     bool isRecursive;
     bool isOneFound = false;
     Node rule;
-    List<Candidate> candidates = [];
+    List<Candidate> candidates = <Candidate>[];
     Candidate candidate;
-    List conditionResult = [null, null];
+    List<bool> conditionResult = <bool>[null, null];
     int defaultResult;
 
     DefaultFunc defaultFunc;
@@ -80,8 +81,8 @@ class MixinCall extends Node {
     Ruleset originalRuleset;
 
     // mixin is Node, mixinPath is List<Node>
-    int calcDefGroup(mixin, List mixinPath) {
-      var namespace;
+    int calcDefGroup(MatchConditionNode mixin, List<Node> mixinPath) {
+      Node namespace;
 
       for (int f = 0; f < 2; f++) {
         conditionResult[f] = true;
@@ -89,7 +90,8 @@ class MixinCall extends Node {
         for (int p = 0; p < mixinPath.length && conditionResult[f]; p++) {
           namespace = mixinPath[p];
           if (namespace is MatchConditionNode) {
-            conditionResult[f] = conditionResult[f] && namespace.matchCondition(null, context);
+            conditionResult[f] = conditionResult[f]
+              && (namespace as MatchConditionNode).matchCondition(null, context);
           }
         }
         if (mixin is MatchConditionNode) {
@@ -106,12 +108,12 @@ class MixinCall extends Node {
     }
 
     if (arguments != null) {
-      args = arguments.map((a) {
+      args = arguments.map((MixinArgs a) {
         return new MixinArgs(name: a.name, value: a.value.eval(context));
       }).toList();
     }
 
-    noArgumentsFilter(rule) => rule.matchArgs(null, context);
+    bool noArgumentsFilter(MatchConditionNode rule) => rule.matchArgs(null, context);
 
     // Search MixinDefinition
     for (i = 0; i < context.frames.length; i++) {
@@ -148,7 +150,7 @@ class MixinCall extends Node {
 
         defaultFunc.reset();
 
-        count = [0, 0, 0];
+        count = <int>[0, 0, 0];
         for (m = 0; m < candidates.length; m++) {
           count[candidates[m].group]++;
         }
@@ -174,7 +176,7 @@ class MixinCall extends Node {
               if (mixin is! MixinDefinition) {
                 originalRuleset = (mixin as Ruleset).originalRuleset;
                 if (originalRuleset == null) originalRuleset = mixin;
-                mixin = new MixinDefinition('', [], mixin.rules, null, false, index, currentFileInfo);
+                mixin = new MixinDefinition('', <MixinArgs>[], mixin.rules, null, false, index, currentFileInfo);
                 (mixin as MixinDefinition).originalRuleset = originalRuleset;
                 if (originalRuleset != null) (mixin as MixinDefinition).id = originalRuleset.id;
               }
@@ -357,7 +359,7 @@ class MixinCall extends Node {
   /// Returns a String with the Mixin arguments
   String format(List<MixinArgs> args) {
     String result = selector.toCSS(null).trim();
-    String argsStr = (args != null)? args.map((a){
+    String argsStr = (args != null)? args.map((MixinArgs a){
       String argValue = '';
       if (isNotEmpty(a.name)) argValue += a.name + ':';
       if (a.value is Node) {

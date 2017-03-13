@@ -1,17 +1,20 @@
 //import 'dart:io';
+import 'dart:async';
 import 'dart:math' as Math;
 import 'package:less_dart/less.dart';
 import 'package:path/path.dart' as path;
 import 'vm_common.dart';
 
-main() async{
+Future<Null> main(List<String> args) async{
+  if (args.isNotEmpty) return mainJs();
+  
   final Less less = new Less();
-  final sampleFile1 = "benchmark/big1.less";
-  final content = readSampleFile(sampleFile1);
+  final String sampleFile1 = "benchmark/big1.less";
+  final String content = readSampleFile(sampleFile1);
 
-  const N = 1;
-  for (var i = 0; i < N; i++) {
-    final stopwatch = new Stopwatch()..start();
+  const int N = 1;
+  for (int i = 0; i < N; i++) {
+    final Stopwatch stopwatch = new Stopwatch()..start();
     await less.parseLessFile(content);
     print("Time: ${stopwatch.elapsedMilliseconds}");
     if (less.stderr.isNotEmpty){
@@ -24,21 +27,21 @@ main() async{
 }
 
 // Less 2.7.1
-mainJs() async{
-  var file =  "benchmark/benchmark.less";
+Future<Null> mainJs() async{
+  String file =  "benchmark/benchmark.less";
   Less less = new Less();
-  var data = readSampleFile(file);
+  String data = readSampleFile(file);
   print("Benchmarking...\n${path.basename(file)} (${data.length / 1024} KB)");
 
-  var benchMarkData = <int>[];
+  List<int> benchMarkData = <int>[];
 
-  var totalruns = 100;
-  var ignoreruns = 30;
+  int totalruns = 100;
+  int ignoreruns = 30;
 
-  for(var i = 0; i < totalruns; i++) {
-    var start = new DateTime.now();
+  for (int i = 0; i < totalruns; i++) {
+    DateTime start = new DateTime.now();
     await less.parseLessFile(data);
-    var end = new DateTime.now();
+    DateTime end = new DateTime.now();
     benchMarkData.add(end.difference(start).inMilliseconds);
 //    if (err) {
 //      less.writeError(err);
@@ -46,17 +49,17 @@ mainJs() async{
 //    }
   }
 
-  var totalTime = 0;
+  num totalTime = 0;
   num mintime = 9999999;
   num maxtime = 0;
-  for(var i = ignoreruns; i < totalruns; i++) {
+  for(int i = ignoreruns; i < totalruns; i++) {
     totalTime += benchMarkData[i];
     mintime = Math.min(mintime, benchMarkData[i]);
     maxtime = Math.max(maxtime, benchMarkData[i]);
   }
-  var avgtime = totalTime / (totalruns - ignoreruns);
-  var variation = maxtime - mintime;
-  var variationperc = (variation / avgtime) * 100;
+  double avgtime = totalTime / (totalruns - ignoreruns);
+  num variation = maxtime - mintime;
+  double variationperc = (variation / avgtime) * 100;
 
   print("Min. Time: $mintime ms");
   print("Max. Time: $maxtime ms");

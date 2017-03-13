@@ -6,10 +6,10 @@ import 'package:less_dart/less.dart';
 
 import 'package:test/test.dart';
 
-main() {
+void main() {
   test('Transform test/less/functions.less with plugin', () async {
     final Less less = new Less();
-    final exitCode = await less.transform([
+    final int exitCode = await less.transform(<String>[
       '-no-color',
       'test/less/functions.less',
     ], modifyOptions: (LessOptions options) {
@@ -32,7 +32,7 @@ class MyFunctions extends FunctionBase {
     return new Dimension(a.value + 1);
   }
 
-  @defineMethod(name: '_color')
+  @DefineMethod(name: '_color')
   Color color(Node str) {
     if (str.value == 'evil red') {
       return new Color('600');
@@ -43,18 +43,21 @@ class MyFunctions extends FunctionBase {
 }
 
 class MyProcessor extends Processor {
-  MyProcessor(options):super(options);
+  MyProcessor(PluginOptions options):super(options);
 
-  String process(String input, Map options) {
+  @override
+  String process(String input, Map<String, dynamic> options) {
       return '/* MyPlugin post processor */\n' + input;
   }
 }
 
 class MyPlugin extends Plugin {
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
+
   MyPlugin(): super();
 
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     FunctionBase myFunctions = new MyFunctions();
     pluginManager.addCustomFunctions(myFunctions);
 

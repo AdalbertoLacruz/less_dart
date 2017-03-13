@@ -2,11 +2,12 @@
 
 part of tree.less;
 
-class URL extends Node<Node> {
+class URL extends Node {
+  @override String    type = 'Url';
+  @override covariant Node value;
+
   int       index;
   bool      isEvald;
-
-  String type = 'Url';
 
   ///
   URL(Node value, [int this.index, FileInfo currentFileInfo, bool this.isEvald = false]){
@@ -15,6 +16,7 @@ class URL extends Node<Node> {
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     value = visitor.visit(value);
 
@@ -25,6 +27,7 @@ class URL extends Node<Node> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add('url(');
     value.genCSS(context, output);
@@ -39,6 +42,7 @@ class URL extends Node<Node> {
   }
 
   ///
+  @override
   URL eval(Contexts context) {
     Node val = value.eval(context);
     String rootpath;
@@ -48,7 +52,7 @@ class URL extends Node<Node> {
       rootpath = (currentFileInfo != null) ? currentFileInfo.rootpath : null;
       if ((rootpath.isNotEmpty) && (val.value is String) && context.isPathRelative(val.value)) {
         if (val is! Quoted) {
-          rootpath = rootpath.replaceAllMapped(new RegExp(r'''[\(\)'"\s]'''), (match){
+          rootpath = rootpath.replaceAllMapped(new RegExp(r'''[\(\)'"\s]'''), (Match match){
             return '\\' + match[0];
           });
         }

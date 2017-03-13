@@ -9,29 +9,29 @@ bool isTrue(bool value) => value != null ? value : false;
 /// Resolves null as empty. Return false if null.
 /// Supports String, List, Map.
 ///
-bool isNotEmpty(value){
+bool isNotEmpty(dynamic value){
   if (value is String) return value.isNotEmpty;
   if (value is List) return value.isNotEmpty;
   if (value is Map) return value.isNotEmpty;
   return false; //if value is null
 }
 
-///
-/// if [value] is null return default.
-///
-getValueOrDefault(value, defaultValue) {
+//
+// if [value] is null return default.
+//
+/*getValueOrDefault(value, defaultValue) {
   if (value == null) {
     return defaultValue;
   } else {
     return value;
   }
-}
+}*/
 
 ///
-/// -[value] num. Considers null value.
+/// -[value] int | double. Considers null value.
 ///
-negate(num value) {
-  return (value == null) ? null : -value;
+T negate<T extends num>(T value) {
+  return (value == null) ? null : value * -1;
 }
 
 ///

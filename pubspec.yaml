@@ -6,7 +6,7 @@ homepage: https://github.com/AdalbertoLacruz/less_dart
 environment:
   sdk: '>=1.22.0 <2.0.0'
 dependencies:
-  barback: '>=0.15.0 <0.16.0'
+  barback: '>=0.15.2+9 <0.16.0'
   meta: '>=1.0.4 <2.0.0'
   mime: '>=0.9.0 <0.12.0'
   path: '>=1.4.1 <2.0.0'
@@ -14,4 +14,5 @@ dependencies:
   utf: '>=0.9.0 <0.12.0'
 dev_dependencies:
   logging: '>=0.11.0 <0.12.0'
-  test: '>=0.12.20 <0.13.0'
+  test: '>=0.12.20+2 <0.13.0'
+  stack_trace: '>=1.7.2 <2.0.0'

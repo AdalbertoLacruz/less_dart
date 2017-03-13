@@ -7,7 +7,7 @@ class Chunker {
   Contexts env;
 
   int chunkerCurrentIndex;
-  List<String> chunks = [];
+  List<String> chunks = <String>[];
   int currentChunkStartIndex;
   int emitFrom = 0;
 
@@ -16,7 +16,7 @@ class Chunker {
   ///
   /// throw Parse error
   ///
-  fail (String message, int index) {
+  Null fail (String message, int index) {
     LessError error = new LessError(
         index: index,
         type: 'Parse',

@@ -8,7 +8,7 @@ class MoreList {
   ///
   /// Add [element] if not found
   ///
-  static addUnique(List to, element) {
+  static void addUnique<T>(List<T> to, T element) {
     if (!to.contains(element)) to.add(element);
   }
 
@@ -16,9 +16,9 @@ class MoreList {
   /// Add all elements of [from] to [to] after transformation with
   /// function: map(element) => other element
   ///
-  static List addAllUnique(List to, List from, {Function map}) {
+  static List<T> addAllUnique<T>(List<T> to, List<T> from, {Function map}) {
     if (from == null) return to;
-    from.forEach((item){
+    from.forEach((T item){
       if (map != null) item = map(item);
       addUnique(to, item);
     });
@@ -28,7 +28,7 @@ class MoreList {
   ///
   /// True if list a == list b
   ///
-  static bool compare(List a, List b) {
+  static bool compare<T>(List<T> a, List<T> b) {
     if (a == null || b == null) return false;
     if(a.length != b.length) return false;
 
@@ -39,16 +39,16 @@ class MoreList {
     return result;
   }
 
-  ///
-  /// Returns the indexth element.
-  /// If index < 0 || index >= length => null
-  ///
-  static elementAt(List list, int index) {
+  //
+  // Returns the indexth element.
+  // If index < 0 || index >= length => null
+  //
+  /* static dynamic elementAt(List list, int index) {
     if (list == null) return null;
     if (index < 0) return null;
     if (index >= list.length) return null;
     return list[index];
-  }
+  }*/
 
   ///
   /// Return the [list]<int> codeUnits (0-255) converted to hexadecimal string
@@ -57,7 +57,7 @@ class MoreList {
   /// [255, 254] => 'ffe0'
   ///
   static String foldHex(List<int> list) {
-    return list.fold('', (hex, x) => hex + x.toRadixString(16).padLeft(2, '0'));
+    return list.fold('', (String hex, int x) => hex + x.toRadixString(16).padLeft(2, '0'));
   }
 
   ///

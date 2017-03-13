@@ -3,10 +3,10 @@
 part of tree.less;
 
 class Operation extends Node {
-  String op;
-  bool isSpaced;
+  @override final String type = 'Operation';
 
-  final String type = 'Operation';
+  bool    isSpaced;
+  String  op;
 
   ///
   Operation(String op, List<Node> operands, [bool this.isSpaced = false]) {
@@ -22,6 +22,7 @@ class Operation extends Node {
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     operands = visitor.visit(operands);
 
@@ -32,7 +33,8 @@ class Operation extends Node {
   }
 
   ///
-  eval(Contexts context) {
+  @override
+  Node eval(Contexts context) {
     Node a = operands[0].eval(context);
     Node b = operands[1].eval(context);
 
@@ -45,9 +47,12 @@ class Operation extends Node {
             message: 'Operation on an invalid type'
         ));
       }
-      return (a as OperateNode).operate(context, op, b);
+      //Only for Dimension | Color
+      return (b is Dimension)
+        ? (a as OperateNode<Dimension>).operate(context, op, b)
+        : (a as OperateNode<Color>).operate(context, op, b);
     } else {
-      return new Operation(op, [a, b], isSpaced);
+      return new Operation(op, <Node>[a, b], isSpaced);
     }
 
 //2.3.1
@@ -75,6 +80,7 @@ class Operation extends Node {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     operands[0].genCSS(context, output);
     if (isSpaced) output.add(' ');

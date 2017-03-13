@@ -2,31 +2,25 @@
 
 part of tree.less;
 
-abstract class Node<T> {
-
-  List<Extend> allExtends; //Ruleset
-  DebugInfo debugInfo;
-  var elements;
-  bool evalFirst = false; //see Ruleset.eval
-
-  /// hashCode own or inherited for object compare
-  int id;
-
-  CleanCssContext cleanCss; // Info to optimize the node with cleanCss
-
-  FileInfo currentFileInfo;
-  bool evaluated = null; //result from bool eval, used in condition
-  bool isRuleset = false; //true in MixinDefinition & Ruleset
-  dynamic get name => null;
-  var operands;
-  Node originalRuleset; //see mixin_call
-  bool parens = false; //Expression
-  bool parensInOp = false; //See parsers.operand & Expression
-  //var rules; //Ruleset
+abstract class Node {
+  List<Extend>        allExtends; //Ruleset
+  CleanCssContext     cleanCss; // Info to optimize the node with cleanCss
+  FileInfo            currentFileInfo;
+  DebugInfo           debugInfo;
+  List<Element>       elements;
+  bool                evalFirst = false; //see Ruleset.eval
+  bool                evaluated = null; //result from bool eval, used in condition
+  int                 id; // hashCode own or inherited for object compare
+  bool                isRuleset = false; //true in MixinDefinition & Ruleset
+  dynamic get         name => null; //String | List<Node>
+  List<Node>          operands;
+  Node                originalRuleset; //see mixin_call
+  bool                parens = false; //Expression
+  bool                parensInOp = false; //See parsers.operand & Expression
   @virtual List<Node> rules; //Ruleset
-  List<Selector> selectors;
-  String get type;
-  T value;
+  List<Selector>      selectors;
+  String get          type;
+  @virtual dynamic    value;
 
   ///
   Node() {
@@ -40,7 +34,7 @@ abstract class Node<T> {
   bool isRulesetLike() => false;
 
   ///
-  throwAwayComments() { return null; }
+  void throwAwayComments() {}
 
   ///
   /// Returns node transformed to css code
@@ -64,7 +58,7 @@ abstract class Node<T> {
 //       });
 //       return strs.join('');
 //   };
-   }
+  }
 
   ///
   /// Writes in [output] the node transformed to CSS.
@@ -86,7 +80,7 @@ abstract class Node<T> {
 //  Node.prototype.accept = function (visitor) {
 //      this.value = visitor.visit(this.value);
 //  };
-    }
+  }
 
   ///
   /// Default eval - returns the node
@@ -124,19 +118,19 @@ abstract class Node<T> {
   /// [precision] to forze
   ///
   num fround(Contexts context, num value, [int precision]) {
-  if (value is int) return value;
+    if (value is int) return value;
 
-  //precision
-  //int precision = (context != null) ? getValueOrDefault(context.numPrecision, 8) : null;
-  //int precision = (context != null) ? context.numPrecision : null;
-  if (precision == null || precision == -1) {
-    precision = null;
-    precision = (context != null) ? context.numPrecision : null;
-  }
+    //precision
+    //int precision = (context != null) ? getValueOrDefault(context.numPrecision, 8) : null;
+    //int precision = (context != null) ? context.numPrecision : null;
+    if (precision == null || precision == -1) {
+      precision = null;
+      precision = (context != null) ? context.numPrecision : null;
+    }
 
-  // add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999....) are properly rounded...
-  double result = value + 2e-16;
-  return (precision == null) ? value : double.parse(result.toStringAsFixed(precision));
+    // add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999....) are properly rounded...
+    double result = value + 2e-16;
+    return (precision == null) ? value : double.parse(result.toStringAsFixed(precision));
 
 //2.3.1
 //  Node.prototype.fround = function(context, value) {
@@ -144,7 +138,7 @@ abstract class Node<T> {
 //      //add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999....) are properly rounded...
 //      return (precision == null) ? value : Number((value + 2e-16).toFixed(precision));
 //  };
-}
+  }
 
   ///
   /// Compares two nodes [a] and [b]
@@ -163,13 +157,13 @@ abstract class Node<T> {
     if ((a is CompareNode) && !(b is Quoted || b is Anonymous)) {
       return (a as CompareNode).compare(b);
     } else if (b is CompareNode) {
-      return negate((b as CompareNode).compare(a)); //-null?
+      return negate((b as CompareNode).compare(a)); //-null => null
     } else if (a.runtimeType != b.runtimeType) {
       return null;
     }
 
-    var aValue = a.value;
-    var bValue = b.value;
+    dynamic aValue = a.value;
+    dynamic bValue = b.value;
 
     if (aValue is! List) return (aValue == bValue) ? 0 : null;
     if (aValue is List && bValue is List) {
@@ -247,21 +241,21 @@ abstract class Node<T> {
     int i;
     //Node rule;
     String tabStr = '  ' * env.tabLevel;
-    List process = [];
+    List<dynamic> process = <dynamic>[];
 
 
     String nameNode = name is String ? name : null;
     if (nameNode == null) nameNode = value is String ? value : '';
     nameNode = nameNode.replaceAll('\n', '');
 
-    output.add('${tabStr}$type ($nameNode)\n');
+    output.add('$tabStr$type ($nameNode)\n');
     env.tabLevel++;
 
     if (selectors is List) process.addAll(selectors);
     if (rules is List) process.addAll(rules);
     if (elements is List) process.addAll(elements);
     if (name is List) process.addAll(name);
-    if (value is List) process.addAll(value as List);
+    if (value is List) process.addAll(value as List<dynamic>);
     if (operands is List) process.addAll(operands);
 
     if (process.isNotEmpty) {
@@ -284,7 +278,7 @@ abstract class CompareNode {
 }
 
 abstract class GetIsReferencedNode {
-  getIsReferenced();
+  bool getIsReferenced();
 }
 
 abstract class MakeImportantNode {

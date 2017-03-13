@@ -16,13 +16,14 @@ part 'clean_css_visitor.dart';
 class LessPluginCleanCss extends Plugin {
   CleanCssOptions cleanCssOptions;
 
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
 
   ///
   LessPluginCleanCss(): super();
 
   ///
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     if (cleanCssOptions == null) setOptions('');
     lessOptions.cleanCss = true;
 
@@ -40,6 +41,7 @@ class LessPluginCleanCss extends Plugin {
   }
 
   ///
+  @override
   void printUsage() {
     logger.log('');
     logger.log('Clean CSS Plugin');
@@ -54,6 +56,7 @@ class LessPluginCleanCss extends Plugin {
   }
 
   ///
+  @override
   void printOptions() {
     logger.log("we support the following arguments... 'keep-line-breaks', 'b'");
     logger.log("'s0', 's1', 'advanced', 'rebase', 'keepSpecialComments', compatibility', 'rounding-precision'");
@@ -61,7 +64,8 @@ class LessPluginCleanCss extends Plugin {
   }
 
   ///
-  setOptions(String cmdOptions) {
+  @override
+  void setOptions(String cmdOptions) {
     this.cleanCssOptions = new CleanCssOptions(normalizeCommand(cmdOptions));
   }
 }

@@ -3,11 +3,10 @@
 part of visitor.less;
 
 class ProcessExtendsVisitor extends VisitorBase {
-  Visitor _visitor;
-
-  List<List<Extend>> allExtendsStack;
-  int extendChainCount = 0;
-  Map<String, bool> extendIndicies;
+  List<List<Extend>>  allExtendsStack;
+  int                 extendChainCount = 0;
+  Map<String, bool>   extendIndicies;
+  Visitor             _visitor;
 
   ///
   ProcessExtendsVisitor() {
@@ -20,15 +19,20 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
+  @override
   Ruleset run(Ruleset root) {
     ExtendFinderVisitor extendFinder = new ExtendFinderVisitor();
-    extendIndicies = {};
+    Ruleset             newRoot;
+
+    extendIndicies = <String, bool>{};
     extendFinder.run(root);
     if (!extendFinder.foundExtends) return root;
+
     root.allExtends = root.allExtends.sublist(0)..addAll(doExtendChaining(root.allExtends, root.allExtends));
-    allExtendsStack = [root.allExtends];
-    Ruleset newRoot = _visitor.visit(root);
+    allExtendsStack = <List<Extend>>[root.allExtends];
+    newRoot = _visitor.visit(root);
     checkExtendsForNonMatched(root.allExtends);
+
     return newRoot;
 
 //2.3.1
@@ -46,15 +50,18 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  checkExtendsForNonMatched(List<Extend> extendList) {
-    Logger logger = new Logger();
+  void checkExtendsForNonMatched(List<Extend> extendList) {
     Map<String, bool> indicies = extendIndicies;
-    extendList.retainWhere((extend) {
+    Logger            logger = new Logger();
+
+    extendList.retainWhere((Extend extend) {
       return (!extend.hasFoundMatches && extend.parent_ids.length == 1);
     });
-    extendList.forEach((extend){
-      String selector = '_unknown_';
+
+    extendList.forEach((Extend extend){
       String key;
+      String selector = '_unknown_';
+
       try {
         selector = extend.selector.toCSS(new Contexts());
       } catch(_){}
@@ -95,17 +102,21 @@ class ProcessExtendsVisitor extends VisitorBase {
   /// we look at each selector at a time, as is done in visitRuleset
   ///
   ///
-  List<Extend> doExtendChaining(List<Extend> extendsList, List<Extend> extendsListTarget, [int iterationCount = 0]) {
-    int extendIndex; // extendsList iterator
-    int targetExtendIndex; //extendsListTarget iterator
-    List<MatchSelector> matches;
-    List<Extend> extendsToAdd = [];
-    List<Selector> newSelector;
+  List<Extend> doExtendChaining(
+    List<Extend> extendsList,
+    List<Extend> extendsListTarget,
+    [int         iterationCount = 0]) {
+
+    Extend                extend;
+    int                   extendIndex; // extendsList iterator
+    List<Extend>          extendsToAdd = <Extend>[];
     ProcessExtendsVisitor extendVisitor = this;
-    List<Selector> selectorPath;
-    Extend extend;
-    Extend targetExtend;
-    Extend newExtend;
+    List<MatchSelector>   matches;
+    Extend                newExtend;
+    List<Selector>        newSelector;
+    List<Selector>        selectorPath;
+    Extend                targetExtend;
+    int                   targetExtendIndex; //extendsListTarget iterator
 
     // loop through comparing every extend with every target extend.
     // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
@@ -122,14 +133,14 @@ class ProcessExtendsVisitor extends VisitorBase {
         if (extend.parent_ids.indexOf(targetExtend.object_id) >= 0) continue;
 
         // find a match in the target extends self selector (the bit before :extend)
-        selectorPath = [targetExtend.selfSelectors[0]];
+        selectorPath = <Selector>[targetExtend.selfSelectors[0]];
         matches = extendVisitor.findMatch(extend, selectorPath);
 
         if (matches.isNotEmpty) {
           extend.hasFoundMatches = true;
 
           //we found a match, so for each self selector.
-          extend.selfSelectors.forEach((selfSelector) {
+          extend.selfSelectors.forEach((Selector selfSelector) {
             //process the extend as usual
             newSelector = extendVisitor.extendSelector(matches, selectorPath, selfSelector);
 
@@ -138,7 +149,7 @@ class ProcessExtendsVisitor extends VisitorBase {
             newExtend.selfSelectors = newSelector;
 
             // add the extend onto the list of extends for that selector
-            newSelector.last.extendList = [newExtend];
+            newSelector.last.extendList = <Extend>[newExtend];
 
             // record that we need to add it.
             extendsToAdd.add(newExtend);
@@ -174,7 +185,7 @@ class ProcessExtendsVisitor extends VisitorBase {
           selectorTwo = extendsToAdd[0].selector.toCSS(null);
         } catch (e) {}
         throw new LessExceptionError(new LessError(
-            message: 'extend circular reference detected. One of the circular extends is currently:${selectorOne}:extend(${selectorTwo})'
+            message: 'extend circular reference detected. One of the circular extends is currently:$selectorOne:extend($selectorTwo)'
          ));
       }
 
@@ -320,7 +331,7 @@ class ProcessExtendsVisitor extends VisitorBase {
     ProcessExtendsVisitor extendVisitor = this;
     List<MatchSelector>   matches;
     List<Selector>        selectorPath;
-    List<List<Selector>>  selectorsToAdd = [];
+    List<List<Selector>>  selectorsToAdd = <List<Selector>>[];
 
     // look at each selector path in the ruleset, find any extend matches and then copy, find and replace
     for (int extendIndex = 0; extendIndex < allExtends.length; extendIndex++) {
@@ -337,7 +348,7 @@ class ProcessExtendsVisitor extends VisitorBase {
         if (matches.isNotEmpty) {
           allExtends[extendIndex].hasFoundMatches = true;
 
-          allExtends[extendIndex].selfSelectors.forEach((selfSelector) {
+          allExtends[extendIndex].selfSelectors.forEach((Selector selfSelector) {
             selectorsToAdd.add(extendVisitor.extendSelector(matches, selectorPath, selfSelector));
           });
         }
@@ -385,17 +396,17 @@ class ProcessExtendsVisitor extends VisitorBase {
   /// Returns an array of selector matches that can then be replaced
   ///
   List<MatchSelector> findMatch(Extend extend, List<Selector> haystackSelectorPath) {
-    int haystackSelectorIndex; // haystackSelectorPath iteration
-    Selector hackstackSelector;
-    int hackstackElementIndex;
-    Element haystackElement;
-    String targetCombinator;
-    int i;
     ProcessExtendsVisitor extendVisitor = this;
-    List<Element> needleElements = extend.selector.elements;
-    List<MatchSelector> potentialMatches = [];
-    MatchSelector potentialMatch;
-    List<MatchSelector> matches = [];
+    int                   hackstackElementIndex;
+    Selector              hackstackSelector;
+    Element               haystackElement;
+    int                   haystackSelectorIndex; // haystackSelectorPath iteration
+    int                   i;
+    List<MatchSelector>   matches = <MatchSelector>[];
+    List<Element>         needleElements = extend.selector.elements;
+    MatchSelector         potentialMatch;
+    List<MatchSelector>   potentialMatches = <MatchSelector>[];
+    String                targetCombinator;
 
     // loop through the haystack elements
     for(haystackSelectorIndex = 0; haystackSelectorIndex < haystackSelectorPath.length; haystackSelectorIndex++) {
@@ -537,7 +548,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   /// The elements could be String or Node
   ///
-  bool isElementValuesEqual(elementValue1, elementValue2) {
+  bool isElementValuesEqual(dynamic elementValue1, dynamic elementValue2) {
     if (elementValue1 is String || elementValue2 is String) {
       return elementValue1 == elementValue2;
     }
@@ -566,8 +577,10 @@ class ProcessExtendsVisitor extends VisitorBase {
       for (int i = 0; i < elementValue1.elements.length; i++) {
         if (elementValue1.elements[i].combinator.value != elementValue2.elements[i].combinator.value) {
           if (i != 0
-              || getValueOrDefault(elementValue1.elements[i].combinator.value, ' ')
-                  != getValueOrDefault(elementValue2.elements[i].combinator.value, ' ')) {
+            // || getValueOrDefault(elementValue1.elements[i].combinator.value, ' ')
+            //      != getValueOrDefault(elementValue2.elements[i].combinator.value, ' ')) {
+              || (elementValue1.elements[i].combinator.value ?? ' ')
+                  != (elementValue2.elements[i].combinator.value ?? ' ')) {
             return false;
           }
         }
@@ -623,15 +636,19 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   /// For a set of matches, replace each match with the replacement selector
   ///
-  List<Selector> extendSelector (List<MatchSelector> matches, List<Selector> selectorPath, Selector replacementSelector) {
-    int currentSelectorPathIndex = 0;
-    int currentSelectorPathElementIndex = 0;
-    List<Selector> path = [];
-    int matchIndex;
-    Selector selector;
-    Element firstElement;
-    MatchSelector match;
-    List<Element> newElements;
+  List<Selector> extendSelector (
+    List<MatchSelector> matches,
+    List<Selector>      selectorPath,
+    Selector            replacementSelector) {
+
+    int             currentSelectorPathElementIndex = 0;
+    int             currentSelectorPathIndex = 0;
+    Element         firstElement;
+    MatchSelector   match;
+    int             matchIndex;
+    List<Element>   newElements;
+    List<Selector>  path = <Selector>[];
+    Selector        selector;
 
     for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
       match = matches[matchIndex];
@@ -798,6 +815,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   /// func visitor.visit distribuitor
+  @override
   Function visitFtn(Node node) {
     if (node is Media)      return visitMedia;
     if (node is Directive)  return visitDirective;
@@ -810,6 +828,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   /// funcOut visitor.visit distribuitor
+  @override
   Function visitFtnOut(Node node) {
     if (node is Media)      return visitMediaOut;
     if (node is Directive)  return visitDirectiveOut;

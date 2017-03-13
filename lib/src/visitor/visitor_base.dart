@@ -1,6 +1,7 @@
 library visitor.less;
 
 import 'dart:async';
+import 'package:meta/meta.dart';
 import '../contexts.dart';
 import '../import_manager.dart';
 import '../less_error.dart';
@@ -26,7 +27,7 @@ abstract class VisitorBase {
 
   Ruleset run(Ruleset root) => null;
 
-  static Node noop(node) => node; //TODO delete not used
+  //static Node noop(node) => node; //TODO delete not used
 
 
    /// func visitor.visit distribuitor
@@ -36,7 +37,7 @@ abstract class VisitorBase {
    Function visitFtnOut(Node node) => null;
 
    ///
-   error({int index, String type, String message, String filename}) {
+   void error({int index, String type, String message, String filename}) {
      LessError error = new LessError(
          index: index,
          type: type,
@@ -46,7 +47,8 @@ abstract class VisitorBase {
      throw new LessExceptionError(error);
    }
 
-   visit(node) => node;
+   @virtual
+   dynamic visit(dynamic node) => node;
 
 }
 

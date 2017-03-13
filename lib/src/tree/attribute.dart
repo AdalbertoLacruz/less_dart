@@ -3,16 +3,18 @@
 part of tree.less;
 
 class Attribute extends Node {
-  var key; // String or Node
-  String op; // '=', '^=', ...
+  @override String get    name => null;
+  @override final String  type = 'Attribute';
 
-  final String type = 'Attribute';
+  dynamic key; // String or Node
+  String  op; // '=', '^=', ...
 
-  Attribute(this.key, this.op, value){
+  Attribute(this.key, this.op, dynamic value){
     this.value = value;
   }
 
   ///
+  @override
   Attribute eval(Contexts context) => new Attribute(
         key is Node ? key.eval(context) : key,
         op,
@@ -25,6 +27,7 @@ class Attribute extends Node {
 //  };
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add(toCSS(context));
 
@@ -35,6 +38,7 @@ class Attribute extends Node {
   }
 
   ///
+  @override
   String toCSS(Contexts context) {
     String value = (key is Node) ? key.toCSS(context) : key;
 
@@ -43,7 +47,7 @@ class Attribute extends Node {
       value += (this.value is Node) ? this.value.toCSS(context) : this.value;
     }
 
-    return '[${value}]';
+    return '[$value]';
 
 //2.3.1
 //  Attribute.prototype.toCSS = function (context) {
@@ -57,7 +61,4 @@ class Attribute extends Node {
 //      return '[' + value + ']';
 //  };
   }
-
-  @override
-  get name => null;
 }

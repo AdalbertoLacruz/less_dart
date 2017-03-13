@@ -9,12 +9,11 @@ class TypesFunctions extends FunctionBase {
 //  }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   List<Node> getItemsFromNode(Node node) {
     // handle non-array values as an array of length 1
     // return null if index is invalid
-    List<Node> items = (node.value is List) ? node.value : [node];
-    return items;
+    return (node.value is List) ? node.value : <Node>[node];
 
 //2.4.0+2
 //  getItemsFromNode = function(node) {
@@ -40,7 +39,7 @@ class TypesFunctions extends FunctionBase {
   ///   isruleset(@rules);   // true
   ///   isruleset(#ff0);     // false
   ///
-  isruleset(n) => (n is DetachedRuleset) ? new Keyword.True() : new Keyword.False();
+  Keyword isruleset(Node n) => (n is DetachedRuleset) ? new Keyword.True() : new Keyword.False();
 
 //  isruleset: function (n) {
 //      return isa(n, DetachedRuleset);
@@ -56,7 +55,7 @@ class TypesFunctions extends FunctionBase {
   ///   iscolor(#ff0);     // true
   ///   iscolor("string"); // false
   ///
-  Keyword iscolor(n) => (n is Color) ? new Keyword.True() : new Keyword.False();
+  Keyword iscolor(Node n) => (n is Color) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a number, false otherwise.
@@ -68,7 +67,7 @@ class TypesFunctions extends FunctionBase {
   ///   isnumber(#ff0);     // false
   ///   isnumber(1234);     // true
   ///
-  Keyword isnumber(n) => (n is Dimension) ? new Keyword.True() : new Keyword.False();
+  Keyword isnumber(Node n) => (n is Dimension) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a string, false otherwise.
@@ -80,7 +79,7 @@ class TypesFunctions extends FunctionBase {
   ///   isstring(#ff0);     // false
   ///   isstring("string"); // true
   ///
-  Keyword isstring(n) => (n is Quoted) ? new Keyword.True() : new Keyword.False();
+  Keyword isstring(Node n) => (n is Quoted) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a keyword, false otherwise.
@@ -92,7 +91,7 @@ class TypesFunctions extends FunctionBase {
   ///   iskeyword(#ff0);     // false
   ///   iskeyword(keyword);  // true
   ///
-  Keyword iskeyword(n) => (n is Keyword) ? new Keyword.True() : new Keyword.False();
+  Keyword iskeyword(Node n) => (n is Keyword) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a url, false otherwise.
@@ -104,7 +103,7 @@ class TypesFunctions extends FunctionBase {
   ///   isurl(#ff0);     // false
   ///   isurl(url(...)); // true
   ///
-  Keyword isurl(n) => (n is URL) ? new Keyword.True() : new Keyword.False();
+  Keyword isurl(Node n) => (n is URL) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a number in pixels, false otherwise.
@@ -116,7 +115,7 @@ class TypesFunctions extends FunctionBase {
   ///   ispixel(#ff0);     // false
   ///   ispixel(56px);     // true
   ///
-  Keyword ispixel(n) => isunit(n, 'px');
+  Keyword ispixel(Node n) => isunit(n, 'px');
 
   ///
   /// Returns true if a value is a percentage value, false otherwise.
@@ -128,7 +127,7 @@ class TypesFunctions extends FunctionBase {
   ///   ispercentage(#ff0);     // false
   ///   ispercentage(7.8%);     // true
   ///
-  Keyword ispercentage(n) => isunit(n, '%');
+  Keyword ispercentage(Node n) => isunit(n, '%');
 
   ///
   /// Returns true if a value is an em value, false otherwise.
@@ -140,7 +139,7 @@ class TypesFunctions extends FunctionBase {
   ///   isem(#ff0);     // false
   ///   isem(7.8em);    // true
   ///
-  Keyword isem(n) => isunit(n, 'em');
+  Keyword isem(Node n) => isunit(n, 'em');
 
   ///
   /// Returns true if a value is a number in specified units, false otherwise.
@@ -155,7 +154,7 @@ class TypesFunctions extends FunctionBase {
   ///   isunit(56px, "%"); // false
   ///   isunit(7.8%, '%'); // true
   ///
-  Keyword isunit(n, unit) {
+  Keyword isunit(Node n, dynamic unit) {
     if (unit == null) {
       throw new LessExceptionError(new LessError(
         type: 'Argument',
@@ -197,13 +196,13 @@ class TypesFunctions extends FunctionBase {
   ///   Output: 5px
   ///
   Dimension unit(Node val, [Node unit]) {
-    var unitValue;
+    String unitValue;
 
     if (val is! Dimension) {
       String p = val is Operation ? '. Have you forgotten parenthesis?' : '';
       throw new LessExceptionError(new LessError(
           type: 'Argument',
-          message: 'the first argument to unit must be a number${p}'));
+          message: 'the first argument to unit must be a number$p'));
     }
     if (unit != null) {
       if (unit is Keyword) {
@@ -250,22 +249,32 @@ class TypesFunctions extends FunctionBase {
   /// Example: get-unit(5)
   ///   Output: //nothing
   ///
-  @defineMethod(name: 'get-unit')
+  @DefineMethod(name: 'get-unit')
   Anonymous getUnit(Dimension n) => new Anonymous(n.unit);
 
   ///
   /// Returns the value at a specified position in a list.
   ///
   /// Parameters:
-  ///   list - a comma or space separated list of values.
-  ///   index - an integer that specifies a position of a list element to return.
-  ///   Returns: a value at the specified position in a list.
-  /// Example: extract(8px dotted red, 2);
-  ///   Output: dotted
+  ///
+  ///     [values] - list, a comma or space separated list of values.
+  ///     [index] - an integer that specifies a position of a list element to return.
+  ///
+  /// Returns: a value at the specified position in a list.
+  ///
+  /// Example:
+  ///
+  ///     extract(8px dotted red, 2);
+  ///     Output: dotted
   ///
   Node extract(Node values, Node index) {
     int iIndex = (index.value as num).toInt() - 1; // (1-based index)
-    return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
+    //return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
+    try {
+      return getItemsFromNode(values).elementAt(iIndex);
+    } catch (e) {
+      return null;
+    }
 
 //2.4.0
 //  extract: function(values, index) {
@@ -304,7 +313,7 @@ class TypesFunctions extends FunctionBase {
   ///   Output: 1rem, 2rem, 2rem
   ///
   Dimension rem(Node fontSize, [Node baseFont]) {
-    var base = 16; //px
+    num base = 16; //px
     if (fontSize is Dimension) {
       switch (fontSize.unit.toCSS(null)) {
         case 'px':
@@ -319,7 +328,8 @@ class TypesFunctions extends FunctionBase {
         default:
       }
     }
-    base = baseFont != null ? baseFont.value : base;
+    //base = baseFont != null ? baseFont.value : base;
+    base = baseFont?.value ?? base;
     return new Dimension(fontSize.value/base, 'rem');
   }
 }

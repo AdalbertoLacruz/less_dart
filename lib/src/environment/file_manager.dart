@@ -26,7 +26,7 @@ class FileManager {
   /// { filename: - full resolved path to file
   ///   contents: - the contents of the file, as a string }
   ///
-  Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) => null;
 
   ///
   /// Loads a file synchronously. Expects an immediate return with an object containing
@@ -217,7 +217,7 @@ class FileManager {
     // urlParts[5] = parameters
 
     RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
-    List<String> urlParts = [];
+    List<String> urlParts = <String>[];
     Match match = urlPartsRegex.firstMatch(url);
     if (match != null) {
       for (int i = 0; i < match.groupCount; i++) {
@@ -231,14 +231,14 @@ class FileManager {
 
     if (urlParts.isEmpty) {
       LessError error = new LessError(
-                message: "Could not parse sheet href - '${url}'");
+                message: "Could not parse sheet href - '$url'");
       throw new LessExceptionError(error);
     }
 
     // Stylesheets in IE don't always return the full path
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
       match = urlPartsRegex.firstMatch(baseUrl);
-      List<String> baseUrlParts = [];
+      List<String> baseUrlParts = <String>[];
       if (match != null) {
         for (int i = 0; i < match.groupCount; i++) {
           baseUrlParts.add(match[i]);
@@ -247,7 +247,7 @@ class FileManager {
 
       if (baseUrlParts.isEmpty) {
         LessError error = new LessError(
-                  message: "Could not parse page url - '${baseUrl}'");
+                  message: "Could not parse page url - '$baseUrl'");
         throw new LessExceptionError(error);
       }
 

@@ -3,27 +3,26 @@
 part of tree.less;
 
 class Extend extends Node {
-  Node selector;
-  String option;
-  int index;
+  @override String get   name => null;
+  @override final String type = 'Extend';
 
   bool            allowAfter;
   bool            allowBefore;
   bool            firstExtendOnThisSelectorPath = false;
   bool            hasFoundMatches = false; // ProcessExtendsVisitor
+  int             index;
+  static int      next_id = 0;
   int             object_id;
+  String          option;
   List<int>       parent_ids;
   Ruleset         ruleset; //extend
+  Node            selector;
   List<Selector>  selfSelectors;
-
-  static int next_id = 0;
-
-  final String type = 'Extend';
 
   ///
   Extend(Node this.selector, String this.option, int this.index) {
     object_id = next_id++;
-    parent_ids = [object_id];
+    parent_ids = <int>[object_id];
 
     switch(option) {
       case 'all':
@@ -58,6 +57,7 @@ class Extend extends Node {
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     selector = visitor.visit(selector);
 
@@ -68,6 +68,7 @@ class Extend extends Node {
   }
 
   ///
+  @override
   Extend eval(Contexts context) => new Extend(selector.eval(context), option, index);
 
 //2.3.1
@@ -86,7 +87,7 @@ class Extend extends Node {
 
   ///
   void findSelfSelectors(List<Selector> selectors) {
-    List<Element> selfElements = [];
+    List<Element> selfElements = <Element>[];
     List<Element> selectorElements;
 
     for (int i = 0; i < selectors.length; i++) {
@@ -100,7 +101,7 @@ class Extend extends Node {
       selfElements.addAll(selectors[i].elements);
     }
 
-    this.selfSelectors = [new Selector(selfElements)];
+    this.selfSelectors = <Selector>[new Selector(selfElements)];
 
 //2.3.1
 //  Extend.prototype.findSelfSelectors = function (selectors) {
@@ -121,6 +122,4 @@ class Extend extends Node {
 //      this.selfSelectors = [{ elements: selfElements }];
 //  };
   }
-  @override
-  String get name => null;
 }

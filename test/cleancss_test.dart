@@ -3,10 +3,10 @@ import 'package:less_dart/less.dart';
 
 import 'package:test/test.dart';
 
-main() {
+void main() {
   test('Transform test/less/cleancss/main-ie8.less with --clean-css', () async {
     final Less less = new Less();
-    final exitCode = await less.transform([
+    final int exitCode = await less.transform(<String>[
       '--no-color',
       '--clean-css="compatibility=ie8"',
       'test/less/cleancss/main-ie8.less',

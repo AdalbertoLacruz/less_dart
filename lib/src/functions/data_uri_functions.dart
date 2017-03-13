@@ -16,11 +16,12 @@ class DataUriFunctions extends FunctionBase {
   /// Example: data-uri('image/svg+xml;charset=UTF-8', 'image.svg');
   ///   Output: url("data:image/svg+xml;charset=UTF-8,%3Csvg%3E%3Ccircle%20r%3D%229%22%2F%3E%3C%2Fsvg%3E");
   ///
-  @defineMethod(name: 'data-uri')
+  @DefineMethod(name: 'data-uri')
   URL dataURI(Node mimetypeNode, [Node filePathNode]) {
 
     URL fallback() {
-      return new URL(getValueOrDefault(filePathNode, mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
+      //return new URL(getValueOrDefault(filePathNode, mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
+      return new URL((filePathNode ?? mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
     }
 
     Environment environment = new Environment();
@@ -60,7 +61,7 @@ class DataUriFunctions extends FunctionBase {
       } else {
         // use base 64 unless it's an ASCII or UTF-8 format
         String charset = environment.charsetLookup(mimetype);
-        useBase64 = ['US-ASCII', 'UTF-8'].indexOf(charset) < 0;
+        useBase64 = <String>['US-ASCII', 'UTF-8'].indexOf(charset) < 0;
       }
       if (useBase64)  mimetype += ';base64';
     } else {
@@ -70,7 +71,7 @@ class DataUriFunctions extends FunctionBase {
     FileLoaded fileSync = fileManager.loadFileAsBytesSync(filePath,
         currentDirectory, context, environment);
     if (fileSync.codeUnits == null) {
-      logger.warn('Skipped data-uri embedding of ${filePath} because file not found');
+      logger.warn('Skipped data-uri embedding of $filePath because file not found');
       return fallback();
     }
     List<int> buf = fileSync.codeUnits;
@@ -78,7 +79,7 @@ class DataUriFunctions extends FunctionBase {
         ? Base64String.encode(buf)
         : Uri.encodeComponent(new String.fromCharCodes(buf));
 
-    String uri = 'data:${mimetype},${sbuf}${fragment}';
+    String uri = 'data:$mimetype,$sbuf$fragment';
 
     // IE8 cannot handle a data-uri larger than 32,768 characteres. If this is exceeded
     // and the --ieCompat flag is enabled, return a normal url() instead.
@@ -86,7 +87,7 @@ class DataUriFunctions extends FunctionBase {
     int DATA_URI_MAX = 32768;
     if (buf.length >= DATA_URI_MAX) {
       if (this.context.ieCompat) {
-        logger.warn('Skipped data-uri embedding of ${filePath} because its size (${buf.length} characters) exceeds IE8-safe ${DATA_URI_MAX} characters!');
+        logger.warn('Skipped data-uri embedding of $filePath because its size (${buf.length} characters) exceeds IE8-safe $DATA_URI_MAX characters!');
         return fallback();
       }
     }

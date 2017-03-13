@@ -20,6 +20,7 @@ class IgnitionVisitor extends VisitorBase {
   }
 
   ///
+  @override
   Ruleset run(Ruleset root) {
     lessOptions = environment.options;
     PluginManager pluginManager = lessOptions.pluginManager;
@@ -49,6 +50,7 @@ class IgnitionVisitor extends VisitorBase {
     return null;
   }
 
+  @override
   Function visitFtn(Node node) {
     if (node is Options) return visitOptions;
 
@@ -56,6 +58,7 @@ class IgnitionVisitor extends VisitorBase {
   }
 
   /// funcOut visitor.visit distribuitor
+  @override
   Function visitFtnOut(Node node) {
     return null;
   }

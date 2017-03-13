@@ -2,15 +2,14 @@
 
 part of tree.less;
 
-class Comment extends Node<String> implements MarkReferencedNode {
-  bool isLineComment;
-  int index;
+class Comment extends Node implements MarkReferencedNode {
+  @override String get        name => null;
+  @override final String      type ="Comment";
+  @override covariant String  value;
 
-  bool isReferenced = false;
-
-  final String type ="Comment";
-
-  bool get isImportant => (value.length > 2) && (value.startsWith('/*!'));
+  int   index;
+  bool  isLineComment;
+  bool  isReferenced = false;
 
   ///
   Comment(String value, [bool this.isLineComment = false, int this.index, FileInfo currentFileInfo]){
@@ -21,7 +20,8 @@ class Comment extends Node<String> implements MarkReferencedNode {
   ///
   /// Writes the comment in [output].
   ///
-  genCSS(Contexts context, Output output) {
+  @override
+  void genCSS(Contexts context, Output output) {
     if (debugInfo != null) {
       output.add(debugInfo.toOutput(context), currentFileInfo, index);
     }
@@ -35,6 +35,9 @@ class Comment extends Node<String> implements MarkReferencedNode {
 //        output.add(this.value);
 //    };
   }
+
+  ///
+  bool get isImportant => (value.length > 2) && (value.startsWith('/*!'));
 
   ///
   bool isSilent(Contexts context) {
@@ -57,10 +60,8 @@ class Comment extends Node<String> implements MarkReferencedNode {
   //--- MarkReferencedNode
 
   ///
+  @override
   void markReferenced() {
     isReferenced = true;
   }
-
-  @override
-  String get name => null;
 }

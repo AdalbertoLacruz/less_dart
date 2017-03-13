@@ -6,7 +6,7 @@ class ImageSizeFunctions extends FunctionBase {
   Environment environment = new Environment();
   ImageSize imageSizeProcessor = new ImageSize();
 
-  @defineMethod(skip: true)
+  @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
     String filePath = filePathNode.value;
     String currentDirectory = currentFileInfo.relativeUrls
@@ -66,11 +66,11 @@ class ImageSizeFunctions extends FunctionBase {
   /// Example: image-size("file.png");
   ///   Output: 10px 10px
   ///
-  @defineMethod(name: 'image-size')
-  imageSize(Quoted filePathNode) {
+  @DefineMethod(name: 'image-size')
+  Expression imageSize(Quoted filePathNode) {
     ImageDimension size = imageSizeFtn(filePathNode);
     if (size == null) return null;
-    return new Expression([
+    return new Expression(<Node>[
       new Dimension(size.width, 'px'),
       new Dimension(size.height, 'px')
       ]);
@@ -94,8 +94,8 @@ class ImageSizeFunctions extends FunctionBase {
   /// Example: image-width("file.png");
   ///   Output: 10px
   ///
-  @defineMethod(name: 'image-width')
-  imageWidth(Quoted filePathNode) {
+  @DefineMethod(name: 'image-width')
+  Dimension imageWidth(Quoted filePathNode) {
     ImageDimension size = imageSizeFtn(filePathNode);
     if (size == null) return null;
     return new Dimension(size.width, 'px');
@@ -116,8 +116,8 @@ class ImageSizeFunctions extends FunctionBase {
   /// Example: image-height("file.png");
   ///   Output: 10px
   ///
-  @defineMethod(name: 'image-height')
-  imageHeigth(Quoted filePathNode) {
+  @DefineMethod(name: 'image-height')
+  Dimension imageHeigth(Quoted filePathNode) {
     ImageDimension size = imageSizeFtn(filePathNode);
     if (size == null) return null;
     return new Dimension(size.height, 'px');

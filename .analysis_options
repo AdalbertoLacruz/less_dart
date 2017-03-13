@@ -1,17 +1,43 @@
 analyzer:
   strong-mode: true
+#    implicit-casts: false
+#    implicit-dynamic: false
   errors:
 # see https://github.com/dart-lang/sdk/blob/stable/pkg/analyzer/lib/src/generated/error.dart
 # error | warning | ignore
-#      unused_local_variable: ignore
-      invalid_assignment: error
       assignment_to_const: error
       assignment_to_final: error
+      dead_code: warning
+      invalid_assignment: error
       missing_return: error
       not_enough_required_arguments: error
+      strong_mode_invalid_field_override: error
+      todo: ignore
+      undefined_class: error
       undefined_function: error
       undefined_method: error
-      undefined_class: error
-      strong_mode_invalid_field_override: error
+#      unused_local_variable: ignore
 #  exclude:
 #    - 'test/**'
+linter:
+# see http://dart-lang.github.io/linter/lints/
+  rules:
+#    - avoid_init_to_null
+#    - cancel_subscriptions
+    - always_declare_return_types
+    - always_specify_types
+    - annotate_overrides
+    - avoid_empty_else
+    - camel_case_types
+    - comment_references
+    - empty_constructor_bodies
+    - empty_statements
+#    - constant_identifier_names
+#    - one_member_abstracts
+#    - close_sinks
+    - slash_for_doc_comments
+#    - sort_constructors_first
+    - test_types_in_equals
+    - unnecessary_brace_in_string_interp
+#    - unrelated_type_equality_checks
+    - valid_regexps

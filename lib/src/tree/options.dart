@@ -5,18 +5,23 @@ part of tree.less;
 ///
 /// @options "--flags" directive
 ///
-class Options extends Node<Quoted> {
-  int       index;
-  bool      isPlugin;
-  List<FunctionBase> functions;
+class Options extends Node {
+  @override String get        name => null;
+  @override final String      type = 'Options';
+  @override covariant Quoted  value;
 
-  final String type = 'Options';
+  List<FunctionBase>  functions;
+  int                 index;
+  bool                isPlugin;
 
   Options(Quoted value, this.index, FileInfo currentFileInfo, {bool this.isPlugin: false}){
     this.value = value;
     this.currentFileInfo = currentFileInfo;
   }
+
+  ///
   /// Load the options and plugins
+  ///
   void apply(Environment environment) {
     LessOptions lessOptions = environment.options;
     Logger logger = environment.logger;
@@ -30,7 +35,7 @@ class Options extends Node<Quoted> {
 
     if (!result) {
       LessError error = new LessError(
-          message: 'bad options (${capture})',
+          message: 'bad options ($capture)',
           index: index,
           filename: currentFileInfo.filename);
        throw new LessExceptionError(error);
@@ -55,6 +60,4 @@ class Options extends Node<Quoted> {
     }
     return this;
   }
-  
-  get name => null;
 }

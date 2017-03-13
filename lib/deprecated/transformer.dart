@@ -48,13 +48,15 @@ class LessTransformer extends Transformer {
   LessTransformer.asPlugin(BarbackSettings settings):
     this(settings);
 
+  @override
   Future<bool> isPrimary (AssetId id) {
-    return new Future.value(_isEntryPoint(id));
+    return new Future<bool>.value(_isEntryPoint(id));
   }
 
-  Future apply(Transform transform) {
+  @override
+  Future<Null> apply(Transform transform) {
     List<String> flags = _createFlags();  //to build process arguments
-    var id = transform.primaryInput.id;
+    AssetId id = transform.primaryInput.id;
     String inputFile = id.path;
     String outputFile = getOutputFileName(id);
 
@@ -75,9 +77,9 @@ class LessTransformer extends Transformer {
     if (isBuildModeDart) processInfo.inputFile = inputFile;
     if (isBuildModeMixed || isBuildModeDart) processInfo.outputFile = outputFile;
 
-    return transform.primaryInput.readAsString().then((content){
+    return transform.primaryInput.readAsString().then((String content){
       transform.consumePrimary();
-      return executeProcess(options.executable, flags, content, processInfo).then((output) {
+      return executeProcess(options.executable, flags, content, processInfo).then((String output) {
 
         if (isBuildModeMixed || isBuildModeDart){
           transform.addOutput(new Asset.fromString(new AssetId(id.package, outputFile), output));
@@ -95,7 +97,7 @@ class LessTransformer extends Transformer {
   }
 
   List<String> _createFlags(){
-    List<String> flags = [];
+    List<String> flags = <String>[];
 
     flags.add('--no-color');
     if (options.cleancss) flags.add('--clean-css');
@@ -106,7 +108,7 @@ class LessTransformer extends Transformer {
     return flags;
   }
 
-  String getOutputFileName(id) {
+  String getOutputFileName(AssetId id) {
     if(options.entry_points.length > 1 || options.output == '') {
       return id.changeExtension('.css').path;
     }
@@ -116,27 +118,27 @@ class LessTransformer extends Transformer {
   /*
    * lessc process wrapper
    */
-  Future executeProcess(String executable, List<String> flags, String content, ProcessInfo processInfo) {
+  Future<String> executeProcess(String executable, List<String> flags, String content, ProcessInfo processInfo) {
     return runZoned((){
-      final _timeInProcess = new Stopwatch();
+      final Stopwatch _timeInProcess = new Stopwatch();
 
       Less less = new Less();
       less.stdin.write(content);
 
       _timeInProcess.start();
       return less.transform(flags)
-        .then((exiCode){
+        .then((int exiCode){
           _timeInProcess.stop();
           processInfo.nicePrint(_timeInProcess.elapsed);
           print(less.stderr.toString());
           if(exitCode == 0){
-            return new Future.value(less.stdout.toString());
+            return new Future<String>.value(less.stdout.toString());
           } else {
             throw new LessException(less.stderr.toString());
           }
         });
     },
-    zoneValues: {#id: new Random().nextInt(10000)});
+    zoneValues: <Symbol, int>{#id: new Random().nextInt(10000)});
   }
 }
 /* ************************************** */
@@ -154,21 +156,22 @@ class TransformerOptions {
   TransformerOptions({List<String> this.entry_points, String this.include_path, String this.output, bool this.cleancss, bool this.compress,
     String this.executable, String this.build_mode, this.other_flags});
 
-  factory TransformerOptions.parse(Map configuration){
+  factory TransformerOptions.parse(Map<dynamic, dynamic> configuration){
 
-    config(key, defaultValue) {
-      var value = configuration[key];
+    //returns bool | String | List<String>
+    dynamic config(String key, dynamic defaultValue) {
+      dynamic value = configuration[key];
       return value != null ? value : defaultValue;
     }
 
-    List<String> readStringList(value) {
+    List<String> readStringList(dynamic value) {
       if (value is List<String>) return value;
-      if (value is String) return [value];
+      if (value is String) return <String>[value];
       return null;
     }
 
-    List<String> readEntryPoints(entryPoint, entryPoints) {
-      List<String> result = [];
+    List<String> readEntryPoints(dynamic entryPoint, dynamic entryPoints) {
+      List<String> result = <String>[];
       List<String> value;
 
       value = readStringList(entryPoint);
@@ -194,16 +197,17 @@ class TransformerOptions {
     );
   }
 }
+
 /* ************************************** */
 class ProcessInfo {
-  String executable;
-  List<String> flags;
-  String inputFile = '';
-  String outputFile = '';
+  String        executable;
+  List<String>  flags;
+  String        inputFile = '';
+  String        outputFile = '';
 
   ProcessInfo(this.executable, this.flags);
 
-  nicePrint(Duration elapsed){
+  void nicePrint(Duration elapsed){
     print('$INFO_TEXT command: $executable ${flags.join(' ')}');
     if (inputFile  != '') print('$INFO_TEXT input File: $inputFile');
     if (outputFile != '') print('$INFO_TEXT outputFile: $outputFile');
@@ -213,11 +217,11 @@ class ProcessInfo {
   /// Returns a human-friendly representation of [duration].
   //from barback - Copyright (c) 2013, the Dart project authors
   String niceDuration(Duration duration) {
-  var result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
+    String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
 
-  var s = duration.inSeconds % 59;
-  var ms = (duration.inMilliseconds % 1000) ~/ 100;
-  return result + "$s.${ms}s";
+    int s = duration.inSeconds % 59;
+    int ms = (duration.inMilliseconds % 1000) ~/ 100;
+    return result + "$s.${ms}s";
   }
 }
 
@@ -230,5 +234,6 @@ class LessException implements Exception {
 
   LessException(this.message);
 
+  @override
   String toString() => '\n$message';
 }

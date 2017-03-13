@@ -2,15 +2,16 @@
 
 part of tree.less;
 
-class Paren extends Node<Node> {
-
-  final String type = 'Paren';
+class Paren extends Node {
+  @override final String    type = 'Paren';
+  @override covariant Node  value;
 
   Paren(Node value){
     this.value = value;
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add('(');
     value.genCSS(context, output);
@@ -25,6 +26,7 @@ class Paren extends Node<Node> {
   }
 
   ///
+  @override
   Paren eval(Contexts context) => new Paren(value.eval(context));
 
 //2.3.1

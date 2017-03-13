@@ -15,13 +15,13 @@ part of tree.less;
 /// such as a tag a class, or `*`.
 ///
 class Element extends Node {
+  @override final String type = 'Element';
+
   Combinator  combinator;
   int         index;
 
-  final String type = 'Element';
-
   ///
-  Element(combinator, value, this.index, FileInfo currentFileInfo) {
+  Element(dynamic combinator, dynamic value, this.index, FileInfo currentFileInfo) {
     this.value = '';
     this.currentFileInfo = currentFileInfo;
     this.combinator = (combinator is Combinator) ? combinator : new Combinator(combinator);
@@ -52,6 +52,7 @@ class Element extends Node {
   ///
   /// Tree navegation for visitors
   ///
+  @override
   void accept(covariant Visitor visitor) {
     combinator = visitor.visit(combinator);
     if (value is Node) value = visitor.visit(value);
@@ -69,6 +70,7 @@ class Element extends Node {
   ///
   /// Replace variables by value
   ///
+  @override
   Element eval(Contexts context) => new Element(
                         combinator,
                         (value is Node) ? value.eval(context) : value,
@@ -86,6 +88,7 @@ class Element extends Node {
   ///
   /// Writes the css code
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add(toCSS(context), currentFileInfo, index);
 
@@ -98,9 +101,10 @@ class Element extends Node {
   ///
   /// Converts value to String: Combinator + value
   ///
+  @override
   String toCSS(Contexts context) {
     if (context == null) context = new Contexts();
-    var value = this.value;
+    dynamic value = this.value; // Node | String
     bool firstSelector = context.firstSelector;
 
     if (value is Paren) {
@@ -109,7 +113,7 @@ class Element extends Node {
       context.firstSelector = true;
     }
 
-    value = (value is Node) ? value.toCSS(context) : value;
+    value = (value is Node) ? value.toCSS(context) : value; // String
     context.firstSelector = firstSelector;
     if (value.isEmpty && combinator.value.startsWith('&')) {
       return '';

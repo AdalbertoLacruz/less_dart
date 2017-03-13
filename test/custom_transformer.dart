@@ -31,18 +31,21 @@ class MyTransformer extends FileTransformer {
 }
 
 class MyProcessor extends Processor {
-  MyProcessor(options):super(options);
+  MyProcessor(PluginOptions options):super(options);
 
-  String process(String input, Map options) {
+  @override
+  String process(String input, Map<String, dynamic> options) {
       return '/* MyPlugin custom transformer post processor */\n' + input;
   }
 }
 
 class MyPlugin extends Plugin {
-  List<int> minVersion = [2, 1, 0];
+  @override List<int> minVersion = <int>[2, 1, 0];
+
   MyPlugin(): super();
 
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     Processor myProcessor = new MyProcessor(null);
     pluginManager.addPostProcessor(myProcessor);
   }

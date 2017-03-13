@@ -6,12 +6,12 @@ part of parser.less;
 /// Entities are tokens which can be found inside an Expression
 ///
 class Entities {
-  Contexts context;
+  Contexts    context;
+  FileInfo    fileInfo;
+  //Node        node;
   ParserInput parserInput;
-  Parsers parsers; //To reference parsers.expression() and parsers.entity()
-  FileInfo fileInfo;
+  Parsers     parsers; //To reference parsers.expression() and parsers.entity()
 
-  Node node;
 
   Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
     this.fileInfo = this.context.currentFileInfo;
@@ -62,12 +62,14 @@ class Entities {
   ///
   ///     black border-collapse
   ///
+  /// returns Color | Keyword
+  ///
   Node keyword() {
     String k = parserInput.$char("%");
     if (k == null) k = parserInput.$re(_keywordRegEx);
 
     if (k != null) {
-      Node color = new Color.fromKeyword(k);
+      Color color = new Color.fromKeyword(k);
       return (color != null) ? color : new Keyword(k);
     }
     return null;
@@ -81,8 +83,8 @@ class Entities {
 //  },
   }
 
-  static final _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
-  static final _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
+  static final RegExp _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
+  static final RegExp _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
   ///
   /// A function call
   ///
@@ -96,7 +98,7 @@ class Entities {
   Node call() {
     String name;
     String nameLC;
-    List<Expression> args;
+    List<Node> args;
     Node alpha;
     int index = parserInput.i;
 
@@ -200,22 +202,23 @@ class Entities {
 //  }
   }
 
-  static final _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
-  static final _alphaRegExp2 = new RegExp(r'\d+', caseSensitive: true);
+  static final RegExp _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
+  static final RegExp _alphaRegExp2 = new RegExp(r'\d+', caseSensitive: true);
   ///
   /// IE's alpha function
   ///
   ///     alpha(opacity=88)
   ///
+  /// return Alpha<Node | String>
   //Original in parsers.dart
   Alpha alpha() {
-    var value;
+    dynamic value; // Node | String
 
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.$re(_alphaRegExp1) == null) return null; // i
-    value = parserInput.$re(_alphaRegExp2);
+    value = parserInput.$re(_alphaRegExp2);  //String
     if (value == null) {
-      value = parserInput.expect(this.variable, 'Could not parse alpha');
+      value = parserInput.expect(this.variable, 'Could not parse alpha'); //Variable
     }
     parserInput.expectChar(')');
     return new Alpha(value);
@@ -235,8 +238,10 @@ class Entities {
   }
 
   ///
+  /// returns List<Assignment | Expression>
+  ///
   List<Node> arguments() {
-    List<Node> args = [];
+    List<Node> args = <Node>[];
     Node arg;
 
     while (true) {
@@ -286,7 +291,7 @@ class Entities {
 //  }
   }
 
-  static final _assignmentRegExp = new RegExp(r'\w+(?=\s?=)', caseSensitive: false);
+  static final RegExp _assignmentRegExp = new RegExp(r'\w+(?=\s?=)', caseSensitive: false);
   ///
   /// Assignments are argument entities for calls.
   /// They are present in ie filter properties as shown below.
@@ -294,7 +299,7 @@ class Entities {
   ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
   ///
   Assignment assignment() {
-    String key;
+    String        key;
     Node value;
 
     parserInput.save();
@@ -341,7 +346,7 @@ class Entities {
 //  },
   }
 
-  static final _urlRegExp = new RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
+  static final RegExp _urlRegExp = new RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
   ///
   /// Parse url() tokens
   ///
@@ -396,7 +401,7 @@ class Entities {
 //  },
   }
 
-  static final _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
+  static final RegExp _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
   ///
   /// A Variable entity, such as `@fink`, in
   ///
@@ -425,7 +430,7 @@ class Entities {
 //  }
   }
 
-  static final _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
+  static final RegExp _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
   ///
   /// A variable entity using the protective {} e.g. @{var}
   ///
@@ -434,7 +439,7 @@ class Entities {
     int index = parserInput.i;
 
     if (parserInput.currentChar() == '@' && (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
-      return new Variable('@${curly}', index, fileInfo);
+      return new Variable('@$curly', index, fileInfo);
     }
     return null;
 
@@ -448,10 +453,10 @@ class Entities {
 //  }
    }
 
-  static final _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
+  static final RegExp _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
 
-  static final _colorRegExp2 = new RegExp(r'#([\w]+).*');
-  static final _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
+  static final RegExp _colorRegExp2 = new RegExp(r'#([\w]+).*');
+  static final RegExp _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
 
   ///
   /// A Hexadecimal color
@@ -496,7 +501,7 @@ class Entities {
 //  },
   }
 
-  static final _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
+  static final RegExp _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
   ///
   /// A Dimension, that is, a number and a unit
   ///
@@ -522,7 +527,7 @@ class Entities {
 //  }
   }
 
-  static final _unicodeDescriptorRegExp = new RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
+  static final RegExp _unicodeDescriptorRegExp = new RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
 
   ///
   /// A unicode descriptor, as is used in unicode-range
@@ -546,7 +551,7 @@ class Entities {
 //  }
   }
 
-  static final _javascriptRegExp = new RegExp(r'[^`]*`', caseSensitive: true);
+  static final RegExp _javascriptRegExp = new RegExp(r'[^`]*`', caseSensitive: true);
 
   ///
   /// JavaScript code to be evaluated

@@ -14,7 +14,7 @@ class Logger {
   StringBuffer stderr;
   StringBuffer capture;
 
-  static Map<int, Logger> cache = {};
+  static Map<int, Logger> cache = <int, Logger>{};
 
   Logger._(this.stderr){
     if (this.stderr == null) this.stderr = new StringBuffer();
@@ -29,7 +29,7 @@ class Logger {
    * },
    * zoneValues: {#id: new Random().nextInt(10000)});
    */
-  factory Logger([buffer]) {
+  factory Logger([StringBuffer buffer]) {
     int id = Zone.current[#id];
     if (id == null) id = -1;
 
@@ -93,7 +93,7 @@ class Logger {
   }
 
   ///
-  void setLogLevel(logLevel) {
+  void setLogLevel(int logLevel) {
     this.logLevel = logLevel;
     //cacheLogLevel[id] = logLevel;
   }

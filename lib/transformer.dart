@@ -3,6 +3,7 @@
  * Thanks to juha.komulainen@evident.fi for inspiration and some code
  * (Copyright (c) 2013 Evident Solutions Oy) from package http://pub.dartlang.org/packages/sass
  *
+ * less_dart v 1.0.1  20170312 annotate types
  * less_dart v 0.3.1  20150423 cleancss options
  * less_dart v 0.2.1  20150321 .html, * ! in entry_points
  * less_dart v 0.2.1  20150317 https://github.com/luisvt - AggregateTransform
@@ -40,18 +41,18 @@ class FileTransformer extends AggregateTransformer {
 
   FileTransformer(BarbackSettings settings):
     settings = settings,
-    options = new TransformerOptions.parse(settings.configuration) {
+    options = new TransformerOptions.parse(settings.configuration as Map<String, dynamic>) {
 
     entryPoints = new EntryPoints();
     entryPoints.addPaths(options.entry_points);
-    entryPoints.assureDefault(['*.less', '*.html']);
+    entryPoints.assureDefault(<String>['*.less', '*.html']);
   }
 
   FileTransformer.asPlugin(BarbackSettings settings):
     this(settings);
 
   @override
-  classifyPrimary(AssetId id) {
+  String classifyPrimary(AssetId id) {
     // Build one group with all .less files and only .html's in entryPoint
     // so a .less file change propagates to all affected
     String extension = id.extension.toLowerCase();
@@ -61,20 +62,20 @@ class FileTransformer extends AggregateTransformer {
   }
 
   @override
-  Future apply(AggregateTransform transform) {
-    return transform.primaryInputs.toList().then((assets) {
-      return Future.wait(assets.map((asset) {
+  Future<Null> apply(AggregateTransform transform) {
+    return transform.primaryInputs.toList().then((List<Asset> assets) {
+      return Future.wait(assets.map((Asset asset) {
         // files excluded of entry_points are not processed
         // if user don't specify entry_points, the default value is all '*.less' and '*.html' files
-        if (!entryPoints.check(asset.id.path)) return new Future.value();
+        if (!entryPoints.check(asset.id.path)) return new Future<Null>.value();
 
-        return asset.readAsString().then((content) {
+        return asset.readAsString().then((String content) {
           List<String> flags = _createFlags();  //to build process arguments
-          var id = asset.id;
+          AssetId id = asset.id;
 
           if (id.extension.toLowerCase() == '.html') {
             HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path, customOptions);
-            return htmlProcess.transform(flags).then((process){
+            return htmlProcess.transform(flags).then((HtmlTransformer process){
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, id.path), process.outputContent));
                 if (process.isError || !options.silence) print (process.message);
@@ -87,7 +88,7 @@ class FileTransformer extends AggregateTransformer {
           } else if (id.extension.toLowerCase() == '.less') {
             LessTransformer lessProcess = new LessTransformer(content, id.path,
                 getOutputFileName(id), options.build_mode, customOptions);
-            return lessProcess.transform(flags).then((process) {
+            return lessProcess.transform(flags).then((LessTransformer process) {
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
               }
@@ -105,7 +106,7 @@ class FileTransformer extends AggregateTransformer {
   }
 
   List<String> _createFlags(){
-    List<String> flags = [];
+    List<String> flags = <String>[];
 
     flags.add('--no-color');
     if (options.cleancss != null) flags.add('--clean-css="${options.cleancss}"');
@@ -122,7 +123,7 @@ class FileTransformer extends AggregateTransformer {
   /// options.output only works if we process one .less file
   /// else the name is file.less -> file.css
   ///
-  String getOutputFileName(id) {
+  String getOutputFileName(AssetId id) {
     if(!entryPoints.isLessSingle || options.output == '') {
       return id.changeExtension('.css').path;
     }
@@ -142,5 +143,6 @@ class LessException implements Exception {
 
   LessException(this.message);
 
+  @override
   String toString() => '\n$message';
 }

@@ -6,11 +6,11 @@ part of functions.less;
 /// Manages the custom functions defined by plugins
 ///
 class FunctionRegistry {
-  static List<FunctionBase> globalFunctions = [];  //imported by plugin at root
+  static List<FunctionBase> globalFunctions = <FunctionBase>[];  //imported by plugin at root
 
-  List<FunctionBase> data = []; //scoped functions
-  List<FunctionBase> cache;
-  FunctionRegistry base; //parent
+  FunctionRegistry    base; //parent
+  List<FunctionBase>  cache;
+  List<FunctionBase>  data = <FunctionBase>[]; //scoped functions
 
   FunctionRegistry._(this.base);
 
@@ -20,8 +20,9 @@ class FunctionRegistry {
 
   ///
   /// Search in context.frames the first FunctionRegistry != null
+  /// [frames] is VariableMixin = Directive | Media | MixinDefinition | Ruleset
   ///
-  static FunctionRegistry foundInherit(List frames) {
+  static FunctionRegistry foundInherit(List<Node> frames) {
     VariableMixin frame;
     for (int i = 0; i < frames.length; i++) {
       frame = frames[i];
@@ -33,7 +34,7 @@ class FunctionRegistry {
   ///
   /// add the @plugin [functions]
   ///
-  add(List<FunctionBase> functions) {
+  void add(List<FunctionBase> functions) {
     if (functions != null) data.addAll(functions); //add to data and cache if not null
   }
 
@@ -54,6 +55,7 @@ class FunctionRegistry {
 
   ///
   /// Forces reevaluate the cache next time
+  ///
   void resetCache() {
     cache = null;
   }

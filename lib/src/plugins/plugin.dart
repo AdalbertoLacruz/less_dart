@@ -21,7 +21,7 @@ abstract class Plugin {
   }
 
   ///
-  install(PluginManager pluginManager) {}
+  void install(PluginManager pluginManager) {}
 
   ///
   ///Removes " at the start/end
@@ -39,7 +39,7 @@ abstract class Plugin {
   void printOptions() {}
 
   ///
-  setOptions(String cmdOptions) {}
+  void setOptions(String cmdOptions) {}
 }
 
 // Base class for cmd options

@@ -3,20 +3,22 @@
 part of tree.less;
 
 class Anonymous extends Node implements CompareNode {
-  int index;
-  bool mapLines;
-  bool rulesetLike;
+  @override String get  name => null;
+  @override String      type = 'Anonymous';
 
-  String type = 'Anonymous';
+  int   index;
+  bool  mapLines;
+  bool  rulesetLike;
 
-  Anonymous(value, [int this.index, FileInfo currentFileInfo,
+  Anonymous(dynamic value, [int this.index, FileInfo currentFileInfo,
            this.mapLines = false, bool this.rulesetLike = false]){
     this.value = value;
     this.currentFileInfo = currentFileInfo;
   }
 
   ///
-  Node eval(context) => new Anonymous(value, index, currentFileInfo, mapLines, rulesetLike);
+  @override
+  Node eval(Contexts context) => new Anonymous(value, index, currentFileInfo, mapLines, rulesetLike);
 
 //2.3.1
 //  Anonymous.prototype.eval = function () {
@@ -26,6 +28,7 @@ class Anonymous extends Node implements CompareNode {
 //--- CompareNode
 
   ///
+  @override
   int compare(Node other) {
     return this.toCSS(null).compareTo(other.toCSS(null));
 
@@ -36,9 +39,11 @@ class Anonymous extends Node implements CompareNode {
   }
 
   ///
+  @override
   bool isRulesetLike() => rulesetLike;
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add(value, currentFileInfo, index, mapLines);
 
@@ -47,7 +52,4 @@ class Anonymous extends Node implements CompareNode {
 //      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
 //  };
   }
-
-  @override
-  String get name => null;
 }

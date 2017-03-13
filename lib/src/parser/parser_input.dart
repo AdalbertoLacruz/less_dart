@@ -9,7 +9,7 @@ class ParserInput {
   Contexts context;
 
   bool autoCommentAbsorb = true;
-  List<CommentPointer> commentStore = [];
+  List<CommentPointer> commentStore = <CommentPointer>[];
   bool finished = false;
   int furthest = 0;     // furthest index the parser has gone to
   String furthestPossibleErrorMessage; // if this is furthest we got to, this is the probably cause
@@ -102,11 +102,11 @@ class ParserInput {
   /// Specialization of $(tok).
   /// Parse from a RegExp and returns String or List<String> with the match.
   ///
-  /// [tok] is String to search. Could be RegExp
-  /// [caseSensitive] true by default. false correspond to 'i'.
+  /// tok is String to search. Could be RegExp
+  /// caseSensitive true by default. false correspond to 'i'.
   /// [index] if match returns m[index]
   ///
-  $re(RegExp reg, [int index]) {
+  dynamic $re(RegExp reg, [int index]) {
     if (i >= input.length) return null;
 
     Match m = reg.matchAsPrefix(input, i);
@@ -118,15 +118,15 @@ class ParserInput {
     if (m.groupCount == 0) return m[0];
     if (m.groupCount == 1) return m[1];
 
-    List<String> resultList = [];
-    for (var item = 0; item <= m.groupCount; item++) {
+    List<String> resultList = <String>[];
+    for (int item = 0; item <= m.groupCount; item++) {
       resultList.add(m[item]);
     }
     return resultList;
   }
 
-  $reMatch(RegExp reg) {
-    final m = reg.matchAsPrefix(input, i);
+  Match $reMatch(RegExp reg) {
+    final Match m = reg.matchAsPrefix(input, i);
     if (m == null) return null;
     assert(m.end == (m[0].length + i));
     skipWhitespace(m.end);
@@ -160,7 +160,7 @@ class ParserInput {
     final String startChar = currentChar();
     if (startChar != "'" && startChar != '"') return null;
 
-    final start = i;
+    final int start = i;
     for (int end = (i + 1); end < input.length; end++) {
       final String nextChar = charAt(end);
       switch (nextChar) {
@@ -235,16 +235,16 @@ class ParserInput {
   /// return String or List<String>
   ///
   // parser.js 2.4.0 40-52
-  expect(arg, [String msg, int index]) {
+  dynamic expect(dynamic arg, [String msg, int index]) {
     String message = msg;
 
-    var result = (arg is Function) ? arg() : $re(arg);
+    dynamic result = (arg is Function) ? arg() : $re(arg);
     if (result != null) return result;
 
     if (message == null) {
       message = (arg is String) ? "expected '$arg' got '${currentChar()}'" : 'unexpected token';
     }
-    error(message);
+    return error(message);
   }
 
   ///
@@ -260,7 +260,7 @@ class ParserInput {
 
   ///
   //parser.js 2.2.0 lines 64-74
-  error(String msg, [String type]) {
+  Null error(String msg, [String type]) {
     LessError e = new LessError(
         index: i,
         type: type != null ? type :  'Syntax',
@@ -285,9 +285,9 @@ class ParserInput {
   ///
   /// Same as $(), but don't change the state of the parser,
   /// just return the match.
-  /// [tok] is String or RegExp
+  /// [tok] = String | RegExp
   ///
-  bool peek(tok) {
+  bool peek(dynamic tok) {
     if (tok is String) {
       // https://jsperf.com/string-startswith/21
       return input.startsWith(tok, i);
@@ -422,7 +422,7 @@ class ParserInput {
   }
 }
 
-/*************************************************/
+// **********************************************
 
 class CommentPointer {
   int index;

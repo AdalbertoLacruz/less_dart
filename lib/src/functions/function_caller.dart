@@ -3,26 +3,26 @@
 part of functions.less;
 
 class FunctionCaller {
-  Contexts context;
-  FileInfo currentFileInfo;
-  int index;
-
-  /// Method [name] to call
-  String name;
+  Contexts  context;
+  FileInfo  currentFileInfo;
+  int       index;
 
   /// Instance reutilitation
   static FunctionCaller cache;
 
-  /// Inner instance classes
-  List<FunctionBase> innerCache;
-  List<FunctionBase> customCache;
-  FunctionBase defaultCache;
+  /// Method [name] to call
+  String name;
 
-  /// instance that has the method to call
+  /// Inner instance classes
+  List<FunctionBase>  innerCache;
+  List<FunctionBase>  customCache;
+  FunctionBase        defaultCache;
+
+  /// Instance that has the method to call
   FunctionBase found;
 
   FunctionCaller._(Contexts context) {
-    innerCache = [
+    innerCache = <FunctionBase>[
       new ColorBlend(),
       new ColorFunctions(),
       new DataUriFunctions(),
@@ -57,12 +57,14 @@ class FunctionCaller {
     if (context.frames != null) {
       cache.customCache = (context.frames[0] as VariableMixin).functionRegistry.get();
     } else {
-      cache.customCache = [];
+      cache.customCache = <FunctionBase>[];
     }
     return cache;
   }
 
-  /// search the method in the instances, return true if found
+  ///
+  /// Search the method in the instances, return true if found
+  ///
   bool isValid() {
     List<FunctionBase> inner = innerCache.sublist(0);
     inner.add(context.defaultFunc != null ? context.defaultFunc : defaultCache);
@@ -85,15 +87,16 @@ class FunctionCaller {
   }
 
   ///
-  call(List args) {
+  dynamic call(List<Node> args) {
     // This code is terrible and should be replaced as per this issue...
     // https://github.com/less/less.js/issues/2477
-    if (args != null) {
-      args.retainWhere((item) => item is! Comment);
-      args = args.map((item){
+
+    if (args != null &&  args.isNotEmpty) {
+      args.retainWhere((Node item) => item is! Comment);
+      args = args.map((Node item){
         if (item is Expression) {
           List<Node> subNodes = item.value;
-          subNodes.retainWhere((item) => item is! Comment);
+          subNodes.retainWhere((Node item) => item is! Comment);
           if (subNodes.length == 1) {
             return subNodes[0];
           } else {

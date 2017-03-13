@@ -6,7 +6,7 @@ import 'dart:math' as math;
 
 /// http://www.w3.org/TR/css3-values/#absolute-lengths
 class UnitConversions {
-  static Map<String, Map<String, double>> groups = {
+  static Map<String, Map<String, double>> groups = <String, Map<String, double>>{
     'length': length,
     'duration': duration,
     'angle': angle};

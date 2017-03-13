@@ -2,15 +2,15 @@
 
 part of tree.less;
 
-class Alpha<T> extends Node<T> {
+class Alpha extends Node {
+  @override final String type = 'Alpha';
 
-  final String type = 'Alpha';
-
-  Alpha(T value){
+  Alpha(dynamic value){
     this.value = value;
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     value = visitor.visit(value);
 
@@ -21,8 +21,9 @@ class Alpha<T> extends Node<T> {
   }
 
   ///
+  @override
   Alpha eval(Contexts context) {
-    if (value is Node) {
+    if (value is Node) {  //Varaible, Dimension?
       return new Alpha((value as Node).eval(context));
     }
     return this;
@@ -35,15 +36,10 @@ class Alpha<T> extends Node<T> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add('alpha(opacity=');
-
-    if (value is Node) {
-      (value as Node).genCSS(context, output);
-    } else {
-      output.add(value);
-    }
-
+    (value is Node) ? (value as Node).genCSS(context, output) : output.add(value);
     output.add(')');
 
 //2.3.1

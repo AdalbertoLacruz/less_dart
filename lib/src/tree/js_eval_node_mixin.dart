@@ -105,7 +105,7 @@ abstract class JsEvalNodeMixin implements Node {
   ///
   String jsify(Node obj) {
     if (obj.value is List && obj.value.length > 1) {
-      List result = (obj.value as List).map((Node v) => v.toCSS(null)).toList();
+      List<String> result = (obj.value as List<Node>).map((Node v) => v.toCSS(null)).toList();
       return '[' + result.join(', ') + ']';
     } else {
       return obj.toCSS(null);

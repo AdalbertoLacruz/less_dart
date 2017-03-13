@@ -7,11 +7,12 @@ import 'dart:convert';
 export "package:test/test.dart";
 
 final  String inputPath = _getInputPath();
-_getInputPath(){
-  var testRootPath = Platform.environment["TEST_ROOT_PATH"];
+String _getInputPath(){
+  String testRootPath = Platform.environment["TEST_ROOT_PATH"];
   if (testRootPath== null) {
-    testRootPath = path.dirname(Platform.script.path);
-    var prev = testRootPath;
+    //testRootPath = path.dirname(Platform.script.path);
+    testRootPath = path.dirname(Platform.script.toFilePath());
+    String prev = testRootPath;
     while (path.basename(testRootPath) != 'test') {
       testRootPath = path.dirname(testRootPath);
       if (prev == testRootPath){
@@ -20,11 +21,11 @@ _getInputPath(){
       prev = testRootPath;
     }
   }
-  Logger.root.info('Test root path: "${testRootPath}"');
+  Logger.root.info('Test root path: "$testRootPath"');
   return testRootPath;
 }
 File getSampleFile(String name){
-  name = path.join(inputPath,name).replaceAll(new RegExp('\\+'), '\\')..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
+  name = path.join(inputPath, name).replaceAll(new RegExp('\\+'), '\\')..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
   return new File(name);
 }
 String readSampleFile(String name){
@@ -44,10 +45,10 @@ void initTestCommonSetting(){
   _initLog();
 }
 
-_initLog() {
+void _initLog() {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord rec) {
-    var msg = '${rec.level.name}: ${rec.time}: ${rec.loggerName}: ${rec.message}';
+    String msg = '${rec.level.name}: ${rec.time}: ${rec.loggerName}: ${rec.message}';
     print(msg);
   });
 }

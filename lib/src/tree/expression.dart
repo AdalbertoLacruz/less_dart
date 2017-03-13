@@ -2,8 +2,9 @@
 
 part of tree.less;
 
-class Expression extends Node<List<Node>> {
-  final String type = 'Expression';
+class Expression extends Node {
+  @override final String          type = 'Expression';
+  @override covariant List<Node>  value;
 
   ///
   Expression(List<Node> value) {
@@ -24,7 +25,8 @@ class Expression extends Node<List<Node>> {
   }
 
   ///
-  accept(covariant Visitor visitor){
+  @override
+  void accept(covariant Visitor visitor){
     value = visitor.visitArray(value);
 
 //2.3.1
@@ -33,16 +35,17 @@ class Expression extends Node<List<Node>> {
 //  };
   }
 
-  /// Returns Node or List<Node>
-  eval(Contexts context) { //TODO check reurn type
-    var returnValue;
+  ///
+  @override
+  Node eval(Contexts context) {
+    Node returnValue;
     bool inParenthesis = parens && !parensInOp;
     bool doubleParen = false;
 
     if (inParenthesis) context.inParenthesis();
 
     if (value.length > 1) {
-      returnValue = new Expression(value.map((e){
+      returnValue = new Expression(value.map((Node e){
         return (e != null) ? e.eval(context) : null;
       }).toList());
     } else if (value.length == 1) {
@@ -56,7 +59,6 @@ class Expression extends Node<List<Node>> {
     if (parens && parensInOp && !(context.isMathOn()) && !doubleParen) {
       returnValue = new Paren(returnValue);
     }
-
     return returnValue;
 
 //2.3.1
@@ -90,6 +92,7 @@ class Expression extends Node<List<Node>> {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (cleanCss != null) return genCleanCSS(context, output);
 
@@ -118,8 +121,9 @@ class Expression extends Node<List<Node>> {
   }
 
   ///
+  @override
   void throwAwayComments() {
-    value.retainWhere((v) {
+    value.retainWhere((Node v) {
       return (v is! Comment);
     });
 

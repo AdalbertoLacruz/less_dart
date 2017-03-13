@@ -3,14 +3,14 @@
 part of tree.less;
 
 class Unit extends Node implements CompareNode {
-  List numerator;
-  List denominator;
-  String backupUnit;
+  @override final String type = 'Unit';
 
-  final String type = 'Unit';
+  String          backupUnit;
+  List<String>    denominator;
+  List<String>    numerator;
 
   ///
-  Unit([List numerator = const [], List denominator = const [], this.backupUnit = null]) {
+  Unit([List<String> numerator = const <String>[], List<String> denominator = const <String>[], this.backupUnit = null]) {
    this.numerator = numerator.sublist(0)..sort(); //clone
    this.denominator = denominator.sublist(0)..sort();
    if (this.backupUnit == null && this.numerator.isNotEmpty) {
@@ -38,6 +38,7 @@ class Unit extends Node implements CompareNode {
 //  };
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     // Dimension checks the unit is singular and throws an error if in strict math mode.
     bool stricUnits = (context != null && context.strictUnits != null) ? context.strictUnits : false;
@@ -65,6 +66,7 @@ class Unit extends Node implements CompareNode {
   }
 
   ///
+  @override
   String toString() {
     String returnStr = numerator.join('*');
     for (int i = 0; i < denominator.length; i++) {
@@ -85,6 +87,7 @@ class Unit extends Node implements CompareNode {
   //--- CompareNode
 
   /// Returns -1 for different, 0 for equal
+  @override
   int compare(Node other) => this.isUnit(other.toString()) ? 0 : null;
 
 //2.3.1
@@ -138,7 +141,7 @@ class Unit extends Node implements CompareNode {
 //  };
 
   ///
-  /// Process numerator and denominator according to [calback] function
+  /// Process numerator and denominator according to [callback] function
   /// String callback(String unit, bool isDenominator)
   /// callback returns new unit
   ///
@@ -168,9 +171,9 @@ class Unit extends Node implements CompareNode {
   }
 
   ///
-  Map usedUnits() {
+  Map<String, String> usedUnits() {
     Map<String, double> group;
-    Map<String, String> result = {};
+    Map<String, String> result = <String, String>{};
     String groupName;
 
     String mapUnit(String atomicUnit, bool isDenominator) {
@@ -219,7 +222,7 @@ class Unit extends Node implements CompareNode {
   /// Normalize numerator and denominator after operations
   ///
   void cancel() {
-    Map<String, int> counter = {};
+    Map<String, int> counter = <String, int>{};
     String atomicUnit;
     int i;
 
@@ -235,8 +238,8 @@ class Unit extends Node implements CompareNode {
       counter[atomicUnit] = counter[atomicUnit] -1;
     }
 
-    numerator = [];
-    denominator = [];
+    numerator = <String>[];
+    denominator = <String>[];
 
     for (atomicUnit in counter.keys) {
       if (counter.containsKey(atomicUnit)) {

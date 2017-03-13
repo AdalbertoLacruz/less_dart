@@ -22,6 +22,7 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
+  @override
   Ruleset run (Ruleset root) => _visitor.visit(root);
 
 //2.3.1
@@ -30,7 +31,7 @@ class ToCSSVisitor extends VisitorBase{
 //  },
 
   /// Eliminates for output @variable
-  visitRule (Rule ruleNode, VisitArgs visitArgs) {
+  Rule visitRule (Rule ruleNode, VisitArgs visitArgs) {
     if (ruleNode.variable) return null;
     return ruleNode;
 
@@ -47,8 +48,8 @@ class ToCSSVisitor extends VisitorBase{
   /// mixin definitions do not get eval'd - this means they keep state
   /// so we have to clear that state here so it isn't used if toCSS is called twice
   ///
-  visitMixinDefinition (MixinDefinition mixinNode, VisitArgs visitArgs) {
-    mixinNode.frames = [];
+  void visitMixinDefinition (MixinDefinition mixinNode, VisitArgs visitArgs) {
+    mixinNode.frames = <Node>[];
 
 //2.3.1
 //  visitMixinDefinition: function (mixinNode, visitArgs) {
@@ -59,14 +60,14 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  visitExtend (Extend extendNode, VisitArgs visitArgs) {}
+  void visitExtend (Extend extendNode, VisitArgs visitArgs) {}
 
 //2.3.1
 //  visitExtend: function (extendNode, visitArgs) {
 //  },
 
   ///
-  visitComment (Comment commentNode, VisitArgs visitArgs) {
+  Comment visitComment (Comment commentNode, VisitArgs visitArgs) {
     if (commentNode.isSilent(this._context)) return null;
     return commentNode;
 
@@ -80,7 +81,7 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  visitMedia (Media mediaNode, VisitArgs visitArgs) {
+  Media visitMedia (Media mediaNode, VisitArgs visitArgs) {
     mediaNode.accept(this._visitor);
     visitArgs.visitDeeper = false;
 
@@ -121,8 +122,9 @@ class ToCSSVisitor extends VisitorBase{
   ///
   bool hasVisibleChild(Directive directiveNode) {
     //prepare list of childs
-    var rule;
     List<Ruleset> bodyRules = directiveNode.rules;
+    Node          rule;
+
     // if there is only one nested ruleset and that one has no path, then it is
     // just fake ruleset that got not replaced and we need to look inside it to
     // get real childs
@@ -132,7 +134,7 @@ class ToCSSVisitor extends VisitorBase{
 
     for (int r = 0; r < bodyRules.length; r++) {
       rule = bodyRules[r];
-      if (rule is GetIsReferencedNode && rule.getIsReferenced()) {
+      if (rule is GetIsReferencedNode && (rule as GetIsReferencedNode).getIsReferenced()) {
         // the directive contains something that was referenced (likely by extend)
         // therefore it needs to be shown in output too
         return true;
@@ -163,7 +165,7 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  visitDirective (Directive directiveNode, VisitArgs visitArgs) {
+  Node visitDirective (Directive directiveNode, VisitArgs visitArgs) {
     if (directiveNode.name == '@charset') {
       if (!directiveNode.getIsReferenced()) return null;
 
@@ -316,16 +318,15 @@ class ToCSSVisitor extends VisitorBase{
 //  },
   }
 
-  ///
-  visitRuleset (Ruleset rulesetNode, VisitArgs visitArgs) {
-    Node rule;
-    List<Node> rulesets = [];
+  /// return Node | List<Node>
+  dynamic visitRuleset (Ruleset rulesetNode, VisitArgs visitArgs) {
+    List<dynamic>  rulesets = <dynamic>[]; //Node || List<Node>
 
     if (rulesetNode.firstRoot) this.checkPropertiesInRoot(rulesetNode.rules);
 
     if (!rulesetNode.root) {
       if (rulesetNode.paths != null) {
-        rulesetNode.paths.retainWhere((p) {
+        rulesetNode.paths.retainWhere((List<Selector> p) {
           int i;
           if (p[0].elements[0].combinator.value == ' ') {
             p[0].elements[0].combinator = new Combinator('');
@@ -338,8 +339,9 @@ class ToCSSVisitor extends VisitorBase{
       }
 
       // Compile rules and rulesets
-      List<Node> nodeRules = rulesetNode.rules;
-      int nodeRuleCnt = nodeRules != null ? nodeRules.length : 0;
+      List<Node>  nodeRules = rulesetNode.rules;
+      int         nodeRuleCnt = nodeRules != null ? nodeRules.length : 0;
+      Node        rule; // Rule | Ruleset
 
       for (int i = 0; i < nodeRuleCnt; ) {
         rule = nodeRules[i];
@@ -461,13 +463,19 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
+  /// Remove duplicates
+  ///
   void _removeDuplicateRules (List<Node> rules) {
     if (rules == null) return;
 
-    // remove duplicates
-    Map ruleCache = {};
-    var ruleList;
-    Node rule;
+    Node                  rule;
+
+    // If !Key Map[Rule1.name] = Rule1
+    // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
+    Map<String, dynamic> ruleCache = <String, dynamic>{}; //<String, Rule || List<String>>
+
+    String                ruleCSS;
+    List<String>          ruleList;
 
     for (int i = rules.length - 1; i >= 0; i--) {
       rule = rules[i];
@@ -475,15 +483,16 @@ class ToCSSVisitor extends VisitorBase{
         if (!ruleCache.containsKey(rule.name)) {
           ruleCache[rule.name] = rule;
         } else {
-          ruleList = ruleCache[rule.name];
-          if (ruleList is Rule) {
-            ruleList = ruleCache[rule.name] = [ruleCache[rule.name].toCSS(_context)];
-          }
-          String ruleCSS = rule.toCSS(_context);
-          if ((ruleList as List).contains(ruleCSS)) {
+          ruleList = ruleCache[rule.name] = (ruleCache[rule.name] is Rule)
+            ? <String>[ruleCache[rule.name].toCSS(_context)]
+            : ruleCache[rule.name];
+
+          ruleCSS = rule.toCSS(_context);
+
+          if (ruleList.contains(ruleCSS)) {
             rules.removeAt(i);
           } else {
-            (ruleList as List).add(ruleCSS);
+            ruleList.add(ruleCSS);
           }
         }
       }
@@ -523,19 +532,18 @@ class ToCSSVisitor extends VisitorBase{
   void _mergeRules (List<Node> rules) {
     if (rules == null) return;
 
-    Map<String, List<Rule>> groups = {};
-    //var parts;
-    var rule;
-    var key;
+    Map<String, List<Rule>> groups = <String, List<Rule>>{};
+    String                  key;
+    Node                    rule;
 
     for (int i = 0; i < rules.length; i++) {
       rule = rules[i];
 
       if (rule is Rule && rule.merge.isNotEmpty) {
-        key = [rule.name,
+        key = <String>[rule.name,
                isNotEmpty(rule.important) ? '!' : ''].join(','); //important == '!' or ''
         if (!groups.containsKey(key)) {
-          groups[key] = [];
+          groups[key] = <Rule>[];
         } else {
           rules.removeAt(i--); // ??
         }
@@ -543,28 +551,29 @@ class ToCSSVisitor extends VisitorBase{
       }
     }
 
-    groups.forEach((k, parts) { //key as String, value as List
-      toExpression(List<Rule> values) {
-        return new Expression(values.map((p){
+    groups.forEach((String k, List<Rule> parts) {
+      Expression toExpression(List<Rule> values) {
+        return new Expression(values.map((Rule p){
           return p.value;
         }).toList());
       }
-      toValue(List<Rule> values) {
-        return new Value(values.map((p){
+      Value toValue(List<Expression> values) {
+        return new Value(values.map((Expression p){
           return p;
         }).toList());
       }
 
       if (parts.length > 1) {
-        Rule rule = parts[0];
-        List<Node> spacedGroups = [];
-        List<Node> lastSpacedGroup = [];
-        parts.forEach((p) {
+        List<Rule>        lastSpacedGroup = <Rule>[];
+        Rule              rule = parts[0];
+        List<Expression>  spacedGroups = <Expression>[];
+
+        parts.forEach((Rule p) {
           if (p.merge == '+') {
             if (lastSpacedGroup.isNotEmpty) {
               spacedGroups.add(toExpression(lastSpacedGroup));
             }
-            lastSpacedGroup = [];
+            lastSpacedGroup = <Rule>[];
           }
           lastSpacedGroup.add(p);
         });
@@ -636,6 +645,7 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   /// func visitor.visit distribuitor
+  @override
   Function visitFtn(Node node) {
     if (node is Comment)    return visitComment;
     if (node is Media)      return visitMedia;
@@ -651,5 +661,6 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   /// funcOut visitor.visit distribuitor
+  @override
   Function visitFtnOut(Node node) => null;
 }

@@ -2,9 +2,9 @@ part of transformer.less;
 
 class HtmlTransformer extends BaseTransformer{
   List<ContentElement> elements;
-  List<Future> runners = [];
+  List<Future<Null>> runners = <Future<Null>>[];
 
-  List<String> imports = []; // aggregate dependencies
+  List<String> imports = <String>[]; // aggregate dependencies
 
   HtmlTransformer(String inputContent, String inputFile, Function modifyOptions): super(
       inputContent.replaceAll(new RegExp(r'\r\n'), '\n'),
@@ -24,14 +24,14 @@ class HtmlTransformer extends BaseTransformer{
   /// Example: <less no-shim> => <less no-shim style="display:none">  <style no-shim>
   ///
   Future<HtmlTransformer> transform(List<String> args) {
-    Completer<HtmlTransformer> task = new Completer();
+    Completer<HtmlTransformer> task = new Completer<HtmlTransformer>();
     timerStart();
 
     flags = args.sublist(0);
     args.add('-');
 
     elements = parse(inputContent);
-    elements.forEach((element){
+    elements.forEach((ContentElement element){
       if (element.hasLessCode) runners.add(execute(element, args));
     });
 
@@ -54,11 +54,11 @@ class HtmlTransformer extends BaseTransformer{
   /// [content] is the html file content
   ///
   List<ContentElement> parse(String content) {
-    List<ContentElement> result = [];
+    List<ContentElement> result = <ContentElement>[];
 
     result.addAll(LessElement.parse(content));
     result.addAll(StyleElement.parse(content));
-    result.sort((x, y) => x.openTagStart.compareTo(y.openTagStart));
+    result.sort((ContentElement x, ContentElement y) => x.openTagStart.compareTo(y.openTagStart));
     result = FragmentElement.parse(content, result);
 
     return result;
@@ -67,13 +67,13 @@ class HtmlTransformer extends BaseTransformer{
   ///
   /// Transform less to css inside the [element]
   ///
-  Future execute(ContentElement element, List<String> args) {
-    Completer task = new Completer();
+  Future<Null> execute(ContentElement element, List<String> args) {
+    Completer<Null> task = new Completer<Null>();
 
     runZoned((){
       Less less = new Less();
       less.stdin.write(element.inner);
-      less.transform(args, modifyOptions: modifyOptions).then((exitCode){
+      less.transform(args, modifyOptions: modifyOptions).then((int exitCode){
         if (exitCode == 0) {
           element.css = less.stdout.toString();
           imports.addAll(less.imports);
@@ -87,17 +87,19 @@ class HtmlTransformer extends BaseTransformer{
       });
     },
     //zoneValues: {#id: new Random().nextInt(10000)});
-    zoneValues: {#id: GenId.next});
+    zoneValues: <Symbol, int>{#id: GenId.next});
     return task.future;
   }
 
   ///
   /// Converts elements to html string
   ///
+  @override
   String toString() {
     if (elements.length == 1) deliverToPipe = false;
 
-    StringBuffer output = elements.fold(new StringBuffer(), (out, element) => out..write(element.toString()));
+    StringBuffer output = elements.fold(new StringBuffer(),
+      (StringBuffer out, ContentElement element) => out..write(element.toString()));
     return output.toString();
   }
 }
@@ -178,7 +180,7 @@ class ContentElement {
   ///
   /// Removes inner double spaces
   ///
-  String trimSpaces(content) {
+  String trimSpaces(String content) {
     String result = content;
     while (result.indexOf('  ') != -1) {
       result = result.replaceAll('  ', ' ');
@@ -216,9 +218,9 @@ class StyleElement extends ContentElement {
   /// Build a list with the detected elements
   ///
   static List<StyleElement> parse(String content) {
-    List<StyleElement> result = [];
+    List<StyleElement> result = <StyleElement>[];
 
-    ContentElement.parse(content, outerTagReg).forEach((fragment) {
+    ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
       String openTag = ContentElement.getOpenTag(fragment[0], openTagReg);
       if(styleTypeReg.hasMatch(openTag)) result.add(new StyleElement(fragment));
     });
@@ -234,7 +236,8 @@ class StyleElement extends ContentElement {
   ///
   /// Build the <style> element as string
   ///
-  String toString() => '${openTagResult}\n${tabCss()}${tabStr}${closeTagResult}';
+  @override
+  String toString() => '$openTagResult\n${tabCss()}$tabStr$closeTagResult';
 }
 
 
@@ -251,9 +254,9 @@ class LessElement extends ContentElement {
   static RegExp closeTagReg = new RegExp(r'<\/less>');
 
   static List<LessElement> parse(String content) {
-    List<LessElement> result = [];
+    List<LessElement> result = <LessElement>[];
 
-    ContentElement.parse(content, outerTagReg).forEach((fragment) {
+    ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
       result.add(new LessElement(fragment));
     });
     return result;
@@ -274,6 +277,7 @@ class LessElement extends ContentElement {
   ///
   /// Build the <less> and <style> elements as string
   ///
+  @override
   String toString() => lessToString() + cssToString();
 
   /// Build <less> string
@@ -287,8 +291,8 @@ class LessElement extends ContentElement {
 
   /// Build <style> string
   String cssToString() {
-    String prefix = isReplace ? '' : '\n${tabStr}';
-    return '${prefix}${cssOpenTag}\n${tabCss()}${tabStr}${cssCloseTag}';
+    String prefix = isReplace ? '' : '\n$tabStr';
+    return '$prefix$cssOpenTag\n${tabCss()}$tabStr$cssCloseTag';
   }
 }
 
@@ -300,7 +304,7 @@ class FragmentElement extends ContentElement {
   /// Creates FragmentElement components between ContentElement not contiguous
   ///
   static List<ContentElement> parse(String content, List<ContentElement> source) {
-    List<ContentElement> result = [];
+    List<ContentElement> result = <ContentElement>[];
     ContentElement element;
     int index = 0;
 
@@ -329,5 +333,6 @@ class FragmentElement extends ContentElement {
   ///
   /// The fragment between <less> tags is delivered
   ///
+  @override
   String toString() => outer;
 }

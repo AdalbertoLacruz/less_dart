@@ -122,7 +122,7 @@ class CleanCssProperties {
   /// whether to wrap content of `url()` into quotes or not
   bool urlQuotes = false;
 
-  /// 0[unit] -> 0
+  /// 0unit -> 0
   bool zeroUnits = true;
 
   void setOption(String option, bool isAdd) {

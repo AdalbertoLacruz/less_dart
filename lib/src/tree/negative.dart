@@ -2,15 +2,16 @@
 
 part of tree.less;
 
-class Negative extends Node<Node> {
-
-  final String type = 'Negative';
+class Negative extends Node {
+  @override final String    type = 'Negative';
+  @override covariant Node  value;
 
   Negative (Node value){
     this.value = value;
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     output.add('-');
     value.genCSS(context, output);
@@ -23,9 +24,10 @@ class Negative extends Node<Node> {
   }
 
   ///
-  eval(Contexts context) {
+  @override
+  Node eval(Contexts context) {
     if (context.isMathOn()) {
-      return (new Operation('*', [new Dimension(-1), this.value])).eval(context);
+      return (new Operation('*', <Node>[new Dimension(-1), this.value])).eval(context);
     }
     return new Negative(value.eval(context));
 

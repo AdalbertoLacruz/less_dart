@@ -2,12 +2,13 @@
 
 part of tree.less;
 
-class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
-  bool escaped;
+class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
+  @override String get name => null;
+  @override final String type = 'Quoted';
+  @override covariant String value; //TODO used?
 
-  String quote; // ' or "
-
-  final String type = 'Quoted';
+  bool    escaped;
+  String  quote; // ' or "
 
   ///
   Quoted(String str, String content, bool this.escaped, [int index, FileInfo currentFileInfo]){
@@ -30,6 +31,7 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (!escaped) {
       output.add(quote, currentFileInfo, index);
@@ -52,7 +54,7 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
   }
 
   ///
-  containsVariables() => new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(value);
+  bool containsVariables() => new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(value);
 
 //2.3.1
 //  Quoted.prototype.containsVariables = function() {
@@ -60,6 +62,7 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
 //  };
 
   ///
+  @override
   Node eval(Contexts context){
     Quoted that = this;
     String value = this.value;
@@ -121,6 +124,7 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
 //--- CompareNode
 
   /// Returns -1, 0 or +1 or null
+  @override
   int compare(Node other) {
     // when comparing quoted strings allow the quote to differ
     // We need compare strings with: string.copareTo(otherString)
@@ -141,7 +145,4 @@ class Quoted extends Node<String> with JsEvalNodeMixin implements CompareNode {
 //      }
 //  };
   }
-
-  @override
-  get name => null;
 }

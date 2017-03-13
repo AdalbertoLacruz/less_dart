@@ -5,20 +5,21 @@ part of tree.less;
 ///
 /// A number with a unit
 ///
-class Dimension extends Node<double> implements CompareNode, OperateNode<Dimension> {
-  Unit unit;
+class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
+  @override final String      type = 'Dimension';
+  @override covariant double  value;
 
-  final String type = 'Dimension';
+  Unit unit;
 
   ///
   /// [value] is double or String
   /// [unit] is Unit or String
   ///
-  Dimension(value, [unit = null]) {
+  Dimension(dynamic value, [dynamic unit = null]) {
     this.value = (value is String) ? double.parse(value) : value.toDouble();
 
     if (unit != null) {
-      this.unit = (unit is Unit) ? unit : new Unit([unit]);
+      this.unit = (unit is Unit) ? unit : new Unit(<String>[unit]);
     } else {
       this.unit = new Unit();
     }
@@ -32,6 +33,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     unit = visitor.visit(unit);
 
@@ -42,12 +44,14 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
   }
 
   ///
+  @override
   Dimension eval(Contexts context) => this;
 
   ///
-  Color toColor() => new Color([value, value, value]);
+  Color toColor() => new Color(<num>[value, value, value]);
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if ((context != null && isTrue(context.strictUnits)) && !unit.isSingular()) {
       throw new LessExceptionError(new LessError(
@@ -146,6 +150,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
   /// we default to the first Dimension's unit,
   /// so `1px + 2` will yield `3px`.
   ///
+  @override
   Dimension operate(Contexts context, String op, Dimension other) {
     num value = _operate(context, op, this.value, other.value);
     Unit unit = this.unit.clone();
@@ -231,6 +236,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
   ///
   /// Returns -1, 0 or +1
   ///
+  @override
   int compare(Node otherNode) {
     if (otherNode is! Dimension) return null;
 
@@ -275,7 +281,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
   ///
   /// Normalize the units to px, s, or rad
   ///
-  Dimension unify() => convertTo({ 'length': 'px', 'duration': 's', 'angle': 'rad' });
+  Dimension unify() => convertTo(<String, String>{ 'length': 'px', 'duration': 's', 'angle': 'rad' });
 
 //2.3.1
 //  Dimension.prototype.unify = function () {
@@ -284,24 +290,23 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
 
   ///
   /// Converts a number from one unit into another
-  /// [conversions] ==  'px', 's' , ...
-  /// or { length: 'px', duration: 's', angle: 'rad' }
+  /// [conversions] ==  'px', 's' , ... or { length: 'px', duration: 's', angle: 'rad' }
   /// String | Map<String, String>
   ///
-  Dimension convertTo(conversions) {
+  Dimension convertTo(dynamic conversions) {
     double value = this.value;
     Unit unit = this.unit.clone();
     String i;
     String groupName;
     Map<String, double> group;
     String targetUnit; //new unit
-    Map<String, String> derivedConversions = {};
+    Map<String, String> derivedConversions = <String, String>{};
     Map<String, String> conversionsMap;
 
     if (conversions is String) {
       for (i in UnitConversions.groups.keys) { //length, duration, angle
         if (UnitConversions.groups[i].containsKey(conversions)) {
-          derivedConversions = {};
+          derivedConversions.clear();
           derivedConversions[i] = conversions;
         }
       }
@@ -312,7 +317,7 @@ class Dimension extends Node<double> implements CompareNode, OperateNode<Dimensi
 
     // maths on units
     // [atomicUnit] origina unit
-    applyUnit(String atomicUnit, bool denominator) {
+    String applyUnit(String atomicUnit, bool denominator) {
       if (group.containsKey(atomicUnit)) {
         if (denominator) {
           value = value / (group[atomicUnit] / group[targetUnit]);

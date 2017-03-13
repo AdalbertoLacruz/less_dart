@@ -59,7 +59,7 @@ class LessOptions {
   String dumpLineNumbers = '';
 
   /// Defines a variable list that can be referenced by the file
-  List<VariableDefinition> globalVariables = [];
+  List<VariableDefinition> globalVariables = <VariableDefinition>[];
 
   /// Whether to enforce IE compatibility (IE8 data-uri)
   bool ieCompat = true;
@@ -78,20 +78,20 @@ class LessOptions {
   int logLevel = logLevelWarn;
 
   /// max-line-len - deprecated
-  get maxLineLen => _maxLineLen;
+  int get maxLineLen => _maxLineLen;
   set maxLineLen(int value) {
     _maxLineLen = (value < 0) ? -1 : value;
   }
   int    _maxLineLen = -1;  //original max_line_len
 
   /// Modifies a variable (list) already declared in the file
-  List<VariableDefinition> modifyVariables = [];
+  List<VariableDefinition> modifyVariables = <VariableDefinition>[];
 
   /// Output filename
   String output = '';
 
   /// Paths to search for imports on
-  List paths = [];
+  List<String> paths = <String>[];
 
   /// Whether to adjust URL's to be relative
   bool relativeUrls = false;
@@ -149,7 +149,7 @@ class LessOptions {
 
   bool parseError = false; // error detected in command line
 
-  List<Plugin> plugins = [];
+  List<Plugin> plugins = <Plugin>[];
 
   PluginLoader pluginLoader;
 
@@ -175,7 +175,7 @@ class LessOptions {
     bool result = true;
 
     List<String> args = line.split(' ');
-    args.forEach((arg){
+    args.forEach((String arg){
       if ((match = regOption.firstMatch(arg)) != null){
         result = result && parse(match);
       }
@@ -188,7 +188,7 @@ class LessOptions {
   ///
   /// Example: '-include-path=lib/lessIncludes;lib/otherIncludes'
   ///
-  bool parse(arg) {
+  bool parse(Match arg) {
     if (arg == null) return setParseError('empty');
     String command = arg[1];
     //bool result;
@@ -363,7 +363,7 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to load plugin ${name} please make sure that it is installed\n');
+          logger.error('Unable to load plugin $name please make sure that it is installed\n');
           //printUsage();
           parseError = true;
           return false;
@@ -374,7 +374,7 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to interpret argument ${command}\nif it is a plugin (less-plugin-${command}), make sure that it is installed under or at the same level as less\n');
+          logger.error('Unable to interpret argument $command\nif it is a plugin (less-plugin-$command), make sure that it is installed under or at the same level as less\n');
           //printUsage();
           parseError = true;
           return false;
@@ -417,7 +417,7 @@ class LessOptions {
   }
 
   ///
-  parseVariableOption(String option, List<VariableDefinition> variables) {
+  void parseVariableOption(String option, List<VariableDefinition> variables) {
     List<String> parts = option.split('=');
     variables.add(new VariableDefinition(parts[0], parts[1]));
 

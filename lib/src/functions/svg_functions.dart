@@ -16,16 +16,16 @@ class SvgFunctions extends FunctionBase {
   //
   /// Parameters:
   ///   escaped value or list of identifiers: direction
-  ///   color [percentage] pair: first color and its relative position (position is optional)
+  ///   color percentage pair: first color and its relative position (position is optional)
   ///   color percent pair: (optional) second color and its relative position
   ///   ...
   ///   color percent pair: (optional) n-th color and its relative position
-  ///   color [percentage] pair: last color and its relative position (position is optional)
+  ///   color percentage pair: last color and its relative position (position is optional)
   ///   Returns: url with base64 encoded svg gradient.
   ///
-  @defineMethod(name: 'svg-gradient', listArguments: true)
+  @DefineMethod(name: 'svg-gradient', listArguments: true)
   URL svgGradient(List<Node> arguments) {
-    throwArgumentDescriptor() {
+    void throwArgumentDescriptor() {
       throw new LessExceptionError(new LessError(
           type: 'Argument',
           message: 'svg-gradient expects direction, start_color [start_position], [color position,]..., end_color [end_position] or direction, color list'));
@@ -42,9 +42,9 @@ class SvgFunctions extends FunctionBase {
     String returner;
     String directionValue = direction.toCSS(renderEnv);
     int i;
-    var color;
-    var position;
-    var positionValue;
+    Node color; //Color, except argument error
+    Node position; //Dimension, except argument error
+    String positionValue;
     num alpha;
 
     if (arguments.length == 2) {
@@ -99,8 +99,8 @@ class SvgFunctions extends FunctionBase {
         throwArgumentDescriptor();
       }
       positionValue = position != null ? position.toCSS(renderEnv) : i == 0 ? "0%" : "100%";
-      alpha = color.alpha;
-      returner += '<stop offset="' + positionValue + '" stop-color="' + color.toRGB() + '"' + (alpha < 1 ? ' stop-opacity="' + alpha.toString() + '"' : '') + '/>';
+      alpha = (color as Color).alpha;
+      returner += '<stop offset="' + positionValue + '" stop-color="' + (color as Color).toRGB() + '"' + (alpha < 1 ? ' stop-opacity="' + alpha.toString() + '"' : '') + '/>';
     }
     returner += '</' + gradientType + 'Gradient>' +
                 '<rect ' + rectangleDimension + ' fill="url(#gradient)" /></svg>';

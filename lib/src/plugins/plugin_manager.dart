@@ -3,12 +3,12 @@
 part of plugins.less;
 
 class PluginManager {
-  List<VisitorBase> visitors = [];
-  List<ProcessorItem> preProcessors = [];
-  List<ProcessorItem> postProcessors = [];
-  List<Plugin> installedPlugins = [];
-  List<FileManager> fileManagers = [];
-  List<FunctionBase> customFunctions = [];
+  List<VisitorBase> visitors = <VisitorBase>[];
+  List<ProcessorItem> preProcessors = <ProcessorItem>[];
+  List<ProcessorItem> postProcessors = <ProcessorItem>[];
+  List<Plugin> installedPlugins = <Plugin>[];
+  List<FileManager> fileManagers = <FileManager>[];
+  List<FunctionBase> customFunctions = <FunctionBase>[];
   bool isLoaded = false; //true if plugin been loaded previously
 
   PluginManager();
@@ -18,7 +18,7 @@ class PluginManager {
   ///
   void addPlugins(List<Plugin> plugins) {
     if (plugins != null) {
-      plugins.forEach((plugin) {addPlugin(plugin);});
+      plugins.forEach((Plugin plugin) {addPlugin(plugin);});
     }
 
 //2.4.0
@@ -138,8 +138,8 @@ class PluginManager {
 
   ///
   List<Processor> getPreProcessors() {
-    List<Processor> preProcessors = [];
-    this.preProcessors.forEach((item){preProcessors.add(item.preProcessor);});
+    List<Processor> preProcessors = <Processor>[];
+    this.preProcessors.forEach((ProcessorItem item){preProcessors.add(item.preProcessor);});
     return preProcessors;
 
 //2.4.0
@@ -154,8 +154,8 @@ class PluginManager {
 
   ///
   List<Processor> getPostProcessors() {
-    List<Processor> postProcessors = [];
-    this.postProcessors.forEach((item){postProcessors.add(item.postProcessor);});
+    List<Processor> postProcessors = <Processor>[];
+    this.postProcessors.forEach((ProcessorItem item){postProcessors.add(item.postProcessor);});
 
     return postProcessors;
 
@@ -190,7 +190,7 @@ class PluginManager {
 
   ///
   void resetCustomFunction() {
-    customFunctions = [];
+    customFunctions = <FunctionBase>[];
   }
 }
 

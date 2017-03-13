@@ -19,7 +19,7 @@ class Mixin {
   }
 
 
-  static final _callRegExp = new RegExp(r'[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
+  static final RegExp _callRegExp = new RegExp(r'[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
 
   ///
   /// A Mixin call, with an optional argument list
@@ -55,7 +55,7 @@ class Mixin {
       if (elements != null) {
         elements.add(elem);
       } else {
-        elements = [elem];
+        elements = <Element>[elem];
       }
       c = parserInput.$char('>');
     }
@@ -122,10 +122,10 @@ class Mixin {
   ///
   MixinReturner args(bool isCall) {
     Node arg;
-    List<MixinArgs> argsComma = [];
-    List<MixinArgs> argsSemiColon = [];
+    List<MixinArgs> argsComma = <MixinArgs>[];
+    List<MixinArgs> argsSemiColon = <MixinArgs>[];
     bool expressionContainsNamed = false;
-    List<Node> expressions = [];
+    List<Node> expressions = <Node>[];
     String name;
     String nameLoop;
     bool isSemiColonSeperated = false;
@@ -156,7 +156,7 @@ class Mixin {
       nameLoop = null;
       arg.throwAwayComments();
       value = arg;
-      var val = null;
+      Node val = null;
 
       if (isCall) {
         // Variable
@@ -180,7 +180,7 @@ class Mixin {
               parserInput.error('could not understand value for named argument');
             } else {
               parserInput.restore();
-              returner.args = [];
+              returner.args = <MixinArgs>[];
               return returner;
             }
           }
@@ -188,8 +188,12 @@ class Mixin {
         } else if (!isCall && parserInput.$str('...') != null) {
           returner.variadic = true;
           if (parserInput.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
-          if (isSemiColonSeperated) { argsSemiColon.add(new MixinArgs(name: arg.name, variadic: true)); }
-            else { argsComma.add(new MixinArgs(name: arg.name, variadic: true)); }
+
+          if (isSemiColonSeperated) {
+            argsSemiColon.add(new MixinArgs(name: arg.name, variadic: true));
+          } else {
+            argsComma.add(new MixinArgs(name: arg.name, variadic: true));
+          }
           break;
         } else if (!isCall) {
           name = nameLoop = val.name;
@@ -212,7 +216,7 @@ class Mixin {
         argsSemiColon.add(new MixinArgs(name: name, value: value));
 
         name = null;
-        expressions = [];
+        expressions = <Node>[];
         expressionContainsNamed = false;
       }
     }
@@ -337,8 +341,9 @@ class Mixin {
 //  },
   }
 
-  static final _definitionRegExp = new RegExp(r'([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);
+  static final RegExp _definitionRegExp = new RegExp(r'([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);
 
+  static final RegExp _reDefinition = new RegExp(r'[^{]*\}');
   ///
   /// A Mixin definition, with a list of parameters
   ///
@@ -358,12 +363,11 @@ class Mixin {
   /// Once we've got our params list, and a closing `)`, we parse
   /// the `{...}` block.
   ///
-  static final _reDefinition = new RegExp(r'[^{]*\}');
   MixinDefinition definition() {
     Condition cond;
     int index = parserInput.i; //not in original
     String name;
-    List<MixinArgs> params = [];
+    List<MixinArgs> params = <MixinArgs>[];
     List<Node> ruleset;
     bool variadic = false;
 

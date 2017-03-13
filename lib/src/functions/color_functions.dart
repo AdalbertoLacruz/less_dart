@@ -7,8 +7,8 @@ class ColorFunctions extends FunctionBase {
   /// Returns [val] clamped to be in the range 0..val..1.
   /// Mantains type
   ///
-  @defineMethod(skip: true)
-  clamp(num val) => (val is int) ? val.clamp(0, 1) : val.clamp(0.0,  1.0); //return type important
+  @defineMethodSkip
+  T clamp<T extends num>(T val) => (val is int) ? val.clamp(0, 1) as T : val.clamp(0.0,  1.0) as T;
 
 //  function clamp(val) {
 //      return Math.min(1, Math.max(0, val));
@@ -22,9 +22,9 @@ class ColorFunctions extends FunctionBase {
 
   ///
   /// [n] num | Node<Dimension> | error anything else
-  /// 
-  @defineMethod(skip: true)
-  num number(n) {
+  ///
+  @defineMethodSkip
+  num number(dynamic n) {
     if (n is Dimension) {
       return n.unit.isUnit('%') ? n.value / 100 : n.value;
     } else if (n is num) {
@@ -50,8 +50,8 @@ class ColorFunctions extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
-  num scaled(n, size) {
+  @defineMethodSkip
+  num scaled(dynamic n, int size) {
     if (n is Dimension && n.unit.isUnit('%')) {
       return (n.value * size / 100);
     } else {
@@ -82,7 +82,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: rgb(90, 129, 32)
   ///   Output: #5a8120
   ///
-  Color rgb(r, g, b) => rgba(r, g, b, 1.0);
+  Color rgb(dynamic r, dynamic g, dynamic b) => rgba(r, g, b, 1.0);
 
   ///
   /// Creates a transparent color object from decimal red, green, blue and alpha (RGBA) values.
@@ -96,8 +96,9 @@ class ColorFunctions extends FunctionBase {
   /// Example: rgba(90, 129, 32, 0.5)
   ///   Output: rgba(90, 129, 32, 0.5)
   ///
-  Color rgba(r, g, b, a) {
-    List<int> rgb = [r, g, b].map((c) => scaled(c, 255)).toList();
+  // r, g, b, a are (Dimension | num)
+  Color rgba(dynamic r, dynamic g, dynamic b, dynamic a) {
+    List<num> rgb = <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
     a = number(a);
     return new Color(rgb, a);
 
@@ -119,7 +120,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsl(90, 100%, 50%)
   ///   Output: #80ff00
   ///
-  Color hsl(h, s, l) => hsla(h, s, l, 1.0);
+  Color hsl(dynamic h, dynamic s, dynamic l) => hsla(h, s, l, 1.0);
 
   ///
   /// Creates a transparent color object from hue, saturation, lightness and alpha (HSLA) values.
@@ -133,11 +134,11 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsl(90, 100%, 50%, 0.5)
   ///   Output: rgba(128, 255, 0, 0.5)
   ///
-  Color hsla(h, s, l, a) {
+  Color hsla(dynamic h, dynamic s, dynamic l, dynamic a) {
     double m1;
     double m2;
 
-    hue(h) {
+    double hue(num h) {
       h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
       if (h * 6 < 1) {
         return m1 + (m2 - m1) * h * 6;
@@ -198,7 +199,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsv(90, 100%, 50%)
   ///   Output: #408000
   ///
-  Color hsv(h, s, v) => hsva(h, s, v, 1.0);
+  Color hsv(dynamic h, dynamic s, dynamic v) => hsva(h, s, v, 1.0);
 
   ///
   /// Creates a transparent color object from hue, saturation, value and alpha (HSVA) values.
@@ -213,7 +214,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsva(90, 100%, 50%, 0.5)
   ///   Output: rgba(64, 128, 0, 0.5)
   ///
-  Color hsva(h, s, v, a) {
+  Color hsva(dynamic h, dynamic s, dynamic v, dynamic a) {
     h = ((number(h) % 360) / 360) * 360;
     s = number(s);
     v = number(v);
@@ -222,17 +223,17 @@ class ColorFunctions extends FunctionBase {
     int i = ((h / 60) % 6).floor();
     double f = (h / 60) - i;
 
-    List vs = [v,
+    List<num> vs = <num>[v,
                v * (1 - s),
                v * (1 - f * s),
                v * (1 - (1 - f) * s)];
-    List perm = [
-        [0, 3, 1],
-        [2, 0, 1],
-        [1, 0, 3],
-        [1, 2, 0],
-        [3, 1, 0],
-        [0, 1, 2]];
+    List<List<int>> perm = <List<int>>[
+        <int>[0, 3, 1],
+        <int>[2, 0, 1],
+        <int>[1, 0, 3],
+        <int>[1, 2, 0],
+        <int>[3, 1, 0],
+        <int>[0, 1, 2]];
 
     return rgba(
         vs[perm[i][0]] * 255,
@@ -425,7 +426,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: saturate(hsl(90, 80%, 50%), 20%)
   ///   Output: #80ff00 // hsl(90, 100%, 50%)
   ///
-  Color saturate(color, [Dimension amount, Keyword method]) {
+  Color saturate(dynamic color, [Dimension amount, Keyword method]) {
     // filter: saturate(3.2);
     // should be kept as is, so check for color
     if (color is! Color) return null;
@@ -700,7 +701,7 @@ class ColorFunctions extends FunctionBase {
   ///     #f2a60d // hsl(40, 90%, 50%)
   ///     #f20d59 // hsl(340, 90%, 50%)
   ///
-  spin(color, amount) {
+  Color spin(Color color, Dimension amount) {
     HSLType hsl = color.toHSL();
     double hue = (hsl.h + amount.value) % 360;
 
@@ -734,7 +735,7 @@ class ColorFunctions extends FunctionBase {
   ///
   // Copyright (c) 2006-2009 Hampton Catlin, Nathan Weizenbaum, and Chris Eppstein
   // http://sass-lang.com
-  Color mix(Color color1, Color color2, [weight]) {
+  Color mix(Color color1, Color color2, [Dimension weight]) {
     if (weight == null) weight = new Dimension(50);
 
     double p = weight.value / 100.0;
@@ -744,7 +745,7 @@ class ColorFunctions extends FunctionBase {
     double w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
     double w2 = 1 - w1;
 
-    List rgb = [color1.r * w1 + color2.r * w2,
+    List<num> rgb = <num>[color1.r * w1 + color2.r * w2,
                 color1.g * w1 + color2.g * w2,
                 color1.b * w1 + color2.b * w2];
     double alpha = color1.alpha * p + color2.alpha * (1 - p);
@@ -795,7 +796,7 @@ class ColorFunctions extends FunctionBase {
   ///     transition from "dark" to "light" is (defaults to 43%, matching SASS).
   ///   Returns: color
   ///
-  Color contrast(color, [Color dark, Color light, Dimension threshold]) {
+  Color contrast(dynamic color, [Color dark, Color light, Dimension threshold]) {
     // filter: contrast(3.2);
     // should be kept as is, so check for color
     if (color is! Color) return null;
@@ -876,7 +877,7 @@ class ColorFunctions extends FunctionBase {
   ///   color("#aaa");
   ///   Output: #aaa
   ///
-  Color color(c) {
+  Color color(dynamic c) {
     RegExp re = new RegExp(r'^#([a-f0-9]{6}|[a-f0-9]{3})$', caseSensitive: false);
 
     if (c is Quoted && re.hasMatch(c.value)) {

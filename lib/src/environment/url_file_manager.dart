@@ -12,6 +12,7 @@ class UrlFileManager extends FileManager {
   ///
   /// True is can load the file
   ///
+  @override
   bool supports (String filename, String currentDirectory, Contexts options, Environment environment) {
     return isUrlRe.hasMatch(filename) || isUrlRe.hasMatch(currentDirectory);
 
@@ -23,10 +24,11 @@ class UrlFileManager extends FileManager {
 
   /// Load async the url
   //TODO options.strictSSL
-  Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
+  @override
+  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
     StringBuffer dataBuffer = new StringBuffer();
     HttpClient client = new HttpClient();
-    Completer task = new Completer();
+    Completer<FileLoaded> task = new Completer<FileLoaded>();
 
     String urlStr = isUrlRe.hasMatch( filename ) ? filename : new Uri.file(currentDirectory).resolve(filename);
 
@@ -35,18 +37,18 @@ class UrlFileManager extends FileManager {
       return request.close();
     })
     .then((HttpClientResponse response) {
-      response.transform(UTF8.decoder).listen((contents) {
+      response.transform(UTF8.decoder).listen((String contents) {
         dataBuffer.write(contents);
       }, onDone: (){
         if (response.statusCode == 404) {
           LessError error = new LessError(
                   type: 'File',
-                  message: 'resource " ${urlStr} " was not found\n'
+                  message: 'resource " $urlStr " was not found\n'
           );
           return task.completeError(error);
         }
         if (dataBuffer.isEmpty) {
-          environment.logger.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "${urlStr}"');
+          environment.logger.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
         }
         FileLoaded fileLoaded = new FileLoaded(
             filename: urlStr,
@@ -55,10 +57,10 @@ class UrlFileManager extends FileManager {
         task.complete(fileLoaded);
       });
     })
-    .catchError((e, s) {
+    .catchError((dynamic e, StackTrace s) {
       LessError error = new LessError(
               type: 'File',
-              message: 'resource "${urlStr}" gave this Error:\n  ${e.message}\n'
+              message: 'resource "$urlStr" gave this Error:\n  ${e.message}\n'
       );
       task.completeError(error);
     });

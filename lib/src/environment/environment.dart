@@ -22,9 +22,10 @@ part 'global_functions.dart';
 part 'image_size.dart';
 part 'more_list.dart';
 part 'url_file_manager.dart';
+part 'debug_functions.dart';
 
 class Environment {
-  static Map<int, Environment> cache = {};
+  static Map<int, Environment> cache = <int, Environment>{};
 
   List<FileManager> fileManagers;
   Logger logger = new Logger();
@@ -93,7 +94,7 @@ class Environment {
       logger.warn("getFileManager called with null directory.. Please report this issue. continuing.");
     }
     if (fileManagers == null) {
-      fileManagers = [new FileFileManager(environment), new UrlFileManager(environment)]; //order is important
+      fileManagers = <FileManager>[new FileFileManager(environment), new UrlFileManager(environment)]; //order is important
       if (options.pluginManager != null) fileManagers.addAll(options.pluginManager.getFileManagers());
     }
 

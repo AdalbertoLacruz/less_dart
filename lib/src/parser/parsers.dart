@@ -66,7 +66,7 @@ class Parsers {
   List<Node> primary(){
     Node node;
     List<Node> nodeList;
-    List<Node> root = [];
+    List<Node> root = <Node>[];
 
     while(true){
       while(true) {
@@ -149,8 +149,8 @@ class Parsers {
 //  },
   }
 
-  /// check if input is empty. Else throw error.
-  isFinished() => parserInput.isFinished();
+  /// Check if input is empty. Else throw error.
+  void isFinished() => parserInput.isFinished();
 
   ///
   /// Comments are collected by the main parsing mechanism and then assigned to nodes
@@ -174,7 +174,7 @@ class Parsers {
 //  }
   }
 
-  static final _variableRegExp = new RegExp(r'(@[\w-]+)\s*:', caseSensitive: true);
+  static final RegExp _variableRegExp = new RegExp(r'(@[\w-]+)\s*:', caseSensitive: true);
 
   ///
   /// The variable part of a variable definition. Used in the `rule` parser
@@ -195,7 +195,7 @@ class Parsers {
 //  }
   }
 
-  static final _rulesetCallRegExp = new RegExp(r'(@[\w-]+)\s*\(\s*\)\s*;', caseSensitive: true);
+  static final RegExp _rulesetCallRegExp = new RegExp(r'(@[\w-]+)\s*\(\s*\)\s*;', caseSensitive: true);
 
   ///
   /// The variable part of a variable definition. Used in the `rule` parser
@@ -222,7 +222,7 @@ class Parsers {
 //  }
   }
 
-  static final _extendRegExp = new RegExp(r'(all)(?=\s*(\)|,))', caseSensitive: true);
+  static final RegExp _extendRegExp = new RegExp(r'(all)(?=\s*(\)|,))', caseSensitive: true);
 
   ///
   /// extend syntax - used to extend selectors
@@ -247,7 +247,7 @@ class Parsers {
         if (elements != null) {
           elements.add(e);
         } else {
-          elements = [e];
+          elements = <Element>[e];
         }
       }
 
@@ -258,7 +258,7 @@ class Parsers {
       if (extendedList != null) {
         extendedList.add(extend);
       } else {
-        extendedList = [extend];
+        extendedList = <Extend>[extend];
       }
 
     } while (parserInput.$char(',') != null);
@@ -357,10 +357,10 @@ class Parsers {
 //alpha: see entities.alpha()
 //
 
-  static final _elementRegExp1 = new RegExp(r'(?:\d+\.\d+|\d+)%', caseSensitive: true);
-  static final _elementRegExp2 = new RegExp(r'(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
-  static final _elementRegExp3 = new RegExp(r'\([^&()@]+\)', caseSensitive: true);
-  static final _elementRegExp4 = new RegExp(r'[\.#:](?=@)', caseSensitive: true);
+  static final RegExp _elementRegExp1 = new RegExp(r'(?:\d+\.\d+|\d+)%', caseSensitive: true);
+  static final RegExp _elementRegExp2 = new RegExp(r'(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
+  static final RegExp _elementRegExp3 = new RegExp(r'\([^&()@]+\)', caseSensitive: true);
+  static final RegExp _elementRegExp4 = new RegExp(r'[\.#:](?=@)', caseSensitive: true);
 
 
   ///
@@ -377,7 +377,7 @@ class Parsers {
   ///
   Element element() {
     Combinator c;
-    var e; //String or Node
+    dynamic e; //String or Node
     int index = parserInput.i;
     Selector v;
 
@@ -440,7 +440,7 @@ class Parsers {
 //  },
   }
 
-  static final _combinatorRegExp1 = new RegExp(r'\/[a-z]+\/', caseSensitive: false);
+  static final RegExp _combinatorRegExp1 = new RegExp(r'\/[a-z]+\/', caseSensitive: false);
 
   ///
   /// Combinators combine elements together, in a Selector.
@@ -551,7 +551,7 @@ class Parsers {
         if (elements != null) {
           elements.add(e);
         } else {
-          elements = [e];
+          elements = <Element>[e];
         }
         e = null;
       }
@@ -597,18 +597,18 @@ class Parsers {
 //      if (allExtends) { error("Extend must be used to extend a selector, it cannot be used on its own"); }
 //  },
   }
-  static final _attributeRegExp1 = new RegExp(r'[|~*$^]?=', caseSensitive: true);
-  static final _attributeRegExp2 = new RegExp(r'[0-9]+%', caseSensitive: true);
-  static final _attributeRegExp3 = new RegExp(r'[\w-]+', caseSensitive: true);
-  static final _attributeRegExp4 = new RegExp(r'(?:[_A-Za-z0-9-\*]*\|)?(?:[_A-Za-z0-9-]|\\.)+');
+  static final RegExp _attributeRegExp1 = new RegExp(r'[|~*$^]?=', caseSensitive: true);
+  static final RegExp _attributeRegExp2 = new RegExp(r'[0-9]+%', caseSensitive: true);
+  static final RegExp _attributeRegExp3 = new RegExp(r'[\w-]+', caseSensitive: true);
+  static final RegExp _attributeRegExp4 = new RegExp(r'(?:[_A-Za-z0-9-\*]*\|)?(?:[_A-Za-z0-9-]|\\.)+');
 
   ///
   Attribute attribute() {
     if (parserInput.$char('[') == null) return null;
 
-    var key; //String or Node
+    dynamic key; //String or Node
     String op;
-    var val; //String or Node
+    dynamic val; //String or Node
 
     if ((key = entities.variableCurly()) == null) {
       key = parserInput.expect(_attributeRegExp4);
@@ -732,7 +732,7 @@ class Parsers {
       if (selectors != null) {
         selectors.add(s);
       } else {
-        selectors = [s];
+        selectors = <Selector>[s];
       }
       parserInput.commentStore.length = 0;
       if (s.condition != null && selectors.length > 1) {
@@ -800,12 +800,12 @@ class Parsers {
   }
 
   ///
-  Rule rule([tryAnonymous = false]) {
+  Rule rule([bool tryAnonymous = false]) {
     String c = parserInput.currentChar();
     String important;
     bool isVariable;
     String merge = '';
-    var name; //String or Node
+    dynamic name; //String or Node
     int startOfRule = parserInput.i;
     Node value;
 
@@ -814,7 +814,10 @@ class Parsers {
     parserInput.save();
 
     name = variable();
-    if (name == null) name = ruleProperty();
+    //if (name == null) name = ruleProperty();
+    if (name == null) {
+      name = ruleProperty();
+    }
 
     if (name != null) {
       isVariable = name is String;
@@ -979,7 +982,7 @@ class Parsers {
 //  }
   }
 
-  static final _anonymousValueRegExp1 = new RegExp(r'''([^@+\/'"*`(;{}-]*);''', caseSensitive: false);
+  static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@+\/'"*`(;{}-]*);''', caseSensitive: false);
 
   ///
   Anonymous anonymousValue() {
@@ -998,7 +1001,7 @@ class Parsers {
 //  }
   }
 
-  static final _importRegExp1 = new RegExp(r'@import?\s+', caseSensitive: true);
+  static final RegExp _importRegExp1 = new RegExp(r'@import?\s+', caseSensitive: true);
 
   ///
   /// An @import directive
@@ -1134,7 +1137,7 @@ class Parsers {
 //      return options;
 //  },
 
-  static final _importOptionRegExp1 = new RegExp(r'(less|css|multiple|once|inline|reference|optional)', caseSensitive: true);
+  static final RegExp _importOptionRegExp1 = new RegExp(r'(less|css|multiple|once|inline|reference|optional)', caseSensitive: true);
 
   ///
   String importOption() => parserInput.$re(_importOptionRegExp1);
@@ -1150,7 +1153,7 @@ class Parsers {
   ///
   Expression mediaFeature() {
     Node e;
-    List<Node> nodes = [];
+    List<Node> nodes = <Node>[];
     String p;
 
     parserInput.save();
@@ -1220,7 +1223,7 @@ class Parsers {
   ///
   List<Node> mediaFeatures() {
     Node e;
-    List<Node> features = [];
+    List<Node> features = <Node>[];
 
     do{
       e = mediaFeature();
@@ -1326,8 +1329,8 @@ class Parsers {
 //  },
   }
 
-  static final _applyRegExp1 = new RegExp(r'@apply?\s*', caseSensitive: true);
-  static final _applyRegExp2 = new RegExp(r'[0-9A-Za-z-]+', caseSensitive: true);
+  static final RegExp _applyRegExp1 = new RegExp(r'@apply?\s*', caseSensitive: true);
+  static final RegExp _applyRegExp2 = new RegExp(r'[0-9A-Za-z-]+', caseSensitive: true);
 
 
   ///
@@ -1358,7 +1361,7 @@ class Parsers {
   }
 
 
-  static final _optionsRegExp1 = new RegExp(r'@options?\s+', caseSensitive: true);
+  static final RegExp _optionsRegExp1 = new RegExp(r'@options?\s+', caseSensitive: true);
 
   ///
   /// @options "--flags";
@@ -1385,7 +1388,7 @@ class Parsers {
     return null;
   }
 
-  static final _pluginRegExp1 = new RegExp(r'@plugin?\s+', caseSensitive: true);
+  static final RegExp _pluginRegExp1 = new RegExp(r'@plugin?\s+', caseSensitive: true);
 
   ///
   /// @plugin "lib";
@@ -1438,8 +1441,8 @@ class Parsers {
 //  },
   }
 
-  static final _directiveRegExp1 = new RegExp(r'@[a-z-]+', caseSensitive: true);
-  static final _directiveRegExp2 = new RegExp(r'[^{;]+', caseSensitive: true);
+  static final RegExp _directiveRegExp1 = new RegExp(r'@[a-z-]+', caseSensitive: true);
+  static final RegExp _directiveRegExp2 = new RegExp(r'[^{;]+', caseSensitive: true);
 
 
   ///
@@ -1538,7 +1541,8 @@ class Parsers {
       value = expression();
       if (value == null) parserInput.error('expected $name expression');
     } else if (hasUnknown) {
-      String unknown = getValueOrDefault(parserInput.$re(_directiveRegExp2), '').trim();
+      //String unknown = getValueOrDefault(parserInput.$re(_directiveRegExp2), '').trim();
+      String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
       if (isNotEmpty(unknown)) value = new Anonymous(unknown);
     }
 
@@ -1673,7 +1677,7 @@ class Parsers {
   ///
   Value value() {
     Expression e;
-    List<Expression> expressions = [];
+    List<Expression> expressions = <Expression>[];
 
     do {
       e = expression();
@@ -1705,7 +1709,7 @@ class Parsers {
 
   }
 
-  static final _importantRegExp1 = new RegExp(r'! *important', caseSensitive: true);
+  static final RegExp _importantRegExp1 = new RegExp(r'! *important', caseSensitive: true);
 
   ///
   String important() {
@@ -1732,7 +1736,7 @@ class Parsers {
       a = addition();
       if (a != null && parserInput.$char(')') != null) {
         parserInput.forget();
-        e  = new Expression([a]);
+        e  = new Expression(<Node>[a]);
         e.parens = true;
         return e;
       }
@@ -1762,7 +1766,7 @@ class Parsers {
 //  }
   }
 
-  static final _reMultiplication = new RegExp(r'\/[*\/]');
+  static final RegExp _reMultiplication = new RegExp(r'\/[*\/]');
   ///
   Node multiplication() {
     Node a;
@@ -1795,7 +1799,7 @@ class Parsers {
         parserInput.forget();
         m.parensInOp = true;
         a.parensInOp = true;
-        operation = new Operation(op, [operation != null ? operation : m, a], isSpaced);
+        operation = new Operation(op, <Node>[operation != null ? operation : m, a], isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
       return operation != null ? operation : m;
@@ -1834,7 +1838,7 @@ class Parsers {
 //  }
   }
 
-  static final _additionRegExp1 = new RegExp(r'[-+]\s+', caseSensitive: true);
+  static final RegExp _additionRegExp1 = new RegExp(r'[-+]\s+', caseSensitive: true);
 
   ///
   Node addition() {
@@ -1858,7 +1862,7 @@ class Parsers {
 
         m.parensInOp = true;
         a.parensInOp = true;
-        operation = new Operation(op, [operation != null ? operation : m, a], isSpaced);
+        operation = new Operation(op, <Node>[operation != null ? operation : m, a], isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
       return operation != null ? operation : m;
@@ -1893,7 +1897,7 @@ class Parsers {
 
   ///
   //to be passed to currentChunk.expect
-  static final _reConditions = new RegExp(r',\s*(not\s*)?\(', caseSensitive: true);
+  static final RegExp _reConditions = new RegExp(r',\s*(not\s*)?\(', caseSensitive: true);
   Node conditions() {
     Node a;
     Node b;
@@ -2043,7 +2047,7 @@ class Parsers {
   /// An operand is anything that can be part of an operation,
   /// such as a Color, or a Variable
   ///
-  static final _reOperand = new RegExp(r'-[@\(]');
+  static final RegExp _reOperand = new RegExp(r'-[@\(]');
   Node operand() {
     String negate;
     Node o;
@@ -2093,11 +2097,11 @@ class Parsers {
   ///     1px solid black
   ///     @var * 2
   ///
-  static final _reExpression = new RegExp(r'\/[\/*]');
+  static final RegExp _reExpression = new RegExp(r'\/[\/*]');
   Expression expression() {
     String delim;
     Node e;
-    List<Node> entities = [];
+    List<Node> entities = <Node>[];
 
     do {
       e = comment();
@@ -2149,7 +2153,7 @@ class Parsers {
 //  }
   }
 
-  static final _propertyRegExp1 = new RegExp(r'(\*?-?[_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
+  static final RegExp _propertyRegExp1 = new RegExp(r'(\*?-?[_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
 
   ///
   String property() => parserInput.$re(_propertyRegExp1);
@@ -2162,27 +2166,31 @@ class Parsers {
 //      }
 //  }
 
-  static final _rulePropertyRegExp1 = new RegExp(r'([_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
+  static final RegExp _rulePropertyRegExp1 = new RegExp(r'([_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
 
-  static final _rulePropertyRegExp2 = new RegExp(r'(\*?)', caseSensitive: true);
-  static final _rulePropertyRegExp3 = new RegExp(r'((?:[\w-]+)|(?:@\{[\w-]+\}))', caseSensitive: true);
-  static final _rulePropertyRegExp4 = new RegExp(r'((?:\+_|\+)?)\s*:', caseSensitive: true);
+  static final RegExp _rulePropertyRegExp2 = new RegExp(r'(\*?)', caseSensitive: true);
+  static final RegExp _rulePropertyRegExp3 = new RegExp(r'((?:[\w-]+)|(?:@\{[\w-]+\}))', caseSensitive: true);
+  static final RegExp _rulePropertyRegExp4 = new RegExp(r'((?:\+_|\+)?)\s*:', caseSensitive: true);
 
 
-  /// Returns List<String> or List<Node>
-  List ruleProperty() {
-    List<int> index = [];
+  ///
+  List<Node> ruleProperty() {
+    List<int>           index = <int>[];
     // int length = 0;
-    List name = [];
-    String s;
+    //List name = []; //remove
+    List<String>        name = <String>[];
+    List<Node> result = <Node>[];  //in js is name
+    String              s;
 
     parserInput.save();
 
     String simpleProperty = parserInput.$re(_rulePropertyRegExp1);
     if (simpleProperty != null) {
-      name = [new Keyword(simpleProperty)];
+      //name = [new Keyword(simpleProperty)]; //remove
+      result.add(new Keyword(simpleProperty));
       parserInput.forget();
-      return name;
+      //return name; //remove
+      return result;
     }
 
     bool match(RegExp re) {
@@ -2213,11 +2221,19 @@ class Parsers {
       }
       for (int k = 0; k < name.length; k++) {
         s = name[k];
+        /* //remove
         name[k] = (!s.startsWith('@'))
             ? new Keyword(s)
             : new Variable('@${s.substring(2, (s.length - 1))}', index[k], fileInfo);
+        */
+        result.add(
+          (!s.startsWith('@'))
+              ? new Keyword(s)
+              : new Variable('@${s.substring(2, (s.length - 1))}', index[k], fileInfo)
+        );
       }
-      return name;
+      //return name; //remove
+      return result;
     }
     parserInput.restore();
     return null;

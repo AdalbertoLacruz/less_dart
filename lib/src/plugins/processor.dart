@@ -14,7 +14,7 @@ class Processor {
   /// [input] contents to process
   /// [options] Map
   ///
-  String process(String input, Map options) {
+  String process(String input, Map<String, dynamic> options) {
     return input;
   }
 }

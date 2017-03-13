@@ -25,10 +25,10 @@ class ImportManager {
   Contexts context;
 
   /// Map - filename to contents of all the imported files
-  Map<String, String> contents = {};
+  Map<String, String> contents = <String, String>{};
 
   /// Map - filename to lines at the beginning of each file to ignore
-  Map<String, int> contentsIgnoredChars = {};
+  Map<String, int> contentsIgnoredChars = <String, int>{};
 
   Environment environment;
 
@@ -36,18 +36,19 @@ class ImportManager {
   LessError error;
 
   /// Holds the imported parse trees
-  Map<String, Node> files = {}; // Deprecated?
+  //Map<String, Node> files = {};
+  Map<String, dynamic> files = <String, dynamic>{}; // Deprecated?. value = Node | String
 
   /// MIME type of .less files
   String mime;
 
   /// Directories where to search the file when importing
-  List<String> paths = [];
+  List<String> paths = <String>[];
 
   String rootFilename;
 
   /// Files which haven't been imported yet
-  List<String> queue = []; // Deprecated?
+  List<String> queue = <String>[]; // Deprecated?
 
   ///
   ImportManager(this.context, FileInfo rootFileInfo){
@@ -72,7 +73,7 @@ class ImportManager {
   }
 
   /// Build the return content
-  ImportedFile fileParsedFunc(String path, root, String fullPath) {
+  ImportedFile fileParsedFunc(String path, dynamic root, String fullPath) { //root = Node | String
     queue.remove(path);
 
     bool importedEqualsRoot = (fullPath == rootFilename);
@@ -104,15 +105,15 @@ class ImportManager {
   ///   [currentFileInfo] the current file info (used for instance to work out relative paths)
   ///   [importOptions] import options
   ///
-  Future push(String path, bool tryAppendLessExtension, FileInfo currentFileInfo, ImportOptions importOptions) {
-    Completer task = new Completer();
+  Future<ImportedFile> push(String path, bool tryAppendLessExtension, FileInfo currentFileInfo, ImportOptions importOptions) {
+    Completer<ImportedFile> task = new Completer<ImportedFile>();
 
     queue.add(path);
     FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, context);
     FileManager fileManager = environment.getFileManager(path, currentFileInfo.currentDirectory, context, environment);
 
     if (fileManager == null) {
-      task.completeError(new LessError(message: 'Could not find a file-manager for ${path}'));
+      task.completeError(new LessError(message: 'Could not find a file-manager for $path'));
       return task.future;
     }
 
@@ -137,7 +138,8 @@ class ImportManager {
         String currentDirectory = newFileInfo.currentDirectory;
         if (!currentDirectory.endsWith(pathLib.separator)) currentDirectory += pathLib.separator;
         String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
-        newFileInfo.rootpath = fileManager.join(getValueOrDefault(context.rootpath, ''), pathdiff);
+        //newFileInfo.rootpath = fileManager.join(getValueOrDefault(context.rootpath, ''), pathdiff);
+        newFileInfo.rootpath = fileManager.join((context.rootpath ?? ''), pathdiff);
 
         if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
           newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
@@ -162,16 +164,16 @@ class ImportManager {
       if (isTrue(importOptions.inline)) {
         task.complete(fileParsedFunc(path, contents, resolvedFilename));
       } else {
-        new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents).then((root){
+        new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents).then((Ruleset root){
           task.complete(fileParsedFunc(path, root, resolvedFilename));
-        }).catchError((e) {
+        }).catchError((Object e) {
           task.completeError(e);
         });
       }
-    }).catchError((e){
+    }).catchError((Object e){
       //importOptions.optional: continue compiling when file is not found
       if (isTrue(importOptions.optional)) {
-        Ruleset r = new Ruleset([], []);
+        Ruleset r = new Ruleset(<Selector>[], <Node>[]);
         task.complete(fileParsedFunc(path, r, null));
       } else {
         task.completeError(e);
@@ -279,7 +281,7 @@ class ImportManager {
 }
 
   class ImportedFile {
-    var root; //String or Node - content
+    dynamic root; //String or Node - content
     bool importedPreviously;
     String fullPath;
     ImportedFile(this.root, this.importedPreviously, this.fullPath);

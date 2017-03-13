@@ -4,7 +4,7 @@ part of functions.less;
 
 class NumberFunctions extends FunctionBase {
 
-  @defineMethod(skip: true)
+  @defineMethodSkip
   Node _minmax(bool isMin, List<Node> args) {
     if (args.isEmpty) {
       throw new LessExceptionError(new LessError(
@@ -12,18 +12,20 @@ class NumberFunctions extends FunctionBase {
           message: 'one or more arguments required'));
     }
 
-    int j;
     Dimension current;
     Dimension currentUnified;
+    int       j;
     Dimension referenceUnified;
-    String unit;
-    String unitStatic;
-    String unitClone;
+    String    unit;
+    String    unitClone;
+    String    unitStatic;
+
     // elems only contains original argument values.
-    List<Dimension> order = [];
+    List<Dimension> order = <Dimension>[];
+
     // key is the unit.toString() for unified Dimension values,
     // value is the index into the order array.
-    Map values = {};
+    Map<String, int> values = <String, int>{};
 
     for (int i = 0; i < args.length; i++) {
       if (args[i] is! Dimension) {
@@ -66,8 +68,8 @@ class NumberFunctions extends FunctionBase {
     }
 
     if (order.length == 1) return order[0];
-    String arguments = order.map((a) => a.toCSS(this.context)).toList().join(this.context.compress ? ',' : ', ');
-    return new Anonymous((isMin ? 'min' : 'max') + '(${arguments})');
+    String arguments = order.map((Dimension a) => a.toCSS(this.context)).toList().join(this.context.compress ? ',' : ', ');
+    return new Anonymous((isMin ? 'min' : 'max') + '($arguments)');
 
 //    var minMax = function (isMin, args) {
 //        args = Array.prototype.slice.call(args);
@@ -122,7 +124,7 @@ class NumberFunctions extends FunctionBase {
   ///   Output: 1px
   ///
   ///
-  @defineMethod(listArguments: true)
+  @defineMethodListArguments
   Node min(List<Node> arguments) => _minmax(true, arguments);
 
   ///
@@ -134,7 +136,7 @@ class NumberFunctions extends FunctionBase {
   /// Output: 42%
   ///
   ///
-  @defineMethod(listArguments: true)
+  @defineMethodListArguments
   Node max(List<Node> arguments) => _minmax(false, arguments);
 
   ///
@@ -199,7 +201,7 @@ class NumberFunctions extends FunctionBase {
   ///   Output: 1cm
   ///
   ///
-  Dimension pow(x, y) {
+  Dimension pow(dynamic x, dynamic y) {
     if (x is num && y is num) {
       x = new Dimension(x);
       y = new Dimension(y);

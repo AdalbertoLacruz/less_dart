@@ -10,7 +10,8 @@ class ColorBlend extends FunctionBase {
   ///
   /// double fMmode(double cb, double cs)
   ///
-  @defineMethod(skip: true)
+
+  @defineMethodSkip
   Color colorBlend(Function fMode, Color color1, Color color2) {
     double ab = color1.alpha.toDouble(); // backdrop
     double cb;
@@ -18,7 +19,7 @@ class ColorBlend extends FunctionBase {
     double cs;
     double ar; // alpha result
     double cr; // channel result
-    List r = [0, 0, 0];
+    List<num> r = <num>[0, 0, 0];
 
     ar = as + ab * (1 - as);
 
@@ -69,7 +70,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fMultiply (double cb, double cs) => cb * cs;
 
   ///
@@ -85,7 +86,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip:true)
+  @defineMethodSkip
   double fScreen(double cb, double cs) => cb + cs - cb * cs;
 
   ///
@@ -102,7 +103,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fOverlay (double cb, double cs) {
     cb *= 2;
     return (cb <= 1) ? fMultiply(cb, cs) : fScreen(cb - 1, cs);
@@ -129,7 +130,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fSoftlight (double cb, double cs) {
     double d = 1.0;
     double e = cb;
@@ -165,7 +166,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fHardlight (double cb, double cs) => fOverlay(cs, cb);
 
   ///
@@ -183,7 +184,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fDifference (double cb, double cs) => (cb - cs).abs();
 
   ///
@@ -199,7 +200,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fExclusion (double cb, double cs) => cb + cs - 2 * cb * cs;
 
   // non-w3c functions:
@@ -217,7 +218,7 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fAverage (double cb, double cs) => (cb + cs) / 2;
 
   ///
@@ -234,6 +235,6 @@ class ColorBlend extends FunctionBase {
   }
 
   ///
-  @defineMethod(skip: true)
+  @defineMethodSkip
   double fNegation (double cb, double cs) => 1 - (cb + cs - 1).abs();
 }

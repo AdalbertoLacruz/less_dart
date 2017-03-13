@@ -27,6 +27,7 @@ class CleanCssVisitor extends VisitorBase {
   }
 
   ///
+  @override
   Ruleset run(Ruleset root) {
     return _visitor.visit(root);
   }
@@ -65,7 +66,7 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove units in 0
   ///
   Dimension visitDimension(Dimension dimensionNode, VisitArgs visitArgs) {
-    dimensionNode.cleanCss = new CleanCssContext();;
+    dimensionNode.cleanCss = new CleanCssContext();
     if (dimensionNode.isUnit('px')) {
       dimensionNode.cleanCss.precision = cleanCssOptions.roundingPrecision;
     }
@@ -153,18 +154,19 @@ class CleanCssVisitor extends VisitorBase {
 
   ///
   /// Change selectors attribute from quoted
-  /// - Example: input[type="text"] -> input[type=text]
-  /// - Example: ([class*="lead"]) -> ([class*=lead])
+  /// - Example: `input[type="text"] -> input[type=text]``
+  /// - Example: `([class*="lead"]) -> ([class*=lead])`
   ///
   Ruleset visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    List<Element> elements;
-    Attribute attribute;
-    Match match;
-    List<Selector> selectors;
+    Attribute       attribute;
+    List<Element>   elements;
+    Match           match;
+    Quoted          quoted;
+    List<Selector>  selectors;
+    String          valueStr;
+
     //RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
-    RegExp attrRe = new RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]',caseSensitive: false);
-    Quoted quoted;
-    String valueStr;
+    final RegExp attrRe = new RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]',caseSensitive: false);
 
     rulesetNode.cleanCss = new CleanCssContext();
     rulesetNode.cleanCss.keepBreaks = cleanCssOptions.keepBreaks;
@@ -172,10 +174,10 @@ class CleanCssVisitor extends VisitorBase {
     if (!rulesetNode.root) {
       selectors = rulesetNode.selectors;
       if (selectors != null) {
-        selectors.forEach((selector){
+        selectors.forEach((Selector selector){
           elements = selector.elements;
           if (elements != null) {
-            elements.forEach((element){
+            elements.forEach((Element element){
               if (element.value is Attribute) {
                 attribute = element.value;
                 if (attribute.value is Quoted) {
@@ -198,13 +200,12 @@ class CleanCssVisitor extends VisitorBase {
         });
       }
     }
-
     return rulesetNode;
   }
 
   ///
   /// Remove quotes in url function
-  /// url('...') -> url(...)
+  /// `url('...') -> url(...)`
   ///
   URL visitUrl(URL urlNode, VisitArgs visitArgs) {
     if (urlNode.value is Quoted) {
@@ -223,7 +224,9 @@ class CleanCssVisitor extends VisitorBase {
     return null;
   }
 
+  ///
   /// Has ./$ ... characters
+  ///
   bool hasSymbol(String value) {
     RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
     return symbolRe.hasMatch(value);
@@ -271,6 +274,7 @@ class CleanCssVisitor extends VisitorBase {
     return value;
   }
 
+  @override
   Function visitFtn(Node node) {
     if (node is Call)        return visitCall;
     if (node is Color)       return visitColor;
@@ -284,5 +288,6 @@ class CleanCssVisitor extends VisitorBase {
     return null;
   }
 
+  @override
   Function visitFtnOut(Node node) => null;
 }

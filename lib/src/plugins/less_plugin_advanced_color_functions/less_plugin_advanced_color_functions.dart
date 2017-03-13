@@ -8,11 +8,11 @@ part 'advancedColorFunctions.dart';
 class LessPluginAdvancedColorFunctions extends Plugin {
 
   ///
-  install(PluginManager pluginManager) {
+  @override
+  void install(PluginManager pluginManager) {
     FunctionBase advancedColorFunctions = new AdvancedColorFunctions();
     pluginManager.addCustomFunctions(advancedColorFunctions);
   }
 
-  @override
-  List<int> minVersion = [2,1,0];
+  @override List<int> minVersion = <int>[2,1,0];
 }

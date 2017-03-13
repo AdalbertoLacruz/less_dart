@@ -2,7 +2,7 @@
 
 library colors.less;
 
- const Map<String, String> colors =  const  {
+ const Map<String, String> colors =  const  <String, String>{
     'aliceblue':'#f0f8ff',
     'antiquewhite':'#faebd7',
     'aqua':'#00ffff',

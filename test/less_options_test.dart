@@ -5,7 +5,7 @@ import '../lib/src/less_options.dart';
 
 import 'dart:io';
 
-main(){
+void main(){
 //  SimpleConfiguration config = new SimpleConfiguration();
 //  config.throwOnTestFailures = false;
 //  config.stopTestOnExpectFailure = false;
@@ -14,7 +14,7 @@ main(){
   less_options_test();
 }
 
-less_options_test(){
+void less_options_test(){
   group('less_options', (){
     bool result;
     LessOptions options;
@@ -139,7 +139,7 @@ less_options_test(){
     });
 
     test('-include-path', (){
-      final sep = Platform.isWindows ? ';' : ':';
+      final String sep = Platform.isWindows ? ';' : ':';
       result = options.parse(getArgument('-include-path=lib/lessIncludes${sep}lib/otherIncludes'));
       expect(result, true);
       expect(options.paths, contains('lib/otherIncludes'));

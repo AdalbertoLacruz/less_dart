@@ -5,16 +5,18 @@ part of environment.less;
 /// File loader
 class FileFileManager extends FileManager {
   /// full path list of filenames used to find the file
-  List<String> filenamesTried = [];
+  List<String> filenamesTried = <String>[];
 
   ///
   FileFileManager(Environment environment) : super(environment);
 
   ///
+  @override
   bool supports (String filename, String currentDirectory, Contexts options,
                    Environment environment) => true;
 
   ///
+  @override
   bool supportsSync(String filename, String currentDirectory, Contexts options,
                       Environment environment) => true;
 
@@ -24,8 +26,8 @@ class FileFileManager extends FileManager {
   List<String> createListPaths(String filename, String currentDirectory, Contexts options) {
     bool isAbsoluteFilename = this.isPathAbsolute(filename);
 
-    List<String> paths = isAbsoluteFilename ? [''] : [pathLib.normalize(currentDirectory)];
-    MoreList.addAllUnique(paths, options.paths, map: (item) =>  pathLib.normalize(item));
+    List<String> paths = isAbsoluteFilename ? <String>[''] : <String>[pathLib.normalize(currentDirectory)];
+    MoreList.addAllUnique(paths, options.paths, map: (String item) =>  pathLib.normalize(item));
     if (!isAbsoluteFilename) MoreList.addUnique(paths, '.');
 
     return paths;
@@ -36,8 +38,8 @@ class FileFileManager extends FileManager {
   ///
   /// Returns a Future with the full path found or null
   ///
-  Future findFile(String filename, List<String> paths, [int index = 0]) {
-    Completer task = new Completer();
+  Future<String> findFile(String filename, List<String> paths, [int index = 0]) {
+    Completer<String> task = new Completer<String>();
     String fullFilename;
     if (index == 0) filenamesTried.clear(); //first call not recursive
 
@@ -78,8 +80,9 @@ class FileFileManager extends FileManager {
   }
 
   /// Load Async the file
-  Future loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
-    Completer task = new Completer();
+  @override
+  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
+    Completer<FileLoaded> task = new Completer<FileLoaded>();
 
     if (options == null) options = new Contexts();
 
@@ -102,7 +105,7 @@ class FileFileManager extends FileManager {
       } else {
         LessError error = new LessError(
             type: 'File',
-            message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
+            message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
          );
         task.completeError(error);
       }
@@ -160,6 +163,7 @@ class FileFileManager extends FileManager {
   }
 
   /// Load sync the file
+  @override
   FileLoaded loadFileSync(String filename, String currentDirectory, Contexts options, Environment environment) {
     FileLoaded fileLoaded = new FileLoaded();
     if (options == null) options = new Contexts();
@@ -172,7 +176,7 @@ class FileFileManager extends FileManager {
     } else {
       fileLoaded.error = new LessError(
           type: 'File',
-          message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
+          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
       );
     }
 
@@ -223,6 +227,7 @@ class FileFileManager extends FileManager {
   ///
   /// result in FileLoaded.codeUnits
   ///
+  @override
   FileLoaded loadFileAsBytesSync(String filename, String currentDirectory, Contexts options, Environment environment) {
     FileLoaded fileLoaded = new FileLoaded();
     if (options == null) options = new Contexts();
@@ -235,7 +240,7 @@ class FileFileManager extends FileManager {
     } else {
       fileLoaded.error = new LessError(
           type: 'File',
-          message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
+          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
       );
     }
 
@@ -245,6 +250,7 @@ class FileFileManager extends FileManager {
   ///
   /// Check if [filename] exists in the include paths
   ///
+  @override
   FileLoaded existSync(String filename, String currentDirectory, Contexts options, Environment environment) {
     FileLoaded fileLoaded = new FileLoaded();
     if (options == null) options = new Contexts();
@@ -256,7 +262,7 @@ class FileFileManager extends FileManager {
     } else {
       fileLoaded.error = new LessError(
           type: 'File',
-          message: "'${filename}' wasn't found. Tried - ${filenamesTried.join(', ')}"
+          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
       );
     }
 

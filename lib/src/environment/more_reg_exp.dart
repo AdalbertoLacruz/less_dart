@@ -21,7 +21,7 @@ class MoreRegExp {
 
   ///
   /// replace [source] with [replacement] attending global flag.
-  /// [replacemnt] could contain $n, notation.
+  /// replacemnt could contain $n, notation.
   /// Don't support:
   ///   $& -   the matched substring.
   ///   $` -  the portion of the string that precedes the matched substring.

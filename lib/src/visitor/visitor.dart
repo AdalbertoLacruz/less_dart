@@ -9,8 +9,9 @@ class Visitor extends VisitorBase {
   ///
   Visitor(VisitorBase this._implementation);
 
-  /// Process a [node] and the subtree
-  visit(node) {
+  /// Process a [node] and the subtree. node is Node | String
+  @override
+  dynamic visit(dynamic node) {
     if (node == null) return node;
     if (node is! Node) return node;
 
@@ -20,7 +21,7 @@ class Visitor extends VisitorBase {
     Function funcOut = _implementation.visitFtnOut(node);
 
     if (func != null) {
-      var newNode = func(node, _visitArgs); //Node or List
+      dynamic newNode = func(node, _visitArgs); //Node or List
       if (_implementation.isReplacing) node = newNode;
     }
 
@@ -92,9 +93,9 @@ class Visitor extends VisitorBase {
     }
 
     // Replacing
-    List<T> out = [];
+    List<T> out = <T>[];
     for (int i = 0; i < nodes.length; i++) {
-      var evald = visit(nodes[i]);
+      dynamic evald = visit(nodes[i]); //Node | List<Node>
       if (evald == null) continue;
 
       if (evald is! List) {
@@ -137,17 +138,18 @@ class Visitor extends VisitorBase {
   }
 
   ///
-  /// Converts a mix of Node and List<T> to List<T>
+  /// Converts a mix of Node and List<Node> to List<Node>
   /// T is Node | MixinArgs (for visitArray commpatibility)
   /// arr == [Node, [Node, Node...]] -> [Node, Node, Node, ...]
   /// MixinArgs don't need to be flatten and don't must be here
   ///
   List<T> flatten<T>(List<T> arr, List<T> out) {
-    if (out == null) out = [];
+    //if (out == null) out = <T>[];
+    out ??= <T>[];
 
-    var item; //Node or List
+    T item; //Node or List
     int nestedCnt;
-    var nestedItem;
+    dynamic nestedItem;
 
     for (int i = 0 ; i < arr.length; i++) {
       item = arr[i];
@@ -159,9 +161,10 @@ class Visitor extends VisitorBase {
         continue;
       }
 
-      nestedCnt = (item as List).length;
+      //item is List
+      nestedCnt = (item as List<dynamic>).length;
       for (int j = 0; j < nestedCnt; j++) {
-        nestedItem = (item as List)[j];
+        nestedItem = (item as List<dynamic>)[j];
         if (nestedItem == null) continue;
         //if (nestedItem is Node) {
         if (nestedItem is! List) {

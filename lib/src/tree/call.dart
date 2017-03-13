@@ -6,17 +6,18 @@ part of tree.less;
 /// A function call node.
 ///
 class Call extends Node {
-  String name;
-  List<Expression> args;
-  int index;
+  @override String        name;
+  @override final String  type = 'Call';
 
-  final String type = 'Call';
+  List<Node>  args; // Expression | Dimension | Assignment
+  int         index;
 
   Call(this.name, this.args, this.index, FileInfo currentFileInfo){
     this.currentFileInfo = currentFileInfo;
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     if (args != null) args = visitor.visitArray(args);
 
@@ -41,14 +42,14 @@ class Call extends Node {
   /// we try to pass a variable to a function, like: `saturate(@color)`.
   /// The function should receive the value, not the variable.
   ///
-  eval(Contexts context) {
-    List<Expression> args = this.args.map((a) => a.eval(context)).toList();
+  @override
+  Node eval(Contexts context) {
+    List<Expression> args = this.args.map((Node a) => a.eval(context)).toList();
     FunctionCaller funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
-    var result;
 
     if (funcCaller.isValid()) {
       try {
-        result = funcCaller.call(args);
+        Node result = funcCaller.call(args);
         if (result != null) return result;
       } catch (e) {
         String message = LessError.getMessage(e);
@@ -58,7 +59,7 @@ class Call extends Node {
             index: index,
             filename: currentFileInfo.filename
         );
-        error.message = 'error evaluating function `${name}`${message}';
+        error.message = 'error evaluating function `$name`$message';
         throw new LessExceptionError(error);
       }
     }
@@ -88,6 +89,7 @@ class Call extends Node {
   }
 
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     if (cleanCss != null) return genCleanCSS(context, output);
 

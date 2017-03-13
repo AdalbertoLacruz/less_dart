@@ -4,19 +4,18 @@ part of tree.less;
 
 /// Selectors such as body, h1, ...
 class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
-//  List<Element> elements; //body, ...
-  List<Node> extendList;
-  Node condition;
-  int index;
-  bool isReferenced = false;
+  @override final String type = 'Selector';
 
-  String _css;
-
-  /// Cached string elements List, such as ['#selector1', .., '.selectorN']
-  List<String> _elements;
-
-  bool evaldCondition = false;
-  bool mediaEmpty = false;
+  Node          condition;
+  String        _css;
+  // Cached string elements List, such as ['#selector1', .., '.selectorN']
+  List<String>  _elements;
+  //  List<Element> elements; //body, ...
+  List<Extend>    extendList;
+  bool          evaldCondition = false;
+  int           index;
+  bool          isReferenced = false;
+  bool          mediaEmpty = false;
 
   /// String Elements List
   List<String> get strElements {
@@ -24,12 +23,10 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
     return _elements;
   }
 
-  final String type = 'Selector';
-
-  ///
-  Selector (List<Node> elements, [List<Node> this.extendList, Node this.condition, int this.index,
+  /// Changed List<Node> to List<Element>
+  Selector (List<Element> elements, [List<Extend> this.extendList, Node this.condition, int this.index,
                             FileInfo currentFileInfo, bool this.isReferenced]) {
-    this.elements = elements;
+    this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
     this.currentFileInfo = currentFileInfo;
     if (this.currentFileInfo == null) this.currentFileInfo = new FileInfo();
     if (this.condition == null) this.evaldCondition = true;
@@ -48,6 +45,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
+  @override
   void accept(covariant Visitor visitor) {
     if (elements != null) elements = visitor.visitArray(elements);
     if (extendList != null) extendList = visitor.visitArray(extendList);
@@ -68,7 +66,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  Selector createDerived(List<Element> elements, [List<Node> extendList, bool evaldCondition]) {
+  Selector createDerived(List<Element> elements, [List<Extend> extendList, bool evaldCondition]) {
     evaldCondition = (evaldCondition != null)? evaldCondition : this.evaldCondition;
 
     Selector newSelector = new Selector(elements, extendList != null ? extendList : this.extendList, null,
@@ -90,7 +88,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   List<Selector> createEmptySelectors() {
     Element el = new Element('', '&', index, currentFileInfo);
-    List<Selector> sels = [new Selector([el], null, null, index, currentFileInfo)];
+    List<Selector> sels = <Selector>[new Selector(<Element>[el], null, null, index, currentFileInfo)];
     sels[0].mediaEmpty = true;
     return sels;
 
@@ -180,10 +178,10 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
     Iterable<Match> matchs = re.allMatches(css);
     if (matchs != null) {
-      _elements = matchs.map((m) => m[0]).toList();
+      _elements = matchs.map((Match m) => m[0]).toList();
       if (_elements.isNotEmpty && _elements[0] == '&') _elements.removeAt(0);
     } else {
-      _elements = [];
+      _elements = <String>[];
     }
 
 
@@ -225,14 +223,15 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
 
   ///
+  @override
   Selector eval(Contexts context) {
     bool evaldCondition;
     if (condition != null) evaldCondition = condition.eval(context).evaluated; //evaldCondition null is ok
     List<Element> elements = this.elements;
     List<Node> extendList = this.extendList;
 
-    if (elements != null) elements = elements.map((e)=> e.eval(context)).toList();
-    if (extendList != null) extendList = extendList.map((extend) => extend.eval(context)).toList();
+    if (elements != null) elements = elements.map((Element e)=> e.eval(context)).toList();
+    if (extendList != null) extendList = extendList.map((Node extend) => extend.eval(context)).toList();
 
     return this.createDerived(elements, extendList, evaldCondition);
 
@@ -252,6 +251,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   /// Writes Selector as String in [output]:
   ///  ' selector'. White space prefixed.
   ///
+  @override
   void genCSS(Contexts context, Output output) {
     Element element;
 
@@ -285,6 +285,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   //--- MarkReferencedNode -------------
 
   ///
+  @override
   void markReferenced() {
     isReferenced = true;
 
@@ -295,6 +296,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
+  @override
   bool getIsReferenced() => !currentFileInfo.reference || isTrue(isReferenced);
 
 //2.3.1
