@@ -38,7 +38,7 @@ class DebugInfo {
           result.write(asMediaQuery());
       }
     }
-    return result != null ? result.toString() : '';
+    return result?.toString() ?? '';
 
 //2.3.1
 //  var debugInfo = function(context, ctx, lineSeparator) {
@@ -61,39 +61,40 @@ class DebugInfo {
   }
 
   ///
-  StringBuffer asComment() {
-    StringBuffer result = new StringBuffer('/* line ')
-                                ..write(lineNumber)
-                                ..write(', ')
-                                ..write(fileName)
-                                ..write(' */\n');
-    return result;
+  StringBuffer asComment() => new StringBuffer('/* line ')
+    ..write(lineNumber)
+    ..write(', ')
+    ..write(fileName)
+    ..write(' */\n');
 
 //2.3.1
 //  debugInfo.asComment = function(ctx) {
 //      return '/* line ' + ctx.debugInfo.lineNumber + ', ' + ctx.debugInfo.fileName + ' */\n';
 //  };
-  }
+
 
   ///
   StringBuffer asMediaQuery() {
-    RegExp reFileNameWithProtocol = new RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
+    final RegExp reFileNameWithProtocol =
+        new RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
     String filenameWithProtocol = fileName;
+
     if (!reFileNameWithProtocol.hasMatch(filenameWithProtocol)) {
       filenameWithProtocol = 'file://' + filenameWithProtocol;
     }
 
-    String file = filenameWithProtocol.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
+    final String file = filenameWithProtocol
+        .replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
       String a = m[1];
       if (a == '\\') a = '\/';
       return '\\' + a;
     });
 
     return new StringBuffer('@media -sass-debug-info{filename{font-family:')
-            ..write(file)
-            ..write('}line{font-family:\\00003')
-            ..write(lineNumber)
-            ..write('}}\n');
+      ..write(file)
+      ..write('}line{font-family:\\00003')
+      ..write(lineNumber)
+      ..write('}}\n');
 
 //2.3.1
 //  debugInfo.asMediaQuery = function(ctx) {

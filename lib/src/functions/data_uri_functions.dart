@@ -18,49 +18,50 @@ class DataUriFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'data-uri')
   URL dataURI(Node mimetypeNode, [Node filePathNode]) {
+    Node _mimetypeNode = mimetypeNode;
+    Node _filePathNode = filePathNode;
 
     URL fallback() {
-      //return new URL(getValueOrDefault(filePathNode, mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
-      return new URL((filePathNode ?? mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
+      return new URL((_filePathNode ?? _mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
     }
 
-    Environment environment = new Environment();
-    Logger logger = environment.logger;
+    final Environment environment = new Environment();
+    final Logger logger = environment.logger;
 
-    if (filePathNode == null) {
-      filePathNode = mimetypeNode;
-      mimetypeNode = null;
+    if (_filePathNode == null) {
+      _filePathNode = _mimetypeNode;
+      _mimetypeNode = null;
     }
 
-    String mimetype = mimetypeNode != null ? mimetypeNode.value : null;
-    String filePath = filePathNode.value;
-    FileInfo currentFileInfo = this.currentFileInfo;
-    String currentDirectory = currentFileInfo.relativeUrls
+    String mimetype = _mimetypeNode?.value;
+    String filePath = _filePathNode.value;
+    final FileInfo currentFileInfo = this.currentFileInfo;
+    final String currentDirectory = currentFileInfo.relativeUrls
         ? currentFileInfo.currentDirectory
         : currentFileInfo.entryPath;
 
-    int fragmentStart = filePath.indexOf('#');
+    final int fragmentStart = filePath.indexOf('#');
     String fragment = '';
     if (fragmentStart != -1) {
       fragment = filePath.substring(fragmentStart);
       filePath = filePath.substring(0, fragmentStart);
     }
 
-    FileManager fileManager = environment.getFileManager(filePath,
+    final FileManager fileManager = environment.getFileManager(filePath,
         currentDirectory, this.context, environment, true);
     if (fileManager == null) return fallback();
 
     bool useBase64 = false;
 
     // detect the mimetype if not given
-    if (mimetypeNode == null) {
+    if (_mimetypeNode == null) {
       mimetype = environment.mimeLookup(filePath);
 
       if (mimetype == 'image/svg+xml') {
         useBase64 = false;
       } else {
         // use base 64 unless it's an ASCII or UTF-8 format
-        String charset = environment.charsetLookup(mimetype);
+        final String charset = environment.charsetLookup(mimetype);
         useBase64 = <String>['US-ASCII', 'UTF-8'].indexOf(charset) < 0;
       }
       if (useBase64)  mimetype += ';base64';
@@ -68,23 +69,23 @@ class DataUriFunctions extends FunctionBase {
       useBase64 = new RegExp(r';base64$').hasMatch(mimetype);
     }
 
-    FileLoaded fileSync = fileManager.loadFileAsBytesSync(filePath,
+    final FileLoaded fileSync = fileManager.loadFileAsBytesSync(filePath,
         currentDirectory, context, environment);
     if (fileSync.codeUnits == null) {
       logger.warn('Skipped data-uri embedding of $filePath because file not found');
       return fallback();
     }
-    List<int> buf = fileSync.codeUnits;
-    String sbuf = useBase64
+    final List<int> buf = fileSync.codeUnits;
+    final String sbuf = useBase64
         ? Base64String.encode(buf)
         : Uri.encodeComponent(new String.fromCharCodes(buf));
 
-    String uri = 'data:$mimetype,$sbuf$fragment';
+    final String uri = 'data:$mimetype,$sbuf$fragment';
 
     // IE8 cannot handle a data-uri larger than 32,768 characteres. If this is exceeded
     // and the --ieCompat flag is enabled, return a normal url() instead.
 
-    int DATA_URI_MAX = 32768;
+    const int DATA_URI_MAX = 32768;
     if (buf.length >= DATA_URI_MAX) {
       if (this.context.ieCompat) {
         logger.warn('Skipped data-uri embedding of $filePath because its size (${buf.length} characters) exceeds IE8-safe $DATA_URI_MAX characters!');

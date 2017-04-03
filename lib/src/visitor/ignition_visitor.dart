@@ -6,11 +6,11 @@ part of visitor.less;
 /// Visitor to run after parse input file, before imports
 ///
 class IgnitionVisitor extends VisitorBase {
+  Contexts    context;
   Environment environment;
-  Visitor _visitor;
-
-  Contexts context;
   LessOptions lessOptions;
+  Visitor     _visitor;
+
 
   IgnitionVisitor() {
     isReplacing = true;
@@ -23,7 +23,7 @@ class IgnitionVisitor extends VisitorBase {
   @override
   Ruleset run(Ruleset root) {
     lessOptions = environment.options;
-    PluginManager pluginManager = lessOptions.pluginManager;
+    final PluginManager pluginManager = lessOptions.pluginManager;
     if (pluginManager != null) {
       FunctionRegistry.globalFunctions = pluginManager.getCustomFunction().sublist(0);
       pluginManager.resetCustomFunction();
@@ -40,7 +40,7 @@ class IgnitionVisitor extends VisitorBase {
   Options visitOptions(Options optionsNode, VisitArgs visitArgs) {
     optionsNode.apply(environment);
 
-    PluginManager pluginManager = lessOptions.pluginManager; //could vary from pluginManager used in run
+    final PluginManager pluginManager = lessOptions.pluginManager; //could vary from pluginManager used in run
     if (pluginManager != null) {
       optionsNode.functions = pluginManager.getCustomFunction().sublist(0);
       pluginManager.resetCustomFunction();

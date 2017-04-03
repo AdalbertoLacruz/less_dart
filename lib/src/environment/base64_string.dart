@@ -12,15 +12,10 @@ class Base64String {
 
   /// [income] String or List<int>
   static String encode(dynamic income) {
-    List<String> characters = new List<String>();
-    List<int> data;
-    int i;
-
-    if (income is String) {
-      data = income.codeUnits;
-    } else {
-      data = income;
-    }
+    final List<String>  characters = new List<String>();
+    final List<int>     data = (income is String) ? income.codeUnits : income;
+    int                 i;
+    int                 index;
 
     for (i = 0; i + 3 <= data.length; i += 3) {
       int value = 0;
@@ -28,7 +23,7 @@ class Base64String {
       value |= data[i + 1] << 8;
       value |= data[i] << 16;
       for (int j = 0; j < 4; j++) {
-        int index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
+        index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
     }
@@ -38,7 +33,7 @@ class Base64String {
       value |= data[i + 1] << 8;
       value |= data[i] << 16;
       for (int j = 0; j < 3; j++) {
-        int index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
+        index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
       characters.add("=");
@@ -46,13 +41,14 @@ class Base64String {
       int value = 0;
       value |= data[i] << 16;
       for (int j = 0; j < 2; j++) {
-        int index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
+        index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
       characters.add("=");
       characters.add("=");
     }
-    StringBuffer output = new StringBuffer();
+
+    final StringBuffer output = new StringBuffer();
     for (i = 0; i < characters.length; i++) {
 //      if (i > 0 && i % 76 == 0) {
 //        output.write("\r\n");
@@ -65,13 +61,14 @@ class Base64String {
 
   ///
   static String decode(String data) {
-    int charCount = 0;
-    int padCount = 0;
-    List<int> result = new List<int>();
-    int value = 0;
+    int             char;
+    int             charCount = 0;
+    int             padCount = 0;
+    final List<int> result = new List<int>();
+    int             value = 0;
 
     for (int i = 0; i < data.length; i++) {
-      int char = data.codeUnitAt(i);
+      char = data.codeUnitAt(i);
       if (65 <= char && char <= 90) {  // "A" - "Z".
         value = (value << 6) | char - 65;
         charCount++;
@@ -105,6 +102,6 @@ class Base64String {
       }
     }
 
-    return new String.fromCharCodes( result );
+    return new String.fromCharCodes(result);
   }
 }

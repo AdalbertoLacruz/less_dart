@@ -20,7 +20,7 @@ class CleancssOptions {
    */
   bool parse(String command) {
     if (command == null) return setParseError('empty');
-    List<String> cleanOptionArgs = command.split(":");
+    final List<String> cleanOptionArgs = command.split(":");
 
     switch(cleanOptionArgs[0]) {
       case "--keep-line-breaks":

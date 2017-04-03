@@ -49,9 +49,9 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    List<List<Selector>>  context = this.contexts.last;
-    List<List<Selector>>  paths = <List<Selector>>[];
-    List<Selector>        selectors;
+    final List<List<Selector>>  context = this.contexts.last;
+    final List<List<Selector>>  paths = <List<Selector>>[];
+    List<Selector>              selectors;
 
     this.contexts.add(paths);
 
@@ -98,7 +98,7 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    List<List<Selector>> context = this.contexts.last;
+    final List<List<Selector>> context = this.contexts.last;
     mediaNode.rules[0].root = (context.isEmpty || (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
 
 //2.3.1
@@ -110,7 +110,7 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    List<List<Selector>> context = this.contexts.last;
+    final List<List<Selector>> context = this.contexts.last;
     if (directiveNode.rules != null && directiveNode.rules.isNotEmpty) {
       directiveNode.rules[0].root = (directiveNode.isRooted || context.isEmpty);
     }

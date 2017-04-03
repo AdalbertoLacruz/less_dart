@@ -21,11 +21,11 @@ class NumberFunctions extends FunctionBase {
     String    unitStatic;
 
     // elems only contains original argument values.
-    List<Dimension> order = <Dimension>[];
+    final List<Dimension> order = <Dimension>[];
 
     // key is the unit.toString() for unified Dimension values,
     // value is the index into the order array.
-    Map<String, int> values = <String, int>{};
+    final Map<String, int> values = <String, int>{};
 
     for (int i = 0; i < args.length; i++) {
       if (args[i] is! Dimension) {
@@ -68,7 +68,11 @@ class NumberFunctions extends FunctionBase {
     }
 
     if (order.length == 1) return order[0];
-    String arguments = order.map((Dimension a) => a.toCSS(this.context)).toList().join(this.context.compress ? ',' : ', ');
+    final String arguments = order
+      .map((Dimension a) => a.toCSS(this.context))
+      .toList()
+      .join(this.context.compress ? ',' : ', ');
+
     return new Anonymous((isMin ? 'min' : 'max') + '($arguments)');
 
 //    var minMax = function (isMin, args) {
@@ -202,16 +206,19 @@ class NumberFunctions extends FunctionBase {
   ///
   ///
   Dimension pow(dynamic x, dynamic y) {
-    if (x is num && y is num) {
-      x = new Dimension(x);
-      y = new Dimension(y);
-    } else if (x is! Dimension || y is! Dimension) {
+    dynamic _x = x;
+    dynamic _y = y;
+
+    if (_x is num && _y is num) {
+      _x = new Dimension(_x);
+      _y = new Dimension(_y);
+    } else if (_x is! Dimension || _y is! Dimension) {
       throw new LessExceptionError(new LessError(
           type: 'Argument',
           message: 'arguments must be numbers'));
     }
 
-    return new Dimension(math.pow(x.value, y.value), x.unit);
+    return new Dimension(math.pow(_x.value, _y.value), _x.unit);
 
 //    pow: function(x, y) {
 //        if (typeof x === "number" && typeof y === "number") {

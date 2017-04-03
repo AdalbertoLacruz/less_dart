@@ -32,7 +32,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     if (alpha == 0) alpha = 0; // convert to int
     if (alpha == 1) alpha = 1;
 
-    RegExp hex6 = new RegExp('.{2}');
+    final RegExp hex6 = new RegExp('.{2}');
 
     if (rgb is List<num>) {           // [0, 0 , 0]
       this.rgb = rgb;
@@ -67,12 +67,13 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
   ///
   factory Color.fromKeyword(String keyword){
-    Color c;
-    String key = keyword.toLowerCase();
+    Color         c;
+    final String  key = keyword.toLowerCase();
 
     // detect named color
-    if(colors.containsKey(key)) {
-      c = new Color(colors[key].substring(1));
+    String colorValue;
+    if((colorValue = colors[key]) != null) {
+      c = new Color(colorValue.substring(1));
     } else if (key == transparentKeyword) {
       c = new Color(<int>[0, 0, 0], 0);
     }
@@ -102,7 +103,8 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   }
 
   /// Don't use spaces to css
-  bool isCompress(Contexts context) => cleanCss != null || ((context != null) ? context.compress : false);
+  bool isCompress(Contexts context) =>
+      (cleanCss != null) || (context?.compress ?? false);
 
   ///
   @override
@@ -147,11 +149,13 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   String toCSS(Contexts context) {
-    if (cleanCss != null && cleanCss.compatibility.properties.colors) return toCleanCSS(context);
+    if (cleanCss?.compatibility?.properties?.colors ?? false) {
+      return toCleanCSS(context);
+    }
 
-    bool compress = (context != null) ? context.compress : false;
-    String color;
-    num alpha;
+    num         alpha;
+    String      color;
+    final bool  compress = context?.compress ?? false;
 
     // `value` is set if this color was originally
     // converted from a named color string so we need
@@ -210,15 +214,14 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
   /// clean-css output
   String toCleanCSS(Contexts context) {
-    String color;
-    num alpha = this.fround(context, this.alpha);
+    final num alpha = this.fround(context, this.alpha);
+    String    color = toRGB();
 
-    color = toRGB();
     if (cleanCss.compatibility.colors.opacity) {
       if (alpha == 0 && color == '#000000') return transparentKeyword;
     }
     if (alpha == 1) {
-      String key = getColorKey(color);
+      final String key = getColorKey(color);
       color = tryHex3(color);
       if (key != null) {
         if (key.length < color.length) return key;
@@ -239,8 +242,9 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   Color operate(Contexts context, String op, Color other) {
-    List<num> rgb = <num>[0, 0, 0];
-    num alpha = this.alpha * (1 - other.alpha) + other.alpha;
+    final List<num> rgb = <num>[0, 0, 0];
+    final num       alpha = this.alpha * (1 - other.alpha) + other.alpha;
+
     for (int c = 0; c < 3; c++) {
       rgb[c] = _operate(context, op, this.rgb[c], other.rgb[c]);
     }
@@ -266,21 +270,21 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// Returns this Color as HSLA
   ///
   HSLType toHSL() {
-    double r = this.r / 255;
-    double g = this.g / 255;
-    double b = this.b / 255;
-    double a = this.alpha.toDouble();
+    final double r = this.r / 255;
+    final double g = this.g / 255;
+    final double b = this.b / 255;
+    final double a = this.alpha.toDouble();
 
     //List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
-    List<List<dynamic>> maxList = <List<dynamic>>[<dynamic>['r', r], <dynamic>['g', g], <dynamic>['b', b]];
+    final List<List<dynamic>> maxList = <List<dynamic>>[<dynamic>['r', r], <dynamic>['g', g], <dynamic>['b', b]];
     maxList.sort((dynamic x, dynamic y) => y[1] - x[1]); // big to little
 
-    double max = maxList.first[1];
-    double min = maxList[2][1];
-    double h;
-    double s;
-    double l = (max + min) / 2;
-    double d = max - min;
+    final double  max = maxList.first[1];
+    final double  min = maxList[2][1];
+    double        h;
+    double        s;
+    final double  l = (max + min) / 2;
+    final double  d = max - min;
 
     if (max == min) {
       h = s = 0.0;
@@ -335,22 +339,22 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
    * http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
    */
   HSVType toHSV() {
-    double r = this.r / 255;
-    double g = this.g / 255;
-    double b = this.b / 255;
-    double a = this.alpha.toDouble();
+    final double r = this.r / 255;
+    final double g = this.g / 255;
+    final double b = this.b / 255;
+    final double a = this.alpha.toDouble();
 
     //List maxList = [['r', r], ['g', g], ['b', b]]..sort((x, y) => y[1] - x[1]); // big to little
-    List<List<dynamic>> maxList = <List<dynamic>>[<dynamic>['r', r], <dynamic>['g', g], <dynamic>['b', b]];
+    final List<List<dynamic>> maxList = <List<dynamic>>[<dynamic>['r', r], <dynamic>['g', g], <dynamic>['b', b]];
     maxList.sort((dynamic x, dynamic y) => y[1] - x[1]); // big to little
 
-    double max = maxList.first[1];
-    double min = maxList[2][1];
-    double h;
-    double s;
-    double v = max;
+    final double  max = maxList.first[1];
+    final double  min = maxList[2][1];
+    double        h;
+    double        s;
+    final double  v = max;
+    final double  d = max - min;
 
-    double d = max - min;
     if (max == 0.0) {
       s = 0.0;
     } else {
@@ -422,11 +426,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   int compare(Node x) {
     if (x is! Color) return -1;
 
-    Color xx = x as Color;
-    return (xx.r == this.r &&
-            xx.g == this.g &&
-            xx.b == this.b &&
-            xx.alpha == this.alpha) ? 0 : null;
+    final Color xx = x as Color;
+    return (xx.r == this.r
+        &&  xx.g == this.g
+        &&  xx.b == this.b
+        &&  xx.alpha == this.alpha) ? 0 : null;
 
 //2.2.0
 //  Color.prototype.compare = function (x) {
@@ -444,10 +448,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   // static?
   String toHex(List<num> v) {
-    List<String> resultList = v.map((num c){
-      int r = c.round().clamp(0, 255);
+    final List<String> resultList = v.map((num c) {
+      final int r = c.round().clamp(0, 255);
       return (r < 16 ? '0' : '') + r.toRadixString(16);
     }).toList();
+
     return '#' + resultList.join('');
 
 //2.2.0
@@ -466,9 +471,9 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   String tryHex3(String hex) {
     if (hex.length != 7) return hex;
 
-    if ( hex[1] == hex[2]
-      && hex[3] == hex[4]
-      && hex[5] == hex[6]) {
+    if (   hex[1] == hex[2]
+        && hex[3] == hex[4]
+        && hex[5] == hex[6]) {
       return '#' + hex[1] + hex[3] + hex[5];
     } else {
       return hex;
@@ -488,12 +493,14 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// => 'rgba(r, g, b, a)'
   ///
   String toRGBFunction(Contexts context) {
-    num alpha = fround(context, this.alpha);
+    final num alpha = fround(context, this.alpha);
 
-    List<String> resultList = rgb.map((num c){
+    final List<String> resultList = rgb.map((num c) {
       return clamp(c.round(), 255).toString();
     }).toList();
-    String alphaStr = numToString(clamp(alpha, 1));
+
+    final String alphaStr = numToString(clamp(alpha, 1));
+
     resultList.add( cleanCss != null ? alphaStr.replaceFirst('0.', '.') : alphaStr); //0.1 -> .1
     return 'rgba(' + resultList.join(',' + (isCompress(context) ? '' : ' ')) + ')';
 
@@ -509,12 +516,13 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// [value] == '#rrggbb' returns the color key
   ///
-  String getColorKey(String value) {
+  String getColorKey(String value) => colors.getKey(value);
+    /*
     for (String key in colors.keys) {
       if (colors[key] == value) return key;
     }
     return null;
-  }
+    */
 
   ///
   /// Returns num v in the range [0 v max].
@@ -530,7 +538,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   // Dart only
   @override
   void genTree(Contexts env, Output output) {
-    String tabStr = '  ' * env.tabLevel;
+    final String tabStr = '  ' * env.tabLevel;
     String result = 'null';
     if (rgb != null)  result = toRGB();
 

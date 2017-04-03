@@ -44,7 +44,7 @@ class FileTransformer extends AggregateTransformer {
     options = new TransformerOptions.parse(settings.configuration as Map<String, dynamic>) {
 
     entryPoints = new EntryPoints();
-    entryPoints.addPaths(options.entry_points);
+    entryPoints.addPaths(options.entryPoints);
     entryPoints.assureDefault(<String>['*.less', '*.html']);
   }
 
@@ -55,7 +55,7 @@ class FileTransformer extends AggregateTransformer {
   String classifyPrimary(AssetId id) {
     // Build one group with all .less files and only .html's in entryPoint
     // so a .less file change propagates to all affected
-    String extension = id.extension.toLowerCase();
+    final String extension = id.extension.toLowerCase();
     if (extension == '.less') return 'less';
     if (extension == '.html' || entryPoints.check(id.path)) return 'less';
     return null;
@@ -70,11 +70,11 @@ class FileTransformer extends AggregateTransformer {
         if (!entryPoints.check(asset.id.path)) return new Future<Null>.value();
 
         return asset.readAsString().then((String content) {
-          List<String> flags = _createFlags();  //to build process arguments
-          AssetId id = asset.id;
+          final List<String> flags = _createFlags();  //to build process arguments
+          final AssetId id = asset.id;
 
           if (id.extension.toLowerCase() == '.html') {
-            HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path, customOptions);
+            final HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path, customOptions);
             return htmlProcess.transform(flags).then((HtmlTransformer process){
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, id.path), process.outputContent));
@@ -86,15 +86,15 @@ class FileTransformer extends AggregateTransformer {
               }
             });
           } else if (id.extension.toLowerCase() == '.less') {
-            LessTransformer lessProcess = new LessTransformer(content, id.path,
-                getOutputFileName(id), options.build_mode, customOptions);
+            final LessTransformer lessProcess = new LessTransformer(content, id.path,
+                getOutputFileName(id), options.buildMode, customOptions);
             return lessProcess.transform(flags).then((LessTransformer process) {
               if (process.deliverToPipe) {
                 transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
               }
               if (process.isError || !options.silence) print (process.message);
               if (process.isError) {
-                String resultFile = process.deliverToPipe ? ('build/' + process.outputFile) :process.outputFile;
+                final String resultFile = process.deliverToPipe ? ('build/' + process.outputFile) :process.outputFile;
                 print('**** ERROR ****  see ' + resultFile + '\n');
                 print(process.errorMessage);
               }
@@ -106,13 +106,13 @@ class FileTransformer extends AggregateTransformer {
   }
 
   List<String> _createFlags(){
-    List<String> flags = <String>[];
+    final List<String> flags = <String>[];
 
     flags.add('--no-color');
     if (options.cleancss != null) flags.add('--clean-css="${options.cleancss}"');
     if (options.compress) flags.add('--compress');
-    if (options.include_path != '') flags.add('--include-path=${options.include_path}');
-    if (options.other_flags != null) flags.addAll(options.other_flags);
+    if (options.includePath != '') flags.add('--include-path=${options.includePath}');
+    if (options.otherFlags != null) flags.addAll(options.otherFlags);
 
     return flags;
   }

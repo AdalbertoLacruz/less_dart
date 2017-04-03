@@ -8,7 +8,7 @@ class OutputRulesetMixin {
   void outputRuleset(Contexts context, Output output, List<Node> rules) {
     if (context.cleanCss) return outputCleanRuleset(context, output, rules);
 
-    int ruleCnt = rules.length;
+    final int ruleCnt = rules.length;
 
     if (context.tabLevel == null) context.tabLevel = 0;
     context.tabLevel++;
@@ -23,8 +23,8 @@ class OutputRulesetMixin {
     }
 
     // Non-compressed
-    String tabSetStr  = '\n' +  '  ' * (context.tabLevel - 1);
-    String tabRuleStr = tabSetStr + '  ';
+    final String tabSetStr  = '\n' +  '  ' * (context.tabLevel - 1);
+    final String tabRuleStr = tabSetStr + '  ';
     if (ruleCnt == 0) {
       output.add(' {' + tabSetStr + '}');
     } else {
@@ -73,7 +73,7 @@ class OutputRulesetMixin {
 //  };
   }
   void outputCleanRuleset(Contexts context, Output output, List<Node> rules) {
-    int ruleCnt = rules.length;
+    final int ruleCnt = rules.length;
 
     if (context.tabLevel == null) context.tabLevel = 0;
     context.tabLevel++;

@@ -2,7 +2,9 @@
 
 library colors.less;
 
- const Map<String, String> colors =  const  <String, String>{
+import '../environment/environment.dart';
+
+ BiMap<String, String> colors = new BiMap<String, String>(<String, String>{
     'aliceblue':'#f0f8ff',
     'antiquewhite':'#faebd7',
     'aqua':'#00ffff',
@@ -56,8 +58,8 @@ library colors.less;
     'ghostwhite':'#f8f8ff',
     'gold':'#ffd700',
     'goldenrod':'#daa520',
-    'grey':'#808080',
     'gray':'#808080',
+    'grey':'#808080',
     'green':'#008000',
     'greenyellow':'#adff2f',
     'honeydew':'#f0fff0',
@@ -151,4 +153,4 @@ library colors.less;
     'whitesmoke':'#f5f5f5',
     'yellow':'#ffff00',
     'yellowgreen':'#9acd32'
-};
+});

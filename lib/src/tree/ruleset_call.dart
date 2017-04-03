@@ -13,7 +13,7 @@ class RulesetCall extends Node {
   ///
   @override
   Ruleset eval(Contexts context) {
-    DetachedRuleset detachedRuleset = new Variable(variable).eval(context);
+    final DetachedRuleset detachedRuleset = new Variable(variable).eval(context);
     return detachedRuleset.callEval(context);
 
 //2.3.1

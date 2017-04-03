@@ -3,23 +3,22 @@
 part of sourcemap.less;
 
 class SourceMapOutput extends Output{
-  Map<String, int> contentsIgnoredCharsMap;
+  int                 column = 0;
+  Map<String, int>    contentsIgnoredCharsMap;
   Map<String, String> contentsMap;
-  String outputFilename;
-  bool outputSourceFiles;
-  Ruleset rootNode;
-  String sourceMap; //result
-  String sourceMapBasepath;
-  String sourceMapFilename;
-  SourceMapBuilder sourceMapGenerator; //class instance
-  bool sourceMapFileInline;
-  String sourceMapRootpath;
-  String sourceMapURL;
-
-  int column = 0;
-  int indexGenerated = 0;
-  int lineNumber = 0;
+  int                 indexGenerated = 0;
+  int                 lineNumber = 0;
   Map<String, String> normalizeCache = <String, String>{};
+  String              outputFilename;
+  bool                outputSourceFiles;
+  Ruleset             rootNode;
+  String              sourceMap; //result
+  String              sourceMapBasepath;
+  String              sourceMapFilename;
+  SourceMapBuilder    sourceMapGenerator; //class instance
+  bool                sourceMapFileInline;
+  String              sourceMapRootpath;
+  String              sourceMapURL;
 
   ///
   SourceMapOutput({Map<String, int> this.contentsIgnoredCharsMap,
@@ -116,13 +115,14 @@ class SourceMapOutput extends Output{
   ///
   @override
   void add(Object s, [FileInfo fileInfo, int index, bool mapLines = false]) {
-    List<String> lines;
-    List<String> sourceLines;
-    String columns;
-    String sourceColumns;
-
     if (s == null) return;
-    String chunk = s is String ? s : s.toString();
+
+    final String  chunk = (s is String) ? s : s.toString();
+    String        columns;
+    int           _index = index;
+    List<String>  lines;
+    String        sourceColumns;
+    List<String>  sourceLines;
 
     //ignore adding empty strings
     if (chunk.isEmpty) return;
@@ -133,12 +133,12 @@ class SourceMapOutput extends Output{
       // remove vars/banner added to the top of the file
       if (contentsIgnoredCharsMap[fileInfo.filename] != null) {
         // adjust the index
-        index -= contentsIgnoredCharsMap[fileInfo.filename];
-        if (index < 0) index = 0;
+        _index -= contentsIgnoredCharsMap[fileInfo.filename];
+        if (_index < 0) _index = 0;
         // adjust the source
         inputSource = inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
       }
-      inputSource = inputSource.substring(0, index);
+      inputSource = inputSource.substring(0, _index);
       sourceLines = inputSource.split('\n');
       sourceColumns = sourceLines.last;
     }
@@ -148,14 +148,14 @@ class SourceMapOutput extends Output{
 
     if (fileInfo != null) {
       if (!mapLines) {
-        SourcemapData data = new SourcemapData(
-            originalIndex: index, originalLine: sourceLines.length - 1, originalColumn: sourceColumns.length, originalFile:normalizeFilename(fileInfo.filename),
+        final SourcemapData data = new SourcemapData(
+            originalIndex: _index, originalLine: sourceLines.length - 1, originalColumn: sourceColumns.length, originalFile:normalizeFilename(fileInfo.filename),
             generatedIndex: indexGenerated, generatedLine: lineNumber, generatedColumn: column, generatedFile: normalizeFilename(outputFilename));
         if (data != null) sourceMapGenerator.addLocation(data.original, data.generated, null);
       } else { // @import (inline)
         for (int i = 0; i < lines.length; i++) {
-          SourcemapData data = new SourcemapData(
-          originalIndex: index, originalLine: sourceLines.length + i - 1,
+          final SourcemapData data = new SourcemapData(
+          originalIndex: _index, originalLine: sourceLines.length + i - 1,
             originalColumn: (i == 0) ? sourceColumns.length : 0, originalFile:normalizeFilename(fileInfo.filename),
           generatedIndex: indexGenerated, generatedLine: lineNumber + i,
             generatedColumn: (i == 0) ? column : 0, generatedFile: normalizeFilename(outputFilename));
@@ -234,10 +234,10 @@ class SourceMapOutput extends Output{
 
   ///
   String toCSS(Contexts context) {
-    String sourceMapContent;
-    String sourceMapURL = '';
-    Map<String, String> contents = <String, String>{};
-    Map<dynamic, dynamic> json; //<String, dynamic> dynamic = String | int
+    final Map<String, String> contents = <String, String>{};
+    Map<dynamic, dynamic>     json; //<String, dynamic> dynamic = String | int
+    String                    sourceMapContent;
+    String                    sourceMapURL = '';
 
     if (outputSourceFiles) { //--source-map-less-inline
       for (String filename in contentsMap.keys) {
@@ -254,7 +254,7 @@ class SourceMapOutput extends Output{
     if (!super.isEmpty) {
       if (outputSourceFiles) {//--source-map-less-inline
         json = sourceMapGenerator.build(normalizeFilename(outputFilename));
-        List<String> sourcesContent = <String>[];
+        final List<String> sourcesContent = <String>[];
         for (String filename in json['sources']) {
           sourcesContent.add(contents[filename]);
         }
@@ -319,17 +319,17 @@ class SourceMapOutput extends Output{
 /// Build data to use in SourceMapBuilder.addLocation
 ///
 class SourcemapData {
-  SourceLocation original;
-  int originalIndex;
-  int originalLine;
-  int originalColumn;
-  String originalFile;
+  SourceLocation  original;
+  int             originalIndex;
+  int             originalLine;
+  int             originalColumn;
+  String          originalFile;
 
-  SourceLocation generated;
-  int generatedIndex;
-  int generatedLine;
-  int generatedColumn;
-  String generatedFile;
+  SourceLocation  generated;
+  int             generatedIndex;
+  int             generatedLine;
+  int             generatedColumn;
+  String          generatedFile;
 
   static SourcemapData last;
 
@@ -349,7 +349,7 @@ class SourcemapData {
           ) return null;
     }
 
-    SourcemapData data = new SourcemapData.create(
+    final SourcemapData data = new SourcemapData.create(
         originalIndex, originalLine, originalColumn, originalFile,
         generatedIndex, generatedLine, generatedColumn, generatedFile);
 

@@ -10,7 +10,10 @@ class Unit extends Node implements CompareNode {
   List<String>    numerator;
 
   ///
-  Unit([List<String> numerator = const <String>[], List<String> denominator = const <String>[], this.backupUnit = null]) {
+  Unit( [List<String> numerator = const <String>[],
+        List<String> denominator = const <String>[],
+        this.backupUnit = null]) {
+
    this.numerator = numerator.sublist(0)..sort(); //clone
    this.denominator = denominator.sublist(0)..sort();
    if (this.backupUnit == null && this.numerator.isNotEmpty) {
@@ -41,7 +44,7 @@ class Unit extends Node implements CompareNode {
   @override
   void genCSS(Contexts context, Output output) {
     // Dimension checks the unit is singular and throws an error if in strict math mode.
-    bool stricUnits = (context != null && context.strictUnits != null) ? context.strictUnits : false;
+    final bool stricUnits = context?.strictUnits ?? false;
 
     if (numerator.length == 1) {
       output.add(numerator[0]); // the ideal situation
@@ -107,7 +110,7 @@ class Unit extends Node implements CompareNode {
 
   ///
   bool isLength(Contexts context) {
-    RegExp re = new RegExp(r'px|em|%|in|cm|mm|pc|pt|ex'); //i?
+    final RegExp re = new RegExp(r'px|em|%|in|cm|mm|pc|pt|ex'); //i?
     return re.hasMatch(toCSS(context));
 
 //2.3.1
@@ -118,7 +121,7 @@ class Unit extends Node implements CompareNode {
 
   ///
   bool isAngle(Contexts context) {
-    RegExp re = new RegExp(r'rad|deg|grad|turn'); //i?
+    final RegExp re = new RegExp(r'rad|deg|grad|turn'); //i?
     return re.hasMatch(toCSS(context));
   }
 
@@ -172,9 +175,9 @@ class Unit extends Node implements CompareNode {
 
   ///
   Map<String, String> usedUnits() {
-    Map<String, double> group;
-    Map<String, String> result = <String, String>{};
-    String groupName;
+    Map<String, double>       group;
+    String                    groupName;
+    final Map<String, String> result = <String, String>{};
 
     String mapUnit(String atomicUnit, bool isDenominator) {
       if (group.containsKey(atomicUnit) && !result.containsKey(groupName)) {
@@ -222,17 +225,16 @@ class Unit extends Node implements CompareNode {
   /// Normalize numerator and denominator after operations
   ///
   void cancel() {
-    Map<String, int> counter = <String, int>{};
-    String atomicUnit;
-    int i;
+    String                  atomicUnit;
+    final Map<String, int>  counter = <String, int>{};
 
-    for (i = 0; i < numerator.length; i++) {
+    for (int i = 0; i < numerator.length; i++) {
       atomicUnit = numerator[i];
       if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] + 1;
     }
 
-    for (i = 0; i < denominator.length; i++) {
+    for (int i = 0; i < denominator.length; i++) {
       atomicUnit = denominator[i];
       if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] -1;
@@ -243,11 +245,11 @@ class Unit extends Node implements CompareNode {
 
     for (atomicUnit in counter.keys) {
       if (counter.containsKey(atomicUnit)) {
-        int count = counter[atomicUnit];
+        final int count = counter[atomicUnit];
         if (count > 0) {
-          for (i = 0; i < count; i++) numerator.add(atomicUnit);
+          for (int i = 0; i < count; i++) numerator.add(atomicUnit);
         } else if (count < 0) {
-          for (i = 0; i < -count; i++) denominator.add(atomicUnit);
+          for (int i = 0; i < -count; i++) denominator.add(atomicUnit);
         }
       }
     }

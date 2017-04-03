@@ -8,16 +8,16 @@ class ImageSizeFunctions extends FunctionBase {
 
   @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
-    String filePath = filePathNode.value;
-    String currentDirectory = currentFileInfo.relativeUrls
+    String        filePath = filePathNode.value;
+    final String  currentDirectory = currentFileInfo.relativeUrls
         ? currentFileInfo.currentDirectory
         : currentFileInfo.entryPath;
 
-    int fragmentStart = filePath.indexOf('#');
+    final int fragmentStart = filePath.indexOf('#');
     if (fragmentStart != -1) filePath = filePath.substring(0, fragmentStart);
 
-    FileManager fileManager = environment.getFileManager(filePath, currentDirectory, context, environment, true);
-    FileLoaded fileSync = fileManager.existSync(filePath, currentDirectory, context, environment);
+    final FileManager fileManager = environment.getFileManager(filePath, currentDirectory, context, environment, true);
+    final FileLoaded fileSync = fileManager.existSync(filePath, currentDirectory, context, environment);
     if (fileSync.error != null) throw fileSync.error;
 
     return imageSizeProcessor.sizeOf(fileSync.filename);
@@ -68,8 +68,10 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'image-size')
   Expression imageSize(Quoted filePathNode) {
-    ImageDimension size = imageSizeFtn(filePathNode);
+    final ImageDimension size = imageSizeFtn(filePathNode);
+
     if (size == null) return null;
+
     return new Expression(<Node>[
       new Dimension(size.width, 'px'),
       new Dimension(size.height, 'px')
@@ -96,8 +98,10 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'image-width')
   Dimension imageWidth(Quoted filePathNode) {
-    ImageDimension size = imageSizeFtn(filePathNode);
+    final ImageDimension size = imageSizeFtn(filePathNode);
+
     if (size == null) return null;
+
     return new Dimension(size.width, 'px');
 
 //2.4.0 20150321
@@ -118,8 +122,10 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'image-height')
   Dimension imageHeigth(Quoted filePathNode) {
-    ImageDimension size = imageSizeFtn(filePathNode);
+    final ImageDimension size = imageSizeFtn(filePathNode);
+
     if (size == null) return null;
+    
     return new Dimension(size.height, 'px');
 
 //2.4.0 20150321

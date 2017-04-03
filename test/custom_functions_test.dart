@@ -1,25 +1,23 @@
 ///
 /// Example of custom functions definition inside a custom plugin
 ///
+/// Usage: pub run test/custom_functions_test.dart
+///
 import 'dart:io';
 import 'package:less_dart/less.dart';
 
-import 'package:test/test.dart';
-
 void main() {
-  test('Transform test/less/functions.less with plugin', () async {
-    final Less less = new Less();
-    final int exitCode = await less.transform(<String>[
-      '-no-color',
-      'test/less/functions.less',
-    ], modifyOptions: (LessOptions options) {
-      options.definePlugin('myplugin', new MyPlugin(), true, '');
-    });
-    if (exitCode != 0) {
-      stderr.write(less.stderr.toString());
-      stdout.write(less.stdout.toString());
-    }
-    expect(exitCode, 0);
+  final Less less = new Less();
+
+  less.transform(<String>[
+    '-no-color',
+    'test/less/functions.less',
+  ], modifyOptions: (LessOptions options){
+    options.definePlugin('myplugin', new MyPlugin(), true, '');
+  }).then((int exitCode){
+    stderr.write(less.stderr.toString());
+    stdout.writeln('\nstdout:');
+    stdout.write(less.stdout.toString());
   });
 }
 
@@ -33,13 +31,7 @@ class MyFunctions extends FunctionBase {
   }
 
   @DefineMethod(name: '_color')
-  Color color(Node str) {
-    if (str.value == 'evil red') {
-      return new Color('600');
-    } else {
-      return null;
-    }
-  }
+  Color color(Node str) => (str.value == 'evil red') ? new Color('600') : null;  
 }
 
 class MyProcessor extends Processor {
@@ -58,10 +50,10 @@ class MyPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    FunctionBase myFunctions = new MyFunctions();
+    final FunctionBase myFunctions = new MyFunctions();
     pluginManager.addCustomFunctions(myFunctions);
 
-    Processor myProcessor = new MyProcessor(null);
+    final Processor myProcessor = new MyProcessor(null);
     pluginManager.addPostProcessor(myProcessor);
   }
 }

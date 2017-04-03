@@ -32,26 +32,24 @@ class MoreRegExp {
   ///   re == 'This is a new string.'
   ///
   String replace(String source, String replacement) {
-    RegExp dollar = new RegExp(r'\$\d+');
-    int i;
-    Match match;
-    String dollarN;
+    final RegExp  dollar = new RegExp(r'\$\d+');
+    String  dollarN;
+    Match   match;
+    String  _replacement = replacement;
 
-    if (dollar.hasMatch(replacement)) {
+    if (dollar.hasMatch(_replacement)) {
       match = _thisRE.firstMatch(source);
       if (match != null) {
-        for (i = 0; i <= match.groupCount; i++) {
+        for (int i = 0; i <= match.groupCount; i++) {
           dollarN = '\$' + i.toString();
-          replacement = replacement.replaceAll(dollarN, match[i]);
+          _replacement = _replacement.replaceAll(dollarN, match[i]);
         }
       }
     }
 
-    if (global) {
-      return source.replaceAll(_thisRE, replacement);
-    } else {
-      return source.replaceFirst(_thisRE, replacement);
-    }
+    return global
+      ? source.replaceAll(_thisRE, _replacement)
+      : source.replaceFirst(_thisRE, _replacement);
   }
 
   ///
@@ -59,14 +57,12 @@ class MoreRegExp {
   /// Depending on flag g uses replaceFirst or replaceAll
   ///
   String replaceMap(String source, Function map){
-    Match match = _thisRE.firstMatch(source);
+    final Match match = _thisRE.firstMatch(source);
     if (match != null) {
-      String replacement = map(match);
-      if (global) {
-        return source.replaceAll(_thisRE, replacement);
-      } else {
-        return source.replaceFirst(_thisRE, replacement);
-      }
+      final String replacement = map(match);
+      return global
+        ? source.replaceAll(_thisRE, replacement)
+        : source.replaceFirst(_thisRE, replacement);
     }
     return source;
   }

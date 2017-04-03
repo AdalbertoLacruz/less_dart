@@ -11,15 +11,15 @@ void main(){
 //  config.stopTestOnExpectFailure = false;
 //  unittestConfiguration = config;
 
-  less_options_test();
+  lessOptionsTest();
 }
 
-void less_options_test(){
+void lessOptionsTest(){
   group('less_options', (){
     bool result;
     LessOptions options;
 
-    RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
+    final RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
     Match getArgument(String argument) {
       return regOption.firstMatch(argument);
     }

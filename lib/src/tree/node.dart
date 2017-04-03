@@ -9,7 +9,7 @@ abstract class Node {
   DebugInfo           debugInfo;
   List<Element>       elements;
   bool                evalFirst = false; //see Ruleset.eval
-  bool                evaluated = null; //result from bool eval, used in condition
+  bool                evaluated; //result from bool eval, used in condition
   int                 id; // hashCode own or inherited for object compare
   bool                isRuleset = false; //true in MixinDefinition & Ruleset
   dynamic get         name => null; //String | List<Node>
@@ -40,7 +40,7 @@ abstract class Node {
   /// Returns node transformed to css code
   ///
   String toCSS(Contexts context) {
-     Output output = new Output();
+     final Output output = new Output();
      genCSS(context, output);
      //if (context != null) context.avoidDartOptimization = true; //avoid dart context prune
      return output.toString();
@@ -120,17 +120,15 @@ abstract class Node {
   num fround(Contexts context, num value, [int precision]) {
     if (value is int) return value;
 
-    //precision
-    //int precision = (context != null) ? getValueOrDefault(context.numPrecision, 8) : null;
-    //int precision = (context != null) ? context.numPrecision : null;
-    if (precision == null || precision == -1) {
-      precision = null;
-      precision = (context != null) ? context.numPrecision : null;
-    }
+    final int _precision = (precision == null || precision == -1)
+        ? context?.numPrecision
+        : precision;
 
     // add "epsilon" to ensure numbers like 1.000000005 (represented as 1.000000004999....) are properly rounded...
-    double result = value + 2e-16;
-    return (precision == null) ? value : double.parse(result.toStringAsFixed(precision));
+    final double result = value + 2e-16;
+    return (_precision == null)
+        ? value
+        : double.parse(result.toStringAsFixed(_precision));
 
 //2.3.1
 //  Node.prototype.fround = function(context, value) {
@@ -162,8 +160,8 @@ abstract class Node {
       return null;
     }
 
-    dynamic aValue = a.value;
-    dynamic bValue = b.value;
+    final dynamic aValue = a.value;
+    final dynamic bValue = b.value;
 
     if (aValue is! List) return (aValue == bValue) ? 0 : null;
     if (aValue is List && bValue is List) {
@@ -211,8 +209,7 @@ abstract class Node {
   }
 
   ///
-  static int numericCompare(num a, num b) {
-    return a.compareTo(b);
+  static int numericCompare(num a, num b) => a.compareTo(b);
 
 //    return (a < b)
 //        ? - 1
@@ -226,22 +223,21 @@ abstract class Node {
 //          : a === b ?  0
 //          : a  >  b ?  1 : undefined;
 //  };
-  }
-
 
   //debug print the node tree
   StringBuffer toTree(LessOptions options) {
-    Contexts env = new Contexts.eval(options);
-     Output output = new Output();
-     genTree(env, output);
-     return output.value;
+    final Contexts  env = new Contexts.eval(options);
+    final Output    output = new Output();
+
+    genTree(env, output);
+    return output.value;
   }
 
   void genTree(Contexts env, Output output) {
     int i;
     //Node rule;
-    String tabStr = '  ' * env.tabLevel;
-    List<dynamic> process = <dynamic>[];
+    final String tabStr = '  ' * env.tabLevel;
+    final List<dynamic> process = <dynamic>[];
 
 
     String nameNode = name is String ? name : null;

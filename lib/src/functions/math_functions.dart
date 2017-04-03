@@ -198,9 +198,10 @@ class MathFunctions extends FunctionBase {
   ///   Output: 1.7
   ///
   Dimension round(Node n, [Node f]) {
-    num fraction = (f == null) ? 0 : f.value;
+    final num fraction = (f == null) ? 0 : f.value;
+
     return _math((num d) {
-      double exp = math.pow(10, fraction).toDouble();
+      final double exp = math.pow(10, fraction).toDouble();
       return (d * exp).roundToDouble()/ exp;
     }, null, n);
 

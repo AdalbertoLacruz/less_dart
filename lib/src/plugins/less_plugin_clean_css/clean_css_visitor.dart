@@ -9,10 +9,10 @@ part of less_plugin_clean_css.plugins.less;
 class CleanCssVisitor extends VisitorBase {
   CleanCssContext cleancsscontext = new CleanCssContext();
   CleanCssOptions cleanCssOptions;
-  bool keepOneComment = false;
-  bool keepAllComments = false;
-  LessOptions lessOptions;
-  Visitor _visitor;
+  bool            keepOneComment = false;
+  bool            keepAllComments = false;
+  LessOptions     lessOptions;
+  Visitor         _visitor;
 
   CleanCssVisitor(this.cleanCssOptions) {
     isReplacing = true;
@@ -28,9 +28,7 @@ class CleanCssVisitor extends VisitorBase {
 
   ///
   @override
-  Ruleset run(Ruleset root) {
-    return _visitor.visit(root);
-  }
+  Ruleset run(Ruleset root) => _visitor.visit(root);
 
   ///
   /// Optimize in call.genCSS
@@ -82,7 +80,7 @@ class CleanCssVisitor extends VisitorBase {
     if (directiveNode.rules != null && directiveNode.rules.isEmpty) return null;
 
     if (directiveNode.value is Anonymous) {
-      Anonymous anonymous = directiveNode.value;
+      final Anonymous anonymous = directiveNode.value;
       if (anonymous.value is String) {
         anonymous.value = removeSpaces(anonymous.value);
       }
@@ -228,7 +226,8 @@ class CleanCssVisitor extends VisitorBase {
   /// Has ./$ ... characters
   ///
   bool hasSymbol(String value) {
-    RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
+    final RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
+
     return symbolRe.hasMatch(value);
   }
 
@@ -238,9 +237,10 @@ class CleanCssVisitor extends VisitorBase {
   /// Example: "([class *= "lead"])" -> "([class*=lead])"
   ///
   String removeQuotesAndSpace(Match match, String source, int indexQuoted) {
-    String quoted = match[indexQuoted];
     String newQuoted;
-    int start = source.indexOf(quoted);
+    String quoted = match[indexQuoted];
+    
+    final int start = source.indexOf(quoted);
     String prefix = source.substring(0, start);
     String suffix = source.substring(start + quoted.length);
 
@@ -257,21 +257,26 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove ' ( ', ' ) ', ': ', \n '  '
   ///
   String removeSpaces(String value) {
-    int len;
-    do {
-      len = value.length;
-      value = value.replaceAll('  ', ' ');
-    } while (value.length != len);
+    int     len;
+    String  _value = value;
 
-    value = value.replaceAll('\n', '');
-    value = value.replaceAll(' (', '(');
-    value = value.replaceAll('( ', '(');
-    value = value.replaceAll(' )', ')');
+    do {
+      len = _value.length;
+      _value = _value.replaceAll('  ', ' ');
+    } while (_value.length != len);
+
+    _value = _value.replaceAll('\n', '');
+    _value = _value.replaceAll(' (', '(');
+    _value = _value.replaceAll('( ', '(');
+    _value = _value.replaceAll(' )', ')');
+
     if (!cleancsscontext.compatibility.properties.spaceAfterClosingBrace) {
-      value = value.replaceAll(') ', ')');
+      _value = _value.replaceAll(') ', ')');
     }
-    value = value.replaceAll(': ', ':');
-    return value;
+
+    _value = _value.replaceAll(': ', ':');
+
+    return _value;
   }
 
   @override

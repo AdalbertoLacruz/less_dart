@@ -3,17 +3,28 @@
 part of parser.less;
 
 class ParserInput {
-  final String input;         // Less input string
-  int i = 0;            // current index in `input`
+  bool                  autoCommentAbsorb = true;
 
-  Contexts context;
+  List<CommentPointer>  commentStore = <CommentPointer>[];
 
-  bool autoCommentAbsorb = true;
-  List<CommentPointer> commentStore = <CommentPointer>[];
-  bool finished = false;
-  int furthest = 0;     // furthest index the parser has gone to
-  String furthestPossibleErrorMessage; // if this is furthest we got to, this is the probably cause
-  List<int> saveStack = <int>[];  // holds state for backtracking
+  Contexts              context;
+
+  bool                  finished = false;
+
+  // furthest index the parser has gone to
+  int                   furthest = 0;
+
+  // if this is furthest we got to, this is the probably cause
+  String                furthestPossibleErrorMessage;
+
+  // current index in `input`
+  int                   i = 0;
+
+  // Less input string
+  final String          input;
+
+  // holds state for backtracking
+  List<int>             saveStack = <int>[];
 
   ParserInput(String this.input, Contexts this.context) {
     i = furthest = 0;
@@ -77,10 +88,10 @@ class ParserInput {
   /// Char at pos + [offset] is 32 (space), 13 (CR), 9 (tab) or 10 (LF)
   ///
   bool isWhitespace([int offset = 0]) {
-    int pos = i + offset;
+    final int pos = i + offset;
     if (pos < 0 || pos >= input.length) return false;
 
-    int code = input.codeUnitAt(pos);
+    final int code = input.codeUnitAt(pos);
     return (code == Charcode.SPACE_32 || code == Charcode.CR_13
          || code == Charcode.TAB_9 || code == Charcode.LF_10);
 
@@ -109,7 +120,7 @@ class ParserInput {
   dynamic $re(RegExp reg, [int index]) {
     if (i >= input.length) return null;
 
-    Match m = reg.matchAsPrefix(input, i);
+    final Match m = reg.matchAsPrefix(input, i);
     if (m == null) return null;
 
     assert(m.end == (m[0].length + i));
@@ -118,16 +129,18 @@ class ParserInput {
     if (m.groupCount == 0) return m[0];
     if (m.groupCount == 1) return m[1];
 
-    List<String> resultList = <String>[];
+    final List<String> resultList = <String>[];
     for (int item = 0; item <= m.groupCount; item++) {
       resultList.add(m[item]);
     }
     return resultList;
   }
 
+  ///
   Match $reMatch(RegExp reg) {
     final Match m = reg.matchAsPrefix(input, i);
     if (m == null) return null;
+
     assert(m.end == (m[0].length + i));
     skipWhitespace(m.end);
     return m;
@@ -140,6 +153,7 @@ class ParserInput {
   ///
   String $char(String tok) {
     if (currentChar() != tok) return null;
+
     skipWhitespace(i + 1);
     return tok;
   }
@@ -149,6 +163,7 @@ class ParserInput {
   ///
   String $str(String tok) {
     if (i >= input.length || !input.startsWith(tok, i)) return null;
+
     skipWhitespace(i + tok.length);
     return tok;
   }
@@ -175,8 +190,7 @@ class ParserInput {
         case "'":
         case '"':
           if (nextChar == startChar) {
-            final String str =
-                input.substring(start, end + 1);
+            final String str = input.substring(start, end + 1);
             skipWhitespace(end + 1);
             return str;
           }
@@ -194,11 +208,11 @@ class ParserInput {
     i = newi;
 
     for (; i < endIndex; i++) {
-      int c = charCodeAt(i);
+      final int c = charCodeAt(i);
       if (autoCommentAbsorb && c == Charcode.SLASH_47) {
-        String nextChar = charAt(i + 1);
+        final String nextChar = charAt(i + 1);
         if (nextChar == '/') {
-          CommentPointer comment = new CommentPointer(index: i, isLineComment: true);
+          final CommentPointer comment = new CommentPointer(index: i, isLineComment: true);
           int nextNewLine = input.indexOf('\n', i + 2);
 
           if (nextNewLine < 0) nextNewLine = endIndex;
@@ -207,9 +221,9 @@ class ParserInput {
           commentStore.add(comment);
           continue;
         } else if (nextChar == '*') {
-          int nextStarSlash = input.indexOf('*/', i + 2);
+          final int nextStarSlash = input.indexOf('*/', i + 2);
           if (nextStarSlash >= 0) {
-            CommentPointer comment = new CommentPointer(
+            final CommentPointer comment = new CommentPointer(
                 index: i,
                 text: input.substring(i, nextStarSlash + 2),
                 isLineComment: false);
@@ -236,14 +250,11 @@ class ParserInput {
   ///
   // parser.js 2.4.0 40-52
   dynamic expect(dynamic arg, [String msg, int index]) {
-    String message = msg;
-
-    dynamic result = (arg is Function) ? arg() : $re(arg);
+    final dynamic result = (arg is Function) ? arg() : $re(arg);
     if (result != null) return result;
 
-    if (message == null) {
-      message = (arg is String) ? "expected '$arg' got '${currentChar()}'" : 'unexpected token';
-    }
+    final String message = msg
+      ?? (arg is String) ? "expected '$arg' got '${currentChar()}'" : 'unexpected token';
     return error(message);
   }
 
@@ -254,19 +265,19 @@ class ParserInput {
   String expectChar(String arg, [String msg]) {
     if ($char(arg) != null) return arg;
 
-    String message = msg != null ? msg : "expected '$arg' got '${currentChar()}'";
+    final String message = msg ?? "expected '$arg' got '${currentChar()}'";
     return error(message);
   }
 
   ///
   //parser.js 2.2.0 lines 64-74
   Null error(String msg, [String type]) {
-    LessError e = new LessError(
-        index: i,
-        type: type != null ? type :  'Syntax',
-        message: msg,
-        context: context);
-    throw new LessExceptionError(e);
+    throw new LessExceptionError(new LessError(
+      index: i,
+      type: type != null ? type :  'Syntax',
+      message: msg,
+      context: context)
+    );
 
 //2.2.0
 //  function error(msg, type) {
@@ -292,7 +303,7 @@ class ParserInput {
       // https://jsperf.com/string-startswith/21
       return input.startsWith(tok, i);
     } else {
-      RegExp r = (tok as RegExp);
+      final RegExp r = (tok as RegExp);
       return r.matchAsPrefix(input, i) != null;
     }
   }
@@ -310,7 +321,7 @@ class ParserInput {
 
   ///
   bool peekNotNumeric() {
-    int c = charCodeAtPos();
+    final int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
     return (c > Charcode.$9_57 || c < Charcode.PLUS_43)
         || c == Charcode.SLASH_47
@@ -326,7 +337,7 @@ class ParserInput {
   ///
   ParserStatus end() {
     String message;
-    bool isFinished = (i >= input.length);
+    final bool isFinished = (i >= input.length);
 
     if (i < furthest) {
       message = furthestPossibleErrorMessage;
@@ -371,7 +382,7 @@ class ParserInput {
   /// and the part which didn't), so we can color them differently.
   ///
   void isFinished() {
-    ParserStatus endInfo = end();
+    final ParserStatus endInfo = end();
     if (!endInfo.isFinished) {
       String message = endInfo.furthestPossibleErrorMessage;
 
@@ -386,13 +397,13 @@ class ParserInput {
         }
       }
 
-      LessError error = new LessError(
-          type: 'Parse',
-          message: message,
-          index: endInfo.furthest,
-          filename: context.currentFileInfo.filename,
-          context: context);
-      throw new LessExceptionError(error);
+      throw new LessExceptionError(new LessError(
+        type: 'Parse',
+        message: message,
+        index: endInfo.furthest,
+        filename: context.currentFileInfo.filename,
+        context: context)
+      );
     }
 
 //2.2.0
@@ -425,19 +436,19 @@ class ParserInput {
 // **********************************************
 
 class CommentPointer {
-  int index;
-  bool isLineComment;
-  String text;
+  int     index;
+  bool    isLineComment;
+  String  text;
 
   CommentPointer({this.index, this.isLineComment, this.text});
 }
 
 class ParserStatus {
-  bool isFinished;
-  int furthest;
-  String furthestPossibleErrorMessage;
-  bool furthestReachedEnd;
-  String furthestChar;
+  bool    isFinished;
+  int     furthest;
+  String  furthestPossibleErrorMessage;
+  bool    furthestReachedEnd;
+  String  furthestChar;
 
   ParserStatus({this.isFinished, this.furthest, this.furthestPossibleErrorMessage,
     this.furthestReachedEnd, this.furthestChar});

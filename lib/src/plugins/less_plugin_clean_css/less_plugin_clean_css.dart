@@ -27,10 +27,10 @@ class LessPluginCleanCss extends Plugin {
     if (cleanCssOptions == null) setOptions('');
     lessOptions.cleanCss = true;
 
-    VisitorBase cleanCssVisitor = new CleanCssVisitor(cleanCssOptions);
+    final VisitorBase cleanCssVisitor = new CleanCssVisitor(cleanCssOptions);
     pluginManager.addVisitor(cleanCssVisitor);
 
-    Processor cleanCssProcessor = new CleanCssProcessor(cleanCssOptions);
+    final Processor cleanCssProcessor = new CleanCssProcessor(cleanCssOptions);
     pluginManager.addPostProcessor(cleanCssProcessor, 1500);
 
 //2.4.0

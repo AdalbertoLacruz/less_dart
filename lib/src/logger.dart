@@ -10,14 +10,13 @@ const int logLevelError = 1; // Errors
 const int logLevelNone  = 0; // None
 
 class Logger {
-  int logLevel;
-  StringBuffer stderr;
-  StringBuffer capture;
-
   static Map<int, Logger> cache = <int, Logger>{};
+  StringBuffer            capture;
+  int                     logLevel;
+  StringBuffer            stderr;
 
   Logger._(this.stderr){
-    if (this.stderr == null) this.stderr = new StringBuffer();
+    this.stderr ??= new StringBuffer();
     this.logLevel = logLevelWarn;
   }
 
@@ -30,21 +29,19 @@ class Logger {
    * zoneValues: {#id: new Random().nextInt(10000)});
    */
   factory Logger([StringBuffer buffer]) {
-    int id = Zone.current[#id];
-    if (id == null) id = -1;
+    final int id = Zone.current[#id] ?? -1;
 
     if(buffer != null && cache[id] != null) {
       throw new StateError('Console buffer yet initialized');
     }
 
-    if(cache[id] == null) cache[id] = new Logger._(buffer);
-
+    cache[id] ??= new Logger._(buffer);
     return cache[id];
   }
 
   /// remove cache for this id
   void reset() {
-    int id = Zone.current[#id];
+    final int id = Zone.current[#id];
     cache[id] = null;
   }
 
@@ -59,16 +56,16 @@ class Logger {
   /// Returns captured messages and goes to normal log mode
   ///
   String captureStop() {
-    String result = capture.toString();
+    final String result = capture.toString();
     capture = null;
     return result;
   }
 
   ///
   void log(String msg){
-    StringBuffer buffer = capture == null ? stderr : capture;
+    final StringBuffer buffer = (capture == null) ? stderr : capture;
 
-    if (buffer.isNotEmpty)buffer.write('\n');
+    if (buffer.isNotEmpty) buffer.write('\n');
     buffer.write('$msg');
   }
 

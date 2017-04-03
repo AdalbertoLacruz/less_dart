@@ -23,7 +23,7 @@ class ImportDetector {
   /// Returns a new ImportDector copy of [source]
   ///
   static ImportDetector clone(ImportDetector source) {
-    ImportDetector result = new ImportDetector();
+    final ImportDetector result = new ImportDetector();
     return (source != null) ? (result..addAll(source)) : result;
   }
 
@@ -31,6 +31,6 @@ class ImportDetector {
   /// Returns a not null [detector]
   ///
   static ImportDetector own(ImportDetector detector) {
-    return (detector != null) ? detector : new ImportDetector();
+    return detector ?? new ImportDetector(); //factory?
   }
 }

@@ -46,7 +46,7 @@ class BaseTransformer {
   ///
   static bool changed(String inputFile, String inputContent) {
     if (register.containsKey(inputFile)) {
-      RegisterItem reg = register[inputFile];
+      final RegisterItem reg = register[inputFile];
       if (reg.imports.isNotEmpty) return true; //Has dependencies
       if (reg.contentHash == inputContent.hashCode) return false; //not inputContent changed
     }
@@ -79,10 +79,10 @@ class BaseTransformer {
   ///
   //from barback - Copyright (c) 2013, the Dart project authors
   String niceDuration(Duration duration) {
-  String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
+  final String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
 
-  int s = duration.inSeconds % 59;
-  int ms = (duration.inMilliseconds % 1000) ~/ 100;
+  final int s = duration.inSeconds % 59;
+  final int ms = (duration.inMilliseconds % 1000) ~/ 100;
   return result + "$s.${ms}s";
   }
 }
@@ -93,7 +93,7 @@ class RegisterItem {
   String path; // asset.id.path
   List<String> imports; // dependencies path
   int contentHash; //hash to know if content string has changed
-  
+
   RegisterItem(this.path, this.imports, this.contentHash);
 }
 

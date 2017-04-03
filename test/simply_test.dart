@@ -7,7 +7,7 @@ void main() {
       '-no-color',
       '--strict-math=on'
       '--strict-units=on',
-      'test/less/detached-rulesets.less'
+      'test/less/css.less'
     ]).then((int lessExitCode) {
       stderr.write(less.stderr.toString());
       stdout.writeln('\nstdout:');

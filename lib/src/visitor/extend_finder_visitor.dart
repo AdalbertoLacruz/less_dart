@@ -25,9 +25,9 @@ class ExtendFinderVisitor extends VisitorBase {
   ///
   @override
   Ruleset run(Ruleset root) {
-    root = _visitor.visit(root);
-    root.allExtends = allExtendsStack[0];
-    return root;
+    final Ruleset _root = _visitor.visit(root);
+    _root.allExtends = allExtendsStack[0];
+    return _root;
 
 //2.3.1
 //  run: function (root) {
@@ -61,16 +61,14 @@ class ExtendFinderVisitor extends VisitorBase {
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     if (rulesetNode.root) return;
 
-    int i;
-    int j;
-    List<Extend>  allSelectorsExtendList = <Extend>[];
-    Extend        extend;
-    List<Extend>  extendList;
+    final List<Extend>  allSelectorsExtendList = <Extend>[];
+    Extend              extend;
+    List<Extend>        extendList;
 
     // get &:extend(.a); rules which apply to all selectors in this ruleset
-    List<Node> rules = rulesetNode.rules;
-    int ruleCnt = rules != null ? rules.length : 0;
-    for (i = 0; i < ruleCnt; i++) {
+    final List<Node> rules = rulesetNode.rules;
+    final int ruleCnt = rules?.length ?? 0;
+    for (int i = 0; i < ruleCnt; i++) {
       if (rulesetNode.rules[i] is Extend) {
         allSelectorsExtendList.add(rules[i]);
         rulesetNode.extendOnEveryPath = true;
@@ -79,11 +77,11 @@ class ExtendFinderVisitor extends VisitorBase {
 
     // now find every selector and apply the extends that apply to all extends
     // and the ones which apply to an individual extend
-    List<List<Selector>> paths = rulesetNode.paths;
-    for (i = 0; i < paths.length; i++) {
-      List<Selector>  selectorPath = paths[i];
-      Selector        selector = selectorPath.last;
-      List<Extend>    selExtendList = selector.extendList;
+    final List<List<Selector>> paths = rulesetNode.paths;
+    for (int i = 0; i < paths.length; i++) {
+      final List<Selector>  selectorPath = paths[i];
+      final Selector        selector = selectorPath.last;
+      final List<Extend>    selExtendList = selector.extendList;
 
       extendList = selExtendList != null
           ? (selExtendList.sublist(0)..addAll(allSelectorsExtendList))
@@ -95,7 +93,7 @@ class ExtendFinderVisitor extends VisitorBase {
         }).toList();
       }
 
-      for (j = 0; j < extendList.length; j++) {
+      for (int j = 0; j < extendList.length; j++) {
         foundExtends = true;
         extend = extendList[j];
         extend.findSelfSelectors(selectorPath);

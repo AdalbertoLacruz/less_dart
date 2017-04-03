@@ -24,7 +24,8 @@ class Element extends Node {
   Element(dynamic combinator, dynamic value, this.index, FileInfo currentFileInfo) {
     this.value = '';
     this.currentFileInfo = currentFileInfo;
-    this.combinator = (combinator is Combinator) ? combinator : new Combinator(combinator);
+    this.combinator =
+        (combinator is Combinator) ? combinator : new Combinator(combinator);
 
     if (value is String) {
       this.value = value.trim();
@@ -71,11 +72,8 @@ class Element extends Node {
   /// Replace variables by value
   ///
   @override
-  Element eval(Contexts context) => new Element(
-                        combinator,
-                        (value is Node) ? value.eval(context) : value,
-                        index,
-                        currentFileInfo);
+  Element eval(Contexts context) => new Element(combinator,
+      (value is Node) ? value.eval(context) : value, index, currentFileInfo);
 
   //2.3.1
 //  Element.prototype.eval = function (context) {
@@ -103,22 +101,23 @@ class Element extends Node {
   ///
   @override
   String toCSS(Contexts context) {
-    if (context == null) context = new Contexts();
-    dynamic value = this.value; // Node | String
-    bool firstSelector = context.firstSelector;
+    final Contexts    _context = context ?? new Contexts();
+    dynamic           value = this.value; // Node | String
+    final bool        firstSelector = _context.firstSelector;
 
     if (value is Paren) {
       // selector in parens should not be affected by outer selector
       // flags (breaks only interpolated selectors - see #1973)
-      context.firstSelector = true;
+      _context.firstSelector = true;
     }
 
-    value = (value is Node) ? value.toCSS(context) : value; // String
-    context.firstSelector = firstSelector;
+    value = (value is Node) ? value.toCSS(_context) : value; // String
+    _context.firstSelector = firstSelector;
+
     if (value.isEmpty && combinator.value.startsWith('&')) {
       return '';
     } else {
-      return combinator.toCSS(context) + value;
+      return combinator.toCSS(_context) + value;
     }
 
 //2.3.1

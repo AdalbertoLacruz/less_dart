@@ -7,6 +7,7 @@ import 'dart:convert';
 export "package:test/test.dart";
 
 final  String inputPath = _getInputPath();
+
 String _getInputPath(){
   String testRootPath = Platform.environment["TEST_ROOT_PATH"];
   if (testRootPath== null) {
@@ -24,20 +25,25 @@ String _getInputPath(){
   Logger.root.info('Test root path: "$testRootPath"');
   return testRootPath;
 }
+
 File getSampleFile(String name){
-  name = path.join(inputPath, name).replaceAll(new RegExp('\\+'), '\\')..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
-  return new File(name);
+  final String _name = path.join(inputPath, name).replaceAll(new RegExp('\\+'), '\\')
+      ..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
+  return new File(_name);
 }
+
 String readSampleFile(String name){
   return getSampleFile(name).readAsStringSync();
 }
 
-Future<Object> loadSampleJSON(String name){
-  name = name.replaceAll(new RegExp('\\+'), '\\')..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
-  if (name[0] == Platform.pathSeparator){
-    name = name.substring(1);
+Future<Object> loadSampleJSON(String name) {
+  String _name = name.replaceAll(new RegExp('\\+'), '\\')
+                      ..replaceAll(new RegExp('/+'), '/') //?
+                      .replaceAll('/',Platform.pathSeparator);
+  if (_name[0] == Platform.pathSeparator){
+    _name = _name.substring(1);
   }
-  return getSampleFile(name).readAsString().then(JSON.decode);
+  return getSampleFile(_name).readAsString().then(JSON.decode);
 }
 
 void initTestCommonSetting(){
@@ -48,7 +54,7 @@ void initTestCommonSetting(){
 void _initLog() {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord rec) {
-    String msg = '${rec.level.name}: ${rec.time}: ${rec.loggerName}: ${rec.message}';
+    final String msg = '${rec.level.name}: ${rec.time}: ${rec.loggerName}: ${rec.message}';
     print(msg);
   });
 }

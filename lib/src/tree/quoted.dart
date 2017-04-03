@@ -3,9 +3,9 @@
 part of tree.less;
 
 class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
-  @override String get name => null;
-  @override final String type = 'Quoted';
-  @override covariant String value; //TODO used?
+  @override String get        name => null;
+  @override final String      type = 'Quoted';
+  @override covariant String  value;
 
   bool    escaped;
   String  quote; // ' or "
@@ -64,10 +64,10 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   ///
   @override
   Node eval(Contexts context){
-    Quoted that = this;
-    String value = this.value;
     //RegExp reJS = new RegExp(r'`([^`]+)`'); //javascript expresion
-    RegExp reVar = new RegExp(r'@\{([\w-]+)\}');
+    final RegExp reVar = new RegExp(r'@\{([\w-]+)\}');
+    final Quoted that = this;
+    String       value = this.value;
 
 //      var javascriptReplacement = function (_, exp) {
 //          return String(that.evaluateJavaScript(exp, context));
@@ -77,17 +77,21 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     //@import 'vari@{f}.less';
     //result = @import 'variables.less';
     String interpolationReplacement(Match m) {
-      String name = m[1];
-      Node v = new Variable('@' + name, that.index, that.currentFileInfo).eval(context);
+      final String  name = m[1];
+      final Node    v = new Variable('@' + name, that.index, that.currentFileInfo).eval(context);
+
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
     String iterativeReplace(String value, RegExp regexp, String replacementFnc(Match match) ) {
       String evaluatedValue = value;
+      String _value;
+
       do {
-        value = evaluatedValue;
-        evaluatedValue = value.replaceAllMapped(regexp, replacementFnc);
-      } while (value != evaluatedValue);
+        _value = evaluatedValue;
+        evaluatedValue = _value.replaceAllMapped(regexp, replacementFnc);
+      } while (_value != evaluatedValue);
+
       return evaluatedValue;
     }
 

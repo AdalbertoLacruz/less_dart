@@ -15,14 +15,15 @@ import '../less_options.dart';
 import '../logger.dart';
 
 part 'base64_string.dart';
-part 'more_reg_exp.dart';
+part 'bi_map.dart';
+part 'debug_functions.dart';
 part 'file_file_manager.dart';
 part 'file_manager.dart';
 part 'global_functions.dart';
 part 'image_size.dart';
 part 'more_list.dart';
+part 'more_reg_exp.dart';
 part 'url_file_manager.dart';
-part 'debug_functions.dart';
 
 class Environment {
   static Map<int, Environment> cache = <int, Environment>{};
@@ -62,9 +63,10 @@ class Environment {
   /// Lookup the mime-type of a [filename]
   ///
   String mimeLookup(String filename) {
-    String type = mime.lookupMimeType(filename);
+    final String type = mime.lookupMimeType(filename);
+
     if (type == null) {
-      String ext = pathLib.extension(filename);
+      final String ext = pathLib.extension(filename);
       throw new LessExceptionError(new LessError(
           message: 'Optional dependency "mime" is required for $ext'));
     }
@@ -76,7 +78,7 @@ class Environment {
   ///
   String charsetLookup(String mime) {
     // assumes all text types are UTF-8
-    RegExp re = new RegExp(r'^text\/');
+    final RegExp re = new RegExp(r'^text\/');
 
     return (mime != null && re.hasMatch(mime)) ? 'UTF-8' : '';
   }

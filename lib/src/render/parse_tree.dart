@@ -3,10 +3,11 @@
 part of render.less;
 
 class ParseTree {
-  Ruleset root;
   ImportManager imports;
 
-  Environment environment;
+  Environment   environment;
+
+  Ruleset       root;
 
   ///
   ParseTree(Ruleset this.root, ImportManager this.imports) {
@@ -17,10 +18,10 @@ class ParseTree {
   /// The root becomes in the result
   ///
   RenderResult toCSS(LessOptions options, Contexts context) { //context for errors
-    Ruleset evaldRoot;
-    RenderResult result = new RenderResult();
-    LessSourceMapBuilder sourceMapBuilder;
-    Contexts toCSSOptions;
+    Ruleset               evaldRoot;
+    final RenderResult    result = new RenderResult();
+    LessSourceMapBuilder  sourceMapBuilder;
+    Contexts              toCSSOptions;
 
     try {
       evaldRoot = new TransformTree().call(root, options);
@@ -43,13 +44,11 @@ class ParseTree {
         result.css = evaldRoot.toCSS(toCSSOptions).toString();
       }
     } catch (e) {
-//      print("$e $s"); //catch (e, s)
-      LessError error = LessError.transform(e, context: context);
-      throw new LessExceptionError(error);
+      throw new LessExceptionError(LessError.transform(e, context: context));
     }
 
     if (options.pluginManager != null) {
-      List<Processor> postProcessors = options.pluginManager.getPostProcessors();
+      final List<Processor> postProcessors = options.pluginManager.getPostProcessors();
       postProcessors.forEach((Processor postProcessor){
         result.css = postProcessor.process(result.css, <String, dynamic>{
           'sourceMap': sourceMapBuilder,
@@ -126,9 +125,9 @@ class ParseTree {
 
 /// Result type for ParseTree
 class RenderResult {
-  String css;
-  List<String> imports; //filename
-  String map;
+  String        css;
+  List<String>  imports; //filename
+  String        map;
 
   RenderResult();
 }

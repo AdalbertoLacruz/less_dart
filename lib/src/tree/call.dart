@@ -44,17 +44,17 @@ class Call extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    List<Expression> args = this.args.map((Node a) => a.eval(context)).toList();
-    FunctionCaller funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
+    final List<Expression> args = this.args.map((Node a) => a.eval(context)).toList();
+    final FunctionCaller   funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
 
     if (funcCaller.isValid()) {
       try {
-        Node result = funcCaller.call(args);
+        final Node result = funcCaller.call(args);
         if (result != null) return result;
       } catch (e) {
         String message = LessError.getMessage(e);
         message = (message.isEmpty) ? '' : ': ' + message;
-        LessError error = LessError.transform(e,
+        final LessError error = LessError.transform(e,
             type: 'Runtime',
             index: index,
             filename: currentFileInfo.filename
@@ -63,6 +63,7 @@ class Call extends Node {
         throw new LessExceptionError(error);
       }
     }
+
     return new Call(name, args, index, currentFileInfo);
 
 //2.3.1
@@ -95,7 +96,7 @@ class Call extends Node {
 
     output.add(name + '(', currentFileInfo, index);
 
-    for (int i = 0; i < args.length; i++){
+    for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
       if (i + 1 < args.length) output.add(', ');
     }

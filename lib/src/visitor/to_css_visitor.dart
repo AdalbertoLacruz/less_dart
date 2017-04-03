@@ -3,10 +3,9 @@
 part of visitor.less;
 
 class ToCSSVisitor extends VisitorBase{
-  Contexts _context;
-
-  bool charset = false;
-  Visitor _visitor;
+  bool      charset = false;
+  Contexts  _context;
+  Visitor   _visitor;
 
   ///
   ToCSSVisitor(Contexts context) {
@@ -128,7 +127,8 @@ class ToCSSVisitor extends VisitorBase{
     // if there is only one nested ruleset and that one has no path, then it is
     // just fake ruleset that got not replaced and we need to look inside it to
     // get real childs
-    if (bodyRules.length == 1 && (bodyRules[0].paths == null || bodyRules[0].paths.isEmpty)) {
+    if (bodyRules.length == 1
+        && (bodyRules[0].paths == null || bodyRules[0].paths.isEmpty)) {
       bodyRules = bodyRules[0].rules;
     }
 
@@ -174,7 +174,7 @@ class ToCSSVisitor extends VisitorBase{
       // be considered illegal css as it has to be on the first line
       if (charset) {
         if (directiveNode.debugInfo != null) {
-          Comment comment = new Comment('/* ' + directiveNode.toCSS(_context).replaceAll(r'\n', '') + ' */\n');
+          final Comment comment = new Comment('/* ' + directiveNode.toCSS(_context).replaceAll(r'\n', '') + ' */\n');
           comment.debugInfo = directiveNode.debugInfo;
           return _visitor.visit(comment);
         }
@@ -320,18 +320,17 @@ class ToCSSVisitor extends VisitorBase{
 
   /// return Node | List<Node>
   dynamic visitRuleset (Ruleset rulesetNode, VisitArgs visitArgs) {
-    List<dynamic>  rulesets = <dynamic>[]; //Node || List<Node>
+    final List<dynamic>  rulesets = <dynamic>[]; //Node || List<Node>
 
     if (rulesetNode.firstRoot) this.checkPropertiesInRoot(rulesetNode.rules);
 
     if (!rulesetNode.root) {
       if (rulesetNode.paths != null) {
         rulesetNode.paths.retainWhere((List<Selector> p) {
-          int i;
           if (p[0].elements[0].combinator.value == ' ') {
             p[0].elements[0].combinator = new Combinator('');
           }
-          for (i = 0; i < p.length; i++) {
+          for (int i = 0; i < p.length; i++) {
             if (p[i].getIsReferenced() && p[i].getIsOutput()) return true;
           }
           return false;
@@ -340,12 +339,12 @@ class ToCSSVisitor extends VisitorBase{
 
       // Compile rules and rulesets
       List<Node>  nodeRules = rulesetNode.rules;
-      int         nodeRuleCnt = nodeRules != null ? nodeRules.length : 0;
+      int         nodeRuleCnt = nodeRules?.length ?? 0;
       Node        rule; // Rule | Ruleset
 
       for (int i = 0; i < nodeRuleCnt; ) {
         rule = nodeRules[i];
-        if (rule != null && rule.rules != null) {
+        if (rule?.rules != null) {
           // visit because we are moving them out from being a child
           rulesets.add(_visitor.visit(rule));
           nodeRules.removeAt(i);
@@ -468,14 +467,14 @@ class ToCSSVisitor extends VisitorBase{
   void _removeDuplicateRules (List<Node> rules) {
     if (rules == null) return;
 
-    Node                  rule;
+    Node                        rule;
 
     // If !Key Map[Rule1.name] = Rule1
     // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
-    Map<String, dynamic> ruleCache = <String, dynamic>{}; //<String, Rule || List<String>>
+    final Map<String, dynamic>  ruleCache = <String, dynamic>{}; //<String, Rule || List<String>>
 
-    String                ruleCSS;
-    List<String>          ruleList;
+    String                      ruleCSS;
+    List<String>                ruleList;
 
     for (int i = rules.length - 1; i >= 0; i--) {
       rule = rules[i];
@@ -532,16 +531,14 @@ class ToCSSVisitor extends VisitorBase{
   void _mergeRules (List<Node> rules) {
     if (rules == null) return;
 
-    Map<String, List<Rule>> groups = <String, List<Rule>>{};
-    String                  key;
-    Node                    rule;
+    final Map<String, List<Rule>> groups = <String, List<Rule>>{};
 
     for (int i = 0; i < rules.length; i++) {
-      rule = rules[i];
+      final Node rule = rules[i];
 
       if (rule is Rule && rule.merge.isNotEmpty) {
-        key = <String>[rule.name,
-               isNotEmpty(rule.important) ? '!' : ''].join(','); //important == '!' or ''
+        final String key = <String>[rule.name,
+            isNotEmpty(rule.important) ? '!' : ''].join(','); //important == '!' or ''
         if (!groups.containsKey(key)) {
           groups[key] = <Rule>[];
         } else {
@@ -552,21 +549,16 @@ class ToCSSVisitor extends VisitorBase{
     }
 
     groups.forEach((String k, List<Rule> parts) {
-      Expression toExpression(List<Rule> values) {
-        return new Expression(values.map((Rule p){
-          return p.value;
-        }).toList());
-      }
-      Value toValue(List<Expression> values) {
-        return new Value(values.map((Expression p){
-          return p;
-        }).toList());
-      }
+      Expression toExpression(List<Rule> values) =>
+          new Expression(values.map((Rule p) => p.value).toList());
+
+      Value toValue(List<Expression> values) =>
+          new Value(values.map((Expression p) => p).toList());
 
       if (parts.length > 1) {
-        List<Rule>        lastSpacedGroup = <Rule>[];
-        Rule              rule = parts[0];
-        List<Expression>  spacedGroups = <Expression>[];
+        List<Rule>              lastSpacedGroup = <Rule>[];
+        final Rule              rule = parts[0];
+        final List<Expression>  spacedGroups = <Expression>[];
 
         parts.forEach((Rule p) {
           if (p.merge == '+') {

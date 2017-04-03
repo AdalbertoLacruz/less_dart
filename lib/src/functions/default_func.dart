@@ -3,13 +3,13 @@
 part of functions.less;
 
 class DefaultFunc extends FunctionBase {
-  int value_;
-  LessError error_;
+  int _value;
+  LessError _error;
 
   @DefineMethod(name: 'default')
   Node eval() {
-    int v = value_;
-    LessError e = error_;
+    final int v = _value;
+    final LessError e = _error;
 
     if (e != null) throw new LessExceptionError(e);
     if (v != null) return (v > 0) ? new Keyword.True() : new Keyword.False();
@@ -27,14 +27,14 @@ class DefaultFunc extends FunctionBase {
   }
 
   void value(int v) {
-    value_ = v;
+    _value = v;
   }
 
   void error(LessError e) {
-    error_ = e;
+    _error = e;
   }
 
   void reset() {
-    value_ = error_ = null;
+    _value = _error = null;
   }
 }

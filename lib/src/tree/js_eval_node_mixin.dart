@@ -7,20 +7,21 @@ abstract class JsEvalNodeMixin implements Node {
 
   ///
   /// JavaScript evaluation - not supported
+  ///
   String evaluateJavaScript(String expression, Contexts context) {
-    String result;
-    JsEvalNodeMixin that = this;
+    String          result;
+    final JsEvalNodeMixin that = this;
     //Map evalContext = {};
 
-    if (!isTrue(context.javascriptEnabled)) {
+    if (!(context.javascriptEnabled ?? false)) {
       throw new LessExceptionError(new LessError(
                 message: 'You are using JavaScript, which has been disabled.',
                 index: this.index,
                 filename: this.currentFileInfo.filename));
     }
 
-    expression = expression.replaceAllMapped(new RegExp(r'@\{([\w-]+)\}'), (Match m) {
-      return that.jsify(new Variable('@' + m[1], that.index, that.currentFileInfo).eval(context));
+    final String _expression = expression.replaceAllMapped(new RegExp(r'@\{([\w-]+)\}'),
+        (Match m) {return that.jsify(new Variable('@' + m[1], that.index, that.currentFileInfo).eval(context));
     });
 
     try {
@@ -51,7 +52,7 @@ abstract class JsEvalNodeMixin implements Node {
 //              index: this.index };
 //      }
 
-    result = expression;
+    result = _expression;
     return result;
 
 //2.3.1
@@ -105,7 +106,7 @@ abstract class JsEvalNodeMixin implements Node {
   ///
   String jsify(Node obj) {
     if (obj.value is List && obj.value.length > 1) {
-      List<String> result = (obj.value as List<Node>).map((Node v) => v.toCSS(null)).toList();
+      final List<String> result = (obj.value as List<Node>).map((Node v) => v.toCSS(null)).toList();
       return '[' + result.join(', ') + ']';
     } else {
       return obj.toCSS(null);

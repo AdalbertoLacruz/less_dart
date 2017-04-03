@@ -11,18 +11,18 @@ class Extend extends Node {
   bool            firstExtendOnThisSelectorPath = false;
   bool            hasFoundMatches = false; // ProcessExtendsVisitor
   int             index;
-  static int      next_id = 0;
-  int             object_id;
+  static int      nextId = 0;
+  int             objectId;
   String          option;
-  List<int>       parent_ids;
+  List<int>       parentIds;
   Ruleset         ruleset; //extend
   Node            selector;
   List<Selector>  selfSelectors;
 
   ///
   Extend(Node this.selector, String this.option, int this.index) {
-    object_id = next_id++;
-    parent_ids = <int>[object_id];
+    objectId = nextId++;
+    parentIds = <int>[objectId];
 
     switch(option) {
       case 'all':
@@ -87,8 +87,8 @@ class Extend extends Node {
 
   ///
   void findSelfSelectors(List<Selector> selectors) {
-    List<Element> selfElements = <Element>[];
-    List<Element> selectorElements;
+    final List<Element> selfElements = <Element>[];
+    List<Element>       selectorElements;
 
     for (int i = 0; i < selectors.length; i++) {
       selectorElements = selectors[i].elements;

@@ -13,13 +13,13 @@ class ColorBlend extends FunctionBase {
 
   @defineMethodSkip
   Color colorBlend(Function fMode, Color color1, Color color2) {
-    double ab = color1.alpha.toDouble(); // backdrop
-    double cb;
-    double as = color2.alpha.toDouble(); // source
-    double cs;
-    double ar; // alpha result
-    double cr; // channel result
-    List<num> r = <num>[0, 0, 0];
+    final double    ab = color1.alpha.toDouble(); // backdrop
+    double          cb;
+    final double    as = color2.alpha.toDouble(); // source
+    double          cs;
+    double          ar; // alpha result
+    double          cr; // channel result
+    final List<num> r = <num>[0, 0, 0];
 
     ar = as + ab * (1 - as);
 
@@ -65,9 +65,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object.
   ///   Returns: color
   ///
-  Color multiply (Color color1, Color color2) {
-    return colorBlend(fMultiply, color1, color2);
-  }
+  Color multiply (Color color1, Color color2) => colorBlend(fMultiply, color1, color2);
 
   ///
   @defineMethodSkip
@@ -81,9 +79,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object.
   ///   Returns: color
   ///
-  Color screen (Color color1, Color color2) {
-    return colorBlend(fScreen, color1, color2);
-  }
+  Color screen (Color color1, Color color2) => colorBlend(fScreen, color1, color2);
 
   ///
   @defineMethodSkip
@@ -98,15 +94,13 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to overlay.
   ///   Returns: color
   ///
-  Color overlay (Color color1, Color color2) {
-    return colorBlend(fOverlay, color1, color2);
-  }
+  Color overlay (Color color1, Color color2) => colorBlend(fOverlay, color1, color2);
 
   ///
   @defineMethodSkip
   double fOverlay (double cb, double cs) {
-    cb *= 2;
-    return (cb <= 1) ? fMultiply(cb, cs) : fScreen(cb - 1, cs);
+    final double _cb = cb * 2;
+    return (_cb <= 1) ? fMultiply(_cb, cs) : fScreen(_cb - 1, cs);
 
 //    overlay: function(cb, cs) {
 //        cb *= 2;
@@ -125,9 +119,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to be soft lighten.
   ///   Returns: color
   ///
-  Color softlight (Color color1, Color color2) {
-    return colorBlend(fSoftlight, color1, color2);
-  }
+  Color softlight (Color color1, Color color2) => colorBlend(fSoftlight, color1, color2);
 
   ///
   @defineMethodSkip
@@ -161,9 +153,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A base color object. Also the determinant color to make the result lighter or darker.
   ///   Returns: color
   ///
-  Color hardlight (Color color1, Color color2) {
-    return colorBlend(fHardlight, color1, color2);
-  }
+  Color hardlight (Color color1, Color color2) => colorBlend(fHardlight, color1, color2);
 
   ///
   @defineMethodSkip
@@ -179,9 +169,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to act as the subtrahend.
   ///   Returns: color
   ///
-  Color difference (Color color1, Color color2) {
-    return colorBlend(fDifference, color1, color2);
-  }
+  Color difference (Color color1, Color color2) => colorBlend(fDifference, color1, color2);
 
   ///
   @defineMethodSkip
@@ -195,9 +183,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to act as the subtrahend.
   ///   Returns: color
   ///
-  Color exclusion (Color color1, Color color2) {
-    return colorBlend(fExclusion, color1, color2);
-  }
+  Color exclusion (Color color1, Color color2) => colorBlend(fExclusion, color1, color2);
 
   ///
   @defineMethodSkip
@@ -213,9 +199,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object.
   ///   Returns: color
   ///
-  Color average (Color color1, Color color2) {
-    return colorBlend(fAverage, color1, color2);
-  }
+  Color average (Color color1, Color color2) => colorBlend(fAverage, color1, color2);
 
   ///
   @defineMethodSkip
@@ -230,9 +214,7 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to act as the subtrahend.
   ///   Returns: color
   ///
-  Color negation (Color color1, Color color2) {
-    return colorBlend(fNegation, color1, color2);
-  }
+  Color negation (Color color1, Color color2) => colorBlend(fNegation, color1, color2);
 
   ///
   @defineMethodSkip

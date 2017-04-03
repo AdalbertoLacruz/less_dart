@@ -7,12 +7,13 @@ class Expression extends Node {
   @override covariant List<Node>  value;
 
   ///
-  Expression(List<Node> value) {
-    this.value = value;
+  Expression(List<Node> this.value) {
     parens = false;
     parensInOp = false;
+
     if (this.value == null) {
-      throw new LessExceptionError(new LessError(message: 'Expression requires an array parameter'));
+      throw new LessExceptionError(
+          new LessError(message: 'Expression requires an array parameter'));
     }
 
 //2.3.1
@@ -39,15 +40,13 @@ class Expression extends Node {
   @override
   Node eval(Contexts context) {
     Node returnValue;
-    bool inParenthesis = parens && !parensInOp;
+    final bool inParenthesis = parens && !parensInOp;
     bool doubleParen = false;
 
     if (inParenthesis) context.inParenthesis();
 
     if (value.length > 1) {
-      returnValue = new Expression(value.map((Node e){
-        return (e != null) ? e.eval(context) : null;
-      }).toList());
+      returnValue = new Expression(value.map((Node e) => e?.eval(context)).toList());
     } else if (value.length == 1) {
       if (value.first.parens && !value.first.parensInOp) doubleParen = true;
       returnValue = value.first.eval(context);

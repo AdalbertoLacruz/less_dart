@@ -6,8 +6,7 @@ class Combinator extends Node {
   @override String get    name => null;
   @override final String  type = 'Combinator';
 
-  bool emptyOrWhitespace;
-
+  bool              emptyOrWhitespace;
   Map<String, bool> _noSpaceCombinators = <String, bool>{
     '': true,
     ' ': true,
@@ -42,9 +41,12 @@ class Combinator extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (context != null && context.cleanCss) return genCleanCSS(context, output);
+    if (context?.cleanCss ?? false) return genCleanCSS(context, output);
 
-    String spaceOrEmpty = (isTrue(context.compress) || isTrue(_noSpaceCombinators[value])) ? '' : ' ';
+    final String spaceOrEmpty =
+        ((context?.compress ?? false) || (_noSpaceCombinators[value] ?? false))
+            ? ''
+            : ' ';
     output.add(spaceOrEmpty + value + spaceOrEmpty);
 
 //2.3.1

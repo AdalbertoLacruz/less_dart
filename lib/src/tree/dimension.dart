@@ -53,14 +53,14 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if ((context != null && isTrue(context.strictUnits)) && !unit.isSingular()) {
+    if ((context?.strictUnits ?? false) && !unit.isSingular()) {
       throw new LessExceptionError(new LessError(
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
     }
 
     if (cleanCss != null) return genCleanCSS(context, output);
 
-    double value = fround(context, this.value);
+    final double value = fround(context, this.value);
     String strValue = numToString(value); //10.0 -> '10'
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
@@ -68,7 +68,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
     }
 
-    if (context != null && context.compress) {
+    if (context?.compress ?? false) {
       // Zero values doesn't need a unit
       if (value == 0 && unit.isLength(context)) {
         output.add(strValue);
@@ -118,7 +118,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    double value = fround(context, this.value, cleanCss.precision);
+    final double value = fround(context, this.value, cleanCss.precision);
     String strValue = numToString(value); //10.0 -> '10'
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
@@ -137,7 +137,9 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     unit.genCSS(context, output);
   }
 
+  ///
   /// True if unit is [unitString]
+  ///
   bool isUnit(String unitString) {
     if (unit == null) return false;
     return unit.isUnit(unitString);
@@ -152,42 +154,43 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   @override
   Dimension operate(Contexts context, String op, Dimension other) {
-    num value = _operate(context, op, this.value, other.value);
-    Unit unit = this.unit.clone();
+    Dimension _other = other;
+    Unit      unit = this.unit.clone();
+    num       value = _operate(context, op, this.value, _other.value);
 
     if (op == '+' || op == '-') {
       if (unit.numerator.isEmpty && unit.denominator.isEmpty) {
-        unit = other.unit.clone();
+        unit = _other.unit.clone();
         if (this.unit.backupUnit != null) {
             unit.backupUnit = this.unit.backupUnit;
         }
-      } else if (other.unit.numerator.isEmpty && unit.denominator.isEmpty) {
+      } else if (_other.unit.numerator.isEmpty && unit.denominator.isEmpty) {
         // do nothing
       } else {
-        other = other.convertTo(this.unit.usedUnits());
+        _other = _other.convertTo(this.unit.usedUnits());
 
-        if (context.strictUnits && other.unit.toString() != unit.toString()) {
+        if (context.strictUnits && _other.unit.toString() != unit.toString()) {
           throw new LessExceptionError(new LessError(
               message: "Incompatible units. Change the units or use the unit function. Bad units: '"
-                + unit.toString() + "' and '" + other.unit.toString() + "'."));
+                + unit.toString() + "' and '" + _other.unit.toString() + "'."));
         }
 
-        value = _operate(context, op, this.value, other.value);
+        value = _operate(context, op, this.value, _other.value);
       }
     } else if (op == '*') {
       unit.numerator
-        ..addAll(other.unit.numerator)
+        ..addAll(_other.unit.numerator)
         ..sort();
       unit.denominator
-        ..addAll(other.unit.denominator)
+        ..addAll(_other.unit.denominator)
         .. sort();
       unit.cancel();
     } else if (op == '/') {
       unit.numerator
-        ..addAll(other.unit.denominator)
+        ..addAll(_other.unit.denominator)
         ..sort();
       unit.denominator
-        ..addAll(other.unit.numerator)
+        ..addAll(_other.unit.numerator)
         ..sort();
       unit.cancel();
     }
@@ -242,7 +245,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
     Dimension a;
     Dimension b;
-    Dimension other = otherNode as Dimension;
+    final Dimension other = otherNode as Dimension;
 
     if (this.unit.isEmpty() || other.unit.isEmpty()) {
       a = this;
@@ -294,17 +297,16 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// String | Map<String, String>
   ///
   Dimension convertTo(dynamic conversions) {
-    double value = this.value;
-    Unit unit = this.unit.clone();
-    String i;
-    String groupName;
-    Map<String, double> group;
-    String targetUnit; //new unit
-    Map<String, String> derivedConversions = <String, String>{};
-    Map<String, String> conversionsMap;
+    Map<String, String>       conversionsMap;
+    final Map<String, String> derivedConversions = <String, String>{};
+    Map<String, double>       group;
+    String                    groupName;
+    String                    targetUnit; //new unit
+    final Unit                unit = this.unit.clone();
+    double value =            this.value;
 
     if (conversions is String) {
-      for (i in UnitConversions.groups.keys) { //length, duration, angle
+      for (String i in UnitConversions.groups.keys) { //length, duration, angle
         if (UnitConversions.groups[i].containsKey(conversions)) {
           derivedConversions.clear();
           derivedConversions[i] = conversions;

@@ -13,7 +13,7 @@ class FunctionBase {
 
   FunctionBase() {
     DefineMethod          annotation;
-    ClassMirror           classMirror = reflect(this).type;
+    final ClassMirror     classMirror = reflect(this).type;
     String                externalName;
     String                internalName;
     FunctionRegistryItem  item;
@@ -50,7 +50,7 @@ class FunctionBase {
   /// Check if name is a method name available
   ///
   bool isValid(String name) {
-    bool hasMethod = registry.containsKey(name);
+    final bool hasMethod = registry.containsKey(name);
     this.name = hasMethod ? name : null;
     return hasMethod;
   }
@@ -61,9 +61,10 @@ class FunctionBase {
   dynamic call(List<Node> args) {
     if (name == null) return null;
 
-    FunctionRegistryItem item = registry[name];
-    List<dynamic> arguments = item.listArguments ? <List<Node>>[args] : args;
-    InstanceMirror instanceMirror = reflect(this);
+    final FunctionRegistryItem item = registry[name];
+    final List<dynamic> arguments = item.listArguments ? <List<Node>>[args] : args;
+    final InstanceMirror instanceMirror = reflect(this);
+
     return instanceMirror.invoke(new Symbol(item.name), arguments).reflectee;
   }
 }

@@ -6,12 +6,10 @@ class Assignment extends Node {
   @override String get      name => null;
   @override final String    type = 'Assignment';
   @override covariant Node  value;
-  
+
   String key;
 
-  Assignment(String this.key, Node value){
-    this.value = value;
-  }
+  Assignment(String this.key, Node this.value);
 
   ///
   @override
@@ -26,9 +24,8 @@ class Assignment extends Node {
 
   ///
   @override
-  Assignment eval(Contexts context) {
-    if (value is Node) return new Assignment(key, value.eval(context));
-    return this;
+  Assignment eval(Contexts context) =>
+      (value is Node) ? new Assignment(key, value.eval(context)) : this;
 
 //2.3.1
 //  Assignment.prototype.eval = function (context) {
@@ -37,17 +34,12 @@ class Assignment extends Node {
 //      }
 //      return this;
 //  };
-  }
 
   ///
   @override
   void genCSS(Contexts context, Output output) {
     output.add(key + '=');
-    if (value is Node) {
-      value.genCSS(context, output);
-    } else {
-      output.add(value);
-    }
+    (value is Node) ? value.genCSS(context, output) : output.add(value);
 
 //2.3.1
 //  Assignment.prototype.genCSS = function (context, output) {

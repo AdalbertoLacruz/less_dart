@@ -65,7 +65,7 @@ class MoreList {
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
   static int readInt16LE(List<int> buffer, int offset) {
-    String hex = MoreList.foldHex(buffer.sublist(offset, offset + 2).reversed.toList());
+    final String hex = MoreList.foldHex(buffer.sublist(offset, offset + 2).reversed.toList());
     return int.parse(hex, radix: 16).toSigned(16);
   }
 

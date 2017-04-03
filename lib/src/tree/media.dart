@@ -14,12 +14,11 @@ class Media extends DirectiveBase {
     this.currentFileInfo = currentFileInfo;
     isReferenced = false;
     //List<Node> selectors = emptySelectors();
-    List<Node> selectors = (new Selector(<Element>[], null, null, this.index, this.currentFileInfo))
-      .createEmptySelectors();
+    final List<Node> selectors = (new Selector(<Element>[], null, null, this.index, this.currentFileInfo))
+        .createEmptySelectors();
 
     this.features = new Value(features);
-    this.rules = <Ruleset>[new Ruleset(selectors, value)
-                  ..allowImports = true];
+    this.rules = <Ruleset>[new Ruleset(selectors, value)..allowImports = true];
 
 //2.4.0+1
 //  var Media = function (value, features, index, currentFileInfo) {
@@ -74,7 +73,7 @@ class Media extends DirectiveBase {
       context.mediaPath = <Media>[];
     }
 
-    Media media = new Media (null, <Node>[], index, currentFileInfo);
+    final Media media = new Media (null, <Node>[], index, currentFileInfo);
     if (debugInfo != null) {
       rules[0].debugInfo = debugInfo;
       media.debugInfo = debugInfo;
@@ -94,7 +93,8 @@ class Media extends DirectiveBase {
     context.mediaPath.add(media);
     context.mediaBlocks.add(media);
 
-    this.rules[0].functionRegistry = new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
+    this.rules[0].functionRegistry =
+        new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
     context.frames.insert(0, rules[0]);
     media.rules = <Ruleset>[rules[0].eval(context)];
     context.frames.removeAt(0);
@@ -152,10 +152,10 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      List<Selector> selectors = (new Selector(<Element>[], null, null, index, currentFileInfo))
-        .createEmptySelectors();
+      final List<Selector> selectors = (new Selector(<Element>[], null, null, index, currentFileInfo))
+          .createEmptySelectors();
       result = new Ruleset(selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
-                    ..multiMedia = true;
+          ..multiMedia = true;
     }
 
     context.mediaBlocks = null;
@@ -183,9 +183,9 @@ class Media extends DirectiveBase {
 
   ///
   Ruleset evalNested(Contexts context) {
-    dynamic value; //Node or List<Node>
-    List<Media> mediaPath = context.mediaPath.sublist(0)..add(this);
-    List<List<Node>> path = <List<Node>>[];
+    final List<Media>       mediaPath = context.mediaPath.sublist(0)..add(this);
+    final List<List<Node>>  path = <List<Node>>[];
+    dynamic                 value; //Node or List<Node>
 
     // Extract the media-query conditions separated with `,` (OR).
     for (int i = 0; i < mediaPath.length; i++) {
@@ -268,13 +268,15 @@ class Media extends DirectiveBase {
   List<List<Node>> permute(List<List<Node>> arr) {
     if (arr.length <2) return arr;
 
-    List<List<Node>> result = <List<Node>>[];
-    List<dynamic> rest = (arr.length == 2) ? arr.last : permute(arr.sublist(1)); // List<Node> | List<List<Node>>
+    final List<List<Node>> result = <List<Node>>[];
+    final List<dynamic> rest = (arr.length == 2)
+        ? arr.last
+        : permute(arr.sublist(1)); // List<Node> | List<List<Node>>
 
     for (int i = 0; i < rest.length; i++) {
       for (int j = 0; j < arr[0].length; j++) {
         result.add(<Node>[arr[0][j]]
-          ..addAll(rest[i] is! List ? <Node>[rest[i]] : rest[i])
+            ..addAll(rest[i] is! List ? <Node>[rest[i]] : rest[i])
         );
       }
     }

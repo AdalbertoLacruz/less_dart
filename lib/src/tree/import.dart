@@ -25,7 +25,6 @@ part of tree.less;
  */
 
 class Import extends Node {
-  // TODO: implement name ??
   @override String get    name => null;
   @override final String  type = 'Import';
 
@@ -35,19 +34,19 @@ class Import extends Node {
   String        importedFilename;
   int           index;
   ImportOptions options;
-  dynamic           root; // Ruleset or String
-  dynamic           skip; // bool or Function - initialized in import_visitor
+  dynamic       root; // Ruleset or String
+  dynamic       skip; // bool or Function - initialized in import_visitor
   Node          path;
 
   ///
   Import(this.path, this.features, this.options, this.index, [FileInfo currentFileInfo]) {
     this.currentFileInfo = currentFileInfo;
-    RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
+    final RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
 
-    if (options.less != null || isTrue(options.inline)) {
-      css = !isTrue(options.less) || isTrue(options.inline);
+    if (options.less != null || (options.inline ?? false)) {
+      css = !(options.less ?? false) || (options.inline ?? false);
     } else {
-      String pathValue = getPath();
+      final String pathValue = getPath();
       if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) css = true;
     }
 
@@ -76,7 +75,7 @@ class Import extends Node {
     if (features != null) features = visitor.visit(features);
     path = visitor.visit(path);
 
-    if (!isTrue(options.inline) && root != null) root = visitor.visit(root);
+    if (!(options.inline ?? false) && root != null) root = visitor.visit(root);
 
 //2.4.0 20150320
 //  Import.prototype.accept = function (visitor) {
@@ -169,12 +168,12 @@ class Import extends Node {
 
   ///
   Node evalPath(Contexts context) {
-    Node path = this.path.eval(context);
-    String rootpath = (currentFileInfo != null) ? currentFileInfo.rootpath : null;
+    final Node path = this.path.eval(context);
+    final String rootpath = currentFileInfo?.rootpath;
 
     if (path is! URL) {
       if (rootpath != null) {
-        String pathValue = path.value;
+        final String pathValue = path.value;
         // Add the base path if the import is relative
         if (pathValue != null && context.isPathRelative(pathValue)) {
           path.value = rootpath + pathValue;
@@ -211,7 +210,7 @@ class Import extends Node {
   // In js returns Node or List<Node>
   @override
   Node eval(Contexts context) {
-    Node features = (this.features != null) ? this.features.eval(context) : null;
+    final Node features = this.features?.eval(context);
 
     if (skip != null) {
       if (skip is Function) skip = skip();
@@ -219,17 +218,22 @@ class Import extends Node {
       if (skip) return new Nodeset(<Node>[]);
     }
 
-    if (isTrue(options.inline)) {
-      Anonymous contents = new Anonymous(root, 0, new FileInfo()..filename = importedFilename, true, true);
+    if (options.inline ?? false) {
+      final Anonymous contents = new Anonymous(root, 0, new FileInfo()
+          ..filename = importedFilename, true, true);
       //return (this.features != null) ? new Media([contents], this.features.value) : [contents];
-      return (this.features != null) ? new Media(<Node>[contents], this.features.value) : new Nodeset(<Node>[contents]);
-    } else if (isTrue(css)) {
-      Import newImport = new Import(evalPath(context), features, options, index);
-      if (!isTrue(newImport.css) && errorImport != null) throw new LessExceptionError(errorImport);
+      return (this.features != null)
+          ? new Media(<Node>[contents], this.features.value)
+          : new Nodeset(<Node>[contents]);
+    } else if (css ?? false) {
+      final Import newImport = new Import(evalPath(context), features, options, index);
+      if (!(newImport.css ?? false) && errorImport != null) {
+        throw new LessExceptionError(errorImport);
+      }
       return newImport;
     } else {
-      Ruleset ruleset = new Ruleset(null, root.rules.sublist(0));
-      ruleset.evalImports(context);
+      final Ruleset ruleset = new Ruleset(null, root.rules.sublist(0))
+          ..evalImports(context);
       //return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
       return (this.features != null) ? new Media(ruleset.rules, this.features.value) : new Nodeset(ruleset.rules); //TODO
     }

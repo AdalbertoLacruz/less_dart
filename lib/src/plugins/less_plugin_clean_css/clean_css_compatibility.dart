@@ -3,23 +3,24 @@
 part of less_plugin_clean_css.plugins.less;
 
 class CleanCssCompatibility {
-  String source;
-
-  CleanCssColors colors = new CleanCssColors();
-  CleanCssProperties properties = new CleanCssProperties();
-  CleanCssSelectors selectors = new CleanCssSelectors();
-  CleanCssUnits units = new CleanCssUnits();
+  String              source;
+  CleanCssColors      colors = new CleanCssColors();
+  CleanCssProperties  properties = new CleanCssProperties();
+  CleanCssSelectors   selectors = new CleanCssSelectors();
+  CleanCssUnits       units = new CleanCssUnits();
 
   // --compatibility: 'ie8,+units.rem'
   CleanCssCompatibility(this.source) {
-    List<String> parts = source.split(',');
-    String part;
-    String nav = parts[0].trim();
+    bool          isAdd;
+    List<String>  key;
+    String        group;
+    String        option;
+    String        part;
 
-    bool isAdd;
-    List<String> key;
-    String group;
-    String option;
+
+    final List<String> parts = source.split(',');
+    final String nav = parts[0].trim();
+
 
     switch (nav) {
       case 'ie8':

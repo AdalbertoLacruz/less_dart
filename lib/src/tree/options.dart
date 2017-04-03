@@ -14,8 +14,7 @@ class Options extends Node {
   int                 index;
   bool                isPlugin;
 
-  Options(Quoted value, this.index, FileInfo currentFileInfo, {bool this.isPlugin: false}){
-    this.value = value;
+  Options(Quoted this.value, this.index, FileInfo currentFileInfo, {bool this.isPlugin: false}){
     this.currentFileInfo = currentFileInfo;
   }
 
@@ -23,29 +22,28 @@ class Options extends Node {
   /// Load the options and plugins
   ///
   void apply(Environment environment) {
-    LessOptions lessOptions = environment.options;
-    Logger logger = environment.logger;
+    final LessOptions lessOptions = environment.options;
+    final Logger logger = environment.logger;
     String line = value.value;
     if (isPlugin) line = '--plugin=' + line;
 
     logger.captureStart();
-    bool result = lessOptions.fromCommandLine(line);
+    final bool result = lessOptions.fromCommandLine(line);
     String capture = logger.captureStop();
     if (capture.isNotEmpty) capture = capture.split('\n').first;
 
     if (!result) {
-      LessError error = new LessError(
+      throw new LessExceptionError(new LessError(
           message: 'bad options ($capture)',
           index: index,
-          filename: currentFileInfo.filename);
-       throw new LessExceptionError(error);
+          filename: currentFileInfo.filename));
     }
 
     if (isPlugin) {
       if(lessOptions.pluginManager == null) {
         lessOptions.pluginLoader.start();
       } else {
-        // we have added the last plugin, but it not in pluginManager
+        // we have added the last plugin, but it is not in pluginManager
         lessOptions.pluginManager.addPlugin(lessOptions.plugins.last);
       }
     }

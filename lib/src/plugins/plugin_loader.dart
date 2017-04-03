@@ -3,9 +3,9 @@
 part of plugins.less;
 
 class PluginLoader {
-  Environment environment;
-  Logger logger;
-  LessOptions options;
+  Environment   environment;
+  Logger        logger;
+  LessOptions   options;
   PluginManager pluginManager;
 
   //Plugins to install
@@ -34,7 +34,7 @@ class PluginLoader {
   ///
   Plugin tryLoadPlugin(String name, String argument) {
     Plugin plugin;
-    String pluginName = installable.containsKey(name) ? name : 'less-plugin-' + name;
+    final String pluginName = installable.containsKey(name) ? name : 'less-plugin-' + name;
 
     if (installable.containsKey(pluginName)) {
       plugin = installable[pluginName];

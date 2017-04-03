@@ -76,7 +76,7 @@ class ImportManager {
   ImportedFile fileParsedFunc(String path, dynamic root, String fullPath) { //root = Node | String
     queue.remove(path);
 
-    bool importedEqualsRoot = (fullPath == rootFilename);
+    final bool importedEqualsRoot = (fullPath == rootFilename);
     if (fullPath != null) files[fullPath] = root; // Store the root
     return new ImportedFile(root, importedEqualsRoot, fullPath);
   }
@@ -106,23 +106,24 @@ class ImportManager {
   ///   [importOptions] import options
   ///
   Future<ImportedFile> push(String path, bool tryAppendLessExtension, FileInfo currentFileInfo, ImportOptions importOptions) {
-    Completer<ImportedFile> task = new Completer<ImportedFile>();
+    String                         _path = path;
+    final Completer<ImportedFile>   task = new Completer<ImportedFile>();
 
-    queue.add(path);
-    FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, context);
-    FileManager fileManager = environment.getFileManager(path, currentFileInfo.currentDirectory, context, environment);
+    queue.add(_path);
+    final FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, context);
+    final FileManager fileManager = environment.getFileManager(_path, currentFileInfo.currentDirectory, context, environment);
 
     if (fileManager == null) {
-      task.completeError(new LessError(message: 'Could not find a file-manager for $path'));
+      task.completeError(new LessError(message: 'Could not find a file-manager for $_path'));
       return task.future;
     }
 
 //(js)if (tryAppendLessExtension) path = fileManager.tryAppendExtension(path, importOptions.plugin ? ".js" : ".less");
-    if (tryAppendLessExtension) path = fileManager.tryAppendLessExtension(path);
+    if (tryAppendLessExtension) _path = fileManager.tryAppendLessExtension(_path);
 
-    fileManager.loadFile(path, currentFileInfo.currentDirectory, context, environment).then((FileLoaded loadedFile){
-      String resolvedFilename = loadedFile.filename;
-      String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
+    fileManager.loadFile(_path, currentFileInfo.currentDirectory, context, environment).then((FileLoaded loadedFile){
+      final String resolvedFilename = loadedFile.filename;
+      final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
 
       // Pass on an updated rootpath if path of imported file is relative and file
       // is in a (sub|sup) directory
@@ -137,8 +138,8 @@ class ImportManager {
       if (newFileInfo.relativeUrls) {
         String currentDirectory = newFileInfo.currentDirectory;
         if (!currentDirectory.endsWith(pathLib.separator)) currentDirectory += pathLib.separator;
-        String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
-        //newFileInfo.rootpath = fileManager.join(getValueOrDefault(context.rootpath, ''), pathdiff);
+
+        final String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
         newFileInfo.rootpath = fileManager.join((context.rootpath ?? ''), pathdiff);
 
         if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
@@ -147,12 +148,13 @@ class ImportManager {
       }
       newFileInfo.filename = resolvedFilename;
 
-      Contexts newEnv = new Contexts.parse(this.context);
+      final Contexts newEnv = new Contexts.parse(this.context);
       newEnv.processImports = false;
       newEnv.currentFileInfo = newFileInfo; // Not in original
+
       this.contents[resolvedFilename] = contents;
 
-      if (currentFileInfo.reference || isTrue(importOptions.reference)) {
+      if (currentFileInfo.reference || (importOptions?.reference ?? false)) {
         newFileInfo.reference = true;
       }
 
@@ -161,20 +163,20 @@ class ImportManager {
 //              fileParsedFunc(e, root, resolvedFilename);
 //          });
 //      } else if (importOptions.inline) {
-      if (isTrue(importOptions.inline)) {
-        task.complete(fileParsedFunc(path, contents, resolvedFilename));
+
+      if (importOptions?.inline ?? false) {
+        task.complete(fileParsedFunc(_path, contents, resolvedFilename));
       } else {
         new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents).then((Ruleset root){
-          task.complete(fileParsedFunc(path, root, resolvedFilename));
+          task.complete(fileParsedFunc(_path, root, resolvedFilename));
         }).catchError((Object e) {
           task.completeError(e);
         });
       }
     }).catchError((Object e){
       //importOptions.optional: continue compiling when file is not found
-      if (isTrue(importOptions.optional)) {
-        Ruleset r = new Ruleset(<Selector>[], <Node>[]);
-        task.complete(fileParsedFunc(path, r, null));
+      if (importOptions?.optional ?? false) {
+        task.complete(fileParsedFunc(_path, new Ruleset(<Selector>[], <Node>[]), null));
       } else {
         task.completeError(e);
       }

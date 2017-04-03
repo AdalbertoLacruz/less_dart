@@ -2,7 +2,9 @@
 
 part of tree.less;
 
-class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, MakeImportantNode, MarkReferencedNode, MatchConditionNode {
+class Ruleset extends Node with VariableMixin
+    implements GetIsReferencedNode, MakeImportantNode, MarkReferencedNode, MatchConditionNode {
+
   @override final String type = 'Ruleset';
 
   bool                  allowImports = false;
@@ -47,11 +49,10 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   ///
   @override
   Ruleset eval(Contexts context) {
-    int             i;
-    int             selCnt;
-    Selector        selector;
-    List<Selector>  selectors;
-    List<Selector>  thisSelectors = this.selectors;
+    int                   selCnt;
+    Selector              selector;
+    List<Selector>        selectors;
+    final List<Selector>  thisSelectors = this.selectors;
 
     DefaultFunc defaultFunc;
     if (context.defaultFunc == null) {
@@ -70,7 +71,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         message: 'it is currently only allowed in parametric mixin guards,',
         context: context
       ));
-      for (i = 0; i < selCnt; i++) {
+      for (int i = 0; i < selCnt; i++) {
         selector = thisSelectors[i].eval(context);
         selectors.add(selector);
         if (selector.evaldCondition) hasOnePassingSelector = true;
@@ -82,7 +83,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     //List<Node> rules = (this.rules != null)? this.rules.sublist(0) : null; //clone
     List<Node> rules = this.rules?.sublist(0); //clone
-    Ruleset ruleset = new Ruleset(selectors, rules, strictImports);
+    final Ruleset ruleset = new Ruleset(selectors, rules, strictImports);
     Node rule;
     Node subRule;
 
@@ -96,11 +97,11 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     if (!hasOnePassingSelector) rules.length = 0;
 
     // inherit a function registry from the frames stack when possible; (in js from the top)
-    FunctionRegistry parentFR = FunctionRegistry.foundInherit(context.frames);
+    final FunctionRegistry parentFR = FunctionRegistry.foundInherit(context.frames);
     ruleset.functionRegistry = new FunctionRegistry.inherit(parentFR);
 
     // push the current ruleset to the frames stack
-    List<Node> ctxFrames = context.frames;
+    final List<Node> ctxFrames = context.frames;
     ctxFrames.insert(0, ruleset);
 
     // currrent selectors
@@ -113,16 +114,17 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     // Store the frames around mixin definitions,
     // so they can be evaluated like closures when the time comes.
-    List<Node> rsRules = ruleset.rules;
-    int rsRuleCnt = rsRules != null ? rsRules.length : 0;
-    for (i = 0; i < rsRuleCnt; i++) {
+    final List<Node> rsRules = ruleset.rules;
+    //int rsRuleCnt = rsRules != null ? rsRules.length : 0;
+    int rsRuleCnt = rsRules?.length ?? 0;
+    for (int i = 0; i < rsRuleCnt; i++) {
       if (rsRules[i].evalFirst) rsRules[i] = rsRules[i].eval(context);
     }
 
-    int mediaBlockCount = context.mediaBlocks != null ? context.mediaBlocks.length : 0;
+    final int mediaBlockCount = context.mediaBlocks?.length ?? 0;
 
     // Evaluate mixin calls.
-    for (i = 0; i < rsRuleCnt; i++) {
+    for (int i = 0; i < rsRuleCnt; i++) {
       if (rsRules[i] is MixinCall) {
         //rules = (rsRules[i] as MixinCall).eval(context)..retainWhere((r){
         rules = (rsRules[i] as MixinCall).eval(context).rules..retainWhere((Node r){
@@ -157,11 +159,10 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     Node ruleEval;
     List<Node> ruleEvaluated;
-    for (i = 0; i < rsRules.length; i++) {
+    for (int i = 0; i < rsRules.length; i++) {
       rule = rsRules[i];
       if (!rule.evalFirst) {
         ruleEval = rule.eval(context);
-        //if (ruleEvaluated is! List) ruleEvaluated = [ruleEvaluated]; //TODO remove
         ruleEvaluated = (ruleEval is Nodeset) ?  ruleEval.rules : <Node>[ruleEval];
         rsRules.replaceRange(i, i+1, ruleEvaluated);
         i += ruleEvaluated.length -1;
@@ -169,7 +170,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     }
 
     // Evaluate everything else
-    for (i = 0; i < rsRules.length; i++) {
+    for (int i = 0; i < rsRules.length; i++) {
       rule = rsRules[i];
       // for rulesets, check if it is a css guard and can be removed
       if (rule is Ruleset && rule.selectors != null && rule.selectors.length == 1) {
@@ -192,7 +193,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     ctxSelectors.removeAt(0);
 
     if (context.mediaBlocks != null) {
-      for (i = mediaBlockCount; i < context.mediaBlocks.length; i++) {
+      for (int i = mediaBlockCount; i < context.mediaBlocks.length; i++) {
         context.mediaBlocks[i].bubbleSelectors(selectors);
       }
     }
@@ -348,9 +349,9 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   /// Analyze the rules for @import, loading the new nodes
   ///
   void evalImports(Contexts context) {
-    Node        evalImport;
-    List<Node>  importRules;
-    List<Node>  rules = this.rules;
+    Node              evalImport;
+    List<Node>        importRules;
+    final List<Node>  rules = this.rules;
 
     if (rules == null) return;
 
@@ -392,7 +393,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   ///
   @override
   Ruleset makeImportant(){
-    Ruleset result = new Ruleset(selectors, rules.map((Node r){
+    final Ruleset result = new Ruleset(selectors, rules.map((Node r){
       if (r is MakeImportantNode) {
         return (r as MakeImportantNode).makeImportant();
       } else {
@@ -432,7 +433,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   ///
   @override
   bool matchCondition(List<MixinArgs> args, Contexts context) {
-    Selector lastSelector = selectors.last;
+    final Selector lastSelector = selectors.last;
     if (!lastSelector.evaldCondition) return false;
     if (lastSelector.condition != null &&
         !lastSelector.condition.eval(new Contexts.eval(context, context.frames)).evaluated) return false;
@@ -460,7 +461,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   /// Inserts the [rule] as the first elements of this.rules
   ///
   void prependRule(Node rule) {
-    List<Node> rules = this.rules;
+    final List<Node> rules = this.rules;
     if (rules != null) {
       rules.insert(0, rule);
     } else {
@@ -479,18 +480,15 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    int i;
-    int j;
-    List<Node> charsetRuleNodes = <Node>[];
-    List<Node> ruleNodes = <Node>[];
-
-    Node rule;
-    List<Node> path;
+    final List<Node>  charsetRuleNodes = <Node>[];
+    Node              rule;
+    final List<Node>  ruleNodes = <Node>[];
+    List<Node>        path;
 
     if (firstRoot) context.tabLevel = 0;
     if (!root) context.tabLevel++;
-    String tabRuleStr = isCompress(context) ? '' : '  ' * (context.tabLevel);
-    String tabSetStr = isCompress(context) ? '' : '  ' * (context.tabLevel - 1);
+    final String tabRuleStr = isCompress(context) ? '' : '  ' * (context.tabLevel);
+    final String tabSetStr = isCompress(context) ? '' : '  ' * (context.tabLevel - 1);
     String sep;
 
     bool isRulesetLikeNode(Node rule) {
@@ -502,7 +500,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
     int charsetNodeIndex = 0;
     int importNodeIndex = 0;
-    for (i = 0; i < rules.length; i ++) {
+    for (int i = 0; i < rules.length; i ++) {
       rule = rules[i];
       if (rule is Comment) {
         if (importNodeIndex == i) importNodeIndex++;
@@ -528,13 +526,13 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         output.add(tabSetStr);
       }
 
-      List<List<Selector>> paths = this.paths;
-      int pathCnt = paths.length;
+      final List<List<Selector>> paths = this.paths;
+      final int pathCnt = paths.length;
       int pathSubCnt;
 
       sep = isCompress(context) ? ',' : ',\n$tabSetStr';
 
-      for (i = 0; i < pathCnt; i++) {
+      for (int i = 0; i < pathCnt; i++) {
         path = paths[i];
         if ((pathSubCnt = path.length) == 0) continue;
         if (i > 0) output.add(sep);
@@ -543,7 +541,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
         path[0].genCSS(context, output);
 
         context.firstSelector = false;
-        for (j = 1; j < pathSubCnt; j++) {
+        for (int j = 1; j < pathSubCnt; j++) {
           path[j].genCSS(context, output);
         }
       }
@@ -552,14 +550,14 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     }
 
     // Compile rules and rulesets
-    for (i = 0; i < ruleNodes.length; i++) {
+    for (int i = 0; i < ruleNodes.length; i++) {
       rule = ruleNodes[i];
 
       if (i + 1 == ruleNodes.length) {
           context.lastRule = true;
       }
 
-      bool currentLastRule = context.lastRule;
+      final bool currentLastRule = context.lastRule;
       if (isRulesetLikeNode(rule)) context.lastRule = false;
 
       if (rule is Node) {
@@ -827,7 +825,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
   ///
   void joinSelector(List<List<Selector>> paths, List<List<Selector>>context, Selector selector) {
     List<List<Selector>> newPaths = <List<Selector>>[];
-    bool hadParentSelector = replaceParentSelector(newPaths, context, selector);
+    final bool hadParentSelector = replaceParentSelector(newPaths, context, selector);
 
     if (!hadParentSelector) {
       if (context.isNotEmpty) {
@@ -879,7 +877,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
     if (elementsToPak.length == 0) {
       replacementParen = new Paren(null);
     } else {
-      List<Element> insideParent = <Element>[];
+      final List<Element> insideParent = <Element>[];
       for (int j = 0; j < elementsToPak.length; j++) {
         insideParent.add(new Element(null, elementsToPak[j], originalElement.index, originalElement.currentFileInfo));
       }
@@ -905,9 +903,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
 
   ///
   Selector createSelector(Node containedElement, Element originalElement) {
-    Element element = new Element(null, containedElement, originalElement.index, originalElement.currentFileInfo);
-    Selector selector = new Selector(<Element>[element]);
-    return selector;
+    final Element element = new Element(null, containedElement, originalElement.index, originalElement.currentFileInfo);
+    return new Selector(<Element>[element]);
 
 //2.3.1 inside joinSelector
 //      function createSelector(containedElement, originalElement) {
@@ -949,7 +946,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       if (element.value is String) return null;
       if (element.value is! Paren) return null;
 
-      Node maybeSelector = element.value.value;
+      final Node maybeSelector = element.value.value;
       if (maybeSelector is! Selector) return null;
       return maybeSelector as Selector;
     }
@@ -966,22 +963,22 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       el = inSelector.elements[i];
       // non parent reference elements just get added
       if (el.value != '&') {
-        Selector nestedSelector = findNestedSelector(el);
+        final Selector nestedSelector = findNestedSelector(el);
         if (nestedSelector != null) {
           // merge the current list of non parent selector elements
           // on to the current list of selectors to add
           mergeElementsOnToSelectors(currentElements, newSelectors);
 
-          List<List<Selector>> nestedPaths = <List<Selector>>[];
+          final List<List<Selector>> nestedPaths = <List<Selector>>[];
           bool replaced;
-          List<List<Selector>> replacedNewSelectors = <List<Selector>>[];
+          final List<List<Selector>> replacedNewSelectors = <List<Selector>>[];
 
           replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
           hadParentSelector = hadParentSelector || replaced;
 
           // the nestedPaths array should have only one member - replaceParentSelector does not multiply selectors
           for (int k = 0; k < nestedPaths.length; k++) {
-            Selector replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
+            final Selector replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
             addAllReplacementsIntoPath(newSelectors, <Selector>[replacementSelector], el, inSelector, replacedNewSelectors);
           }
           newSelectors = replacedNewSelectors;
@@ -1016,7 +1013,7 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
             for (int k = 0; k < context.length; k++) {
               // We need to put the current selectors
               // then join the last selector's elements on to the parents selectors
-              List<Selector> newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
+              final List<Selector> newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
               // add that to our new set of selectors
               selectorsMultiplied.add(newSelectorPath);
             }
@@ -1194,9 +1191,10 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       // and there is a combinator on the parent, then grab that.
       // this also allows + a { & .b { .a & { ... though not sure why you would want to do that
       Combinator combinator = replacedElement.combinator;
-      Element parentEl = addPath.first.elements.first;
+      final Element parentEl = addPath.first.elements.first;
 
-      if (isTrue(combinator.emptyOrWhitespace) && !isTrue(parentEl.combinator.emptyOrWhitespace)) {
+      if ((combinator.emptyOrWhitespace ?? false)
+          && !(parentEl.combinator.emptyOrWhitespace ?? false)) {
         combinator = parentEl.combinator;
       }
       // join the elements so far with the first part of the parent
@@ -1276,7 +1274,8 @@ class Ruleset extends Node with VariableMixin implements GetIsReferencedNode, Ma
       List<List<Selector>>  result) {
 
     for (int j = 0; j < beginningPath.length; j++) {
-      List<Selector> newSelectorPath = addReplacementIntoPath(beginningPath[j], addPaths, replacedElement, originalSelector);
+      final List<Selector> newSelectorPath =
+          addReplacementIntoPath(beginningPath[j], addPaths, replacedElement, originalSelector);
       result.add(newSelectorPath);
     }
     return result;
@@ -1392,7 +1391,7 @@ abstract class VariableMixin implements Node {
         // so we need to go inside import statements.
         // guard against root being a string (in the case of inlined less)
         if (r is Import && r.root != null && r.root is VariableMixin) {
-          Map<String, Node> vars = r.root.variables();
+          final Map<String, Node> vars = r.root.variables();
           for (String name in vars.keys) {
             if (vars.containsKey(name)) hash[name] = vars[name];
           }
@@ -1444,8 +1443,8 @@ abstract class VariableMixin implements Node {
   List<Node> rulesets(){
     if (this.rules == null) return <Node>[];
 
-    List<Node> filtRules = <Node>[];
-    List<Node> rules = this.rules;
+    final List<Node> filtRules = <Node>[];
+    final List<Node> rules = this.rules;
     Node rule;
 
     for (int i = 0; i < rules.length; i++) {
@@ -1480,22 +1479,22 @@ abstract class VariableMixin implements Node {
   /// Function: bool filter(rule)
   ///
   List<MixinFound> find (Selector selector, [VariableMixin self, Function filter]) {
-    if (self == null) self = this;
-    List<MixinFound> rules = <MixinFound>[];
-    int match; // Selectors matchs number. 0 not match
-    List<MixinFound> foundMixins;
-    String key = selector.toCSS(null); // ' selector'
+    List<MixinFound>        foundMixins;
+    final String            key = selector.toCSS(null); // ' selector'
+    int                     match; // Selectors matchs number. 0 not match
+    final List<MixinFound>  rules = <MixinFound>[];
+    final VariableMixin     _self = self ?? this;
 
     if (_lookups.containsKey(key)) return _lookups[key];
 
     this.rulesets().forEach((Node rule) {//List of MixinDefinition and Ruleset
-      if (rule != self) {
+      if (rule != _self) {
         for (int j = 0; j < rule.selectors.length; j++) {
           match = selector.match(rule.selectors[j]);
           if (match > 0) {
             if (selector.elements.length > match) {
               if (filter == null || filter(rule)) {
-                foundMixins = (rule as VariableMixin).find(new Selector(selector.elements.sublist(match)), self, filter);
+                foundMixins = (rule as VariableMixin).find(new Selector(selector.elements.sublist(match)), _self, filter);
                 for (int i = 0; i < foundMixins.length; i++) {
                   foundMixins[i].path.add(rule); //2.3.1 MixinDefinition, Ruleset
                 }

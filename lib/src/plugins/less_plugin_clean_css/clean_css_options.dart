@@ -4,36 +4,36 @@ part of less_plugin_clean_css.plugins.less;
 
 class CleanCssOptions extends PluginOptions {
   /// set to false to disable advanced optimizations - selector & property merging, reduction, etc.
-  bool advanced = true;
+  bool                  advanced = true;
 
   /// set to false to disable aggressive merging of properties.
-  bool aggressiveMerging = true;
+  bool                  aggressiveMerging = true;
 
   /// enables compatibility mode: ie7, ie8 *
   CleanCssCompatibility compatibility;
 
   /// whether to keep line breaks (default is false)
-  bool keepBreaks = false;
+  bool                  keepBreaks = false;
 
   /// * for keeping all (default), 1 for keeping first one only, 0 for removing all
-  String keepSpecialComments = '*';
+  String                keepSpecialComments = '*';
 
   /// set to false to skip URL rebasing
-  bool rebase = true;
+  bool                  rebase = true;
 
   /// defaults to 2; -1 disables rounding
-  int roundingPrecision = 2;
+  int                   roundingPrecision = 2;
 
   /// set to false to skip shorthand compacting (default is true unless sourceMap is set when it's false)
-  bool shorthandCompacting = true;
+  bool                  shorthandCompacting = true;
 
 
   CleanCssOptions(String cmdOptions) {
-    RegExp reName = new RegExp(r'^-+');
-    List<String> cleanOptionArgs = cmdOptions.split(' ');
-    List<String> argSplit;
-    String argName;
-    String compatibilitySource = '';
+    String              argName;
+    List<String>        argSplit;
+    final List<String>  cleanOptionArgs = cmdOptions.split(' ');
+    String              compatibilitySource = '';
+    final RegExp        reName = new RegExp(r'^-+');
 
     for (int i = 0; i < cleanOptionArgs.length; i++) {
       argSplit = cleanOptionArgs[i].split('=');
@@ -53,7 +53,7 @@ class CleanCssOptions extends PluginOptions {
           keepSpecialComments = '1';
           break;
         case 'keepSpecialComments':
-          String specialCommentOption = argSplit[1];
+          final String specialCommentOption = argSplit[1];
           if (specialCommentOption != '*') {
             keepSpecialComments = int.parse(specialCommentOption).toString();
           }

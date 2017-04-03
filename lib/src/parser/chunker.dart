@@ -17,21 +17,22 @@ class Chunker {
   /// throw Parse error
   ///
   Null fail (String message, int index) {
-    LessError error = new LessError(
+    throw new LessExceptionError(new LessError(
         index: index,
         type: 'Parse',
         message: message,
         filename: env.currentFileInfo.filename,
-        context: env);
-    throw new LessExceptionError(error);
+        context: env));
   }
 
   ///
   /// Split a new chunk from input
   ///
   void emitChunk([bool force=false]) {
-    int len = chunkerCurrentIndex - emitFrom;
+    final int len = chunkerCurrentIndex - emitFrom;
+
     if (((len < 512) && !force) || len == 0) return;
+
     chunks.add(input.substring(emitFrom, chunkerCurrentIndex + 1));
     emitFrom = chunkerCurrentIndex + 1;
   }
@@ -46,7 +47,7 @@ class Chunker {
     int lastMultiCommentEndBrace = 0;
     int lastOpening = 0;
     int lastOpeningParen = 0;
-    int len = input.length;
+    final int len = input.length;
     int level = 0;
     bool matched;
     int parenLevel = 0;

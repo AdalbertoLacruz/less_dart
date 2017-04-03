@@ -11,7 +11,7 @@ class Variable extends Node {
 
   ///
   Variable(String this.name, [int this.index, FileInfo currentFileInfo]) {
-    this.currentFileInfo = (currentFileInfo != null) ? currentFileInfo : new FileInfo();
+    this.currentFileInfo = currentFileInfo ?? new FileInfo();
 
 //2.3.1
 //  var Variable = function (name, index, currentFileInfo) {
@@ -32,23 +32,21 @@ class Variable extends Node {
     }
 
     if (evaluating) {
-      LessError error = new LessError(
+      throw new LessExceptionError(new LessError(
           type: 'Name',
           message: 'Recursive variable definition for $name',
           filename: currentFileInfo.filename,
           index: index,
-          context: context
-      );
-      throw new LessExceptionError(error);
+          context: context));
     }
 
     evaluating = true;
 
     variable = find(context.frames, (VariableMixin frame){
-      Rule v = frame.variable(name);
+      final Rule v = frame.variable(name);
       if (v != null) {
         if (v.important.isNotEmpty) {
-          ImportantRule importantScope = context.importantScope.last;
+          final ImportantRule importantScope = context.importantScope.last;
           importantScope.important = v.important;
         }
         return v.value.eval(context);
@@ -59,14 +57,12 @@ class Variable extends Node {
       evaluating = false;
       return variable;
     } else {
-      LessError error = new LessError(
+      throw new LessExceptionError(new LessError(
           type: 'Name',
           message: 'variable $name is undefined',
           filename: currentFileInfo.filename,
           index: index,
-          context: context
-      );
-      throw new LessExceptionError(error);
+          context: context));
     }
 
 //2.3.1
@@ -110,10 +106,8 @@ class Variable extends Node {
 
   ///
    Node find(List<Node> obj, Function fun) {
-     Node r;
-
      for (int i = 0; i < obj.length; i++) {
-       r = fun(obj[i]);
+       final Node r = fun(obj[i]);
        if (r != null) return r;
      }
      return null;

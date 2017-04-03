@@ -5,7 +5,7 @@ part of tree.less;
 class Alpha extends Node {
   @override final String type = 'Alpha';
 
-  Alpha(dynamic value){
+  Alpha(dynamic value) { //Varaible, Dimension?
     this.value = value;
   }
 
@@ -23,10 +23,7 @@ class Alpha extends Node {
   ///
   @override
   Alpha eval(Contexts context) {
-    if (value is Node) {  //Varaible, Dimension?
-      return new Alpha((value as Node).eval(context));
-    }
-    return this;
+    return (value is Node) ? new Alpha((value as Node).eval(context)) : this;
 
 //2.3.1
 //  Alpha.prototype.eval = function (context) {

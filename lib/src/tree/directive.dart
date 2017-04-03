@@ -2,28 +2,33 @@
 
 part of tree.less;
 
-//class Directive extends DirectiveBase<Node> {
 class Directive extends DirectiveBase {
   @override final String    type = 'Directive';
   @override covariant Node  value;
 
-  Directive(String name, Node value, dynamic rules, int index,
-      FileInfo currentFileInfo, DebugInfo debugInfo, [bool isReferenced = false, bool isRooted = false]):super() {
+  Directive(String name, Node this.value, dynamic rules, int index,
+      FileInfo currentFileInfo, DebugInfo debugInfo,
+      [bool isReferenced = false, bool isRooted = false])
+      : super() {
     this.name = name;
-    this.value = value;
     this.index = index;
     this.currentFileInfo = currentFileInfo;
     this.debugInfo = debugInfo;
     this.isReferenced = isReferenced;
     this.isRooted = isRooted;
+
     if (rules != null) {
       if (rules is List<Ruleset>) {
         this.rules = rules;
       } else {
         this.rules = <Ruleset>[rules as Ruleset];
-        this.rules[0].selectors = (new Selector(<Element>[], null, null, this.index, currentFileInfo)).createEmptySelectors();
+        this.rules[0].selectors =
+            (new Selector(<Element>[], null, null, this.index, currentFileInfo))
+                .createEmptySelectors();
       }
-      this.rules.forEach((Ruleset rule) {rule.allowImports = true;});
+      this.rules.forEach((Ruleset rule) {
+        rule.allowImports = true;
+      });
     }
 
 //2.4.0 20150319
@@ -55,7 +60,9 @@ class Directive extends DirectiveBase {
 ///
 /// Base class for Directive and Media
 ///
-class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implements GetIsReferencedNode, MarkReferencedNode {
+class DirectiveBase extends Node
+    with OutputRulesetMixin, VariableMixin
+    implements GetIsReferencedNode, MarkReferencedNode {
   @override String                  name;
   @override covariant List<Ruleset> rules; //more restrictive type
   @override String get              type => 'DirectiveBase';
@@ -106,6 +113,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
       output.add(' ');
       value.genCSS(context, output);
     }
+
     if (rules != null) {
       outputRuleset(context, output, rules);
     } else {
@@ -136,8 +144,8 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
 
     // media stored inside other directive should not bubble over it
     // backpup media bubbling information
-    List<Media> mediaPathBackup = context.mediaPath;
-    List<Media> mediaBlocksBackup = context.mediaBlocks;
+    final List<Media> mediaPathBackup = context.mediaPath;
+    final List<Media> mediaBlocksBackup = context.mediaBlocks;
     // deleted media bubbling information
     context.mediaPath = <Media>[];
     context.mediaBlocks = <Media>[];
@@ -190,7 +198,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   //untested - no covered by tests
   @override
   Node variable(String name) {
-    if (rules != null && rules.isNotEmpty) {
+    if (rules?.isNotEmpty ?? false) {
       return rules[0].value(name);
     }
     return null;
@@ -209,7 +217,7 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   // self type?
   @override
   List<MixinFound> find (Selector selector, [dynamic self, Function filter]) {
-    if (rules != null && rules.isNotEmpty) {
+    if (rules?.isNotEmpty ?? false) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
       return rules[0].find(selector, self, filter);
     }
@@ -227,8 +235,8 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
   ///
   //untested
   @override
-  List<Node> rulesets(){
-    if (rules != null && rules.isNotEmpty) {
+  List<Node> rulesets() {
+    if (rules?.isNotEmpty ?? false) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
       return rules[0].rulesets();
     }
@@ -254,7 +262,9 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
     if (this.rules != null) {
       rules = this.rules;
       for (int i = 0; i < rules.length; i++) {
-        if (rules[i] is MarkReferencedNode) (rules[i] as MarkReferencedNode).markReferenced();
+        if (rules[i] is MarkReferencedNode) {
+          (rules[i] as MarkReferencedNode).markReferenced();
+        }
       }
     }
 
@@ -275,9 +285,8 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin implemen
 
   ///
   @override
-  bool getIsReferenced() => (currentFileInfo == null)
-                          || !currentFileInfo.reference
-                          || isReferenced;
+  bool getIsReferenced() =>
+      (currentFileInfo == null) || !currentFileInfo.reference || isReferenced;
 
 //2.3.1
 //  Directive.prototype.getIsReferenced = function () {

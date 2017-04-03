@@ -12,8 +12,7 @@ class Comment extends Node implements MarkReferencedNode {
   bool  isReferenced = false;
 
   ///
-  Comment(String value, [bool this.isLineComment = false, int this.index, FileInfo currentFileInfo]){
-    this.value = value;
+  Comment(String this.value, [bool this.isLineComment = false, int this.index, FileInfo currentFileInfo]){
     this.currentFileInfo = currentFileInfo;
   }
 
@@ -41,11 +40,10 @@ class Comment extends Node implements MarkReferencedNode {
 
   ///
   bool isSilent(Contexts context) {
-    bool isReference = currentFileInfo != null
-        && currentFileInfo.reference
-        && !isReferenced;
-
-    bool isCompressed = context.compress && (value.length > 2)&& (value[2] != '!');
+    final bool isReference =
+        (currentFileInfo?.reference ?? false) && !isReferenced;
+    final bool isCompressed = 
+        context.compress && (value.length > 2) && (value[2] != '!');
     return isLineComment || isReference || isCompressed;
 
 //2.2.0

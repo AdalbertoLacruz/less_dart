@@ -46,7 +46,7 @@ class MyPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    Processor myProcessor = new MyProcessor(null);
+    final Processor myProcessor = new MyProcessor(null);
     pluginManager.addPostProcessor(myProcessor);
   }
 }

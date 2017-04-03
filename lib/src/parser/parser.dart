@@ -55,14 +55,21 @@ part 'parsers.dart';
  *
  */
 class Parser {
-  String banner = '';
-  Contexts context;
-  FileInfo fileInfo;
-  String globalVars = '';
+  String        banner = '';
+
+  Contexts      context;
+
+  FileInfo      fileInfo;
+
+  String        globalVars = '';
+
   ImportManager imports;
-  String modifyVars = '';
-  Parsers parsers;
-  String preText = '';
+
+  String        modifyVars = '';
+
+  Parsers       parsers;
+
+  String        preText = '';
 
   ///
   Parser(LessOptions options){
@@ -71,7 +78,7 @@ class Parser {
     if (options.banner.isNotEmpty) {
       try {
         banner = new File(options.banner).readAsStringSync();
-      } catch (e) {}
+      } catch (_) {}
     }
 
     globalVars = serializeVars(options.globalVariables);
@@ -93,14 +100,19 @@ class Parser {
   ///
   Future<Ruleset> parse(String str) {
     Ruleset root;
-    //Ruleset rulesetEvaluated;
+    String  _str = str;
 
-    if (fileInfo == null) fileInfo = context.currentFileInfo;
-    if (imports == null) imports = new ImportManager(context, fileInfo);
+    fileInfo ??= context.currentFileInfo;
+    imports ??= new ImportManager(context, fileInfo);
 
     if (context.pluginManager != null) {
       context.pluginManager.getPreProcessors().forEach((Processor preProcessor){
-        str = preProcessor.process(str, <String, dynamic>{ 'context': context, 'imports': imports, 'fileInfo': fileInfo });
+        _str = preProcessor.process(
+                    _str,
+                    <String, dynamic>{'context': context,
+                                      'imports': imports,
+                                      'fileInfo': fileInfo
+                                      });
       });
     }
 
@@ -113,13 +125,13 @@ class Parser {
       imports.contentsIgnoredChars[fileInfo.filename] += preText.length;
     }
 
-    str = str.replaceAll('\r\n', '\n');
+    _str = _str.replaceAll('\r\n', '\n');
     // Remove potential UTF Byte Order Mark
-    str = preText + str.replaceAll(new RegExp(r'^\uFEFF'), '') + modifyVars;
-    imports.contents[fileInfo.filename] = str;
+    _str = preText + _str.replaceAll(new RegExp(r'^\uFEFF'), '') + modifyVars;
+    imports.contents[fileInfo.filename] = _str;
 
     context.imports = imports;
-    context.input = str;
+    context.input = _str;
 
     // Start with the primary rule.
     // The whole syntax tree is held under a Ruleset node,
@@ -127,7 +139,7 @@ class Parser {
     // output. The callback is called when the input is parsed.
 
     try {
-      parsers = new Parsers(str, context);
+      parsers = new Parsers(_str, context);
       root = new Ruleset(null, parsers.primary());
       root.root = true;
       root.firstRoot = true;
@@ -139,13 +151,13 @@ class Parser {
         return new ImportVisitor(this.imports).runAsync(root).then((_){
             return new Future<Ruleset>.value(root);
         }).catchError((Object e){
-          LessError error = LessError.transform(e, type: 'Import', context: context);
-          throw new LessExceptionError(error);
+          throw new LessExceptionError(LessError.transform(e, type: 'Import', context: context));
         });
       }
     } catch (e, s) {
-      LessExceptionError error = new LessExceptionError(LessError.transform(e, stackTrace: s, context: context));
-      return new Future<Ruleset>.error(error);
+      return new Future<Ruleset>.error(
+        new LessExceptionError(LessError.transform(e, stackTrace: s, context: context))
+      );
     }
 
     return new Future<Ruleset>.value(root);

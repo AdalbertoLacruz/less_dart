@@ -31,21 +31,21 @@ class SvgFunctions extends FunctionBase {
           message: 'svg-gradient expects direction, start_color [start_position], [color position,]..., end_color [end_position] or direction, color list'));
     }
 
-    Node direction = arguments[0];
-    List<Node> stops;
-    String gradientDirectionSvg;
-    String gradientType = 'linear';
-    String rectangleDimension = 'x="0" y="0" width="1" height="1"';
-    Contexts renderEnv = new Contexts()
+    num             alpha;
+    Node            color; //Color, except argument error
+    final Node      direction = arguments[0];
+    String          gradientDirectionSvg;
+    String          gradientType = 'linear';
+    Node            position; //Dimension, except argument error
+    String          positionValue;
+    String          rectangleDimension = 'x="0" y="0" width="1" height="1"';
+    List<Node>      stops;
+    final Contexts  renderEnv = new Contexts()
                             ..compress = false
                             ..numPrecision = context.numPrecision;
-    String returner;
-    String directionValue = direction.toCSS(renderEnv);
-    int i;
-    Node color; //Color, except argument error
-    Node position; //Dimension, except argument error
-    String positionValue;
-    num alpha;
+    String          returner;
+
+    final String directionValue = direction.toCSS(renderEnv);
 
     if (arguments.length == 2) {
       if (arguments[1].value is! List || arguments[1].value.length < 2) {
@@ -82,11 +82,12 @@ class SvgFunctions extends FunctionBase {
             type: 'Argument',
             message: "svg-gradient direction must be 'to bottom', 'to right', 'to bottom right', 'to top right' or 'ellipse at center'"));
     }
+
     returner = '<?xml version="1.0" ?>' +
         '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none">' +
         '<' + gradientType + 'Gradient id="gradient" gradientUnits="userSpaceOnUse" ' + gradientDirectionSvg + '>';
 
-    for (i = 0; i < stops.length; i++) {
+    for (int i = 0; i < stops.length; i++) {
       if (stops[i] is Expression) {
         color = stops[i].value[0];
         position = stops[i].value[1];
@@ -98,10 +99,12 @@ class SvgFunctions extends FunctionBase {
       if ((color is! Color) || (!((i == 0 || i + 1 == stops.length) && position == null) && !(position is Dimension))) {
         throwArgumentDescriptor();
       }
+
       positionValue = position != null ? position.toCSS(renderEnv) : i == 0 ? "0%" : "100%";
       alpha = (color as Color).alpha;
       returner += '<stop offset="' + positionValue + '" stop-color="' + (color as Color).toRGB() + '"' + (alpha < 1 ? ' stop-opacity="' + alpha.toString() + '"' : '') + '/>';
     }
+    
     returner += '</' + gradientType + 'Gradient>' +
                 '<rect ' + rectangleDimension + ' fill="url(#gradient)" /></svg>';
 

@@ -162,7 +162,7 @@ class TypesFunctions extends FunctionBase {
     }
 
     //String unitValue = (unit.value is String) ? unit.value : unit;
-    String unitValue = (unit is String) ? unit : unit.value;
+    final String unitValue = (unit is String) ? unit : unit.value;
     if(unitValue is! String) {
       throw new LessExceptionError(new LessError(
         type: 'Argument',
@@ -199,7 +199,7 @@ class TypesFunctions extends FunctionBase {
     String unitValue;
 
     if (val is! Dimension) {
-      String p = val is Operation ? '. Have you forgotten parenthesis?' : '';
+      final String p = val is Operation ? '. Have you forgotten parenthesis?' : '';
       throw new LessExceptionError(new LessError(
           type: 'Argument',
           message: 'the first argument to unit must be a number$p'));
@@ -268,7 +268,7 @@ class TypesFunctions extends FunctionBase {
   ///     Output: dotted
   ///
   Node extract(Node values, Node index) {
-    int iIndex = (index.value as num).toInt() - 1; // (1-based index)
+    final int iIndex = (index.value as num).toInt() - 1; // (1-based index)
     //return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
     try {
       return getItemsFromNode(values).elementAt(iIndex);

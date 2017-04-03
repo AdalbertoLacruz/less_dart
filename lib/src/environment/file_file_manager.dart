@@ -24,9 +24,9 @@ class FileFileManager extends FileManager {
   /// Build the directory list where to search the file
   ///
   List<String> createListPaths(String filename, String currentDirectory, Contexts options) {
-    bool isAbsoluteFilename = this.isPathAbsolute(filename);
+    final bool isAbsoluteFilename = this.isPathAbsolute(filename);
 
-    List<String> paths = isAbsoluteFilename ? <String>[''] : <String>[pathLib.normalize(currentDirectory)];
+    final List<String> paths = isAbsoluteFilename ? <String>[''] : <String>[pathLib.normalize(currentDirectory)];
     MoreList.addAllUnique(paths, options.paths, map: (String item) =>  pathLib.normalize(item));
     if (!isAbsoluteFilename) MoreList.addUnique(paths, '.');
 
@@ -39,8 +39,9 @@ class FileFileManager extends FileManager {
   /// Returns a Future with the full path found or null
   ///
   Future<String> findFile(String filename, List<String> paths, [int index = 0]) {
-    Completer<String> task = new Completer<String>();
-    String fullFilename;
+    final Completer<String> task = new Completer<String>();
+    String                  fullFilename;
+
     if (index == 0) filenamesTried.clear(); //first call not recursive
 
     if (index < paths.length) {
@@ -50,7 +51,7 @@ class FileFileManager extends FileManager {
         if (exist) {
           task.complete(fullFilename);
         } else {
-          findFile(filename, paths, ++index).then((String fullFilename){
+          findFile(filename, paths, index + 1).then((String fullFilename){
             task.complete(fullFilename);
           });
         }
@@ -68,8 +69,8 @@ class FileFileManager extends FileManager {
   ///
   String findFileSync(String filename, List<String> paths) {
     String fullFilename;
-    filenamesTried.clear();
 
+    filenamesTried.clear();
     for (int i = 0; i < paths.length; i++) {
       fullFilename = environment.pathJoin(paths[i], filename);
       filenamesTried.add(fullFilename);
@@ -82,12 +83,11 @@ class FileFileManager extends FileManager {
   /// Load Async the file
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
-    Completer<FileLoaded> task = new Completer<FileLoaded>();
+    final Contexts              _options = options ?? new Contexts();
+    final Completer<FileLoaded> task = new Completer<FileLoaded>();
 
-    if (options == null) options = new Contexts();
-
-    if (isTrue(options.syncImport)) {
-      FileLoaded fileLoaded = this.loadFileSync(filename, currentDirectory, options, environment);
+    if (_options.syncImport ?? false) {
+      final FileLoaded fileLoaded = this.loadFileSync(filename, currentDirectory, _options, environment);
       if (fileLoaded.error == null) {
         task.complete(fileLoaded);
       } else {
@@ -96,14 +96,14 @@ class FileFileManager extends FileManager {
       return task.future;
     }
 
-    List<String> paths = createListPaths(filename, currentDirectory, options);
+    final List<String> paths = createListPaths(filename, currentDirectory, _options);
     findFile(filename, paths).then((String fullFilename) {
       if (fullFilename != null) {
         new File(fullFilename).readAsString().then((String data){
           task.complete(new FileLoaded(filename: fullFilename, contents: data));
         });
       } else {
-        LessError error = new LessError(
+        final LessError error = new LessError(
             type: 'File',
             message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
          );
@@ -165,11 +165,12 @@ class FileFileManager extends FileManager {
   /// Load sync the file
   @override
   FileLoaded loadFileSync(String filename, String currentDirectory, Contexts options, Environment environment) {
-    FileLoaded fileLoaded = new FileLoaded();
-    if (options == null) options = new Contexts();
+    final FileLoaded  fileLoaded = new FileLoaded();
+    final Contexts    _options = options ?? new Contexts();
 
-    List<String> paths = createListPaths(filename, currentDirectory, options);
-    String fullFilename = findFileSync(filename, paths);
+    final List<String> paths = createListPaths(filename, currentDirectory, _options);
+    final String fullFilename = findFileSync(filename, paths);
+
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
       fileLoaded.contents = new File(fullFilename).readAsStringSync();
@@ -229,11 +230,12 @@ class FileFileManager extends FileManager {
   ///
   @override
   FileLoaded loadFileAsBytesSync(String filename, String currentDirectory, Contexts options, Environment environment) {
-    FileLoaded fileLoaded = new FileLoaded();
-    if (options == null) options = new Contexts();
+    final FileLoaded  fileLoaded = new FileLoaded();
+    final Contexts    _options = options ?? new Contexts();
 
-    List<String> paths = createListPaths(filename, currentDirectory, options);
-    String fullFilename = findFileSync(filename, paths);
+    final List<String> paths = createListPaths(filename, currentDirectory, _options);
+    final String fullFilename = findFileSync(filename, paths);
+
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
       fileLoaded.codeUnits = new File(fullFilename).readAsBytesSync();
@@ -252,11 +254,12 @@ class FileFileManager extends FileManager {
   ///
   @override
   FileLoaded existSync(String filename, String currentDirectory, Contexts options, Environment environment) {
-    FileLoaded fileLoaded = new FileLoaded();
-    if (options == null) options = new Contexts();
+    final FileLoaded  fileLoaded = new FileLoaded();
+    final Contexts    _options = options ?? new Contexts();
 
-    List<String> paths = createListPaths(filename, currentDirectory, options);
-    String fullFilename = findFileSync(filename, paths);
+    final List<String> paths = createListPaths(filename, currentDirectory, _options);
+    final String fullFilename = findFileSync(filename, paths);
+
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
     } else {

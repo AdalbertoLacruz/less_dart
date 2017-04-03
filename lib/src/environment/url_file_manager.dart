@@ -26,11 +26,11 @@ class UrlFileManager extends FileManager {
   //TODO options.strictSSL
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
-    StringBuffer dataBuffer = new StringBuffer();
-    HttpClient client = new HttpClient();
-    Completer<FileLoaded> task = new Completer<FileLoaded>();
+    final StringBuffer dataBuffer = new StringBuffer();
+    final HttpClient client = new HttpClient();
+    final Completer<FileLoaded> task = new Completer<FileLoaded>();
 
-    String urlStr = isUrlRe.hasMatch( filename ) ? filename : new Uri.file(currentDirectory).resolve(filename);
+    final String urlStr = isUrlRe.hasMatch( filename ) ? filename : new Uri.file(currentDirectory).resolve(filename);
 
     client.getUrl(Uri.parse(urlStr))
     .then((HttpClientRequest request) {
@@ -41,7 +41,7 @@ class UrlFileManager extends FileManager {
         dataBuffer.write(contents);
       }, onDone: (){
         if (response.statusCode == 404) {
-          LessError error = new LessError(
+          final LessError error = new LessError(
                   type: 'File',
                   message: 'resource " $urlStr " was not found\n'
           );
@@ -50,7 +50,7 @@ class UrlFileManager extends FileManager {
         if (dataBuffer.isEmpty) {
           environment.logger.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
         }
-        FileLoaded fileLoaded = new FileLoaded(
+        final FileLoaded fileLoaded = new FileLoaded(
             filename: urlStr,
             contents: dataBuffer.toString()
         );
@@ -58,7 +58,7 @@ class UrlFileManager extends FileManager {
       });
     })
     .catchError((dynamic e, StackTrace s) {
-      LessError error = new LessError(
+      final LessError error = new LessError(
               type: 'File',
               message: 'resource "$urlStr" gave this Error:\n  ${e.message}\n'
       );

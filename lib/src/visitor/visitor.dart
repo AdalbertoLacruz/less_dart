@@ -4,7 +4,7 @@ part of visitor.less;
 
 class Visitor extends VisitorBase {
   VisitorBase _implementation; //Join_Selector_visitor, ...
-  VisitArgs _visitArgs = new VisitArgs(true);
+  VisitArgs   _visitArgs = new VisitArgs(true);
 
   ///
   Visitor(VisitorBase this._implementation);
@@ -15,21 +15,25 @@ class Visitor extends VisitorBase {
     if (node == null) return node;
     if (node is! Node) return node;
 
+    dynamic _node = node;
+
     _visitArgs.visitDeeper = true;
 
-    Function func = _implementation.visitFtn(node);
-    Function funcOut = _implementation.visitFtnOut(node);
+    final Function func = _implementation.visitFtn(_node);
+    final Function funcOut = _implementation.visitFtnOut(_node);
 
     if (func != null) {
-      dynamic newNode = func(node, _visitArgs); //Node or List
-      if (_implementation.isReplacing) node = newNode;
+      final dynamic newNode = func(_node, _visitArgs); //Node or List
+      if (_implementation.isReplacing) _node = newNode;
     }
 
-    if (this._visitArgs.visitDeeper && node != null && (node is Node)) node.accept(this);
+    if (this._visitArgs.visitDeeper && _node != null && (_node is Node)) {
+      _node.accept(this);
+    }
 
-    if (funcOut != null) funcOut(node);
+    if (funcOut != null) funcOut(_node);
 
-    return node;
+    return _node;
 
 //2.3.1
 //  visit: function(node) {
@@ -95,13 +99,13 @@ class Visitor extends VisitorBase {
     // Replacing
     List<T> out = <T>[];
     for (int i = 0; i < nodes.length; i++) {
-      dynamic evald = visit(nodes[i]); //Node | List<Node>
+      final dynamic evald = visit(nodes[i]); //Node | List<Node>
       if (evald == null) continue;
 
       if (evald is! List) {
         out.add(evald);
       } else if (evald.isNotEmpty) {
-        flatten(evald, out);
+        out = flatten(evald, out);
       }
     }
     return out;
@@ -144,8 +148,7 @@ class Visitor extends VisitorBase {
   /// MixinArgs don't need to be flatten and don't must be here
   ///
   List<T> flatten<T>(List<T> arr, List<T> out) {
-    //if (out == null) out = <T>[];
-    out ??= <T>[];
+    List<T> _out = out ?? <T>[];
 
     T item; //Node or List
     int nestedCnt;
@@ -155,9 +158,8 @@ class Visitor extends VisitorBase {
       item = arr[i];
       if (item == null) continue;
 
-      //if (item is Node) {
-      if (item is! List) {
-        out.add(item);
+      if (item is! List) { //Node
+        _out.add(item);
         continue;
       }
 
@@ -166,16 +168,15 @@ class Visitor extends VisitorBase {
       for (int j = 0; j < nestedCnt; j++) {
         nestedItem = (item as List<dynamic>)[j];
         if (nestedItem == null) continue;
-        //if (nestedItem is Node) {
-        if (nestedItem is! List) {
-          out.add(nestedItem);
-        } else if (nestedItem is List) {
-          flatten(nestedItem, out);
+        if (nestedItem is! List) { //Node
+          _out.add(nestedItem);
+        } else if (nestedItem.isNotEmpty) {
+          _out = flatten<T>(nestedItem, _out);
         }
       }
     }
 
-    return out;
+    return _out;
 
 //2.3.1
 //  flatten: function(arr, out) {

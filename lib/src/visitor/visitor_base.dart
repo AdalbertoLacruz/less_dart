@@ -38,13 +38,12 @@ abstract class VisitorBase {
 
    ///
    void error({int index, String type, String message, String filename}) {
-     LessError error = new LessError(
+     throw new LessExceptionError(new LessError(
          index: index,
          type: type,
          message: message,
          filename: filename
-         );
-     throw new LessExceptionError(error);
+         ));
    }
 
    @virtual

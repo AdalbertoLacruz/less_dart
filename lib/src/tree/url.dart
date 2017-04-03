@@ -6,12 +6,11 @@ class URL extends Node {
   @override String    type = 'Url';
   @override covariant Node value;
 
-  int       index;
-  bool      isEvald;
+  int   index;
+  bool  isEvald;
 
   ///
-  URL(Node value, [int this.index, FileInfo currentFileInfo, bool this.isEvald = false]){
-    this.value = value;
+  URL(Node this.value, [int this.index, FileInfo currentFileInfo, bool this.isEvald = false]){
     this.currentFileInfo = currentFileInfo;
   }
 
@@ -44,7 +43,7 @@ class URL extends Node {
   ///
   @override
   URL eval(Contexts context) {
-    Node val = value.eval(context);
+    final Node val = value.eval(context);
     String rootpath;
 
     if (!isEvald) {
@@ -62,11 +61,11 @@ class URL extends Node {
 
       // Add url args if enabled
       if (isNotEmpty(context.urlArgs)) {
-        RegExp reData = new RegExp(r'^\s*data:');
-        Match match = reData.firstMatch(val.value);
+        final RegExp reData = new RegExp(r'^\s*data:');
+        final Match match = reData.firstMatch(val.value);
         if (match == null) {
-          String delimiter = (val.value as String).indexOf('?') == -1 ? '?' : '&';
-          String urlArgs = delimiter + context.urlArgs;
+          final String delimiter = (val.value as String).indexOf('?') == -1 ? '?' : '&';
+          final String urlArgs = delimiter + context.urlArgs;
           if ((val.value as String).indexOf('#') != -1) {
             val.value = (val.value as String).replaceFirst('#', urlArgs + '#');
           } else {

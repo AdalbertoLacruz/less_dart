@@ -18,7 +18,8 @@ class Anonymous extends Node implements CompareNode {
 
   ///
   @override
-  Node eval(Contexts context) => new Anonymous(value, index, currentFileInfo, mapLines, rulesetLike);
+  Node eval(Contexts context) =>
+      new Anonymous(value, index, currentFileInfo, mapLines, rulesetLike);
 
 //2.3.1
 //  Anonymous.prototype.eval = function () {
@@ -29,14 +30,12 @@ class Anonymous extends Node implements CompareNode {
 
   ///
   @override
-  int compare(Node other) {
-    return this.toCSS(null).compareTo(other.toCSS(null));
+  int compare(Node other) => this.toCSS(null).compareTo(other.toCSS(null));
 
 //2.3.1
 //  Anonymous.prototype.compare = function (other) {
 //      return other.toCSS && this.toCSS() === other.toCSS() ? 0 : undefined;
 //  };
-  }
 
   ///
   @override

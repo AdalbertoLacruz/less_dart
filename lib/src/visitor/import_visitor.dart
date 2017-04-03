@@ -3,26 +3,32 @@
 part of visitor.less;
 
 class ImportVisitor extends VisitorBase {
-  ImportManager   importer;
+  Contexts              context;
 
-  Contexts        context;
-  LessError       lessError;
-  ImportDetector  onceFileDetectionMap;
-  ImportDetector  recursionDetector;
-  Visitor         _visitor;
-  List<VariableImport>  variableImports = <VariableImport>[];
+  ImportManager         importer;
+
+  LessError             lessError;
+
+  ImportDetector        onceFileDetectionMap;
+
+  ImportDetector        recursionDetector;
 
   /// visitImport futures for await their completion
-  List<Future<Null>> runners = <Future<Null>>[];
+  List<Future<Null>>    runners = <Future<Null>>[];
 
+  List<VariableImport>  variableImports = <VariableImport>[];
+
+  Visitor               _visitor;
 
   ///
   /// Structure to search for @import in the tree.
   ///
-  ImportVisitor(ImportManager this.importer, [Contexts context, ImportDetector onceFileDetectionMap, ImportDetector recursionDetector]) {
+  ImportVisitor(ImportManager this.importer, [Contexts context,
+      ImportDetector onceFileDetectionMap, ImportDetector recursionDetector]) {
+
     isReplacing = false;
     _visitor = new Visitor(this);
-    this.context = (context != null) ? context : new Contexts.eval();
+    this.context = context ?? new Contexts.eval();
 
     this.onceFileDetectionMap = ImportDetector.own(onceFileDetectionMap);
     this.recursionDetector = ImportDetector.clone(recursionDetector); //own?
@@ -70,19 +76,21 @@ class ImportVisitor extends VisitorBase {
   }
 
   Future<Null> tryRun() {
-    Completer<Null> task = new Completer<Null>();
+    final Completer<Null> task = new Completer<Null>();
     Future.wait(runners, eagerError: true)
     .then((_){
       if (variableImports.isNotEmpty) {
-        VariableImport variableImport = variableImports.removeAt(0);
+        final VariableImport variableImport = variableImports.removeAt(0);
         processImportNode(variableImport.importNode, variableImport.context, variableImport.importParent);
         tryRun()
-          .then((_){task.complete();});
+          .then((_){
+            task.complete();
+          }
+        );
       } else {
         task.complete();
       }
-    })
-    .catchError((Object e) {
+    }).catchError((Object e) {
       task.completeError(e);
     });
     return task.future;
@@ -101,11 +109,11 @@ class ImportVisitor extends VisitorBase {
   /// @import node - recursively load file and parse
   ///
   void visitImport(Import importNode, VisitArgs visitArgs) {
-    bool inlineCSS = isTrue(importNode.options.inline); //include the file, but not process
+    final bool inlineCSS = importNode.options.inline ?? false; //include the file, but not process
 
     if (!importNode.css || inlineCSS) {
-      Contexts context = new Contexts.eval(this.context, this.context.frames.sublist(0));
-      Node importParent = context.frames[0];
+      final Contexts context = new Contexts.eval(this.context, this.context.frames.sublist(0));
+      final Node importParent = context.frames[0];
 
       if (importNode.isVariableImport()) {
         //process this type of imports *last*
@@ -139,17 +147,17 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void processImportNode(Import importNode, Contexts context, Node importParent) {
-    Completer<Null> completer = new Completer<Null>();
+    final Completer<Null> completer = new Completer<Null>();
     runners.add(completer.future);
 
     Import evaldImportNode;
-    bool inlineCSS = isTrue(importNode.options.inline);
+    final bool inlineCSS = importNode.options.inline ?? false;
 
     try {
       //expand @variables in path value, ...
       evaldImportNode = importNode.evalForImport(context);
     } catch (e) {
-        LessError error = LessError.transform(e,
+        final LessError error = LessError.transform(e,
             filename: importNode.currentFileInfo.filename,
             index: importNode.index);
         // attempt to eval properly and treat as css
@@ -159,10 +167,10 @@ class ImportVisitor extends VisitorBase {
     }
 
     if (evaldImportNode != null && (!evaldImportNode.css || inlineCSS)) {
-      if (isTrue(evaldImportNode.options.multiple)) context.importMultiple = true;
+      if (evaldImportNode.options.multiple ?? false) context.importMultiple = true;
 
       // try appending if we haven't determined if it is css or not
-      bool tryAppendLessExtension = !evaldImportNode.css;
+      final bool tryAppendLessExtension = !evaldImportNode.css;
 
       for (int i = 0; i < importParent.rules.length; i++) {
         if (importParent.rules[i] == importNode) {
@@ -175,12 +183,11 @@ class ImportVisitor extends VisitorBase {
         onImported(evaldImportNode, context, importedFile.root, importedFile.importedPreviously,
             importedFile.fullPath).then((_){
           completer.complete();
-        })
-        .catchError((Object e) {
+        }).catchError((Object e) {
           completer.completeError(e);
          });
       }).catchError((Object e, StackTrace s){
-        LessError error = LessError.transform(e,
+        final LessError error = LessError.transform(e,
           index: evaldImportNode.index,
           filename: evaldImportNode.currentFileInfo.filename,
           context: context,
@@ -242,12 +249,12 @@ class ImportVisitor extends VisitorBase {
   /// [root] is String or Ruleset
   ///
   Future<Null> onImported(Import importNode, Contexts context, dynamic root, bool importedAtRoot, String fullPath) {
-    Completer<Null> completer = new Completer<Null>();
-    ImportVisitor importVisitor = this;
-    bool inlineCSS = isTrue(importNode.options.inline);
-    bool duplicateImport = importedAtRoot || recursionDetector.containsKey(fullPath);
+    final Completer<Null> completer = new Completer<Null>();
+    final ImportVisitor importVisitor = this;
+    final bool inlineCSS = importNode.options.inline ?? false;
+    final bool duplicateImport = importedAtRoot || recursionDetector.containsKey(fullPath);
 
-    if(!isTrue(context.importMultiple)) {
+    if(!(context.importMultiple ?? false)) {
       if (duplicateImport) {
         importNode.skip = true;
       } else {

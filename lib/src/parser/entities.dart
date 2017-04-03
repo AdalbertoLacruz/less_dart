@@ -7,9 +7,11 @@ part of parser.less;
 ///
 class Entities {
   Contexts    context;
+
   FileInfo    fileInfo;
-  //Node        node;
+
   ParserInput parserInput;
+
   Parsers     parsers; //To reference parsers.expression() and parsers.entity()
 
 
@@ -23,9 +25,9 @@ class Entities {
   ///     "milky way" 'he\'s the one!'
   ///
   Quoted quoted() {
-    String str;
-    int index = parserInput.i;
-    bool isEscaped = false;
+    final int index = parserInput.i;
+    bool      isEscaped = false;
+    String    str;
 
     parserInput.save();
     if (parserInput.$char('~') != null) isEscaped = true;
@@ -65,12 +67,10 @@ class Entities {
   /// returns Color | Keyword
   ///
   Node keyword() {
-    String k = parserInput.$char("%");
-    if (k == null) k = parserInput.$re(_keywordRegEx);
+    final String k = parserInput.$char("%") ?? parserInput.$re(_keywordRegEx);
 
     if (k != null) {
-      Color color = new Color.fromKeyword(k);
-      return (color != null) ? color : new Keyword(k);
+      return new Color.fromKeyword(k) ?? new Keyword(k);
     }
     return null;
 
@@ -85,6 +85,7 @@ class Entities {
 
   static final RegExp _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
   static final RegExp _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
+
   ///
   /// A function call
   ///
@@ -96,11 +97,11 @@ class Entities {
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
   Node call() {
-    String name;
-    String nameLC;
-    List<Node> args;
-    Node alpha;
-    int index = parserInput.i;
+    Node        alpha;
+    List<Node>  args;
+    final int   index = parserInput.i;
+    String      name;
+    String      nameLC;
 
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.peek(_reCallUrl)) return null;
@@ -204,23 +205,22 @@ class Entities {
 
   static final RegExp _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
   static final RegExp _alphaRegExp2 = new RegExp(r'\d+', caseSensitive: true);
+
   ///
   /// IE's alpha function
   ///
   ///     alpha(opacity=88)
   ///
-  /// return Alpha<Node | String>
+  /// return Alpha<Variable | String>
   //Original in parsers.dart
   Alpha alpha() {
-    dynamic value; // Node | String
-
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.$re(_alphaRegExp1) == null) return null; // i
-    value = parserInput.$re(_alphaRegExp2);  //String
-    if (value == null) {
-      value = parserInput.expect(this.variable, 'Could not parse alpha'); //Variable
-    }
+
+    final dynamic value = parserInput.$re(_alphaRegExp2) //String
+      ?? parserInput.expect(this.variable, 'Could not parse alpha'); //Variable
     parserInput.expectChar(')');
+
     return new Alpha(value);
 
 //2.2.0
@@ -241,12 +241,12 @@ class Entities {
   /// returns List<Assignment | Expression>
   ///
   List<Node> arguments() {
-    List<Node> args = <Node>[];
-    Node arg;
+    Node              arg;
+    final List<Node>  args = <Node>[];
 
     while (true) {
       arg = assignment();
-      if (arg == null) arg = parsers.expression();
+      arg ??= parsers.expression();
       if (arg == null) break;
 
       args.add(arg);
@@ -276,9 +276,9 @@ class Entities {
   ///
   Node literal() {
     Node result = dimension();
-    if (result == null) result = color();
-    if (result == null) result = quoted();
-    if (result == null) result = unicodeDescriptor();
+    result ??= color();
+    result ??= quoted();
+    result ??= unicodeDescriptor();
 
     return result;
 
@@ -292,6 +292,7 @@ class Entities {
   }
 
   static final RegExp _assignmentRegExp = new RegExp(r'\w+(?=\s?=)', caseSensitive: false);
+
   ///
   /// Assignments are argument entities for calls.
   /// They are present in ie filter properties as shown below.
@@ -299,8 +300,8 @@ class Entities {
   ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
   ///
   Assignment assignment() {
-    String        key;
-    Node value;
+    String  key;
+    Node    value;
 
     parserInput.save();
     key = parserInput.$re(_assignmentRegExp);
@@ -347,6 +348,7 @@ class Entities {
   }
 
   static final RegExp _urlRegExp = new RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
+
   ///
   /// Parse url() tokens
   ///
@@ -355,9 +357,8 @@ class Entities {
   /// to be enclosed within a string, so it can't be parsed as an Expression.
   ///
   URL url() {
-    String anonymous;
-    int index = parserInput.i;
-    Node value;
+    final int index = parserInput.i;
+    Node      value;
 
     parserInput.autoCommentAbsorb = false;
 
@@ -367,15 +368,12 @@ class Entities {
     }
 
     value = quoted();
-    if (value == null) value = variable();
-    if (value == null) {
-      anonymous = parserInput.$re(_urlRegExp);
-      if (anonymous == null) anonymous = '';
-      value = new Anonymous(anonymous);
-    }
-    parserInput.autoCommentAbsorb = true;
+    value ??= variable();
+    value ??= new Anonymous(parserInput.$re(_urlRegExp) ?? '');
 
+    parserInput.autoCommentAbsorb = true;
     parserInput.expectChar(')');
+
     return new URL(value, index, fileInfo);
 
 //2.4.0 20150315
@@ -402,6 +400,7 @@ class Entities {
   }
 
   static final RegExp _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
+
   ///
   /// A Variable entity, such as `@fink`, in
   ///
@@ -411,8 +410,8 @@ class Entities {
   /// see `parsers.variable`.
   ///
   Variable variable() {
-    String name;
-    int index = parserInput.i;
+    final int index = parserInput.i;
+    String    name;
 
     if (parserInput.currentChar() == '@') {
       name = parserInput.$re(_variableRegExp);
@@ -431,12 +430,13 @@ class Entities {
   }
 
   static final RegExp _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
+
   ///
   /// A variable entity using the protective {} e.g. @{var}
   ///
   Variable variableCurly() {
-    String curly;
-    int index = parserInput.i;
+    String    curly;
+    final int index = parserInput.i;
 
     if (parserInput.currentChar() == '@' && (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
       return new Variable('@$curly', index, fileInfo);
@@ -454,7 +454,6 @@ class Entities {
    }
 
   static final RegExp _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
-
   static final RegExp _colorRegExp2 = new RegExp(r'#([\w]+).*');
   static final RegExp _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
 
@@ -473,8 +472,8 @@ class Entities {
 
       // strip colons, brackets, whitespaces and other characters that should not
       // definitely be part of color string
-      Match colorCandidateMatch = _colorRegExp2.matchAsPrefix(rgb.input, rgb.start);
-      String colorCandidateString = colorCandidateMatch[1];
+      final Match colorCandidateMatch = _colorRegExp2.matchAsPrefix(rgb.input, rgb.start);
+      final String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
       if (_colorRegExp3.firstMatch(colorCandidateString) == null) {
@@ -502,6 +501,7 @@ class Entities {
   }
 
   static final RegExp _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
+
   ///
   /// A Dimension, that is, a number and a unit
   ///
@@ -510,8 +510,9 @@ class Entities {
   Dimension dimension() {
     if (parserInput.peekNotNumeric()) return null;
 
-    List<String> value = parserInput.$re(_dimensionRegExp);
+    final List<String> value = parserInput.$re(_dimensionRegExp);
     if (value != null) return new Dimension(value[1], value[2]);
+
     return null;
 
 //2.2.0
@@ -535,7 +536,7 @@ class Entities {
   /// U+0??  or U+00A1-00A9
   ///
   UnicodeDescriptor unicodeDescriptor() {
-    String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
+    final String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
     if (ud != null) return new UnicodeDescriptor(ud);
 
     return null;
@@ -559,13 +560,13 @@ class Entities {
   ///     `window.location.href`
   ///
   JavaScript javascript() {
-    String js;
-    int index = parserInput.i;
+    final int index = parserInput.i;
+    String    js;
 
     parserInput.save();
 
-    String escape = parserInput.$char('~');
-    String jsQuote = parserInput.$char('`');
+    final String escape = parserInput.$char('~');
+    final String jsQuote = parserInput.$char('`');
 
     if (jsQuote == null) {
       parserInput.restore();
@@ -577,6 +578,7 @@ class Entities {
       parserInput.forget();
       return new JavaScript(js.substring(0, js.length - 1), escape != null, index, fileInfo);
     }
+    
     parserInput.restore('invalid javascript definition');
     return null;
 

@@ -6,15 +6,14 @@ part of tree.less;
 /// @apply(--mixin-name); directive
 ///
 class Apply extends Node {
-  @override covariant Anonymous value;
   @override String get          name => null;
   @override final String        type = 'Apply';
+  @override covariant Anonymous value;
 
   int       index;
 
   ///
-  Apply(Anonymous value, this.index,FileInfo currentFileInfo){
-    this.value = value;
+  Apply(Anonymous this.value, this.index, FileInfo currentFileInfo) {
     this.currentFileInfo = currentFileInfo;
   }
 

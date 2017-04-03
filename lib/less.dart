@@ -17,7 +17,9 @@ export 'src/file_info.dart';
 export 'src/less_options.dart';
 export 'src/environment/environment.dart';
 export 'src/functions/functions.dart' show FunctionBase, DefineMethod;
+export 'src/parser/parser.dart';
 export 'src/plugins/plugins.dart';
+export 'src/render/render.dart';
 export 'src/tree/tree.dart';
 export 'src/visitor/visitor_base.dart';
 
@@ -72,7 +74,7 @@ class Less {
       String filename = _options.input;
       if (path.extension(filename).isEmpty) filename += '.less';
 
-      File file = new File(filename);
+      final File file = new File(filename);
       if (!file.existsSync()) {
         logger.error('Error cannot open file ${_options.input}');
         currentErrorCode = 3;
@@ -97,8 +99,8 @@ class Less {
   /// Process all arguments: -options and input/output
   ///
   bool argsFilter(List<String> args){
-    RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
-    RegExp regPaths = new RegExp(r'^-I(.+)$', caseSensitive:true);
+    final RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
+    final RegExp regPaths = new RegExp(r'^-I(.+)$', caseSensitive:true);
     Match match;
     bool continueProcessing = true;
 
@@ -126,7 +128,7 @@ class Less {
   }
 
   Future<int> parseLessFile(String data){
-    Parser parser = new Parser(_options);
+    final Parser parser = new Parser(_options);
     return parser.parse(data).then((Ruleset tree){
       RenderResult result;
 
@@ -134,7 +136,7 @@ class Less {
 
       //debug
       if(_options.showTreeLevel == 0) {
-        String css = tree.toTree(_options).toString();
+        final String css = tree.toTree(_options).toString();
         stdout.write(css);
         return new Future<int>.value(currentErrorCode);
       }
@@ -192,10 +194,9 @@ class Less {
         ..writeAsStringSync(content);
       logger.info('lessc: wrote $filename');
     } catch (e) {
-      LessError error = new LessError(
+      throw new LessExceptionError(new LessError(
           type: 'File',
-          message: 'lessc: failed to create file $filename\n${e.toString()}');
-      throw new LessExceptionError(error);
+          message: 'lessc: failed to create file $filename\n${e.toString()}'));
     }
   }
 }

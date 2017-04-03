@@ -22,9 +22,9 @@ class Output {
 
   /// [s] String | Node. (Node.toString())
   void add(Object s, [FileInfo currentFileInfo, int index, bool mapLines]) {
-    if (separator != null) s = compose(s);
-    last = (s is String && s.isNotEmpty) ? s[s.length-1] : ''; //for cleanCss
-    value.write(s);
+    final Object _s = (separator != null) ? compose(s) : s;
+    last = (_s is String && _s.isNotEmpty) ? _s[_s.length-1] : ''; //for cleanCss
+    value.write(_s);
   }
 
   ///
@@ -42,17 +42,14 @@ class Output {
   /// [s] = String | Node
   ///
   String compose(dynamic s) {
-    String result;
-    String source = s is String ? s : s.toString();
-    String separator = this.separator != null ? this.separator : '';
+    final String  source = s is String ? s : s.toString();
+    final String  separator = this.separator ?? '';
     this.separator = null;
 
     if (source.isEmpty) return source;
     if (separators.containsKey(last) && separators[last]) return source;
     if (separators.containsKey(source[0]) && separators[source[0]]) return source;
-
-    result = separator + s;
-    return result;
+    return (separator + s);
   }
 
   @override

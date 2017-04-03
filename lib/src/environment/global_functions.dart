@@ -40,6 +40,6 @@ T negate<T extends num>(T value) {
 /// if n == 0.0 returns '0'
 ///
 String numToString(num n) {
-  int i = n.toInt();
+  final int i = n.toInt();
   return (n == i) ? i.toString() : n.toString();
 }

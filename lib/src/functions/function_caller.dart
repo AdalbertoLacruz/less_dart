@@ -66,7 +66,7 @@ class FunctionCaller {
   /// Search the method in the instances, return true if found
   ///
   bool isValid() {
-    List<FunctionBase> inner = innerCache.sublist(0);
+    final List<FunctionBase> inner = innerCache.sublist(0);
     inner.add(context.defaultFunc != null ? context.defaultFunc : defaultCache);
     inner.addAll(customCache);
     found = null;
@@ -91,11 +91,13 @@ class FunctionCaller {
     // This code is terrible and should be replaced as per this issue...
     // https://github.com/less/less.js/issues/2477
 
-    if (args != null &&  args.isNotEmpty) {
-      args.retainWhere((Node item) => item is! Comment);
-      args = args.map((Node item){
+    List<Node> _args = args;
+
+    if (_args?.isNotEmpty ?? false) {
+      _args.retainWhere((Node item) => item is! Comment);
+      _args = _args.map((Node item){
         if (item is Expression) {
-          List<Node> subNodes = item.value;
+          final List<Node> subNodes = item.value;
           subNodes.retainWhere((Node item) => item is! Comment);
           if (subNodes.length == 1) {
             return subNodes[0];
@@ -108,7 +110,7 @@ class FunctionCaller {
     }
 
     found.init(context, index, currentFileInfo);
-    return found.call(args);
+    return found.call(_args);
 
 
 //2.4.0+2

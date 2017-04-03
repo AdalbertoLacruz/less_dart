@@ -26,9 +26,7 @@ class DetachedRuleset extends Node {
   ///
   @override
   DetachedRuleset eval(Contexts context) {
-    //List<Node> frames = getValueOrDefault(this.frames, context.frames.sublist(0));
-    List<Node> frames = this.frames ?? context.frames.sublist(0);
-    return new DetachedRuleset(ruleset, frames);
+    return new DetachedRuleset(ruleset, this.frames ?? context.frames.sublist(0));
 
 //2.3.1
 //  DetachedRuleset.prototype.eval = function (context) {
@@ -39,7 +37,9 @@ class DetachedRuleset extends Node {
 
   ///
   Ruleset callEval(Contexts context) {
-    Contexts ctx = (frames != null) ? new Contexts.eval(context, frames.sublist(0)..addAll(context.frames)) : context;
+    final Contexts ctx = (frames != null)
+        ? new Contexts.eval(context, frames.sublist(0)..addAll(context.frames))
+        : context;
     return ruleset.eval(ctx);
 
 //2.3.1

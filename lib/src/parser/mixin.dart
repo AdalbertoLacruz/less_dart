@@ -7,12 +7,15 @@ part of parser.less;
  */
 
 class Mixin {
-  Contexts context;
-  ParserInput parserInput;
-  Parsers parsers;
-  Entities entities;
+  Contexts    context;
 
-  FileInfo fileInfo;
+  Entities    entities;
+
+  FileInfo    fileInfo;
+
+  ParserInput parserInput;
+
+  Parsers     parsers;
 
   Mixin(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
     this.fileInfo = context.currentFileInfo;
@@ -34,15 +37,15 @@ class Mixin {
   ///
   MixinCall call() {
     List<MixinArgs> args;
-    String c;
-    String e;
-    int elemIndex;
-    Element elem;
-    List<Element> elements;
-    bool important = false;
-    int index = parserInput.i;
-    String s = parserInput.currentChar();
+    String          c;
+    String          e;
+    //Element         elem;
+    int             elemIndex;
+    List<Element>   elements;
+    bool            important = false;
 
+    final int index = parserInput.i;
+    final String s = parserInput.currentChar();
     if (s != '.' && s != '#') return null;
 
     parserInput.save(); // stop us absorbing part of an invalid selector
@@ -51,12 +54,9 @@ class Mixin {
       elemIndex = parserInput.i;
       e = parserInput.$re(_callRegExp);
       if (e == null) break;
-      elem = new Element(c, e, elemIndex, fileInfo);
-      if (elements != null) {
-        elements.add(elem);
-      } else {
-        elements = <Element>[elem];
-      }
+
+      elements ??= <Element>[];
+      elements.add(new Element(c, e, elemIndex, fileInfo));
       c = parserInput.$char('>');
     }
 
@@ -121,34 +121,40 @@ class Mixin {
 
   ///
   MixinReturner args(bool isCall) {
-    Node arg;
-    List<MixinArgs> argsComma = <MixinArgs>[];
-    List<MixinArgs> argsSemiColon = <MixinArgs>[];
-    bool expressionContainsNamed = false;
-    List<Node> expressions = <Node>[];
-    String name;
-    String nameLoop;
-    bool isSemiColonSeperated = false;
-    MixinReturner returner = new MixinReturner();
-    Node value;
+    Node                  arg;
+    final List<MixinArgs> argsComma = <MixinArgs>[];
+    final List<MixinArgs> argsSemiColon = <MixinArgs>[];
+    bool                  expressionContainsNamed = false;
+    List<Node>            expressions = <Node>[];
+    String                name;
+    String                nameLoop;
+    bool                  isSemiColonSeperated = false;
+    final MixinReturner   returner = new MixinReturner();
+    Node                  value;
 
     parserInput.save();
 
     while (true) {
       if (isCall) {
         arg = parsers.detachedRuleset();
-        if (arg == null) arg = parsers.expression();
+        arg ??= parsers.expression();
       } else {
         parserInput.commentStore.length = 0;
         if (parserInput.$str('...') != null) {
           returner.variadic = true;
-          if (parserInput.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
-          if (isSemiColonSeperated) { argsSemiColon.add(new MixinArgs(variadic: true)); } else { argsComma.add(new MixinArgs(variadic: true)); }
+          if (parserInput.$char(';') != null && !isSemiColonSeperated) {
+            isSemiColonSeperated = true;
+          }
+          if (isSemiColonSeperated) {
+            argsSemiColon.add(new MixinArgs(variadic: true));
+          } else {
+            argsComma.add(new MixinArgs(variadic: true));
+          }
           break;
         }
         arg = entities.variable();
-        if (arg == null) arg = entities.literal();
-        if (arg == null) arg = entities.keyword();
+        arg ??= entities.literal();
+        arg ??= entities.keyword();
       }
 
       if (arg == null) break;
@@ -156,7 +162,7 @@ class Mixin {
       nameLoop = null;
       arg.throwAwayComments();
       value = arg;
-      Node val = null;
+      Node val;
 
       if (isCall) {
         // Variable
@@ -173,7 +179,7 @@ class Mixin {
           }
 
           value = parsers.detachedRuleset();
-          if (value == null) value = parsers.expression();
+          value ??= parsers.expression();
 
           if (value == null) {
             if (isCall) {
@@ -187,8 +193,9 @@ class Mixin {
           nameLoop = (name = val.name);
         } else if (!isCall && parserInput.$str('...') != null) {
           returner.variadic = true;
-          if (parserInput.$char(';') != null && !isSemiColonSeperated) isSemiColonSeperated = true;
-
+          if (parserInput.$char(';') != null && !isSemiColonSeperated) {
+            isSemiColonSeperated = true;
+          }
           if (isSemiColonSeperated) {
             argsSemiColon.add(new MixinArgs(name: arg.name, variadic: true));
           } else {
@@ -342,8 +349,8 @@ class Mixin {
   }
 
   static final RegExp _definitionRegExp = new RegExp(r'([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);
-
   static final RegExp _reDefinition = new RegExp(r'[^{]*\}');
+
   ///
   /// A Mixin definition, with a list of parameters
   ///
@@ -364,12 +371,12 @@ class Mixin {
   /// the `{...}` block.
   ///
   MixinDefinition definition() {
-    Condition cond;
-    int index = parserInput.i; //not in original
-    String name;
+    Condition       cond;
+    final int       index = parserInput.i; //not in original
+    String          name;
     List<MixinArgs> params = <MixinArgs>[];
-    List<Node> ruleset;
-    bool variadic = false;
+    List<Node>      ruleset;
+    bool            variadic = false;
 
     if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') || parserInput.peek(_reDefinition)) return null;
 
@@ -377,7 +384,7 @@ class Mixin {
 
     name = parserInput.$re(_definitionRegExp);
     if (name != null) {
-      MixinReturner argInfo = args(false);
+      final MixinReturner argInfo = args(false);
       params = argInfo.args;
       variadic = argInfo.variadic;
 

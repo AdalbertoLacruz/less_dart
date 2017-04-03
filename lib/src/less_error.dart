@@ -57,16 +57,16 @@ class LessError {
   /// Completes the error with line, col in input
   ///
   void addFileInformation(Contexts context) {
-    if (this.filename == null) this.filename = (context.currentFileInfo != null) ? context.currentFileInfo.filename : null;
-    if (this.type == null) this.type = 'Syntax';
+    this.filename ??=  context.currentFileInfo?.filename;
+    this.type ??= 'Syntax';
 
-    String input = getInput(this.filename, context);
+    final String input = getInput(this.filename, context);
     if (input != null && this.index != null) {
-      LocationPoint loc = Utils.getLocation(this.index, input);
-      int line = loc.line;
-      int col = loc.column;
-      int callLine = (this.call != null) ? Utils.getLocation(this.call, input).line : 0;
-      List<String> lines = input.split('\n');
+      final LocationPoint loc = Utils.getLocation(this.index, input);
+      final int line = loc.line;
+      final int col = loc.column;
+      final int callLine = (this.call != null) ? Utils.getLocation(this.call, input).line : 0;
+      final List<String> lines = input.split('\n');
 
       this.line = (line is num)? line + 1 : null;
       this.callLine = callLine + 1;
@@ -89,14 +89,12 @@ class LessError {
   static LessError transform(Object e, {int index, String filename, String message, String type, StackTrace stackTrace, Contexts context}) {
     LessError error;
     if (e is LessExceptionError) error = e.error;
-    if (error == null) error = (e is LessError) ? e : new LessError();
-    if (error.index == null) error.index = index;
-    if (error.filename == null) error.filename = filename;
-    if (error.message == null) {
-      error.message = (e != null && e is! LessError) ? e.toString() : message;
-    }
-    if (error.type == null) error.type = type;
-    if (error.stack == null) error.stack = stackTrace;
+    error ??= (e is LessError) ? e : new LessError();
+    error.index ??= index;
+    error.filename ??= filename;
+    error.message ??= (e != null && e is! LessError) ? e.toString() : message;
+    error.type ??= type;
+    error.stack ??= stackTrace;
     if (context != null) error.addFileInformation(context);
     return error;
   }
@@ -124,7 +122,11 @@ class LessError {
   ///
   // less/parser.js 1.7.5 lines 270-276
   String getInput(String filename, Contexts context) {
-    if ((filename != null) && (context.currentFileInfo != null) && (context.currentFileInfo.filename != null) && (filename != context.currentFileInfo.filename)) {
+    if ( (filename != null)
+      && (context.currentFileInfo != null)
+      && (context.currentFileInfo.filename != null)
+      && (filename != context.currentFileInfo.filename)) {
+
       return context.imports.contents[filename];
     } else {
       return context.input;
@@ -148,8 +150,7 @@ class LessExceptionError implements Exception {
   bool _color;
 
   LessExceptionError(this.error){
-    _color = this.error.color;
-    if (_color == null) _color = false;
+    _color = this.error.color ?? false;
   }
 
   /// Returns only type and message error
@@ -167,13 +168,14 @@ class LessExceptionError implements Exception {
   ///
   // less/index.js 1.7.5 lines 44-92
   String formatError() {
-    if (error.type == null) error.type = 'Syntax';
-    if (error.message == null) error.message = 'Error:';
-    String message = '';
-    List<String> errorLines = <String>[];
-    String errorTxt;
-    String errorPosition; // '....^'
-    int lineCounterWidth = (error.line + 1).toString().length;
+    final List<String>  errorLines = <String>[];
+    String              errorPosition; // '....^'
+    String              errorTxt;
+    final int           lineCounterWidth = (error.line + 1).toString().length;
+    String              message = '';
+
+    error.type ??= 'Syntax';
+    error.message ??= 'Error:';
 
     if(error.extract[0] != null) {
       errorTxt = stGrey('${formatLineCounter((error.line - 1),lineCounterWidth)} ${error.extract[0]}');
@@ -230,7 +232,8 @@ class LessExceptionError implements Exception {
   // less/lessc_helper.js 1.7.5 lines 07-20
   String stylize(String str, int style) {
     if (!_color) return (str);
-    Map<int, List<int>> styles = <int, List<int>>{
+
+    final Map<int, List<int>> styles = <int, List<int>>{
       STYLE_RESET:      <int>[ 0,  0],
       STYLE_BOLD:       <int>[ 1, 22],
       STYLE_INVERSE:    <int>[ 7, 27],
@@ -240,16 +243,15 @@ class LessExceptionError implements Exception {
       STYLE_RED:        <int>[31, 39],
       STYLE_GREY:       <int>[90, 39]
     };
-    String esc = '\u001b[';
+    const String ESC = '\u001b[';
 
-    return ('$esc${styles[style][0]}m$str$esc${styles[style][1]}m'); //TODO test in linux
-    //return (str);
+    return ('$ESC${styles[style][0]}m$str$ESC${styles[style][1]}m'); //TODO test in linux
   }
 
   @override
   String toString() {
     //if (error.silent) return '';
-    if (error.message == null) error.message = '';
+    error.message ??= '';
     if (error.line == null) error.isSimplyFormat = true;
     return error.isSimplyFormat ? simplyFormatError() : formatError();
   }

@@ -55,7 +55,7 @@ void main() {
 
 void declareTest(int id) {
   final Config c = config[id];
-  String ref = "(#${id.toString()})";
+  final String ref = "(#${id.toString()})";
   test(c.name + ref, () async {
     await runZoned(() async {
       await testRun(id);
@@ -307,6 +307,10 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
   bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
   bool isSourcemapTest: false, Function modifyOptions}) {
 
+  bool                      _isExtendedTest = isExtendedTest;
+  List<String>              _options = options;
+  List<Map<String, String>> _replace = replace;
+
   String baseLess = dirPath + 'less'; //base directory for less sources
   String baseCss  = dirPath + 'css';  //base directory for css comparation
 
@@ -314,35 +318,34 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
     baseLess = dirPath + 'webSourceMap';
     baseCss  = dirPath + 'webSourceMap';
   } else if (isErrorTest) {
-    if (options == null) options = <String>['--strict-math=on', '--strict-units=on'];
-    if (replace == null) {
-      replace = <Map<String, String>>[
-        <String, String>{'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
-        <String, String>{'from': '{pathhref}', 'to': ''},
-        <String, String>{'from': '{404status}', 'to': ''}
-      ];
-    }
+    _options ??= <String>['--strict-math=on', '--strict-units=on'];
+    _replace ??= <Map<String, String>>[
+      <String, String>{'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
+      <String, String>{'from': '{pathhref}', 'to': ''},
+      <String, String>{'from': '{404status}', 'to': ''}
+    ];
   } else if (isCleancssTest) {
     baseCss = dirPath + 'cleancss';
-    isExtendedTest = true;
-    if (options == null) options = <String>['--clean-css'];
+    _isExtendedTest = true;
+    _options ??= <String>['--clean-css'];
   }
-  String CSSName = cssName == null ? name : cssName;
+
+  cssName ??= name;
   return new Config(name)
-    ..lessFile = path.normalize('$baseLess/$name.less')
-    ..cssFile = path.normalize('$baseCss/$CSSName.css')
-    ..errorFile = path.normalize(dirPath + 'less/$name.txt')
-    ..options = options
-    ..replace = replace
-    ..isErrorTest = isErrorTest
-    ..isExtendedText = isExtendedTest
-    ..isReplaceSource = isReplaceSource
-    ..isSourcemapTest = isSourcemapTest
-    ..modifyOptions = modifyOptions;
+      ..lessFile = path.normalize('$baseLess/$name.less')
+      ..cssFile = path.normalize('$baseCss/$cssName.css')
+      ..errorFile = path.normalize(dirPath + 'less/$name.txt')
+      ..options = _options
+      ..replace = _replace
+      ..isErrorTest = isErrorTest
+      ..isExtendedText = _isExtendedTest
+      ..isReplaceSource = isReplaceSource
+      ..isSourcemapTest = isSourcemapTest
+      ..modifyOptions = modifyOptions;
 }
 
 String escFile(String fileName) {
-  String file = fileName.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
+  final String file = fileName.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
         String a = m[1];
         if (a == '\\') a = '\/';
         return '\\' + a;
@@ -355,12 +358,12 @@ String escFile(String fileName) {
 String absPath(String pathName) => path.normalize(path.absolute(pathName)) + path.separator;
 
 Future<Null> testRun(int c) async {
-  List<String> args = <String>[];
-  String fileError = config[c].errorFile;
+  final List<String> args = <String>[];
+  final String fileError = config[c].errorFile;
   String fileOutputName;
-  String fileResult = config[c].cssFile;
-  String fileToTest = config[c].lessFile;
-  Less less = new Less();
+  final String fileResult = config[c].cssFile;
+  final String fileToTest = config[c].lessFile;
+  final Less less = new Less();
 
   args.add('--no-color');
   if (config[c].options != null) args.addAll(config[c].options);
@@ -388,15 +391,15 @@ Future<Null> testRun(int c) async {
   expect(exitCode, isNot(equals(3)));
 
   if (config[c].isSourcemapTest) {
-    String expectedCss = new File(config[c].cssFile).readAsStringSync();
-    String resultCss = new File(fileOutputName).readAsStringSync();
+    final String expectedCss = new File(config[c].cssFile).readAsStringSync();
+    final String resultCss = new File(fileOutputName).readAsStringSync();
     expect(resultCss, equals(expectedCss));
 
-    String mapFileName = path.withoutExtension(config[c].lessFile) + '.map';
-    String expectedMapFileName = path.withoutExtension(config[c].cssFile) + '.map';
+    final String mapFileName = path.withoutExtension(config[c].lessFile) + '.map';
+    final String expectedMapFileName = path.withoutExtension(config[c].cssFile) + '.map';
     if (new File(mapFileName).existsSync()) {
-      String resultMap = new File(mapFileName).readAsStringSync();
-      String expectedResultMap = new File(expectedMapFileName).readAsStringSync();
+      final String resultMap = new File(mapFileName).readAsStringSync();
+      final String expectedResultMap = new File(expectedMapFileName).readAsStringSync();
       expect(resultMap, equals(expectedResultMap));
     }
   } else if (config[c].isErrorTest) {
@@ -455,10 +458,10 @@ Future<Null> testRun(int c) async {
 }
 
 void writeTestResult(int c, String fileType, String content) {
-  String name = dirPath + 'result/TestFile$c.$fileType';
+  final String name = dirPath + 'result/TestFile$c.$fileType';
   new File(name)
-    ..createSync(recursive: true)
-    ..writeAsStringSync(content);
+      ..createSync(recursive: true)
+      ..writeAsStringSync(content);
 }
 
 class Config {
@@ -484,10 +487,11 @@ class TestFileManager extends FileManager {
 
   @override
   bool supports (String filename, String currentDirectory, Contexts options,
-                   Environment environment) => true;
+      Environment environment) => true;
+
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
-    RegExp testRe = new RegExp(r'.*\.test$');
+    final RegExp testRe = new RegExp(r'.*\.test$');
     if (testRe.hasMatch(filename)) {
       return environment.fileManagers[0].loadFile('colors.test', currentDirectory, options, environment);
     }
@@ -500,7 +504,7 @@ class TestFileManagerPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    FileManager fileManager = new TestFileManager(environment);
+    final FileManager fileManager = new TestFileManager(environment);
     pluginManager.addFileManager(fileManager);
   }
 }
@@ -532,7 +536,7 @@ class PluginGlobal extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    FunctionBase fun = new PluginGlobalFunctions();
+    final FunctionBase fun = new PluginGlobalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -542,7 +546,7 @@ class PluginLocal extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    FunctionBase fun = new PluginLocalFunctions();
+    final FunctionBase fun = new PluginLocalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -552,7 +556,7 @@ class PluginTransitive extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    FunctionBase fun = new PluginTransitiveFunctions();
+    final FunctionBase fun = new PluginTransitiveFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -575,7 +579,7 @@ class TestPostProcessorPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    Processor processor = new TestPostProcessor(null);
+    final Processor processor = new TestPostProcessor(null);
     pluginManager.addPostProcessor(processor);
   }
 }
@@ -587,9 +591,9 @@ class TestPreProcessor extends Processor {
 
   @override
   String process(String src, Map<String, dynamic> options) {
-    String injected = '@color: red;\n';
-    Map<String, int> ignored = options['imports'].contentsIgnoredChars;
-    FileInfo fileInfo = options['fileInfo'];
+    final String injected = '@color: red;\n';
+    final Map<String, int> ignored = options['imports'].contentsIgnoredChars;
+    final FileInfo fileInfo = options['fileInfo'];
     if (ignored[fileInfo.filename] == null) ignored[fileInfo.filename] = 0;
     ignored[fileInfo.filename] += injected.length;
 
@@ -604,7 +608,7 @@ class TestPreProcessorPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    Processor processor = new TestPreProcessor(null);
+    final Processor processor = new TestPreProcessor(null);
     pluginManager.addPreProcessor(processor);
   }
 }
@@ -649,7 +653,7 @@ class TestVisitorPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    VisitorBase visitor = new RemoveProperty();
+    final VisitorBase visitor = new RemoveProperty();
     pluginManager.addVisitor(visitor);
   }
 }

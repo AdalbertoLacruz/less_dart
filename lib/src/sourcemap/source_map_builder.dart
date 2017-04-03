@@ -4,11 +4,10 @@ part of sourcemap.less;
 
 //conflict name with SourceMapBuilder dart package. Renamed to LessSourceMapBuilder
 class LessSourceMapBuilder {
-  SourceMapOptions options;
-
-  String sourceMap;    //map contents
-  String sourceMapInputFilename;
-  String sourceMapURL; //map filename or base64 contents
+  SourceMapOptions  options;
+  String            sourceMap;    //map contents
+  String            sourceMapInputFilename;
+  String            sourceMapURL; //map filename or base64 contents
 
   ///
   LessSourceMapBuilder(SourceMapOptions this.options);
@@ -18,7 +17,7 @@ class LessSourceMapBuilder {
   ///
   String toCSS(Ruleset rootNode, Contexts context, ImportManager imports) {
 
-    SourceMapOutput sourceMapOutput = new SourceMapOutput(
+    final SourceMapOutput sourceMapOutput = new SourceMapOutput(
             contentsIgnoredCharsMap: imports.contentsIgnoredChars,
             rootNode: rootNode,
             contentsMap: imports.contents,
@@ -31,7 +30,7 @@ class LessSourceMapBuilder {
             sourceMapFileInline: options.sourceMapFileInline
         );
 
-    String css = sourceMapOutput.toCSS(context).toString();
+    final String css = sourceMapOutput.toCSS(context).toString();
     sourceMap = sourceMapOutput.sourceMap;
     sourceMapURL = sourceMapOutput.sourceMapURL;
     if (options.sourceMapInputFilename.isNotEmpty) {

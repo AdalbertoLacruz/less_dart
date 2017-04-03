@@ -16,7 +16,7 @@ class LesscHelper {
   /// Print command line options
   ///
   static void printUsage() {
-    Logger console = new Logger();
+    final Logger console = new Logger();
 
     console.log("usage: lessc [option option=parameter ...] <source> [destination]");
     console.log("");

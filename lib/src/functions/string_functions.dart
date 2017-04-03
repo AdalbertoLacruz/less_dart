@@ -74,15 +74,16 @@ class StringFunctions extends FunctionBase {
   Quoted replace(Node string, Quoted pattern, Node replacement, [Node flags]) {
     //string, replacement, flags is Quoted ('value') or Keyword (value)
 
-    String flagsValue = flags != null ? flags.value : '';
-    MoreRegExp re = new MoreRegExp(pattern.value, flagsValue);
+    final String flagsValue = flags != null ? flags.value : '';
+    final MoreRegExp re = new MoreRegExp(pattern.value, flagsValue);
 
-    String replacementStr = (replacement is Quoted) ?
-        replacement.value : replacement.toCSS(null);
-    String result = re.replace(string.value, replacementStr);
+    final String replacementStr = (replacement is Quoted)
+      ? replacement.value
+      : replacement.toCSS(null);
+    final String result = re.replace(string.value, replacementStr);
 
-    String quote = (string is Quoted) ? string.quote : '';
-    bool escaped = (string is Quoted) ? string.escaped : false;
+    final String quote = (string is Quoted) ? string.quote : '';
+    final bool escaped = (string is Quoted) ? string.escaped : false;
     return new Quoted(quote, result, escaped);
 
 //2.4.0 20150331
@@ -123,17 +124,19 @@ class StringFunctions extends FunctionBase {
   ///
   @DefineMethod(name: '%', listArguments: true)
   Quoted format(List<Node> args) {
-    Node qstr = args[0];
+    final Node qstr = args[0];
     String result = qstr.value;
-    MoreRegExp sda = new MoreRegExp(r'%[sda]','i');
-    RegExp az = new RegExp(r'[A-Z]$', caseSensitive: true);
+    final MoreRegExp sda = new MoreRegExp(r'%[sda]','i');
+    final RegExp az = new RegExp(r'[A-Z]$', caseSensitive: true);
 
+    String value;
     for (int i = 1; i < args.length; i++) {
       result = sda.replaceMap(result, (Match m) {
-        String value =  (args[i] is Quoted &&  m[0].toLowerCase() == '%s') ? args[i].value : args[i].toCSS(context);
+        value =  (args[i] is Quoted &&  m[0].toLowerCase() == '%s') ? args[i].value : args[i].toCSS(context);
         return az.hasMatch(m[0]) ? Uri.encodeComponent(value) : value;
       });
     }
+    
     result.replaceAll(new RegExp(r'%%'), '%');
     if (qstr is Quoted) {
       //return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);

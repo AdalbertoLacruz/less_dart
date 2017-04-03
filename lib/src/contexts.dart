@@ -145,24 +145,22 @@ class Contexts {
   //2.2.0 TODO
   Contexts.parse(dynamic options){
     if (options == null) return;
+
     parseCopyProperties(options);
 
-    if (contents == null) contents = <String, String>{};
-    if (contentsIgnoredChars == null) contentsIgnoredChars = <String, int>{};
-    if (files == null) files = <String, Node>{};
-//      if (this.paths is "String") this.paths = [this.paths];
+    contents ??= <String, String>{};
+    contentsIgnoredChars ??= <String, int>{};
+    files ??= <String, Node>{};
 
     if (currentFileInfo == null) {
-      //String filename = options.filename != '' ? options.filename : 'input';
-      String filename = (options.filename?.isNotEmpty ?? false)
-        ? options.filename
-        : 'input';
-      String entryPath = filename.replaceAll(new RegExp(r'[^\/\\]*$'), '');
-      if (options != null) options.filename = null;
+      final String filename = (options.filename?.isNotEmpty ?? false) ? options.filename : 'input';
+      final String entryPath = filename.replaceAll(new RegExp(r'[^\/\\]*$'), '');
+      options.filename = null;
+
       currentFileInfo = new FileInfo()
             ..filename = filename
             ..relativeUrls = relativeUrls
-            ..rootpath = (options != null && options.rootpath != null) ? options.rootpath : ''
+            ..rootpath = options.rootpath ?? ''
             ..currentDirectory = entryPath
             ..entryPath = entryPath
             ..rootFilename = filename;
@@ -202,7 +200,7 @@ class Contexts {
     cleanCss            = options.cleanCss;
 
     if (options is Contexts) {
-      Contexts context  = options;
+      final Contexts context  = options;
 
       files                 = context.files;
       contents              = context.contents;
@@ -217,10 +215,11 @@ class Contexts {
   ///
   //2.2.0 TODO
   factory Contexts.eval([dynamic options, List<Node> frames]) {
-    Contexts context = new Contexts();
-    evalCopyProperties(context, options);
+    final Contexts context = new Contexts();
 
-    context.frames          = (frames != null) ? frames : <Node>[];
+    evalCopyProperties(context, options);
+    context.frames = frames ?? <Node>[];
+
     return context;
 
 //2.4.0 20150315
@@ -255,8 +254,9 @@ class Contexts {
 //    newctx.importantScope     = options.importantScope; // Used to bubble up !important statements. TODO 2.2.0
     newctx.paths              = options.paths;
     newctx.cleanCss           = options.cleanCss;
+
     if (options is Contexts) {
-      Contexts context  = options;
+      final Contexts context  = options;
 
       newctx.defaultFunc    = context.defaultFunc;
       newctx.importantScope = context.importantScope;
@@ -299,7 +299,7 @@ class Contexts {
 
   ///
   bool isPathRelative(String path) {
-    RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
+    final RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
     return !re.hasMatch(path);
 
 //2.4.0
@@ -312,9 +312,9 @@ class Contexts {
   /// Resolves '.' and '..' in the path
   ///
   String normalizePath(String path) {
-    List<String> segments = path.split('/').reversed.toList();
-    String segment;
-    List<String> pathList = <String>[];
+    final List<String>  pathList = <String>[];
+    String              segment;
+    final List<String>  segments = path.split('/').reversed.toList();
 
     while (segments.isNotEmpty) {
       segment = segments.removeLast();

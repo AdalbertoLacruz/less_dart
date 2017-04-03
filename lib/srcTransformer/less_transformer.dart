@@ -8,7 +8,7 @@ class LessTransformer extends BaseTransformer {
   Future<LessTransformer> transform(List<String> args) {
     timerStart();
 
-    Completer<LessTransformer> task = new Completer<LessTransformer>();
+    final Completer<LessTransformer> task = new Completer<LessTransformer>();
 
     flags = args.sublist(0);
     switch (buildMode) {
@@ -27,7 +27,7 @@ class LessTransformer extends BaseTransformer {
     deliverToPipe = isBuildModeMixed || isBuildModeDart;
 
     runZoned((){
-      Less less = new Less();
+      final Less less = new Less();
       less.stdin.write(inputContent);
       less.transform(args, modifyOptions: modifyOptions).then((int exitCode){
         timerStop();

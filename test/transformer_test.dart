@@ -12,7 +12,7 @@ String load(String path) => new File(path).readAsStringSync();
 Future<Null> main () async {
   group('EntryPoints', () {
     test('default, not unique', () {
-      EntryPoints entryPoints = new EntryPoints();
+      final EntryPoints entryPoints = new EntryPoints();
 
       entryPoints.assureDefault(<String>['*.less', '*.html']);
       expect(entryPoints.check(r'/web/test.less'), isTrue);
@@ -20,7 +20,7 @@ Future<Null> main () async {
     });
 
     test('exclusion, unique', () {
-      EntryPoints entryPoints = new EntryPoints();
+      final EntryPoints entryPoints = new EntryPoints();
       entryPoints.addPaths(<String>['web/test.less', 'web/dir1/*/dir4/*.html', '!/dir3/dir4/*.html']);
       entryPoints.assureDefault(<String>['*.less', '*.html']);
 
@@ -31,14 +31,14 @@ Future<Null> main () async {
   });
 
   test('HTML transformer', () async {
-    String content = load('test/transformer/index_source.html');
+    final String content = load('test/transformer/index_source.html');
     HtmlTransformer htmlProcess = new HtmlTransformer(content, 'transformer/index.html', null);
     htmlProcess = await htmlProcess.transform(<String>['-no-color']);
     expect(htmlProcess.outputContent, equals(load('test/transformer/index_result.html')));
   });
 
   test('LESS transformer', () async {
-    String content = load('test/less/charsets.less');
+    final String content = load('test/less/charsets.less');
     LessTransformer lessProcess = new LessTransformer(content, 'charsets.less', 'charsets.css', 'dart', null);
     lessProcess = await lessProcess.transform(<String>['--no-color', '--include-path=test/less']);
     expect(lessProcess.outputContent, equals(load('test/css/charsets.css')));

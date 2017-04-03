@@ -42,10 +42,15 @@ class EntryPoints {
   /// Creates a RegExp from a path with wildcards and normalize
   ///
   RegExp toRegExp(String path) {
+    /*
     path = path.replaceAll(r'\', r'/'); //normalize
     path = path.replaceAll(r'/', r'\/');
     path = path.replaceAll('*', r'(.)*');
     return new RegExp(path, caseSensitive: false);
+     */
+    return new RegExp(path.replaceAll(r'\', r'/')
+                          .replaceAll(r'/', r'\/')
+                          .replaceAll('*', r'(.)*'), caseSensitive: false);
   }
 
   ///

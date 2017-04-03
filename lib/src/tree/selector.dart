@@ -6,16 +6,16 @@ part of tree.less;
 class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   @override final String type = 'Selector';
 
-  Node          condition;
-  String        _css;
+  Node            condition;
+  String          _css;
   // Cached string elements List, such as ['#selector1', .., '.selectorN']
-  List<String>  _elements;
+  List<String>    _elements;
   //  List<Element> elements; //body, ...
   List<Extend>    extendList;
-  bool          evaldCondition = false;
-  int           index;
-  bool          isReferenced = false;
-  bool          mediaEmpty = false;
+  bool            evaldCondition = false;
+  int             index;
+  bool            isReferenced = false;
+  bool            mediaEmpty = false;
 
   /// String Elements List
   List<String> get strElements {
@@ -24,11 +24,12 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   /// Changed List<Node> to List<Element>
-  Selector (List<Element> elements, [List<Extend> this.extendList, Node this.condition, int this.index,
-                            FileInfo currentFileInfo, bool this.isReferenced]) {
+  Selector (List<Element> elements, [List<Extend> this.extendList,
+        Node this.condition, int this.index, FileInfo currentFileInfo,
+        bool this.isReferenced]) {
+
     this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
-    this.currentFileInfo = currentFileInfo;
-    if (this.currentFileInfo == null) this.currentFileInfo = new FileInfo();
+    this.currentFileInfo = currentFileInfo ?? new FileInfo();
     if (this.condition == null) this.evaldCondition = true;
 
 //2.3.1
@@ -67,11 +68,10 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   Selector createDerived(List<Element> elements, [List<Extend> extendList, bool evaldCondition]) {
-    evaldCondition = (evaldCondition != null)? evaldCondition : this.evaldCondition;
-
-    Selector newSelector = new Selector(elements, extendList != null ? extendList : this.extendList, null,
-        index, currentFileInfo, isReferenced)
-        ..evaldCondition = evaldCondition
+    //final Selector newSelector = new Selector(elements, extendList != null ? extendList : this.extendList, null,
+    final Selector newSelector = new Selector(elements, extendList ?? this.extendList,
+        null, index, currentFileInfo, isReferenced)
+        ..evaldCondition = evaldCondition ?? this.evaldCondition
         ..mediaEmpty = mediaEmpty;
     return newSelector;
 
@@ -87,8 +87,8 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   List<Selector> createEmptySelectors() {
-    Element el = new Element('', '&', index, currentFileInfo);
-    List<Selector> sels = <Selector>[new Selector(<Element>[el], null, null, index, currentFileInfo)];
+    final Element el = new Element('', '&', index, currentFileInfo);
+    final List<Selector> sels = <Selector>[new Selector(<Element>[el], null, null, index, currentFileInfo)];
     sels[0].mediaEmpty = true;
     return sels;
 
@@ -107,8 +107,8 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   /// Returns number of matched Selector elements if match. 0 means not match.
   ///
   int match(Selector other) {
-    List<String> thisStrElements = this.strElements;
-    List<String> otherStrElements = other.strElements;
+    final List<String> thisStrElements = this.strElements;
+    final List<String> otherStrElements = other.strElements;
 
     if (otherStrElements.isEmpty || thisStrElements.length < otherStrElements.length) {
       return 0;
@@ -167,7 +167,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   void cacheElements() {
     String css;
-    RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
+    final RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
     if (_elements != null) return; // cache exist
 
@@ -176,7 +176,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
           + ((v.value is String) ? v.value : (v.value as Node).toCSS(null)); //ex. v.value Dimension
     }).toList().join('');
 
-    Iterable<Match> matchs = re.allMatches(css);
+    final Iterable<Match> matchs = re.allMatches(css);
     if (matchs != null) {
       _elements = matchs.map((Match m) => m[0]).toList();
       if (_elements.isNotEmpty && _elements[0] == '&') _elements.removeAt(0);

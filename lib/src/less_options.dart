@@ -170,11 +170,11 @@ class LessOptions {
   /// Let process @options directives
   ///
   bool fromCommandLine(String line) {
-    RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
-    Match match;
-    bool result = true;
+    Match         match;
+    final RegExp  regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
+    bool          result = true;
 
-    List<String> args = line.split(' ');
+    final List<String> args = line.split(' ');
     args.forEach((String arg){
       if ((match = regOption.firstMatch(arg)) != null){
         result = result && parse(match);
@@ -190,7 +190,7 @@ class LessOptions {
   ///
   bool parse(Match arg) {
     if (arg == null) return setParseError('empty');
-    String command = arg[1];
+    final String command = arg[1];
     //bool result;
 
     switch (command) {
@@ -355,10 +355,10 @@ class LessOptions {
         } else return setParseError(command);
         break;
       case 'plugin':
-        Match splitupArg = pluginRe.firstMatch(arg[2]);
-        String name = splitupArg[1];
-        String pluginOptions = splitupArg[3];
-        Plugin plugin = pluginLoader.tryLoadPlugin(name, pluginOptions);
+        final Match  splitupArg = pluginRe.firstMatch(arg[2]);
+        final String name = splitupArg[1];
+        final String pluginOptions = splitupArg[3];
+        final Plugin plugin = pluginLoader.tryLoadPlugin(name, pluginOptions);
 
         if (plugin != null) {
           plugins.add(plugin);
@@ -370,7 +370,7 @@ class LessOptions {
         }
         break;
       default:
-        Plugin plugin = pluginLoader.tryLoadPlugin('less-plugin-' + command, arg[2]);
+        final Plugin plugin = pluginLoader.tryLoadPlugin('less-plugin-' + command, arg[2]);
         if (plugin != null) {
           plugins.add(plugin);
         } else {
@@ -405,8 +405,9 @@ class LessOptions {
   /// if not boolean returns null
   ///
   bool checkBooleanArg(String arg) {
-    RegExp onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
-    Match match;
+    Match         match;
+    final RegExp  onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
+
     if ((match = onOff.firstMatch(arg)) == null){
       logger.error(' unable to parse $arg as a boolean. Use one of on/t/true/y/yes/off/f/false/n/no');
       return null;
@@ -418,7 +419,7 @@ class LessOptions {
 
   ///
   void parseVariableOption(String option, List<VariableDefinition> variables) {
-    List<String> parts = option.split('=');
+    final List<String> parts = option.split('=');
     variables.add(new VariableDefinition(parts[0], parts[1]));
 
 //2.4.0
@@ -446,7 +447,7 @@ class LessOptions {
     pluginLoader.define(name, plugin);
 
     if(load) {
-      Plugin pluginLoaded = pluginLoader.tryLoadPlugin(name, options);
+      final Plugin pluginLoaded = pluginLoader.tryLoadPlugin(name, options);
       if (pluginLoaded != null) plugins.add(pluginLoaded);
     }
   }
@@ -460,8 +461,7 @@ class LessOptions {
       filename  = input;
       if (input != '-') {
         //input = path.normalize(path.absolute(input)); //use absolute path
-        String inputDirName = new File(input).parent.path;
-        paths.insert(0, inputDirName);
+        paths.insert(0, new File(input).parent.path);
       }
     } else {
       logger.error('lessc: no input files\n');
@@ -490,9 +490,9 @@ class LessOptions {
         sourceMapOptions.sourceMapFilename = path.basename(sourceMapOptions.sourceMapFullFilename);
 
       } else if (!sourceMapOptions.sourceMapFileInline) {
-        String mapFilename = path.absolute(sourceMapOptions.sourceMapFullFilename);
-        String mapDir = path.dirname(mapFilename);
-        String outputDir = path.dirname(output);
+        final String mapFilename = path.absolute(sourceMapOptions.sourceMapFullFilename);
+        final String mapDir = path.dirname(mapFilename);
+        final String outputDir = path.dirname(output);
 
         // find the path from the map to the output file
         sourceMapOptions.sourceMapOutputFilename = path.normalize(path.join(
@@ -510,10 +510,10 @@ class LessOptions {
     }
 
     if (sourceMapOptions.sourceMapRootpath.isEmpty) {
-      String pathToMap = path.dirname(sourceMapOptions.sourceMapFileInline
+      final String pathToMap = path.dirname(sourceMapOptions.sourceMapFileInline
           ? output
           : sourceMapOptions.sourceMapFullFilename);
-      String pathToInput = path.dirname(sourceMapOptions.sourceMapInputFilename);
+      final String pathToInput = path.dirname(sourceMapOptions.sourceMapInputFilename);
       sourceMapOptions.sourceMapRootpath = path.relative(pathToMap, from: pathToInput);
     }
 
@@ -529,7 +529,7 @@ class LessOptions {
   }
 
   LessOptions clone() {
-    LessOptions op = new LessOptions();
+    final LessOptions op = new LessOptions();
 
     op.silent           = this.silent;
     op.verbose          = this.verbose;

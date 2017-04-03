@@ -11,10 +11,11 @@ class MixinCall extends Node {
   Selector        selector;
 
   ///
-  MixinCall(List<Node> elements, List<MixinArgs> args, int this.index, FileInfo currentFileInfo, bool this.important) {
+  MixinCall(List<Node> elements, List<MixinArgs> args, int this.index,
+        FileInfo currentFileInfo, bool this.important) {
     this.currentFileInfo = currentFileInfo;
     selector = new Selector(elements);
-    if (args != null && args.isNotEmpty) this.arguments = args;
+    if (args?.isNotEmpty ?? false) this.arguments = args;
 
 //2.3.1
 //  var MixinCall = function (elements, args, index, currentFileInfo, important) {
@@ -50,20 +51,21 @@ class MixinCall extends Node {
   //List<Node> eval(Contexts context) {
   @override
   Node eval(Contexts context) {
-    List<MixinFound> mixins;
-    MatchConditionNode mixin;
-    List<Node> mixinPath;
-    List<MixinArgs> args;
-    List<Node> rules = <Node>[];
-    bool match = false;
+    List<MixinArgs>       args;
+    Candidate             candidate;
+    final List<Candidate> candidates = <Candidate>[];
+    final List<bool>      conditionResult = <bool>[null, null];
+    int                   defaultResult;
+    bool                  isOneFound = false;
+    bool                  isRecursive;
+    bool                  match = false;
+    MatchConditionNode    mixin;
+    List<Node>            mixinPath;
+    List<MixinFound>      mixins;
+    Node                  rule;
+    final List<Node>      rules = <Node>[];
+
     int i, m, f; // for counters
-    bool isRecursive;
-    bool isOneFound = false;
-    Node rule;
-    List<Candidate> candidates = <Candidate>[];
-    Candidate candidate;
-    List<bool> conditionResult = <bool>[null, null];
-    int defaultResult;
 
     DefaultFunc defaultFunc;
     if (context.defaultFunc == null) {
@@ -72,7 +74,7 @@ class MixinCall extends Node {
       defaultFunc = context.defaultFunc;
     }
 
-    int defFalseEitherCase = -1;
+    final int defFalseEitherCase = -1;
 
     final int defNone = 0;
     final int defTrue = 1;
@@ -130,7 +132,9 @@ class MixinCall extends Node {
           mixinPath = mixins[m].path;
           isRecursive = false;
           for (f = 0; f < context.frames.length; f++) {
-            if ((mixin is! MixinDefinition) && (mixin == context.frames[f].originalRuleset || mixin == context.frames[f])) {
+            if ((mixin is! MixinDefinition)
+                && ((mixin as Node) == context.frames[f].originalRuleset
+                    || (mixin as Node) == context.frames[f])) {
               isRecursive = true;
               break;
             }
@@ -169,7 +173,7 @@ class MixinCall extends Node {
         }
 
         for (m = 0; m < candidates.length; m++) {
-          int candidateGroup = candidates[m].group;
+          final int candidateGroup = candidates[m].group;
           if (candidateGroup == defNone || candidateGroup == defaultResult) {
             try {
               mixin = candidates[m].mixin;
@@ -184,11 +188,10 @@ class MixinCall extends Node {
             } catch (e, s) {
 //              print("$e, $s");
               //in js creates a new error and lost type: NameError -> SyntaxError
-              LessError error = LessError.transform(e,
+              throw new LessExceptionError(LessError.transform(e,
                   index: index,
                   filename: currentFileInfo.filename,
-                  stackTrace: s);
-              throw new LessExceptionError(error);
+                  stackTrace: s));
             }
           }
         }
@@ -358,17 +361,19 @@ class MixinCall extends Node {
 
   /// Returns a String with the Mixin arguments
   String format(List<MixinArgs> args) {
-    String result = selector.toCSS(null).trim();
-    String argsStr = (args != null)? args.map((MixinArgs a){
-      String argValue = '';
-      if (isNotEmpty(a.name)) argValue += a.name + ':';
-      if (a.value is Node) {
-        argValue += a.value.toCSS(null);
-      } else {
-        argValue += '???';
-      }
-      return argValue;
-    }).toList().join(', ') : '';
+    final String result = selector.toCSS(null).trim();
+    final String argsStr = (args != null)
+        ? args.map((MixinArgs a) {
+            String argValue = '';
+            if (isNotEmpty(a.name)) argValue += a.name + ':';
+            if (a.value is Node) {
+              argValue += a.value.toCSS(null);
+            } else {
+              argValue += '???';
+            }
+            return argValue;
+          }).toList().join(', ')
+        : '';
 
     return result + '(' + argsStr + ')';
 

@@ -86,7 +86,7 @@ class FileManager {
   /// Append a [ext] extension to [path] if appropriate.
   ///
   String tryAppendExtension(String path, String ext) {
-    RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
+    final RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
     return re.hasMatch(path) ? path : path + ext;
 
 //2.4.0 20150226
@@ -112,12 +112,10 @@ class FileManager {
   ///
   bool alwaysMakePathsAbsolute() => false;
 
-
   ///
   /// Returns whether a path is absolute
   ///
-  bool isPathAbsolute(String path) {
-    return pathLib.isAbsolute(path);
+  bool isPathAbsolute(String path) => pathLib.isAbsolute(path);
 
 // valid dart implementation
 //    RegExp re = new RegExp(r'^(?:[a-z-]+:|\/|\\|#)', caseSensitive: false);
@@ -127,13 +125,12 @@ class FileManager {
 //  abstractFileManager.prototype.isPathAbsolute = function(filename) {
 //      return (/^(?:[a-z-]+:|\/|\\|#)/i).test(filename);
 //  };
-  }
+
 
   ///
   /// Joins together 2 paths
   ///
-  String join(String basePath, String laterPath) {
-    return pathLib.join(basePath, laterPath);
+  String join(String basePath, String laterPath) => pathLib.join(basePath, laterPath);
 
 //valid dart implementation
 //    if (basePath == null) return laterPath;
@@ -146,7 +143,6 @@ class FileManager {
 //    }
 //    return basePath + laterPath;
 //};
-  }
 
   ///
   /// Returns the difference between 2 paths to create a relative path
@@ -156,16 +152,16 @@ class FileManager {
   ///   url = 'a/b/' baseUrl = 'a/'   returns 'b/'
   ///
   String pathDiff(String url, String baseUrl) {
-    UrlParts urlParts = extractUrlParts(url);
-    UrlParts baseUrlParts = extractUrlParts(baseUrl);
-    List<String> urlDirectories;
-    List<String> baseUrlDirectories;
-    int i;
-    String diff = '';
+    List<String>    baseUrlDirectories;
+    final UrlParts  baseUrlParts = extractUrlParts(baseUrl);
+    String          diff = '';
+    int             i;
+    List<String>    urlDirectories;
+    final UrlParts  urlParts = extractUrlParts(url);
 
     if (urlParts.hostPart != baseUrlParts.hostPart) return '';
 
-    int max = math.max(baseUrlParts.directories.length, urlParts.directories.length);
+    final int max = math.max(baseUrlParts.directories.length, urlParts.directories.length);
 
     for (i = 0; i < max; i++) {
       if (baseUrlParts.directories[i] != urlParts.directories[i]) break;
@@ -216,8 +212,9 @@ class FileManager {
     // urlParts[4] = filename
     // urlParts[5] = parameters
 
-    RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
-    List<String> urlParts = <String>[];
+    final RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
+    final List<String> urlParts = <String>[];
+
     Match match = urlPartsRegex.firstMatch(url);
     if (match != null) {
       for (int i = 0; i < match.groupCount; i++) {
@@ -225,12 +222,12 @@ class FileManager {
       }
     }
 
-    UrlParts returner = new UrlParts();
+    final UrlParts returner = new UrlParts();
     List<String> directories;
     //String baseUrlParts;
 
     if (urlParts.isEmpty) {
-      LessError error = new LessError(
+      final LessError error = new LessError(
                 message: "Could not parse sheet href - '$url'");
       throw new LessExceptionError(error);
     }
@@ -238,7 +235,7 @@ class FileManager {
     // Stylesheets in IE don't always return the full path
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
       match = urlPartsRegex.firstMatch(baseUrl);
-      List<String> baseUrlParts = <String>[];
+      final List<String> baseUrlParts = <String>[];
       if (match != null) {
         for (int i = 0; i < match.groupCount; i++) {
           baseUrlParts.add(match[i]);
@@ -246,7 +243,7 @@ class FileManager {
       }
 
       if (baseUrlParts.isEmpty) {
-        LessError error = new LessError(
+        final LessError error = new LessError(
                   message: "Could not parse page url - '$baseUrl'");
         throw new LessExceptionError(error);
       }
@@ -271,8 +268,13 @@ class FileManager {
       }
     }
 
-    for (int i = 0; i < urlParts.length; i ++) if (urlParts[i] == null) urlParts[i] = '';
-    for (int i = urlParts.length; i < 6; i++) urlParts.add('');
+    for (int i = 0; i < urlParts.length; i ++) {
+      if (urlParts[i] == null) urlParts[i] = '';
+    }
+    
+    for (int i = urlParts.length; i < 6; i++) {
+      urlParts.add('');
+    }
 
     returner.hostPart = urlParts[1];
     returner.directories = directories;

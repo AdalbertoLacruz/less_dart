@@ -6,9 +6,11 @@ class AdvancedColorFunctions extends ColorFunctions {
   /// Inverts the luma of a color giving a version darken or lighter than the original
   ///
   Color invertluma(Color color) {
-    HSLType hsl = color.toHSL();
+    final HSLType hsl = color.toHSL();
+
     hsl.l = 1 - hsl.l;
     hsl.l = clamp(hsl.l);
+
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
 //      invertluma: function( color ){
@@ -25,11 +27,11 @@ class AdvancedColorFunctions extends ColorFunctions {
   ///
   Color contrastmore(Color color1, Color color2, [Dimension minLumaDifferenceDim]) {
     Color autocontrast = color2;
-    double lumadif = (color1.luma() - autocontrast.luma()).abs();
-    HSLType hsl = autocontrast.toHSL();
+    final double lumadif = (color1.luma() - autocontrast.luma()).abs();
+    final HSLType hsl = autocontrast.toHSL();
     double missingLumaDif;
     double newluma;
-    double minLumaDifference = (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
+    final double minLumaDifference = (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
       missingLumaDif = minLumaDifference - lumadif;
@@ -82,16 +84,16 @@ class AdvancedColorFunctions extends ColorFunctions {
   ///
   Color autocontrast(Color color1, Color color2, [Dimension minLumaDifferenceDim]) {
     Color autocontrast = color2;
-    double lumadif = (color1.luma() - autocontrast.luma()).abs();
-    HSLType hsl = autocontrast.toHSL();
+    final double lumadif = (color1.luma() - autocontrast.luma()).abs();
+    final HSLType hsl = autocontrast.toHSL();
     double newLuma = hsl.l;
     double missingLuma;
 
-    double minLumaDifference = (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
+    final double minLumaDifference = (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
       missingLuma = minLumaDifference - lumadif;
-      newLuma += ( missingLuma * ( color1.luma() < newLuma != 0 ? 1 : -1  ) );
+      newLuma += ( missingLuma * ( color1.luma() < newLuma ? 1 : -1  ) );
       if( newLuma > 1 || newLuma < 0 ) newLuma = 1 - hsl.l;
       newLuma = clamp( newLuma );
       hsl.l = newLuma;

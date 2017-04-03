@@ -32,13 +32,17 @@ part of parser.less;
 ///  first, before parsing, that's when we use `peek()`.
 ///
 class Parsers {
-  String input;
-  Contexts context;
-  ParserInput parserInput;
+  Contexts    context;
 
-  Entities entities;
-  FileInfo fileInfo;
-  Mixin mixin;
+  Entities    entities;
+
+  FileInfo    fileInfo;
+
+  String      input;
+
+  Mixin       mixin;
+
+  ParserInput parserInput;
 
   Parsers(String this.input, Contexts this.context){
     context.input = input;
@@ -64,9 +68,9 @@ class Parsers {
   /// block rule: at the root level.
   ///
   List<Node> primary(){
-    Node node;
-    List<Node> nodeList;
-    List<Node> root = <Node>[];
+    Node              node;
+    List<Node>        nodeList;
+    final List<Node>  root = <Node>[];
 
     while(true){
       while(true) {
@@ -86,11 +90,11 @@ class Parsers {
       }
 
       node = mixin.definition();
-      if (node == null) node = rule();
-      if (node == null) node = ruleset();
-      if (node == null) node = mixin.call();
-      if (node == null) node = rulesetCall();
-      if (node == null) node = directive();
+      node ??= rule();
+      node ??= ruleset();
+      node ??= mixin.call();
+      node ??= rulesetCall();
+      node ??= directive();
 
       if (node != null) {
         root.add(node);
@@ -160,7 +164,7 @@ class Parsers {
   ///
   Comment comment(){
     if (parserInput.commentStore.isNotEmpty) {
-      CommentPointer comment = parserInput.commentStore.removeAt(0);
+      final CommentPointer comment = parserInput.commentStore.removeAt(0);
       return new Comment(comment.text, comment.isLineComment, comment.index, context.currentFileInfo);
     }
     return null;
@@ -230,9 +234,8 @@ class Parsers {
   List<Extend> extend([bool isRule = false]) {
     Element       e;
     List<Element> elements;
-    Extend        extend;
     List<Extend>  extendedList;
-    int           index = parserInput.i;
+    final int     index = parserInput.i;
     String        option;
 
     if (parserInput.$str(isRule ? '&:extend(' : ':extend(') ==  null) return null;
@@ -244,22 +247,16 @@ class Parsers {
         e = element();
         if (e == null) break;
 
-        if (elements != null) {
-          elements.add(e);
-        } else {
-          elements = <Element>[e];
-        }
+        elements ??= <Element>[];
+        elements.add(e);
       }
 
       if (elements == null) {
         parserInput.error('Missing target selector for :extend().');
       }
-      extend = new Extend(new Selector(elements), option, index);
-      if (extendedList != null) {
-        extendedList.add(extend);
-      } else {
-        extendedList = <Extend>[extend];
-      }
+
+      extendedList ??= <Extend>[];
+      extendedList.add(new Extend(new Selector(elements), option, index));
 
     } while (parserInput.$char(',') != null);
 
@@ -321,13 +318,13 @@ class Parsers {
   /// and can be found inside a rule's value.
   ///
   Node entity() {
-    Node                result = comment();
-    if (result == null) result = entities.literal();
-    if (result == null) result = entities.variable();
-    if (result == null) result = entities.url();
-    if (result == null) result = entities.call();
-    if (result == null) result = entities.keyword();
-    if (result == null) result = entities.javascript();
+    Node result = comment();
+    result ??= entities.literal();
+    result ??= entities.variable();
+    result ??= entities.url();
+    result ??= entities.call();
+    result ??= entities.keyword();
+    result ??= entities.javascript();
     return result;
 
 //2.2.0
@@ -344,14 +341,13 @@ class Parsers {
   /// because the `block` rule will be expecting it, but we still need to make sure
   /// it's there, if ';' was ommitted.
   ///
-  bool end() {
-    return (parserInput.$char(';') != null) || parserInput.peekChar('}');
+  bool end() => (parserInput.$char(';') != null) || parserInput.peekChar('}');
 
 //2.2.0
 //  end: function () {
 //      return parserInput.$char(';') || parserInput.peek('}');
 //  }
-  }
+
 
 //
 //alpha: see entities.alpha()
@@ -361,7 +357,6 @@ class Parsers {
   static final RegExp _elementRegExp2 = new RegExp(r'(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
   static final RegExp _elementRegExp3 = new RegExp(r'\([^&()@]+\)', caseSensitive: true);
   static final RegExp _elementRegExp4 = new RegExp(r'[\.#:](?=@)', caseSensitive: true);
-
 
   ///
   /// A Selector Element
@@ -376,21 +371,21 @@ class Parsers {
   /// and an element name, such as a tag a class, or `*`.
   ///
   Element element() {
-    Combinator c;
-    dynamic e; //String or Node
-    int index = parserInput.i;
-    Selector v;
+    Combinator  c;
+    dynamic     e; //String or Node
+    final int   index = parserInput.i;
+    Selector    v;
 
     c = combinator();
 
     e = parserInput.$re(_elementRegExp1);
-    if (e == null) e = parserInput.$re(_elementRegExp2);
-    if (e == null) e = parserInput.$char('*');
-    if (e == null) e = parserInput.$char('&');
-    if (e == null) e = attribute();
-    if (e == null) e = parserInput.$re(_elementRegExp3);
-    if (e == null) e = parserInput.$re(_elementRegExp4);
-    if (e == null) e = entities.variableCurly();
+    e ??= parserInput.$re(_elementRegExp2);
+    e ??= parserInput.$char('*');
+    e ??= parserInput.$char('&');
+    e ??= attribute();
+    e ??= parserInput.$re(_elementRegExp3);
+    e ??= parserInput.$re(_elementRegExp4);
+    e ??= entities.variableCurly();
 
     if (e == null) {
       parserInput.save();
@@ -456,7 +451,7 @@ class Parsers {
 
     if (c == '/') {
       parserInput.save();
-      String slashedCombinator = parserInput.$re(_combinatorRegExp1); //i-nsensitive
+      final String slashedCombinator = parserInput.$re(_combinatorRegExp1); //i-nsensitive
       if (slashedCombinator != null) {
         parserInput.forget();
         return new Combinator(slashedCombinator);
@@ -470,7 +465,9 @@ class Parsers {
         c = '^^';
         parserInput.i++;
       }
-      while (parserInput.isWhitespacePos()) { parserInput.i++; }
+      while (parserInput.isWhitespacePos()) {
+        parserInput.i++;
+      }
       return new Combinator(c);
     } else if (parserInput.isWhitespacePrevPos()) {
       return new Combinator(' ');
@@ -523,14 +520,14 @@ class Parsers {
   /// Selectors are made out of one or more Elements, see above.
   ///
   Selector selector([bool isLess = false]) {
-    List<Extend> allExtends;
-    String  c;
-    Condition condition;
-    Element e;
+    List<Extend>  allExtends;
+    String        c;
+    Condition     condition;
+    Element       e;
     List<Element> elements;
-    List<Extend> extendList;
-    int index = parserInput.i;
-    String when;
+    List<Extend>  extendList;
+    final int     index = parserInput.i;
+    String        when;
 
     while ((isLess && (extendList = this.extend()) != null) ||
            (isLess && (when = parserInput.$str('when')) != null) ||
@@ -548,11 +545,8 @@ class Parsers {
       } else {
         if (allExtends != null) parserInput.error('Extend can only be used at the end of selector');
         c = parserInput.currentChar();
-        if (elements != null) {
-          elements.add(e);
-        } else {
-          elements = <Element>[e];
-        }
+        elements ??= <Element>[];
+        elements.add(e);
         e = null;
       }
       if (c == '{' || c == '}' || c == ';' || c == ',' || c == ')' ) break;
@@ -607,7 +601,7 @@ class Parsers {
     if (parserInput.$char('[') == null) return null;
 
     dynamic key; //String or Node
-    String op;
+    String  op;
     dynamic val; //String or Node
 
     if ((key = entities.variableCurly()) == null) {
@@ -617,9 +611,9 @@ class Parsers {
     op = parserInput.$re(_attributeRegExp1);
     if (op != null) {
       val = entities.quoted();
-      if (val == null) val = parserInput.$re(_attributeRegExp2);
-      if (val == null) val = parserInput.$re(_attributeRegExp3);
-      if (val == null) val = entities.variableCurly();
+      val ??= parserInput.$re(_attributeRegExp2);
+      val ??= parserInput.$re(_attributeRegExp3);
+      val ??= entities.variableCurly();
     }
 
     parserInput.expectChar(']');
@@ -671,7 +665,7 @@ class Parsers {
 
   ///
   Ruleset blockRuleset() {
-    List<Node> block = this.block();
+    final List<Node> block = this.block();
 
     return (block != null) ? new Ruleset(null, block) : null;
 
@@ -688,7 +682,7 @@ class Parsers {
 
   ///
   DetachedRuleset detachedRuleset() {
-    Ruleset blockRuleset = this.blockRuleset();
+    final Ruleset blockRuleset = this.blockRuleset();
     return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
 
 //2.2.0
@@ -704,10 +698,10 @@ class Parsers {
   /// div, .class, body > p {...}
   ///
   Ruleset ruleset() {
-    DebugInfo debugInfo;
-    List<Node> rules;
-    Selector s;
-    List<Selector> selectors;
+    DebugInfo       debugInfo;
+    List<Node>      rules;
+    Selector        s;
+    List<Selector>  selectors;
 
     parserInput.save();
 
@@ -729,11 +723,9 @@ class Parsers {
       }
       // end no standard
 
-      if (selectors != null) {
-        selectors.add(s);
-      } else {
-        selectors = <Selector>[s];
-      }
+      selectors ??= <Selector>[];
+      selectors.add(s);
+
       parserInput.commentStore.length = 0;
       if (s.condition != null && selectors.length > 1) {
         parserInput.error('Guards are only currently allowed on a single selector.');
@@ -747,8 +739,8 @@ class Parsers {
 
     if (selectors != null && (rules = block()) != null) {
       parserInput.forget();
-      Ruleset ruleset = new Ruleset(selectors, rules, context.strictImports);
-      if (isNotEmpty(context.dumpLineNumbers)) ruleset.debugInfo = debugInfo;
+      final Ruleset ruleset = new Ruleset(selectors, rules, context.strictImports);
+      if (context.dumpLineNumbers?.isNotEmpty ?? false) ruleset.debugInfo = debugInfo;
       return ruleset;
     } else {
       parserInput.restore();
@@ -801,23 +793,20 @@ class Parsers {
 
   ///
   Rule rule([bool tryAnonymous = false]) {
-    String c = parserInput.currentChar();
-    String important;
-    bool isVariable;
-    String merge = '';
-    dynamic name; //String or Node
-    int startOfRule = parserInput.i;
-    Node value;
+    final String  c = parserInput.currentChar();
+    String        important;
+    bool          isVariable;
+    String        merge = '';
+    dynamic       name; //String or Node
+    final int     startOfRule = parserInput.i;
+    Node          value;
 
     if (c == '.' || c == '#' || c == '&' || c == ':') return null;
 
     parserInput.save();
 
     name = variable();
-    //if (name == null) name = ruleProperty();
-    if (name == null) {
-      name = ruleProperty();
-    }
+    name ??= ruleProperty();
 
     if (name != null) {
       isVariable = name is String;
@@ -833,8 +822,7 @@ class Parsers {
 
         // prefer to try to parse first if its a variable or we are compressing
         // but always fallback on the other one
-        bool tryValueFirst = !tryAnonymous && (context.compress || isVariable || context.cleanCss);
-
+        final bool tryValueFirst = !tryAnonymous && (context.compress || isVariable || context.cleanCss);
         if (tryValueFirst) value = this.value();
 
         if (value == null) {
@@ -986,7 +974,7 @@ class Parsers {
 
   ///
   Anonymous anonymousValue() {
-    String match = parserInput.$re(_anonymousValueRegExp1, 1);
+    final String match = parserInput.$re(_anonymousValueRegExp1, 1);
     if (match != null) {
       return new Anonymous(match);
     }
@@ -1014,20 +1002,20 @@ class Parsers {
   /// stored in `import`, which we pass to the Import constructor.
   ///
   Import import() {
-    int index = parserInput.i;
-    List<Node> features;
-    Value nodeFeatures;
+    final int     index = parserInput.i;
+    List<Node>    features;
+    Value         nodeFeatures;
     ImportOptions options = new ImportOptions();
-    Node path;
+    Node          path;
 
-    String dir = parserInput.$re(_importRegExp1);
+    final String dir = parserInput.$re(_importRegExp1);
 
     if (dir != null) {
       options = importOptions();
-      if (options == null) options = new ImportOptions();
+      options ??= new ImportOptions();
 
       path = entities.quoted();
-      if (path == null) path = entities.url();
+      path ??= entities.url();
       if (path != null) {
         features = mediaFeatures();
 
@@ -1078,10 +1066,10 @@ class Parsers {
   /// return {less: true, multiple: true}
   ///
   ImportOptions importOptions() {
-    String o;
-    String optionName;
-    ImportOptions options = new ImportOptions();
-    bool value;
+    String              o;
+    String              optionName;
+    final ImportOptions options = new ImportOptions();
+    bool                value;
 
     // list of options, surrounded by parens
     if (parserInput.$char('(') == null) return null;
@@ -1152,14 +1140,15 @@ class Parsers {
 
   ///
   Expression mediaFeature() {
-    Node e;
-    List<Node> nodes = <Node>[];
-    String p;
+    Node              e;
+    final List<Node>  nodes = <Node>[];
+    String            p;
 
     parserInput.save();
     do {
       e = entities.keyword();
-      if (e == null) e = entities.variable();
+      e ??= entities.variable();
+
       if (e != null) {
         nodes.add(e);
       } else if (parserInput.$char('(') != null) {
@@ -1222,8 +1211,8 @@ class Parsers {
 
   ///
   List<Node> mediaFeatures() {
-    Node e;
-    List<Node> features = <Node>[];
+    Node              e;
+    final List<Node>  features = <Node>[];
 
     do{
       e = mediaFeature();
@@ -1264,10 +1253,10 @@ class Parsers {
 
   ///
   Media media() {
-    DebugInfo debugInfo;
-    List<Node> features;
-    Media media;
-    List<Node> rules;
+    DebugInfo   debugInfo;
+    List<Node>  features;
+    Media       media;
+    List<Node>  rules;
 
     if (isNotEmpty(context.dumpLineNumbers)) {
       debugInfo = getDebugInfo(parserInput.i);
@@ -1339,8 +1328,9 @@ class Parsers {
   /// Pass-throught to css to let polymer work
   ///
   Apply apply() {
-    int index = parserInput.i;
-    String name;
+    final int index = parserInput.i;
+    String    name;
+
     if (parserInput.$re(_applyRegExp1) != null) {
       parserInput.save();
       if (parserInput.$char('(') != null) {
@@ -1369,9 +1359,10 @@ class Parsers {
   /// To load a plugin use @plugin, this don't work for that
   ///
   Options options() {
-    int index = parserInput.i;
-    Quoted value;
-    String dir = parserInput.$re(_optionsRegExp1);
+    final int index = parserInput.i;
+    Quoted    value;
+
+    final String dir = parserInput.$re(_optionsRegExp1);
     if (dir != null) {
       if ((value = entities.quoted()) != null) {
         if (parserInput.$char(';') == null) {
@@ -1395,10 +1386,10 @@ class Parsers {
   /// Differs implementation. Here is Options and no import
   ///
   Options plugin() {
-    int index = parserInput.i;
-    Quoted value;
-    String dir = parserInput.$re(_pluginRegExp1);
+    final int index = parserInput.i;
+    Quoted    value;
 
+    final String dir = parserInput.$re(_pluginRegExp1);
     if (dir != null) {
       if ((value = entities.quoted()) != null) {
         if (parserInput.$char(';') == null) {
@@ -1451,24 +1442,24 @@ class Parsers {
   ///     @charset "utf-8";
   ///
   Node directive() {
-    bool hasBlock = true;
-    bool hasExpression = false;
-    bool hasIdentifier = false;
-    bool hasUnknown = false;
-    int index = parserInput.i;
-    bool isRooted = true;
-    String name;
-    String nonVendorSpecificName;
-    Ruleset rules;
-    Node value;
+    bool      hasBlock = true;
+    bool      hasExpression = false;
+    bool      hasIdentifier = false;
+    bool      hasUnknown = false;
+    final int index = parserInput.i;
+    bool      isRooted = true;
+    String    name;
+    String    nonVendorSpecificName;
+    Ruleset   rules;
+    Node      value;
 
     if (parserInput.currentChar() != '@') return null;
 
     value = import();
-    if (value == null) value = options();
-    if (value == null) value = plugin();
-    if (value == null) value = apply();
-    if (value == null) value = media();
+    value ??= options();
+    value ??= plugin();
+    value ??= apply();
+    value ??= media();
     if (value != null) return value;
 
     parserInput.save();
@@ -1541,8 +1532,7 @@ class Parsers {
       value = expression();
       if (value == null) parserInput.error('expected $name expression');
     } else if (hasUnknown) {
-      //String unknown = getValueOrDefault(parserInput.$re(_directiveRegExp2), '').trim();
-      String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
+      final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
       if (isNotEmpty(unknown)) value = new Anonymous(unknown);
     }
 
@@ -1676,8 +1666,8 @@ class Parsers {
   /// and before the `;`.
   ///
   Value value() {
-    Expression e;
-    List<Expression> expressions = <Expression>[];
+    Expression              e;
+    final List<Expression>  expressions = <Expression>[];
 
     do {
       e = expression();
@@ -1728,8 +1718,8 @@ class Parsers {
 
   ///
   Expression sub() {
-    Node a;
-    Expression e;
+    Node        a;
+    Expression  e;
 
     parserInput.save();
     if (parserInput.$char('(') != null) {
@@ -1767,12 +1757,13 @@ class Parsers {
   }
 
   static final RegExp _reMultiplication = new RegExp(r'\/[*\/]');
+
   ///
   Node multiplication() {
-    Node a;
-    bool isSpaced;
-    Node m;
-    String op;
+    Node      a;
+    bool      isSpaced;
+    Node      m;
+    String    op;
     Operation operation;
 
     m = operand();
@@ -1784,7 +1775,7 @@ class Parsers {
         parserInput.save();
 
         op = parserInput.$char('/');
-        if (op == null) op = parserInput.$char('*');
+        op ??= parserInput.$char('*');
         if (op == null) {
           parserInput.forget();
           break;
@@ -1802,7 +1793,7 @@ class Parsers {
         operation = new Operation(op, <Node>[operation != null ? operation : m, a], isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
-      return operation != null ? operation : m;
+      return operation ?? m;
     }
     return null;
 
@@ -1842,11 +1833,11 @@ class Parsers {
 
   ///
   Node addition() {
-    Node a;
-    Node m;
-    String op;
+    Node      a;
+    Node      m;
+    String    op;
     Operation operation;
-    bool isSpaced;
+    bool      isSpaced;
 
     m = multiplication();
     if (m != null) {
@@ -1865,7 +1856,7 @@ class Parsers {
         operation = new Operation(op, <Node>[operation != null ? operation : m, a], isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
-      return operation != null ? operation : m;
+      return operation ?? m;
     }
     return null;
 
@@ -1895,14 +1886,15 @@ class Parsers {
 //  }
   }
 
+  static final RegExp _reConditions = new RegExp(r',\s*(not\s*)?\(', caseSensitive: true);
+
   ///
   //to be passed to currentChunk.expect
-  static final RegExp _reConditions = new RegExp(r',\s*(not\s*)?\(', caseSensitive: true);
   Node conditions() {
-    Node a;
-    Node b;
+    Node      a;
+    Node      b;
     Condition condition;
-    int index = parserInput.i;
+    final int index = parserInput.i;
 
     a = this.condition();
     if (a != null) {
@@ -1914,7 +1906,7 @@ class Parsers {
 
         condition = new Condition('or', condition != null ? condition : a, b, index);
       }
-      return condition != null ? condition : a;
+      return condition ?? a;
     }
 
     return null;
@@ -1942,19 +1934,19 @@ class Parsers {
 
   ///
   Node condition() {
-    int index = parserInput.i;
-    bool negate = false;
-    Node a;
-    Node b;
+    Node      a;
+    Node      b;
     Condition c;
-    String op;
+    final int index = parserInput.i;
+    bool      negate = false;
+    String    op;
 
     if (parserInput.$str('not') != null) negate = true;
     parserInput.expectChar('(');
 
     a = addition();
-    if (a == null) a = entities.keyword();
-    if (a == null) a = entities.quoted();
+    a ??= entities.keyword();
+    a ??= entities.quoted();
     if (a != null) {
       if (parserInput.$char('>') != null) {
         if (parserInput.$char('=') != null) {
@@ -1980,8 +1972,8 @@ class Parsers {
 
       if (op != null) {
         b = addition();
-        if (b == null) b = entities.keyword();
-        if (b == null) b = entities.quoted();
+        b ??= entities.keyword();
+        b ??= entities.quoted();
         if (b != null) {
           c = new Condition(op, a, b, index, negate);
         } else {
@@ -2043,23 +2035,25 @@ class Parsers {
 //  },
   }
 
+  static final RegExp _reOperand = new RegExp(r'-[@\(]');
+
   ///
   /// An operand is anything that can be part of an operation,
   /// such as a Color, or a Variable
   ///
-  static final RegExp _reOperand = new RegExp(r'-[@\(]');
   Node operand() {
-    String negate;
-    Node o;
+    String  negate;
+    Node    o;
 
     if (parserInput.peek(_reOperand)) {
       negate = parserInput.$char('-');
     }
+
     o = sub();
-    if (o == null) o = entities.dimension();
-    if (o == null) o = entities.color();
-    if (o == null) o = entities.variable();
-    if (o == null) o = entities.call();
+    o ??= entities.dimension();
+    o ??= entities.color();
+    o ??= entities.variable();
+    o ??= entities.call();
 
     if (negate != null) {
       o.parensInOp = true;
@@ -2090,6 +2084,8 @@ class Parsers {
 //  }
   }
 
+  static final RegExp _reExpression = new RegExp(r'\/[\/*]');
+
   ///
   /// Expressions either represent mathematical operations,
   /// or white-space delimited Entities.
@@ -2097,11 +2093,10 @@ class Parsers {
   ///     1px solid black
   ///     @var * 2
   ///
-  static final RegExp _reExpression = new RegExp(r'\/[\/*]');
   Expression expression() {
-    String delim;
-    Node e;
-    List<Node> entities = <Node>[];
+    String            delim;
+    Node              e;
+    final List<Node>  entities = <Node>[];
 
     do {
       e = comment();
@@ -2111,7 +2106,7 @@ class Parsers {
       }
 
       e = addition();
-      if (e == null) e = entity();
+      e ??= entity();
       if (e != null) {
         entities.add(e);
         // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
@@ -2167,35 +2162,29 @@ class Parsers {
 //  }
 
   static final RegExp _rulePropertyRegExp1 = new RegExp(r'([_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
-
   static final RegExp _rulePropertyRegExp2 = new RegExp(r'(\*?)', caseSensitive: true);
   static final RegExp _rulePropertyRegExp3 = new RegExp(r'((?:[\w-]+)|(?:@\{[\w-]+\}))', caseSensitive: true);
   static final RegExp _rulePropertyRegExp4 = new RegExp(r'((?:\+_|\+)?)\s*:', caseSensitive: true);
 
-
   ///
   List<Node> ruleProperty() {
-    List<int>           index = <int>[];
-    // int length = 0;
-    //List name = []; //remove
-    List<String>        name = <String>[];
-    List<Node> result = <Node>[];  //in js is name
+    final List<int>     index = <int>[];
+    final List<String>  name = <String>[];
+    final List<Node>    result = <Node>[];  //in js is name
     String              s;
 
     parserInput.save();
 
-    String simpleProperty = parserInput.$re(_rulePropertyRegExp1);
+    final String simpleProperty = parserInput.$re(_rulePropertyRegExp1);
     if (simpleProperty != null) {
-      //name = [new Keyword(simpleProperty)]; //remove
       result.add(new Keyword(simpleProperty));
       parserInput.forget();
-      //return name; //remove
       return result;
     }
 
     bool match(RegExp re) {
-      int i = parserInput.i;
-      String chunk = parserInput.$re(re);
+      final int i = parserInput.i;
+      final String chunk = parserInput.$re(re);
 
       if (chunk != null) {
         index.add(i);
@@ -2221,18 +2210,12 @@ class Parsers {
       }
       for (int k = 0; k < name.length; k++) {
         s = name[k];
-        /* //remove
-        name[k] = (!s.startsWith('@'))
-            ? new Keyword(s)
-            : new Variable('@${s.substring(2, (s.length - 1))}', index[k], fileInfo);
-        */
         result.add(
           (!s.startsWith('@'))
               ? new Keyword(s)
               : new Variable('@${s.substring(2, (s.length - 1))}', index[k], fileInfo)
         );
       }
-      //return name; //remove
       return result;
     }
     parserInput.restore();
@@ -2295,11 +2278,9 @@ class Parsers {
   ///
   // less/parser.js 2.2.0 lines 76-84
   DebugInfo getDebugInfo(int index, [String xinputStream, Contexts xcontext]) {
-    String filename = fileInfo.filename;
-
     return new DebugInfo(
         lineNumber: Utils.getLocation(index, input).line + 1,
-        fileName: filename);
+        fileName: fileInfo.filename);
 
 //2.2.0
 //  function getDebugInfo(index) {
