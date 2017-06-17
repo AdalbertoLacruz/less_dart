@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'dart:mirrors' hide Comment;
 
 import '../contexts.dart';
+import '../environment/environment.dart';
 import '../file_info.dart';
 import '../less_error.dart';
 import '../logger.dart';
-import '../environment/environment.dart';
 import '../tree/tree.dart';
 
 part 'color_blend.dart';

@@ -17,20 +17,18 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   bool            isReferenced = false;
   bool            mediaEmpty = false;
 
-  /// String Elements List
-  List<String> get strElements {
-    if (_elements == null) cacheElements();
-    return _elements;
-  }
-
   /// Changed List<Node> to List<Element>
-  Selector (List<Element> elements, [List<Extend> this.extendList,
-        Node this.condition, int this.index, FileInfo currentFileInfo,
-        bool this.isReferenced]) {
+  Selector(List<Element> elements,
+      [List<Extend> this.extendList,
+      Node this.condition,
+      int this.index,
+      FileInfo currentFileInfo,
+      bool this.isReferenced]) {
 
     this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
     this.currentFileInfo = currentFileInfo ?? new FileInfo();
-    if (this.condition == null) this.evaldCondition = true;
+    if (condition == null)
+        evaldCondition = true;
 
 //2.3.1
 //  var Selector = function (elements, extendList, condition, index, currentFileInfo, isReferenced) {
@@ -45,12 +43,22 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
   }
 
+  /// String Elements List
+  List<String> get strElements {
+    if (_elements == null)
+        cacheElements();
+    return _elements;
+  }
+
   ///
   @override
   void accept(covariant Visitor visitor) {
-    if (elements != null) elements = visitor.visitArray(elements);
-    if (extendList != null) extendList = visitor.visitArray(extendList);
-    if (condition != null) condition = visitor.visit(condition);
+    if (elements != null)
+        elements = visitor.visitArray(elements);
+    if (extendList != null)
+        extendList = visitor.visitArray(extendList);
+    if (condition != null)
+        condition = visitor.visit(condition);
 
 //2.3.1
 //  Selector.prototype.accept = function (visitor) {
@@ -67,10 +75,16 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  Selector createDerived(List<Element> elements, [List<Extend> extendList, bool evaldCondition]) {
+  Selector createDerived(List<Element> elements,
+      [List<Extend> extendList, bool evaldCondition]) {
     //final Selector newSelector = new Selector(elements, extendList != null ? extendList : this.extendList, null,
-    final Selector newSelector = new Selector(elements, extendList ?? this.extendList,
-        null, index, currentFileInfo, isReferenced)
+    final Selector newSelector = new Selector(
+        elements,
+        extendList ?? this.extendList,
+        null,
+        index,
+        currentFileInfo,
+        isReferenced)
         ..evaldCondition = evaldCondition ?? this.evaldCondition
         ..mediaEmpty = mediaEmpty;
     return newSelector;
@@ -88,7 +102,9 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   List<Selector> createEmptySelectors() {
     final Element el = new Element('', '&', index, currentFileInfo);
-    final List<Selector> sels = <Selector>[new Selector(<Element>[el], null, null, index, currentFileInfo)];
+    final List<Selector> sels = <Selector>[
+      new Selector(<Element>[el], null, null, index, currentFileInfo)
+    ];
     sels[0].mediaEmpty = true;
     return sels;
 
@@ -107,17 +123,16 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   /// Returns number of matched Selector elements if match. 0 means not match.
   ///
   int match(Selector other) {
-    final List<String> thisStrElements = this.strElements;
-    final List<String> otherStrElements = other.strElements;
-
-    if (otherStrElements.isEmpty || thisStrElements.length < otherStrElements.length) {
+    if (other.strElements.isEmpty ||
+        strElements.length < other.strElements.length) {
       return 0;
     } else {
-      for (int i = 0; i < otherStrElements.length; i++) {
-        if (thisStrElements[i] != otherStrElements[i]) return 0;
+      for (int i = 0; i < other.strElements.length; i++) {
+        if (strElements[i] != other.strElements[i])
+            return 0;
       }
     }
-    return otherStrElements.length;
+    return other.strElements.length;
 
 // -- VALID IMPLEMENTATION --
 //    List<Element> elements = this.elements;
@@ -166,24 +181,28 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   /// Example: ['#sel1', '.sel2', ...]
   ///
   void cacheElements() {
-    String css;
     final RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
-    if (_elements != null) return; // cache exist
+    if (_elements != null)
+        return; // cache exist
 
-    css = elements.map((Element v){
-      return v.combinator.value
-          + ((v.value is String) ? v.value : (v.value as Node).toCSS(null)); //ex. v.value Dimension
-    }).toList().join('');
+    final String css = elements
+        .fold(new StringBuffer(), (StringBuffer prev, Element v) =>
+          prev
+              ..write(v.combinator.value)
+              ..write((v.value is String)
+                  ? v.value
+                  : (v.value as Node).toCSS(null)))
+        .toString();
 
     final Iterable<Match> matchs = re.allMatches(css);
     if (matchs != null) {
       _elements = matchs.map((Match m) => m[0]).toList();
-      if (_elements.isNotEmpty && _elements[0] == '&') _elements.removeAt(0);
+      if (_elements.isNotEmpty && _elements[0] == '&')
+          _elements.removeAt(0);
     } else {
       _elements = <String>[];
     }
-
 
 //2.3.1
 //  Selector.prototype.CacheElements = function() {
@@ -208,11 +227,12 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   }
 
   ///
-  bool isJustParentSelector() => !mediaEmpty
-                              && elements.length == 1
-                              && elements[0].value == '&'
-                              && (   elements[0].combinator.value == ' '
-                                  || elements[0].combinator.value == '');
+  bool isJustParentSelector() =>
+      !mediaEmpty &&
+      elements.length == 1 &&
+      elements[0].value == '&' &&
+      (elements[0].combinator.value == ' ' ||
+          elements[0].combinator.value == '');
 
   //2.3.1
 //  Selector.prototype.isJustParentSelector = function() {
@@ -225,15 +245,16 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   @override
   Selector eval(Contexts context) {
-    bool evaldCondition;
-    if (condition != null) evaldCondition = condition.eval(context).evaluated; //evaldCondition null is ok
+    final bool evaldCondition = condition?.eval(context)?.evaluated; //evaldCondition null is ok
     List<Element> elements = this.elements;
     List<Node> extendList = this.extendList;
 
-    if (elements != null) elements = elements.map((Element e)=> e.eval(context)).toList();
-    if (extendList != null) extendList = extendList.map((Node extend) => extend.eval(context)).toList();
+    if (elements != null)
+        elements = elements.map((Element e) => e.eval(context)).toList();
+    if (extendList != null)
+        extendList = extendList.map((Node extend) => extend.eval(context)).toList();
 
-    return this.createDerived(elements, extendList, evaldCondition);
+    return createDerived(elements, extendList, evaldCondition);
 
 //2.3.1
 //  Selector.prototype.eval = function (context) {
@@ -253,16 +274,13 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    Element element;
-
-    if ((context == null || !context.firstSelector) && elements[0].combinator.value == '') {
-      output.add(' ', currentFileInfo, index);
-    }
+    if ((context == null || !context.firstSelector) &&
+        elements[0].combinator.value == '')
+        output.add(' ', currentFileInfo, index);
     if (!isNotEmpty(_css)) {
       // todo caching? speed comparison?
       for (int i = 0; i < elements.length; i++) {
-        element = elements[i];
-        element.genCSS(context, output);
+        elements[i].genCSS(context, output);
       }
     }
 

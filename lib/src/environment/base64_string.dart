@@ -44,8 +44,9 @@ class Base64String {
         index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
-      characters.add("=");
-      characters.add("=");
+      characters
+          ..add("=")
+          ..add("=");
     }
 
     final StringBuffer output = new StringBuffer();
@@ -57,7 +58,6 @@ class Base64String {
     }
     return output.toString();
   }
-
 
   ///
   static String decode(String data) {

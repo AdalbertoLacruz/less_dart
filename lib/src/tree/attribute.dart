@@ -3,22 +3,22 @@
 part of tree.less;
 
 class Attribute extends Node {
-  @override String get    name => null;
+  @override final String  name = null;
   @override final String  type = 'Attribute';
 
   dynamic key; // String or Node
   String  op; // '=', '^=', ...
 
-  Attribute(this.key, this.op, dynamic value){
-    this.value = value;
-  }
+  ///
+  Attribute(this.key, this.op, dynamic value)
+      : super.init(value: value);
 
   ///
   @override
   Attribute eval(Contexts context) => new Attribute(
-        key is Node ? key.eval(context) : key,
-        op,
-        value is Node ?  value.eval(context) : value);
+      key is Node ? key.eval(context) : key,
+      op,
+      value is Node ? value.eval(context) : value);
 
 //2.3.1
 //  Attribute.prototype.eval = function (context) {
@@ -43,8 +43,10 @@ class Attribute extends Node {
     String value = (key is Node) ? key.toCSS(context) : key;
 
     if (op != null) {
-      value += op;
-      value += (this.value is Node) ? this.value.toCSS(context) : this.value;
+      final String attr = (this.value is Node)
+          ? this.value.toCSS(context)
+          : this.value;
+      value = '$value$op$attr';
     }
 
     return '[$value]';

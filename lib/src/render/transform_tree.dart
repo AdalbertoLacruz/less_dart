@@ -27,28 +27,29 @@ class TransformTree {
     if (variables != null) {
       final List<Node> vars = <Node>[];
 
-      variables.forEach((String k, Node value){
+      variables.forEach((String k, Node value) {
         if (value is! Value) {
-          if (value is! Expression) value = new Expression(<Node>[value]);
+          if (value is! Expression)
+              value = new Expression(<Node>[value]);
           value = new Value(<Node>[value]);
         }
-        vars.add(new Rule('@' + k, value, null, null, 0));
+        //vars.add(new Rule('@' + k, value, null, null, 0));
+        vars.add(new Rule('@$k', value, null, null, 0));
       });
       evalEnv.frames = <Node>[new Ruleset(null, vars)];
     }
 
     final List<VisitorBase> preEvalVisitors = <VisitorBase>[];
     final List<VisitorBase> visitors = <VisitorBase>[
-                     new JoinSelectorVisitor(),
-                     new ProcessExtendsVisitor(),
-                     new ToCSSVisitor(new Contexts()
-                                        ..compress = _options.compress
-                                        ..numPrecision = _options.numPrecision)
-                     ];
+        new JoinSelectorVisitor(),
+        new ProcessExtendsVisitor(),
+        new ToCSSVisitor(new Contexts()
+            ..compress = _options.compress
+            ..numPrecision = _options.numPrecision)
+    ];
 
     if (_options.pluginManager != null) {
-      final List<VisitorBase> pluginVisitors = _options.pluginManager.getVisitors();
-      pluginVisitors.forEach((VisitorBase pluginVisitor){
+      _options.pluginManager.getVisitors().forEach((VisitorBase pluginVisitor) {
         if (pluginVisitor.isPreEvalVisitor) {
           preEvalVisitors.add(pluginVisitor);
         } else {
@@ -65,7 +66,7 @@ class TransformTree {
       preEvalVisitors[i].run(root);
     }
 
-    evaldRoot =  root.eval(evalEnv);
+    evaldRoot = root.eval(evalEnv);
 
     for (int i = 0; i < visitors.length; i++) {
       visitors[i].run(evaldRoot);

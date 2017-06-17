@@ -5,9 +5,8 @@ part of tree.less;
 class Alpha extends Node {
   @override final String type = 'Alpha';
 
-  Alpha(dynamic value) { //Varaible, Dimension?
-    this.value = value;
-  }
+  ///
+  Alpha(dynamic value) : super.init(value: value); //value = Varaible | Dimension?
 
   ///
   @override
@@ -22,21 +21,20 @@ class Alpha extends Node {
 
   ///
   @override
-  Alpha eval(Contexts context) {
-    return (value is Node) ? new Alpha((value as Node).eval(context)) : this;
+  Alpha eval(Contexts context) =>
+      (value is Node) ? new Alpha(value.eval(context)) : this;
 
 //2.3.1
 //  Alpha.prototype.eval = function (context) {
 //      if (this.value.eval) { return new Alpha(this.value.eval(context)); }
 //      return this;
 //  };
-  }
 
   ///
   @override
   void genCSS(Contexts context, Output output) {
     output.add('alpha(opacity=');
-    (value is Node) ? (value as Node).genCSS(context, output) : output.add(value);
+    (value is Node) ? value.genCSS(context, output) : output.add(value);
     output.add(')');
 
 //2.3.1

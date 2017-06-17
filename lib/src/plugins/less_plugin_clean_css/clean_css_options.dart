@@ -39,7 +39,7 @@ class CleanCssOptions extends PluginOptions {
       argSplit = cleanOptionArgs[i].split('=');
       argName = argSplit[0].replaceFirst(reName, '');
 
-      switch(argName) {
+      switch (argName) {
         case '': //defaults
           break;
         case 'keep-line-breaks':

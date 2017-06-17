@@ -6,35 +6,39 @@ part of tree.less;
 class OutputRulesetMixin {
   ///
   void outputRuleset(Contexts context, Output output, List<Node> rules) {
-    if (context.cleanCss) return outputCleanRuleset(context, output, rules);
+    if (context.cleanCss)
+        return outputCleanRuleset(context, output, rules);
 
     final int ruleCnt = rules.length;
 
-    if (context.tabLevel == null) context.tabLevel = 0;
+    if (context.tabLevel == null)
+        context.tabLevel = 0;
     context.tabLevel++;
 
     // Compressed
     if (context.compress) {
       output.add('{');
-      for (int i = 0; i < ruleCnt; i++) rules[i].genCSS(context, output);
+      for (int i = 0; i < ruleCnt; i++)
+          rules[i].genCSS(context, output);
       output.add('}');
       context.tabLevel--;
       return null;
     }
 
     // Non-compressed
-    final String tabSetStr  = '\n' +  '  ' * (context.tabLevel - 1);
-    final String tabRuleStr = tabSetStr + '  ';
+    // ignore: prefer_interpolation_to_compose_strings
+    final String tabSetStr = '\n' + '  ' * (context.tabLevel - 1);
+    final String tabRuleStr = '$tabSetStr  ';
     if (ruleCnt == 0) {
-      output.add(' {' + tabSetStr + '}');
+      output.add(' {$tabSetStr}');
     } else {
-      output.add(' {' + tabRuleStr);
+      output.add(' {$tabRuleStr');
       rules[0].genCSS(context, output);
       for (int i = 1; i < ruleCnt; i++) {
         output.add(tabRuleStr);
         rules[i].genCSS(context, output);
       }
-      output.add(tabSetStr + '}');
+      output.add('$tabSetStr}');
     }
 
     context.tabLevel--;
@@ -72,14 +76,17 @@ class OutputRulesetMixin {
 //      context.tabLevel--;
 //  };
   }
+
   void outputCleanRuleset(Contexts context, Output output, List<Node> rules) {
     final int ruleCnt = rules.length;
 
-    if (context.tabLevel == null) context.tabLevel = 0;
+    if (context.tabLevel == null)
+        context.tabLevel = 0;
     context.tabLevel++;
 
     output.add('{');
-    for (int i = 0; i < ruleCnt; i++) rules[i].genCSS(context, output);
+    for (int i = 0; i < ruleCnt; i++)
+        rules[i].genCSS(context, output);
     output.add('}');
 
     context.tabLevel--;

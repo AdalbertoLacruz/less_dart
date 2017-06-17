@@ -25,8 +25,8 @@ class ExtendFinderVisitor extends VisitorBase {
   ///
   @override
   Ruleset run(Ruleset root) {
-    final Ruleset _root = _visitor.visit(root);
-    _root.allExtends = allExtendsStack[0];
+    final Ruleset _root = _visitor.visit(root)
+        ..allExtends = allExtendsStack[0];
     return _root;
 
 //2.3.1
@@ -48,7 +48,8 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  void visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
+  void visitMixinDefinition(
+      MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
 //2.3.1
@@ -59,11 +60,10 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    if (rulesetNode.root) return;
+    if (rulesetNode.root)
+        return;
 
-    final List<Extend>  allSelectorsExtendList = <Extend>[];
-    Extend              extend;
-    List<Extend>        extendList;
+    final List<Extend> allSelectorsExtendList = <Extend>[];
 
     // get &:extend(.a); rules which apply to all selectors in this ruleset
     final List<Node> rules = rulesetNode.rules;
@@ -83,22 +83,23 @@ class ExtendFinderVisitor extends VisitorBase {
       final Selector        selector = selectorPath.last;
       final List<Extend>    selExtendList = selector.extendList;
 
-      extendList = selExtendList != null
+      List<Extend> extendList = selExtendList != null
           ? (selExtendList.sublist(0)..addAll(allSelectorsExtendList))
           : allSelectorsExtendList;
 
       if (extendList != null) {
-        extendList = extendList.map((Extend allSelectorsExtend) {
-          return allSelectorsExtend.clone();
-        }).toList();
+        extendList = extendList
+            .map((Extend allSelectorsExtend) => allSelectorsExtend.clone())
+            .toList();
       }
 
       for (int j = 0; j < extendList.length; j++) {
         foundExtends = true;
-        extend = extendList[j];
-        extend.findSelfSelectors(selectorPath);
-        extend.ruleset = rulesetNode;
-        if (j == 0) extend.firstExtendOnThisSelectorPath = true;
+        final Extend extend = extendList[j]
+            ..findSelfSelectors(selectorPath)
+            ..ruleset = rulesetNode;
+        if (j == 0)
+            extend.firstExtendOnThisSelectorPath = true;
         allExtendsStack.last.add(extend);
       }
     }
@@ -155,7 +156,8 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitRulesetOut(Ruleset rulesetNode) {
-    if (!rulesetNode.root) contexts.removeLast();
+    if (!rulesetNode.root)
+        contexts.removeLast();
 
 //2.3.1
 //  visitRulesetOut: function (rulesetNode) {
@@ -212,11 +214,16 @@ class ExtendFinderVisitor extends VisitorBase {
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media)      return visitMedia; //before Directive
-    if (node is Directive)  return visitDirective;
-    if (node is MixinDefinition) return visitMixinDefinition;
-    if (node is Rule)       return visitRule;
-    if (node is Ruleset)    return visitRuleset;
+    if (node is Media)
+        return visitMedia; //before Directive
+    if (node is Directive)
+        return visitDirective;
+    if (node is MixinDefinition)
+        return visitMixinDefinition;
+    if (node is Rule)
+        return visitRule;
+    if (node is Ruleset)
+        return visitRuleset;
 
     return null;
   }
@@ -224,9 +231,12 @@ class ExtendFinderVisitor extends VisitorBase {
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Media)      return visitMediaOut; //before Directive
-    if (node is Directive)  return visitDirectiveOut;
-    if (node is Ruleset)    return visitRulesetOut;
+    if (node is Media)
+        return visitMediaOut; //before Directive
+    if (node is Directive)
+        return visitDirectiveOut;
+    if (node is Ruleset)
+        return visitRulesetOut;
 
     return null;
   }

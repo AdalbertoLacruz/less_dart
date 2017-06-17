@@ -1,7 +1,7 @@
 part of environment.less;
 
 //Only tested [] getValue, getKey
-class BiMap<K, V> implements Map<K, V>{
+class BiMap<K, V> implements Map<K, V> {
   final Map<V, K> _inverse;
   final Map<K, V> _map;
 
@@ -18,15 +18,17 @@ class BiMap<K, V> implements Map<K, V>{
   @override
   void operator []=(K key, V value) {
     _map[key] = value;
-    if(_inverse.isNotEmpty) _inverse[value] = key;
+    if (_inverse.isNotEmpty)
+        _inverse[value] = key;
   }
 
   @override
   void addAll(Map<K, V> other) {
     _map.addAll(other);
-    if(_inverse.isNotEmpty) other.forEach((K key, V value){
-      _inverse[value] = key;
-    });
+    if (_inverse.isNotEmpty)
+        other.forEach((K key, V value) {
+          _inverse[value] = key;
+        });
   }
 
   ///
@@ -34,7 +36,7 @@ class BiMap<K, V> implements Map<K, V>{
   ///
   void buildInverse() {
     _inverse.clear();
-    _map.forEach((K key, V value){
+    _map.forEach((K key, V value) {
       _inverse[value] = key;
     });
   }
@@ -49,11 +51,9 @@ class BiMap<K, V> implements Map<K, V>{
   bool containsKey(Object key) => _map.containsKey(key);
 
   @override
-  bool containsValue(Object value) {
-    return (_inverse.isEmpty)
-        ? _map.containsValue(value)
-        : _inverse.containsKey(value);
-  }
+  bool containsValue(Object value) => _inverse.isEmpty
+      ? _map.containsValue(value)
+      : _inverse.containsKey(value);
 
   @override
   void forEach(void f(K key, V value)) {
@@ -66,7 +66,8 @@ class BiMap<K, V> implements Map<K, V>{
   /// Given a value, returns the key
   ///
   K getKey(V value) {
-    if (_inverse.isEmpty && _map.isNotEmpty) buildInverse(); //synchronize
+    if (_inverse.isEmpty && _map.isNotEmpty)
+        buildInverse(); //synchronize
     return _inverse[value];
   }
 
@@ -91,15 +92,12 @@ class BiMap<K, V> implements Map<K, V>{
 
   @override
   V remove(Object key) {
-    if (key == null) return null;
+    if (key == null)
+        return null;
     _inverse.remove(_map[key]);
     return _map.remove(key);
   }
 
   @override
-  Iterable<V> get values {
-    return (_inverse.isEmpty)
-        ? _map.values
-        : _inverse.keys;
-  }
+  Iterable<V> get values => _inverse.isEmpty ? _map.values : _inverse.keys;
 }

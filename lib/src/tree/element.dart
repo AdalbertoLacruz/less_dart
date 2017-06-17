@@ -21,9 +21,9 @@ class Element extends Node {
   int         index;
 
   ///
-  Element(dynamic combinator, dynamic value, this.index, FileInfo currentFileInfo) {
-    this.value = '';
-    this.currentFileInfo = currentFileInfo;
+  Element(dynamic combinator, dynamic value, this.index, FileInfo currentFileInfo)
+      : super.init(currentFileInfo: currentFileInfo) {
+
     this.combinator =
         (combinator is Combinator) ? combinator : new Combinator(combinator);
 
@@ -31,6 +31,8 @@ class Element extends Node {
       this.value = value.trim();
     } else if (value != null) {
       this.value = value;
+    } else {
+      this.value = '';
     }
 
 //2.3.1
@@ -56,7 +58,8 @@ class Element extends Node {
   @override
   void accept(covariant Visitor visitor) {
     combinator = visitor.visit(combinator);
-    if (value is Node) value = visitor.visit(value);
+    if (value is Node)
+        value = visitor.visit(value);
 
 //2.3.1
 //  Element.prototype.accept = function (visitor) {
@@ -105,11 +108,10 @@ class Element extends Node {
     dynamic           value = this.value; // Node | String
     final bool        firstSelector = _context.firstSelector;
 
-    if (value is Paren) {
-      // selector in parens should not be affected by outer selector
-      // flags (breaks only interpolated selectors - see #1973)
-      _context.firstSelector = true;
-    }
+    if (value is Paren)
+        // selector in parens should not be affected by outer selector
+        // flags (breaks only interpolated selectors - see #1973)
+        _context.firstSelector = true;
 
     value = (value is Node) ? value.toCSS(_context) : value; // String
     _context.firstSelector = firstSelector;
@@ -117,6 +119,7 @@ class Element extends Node {
     if (value.isEmpty && combinator.value.startsWith('&')) {
       return '';
     } else {
+      // ignore: prefer_interpolation_to_compose_strings
       return combinator.toCSS(_context) + value;
     }
 

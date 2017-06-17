@@ -21,9 +21,9 @@ class DataUriFunctions extends FunctionBase {
     Node _mimetypeNode = mimetypeNode;
     Node _filePathNode = filePathNode;
 
-    URL fallback() {
-      return new URL((_filePathNode ?? _mimetypeNode), this.index, this.currentFileInfo).eval(this.context);
-    }
+    URL fallback() =>
+       new URL((_filePathNode ?? _mimetypeNode), index, currentFileInfo).eval(context);
+
 
     final Environment environment = new Environment();
     final Logger logger = environment.logger;
@@ -35,7 +35,6 @@ class DataUriFunctions extends FunctionBase {
 
     String mimetype = _mimetypeNode?.value;
     String filePath = _filePathNode.value;
-    final FileInfo currentFileInfo = this.currentFileInfo;
     final String currentDirectory = currentFileInfo.relativeUrls
         ? currentFileInfo.currentDirectory
         : currentFileInfo.entryPath;
@@ -47,9 +46,10 @@ class DataUriFunctions extends FunctionBase {
       filePath = filePath.substring(0, fragmentStart);
     }
 
-    final FileManager fileManager = environment.getFileManager(filePath,
-        currentDirectory, this.context, environment, true);
-    if (fileManager == null) return fallback();
+    final FileManager fileManager = environment.getFileManager(
+        filePath, currentDirectory, context, environment, true);
+    if (fileManager == null)
+        return fallback();
 
     bool useBase64 = false;
 
@@ -62,15 +62,16 @@ class DataUriFunctions extends FunctionBase {
       } else {
         // use base 64 unless it's an ASCII or UTF-8 format
         final String charset = environment.charsetLookup(mimetype);
-        useBase64 = <String>['US-ASCII', 'UTF-8'].indexOf(charset) < 0;
+        useBase64 = !<String>['US-ASCII', 'UTF-8'].contains(charset);
       }
-      if (useBase64)  mimetype += ';base64';
+      if (useBase64)
+          mimetype = '$mimetype;base64';
     } else {
       useBase64 = new RegExp(r';base64$').hasMatch(mimetype);
     }
 
-    final FileLoaded fileSync = fileManager.loadFileAsBytesSync(filePath,
-        currentDirectory, context, environment);
+    final FileLoaded fileSync = fileManager.loadFileAsBytesSync(
+        filePath, currentDirectory, context, environment);
     if (fileSync.codeUnits == null) {
       logger.warn('Skipped data-uri embedding of $filePath because file not found');
       return fallback();
@@ -87,12 +88,12 @@ class DataUriFunctions extends FunctionBase {
 
     const int DATA_URI_MAX = 32768;
     if (buf.length >= DATA_URI_MAX) {
-      if (this.context.ieCompat) {
+      if (context.ieCompat) {
         logger.warn('Skipped data-uri embedding of $filePath because its size (${buf.length} characters) exceeds IE8-safe $DATA_URI_MAX characters!');
         return fallback();
       }
     }
-    return new URL(new Quoted('"' + uri + '"', uri, false, index, currentFileInfo), index, currentFileInfo);
+    return new URL(new Quoted('"$uri"', uri, false, index, currentFileInfo), index, currentFileInfo);
 
 //2.4.0
 //  fallback = function(functionThis, node) {

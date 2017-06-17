@@ -18,7 +18,7 @@ class Mixin {
   Parsers     parsers;
 
   Mixin(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
-    this.fileInfo = context.currentFileInfo;
+    fileInfo = context.currentFileInfo;
   }
 
 
@@ -46,16 +46,20 @@ class Mixin {
 
     final int index = parserInput.i;
     final String s = parserInput.currentChar();
-    if (s != '.' && s != '#') return null;
+    if (s != '.' && s != '#')
+        return null;
 
     parserInput.save(); // stop us absorbing part of an invalid selector
 
     while (true) {
       elemIndex = parserInput.i;
       e = parserInput.$re(_callRegExp);
-      if (e == null) break;
+      if (e == null)
+          break;
 
       elements ??= <Element>[];
+      // TODO
+      // ignore: cascade_invocations
       elements.add(new Element(c, e, elemIndex, fileInfo));
       c = parserInput.$char('>');
     }
@@ -65,7 +69,8 @@ class Mixin {
         args = this.args(true).args;
         parserInput.expectChar(')');
       }
-      if (parsers.important() != null) important = true;
+      if (parsers.important() != null)
+          important = true;
       if (parsers.end()) {
         parserInput.forget();
         return new MixinCall(elements, args, index, fileInfo, important);
@@ -142,9 +147,8 @@ class Mixin {
         parserInput.commentStore.length = 0;
         if (parserInput.$str('...') != null) {
           returner.variadic = true;
-          if (parserInput.$char(';') != null && !isSemiColonSeperated) {
-            isSemiColonSeperated = true;
-          }
+          if (parserInput.$char(';') != null && !isSemiColonSeperated)
+              isSemiColonSeperated = true;
           if (isSemiColonSeperated) {
             argsSemiColon.add(new MixinArgs(variadic: true));
           } else {
@@ -157,7 +161,8 @@ class Mixin {
         arg ??= entities.keyword();
       }
 
-      if (arg == null) break;
+      if (arg == null)
+          break;
 
       nameLoop = null;
       arg.throwAwayComments();
@@ -166,7 +171,8 @@ class Mixin {
 
       if (isCall) {
         // Variable
-        if (arg.value != null && arg.value.length == 1) val = arg.value[0];
+        if (arg.value != null && arg.value.length == 1)
+            val = arg.value[0];
       } else {
         val = arg;
       }
@@ -174,7 +180,8 @@ class Mixin {
       if (val != null && val is Variable) {
         if (parserInput.$char(':') != null) {
           if (expressions.isNotEmpty) {
-            if (isSemiColonSeperated) parserInput.error('Cannot mix ; and , as delimiter types');
+            if (isSemiColonSeperated)
+                parserInput.error('Cannot mix ; and , as delimiter types');
             expressionContainsNamed = true;
           }
 
@@ -208,18 +215,22 @@ class Mixin {
         }
       }
 
-      if (value != null) expressions.add(value);
+      if (value != null)
+          expressions.add(value);
 
       argsComma.add(new MixinArgs(name: nameLoop, value: value));
 
-      if (parserInput.$char(',') != null) continue;
+      if (parserInput.$char(',') != null)
+          continue;
 
       if (parserInput.$char(';') != null || isSemiColonSeperated) {
-        if (expressionContainsNamed) parserInput.error('Cannot mix ; and , as delimiter types');
+        if (expressionContainsNamed)
+            parserInput.error('Cannot mix ; and , as delimiter types');
 
         isSemiColonSeperated = true;
 
-        if (expressions.isNotEmpty) value = new Value(expressions);
+        if (expressions.isNotEmpty)
+            value = new Value(expressions);
         argsSemiColon.add(new MixinArgs(name: name, value: value));
 
         name = null;
@@ -378,7 +389,9 @@ class Mixin {
     List<Node>      ruleset;
     bool            variadic = false;
 
-    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') || parserInput.peek(_reDefinition)) return null;
+    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') ||
+        parserInput.peek(_reDefinition))
+        return null;
 
     parserInput.save();
 
@@ -400,9 +413,8 @@ class Mixin {
 
       parserInput.commentStore.length = 0;
 
-      if (parserInput.$str('when') != null) { // Guard
-        cond = parserInput.expect(parsers.conditions, 'expected condition');
-      }
+      if (parserInput.$str('when') != null)  // Guard
+          cond = parserInput.expect(parsers.conditions, 'expected condition');
 
       ruleset = parsers.block();
       if (ruleset != null) {
@@ -471,7 +483,7 @@ class Mixin {
 
 class MixinReturner {
   List<MixinArgs> args;
-  bool variadic;
+  bool            variadic;
 
   MixinReturner([this.args = null, this.variadic = false]);
 }

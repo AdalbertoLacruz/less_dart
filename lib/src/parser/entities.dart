@@ -16,7 +16,7 @@ class Entities {
 
 
   Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
-    this.fileInfo = this.context.currentFileInfo;
+    fileInfo = context.currentFileInfo;
   }
 
   ///
@@ -30,7 +30,8 @@ class Entities {
     String    str;
 
     parserInput.save();
-    if (parserInput.$char('~') != null) isEscaped = true;
+    if (parserInput.$char('~') != null)
+        isEscaped = true;
     str = parserInput.$quoted();
     if (str == null) {
       parserInput.restore();
@@ -59,6 +60,7 @@ class Entities {
   }
 
   static final RegExp  _keywordRegEx = new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
+
   ///
   /// A catch-all word, such as:
   ///
@@ -69,9 +71,9 @@ class Entities {
   Node keyword() {
     final String k = parserInput.$char("%") ?? parserInput.$re(_keywordRegEx);
 
-    if (k != null) {
-      return new Color.fromKeyword(k) ?? new Keyword(k);
-    }
+    if (k != null)
+        return new Color.fromKeyword(k) ?? new Keyword(k);
+
     return null;
 
 //2.4.0 20150321 1640
@@ -104,7 +106,8 @@ class Entities {
     String      nameLC;
 
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
-    if (parserInput.peek(_reCallUrl)) return null;
+    if (parserInput.peek(_reCallUrl))
+        return null;
 
     parserInput.save();
 
@@ -215,10 +218,11 @@ class Entities {
   //Original in parsers.dart
   Alpha alpha() {
     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
-    if (parserInput.$re(_alphaRegExp1) == null) return null; // i
+    if (parserInput.$re(_alphaRegExp1) == null)
+        return null; // i
 
     final dynamic value = parserInput.$re(_alphaRegExp2) //String
-      ?? parserInput.expect(this.variable, 'Could not parse alpha'); //Variable
+        ?? parserInput.expect(variable, 'Could not parse alpha'); //Variable
     parserInput.expectChar(')');
 
     return new Alpha(value);
@@ -247,10 +251,12 @@ class Entities {
     while (true) {
       arg = assignment();
       arg ??= parsers.expression();
-      if (arg == null) break;
+      if (arg == null)
+          break;
 
       args.add(arg);
-      if (parserInput.$char(',') == null) break;
+      if (parserInput.$char(',') == null)
+          break;
     }
 
     return args;
@@ -371,8 +377,9 @@ class Entities {
     value ??= variable();
     value ??= new Anonymous(parserInput.$re(_urlRegExp) ?? '');
 
-    parserInput.autoCommentAbsorb = true;
-    parserInput.expectChar(')');
+    parserInput
+        ..autoCommentAbsorb = true
+        ..expectChar(')');
 
     return new URL(value, index, fileInfo);
 
@@ -415,7 +422,8 @@ class Entities {
 
     if (parserInput.currentChar() == '@') {
       name = parserInput.$re(_variableRegExp);
-      if (name != null) return new Variable(name, index, fileInfo);
+      if (name != null)
+          return new Variable(name, index, fileInfo);
     }
     return null;
 
@@ -451,7 +459,7 @@ class Entities {
 //          return new(tree.Variable)("@" + curly[1], index, fileInfo);
 //      }
 //  }
-   }
+  }
 
   static final RegExp _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
   static final RegExp _colorRegExp2 = new RegExp(r'#([\w]+).*');
@@ -467,8 +475,8 @@ class Entities {
   Color color() {
     Match rgb;
 
-    if (parserInput.currentChar() == '#'
-        && (rgb = parserInput.$reMatch(_colorRegExp1)) != null) {
+    if (parserInput.currentChar() == '#' &&
+        (rgb = parserInput.$reMatch(_colorRegExp1)) != null) {
 
       // strip colons, brackets, whitespaces and other characters that should not
       // definitely be part of color string
@@ -476,9 +484,9 @@ class Entities {
       final String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
-      if (_colorRegExp3.firstMatch(colorCandidateString) == null) {
-        parserInput.error('Invalid HEX color code');
-      }
+      if (_colorRegExp3.firstMatch(colorCandidateString) == null)
+          parserInput.error('Invalid HEX color code');
+
       return new Color(rgb[1]);
     }
     return null;
@@ -508,10 +516,12 @@ class Entities {
   ///     0.5em 95%
   ///
   Dimension dimension() {
-    if (parserInput.peekNotNumeric()) return null;
+    if (parserInput.peekNotNumeric())
+        return null;
 
     final List<String> value = parserInput.$re(_dimensionRegExp);
-    if (value != null) return new Dimension(value[1], value[2]);
+    if (value != null)
+        return new Dimension(value[1], value[2]);
 
     return null;
 
@@ -537,7 +547,8 @@ class Entities {
   ///
   UnicodeDescriptor unicodeDescriptor() {
     final String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
-    if (ud != null) return new UnicodeDescriptor(ud);
+    if (ud != null)
+        return new UnicodeDescriptor(ud);
 
     return null;
 
@@ -578,7 +589,7 @@ class Entities {
       parserInput.forget();
       return new JavaScript(js.substring(0, js.length - 1), escape != null, index, fileInfo);
     }
-    
+
     parserInput.restore('invalid javascript definition');
     return null;
 

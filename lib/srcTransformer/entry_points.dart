@@ -8,9 +8,9 @@ part of transformer.less;
 ///
 
 class EntryPoints {
-  List<RegExp> include = <RegExp>[];
-  List<RegExp> exclude = <RegExp>[];
-  bool isLessSingle = false;
+  List<RegExp>  include = <RegExp>[];
+  bool          isLessSingle = false;
+  List<RegExp>  exclude = <RegExp>[];
 
   EntryPoints();
 
@@ -25,7 +25,8 @@ class EntryPoints {
   ///
   void addPaths(List<String> paths) {
     String path;
-    if (paths == null) return;
+    if (paths == null)
+        return;
 
     for (int i = 0; i < paths.length; i++) {
       path = paths[i];
@@ -41,25 +42,19 @@ class EntryPoints {
   ///
   /// Creates a RegExp from a path with wildcards and normalize
   ///
-  RegExp toRegExp(String path) {
-    /*
-    path = path.replaceAll(r'\', r'/'); //normalize
-    path = path.replaceAll(r'/', r'\/');
-    path = path.replaceAll('*', r'(.)*');
-    return new RegExp(path, caseSensitive: false);
-     */
-    return new RegExp(path.replaceAll(r'\', r'/')
-                          .replaceAll(r'/', r'\/')
-                          .replaceAll('*', r'(.)*'), caseSensitive: false);
-  }
+  RegExp toRegExp(String path) => new RegExp(
+      path
+          .replaceAll(r'\', r'/')
+          .replaceAll(r'/', r'\/')
+          .replaceAll('*', r'(.)*'),
+      caseSensitive: false);
 
   ///
   /// Load default values for check if nothing indicated
   ///
   void assureDefault(List<String> defaultValues) {
-    if (include.isEmpty) {
-      addPaths(defaultValues);
-    }
+    if (include.isEmpty)
+        addPaths(defaultValues);
     getLessSingle();
   }
 
@@ -98,7 +93,8 @@ class EntryPoints {
     for (int i = 0; i < include.length; i++) {
       re = include[i];
       result = re.hasMatch(candidate);
-      if (result) break;
+      if (result)
+          break;
     }
 
     if (result) {

@@ -4,19 +4,19 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
+import 'src/environment/environment.dart';
 import 'src/less_error.dart';
 import 'src/less_options.dart';
 import 'src/logger.dart';
-import 'src/environment/environment.dart';
 import 'src/parser/parser.dart';
 import 'src/render/render.dart';
 import 'src/tree/tree.dart';
 
 export 'src/contexts.dart';
-export 'src/file_info.dart';
-export 'src/less_options.dart';
 export 'src/environment/environment.dart';
+export 'src/file_info.dart';
 export 'src/functions/functions.dart' show FunctionBase, DefineMethod;
+export 'src/less_options.dart';
 export 'src/parser/parser.dart';
 export 'src/plugins/plugins.dart';
 export 'src/render/render.dart';
@@ -24,18 +24,16 @@ export 'src/tree/tree.dart';
 export 'src/visitor/visitor_base.dart';
 
 class Less {
-  StringBuffer stdin  = new StringBuffer();
-  StringBuffer stdout = new StringBuffer();
-  StringBuffer stderr = new StringBuffer();
-  List<String> imports = <String>[]; //return list of imported files
+  bool          continueProcessing = true;
+  int           currentErrorCode = 0;
+  List<String>  imports = <String>[]; //return list of imported files
+  Logger        logger;
+  LessOptions   _options;
+  StringBuffer  stdin  = new StringBuffer();
+  StringBuffer  stdout = new StringBuffer();
+  StringBuffer  stderr = new StringBuffer();
 
-  int currentErrorCode = 0;
-  bool continueProcessing = true;
-
-  Logger logger;
-  LessOptions _options;
-
-  Less(){
+  Less() {
     logger = new Logger(stderr); // care the order
     _options = new LessOptions();
     new Environment()..options = _options; //make global
@@ -61,18 +59,20 @@ class Less {
       currentErrorCode = _options.parseError ? 1 : 0;
       return new Future<int>.value(currentErrorCode);
     }
-    if(!_options.validate()){
+    if (!_options.validate()) {
       currentErrorCode = _options.parseError ? 1 : 0;
       return new Future<int>.value(currentErrorCode);
     }
 
-    if (modifyOptions != null) modifyOptions(this._options);
-    this._options.pluginLoader.start();
+    if (modifyOptions != null)
+        modifyOptions(_options);
+    _options.pluginLoader.start();
 
-    if(_options.input != '-') {
+    if (_options.input != '-') {
       // Default to .less
       String filename = _options.input;
-      if (path.extension(filename).isEmpty) filename += '.less';
+      if (path.extension(filename).isEmpty)
+          filename = '$filename.less';
 
       final File file = new File(filename);
       if (!file.existsSync()) {
@@ -81,15 +81,14 @@ class Less {
         return new Future<int>.value(currentErrorCode);
       }
 
-      return file.readAsString()
-      .then((String content){
-        return parseLessFile(content);
-      })
-      .catchError((dynamic e){
-        logger.error('Error reading ${_options.input}');
-        currentErrorCode = 3;
-        return new Future<int>.value(currentErrorCode);
-      });
+      return file
+          .readAsString()
+          .then((String content) => parseLessFile(content))
+          .catchError((dynamic e) {
+            logger.error('Error reading ${_options.input}');
+            currentErrorCode = 3;
+            return new Future<int>.value(currentErrorCode);
+          });
     } else {
       return parseLessFile(stdin.toString());
     }
@@ -98,9 +97,9 @@ class Less {
   ///
   /// Process all arguments: -options and input/output
   ///
-  bool argsFilter(List<String> args){
-    final RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive:false);
-    final RegExp regPaths = new RegExp(r'^-I(.+)$', caseSensitive:true);
+  bool argsFilter(List<String> args) {
+    final RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
+    final RegExp regPaths = new RegExp(r'^-I(.+)$', caseSensitive: true);
     Match match;
     bool continueProcessing = true;
 
@@ -109,33 +108,31 @@ class Less {
         _options.paths.add(match[1]);
         return;
       }
-
-      if ((match = regOption.firstMatch(arg)) != null){
-        if (continueProcessing) continueProcessing =   _options.parse(match);
+      if ((match = regOption.firstMatch(arg)) != null) {
+        if (continueProcessing)
+            continueProcessing =   _options.parse(match);
         return;
       }
-
       if (_options.input == '') {
         _options.input = arg;
         return;
       }
-
-      if (_options.output == '') {
-        _options.output = arg;
-      }
+      if (_options.output == '')
+          _options.output = arg;
     });
     return continueProcessing;
   }
 
-  Future<int> parseLessFile(String data){
+  Future<int> parseLessFile(String data) {
     final Parser parser = new Parser(_options);
-    return parser.parse(data).then((Ruleset tree){
+    return parser.parse(data).then((Ruleset tree) {
       RenderResult result;
 
-      if (tree == null) return new Future<int>.value(currentErrorCode);
+      if (tree == null)
+          return new Future<int>.value(currentErrorCode);
 
       //debug
-      if(_options.showTreeLevel == 0) {
+      if (_options.showTreeLevel == 0) {
         final String css = tree.toTree(_options).toString();
         stdout.write(css);
         return new Future<int>.value(currentErrorCode);
@@ -145,9 +142,8 @@ class Less {
         result = new ParseTree(tree, parser.imports).toCSS(_options.clone(), parser.context);
         imports = result.imports;
 
-        if (!_options.lint) {
+        if (!_options.lint)
           writeOutput(_options.output, result, _options);
-        }
 
       } on LessExceptionError catch (e) {
         logger.error(e.toString());
@@ -156,8 +152,7 @@ class Less {
       }
 
       return new Future<int>.value(currentErrorCode);
-    })
-    .catchError((dynamic e){
+    }).catchError((dynamic e) {
       logger.error(e.toString());
       currentErrorCode = 1;
       return new Future<int>.value(currentErrorCode);
@@ -174,24 +169,20 @@ class Less {
     }
 
     //map
-    if (options.sourceMap && !options.sourceMapOptions.sourceMapFileInline) {
-      writeFile(options.sourceMapOptions.sourceMapFullFilename, result.map);
-    }
+    if (options.sourceMap && !options.sourceMapOptions.sourceMapFileInline)
+        writeFile(options.sourceMapOptions.sourceMapFullFilename, result.map);
 
     //dependencies
-    if (options.depends) {
-      String depends = options.outputBase + ': ';
-      result.imports.forEach((String item){ depends += item + ' ';});
-      logger.log(depends);
-    }
+    if (options.depends)
+        logger.log('${options.outputBase}: ${result.imports.join(' ')}');
   }
 
   /// Creates the file [filename] with [content]
   void writeFile(String filename, String content) {
     try {
       new File(filename)
-        ..createSync(recursive: true)
-        ..writeAsStringSync(content);
+          ..createSync(recursive: true)
+          ..writeAsStringSync(content);
       logger.info('lessc: wrote $filename');
     } catch (e) {
       throw new LessExceptionError(new LessError(

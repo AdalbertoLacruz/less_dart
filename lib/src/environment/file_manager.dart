@@ -12,21 +12,23 @@ class FileManager {
   /// This FileManager can load async the filename
   ///
   bool supports (String filename, String currentDirectory, Contexts options,
-                 Environment environment) => false;
+      Environment environment) => false;
 
   ///
   /// Returns whether this file manager supports this file for syncronous file retrieval
   /// If true is returned, loadFileSync will then be called with the file.
   ///
   bool supportsSync(String filename, String currentDirectory, Contexts options,
-                    Environment environment) => false;
+      Environment environment) => false;
 
+  ///
   /// Loads a file asynchronously. Expects a Future that either rejects with an error or fulfills with an
   /// object containing
   /// { filename: - full resolved path to file
   ///   contents: - the contents of the file, as a string }
   ///
-  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+  Future<FileLoaded> loadFile(String filename, String currentDirectory,
+      Contexts options, Environment environment) => null;
 
   ///
   /// Loads a file synchronously. Expects an immediate return with an object containing
@@ -34,25 +36,27 @@ class FileManager {
   ///     filename: - full resolved path to file
   ///     contents: - the contents of the file, as a string }
   ///
-  FileLoaded loadFileSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+  FileLoaded loadFileSync(String filename, String currentDirectory,
+      Contexts options, Environment environment) => null;
 
   ///
   /// Load a file syncrhonously with readAsBytesSync
   ///
   /// result in FileLoaded.codeUnits
   ///
-  FileLoaded loadFileAsBytesSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+  FileLoaded loadFileAsBytesSync(String filename, String currentDirectory,
+      Contexts options, Environment environment) => null;
 
   ///
   /// Check if [filename] exists in the include paths
   ///
-  FileLoaded existSync(String filename, String currentDirectory, Contexts options, Environment environment) => null;
+  FileLoaded existSync(String filename, String currentDirectory,
+      Contexts options, Environment environment) => null;
 
   ///
   /// Given the full path to a file [filename], return the path component
   ///
-  String getPath(String filename) {
-    return pathLib.dirname(filename);
+  String getPath(String filename) => pathLib.dirname(filename);
 
 // valid dart implementation
 //    int j = filename.lastIndexOf('?');
@@ -80,14 +84,13 @@ class FileManager {
 //    }
 //    return filename.slice(0, j + 1);
 //};
-  }
 
   ///
   /// Append a [ext] extension to [path] if appropriate.
   ///
   String tryAppendExtension(String path, String ext) {
     final RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
-    return re.hasMatch(path) ? path : path + ext;
+    return re.hasMatch(path) ? path : '$path$ext';
 
 //2.4.0 20150226
 //  abstractFileManager.prototype.tryAppendExtension = function(path, ext) {
@@ -126,7 +129,6 @@ class FileManager {
 //      return (/^(?:[a-z-]+:|\/|\\|#)/i).test(filename);
 //  };
 
-
   ///
   /// Joins together 2 paths
   ///
@@ -152,31 +154,24 @@ class FileManager {
   ///   url = 'a/b/' baseUrl = 'a/'   returns 'b/'
   ///
   String pathDiff(String url, String baseUrl) {
-    List<String>    baseUrlDirectories;
     final UrlParts  baseUrlParts = extractUrlParts(baseUrl);
-    String          diff = '';
     int             i;
-    List<String>    urlDirectories;
     final UrlParts  urlParts = extractUrlParts(url);
 
-    if (urlParts.hostPart != baseUrlParts.hostPart) return '';
+    if (urlParts.hostPart != baseUrlParts.hostPart)
+        return '';
 
     final int max = math.max(baseUrlParts.directories.length, urlParts.directories.length);
 
     for (i = 0; i < max; i++) {
-      if (baseUrlParts.directories[i] != urlParts.directories[i]) break;
+      if (baseUrlParts.directories[i] != urlParts.directories[i])
+          break;
     }
-    baseUrlDirectories = baseUrlParts.directories.sublist(i);
-    urlDirectories = urlParts.directories.sublist(i);
+    final List<String> baseUrlDirectories = baseUrlParts.directories.sublist(i);
+    final List<String> urlDirectories = urlParts.directories.sublist(i);
 
-    for (i = 0; i < baseUrlDirectories.length - 1; i++) {
-      diff += '../';
-    }
-    for (i = 0; i < urlDirectories.length - 1; i++) {
-      diff += urlDirectories[i] + '/';
-    }
-
-    return diff;
+    urlDirectories[urlDirectories.length - 1] = ''; //join must end with '/'
+    return '${"../" * (baseUrlDirectories.length - 1)}${urlDirectories.join("/")}';
 
 //2.3.1
 //abstractFileManager.prototype.pathDiff = function pathDiff(url, baseUrl) {
@@ -216,11 +211,10 @@ class FileManager {
     final List<String> urlParts = <String>[];
 
     Match match = urlPartsRegex.firstMatch(url);
-    if (match != null) {
-      for (int i = 0; i < match.groupCount; i++) {
-        urlParts.add(match[i]);
-      }
-    }
+    if (match != null)
+        for (int i = 0; i < match.groupCount; i++) {
+          urlParts.add(match[i]);
+        }
 
     final UrlParts returner = new UrlParts();
     List<String> directories;
@@ -228,7 +222,7 @@ class FileManager {
 
     if (urlParts.isEmpty) {
       final LessError error = new LessError(
-                message: "Could not parse sheet href - '$url'");
+          message: "Could not parse sheet href - '$url'");
       throw new LessExceptionError(error);
     }
 
@@ -236,52 +230,49 @@ class FileManager {
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
       match = urlPartsRegex.firstMatch(baseUrl);
       final List<String> baseUrlParts = <String>[];
-      if (match != null) {
-        for (int i = 0; i < match.groupCount; i++) {
-          baseUrlParts.add(match[i]);
-        }
-      }
+      if (match != null)
+          for (int i = 0; i < match.groupCount; i++) {
+            baseUrlParts.add(match[i]);
+          }
 
       if (baseUrlParts.isEmpty) {
         final LessError error = new LessError(
-                  message: "Could not parse page url - '$baseUrl'");
+            message: "Could not parse page url - '$baseUrl'");
         throw new LessExceptionError(error);
       }
 
-      if (urlParts[1] == null) urlParts[1] = baseUrlParts[1];
-      if (urlParts[1] == null) urlParts[1] = '';
-
-      if (urlParts[2] == null) urlParts[3] = baseUrlParts[3] + urlParts[3];
+      urlParts[1] ??= baseUrlParts[1] ?? '';
+      urlParts[2] ??= '${baseUrlParts[3]}${urlParts[3]}';
     }
 
     if (urlParts[3] != null) {
-      directories = urlParts[3].replaceAll('\\', '/').split('/');
-
-      // extract out . before .. so .. doesn't absorb a non-directory
-      directories.remove('.');
+      directories = urlParts[3].replaceAll('\\', '/').split('/')
+          // extract out . before .. so .. doesn't absorb a non-directory
+          ..remove('.');
 
       for (int i = 0; i < directories.length; i++) {
         if (directories[i] == '..' && i > 0) {
-          directories.removeRange(i-1, i+1);
+          directories.removeRange(i - 1, i + 1);
           i -= 2;
         }
       }
     }
 
     for (int i = 0; i < urlParts.length; i ++) {
-      if (urlParts[i] == null) urlParts[i] = '';
+      if (urlParts[i] == null)
+          urlParts[i] = '';
     }
-    
+
     for (int i = urlParts.length; i < 6; i++) {
       urlParts.add('');
     }
 
-    returner.hostPart = urlParts[1];
-    returner.directories = directories;
-    returner.path = urlParts[1]  + directories.join('/');
-    returner.fileUrl = returner.path + urlParts[4];
-    returner.url = returner.fileUrl + urlParts[5];
-
+    returner
+        ..hostPart = urlParts[1]
+        ..directories = directories
+        ..path = '${urlParts[1]}${directories.join('/')}'
+        ..fileUrl = '${returner.path}${urlParts[4]}'
+        ..url = '${returner.fileUrl}${urlParts[5]}';
     return returner;
 
 //2.3.1
@@ -346,8 +337,8 @@ class FileManager {
 
 /// return type for loadFile
 class FileLoaded {
-  String filename;
-  String contents;
+  String    filename;
+  String    contents;
   LessError error;
   List<int> codeUnits;
 
@@ -355,9 +346,9 @@ class FileLoaded {
 }
 
 class UrlParts {
-  String hostPart;
-  List<String> directories;
-  String path;
-  String fileUrl;
-  String url;
+  List<String>  directories;
+  String        hostPart;
+  String        fileUrl;
+  String        path;
+  String        url;
 }

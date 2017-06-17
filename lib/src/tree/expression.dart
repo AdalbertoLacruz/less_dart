@@ -11,9 +11,9 @@ class Expression extends Node {
     parens = false;
     parensInOp = false;
 
-    if (this.value == null) {
-      throw new LessExceptionError(
-          new LessError(message: 'Expression requires an array parameter'));
+    if (value == null) {
+      throw new LessExceptionError(new LessError(
+          message: 'Expression requires an array parameter'));
     }
 
 //2.3.1
@@ -27,7 +27,7 @@ class Expression extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor){
+  void accept(covariant Visitor visitor) {
     value = visitor.visitArray(value);
 
 //2.3.1
@@ -39,25 +39,25 @@ class Expression extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    Node returnValue;
-    final bool inParenthesis = parens && !parensInOp;
-    bool doubleParen = false;
+    bool        doubleParen = false;
+    final bool  inParenthesis = parens && !parensInOp;
+    Node        returnValue;
 
-    if (inParenthesis) context.inParenthesis();
-
+    if (inParenthesis)
+        context.inParenthesis();
     if (value.length > 1) {
       returnValue = new Expression(value.map((Node e) => e?.eval(context)).toList());
     } else if (value.length == 1) {
-      if (value.first.parens && !value.first.parensInOp) doubleParen = true;
+      if (value.first.parens && !value.first.parensInOp)
+          doubleParen = true;
       returnValue = value.first.eval(context);
     } else {
       returnValue = this;
     }
-    if (inParenthesis) context.outOfParenthesis();
-
-    if (parens && parensInOp && !(context.isMathOn()) && !doubleParen) {
-      returnValue = new Paren(returnValue);
-    }
+    if (inParenthesis)
+        context.outOfParenthesis();
+    if (parens && parensInOp && !(context.isMathOn()) && !doubleParen)
+        returnValue = new Paren(returnValue);
     return returnValue;
 
 //2.3.1
@@ -93,11 +93,13 @@ class Expression extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (cleanCss != null) return genCleanCSS(context, output);
+    if (cleanCss != null)
+        return genCleanCSS(context, output);
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i + 1 < value.length) output.add(' ');
+      if (i + 1 < value.length)
+          output.add(' ');
     }
 
 //2.3.1
@@ -122,9 +124,7 @@ class Expression extends Node {
   ///
   @override
   void throwAwayComments() {
-    value.retainWhere((Node v) {
-      return (v is! Comment);
-    });
+    value.retainWhere((Node v) => (v is! Comment));
 
 //2.3.1
 //  Expression.prototype.throwAwayComments = function () {

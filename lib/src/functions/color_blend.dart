@@ -27,10 +27,8 @@ class ColorBlend extends FunctionBase {
       cb = color1.rgb[i] / 255;
       cs = color2.rgb[i] / 255;
       cr = fMode(cb, cs);
-      if (ar != 0) {
-        cr = (as * cs + ab * (cb
-              - as * (cb + cs - cr))) / ar;
-      }
+      if (ar != 0)
+          cr = (as * cs + ab * (cb - as * (cb + cs - cr))) / ar;
       r[i] = cr * 255;
     }
     return new Color(r, ar);
@@ -65,11 +63,12 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object.
   ///   Returns: color
   ///
-  Color multiply (Color color1, Color color2) => colorBlend(fMultiply, color1, color2);
+  Color multiply(Color color1, Color color2) =>
+      colorBlend(fMultiply, color1, color2);
 
   ///
   @defineMethodSkip
-  double fMultiply (double cb, double cs) => cb * cs;
+  double fMultiply(double cb, double cs) => cb * cs;
 
   ///
   /// Do the opposite of multiply. The result is a brighter color.
@@ -79,7 +78,8 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object.
   ///   Returns: color
   ///
-  Color screen (Color color1, Color color2) => colorBlend(fScreen, color1, color2);
+  Color screen(Color color1, Color color2) =>
+      colorBlend(fScreen, color1, color2);
 
   ///
   @defineMethodSkip
@@ -94,11 +94,12 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to overlay.
   ///   Returns: color
   ///
-  Color overlay (Color color1, Color color2) => colorBlend(fOverlay, color1, color2);
+  Color overlay(Color color1, Color color2) =>
+      colorBlend(fOverlay, color1, color2);
 
   ///
   @defineMethodSkip
-  double fOverlay (double cb, double cs) {
+  double fOverlay(double cb, double cs) {
     final double _cb = cb * 2;
     return (_cb <= 1) ? fMultiply(_cb, cs) : fScreen(_cb - 1, cs);
 
@@ -119,18 +120,18 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to be soft lighten.
   ///   Returns: color
   ///
-  Color softlight (Color color1, Color color2) => colorBlend(fSoftlight, color1, color2);
+  Color softlight(Color color1, Color color2) =>
+      colorBlend(fSoftlight, color1, color2);
 
   ///
   @defineMethodSkip
-  double fSoftlight (double cb, double cs) {
+  double fSoftlight(double cb, double cs) {
     double d = 1.0;
     double e = cb;
 
     if (cs > 0.5) {
       e = 1.0;
-      d = (cb > 0.25) ? math.sqrt(cb)
-                : ((16 * cb - 12) * cb + 4) * cb;
+      d = (cb > 0.25) ? math.sqrt(cb) : ((16 * cb - 12) * cb + 4) * cb;
     }
     return cb - (1 - 2 * cs) * e * (d - cb);
 
@@ -153,11 +154,12 @@ class ColorBlend extends FunctionBase {
   ///   color2: A base color object. Also the determinant color to make the result lighter or darker.
   ///   Returns: color
   ///
-  Color hardlight (Color color1, Color color2) => colorBlend(fHardlight, color1, color2);
+  Color hardlight(Color color1, Color color2) =>
+      colorBlend(fHardlight, color1, color2);
 
   ///
   @defineMethodSkip
-  double fHardlight (double cb, double cs) => fOverlay(cs, cb);
+  double fHardlight(double cb, double cs) => fOverlay(cs, cb);
 
   ///
   /// Subtracts the second color from the first color on a channel-by-channel basis.
@@ -169,11 +171,12 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to act as the subtrahend.
   ///   Returns: color
   ///
-  Color difference (Color color1, Color color2) => colorBlend(fDifference, color1, color2);
+  Color difference(Color color1, Color color2) =>
+      colorBlend(fDifference, color1, color2);
 
   ///
   @defineMethodSkip
-  double fDifference (double cb, double cs) => (cb - cs).abs();
+  double fDifference(double cb, double cs) => (cb - cs).abs();
 
   ///
   /// A similar effect to difference with lower contrast.
@@ -183,11 +186,12 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to act as the subtrahend.
   ///   Returns: color
   ///
-  Color exclusion (Color color1, Color color2) => colorBlend(fExclusion, color1, color2);
+  Color exclusion(Color color1, Color color2) =>
+      colorBlend(fExclusion, color1, color2);
 
   ///
   @defineMethodSkip
-  double fExclusion (double cb, double cs) => cb + cs - 2 * cb * cs;
+  double fExclusion(double cb, double cs) => cb + cs - 2 * cb * cs;
 
   // non-w3c functions:
 
@@ -199,11 +203,12 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object.
   ///   Returns: color
   ///
-  Color average (Color color1, Color color2) => colorBlend(fAverage, color1, color2);
+  Color average(Color color1, Color color2) =>
+      colorBlend(fAverage, color1, color2);
 
   ///
   @defineMethodSkip
-  double fAverage (double cb, double cs) => (cb + cs) / 2;
+  double fAverage(double cb, double cs) => (cb + cs) / 2;
 
   ///
   /// Do the opposite effect to difference.
@@ -214,9 +219,10 @@ class ColorBlend extends FunctionBase {
   ///   color2: A color object to act as the subtrahend.
   ///   Returns: color
   ///
-  Color negation (Color color1, Color color2) => colorBlend(fNegation, color1, color2);
+  Color negation(Color color1, Color color2) =>
+      colorBlend(fNegation, color1, color2);
 
   ///
   @defineMethodSkip
-  double fNegation (double cb, double cs) => 1 - (cb + cs - 1).abs();
+  double fNegation(double cb, double cs) => 1 - (cb + cs - 1).abs();
 }

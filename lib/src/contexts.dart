@@ -3,12 +3,11 @@
 library contexts.less;
 
 import 'file_info.dart';
+import 'functions/functions.dart';
 import 'import_manager.dart';
 import 'less_options.dart';
-import 'functions/functions.dart';
 import 'plugins/plugins.dart';
 import 'tree/tree.dart';
-
 
 class Contexts {
   // ***** From options
@@ -43,7 +42,7 @@ class Contexts {
   /// options.dumpLineNumbers
   String dumpLineNumbers;
 
-  String input;   // for LessError
+  String input; // for LessError
 
   /// List of files that have been imported, used for import-once
   Map<String, Node> files = <String, Node>{};
@@ -76,7 +75,7 @@ class Contexts {
   List<Media> mediaPath;
 
   /// options.mime
-  String mime;  // browser only
+  String mime; // browser only
 
   /// options.numPrecision
   int numPrecision; //functions frunt
@@ -133,81 +132,8 @@ class Contexts {
   /// options.yuicompress - deprecated
   bool yuicompress;
 
-
   ///
   Contexts();
-
-  ///
-  /// Copy from [options] LessOptions or Contexts
-  ///
-  /// parse is used whilst parsing
-  ///
-  //2.2.0 TODO
-  Contexts.parse(dynamic options){
-    if (options == null) return;
-
-    parseCopyProperties(options);
-
-    contents ??= <String, String>{};
-    contentsIgnoredChars ??= <String, int>{};
-    files ??= <String, Node>{};
-
-    if (currentFileInfo == null) {
-      final String filename = (options.filename?.isNotEmpty ?? false) ? options.filename : 'input';
-      final String entryPath = filename.replaceAll(new RegExp(r'[^\/\\]*$'), '');
-      options.filename = null;
-
-      currentFileInfo = new FileInfo()
-            ..filename = filename
-            ..relativeUrls = relativeUrls
-            ..rootpath = options.rootpath ?? ''
-            ..currentDirectory = entryPath
-            ..entryPath = entryPath
-            ..rootFilename = filename;
-    }
-
-//2.2.0
-//  contexts.Parse = function(options) {
-//      copyFromOriginal(options, this, parseCopyProperties);
-//
-//      if (typeof this.paths === "string") { this.paths = [this.paths]; }
-//  };
-  }
-
-  ///
-  /// Copy properties for parse
-  ///
-  /// Some are common to options and contexts
-  ///
-  void parseCopyProperties(dynamic options) {
-    if(options is! LessOptions && options is! Contexts) return;
-
-    paths               = options.paths;
-    relativeUrls        = options.relativeUrls;
-    rootpath            = options.rootpath;
-    strictImports       = options.strictImports;
-    insecure            = options.insecure;
-    dumpLineNumbers     = options.dumpLineNumbers;
-    compress            = options.compress;
-    syncImport          = options.syncImport;
-    chunkInput          = options.chunkInput;
-    mime                = options.mime;
-    useFileCache        = options.useFileCache;
-    processImports      = options.processImports;
-    numPrecision        = options.numPrecision;
-    color               = options.color;
-    pluginManager       = options.pluginManager;
-    cleanCss            = options.cleanCss;
-
-    if (options is Contexts) {
-      final Contexts context  = options;
-
-      files                 = context.files;
-      contents              = context.contents;
-      contentsIgnoredChars  = context.contentsIgnoredChars;
-      currentFileInfo       = context.currentFileInfo;
-    }
-  }
 
   ///
   /// Build Context to render the tree
@@ -234,32 +160,111 @@ class Contexts {
   }
 
   ///
+  /// Copy from [options] LessOptions or Contexts
+  ///
+  /// parse is used whilst parsing
+  ///
+  //2.2.0 TODO
+  Contexts.parse(dynamic options) {
+    if (options == null)
+        return;
+
+    parseCopyProperties(options);
+
+    contents ??= <String, String>{};
+    contentsIgnoredChars ??= <String, int>{};
+    files ??= <String, Node>{};
+
+    if (currentFileInfo == null) {
+      final String filename = (options.filename?.isNotEmpty ?? false)
+          ? options.filename
+          : 'input';
+      final String entryPath = filename.replaceAll(new RegExp(r'[^\/\\]*$'), '');
+      options.filename = null;
+
+      currentFileInfo = new FileInfo()
+            ..filename = filename
+            ..relativeUrls = relativeUrls
+            ..rootpath = options.rootpath ?? ''
+            ..currentDirectory = entryPath
+            ..entryPath = entryPath
+            ..rootFilename = filename;
+    }
+
+//2.2.0
+//  contexts.Parse = function(options) {
+//      copyFromOriginal(options, this, parseCopyProperties);
+//
+//      if (typeof this.paths === "string") { this.paths = [this.paths]; }
+//  };
+  }
+
+  ///
+  /// Copy properties for parse
+  ///
+  /// Some are common to options and contexts
+  ///
+  void parseCopyProperties(dynamic options) {
+    if(options is! LessOptions && options is! Contexts)
+        return;
+
+    paths               = options.paths;
+    relativeUrls        = options.relativeUrls;
+    rootpath            = options.rootpath;
+    strictImports       = options.strictImports;
+    insecure            = options.insecure;
+    dumpLineNumbers     = options.dumpLineNumbers;
+    compress            = options.compress;
+    syncImport          = options.syncImport;
+    chunkInput          = options.chunkInput;
+    mime                = options.mime;
+    useFileCache        = options.useFileCache;
+    processImports      = options.processImports;
+    numPrecision        = options.numPrecision;
+    color               = options.color;
+    pluginManager       = options.pluginManager;
+    cleanCss            = options.cleanCss;
+
+    if (options is Contexts) {
+      final Contexts context = options;
+
+      files                 = context.files;
+      contents              = context.contents;
+      contentsIgnoredChars  = context.contentsIgnoredChars;
+      currentFileInfo       = context.currentFileInfo;
+    }
+  }
+
+  ///
   /// Copy properties for eval
   /// [options] is LessOptions or Context
   ///
   static void evalCopyProperties(Contexts newctx, dynamic options) {
-    if (options == null) return;
+    if (options == null)
+        return;
 
-    newctx.compress           = options.compress;
-    newctx.ieCompat           = options.ieCompat;
-    newctx.strictMath         = options.strictMath;
-    newctx.strictUnits        = options.strictUnits;
-    newctx.numPrecision       = options.numPrecision;
-    newctx.sourceMap          = options.sourceMap;
-    newctx.importMultiple     = options.importMultiple;
-    newctx.urlArgs            = options.urlArgs;
-    newctx.javascriptEnabled  = options.javascriptEnabled;
-    newctx.dumpLineNumbers    = options.dumpLineNumbers; //removed 2.2.0
-    newctx.pluginManager      = options.pluginManager;
-//    newctx.importantScope     = options.importantScope; // Used to bubble up !important statements. TODO 2.2.0
-    newctx.paths              = options.paths;
-    newctx.cleanCss           = options.cleanCss;
+    newctx
+        ..compress           = options.compress
+        ..ieCompat           = options.ieCompat
+        ..strictMath         = options.strictMath
+        ..strictUnits        = options.strictUnits
+        ..numPrecision       = options.numPrecision
+        ..sourceMap          = options.sourceMap
+        ..importMultiple     = options.importMultiple
+        ..urlArgs            = options.urlArgs
+        ..javascriptEnabled  = options.javascriptEnabled
+        ..dumpLineNumbers    = options.dumpLineNumbers //removed 2.2.0
+        ..pluginManager      = options.pluginManager
+//      ..importantScope     = options.importantScope // Used to bubble up !important statements. TODO 2.2.0
+        ..paths              = options.paths
+        ..cleanCss           = options.cleanCss;
 
     if (options is Contexts) {
       final Contexts context  = options;
 
-      newctx.defaultFunc    = context.defaultFunc;
-      newctx.importantScope = context.importantScope;
+      newctx
+          ..defaultFunc    = context.defaultFunc
+          ..importantScope = context.importantScope;
     }
   }
 
@@ -267,8 +272,9 @@ class Contexts {
   /// parensStack push
   ///
   void inParenthesis() {
-    if (parensStack == null) parensStack = <bool>[];
-    parensStack.add(true);
+    parensStack == null
+        ? parensStack = <bool>[true]
+        : parensStack.add(true);
 
 //2.2.0
 //  contexts.Eval.prototype.inParenthesis = function () {
@@ -290,7 +296,9 @@ class Contexts {
 //  };
 
   ///
-  bool isMathOn() => strictMath ? (parensStack != null && parensStack.isNotEmpty) : true;
+  bool isMathOn() => strictMath
+      ? (parensStack != null && parensStack.isNotEmpty)
+      : true;
 
 //2.2.0
 //  contexts.Eval.prototype.isMathOn = function () {
@@ -312,12 +320,11 @@ class Contexts {
   /// Resolves '.' and '..' in the path
   ///
   String normalizePath(String path) {
-    final List<String>  pathList = <String>[];
-    String              segment;
-    final List<String>  segments = path.split('/').reversed.toList();
+    final List<String> pathList = <String>[];
+    final List<String> segments = path.split('/').reversed.toList();
 
     while (segments.isNotEmpty) {
-      segment = segments.removeLast();
+      final String segment = segments.removeLast();
       switch (segment) {
         case '.':
           break;

@@ -7,9 +7,9 @@ Future<Null> main(List<String> args) {
 
   //TODO stdin
 
-  return less.transform(args).then((int lessExitCode){
+  return less.transform(args).then((int lessExitCode) {
     stderr.write(less.stderr);
     stdout.write(less.stdout);
     exitCode = lessExitCode;
-    });
+  });
 }

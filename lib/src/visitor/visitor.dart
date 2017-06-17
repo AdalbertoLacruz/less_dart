@@ -12,8 +12,10 @@ class Visitor extends VisitorBase {
   /// Process a [node] and the subtree. node is Node | String
   @override
   dynamic visit(dynamic node) {
-    if (node == null) return node;
-    if (node is! Node) return node;
+    if (node == null)
+        return node;
+    if (node is! Node)
+        return node;
 
     dynamic _node = node;
 
@@ -24,14 +26,15 @@ class Visitor extends VisitorBase {
 
     if (func != null) {
       final dynamic newNode = func(_node, _visitArgs); //Node or List
-      if (_implementation.isReplacing) _node = newNode;
+      if (_implementation.isReplacing)
+          _node = newNode;
     }
 
-    if (this._visitArgs.visitDeeper && _node != null && (_node is Node)) {
-      _node.accept(this);
-    }
+    if (_visitArgs.visitDeeper && _node != null && (_node is Node))
+        _node.accept(this);
 
-    if (funcOut != null) funcOut(_node);
+    if (funcOut != null)
+        funcOut(_node);
 
     return _node;
 
@@ -88,11 +91,13 @@ class Visitor extends VisitorBase {
   /// [nodes] List<Node> | List<List<>> | List<MixinArgs> ...
   ///
   List<T> visitArray<T>(List<T> nodes, [bool nonReplacing = false]) {
-    if (nodes == null) return nodes;
+    if (nodes == null)
+        return nodes;
 
     // Non-replacing
     if (nonReplacing || !_implementation.isReplacing) {
-      for (int i = 0; i < nodes.length; i++) visit(nodes[i]);
+      for (int i = 0; i < nodes.length; i++)
+          visit(nodes[i]);
       return nodes;
     }
 
@@ -100,7 +105,8 @@ class Visitor extends VisitorBase {
     List<T> out = <T>[];
     for (int i = 0; i < nodes.length; i++) {
       final dynamic evald = visit(nodes[i]); //Node | List<Node>
-      if (evald == null) continue;
+      if (evald == null)
+          continue;
 
       if (evald is! List) {
         out.add(evald);
@@ -154,9 +160,10 @@ class Visitor extends VisitorBase {
     int nestedCnt;
     dynamic nestedItem;
 
-    for (int i = 0 ; i < arr.length; i++) {
+    for (int i = 0; i < arr.length; i++) {
       item = arr[i];
-      if (item == null) continue;
+      if (item == null)
+          continue;
 
       if (item is! List) { //Node
         _out.add(item);
@@ -167,7 +174,8 @@ class Visitor extends VisitorBase {
       nestedCnt = (item as List<dynamic>).length;
       for (int j = 0; j < nestedCnt; j++) {
         nestedItem = (item as List<dynamic>)[j];
-        if (nestedItem == null) continue;
+        if (nestedItem == null)
+            continue;
         if (nestedItem is! List) { //Node
           _out.add(nestedItem);
         } else if (nestedItem.isNotEmpty) {

@@ -2,7 +2,7 @@
 
 part of sourcemap.less;
 
-class SourceMapOutput extends Output{
+class SourceMapOutput extends Output {
   int                 column = 0;
   Map<String, int>    contentsIgnoredCharsMap;
   Map<String, String> contentsMap;
@@ -21,31 +21,32 @@ class SourceMapOutput extends Output{
   String              sourceMapURL;
 
   ///
-  SourceMapOutput({Map<String, int> this.contentsIgnoredCharsMap,
-                   Ruleset this.rootNode,
-                   Map<String, String> this.contentsMap,
-                   String sourceMapFilename,
-                   String this.sourceMapURL,
-                   String this.outputFilename,
-                   String sourceMapBasepath, //abs?
-                   String sourceMapRootpath,
-                   bool this.outputSourceFiles,
-                   bool this.sourceMapFileInline}) {
+  SourceMapOutput(
+      {Map<String, int> this.contentsIgnoredCharsMap,
+      Ruleset this.rootNode,
+      Map<String, String> this.contentsMap,
+      String sourceMapFilename,
+      String this.sourceMapURL,
+      String this.outputFilename,
+      String sourceMapBasepath, //abs?
+      String sourceMapRootpath,
+      bool this.outputSourceFiles,
+      bool this.sourceMapFileInline}) {
 
-    if (sourceMapFilename != null) {
-      this.sourceMapFilename = sourceMapFilename.replaceAll('\\', '/');
-    }
-    if (sourceMapBasepath != null) {
-      this.sourceMapBasepath = sourceMapBasepath.replaceAll('\\', '/');
-    }
+    if (sourceMapFilename != null)
+        this.sourceMapFilename = sourceMapFilename.replaceAll('\\', '/');
+    if (sourceMapBasepath != null)
+        this.sourceMapBasepath = sourceMapBasepath.replaceAll('\\', '/');
     if (sourceMapRootpath != null) {
       this.sourceMapRootpath = sourceMapRootpath.replaceAll('\\', '/');
-      if (!this.sourceMapRootpath.endsWith('/')) this.sourceMapRootpath += '/';
+      if (!this.sourceMapRootpath.endsWith('/'))
+          // ignore: prefer_interpolation_to_compose_strings
+          this.sourceMapRootpath += '/';
     } else {
       this.sourceMapRootpath = '';
     }
 
-    this.sourceMapGenerator = new SourceMapBuilder();
+    sourceMapGenerator = new SourceMapBuilder();
 
 //2.4.0
 //  var SourceMapOutput = function (options) {
@@ -79,19 +80,18 @@ class SourceMapOutput extends Output{
 
   ///
   String normalizeFilename (String file) {
-    if (normalizeCache.containsKey(file)) return normalizeCache[file];
+    if (normalizeCache.containsKey(file))
+        return normalizeCache[file];
 
-    String result;
     String filename = file.replaceAll('\\', '/');
 
     if (sourceMapBasepath != null && filename.startsWith(sourceMapBasepath)) {
       filename = filename.substring(sourceMapBasepath.length);
-      if (filename.startsWith('\\') || filename.startsWith('/')) {
-        filename = filename.substring(1);
-      }
+      if (filename.startsWith('\\') || filename.startsWith('/'))
+          filename = filename.substring(1);
     }
-    result = (sourceMapRootpath != null) ? sourceMapRootpath + filename : filename;
-    result = path.normalize(result);
+
+    final String result = path.normalize('${sourceMapRootpath ?? ''}$filename');
     normalizeCache[file] = result;
     return result;
 
@@ -115,7 +115,8 @@ class SourceMapOutput extends Output{
   ///
   @override
   void add(Object s, [FileInfo fileInfo, int index, bool mapLines = false]) {
-    if (s == null) return;
+    if (s == null)
+        return;
 
     final String  chunk = (s is String) ? s : s.toString();
     String        columns;
@@ -125,7 +126,8 @@ class SourceMapOutput extends Output{
     List<String>  sourceLines;
 
     //ignore adding empty strings
-    if (chunk.isEmpty) return;
+    if (chunk.isEmpty)
+        return;
 
     if (fileInfo != null) {
       String inputSource = contentsMap[fileInfo.filename];
@@ -134,7 +136,8 @@ class SourceMapOutput extends Output{
       if (contentsIgnoredCharsMap[fileInfo.filename] != null) {
         // adjust the index
         _index -= contentsIgnoredCharsMap[fileInfo.filename];
-        if (_index < 0) _index = 0;
+        if (_index < 0)
+            _index = 0;
         // adjust the source
         inputSource = inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
       }
@@ -149,17 +152,30 @@ class SourceMapOutput extends Output{
     if (fileInfo != null) {
       if (!mapLines) {
         final SourcemapData data = new SourcemapData(
-            originalIndex: _index, originalLine: sourceLines.length - 1, originalColumn: sourceColumns.length, originalFile:normalizeFilename(fileInfo.filename),
-            generatedIndex: indexGenerated, generatedLine: lineNumber, generatedColumn: column, generatedFile: normalizeFilename(outputFilename));
-        if (data != null) sourceMapGenerator.addLocation(data.original, data.generated, null);
+            originalIndex: _index,
+            originalLine: sourceLines.length - 1,
+            originalColumn: sourceColumns.length,
+            originalFile: normalizeFilename(fileInfo.filename),
+            generatedIndex: indexGenerated,
+            generatedLine: lineNumber,
+            generatedColumn: column,
+            generatedFile: normalizeFilename(outputFilename));
+        if (data != null)
+            sourceMapGenerator.addLocation(data.original, data.generated, null);
       } else { // @import (inline)
         for (int i = 0; i < lines.length; i++) {
           final SourcemapData data = new SourcemapData(
-          originalIndex: _index, originalLine: sourceLines.length + i - 1,
-            originalColumn: (i == 0) ? sourceColumns.length : 0, originalFile:normalizeFilename(fileInfo.filename),
-          generatedIndex: indexGenerated, generatedLine: lineNumber + i,
-            generatedColumn: (i == 0) ? column : 0, generatedFile: normalizeFilename(outputFilename));
-          if (data != null) sourceMapGenerator.addLocation(data.original, data.generated, null);
+              originalIndex: _index,
+              originalLine: sourceLines.length + i - 1,
+              originalColumn: (i == 0) ? sourceColumns.length : 0,
+              originalFile: normalizeFilename(fileInfo.filename),
+              generatedIndex: indexGenerated,
+              generatedLine: lineNumber + i,
+              generatedColumn: (i == 0) ? column : 0,
+              generatedFile: normalizeFilename(outputFilename));
+
+          if (data != null)
+              sourceMapGenerator.addLocation(data.original, data.generated, null);
         }
       }
     }
@@ -236,15 +252,13 @@ class SourceMapOutput extends Output{
   String toCSS(Contexts context) {
     final Map<String, String> contents = <String, String>{};
     Map<dynamic, dynamic>     json; //<String, dynamic> dynamic = String | int
-    String                    sourceMapContent;
     String                    sourceMapURL = '';
 
     if (outputSourceFiles) { //--source-map-less-inline
       for (String filename in contentsMap.keys) {
         String source = contentsMap[filename];
-        if (contentsIgnoredCharsMap[filename] != null) {
-          source = source.substring(contentsIgnoredCharsMap[filename]);
-        }
+        if (contentsIgnoredCharsMap[filename] != null)
+            source = source.substring(contentsIgnoredCharsMap[filename]);
         contents[normalizeFilename(filename)] = source;
       }
     }
@@ -252,6 +266,7 @@ class SourceMapOutput extends Output{
     rootNode.genCSS(context, this);
 
     if (!super.isEmpty) {
+      String sourceMapContent;
       if (outputSourceFiles) {//--source-map-less-inline
         json = sourceMapGenerator.build(normalizeFilename(outputFilename));
         final List<String> sourcesContent = <String>[];
@@ -266,7 +281,7 @@ class SourceMapOutput extends Output{
 
       if (sourceMapURL.isNotEmpty) {
         sourceMapURL = this.sourceMapURL;
-      } else if (sourceMapFilename.isNotEmpty){
+      } else if (sourceMapFilename.isNotEmpty) {
         sourceMapURL = normalizeFilename(sourceMapFilename);
       }
 
@@ -334,27 +349,45 @@ class SourcemapData {
   static SourcemapData last;
 
   SourcemapData.create(
-      this.originalIndex, this.originalLine, this.originalColumn, this.originalFile,
-      this.generatedIndex, this.generatedLine, this.generatedColumn, this.generatedFile);
+      this.originalIndex,
+      this.originalLine,
+      this.originalColumn,
+      this.originalFile,
+      this.generatedIndex,
+      this.generatedLine,
+      this.generatedColumn,
+      this.generatedFile);
 
   /// Compares with last call. If is same line, return null
-  factory SourcemapData({
-    int originalIndex, int originalLine, int originalColumn, String originalFile,
-    int generatedIndex, int generatedLine, int generatedColumn, String generatedFile}){
+  factory SourcemapData(
+      {int originalIndex,
+      int originalLine,
+      int originalColumn,
+      String originalFile,
+      int generatedIndex,
+      int generatedLine,
+      int generatedColumn,
+      String generatedFile}) {
 
     if (last != null) {
-      if (   last.originalIndex == originalIndex
-          && last.originalFile  == originalFile
-          && last.generatedLine == generatedLine
-          ) return null;
+      if (last.originalIndex == originalIndex &&
+          last.originalFile  == originalFile &&
+          last.generatedLine == generatedLine)
+          return null;
     }
 
     final SourcemapData data = new SourcemapData.create(
         originalIndex, originalLine, originalColumn, originalFile,
-        generatedIndex, generatedLine, generatedColumn, generatedFile);
+        generatedIndex, generatedLine, generatedColumn, generatedFile)
+        ..original = new SourceLocation(originalIndex,
+            line: originalLine,
+            column: originalColumn,
+            sourceUrl: originalFile)
+        ..generated = new SourceLocation(generatedIndex,
+            line: generatedLine,
+            column: generatedColumn,
+            sourceUrl: generatedFile);
 
-    data.original = new SourceLocation(originalIndex, line: originalLine, column: originalColumn, sourceUrl: originalFile);
-    data.generated = new SourceLocation(generatedIndex, line: generatedLine, column: generatedColumn, sourceUrl: generatedFile);
     last = data;
     return data;
   }

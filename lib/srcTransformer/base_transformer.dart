@@ -14,24 +14,23 @@ const String BUILD_MODE_DART = 'dart';
 const String BUILD_MODE_MIXED = 'mixed';
 
 class BaseTransformer {
-  String inputFile;
-  String outputFile;
-  String inputContent;
-  String outputContent;
-
-  List<String> flags;
-  String buildMode;
-
-  String messHead = '[Info from less-dart] ';
-  String messExe = 'lessc ';
-  String message;
-
-  bool isError = false;
-  String errorMessage = '';
-  bool deliverToPipe = true; // deliver to barback
+  String        buildMode;
+  bool          deliverToPipe = true; // deliver to barback
+  String        errorMessage = '';
+  String        inputContent;
+  String        inputFile;
+  List<String>  flags;
+  bool          isError = false;
+  String        message;
+  String        messExe = 'lessc ';
+  String        messHead = '[Info from less-dart] ';
+  Function      modifyOptions;
+  String        outputContent;
+  String        outputFile;
   static Map<String, RegisterItem> register = <String, RegisterItem>{};
-  Function modifyOptions;
 
+  BaseTransformer(this.inputContent, this.inputFile, this.outputFile,
+      this.buildMode, this.modifyOptions);
 
   bool get isBuildModeLess => buildMode == BUILD_MODE_LESS;   //input file, output file
   bool get isBuildModeDart => buildMode == BUILD_MODE_DART;   //input stdin, output stdout
@@ -39,16 +38,16 @@ class BaseTransformer {
 
   Stopwatch timeInProcess = new Stopwatch();
 
-  BaseTransformer(this.inputContent, this.inputFile, this.outputFile, this.buildMode, this.modifyOptions);
-
   ///
   /// check if [inputFile] has changed or need process
   ///
   static bool changed(String inputFile, String inputContent) {
     if (register.containsKey(inputFile)) {
       final RegisterItem reg = register[inputFile];
-      if (reg.imports.isNotEmpty) return true; //Has dependencies
-      if (reg.contentHash == inputContent.hashCode) return false; //not inputContent changed
+      if (reg.imports.isNotEmpty)
+          return true; //Has dependencies
+      if (reg.contentHash == inputContent.hashCode)
+          return false; //not inputContent changed
     }
     return true;
   }
@@ -64,14 +63,17 @@ class BaseTransformer {
   ///
   /// Format the log message
   ///
-  void getMessage(){
-    message = messHead;
-    if (isError) message += 'ERROR ';
-    message += messExe;
-    message += flags.join(' ') + ' ';
-    message += inputFile + ' > ';
-    message += outputFile + ' ';
-    message += 'took ' + niceDuration(timeInProcess.elapsed);
+  void getMessage() {
+    final StringBuffer mess = new StringBuffer()
+        ..write(messHead);
+    if (isError)
+        mess.write('ERROR ');
+    mess
+        ..write(messExe)
+        ..write(flags.join(' '))
+        ..write(' $inputFile > $outputFile took ')
+        ..write(niceDuration(timeInProcess.elapsed));
+    message = mess.toString();
   }
 
   ///
@@ -79,11 +81,11 @@ class BaseTransformer {
   ///
   //from barback - Copyright (c) 2013, the Dart project authors
   String niceDuration(Duration duration) {
-  final String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
+    final String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
 
-  final int s = duration.inSeconds % 59;
-  final int ms = (duration.inMilliseconds % 1000) ~/ 100;
-  return result + "$s.${ms}s";
+    final int s = duration.inSeconds % 59;
+    final int ms = (duration.inMilliseconds % 1000) ~/ 100;
+    return '$result$s.${ms}s';
   }
 }
 

@@ -3,17 +3,16 @@
 part of functions.less;
 
 class TypesFunctions extends FunctionBase {
-
 //  var isa = function (n, Type) {
 //      return (n instanceof Type) ? Keyword.True : Keyword.False;
 //  }
 
   ///
+  // handle non-array values as an array of length 1
+  // return null if index is invalid
   @defineMethodSkip
-  List<Node> getItemsFromNode(Node node) {
-    // handle non-array values as an array of length 1
-    // return null if index is invalid
-    return (node.value is List) ? node.value : <Node>[node];
+  List<Node> getItemsFromNode(Node node) =>
+      (node.value is List) ? node.value : <Node>[node];
 
 //2.4.0+2
 //  getItemsFromNode = function(node) {
@@ -24,7 +23,6 @@ class TypesFunctions extends FunctionBase {
 //
 //      return items;
 //  };
-  }
 
   ///
   /// Returns true if a value is a ruleset, false otherwise.
@@ -39,7 +37,8 @@ class TypesFunctions extends FunctionBase {
   ///   isruleset(@rules);   // true
   ///   isruleset(#ff0);     // false
   ///
-  Keyword isruleset(Node n) => (n is DetachedRuleset) ? new Keyword.True() : new Keyword.False();
+  Keyword isruleset(Node n) =>
+      (n is DetachedRuleset) ? new Keyword.True() : new Keyword.False();
 
 //  isruleset: function (n) {
 //      return isa(n, DetachedRuleset);
@@ -55,7 +54,8 @@ class TypesFunctions extends FunctionBase {
   ///   iscolor(#ff0);     // true
   ///   iscolor("string"); // false
   ///
-  Keyword iscolor(Node n) => (n is Color) ? new Keyword.True() : new Keyword.False();
+  Keyword iscolor(Node n) =>
+      (n is Color) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a number, false otherwise.
@@ -67,7 +67,8 @@ class TypesFunctions extends FunctionBase {
   ///   isnumber(#ff0);     // false
   ///   isnumber(1234);     // true
   ///
-  Keyword isnumber(Node n) => (n is Dimension) ? new Keyword.True() : new Keyword.False();
+  Keyword isnumber(Node n) =>
+      (n is Dimension) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a string, false otherwise.
@@ -79,7 +80,8 @@ class TypesFunctions extends FunctionBase {
   ///   isstring(#ff0);     // false
   ///   isstring("string"); // true
   ///
-  Keyword isstring(Node n) => (n is Quoted) ? new Keyword.True() : new Keyword.False();
+  Keyword isstring(Node n) =>
+      (n is Quoted) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a keyword, false otherwise.
@@ -91,7 +93,8 @@ class TypesFunctions extends FunctionBase {
   ///   iskeyword(#ff0);     // false
   ///   iskeyword(keyword);  // true
   ///
-  Keyword iskeyword(Node n) => (n is Keyword) ? new Keyword.True() : new Keyword.False();
+  Keyword iskeyword(Node n) =>
+      (n is Keyword) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a url, false otherwise.
@@ -103,7 +106,8 @@ class TypesFunctions extends FunctionBase {
   ///   isurl(#ff0);     // false
   ///   isurl(url(...)); // true
   ///
-  Keyword isurl(Node n) => (n is URL) ? new Keyword.True() : new Keyword.False();
+  Keyword isurl(Node n) =>
+      (n is URL) ? new Keyword.True() : new Keyword.False();
 
   ///
   /// Returns true if a value is a number in pixels, false otherwise.
@@ -157,16 +161,16 @@ class TypesFunctions extends FunctionBase {
   Keyword isunit(Node n, dynamic unit) {
     if (unit == null) {
       throw new LessExceptionError(new LessError(
-        type: 'Argument',
-        message: 'missing the required second argument to isunit.'));
+          type: 'Argument',
+          message: 'missing the required second argument to isunit.'));
     }
 
     //String unitValue = (unit.value is String) ? unit.value : unit;
     final String unitValue = (unit is String) ? unit : unit.value;
-    if(unitValue is! String) {
+    if (unitValue is! String) {
       throw new LessExceptionError(new LessError(
-        type: 'Argument',
-        message: 'Second argument to isunit should be a unit or a string.'));
+          type: 'Argument',
+          message: 'Second argument to isunit should be a unit or a string.'));
     }
 
     return (n is Dimension && n.unit.isUnit(unitValue))
@@ -292,15 +296,14 @@ class TypesFunctions extends FunctionBase {
   /// Example: length(1px solid #0080ff);
   ///   Output: 3
   ///
-  Dimension length(Node values) {
-    return new Dimension(getItemsFromNode(values).length);
+  Dimension length(Node values) =>
+      new Dimension(getItemsFromNode(values).length);
 
 //2.4.0
 //  length: function(values) {
 //
 //      return new Dimension(getItemsFromNode(values).length);
 //  }
-  }
 
   ///
   /// Converts from px, pt or em to rem units
@@ -330,6 +333,6 @@ class TypesFunctions extends FunctionBase {
     }
     //base = baseFont != null ? baseFont.value : base;
     base = baseFont?.value ?? base;
-    return new Dimension(fontSize.value/base, 'rem');
+    return new Dimension(fontSize.value / base, 'rem');
   }
 }

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:mime/mime.dart' as mime;
 import 'package:path/path.dart' as pathLib;
 
@@ -26,11 +27,13 @@ part 'more_reg_exp.dart';
 part 'url_file_manager.dart';
 
 class Environment {
-  static Map<int, Environment> cache = <int, Environment>{};
+  static Map<int, Environment>  cache = <int, Environment>{};
 
-  List<FileManager> fileManagers;
-  Logger logger = new Logger();
-  LessOptions options;
+  List<FileManager>             fileManagers;
+
+  Logger                        logger = new Logger();
+
+  LessOptions                   options;
 
   Environment._();
 
@@ -44,17 +47,14 @@ class Environment {
   /// zoneValues: {#id: new Random().nextInt(10000)});
   ///
   factory Environment() {
-    int id = Zone.current[#id];
-    if (id == null) id = -1;
-    if(cache[id] == null) cache[id] = new Environment._();
-
+    final int id = Zone.current[#id] ?? -1;
+    cache[id] ??= new Environment._();
     return cache[id];
   }
 
   /// Join and normalize two parts of path
-  String pathJoin(String basePath, String laterPath){
-    return pathLib.normalize(pathLib.join(basePath, laterPath));
-  }
+  String pathJoin(String basePath, String laterPath) =>
+      pathLib.normalize(pathLib.join(basePath, laterPath));
 
   /// Normalize the path
 //  String pathNormalize(String basePath) => pathLib.normalize(basePath);
@@ -86,29 +86,32 @@ class Environment {
   ///
   /// Returns the UrlFileManager or FileFileManager to load the [filename]
   ///
-  FileManager getFileManager(String filename, String currentDirectory, Contexts options, Environment environment, [bool isSync = false]) {
+  FileManager getFileManager(String filename, String currentDirectory,
+        Contexts options, Environment environment, [bool isSync = false]) {
+
     FileManager fileManager;
 
-    if (filename == null) {
-      logger.warn("getFileManager called with no filename.. Please report this issue. continuing.");
-    }
-    if (currentDirectory == null) {
-      logger.warn("getFileManager called with null directory.. Please report this issue. continuing.");
-    }
+    if (filename == null)
+        logger.warn("getFileManager called with no filename.. Please report this issue. continuing.");
+
+    if (currentDirectory == null)
+        logger.warn("getFileManager called with null directory.. Please report this issue. continuing.");
+
     if (fileManagers == null) {
-      fileManagers = <FileManager>[new FileFileManager(environment), new UrlFileManager(environment)]; //order is important
-      if (options.pluginManager != null) fileManagers.addAll(options.pluginManager.getFileManagers());
+      fileManagers = <FileManager>[
+          new FileFileManager(environment),
+          new UrlFileManager(environment)
+      ]; //order is important
+      if (options.pluginManager != null)
+          fileManagers.addAll(options.pluginManager.getFileManagers());
     }
 
     for (int i = fileManagers.length - 1; i >= 0; i--) {
       fileManager = fileManagers[i];
-
-      if (isSync && fileManager.supportsSync(filename, currentDirectory, options, environment)) {
-        return fileManager;
-      }
-      if (!isSync && fileManager.supports(filename, currentDirectory, options, environment)) {
-        return fileManager;
-      }
+      if (isSync && fileManager.supportsSync(filename, currentDirectory, options, environment))
+          return fileManager;
+      if (!isSync && fileManager.supports(filename, currentDirectory, options, environment))
+          return fileManager;
     }
     return null;
 

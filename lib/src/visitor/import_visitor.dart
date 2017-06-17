@@ -23,8 +23,10 @@ class ImportVisitor extends VisitorBase {
   ///
   /// Structure to search for @import in the tree.
   ///
-  ImportVisitor(ImportManager this.importer, [Contexts context,
-      ImportDetector onceFileDetectionMap, ImportDetector recursionDetector]) {
+  ImportVisitor(ImportManager this.importer,
+      [Contexts context,
+      ImportDetector onceFileDetectionMap,
+      ImportDetector recursionDetector]) {
 
     isReplacing = false;
     _visitor = new Visitor(this);
@@ -77,16 +79,13 @@ class ImportVisitor extends VisitorBase {
 
   Future<Null> tryRun() {
     final Completer<Null> task = new Completer<Null>();
-    Future.wait(runners, eagerError: true)
-    .then((_){
+    Future.wait(runners, eagerError: true).then((_) {
       if (variableImports.isNotEmpty) {
         final VariableImport variableImport = variableImports.removeAt(0);
         processImportNode(variableImport.importNode, variableImport.context, variableImport.importParent);
-        tryRun()
-          .then((_){
-            task.complete();
-          }
-        );
+        tryRun().then((_) {
+          task.complete();
+        });
       } else {
         task.complete();
       }
@@ -112,14 +111,15 @@ class ImportVisitor extends VisitorBase {
     final bool inlineCSS = importNode.options.inline ?? false; //include the file, but not process
 
     if (!importNode.css || inlineCSS) {
-      final Contexts context = new Contexts.eval(this.context, this.context.frames.sublist(0));
+      final Contexts context =
+          new Contexts.eval(this.context, this.context.frames.sublist(0));
       final Node importParent = context.frames[0];
 
       if (importNode.isVariableImport()) {
         //process this type of imports *last*
         variableImports.add(new VariableImport(importNode, context, importParent));
       } else {
-        this.processImportNode(importNode, context, importParent);
+        processImportNode(importNode, context, importParent);
       }
     }
 
@@ -157,17 +157,19 @@ class ImportVisitor extends VisitorBase {
       //expand @variables in path value, ...
       evaldImportNode = importNode.evalForImport(context);
     } catch (e) {
-        final LessError error = LessError.transform(e,
-            filename: importNode.currentFileInfo.filename,
-            index: importNode.index);
-        // attempt to eval properly and treat as css
-        importNode.css = true;
-        // if that fails, this error will be thrown
-        importNode.errorImport = error;
+      final LessError error = LessError.transform(e,
+          filename: importNode.currentFileInfo.filename,
+          index: importNode.index);
+      importNode
+          // attempt to eval properly and treat as css
+          ..css = true
+          // if that fails, this error will be thrown
+          ..errorImport = error;
     }
 
     if (evaldImportNode != null && (!evaldImportNode.css || inlineCSS)) {
-      if (evaldImportNode.options.multiple ?? false) context.importMultiple = true;
+      if (evaldImportNode.options.multiple ?? false)
+          context.importMultiple = true;
 
       // try appending if we haven't determined if it is css or not
       final bool tryAppendLessExtension = !evaldImportNode.css;
@@ -178,23 +180,26 @@ class ImportVisitor extends VisitorBase {
           break;
         }
       }
-      this.importer.push(evaldImportNode.getPath(), tryAppendLessExtension, evaldImportNode.currentFileInfo,
-          evaldImportNode.options).then((ImportedFile importedFile){
-        onImported(evaldImportNode, context, importedFile.root, importedFile.importedPreviously,
-            importedFile.fullPath).then((_){
-          completer.complete();
-        }).catchError((Object e) {
-          completer.completeError(e);
-         });
-      }).catchError((Object e, StackTrace s){
-        final LessError error = LessError.transform(e,
-          index: evaldImportNode.index,
-          filename: evaldImportNode.currentFileInfo.filename,
-          context: context,
-          stackTrace: s);
-        this.lessError = error;
-        completer.completeError(error);
-      });
+      importer
+        .push(evaldImportNode.getPath(), tryAppendLessExtension,
+            evaldImportNode.currentFileInfo, evaldImportNode.options)
+        .then((ImportedFile importedFile) {
+          onImported(evaldImportNode, context, importedFile.root,
+              importedFile.importedPreviously, importedFile.fullPath)
+          .then((_) {
+            completer.complete();
+          }).catchError((Object e) {
+            completer.completeError(e);
+          });
+        }).catchError((Object e, StackTrace s) {
+          final LessError error = LessError.transform(e,
+              index: evaldImportNode.index,
+              filename: evaldImportNode.currentFileInfo.filename,
+              context: context,
+              stackTrace: s);
+          lessError = error;
+          completer.completeError(error);
+        });
     } else {
       completer.complete();
     }
@@ -252,15 +257,17 @@ class ImportVisitor extends VisitorBase {
     final Completer<Null> completer = new Completer<Null>();
     final ImportVisitor importVisitor = this;
     final bool inlineCSS = importNode.options.inline ?? false;
-    final bool duplicateImport = importedAtRoot || recursionDetector.containsKey(fullPath);
+    final bool duplicateImport =
+        importedAtRoot || recursionDetector.containsKey(fullPath);
 
-    if(!(context.importMultiple ?? false)) {
+    if (!(context.importMultiple ?? false)) {
       if (duplicateImport) {
         importNode.skip = true;
       } else {
         // define function
         importNode.skip = () {
-          if (importVisitor.onceFileDetectionMap.containsKey(fullPath)) return true;
+          if (importVisitor.onceFileDetectionMap.containsKey(fullPath))
+              return true;
           importVisitor.onceFileDetectionMap[fullPath] = true;
           return false;
         };
@@ -269,14 +276,17 @@ class ImportVisitor extends VisitorBase {
 
     // recursion - analyze the new root
     if (root != null) {
-      importNode.root = root;
-      importNode.importedFilename = fullPath;
+      importNode
+          ..root = root
+          ..importedFilename = fullPath;
 
       if (!inlineCSS && (isTrue(context.importMultiple) || !duplicateImport)) {
         recursionDetector[fullPath] = true;
-        new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector).runAsync(root).then((_){
-          completer.complete();
-        }).catchError((Object e){
+        new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector)
+          .runAsync(root)
+          .then((_) {
+            completer.complete();
+        }).catchError((Object e) {
           completer.completeError(e);
         });
       } else {
@@ -342,7 +352,6 @@ class ImportVisitor extends VisitorBase {
 //  },
   }
 
-
   ///
   void visitRule(Rule ruleNode, VisitArgs visitArgs) {
     if (ruleNode is DetachedRuleset) {
@@ -363,9 +372,8 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void visitRuleOut(Rule ruleNode) {
-    if (ruleNode is DetachedRuleset) {
-      context.frames.removeAt(0);
-    }
+    if (ruleNode is DetachedRuleset)
+        context.frames.removeAt(0);
 
 //2.4.0 20150320
 //  visitRuleOut : function(ruleNode) {
@@ -458,25 +466,34 @@ class ImportVisitor extends VisitorBase {
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media)      return visitMedia;
-    if (node is Directive)  return visitDirective;
-    if (node is Import)     return visitImport;
-    if (node is MixinDefinition) return visitMixinDefinition;
-    if (node is Rule)       return visitRule;
-    if (node is Ruleset)    return visitRuleset;
-
+    if (node is Media)
+        return visitMedia;
+    if (node is Directive)
+        return visitDirective;
+    if (node is Import)
+        return visitImport;
+    if (node is MixinDefinition)
+        return visitMixinDefinition;
+    if (node is Rule)
+        return visitRule;
+    if (node is Ruleset)
+        return visitRuleset;
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Media)      return visitMediaOut;
-    if (node is Directive)  return visitDirectiveOut;
-    if (node is MixinDefinition) return visitMixinDefinitionOut;
-    if (node is Rule)       return visitRuleOut;
-    if (node is Ruleset)    return visitRulesetOut;
-
+    if (node is Media)
+        return visitMediaOut;
+    if (node is Directive)
+        return visitDirectiveOut;
+    if (node is MixinDefinition)
+        return visitMixinDefinitionOut;
+    if (node is Rule)
+        return visitRuleOut;
+    if (node is Ruleset)
+        return visitRulesetOut;
     return null;
   }
 }

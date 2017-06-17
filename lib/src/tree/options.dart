@@ -6,7 +6,7 @@ part of tree.less;
 /// @options "--flags" directive
 ///
 class Options extends Node {
-  @override String get        name => null;
+  @override final String      name = null;
   @override final String      type = 'Options';
   @override covariant Quoted  value;
 
@@ -14,9 +14,10 @@ class Options extends Node {
   int                 index;
   bool                isPlugin;
 
-  Options(Quoted this.value, this.index, FileInfo currentFileInfo, {bool this.isPlugin: false}){
-    this.currentFileInfo = currentFileInfo;
-  }
+  ///
+  Options(Quoted this.value, this.index, FileInfo currentFileInfo,
+      {bool this.isPlugin: false})
+      : super.init(currentFileInfo: currentFileInfo);
 
   ///
   /// Load the options and plugins
@@ -25,12 +26,14 @@ class Options extends Node {
     final LessOptions lessOptions = environment.options;
     final Logger logger = environment.logger;
     String line = value.value;
-    if (isPlugin) line = '--plugin=' + line;
+    if (isPlugin)
+        line = '--plugin=$line';
 
     logger.captureStart();
     final bool result = lessOptions.fromCommandLine(line);
     String capture = logger.captureStop();
-    if (capture.isNotEmpty) capture = capture.split('\n').first;
+    if (capture.isNotEmpty)
+        capture = capture.split('\n').first;
 
     if (!result) {
       throw new LessExceptionError(new LessError(
@@ -40,7 +43,7 @@ class Options extends Node {
     }
 
     if (isPlugin) {
-      if(lessOptions.pluginManager == null) {
+      if (lessOptions.pluginManager == null) {
         lessOptions.pluginLoader.start();
       } else {
         // we have added the last plugin, but it is not in pluginManager
@@ -51,7 +54,7 @@ class Options extends Node {
 
   /// load the plugin functions
   @override
-  Options eval(Contexts context){
+  Options eval(Contexts context) {
     if (context.frames.isNotEmpty) {
       (context.frames[0] as VariableMixin).functionRegistry.add(functions);
       functions = null; //only load once to avoid mixin propagation

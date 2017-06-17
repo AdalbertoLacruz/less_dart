@@ -3,18 +3,18 @@
 part of tree.less;
 
 class Combinator extends Node {
-  @override String get    name => null;
+  @override final String  name = null;
   @override final String  type = 'Combinator';
 
   bool              emptyOrWhitespace;
   Map<String, bool> _noSpaceCombinators = <String, bool>{
-    '': true,
-    ' ': true,
-    '|': true
+      '':  true,
+      ' ': true,
+      '|': true
   };
 
   ///
-  Combinator (String value) {
+  Combinator(String value) {
     this.value = '';
     if (value == ' ') {
       this.value = ' ';
@@ -41,13 +41,14 @@ class Combinator extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (context?.cleanCss ?? false) return genCleanCSS(context, output);
+    if (context?.cleanCss ?? false)
+        return genCleanCSS(context, output);
 
     final String spaceOrEmpty =
         ((context?.compress ?? false) || (_noSpaceCombinators[value] ?? false))
             ? ''
             : ' ';
-    output.add(spaceOrEmpty + value + spaceOrEmpty);
+    output.add('$spaceOrEmpty$value$spaceOrEmpty');
 
 //2.3.1
 //  Combinator.prototype.genCSS = function (context, output) {

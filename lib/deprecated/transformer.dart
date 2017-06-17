@@ -15,10 +15,10 @@
 //library less.transformer;
 
 import 'dart:async';
-import 'dart:math';
 import 'dart:io';
-import '../less.dart';
+import 'dart:math';
 import 'package:barback/barback.dart';
+import '../less.dart';
 
 const String INFO_TEXT = '[Info from deprecated/less-dart]';
 const String BUILD_MODE_LESS = 'less';
@@ -37,25 +37,26 @@ class LessTransformer extends Transformer {
   final BarbackSettings settings;
   final TransformerOptions options;
 
-  bool get isBuildModeLess => options.buildMode == BUILD_MODE_LESS;   //input file, output file
-  bool get isBuildModeDart => options.buildMode == BUILD_MODE_DART;   //input stdin, output stdout
-  bool get isBuildModeMixed => options.buildMode == BUILD_MODE_MIXED; //input file, output stdout
+  LessTransformer(BarbackSettings this.settings)
+      : options = new TransformerOptions.parse(settings.configuration);
 
-  LessTransformer(BarbackSettings settings):
-    settings = settings,
-    options = new TransformerOptions.parse(settings.configuration);
+  LessTransformer.asPlugin(BarbackSettings settings)
+      : this(settings);
 
-  LessTransformer.asPlugin(BarbackSettings settings):
-    this(settings);
+  bool get isBuildModeLess =>
+      options.buildMode == BUILD_MODE_LESS; //input file, output file
+  bool get isBuildModeDart =>
+      options.buildMode == BUILD_MODE_DART; //input stdin, output stdout
+  bool get isBuildModeMixed =>
+      options.buildMode == BUILD_MODE_MIXED; //input file, output stdout
 
   @override
-  Future<bool> isPrimary (AssetId id) {
-    return new Future<bool>.value(_isEntryPoint(id));
-  }
+  Future<bool> isPrimary(AssetId id) =>
+      new Future<bool>.value(_isEntryPoint(id));
 
   @override
   Future<Null> apply(Transform transform) {
-    final List<String> flags = _createFlags();  //to build process arguments
+    final List<String> flags = _createFlags(); //to build process arguments
     final AssetId id = transform.primaryInput.id;
     final String inputFile = id.path;
     final String outputFile = getOutputFileName(id);
@@ -74,16 +75,17 @@ class LessTransformer extends Transformer {
     }
 
     final ProcessInfo processInfo = new ProcessInfo(options.executable, flags);
-    if (isBuildModeDart) processInfo.inputFile = inputFile;
-    if (isBuildModeMixed || isBuildModeDart) processInfo.outputFile = outputFile;
+    if (isBuildModeDart)
+        processInfo.inputFile = inputFile;
+    if (isBuildModeMixed || isBuildModeDart)
+        processInfo.outputFile = outputFile;
 
-    return transform.primaryInput.readAsString().then((String content){
+    return transform.primaryInput.readAsString().then((String content) {
       transform.consumePrimary();
       return executeProcess(options.executable, flags, content, processInfo).then((String output) {
 
-        if (isBuildModeMixed || isBuildModeDart){
+        if (isBuildModeMixed || isBuildModeDart)
           transform.addOutput(new Asset.fromString(new AssetId(id.package, outputFile), output));
-        }
       });
     });
   }
@@ -92,34 +94,38 @@ class LessTransformer extends Transformer {
    * Only returns true in entry_point(s) file
    */
   bool _isEntryPoint(AssetId id) {
-    if (id.extension != '.less') return false;
+    if (id.extension != '.less')
+        return false;
     return (options.entryPoints.contains(id.path));
   }
 
   List<String> _createFlags(){
-    final List<String> flags = <String>[];
-
-    flags.add('--no-color');
-    if (options.cleancss) flags.add('--clean-css');
-    if (options.compress) flags.add('--compress');
-    if (options.includePath != '') flags.add('--include-path=${options.includePath}');
-    if (options.otherFlags != null) flags.addAll(options.otherFlags);
+    final List<String> flags = <String>[]
+        ..add('--no-color');
+    if (options.cleancss)
+        flags.add('--clean-css');
+    if (options.compress)
+        flags.add('--compress');
+    if (options.includePath != '')
+        flags.add('--include-path=${options.includePath}');
+    if (options.otherFlags != null)
+        flags.addAll(options.otherFlags);
 
     return flags;
   }
 
   String getOutputFileName(AssetId id) {
-    if(options.entryPoints.length > 1 || options.output == '') {
-      return id.changeExtension('.css').path;
-    }
+    if (options.entryPoints.length > 1 || options.output == '')
+        return id.changeExtension('.css').path;
+
     return options.output;
   }
 
   /*
    * lessc process wrapper
    */
-  Future<String> executeProcess(String executable, List<String> flags, String content, ProcessInfo processInfo) {
-    return runZoned((){
+  Future<String> executeProcess(String executable, List<String> flags, String content, ProcessInfo processInfo) =>
+    runZoned(() {
       final Stopwatch _timeInProcess = new Stopwatch();
 
       final Less less = new Less();
@@ -127,11 +133,11 @@ class LessTransformer extends Transformer {
 
       _timeInProcess.start();
       return less.transform(flags)
-        .then((int exiCode){
+        .then((int exiCode) {
           _timeInProcess.stop();
           processInfo.nicePrint(_timeInProcess.elapsed);
           print(less.stderr.toString());
-          if(exitCode == 0){
+          if (exitCode == 0) {
             return new Future<String>.value(less.stdout.toString());
           } else {
             throw new LessException(less.stderr.toString());
@@ -139,7 +145,6 @@ class LessTransformer extends Transformer {
         });
     },
     zoneValues: <Symbol, int>{#id: new Random().nextInt(10000)});
-  }
 }
 /* ************************************** */
 class TransformerOptions {
@@ -153,11 +158,17 @@ class TransformerOptions {
   final String buildMode;   // build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
   final List<String> otherFlags;    // other options in the command line
 
-  TransformerOptions({List<String> this.entryPoints, String this.includePath, String this.output, bool this.cleancss, bool this.compress,
-    String this.executable, String this.buildMode, this.otherFlags});
+  TransformerOptions(
+      {List<String> this.entryPoints,
+      String this.includePath,
+      String this.output,
+      bool this.cleancss,
+      bool this.compress,
+      String this.executable,
+      String this.buildMode,
+      this.otherFlags});
 
-  factory TransformerOptions.parse(Map<dynamic, dynamic> configuration){
-
+  factory TransformerOptions.parse(Map<dynamic, dynamic> configuration) {
     //returns bool | String | List<String>
     dynamic config(String key, dynamic defaultValue) {
       final dynamic value = configuration[key];
@@ -165,8 +176,10 @@ class TransformerOptions {
     }
 
     List<String> readStringList(dynamic value) {
-      if (value is List<String>) return value;
-      if (value is String) return <String>[value];
+      if (value is List<String>)
+          return value;
+      if (value is String)
+          return <String>[value];
       return null;
     }
 
@@ -175,12 +188,16 @@ class TransformerOptions {
       List<String> value;
 
       value = readStringList(entryPoint);
-      if (value != null) result.addAll(value);
+      if (value != null)
+          result.addAll(value);
 
       value = readStringList(entryPoints);
-      if (value != null) result.addAll(value);
+      if (value != null)
+          result.addAll(value);
 
-      if (result.length < 1) print('$INFO_TEXT No entry_point supplied!');
+      if (result.length < 1)
+          print('$INFO_TEXT No entry_point supplied!');
+
       return result;
     }
 
@@ -209,19 +226,21 @@ class ProcessInfo {
 
   void nicePrint(Duration elapsed){
     print('$INFO_TEXT command: $executable ${flags.join(' ')}');
-    if (inputFile  != '') print('$INFO_TEXT input File: $inputFile');
-    if (outputFile != '') print('$INFO_TEXT outputFile: $outputFile');
+    if (inputFile  != '')
+        print('$INFO_TEXT input File: $inputFile');
+    if (outputFile != '')
+        print('$INFO_TEXT outputFile: $outputFile');
     print ('$INFO_TEXT $executable transformation completed in ${niceDuration(elapsed)}');
   }
 
   /// Returns a human-friendly representation of [duration].
   //from barback - Copyright (c) 2013, the Dart project authors
   String niceDuration(Duration duration) {
-    final String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
+    final String result = duration.inMinutes > 0 ? '${duration.inMinutes}:' : '';
 
     final int s = duration.inSeconds % 59;
     final int ms = (duration.inMilliseconds % 1000) ~/ 100;
-    return result + "$s.${ms}s";
+    return '$result$s.${ms}s';
   }
 }
 

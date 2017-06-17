@@ -30,7 +30,6 @@ class ImportDetector {
   ///
   /// Returns a not null [detector]
   ///
-  static ImportDetector own(ImportDetector detector) {
-    return detector ?? new ImportDetector(); //factory?
-  }
+  static ImportDetector own(ImportDetector detector) =>
+      detector ?? new ImportDetector();
 }

@@ -12,20 +12,25 @@ abstract class Node {
   bool                evaluated; //result from bool eval, used in condition
   int                 id; // hashCode own or inherited for object compare
   bool                isRuleset = false; //true in MixinDefinition & Ruleset
-  dynamic get         name => null; //String | List<Node>
   List<Node>          operands;
   Node                originalRuleset; //see mixin_call
   bool                parens = false; //Expression
   bool                parensInOp = false; //See parsers.operand & Expression
   @virtual List<Node> rules; //Ruleset
   List<Selector>      selectors;
-  String get          type;
   @virtual dynamic    value;
 
   ///
   Node() {
     id = hashCode;
   }
+
+  Node.init({this.currentFileInfo, this.operands, this.rules, this.value}) {
+    id = hashCode;
+  }
+
+  dynamic get         name => null; //String | List<Node>
+  String get          type;
 
   /// Directive overrides it
   bool isCharset() => false;
@@ -40,10 +45,10 @@ abstract class Node {
   /// Returns node transformed to css code
   ///
   String toCSS(Contexts context) {
-     final Output output = new Output();
-     genCSS(context, output);
-     //if (context != null) context.avoidDartOptimization = true; //avoid dart context prune
-     return output.toString();
+    final Output output = new Output();
+    genCSS(context, output);
+    //if (context != null) context.avoidDartOptimization = true; //avoid dart context prune
+    return output.toString();
 
 //2.3.1
 //   Node.prototype.toCSS = function (context) {
@@ -63,10 +68,10 @@ abstract class Node {
   ///
   /// Writes in [output] the node transformed to CSS.
   ///
-  void genCSS(Contexts context, Output output){
+  void genCSS(Contexts context, Output output) {
     output.add(value);
 
-///2.3.1
+//2.3.1
 //  Node.prototype.genCSS = function (context, output) {
 //      output.add(this.value);
 //  };
@@ -118,7 +123,8 @@ abstract class Node {
   /// [precision] to forze
   ///
   num fround(Contexts context, num value, [int precision]) {
-    if (value is int) return value;
+    if (value is int)
+        return value;
 
     final int _precision = (precision == null || precision == -1)
         ? context?.numPrecision
@@ -163,16 +169,19 @@ abstract class Node {
     final dynamic aValue = a.value;
     final dynamic bValue = b.value;
 
-    if (aValue is! List) return (aValue == bValue) ? 0 : null;
+    if (aValue is! List)
+        return (aValue == bValue) ? 0 : null;
     if (aValue is List && bValue is List) {
-      if (aValue.length != bValue.length) return null;
+      if (aValue.length != bValue.length)
+          return null;
       for (int i = 0; i < aValue.length; i++) {
-        if (Node.compareNodes(aValue[i], bValue[i]) != 0) return null;
+        if (Node.compareNodes(aValue[i], bValue[i]) != 0)
+            return null;
       }
     }
     return 0;
 
-///2.3.1
+//2.3.1
 //  Node.compare = function (a, b) {
 //      /* returns:
 //       -1: a < b
@@ -239,29 +248,34 @@ abstract class Node {
     final String tabStr = '  ' * env.tabLevel;
     final List<dynamic> process = <dynamic>[];
 
-
     String nameNode = name is String ? name : null;
-    if (nameNode == null) nameNode = value is String ? value : '';
+    if (nameNode == null)
+        nameNode = value is String ? value : '';
     nameNode = nameNode.replaceAll('\n', '');
 
     output.add('$tabStr$type ($nameNode)\n');
     env.tabLevel++;
 
-    if (selectors is List) process.addAll(selectors);
-    if (rules is List) process.addAll(rules);
-    if (elements is List) process.addAll(elements);
-    if (name is List) process.addAll(name);
-    if (value is List) process.addAll(value as List<dynamic>);
-    if (operands is List) process.addAll(operands);
+    if (selectors is List)
+        process.addAll(selectors);
+    if (rules is List)
+        process.addAll(rules);
+    if (elements is List)
+        process.addAll(elements);
+    if (name is List)
+        process.addAll(name);
+    if (value is List)
+        process.addAll(value);
+    if (operands is List)
+        process.addAll(operands);
 
     if (process.isNotEmpty) {
       for (i = 0; i < process.length; i++) {
         process[i].genTree(env, output);
       }
     }
-    if(value is Node) {
-      (value as Node).genTree(env, output);
-    }
+    if (value is Node)
+        value.genTree(env, output);
     env.tabLevel--;
   }
 }

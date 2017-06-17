@@ -34,85 +34,101 @@ export 'package:less_dart/less.dart';
  * See http://lesscss.org/ for more information
  */
 class FileTransformer extends AggregateTransformer {
-  final BarbackSettings settings;
-  final TransformerOptions options;
+  EntryPoints               entryPoints;
+  final TransformerOptions  options;
+  final BarbackSettings     settings;
 
-  EntryPoints entryPoints;
+  FileTransformer(BarbackSettings this.settings)
+      : options = new TransformerOptions.parse(settings.configuration as Map<String, dynamic>) {
 
-  FileTransformer(BarbackSettings settings):
-    settings = settings,
-    options = new TransformerOptions.parse(settings.configuration as Map<String, dynamic>) {
-
-    entryPoints = new EntryPoints();
-    entryPoints.addPaths(options.entryPoints);
-    entryPoints.assureDefault(<String>['*.less', '*.html']);
+    entryPoints = new EntryPoints()
+        ..addPaths(options.entryPoints)
+        ..assureDefault(<String>['*.less', '*.html']);
   }
 
-  FileTransformer.asPlugin(BarbackSettings settings):
-    this(settings);
+  FileTransformer.asPlugin(BarbackSettings settings)
+      : this(settings);
 
   @override
   String classifyPrimary(AssetId id) {
     // Build one group with all .less files and only .html's in entryPoint
     // so a .less file change propagates to all affected
     final String extension = id.extension.toLowerCase();
-    if (extension == '.less') return 'less';
-    if (extension == '.html' || entryPoints.check(id.path)) return 'less';
+    if (extension == '.less')
+        return 'less';
+    if (extension == '.html' || entryPoints.check(id.path))
+        return 'less';
     return null;
   }
 
   @override
-  Future<Null> apply(AggregateTransform transform) {
-    return transform.primaryInputs.toList().then((List<Asset> assets) {
+  Future<Null> apply(AggregateTransform transform) =>
+    // ignore: prefer_expression_function_bodies
+    transform.primaryInputs.toList().then((List<Asset> assets) {
       return Future.wait(assets.map((Asset asset) {
         // files excluded of entry_points are not processed
         // if user don't specify entry_points, the default value is all '*.less' and '*.html' files
-        if (!entryPoints.check(asset.id.path)) return new Future<Null>.value();
+        if (!entryPoints.check(asset.id.path))
+            return new Future<Null>.value();
 
         return asset.readAsString().then((String content) {
           final List<String> flags = _createFlags();  //to build process arguments
           final AssetId id = asset.id;
 
           if (id.extension.toLowerCase() == '.html') {
-            final HtmlTransformer htmlProcess = new HtmlTransformer(content, id.path, customOptions);
-            return htmlProcess.transform(flags).then((HtmlTransformer process){
-              if (process.deliverToPipe) {
-                transform.addOutput(new Asset.fromString(new AssetId(id.package, id.path), process.outputContent));
-                if (process.isError || !options.silence) print (process.message);
-                if (process.isError) {
-                  print('**** ERROR ****  see build/' + process.outputFile + '\n');
-                  print(process.errorMessage);
+            final HtmlTransformer htmlProcess = new HtmlTransformer(content,
+                id.path, customOptions);
+
+            return htmlProcess
+              .transform(flags)
+              .then((HtmlTransformer process){
+                if (process.deliverToPipe) {
+                  transform.addOutput(new Asset.fromString(new AssetId(id.package,
+                      id.path), process.outputContent));
+                  if (process.isError || !options.silence)
+                      print(process.message);
+                  if (process.isError)
+                      print('**** ERROR ****  see build/${process.outputFile}\n${
+                        process.errorMessage}');
                 }
-              }
             });
           } else if (id.extension.toLowerCase() == '.less') {
-            final LessTransformer lessProcess = new LessTransformer(content, id.path,
-                getOutputFileName(id), options.buildMode, customOptions);
-            return lessProcess.transform(flags).then((LessTransformer process) {
-              if (process.deliverToPipe) {
-                transform.addOutput(new Asset.fromString(new AssetId(id.package, process.outputFile), process.outputContent));
-              }
-              if (process.isError || !options.silence) print (process.message);
-              if (process.isError) {
-                final String resultFile = process.deliverToPipe ? ('build/' + process.outputFile) :process.outputFile;
-                print('**** ERROR ****  see ' + resultFile + '\n');
-                print(process.errorMessage);
-              }
+            final LessTransformer lessProcess = new LessTransformer(content,
+                id.path, getOutputFileName(id), options.buildMode, customOptions);
+
+            return lessProcess
+              .transform(flags)
+              .then((LessTransformer process) {
+                if (process.deliverToPipe) {
+                  transform.addOutput(new Asset.fromString(new AssetId(id.package,
+                      process.outputFile), process.outputContent));
+                }
+                if (process.isError || !options.silence)
+                    print(process.message);
+                if (process.isError) {
+                  final String resultFile = process.deliverToPipe
+                      ? ('build/${process.outputFile}')
+                      : process.outputFile;
+                  print('**** ERROR ****  see $resultFile\n${
+                      process.errorMessage}');
+                }
             });
           }
         });
       }));
     });
-  }
 
-  List<String> _createFlags(){
-    final List<String> flags = <String>[];
-
-    flags.add('--no-color');
-    if (options.cleancss != null) flags.add('--clean-css="${options.cleancss}"');
-    if (options.compress) flags.add('--compress');
-    if (options.includePath != '') flags.add('--include-path=${options.includePath}');
-    if (options.otherFlags != null) flags.addAll(options.otherFlags);
+  List<String> _createFlags() {
+    final List<String> flags = <String>[]
+        ..add('--no-color');
+    if (options.cleancss != null)
+        flags.add('--clean-css="${options.cleancss}"');
+    if (options.compress)
+        flags.add('--compress');
+    if (options.includePath != '')
+        flags.add('--include-path=${options.includePath}');
+    if (options.otherFlags != null)
+        flags.addAll(options.otherFlags);
 
     return flags;
   }
@@ -124,14 +140,12 @@ class FileTransformer extends AggregateTransformer {
   /// else the name is file.less -> file.css
   ///
   String getOutputFileName(AssetId id) {
-    if(!entryPoints.isLessSingle || options.output == '') {
-      return id.changeExtension('.css').path;
-    }
+    if (!entryPoints.isLessSingle || options.output == '')
+        return id.changeExtension('.css').path;
     return options.output;
   }
 
-  void customOptions(LessOptions options) {
-  }
+  void customOptions(LessOptions options) {}
 }
 
 /* ************************************** */

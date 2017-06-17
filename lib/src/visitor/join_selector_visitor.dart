@@ -49,20 +49,23 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    final List<List<Selector>>  context = this.contexts.last;
+    final List<List<Selector>>  context = contexts.last;
     final List<List<Selector>>  paths = <List<Selector>>[];
     List<Selector>              selectors;
 
-    this.contexts.add(paths);
+    contexts.add(paths);
 
     if (!rulesetNode.root) {
       selectors = rulesetNode.selectors;
       if (selectors != null) {
         selectors.retainWhere((Selector selector) => selector.getIsOutput());
-        rulesetNode.selectors = selectors.isNotEmpty ? selectors : (selectors = null);
-        if (selectors != null) rulesetNode.joinSelectors(paths, context, selectors);
+        rulesetNode.selectors =
+            selectors.isNotEmpty ? selectors : (selectors = null);
+        if (selectors != null)
+            rulesetNode.joinSelectors(paths, context, selectors);
       }
-      if (selectors == null) rulesetNode.rules = null;
+      if (selectors == null)
+          rulesetNode.rules = null;
       rulesetNode.paths = paths;
     }
 
@@ -98,8 +101,9 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    final List<List<Selector>> context = this.contexts.last;
-    mediaNode.rules[0].root = (context.isEmpty || (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
+    final List<List<Selector>> context = contexts.last;
+    mediaNode.rules[0].root = (context.isEmpty ||
+        (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
 
 //2.3.1
 //  visitMedia: function (mediaNode, visitArgs) {
@@ -110,10 +114,9 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    final List<List<Selector>> context = this.contexts.last;
-    if (directiveNode.rules != null && directiveNode.rules.isNotEmpty) {
-      directiveNode.rules[0].root = (directiveNode.isRooted || context.isEmpty);
-    }
+    final List<List<Selector>> context = contexts.last;
+    if (directiveNode.rules != null && directiveNode.rules.isNotEmpty)
+        directiveNode.rules[0].root = (directiveNode.isRooted || context.isEmpty);
 
 //2.4.0 20150319
 //  visitDirective: function (directiveNode, visitArgs) {
@@ -127,20 +130,24 @@ class JoinSelectorVisitor extends VisitorBase{
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media) return visitMedia;
-    if (node is Directive) return visitDirective;
-    if (node is MixinDefinition) return visitMixinDefinition;
-    if (node is Rule) return visitRule;
-    if (node is Ruleset) return visitRuleset;
-
+    if (node is Media)
+        return visitMedia;
+    if (node is Directive)
+        return visitDirective;
+    if (node is MixinDefinition)
+        return visitMixinDefinition;
+    if (node is Rule)
+        return visitRule;
+    if (node is Ruleset)
+        return visitRuleset;
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Ruleset) return visitRulesetOut;
-
+    if (node is Ruleset)
+        return visitRulesetOut;
     return null;
   }
 }

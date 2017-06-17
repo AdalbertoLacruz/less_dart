@@ -1,15 +1,12 @@
 part of less_plugin_advanced_color_functions.plugins.less;
 
 class AdvancedColorFunctions extends ColorFunctions {
-
   ///
   /// Inverts the luma of a color giving a version darken or lighter than the original
   ///
   Color invertluma(Color color) {
     final HSLType hsl = color.toHSL();
-
-    hsl.l = 1 - hsl.l;
-    hsl.l = clamp(hsl.l);
+    hsl.l = clamp(1 - hsl.l);
 
     return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
 
@@ -31,7 +28,9 @@ class AdvancedColorFunctions extends ColorFunctions {
     final HSLType hsl = autocontrast.toHSL();
     double missingLumaDif;
     double newluma;
-    final double minLumaDifference = (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
+    final double minLumaDifference = (minLumaDifferenceDim == null)
+        ? 0.3
+        : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
       missingLumaDif = minLumaDifference - lumadif;
@@ -89,13 +88,16 @@ class AdvancedColorFunctions extends ColorFunctions {
     double newLuma = hsl.l;
     double missingLuma;
 
-    final double minLumaDifference = (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
+    final double minLumaDifference = (minLumaDifferenceDim == null)
+        ? 0.3
+        : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
       missingLuma = minLumaDifference - lumadif;
-      newLuma += ( missingLuma * ( color1.luma() < newLuma ? 1 : -1  ) );
-      if( newLuma > 1 || newLuma < 0 ) newLuma = 1 - hsl.l;
-      newLuma = clamp( newLuma );
+      newLuma += (missingLuma * (color1.luma() < newLuma ? 1 : -1));
+      if (newLuma > 1 || newLuma < 0)
+          newLuma = 1 - hsl.l;
+      newLuma = clamp(newLuma);
       hsl.l = newLuma;
       autocontrast = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
     }

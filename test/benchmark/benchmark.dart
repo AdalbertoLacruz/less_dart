@@ -10,7 +10,8 @@ int ignoreruns;
 Less less;
 
 Future<Null> main(List<String> args) async {
-  if (args.isEmpty) return mainParserBig();
+  if (args.isEmpty)
+      return mainParserBig();
 
   final String arg = args[0];
   switch (arg) {
@@ -36,7 +37,7 @@ Null help() {
 ///
 /// big file parsing times
 ///
-Future<Null> mainParserBig() async{
+Future<Null> mainParserBig() async {
   final Less less = new Less();
   final String sampleFile1 = "benchmark/big1.less";
   final String content = readSampleFile(sampleFile1);
@@ -46,7 +47,7 @@ Future<Null> mainParserBig() async{
     final Stopwatch stopwatch = new Stopwatch()..start();
     await less.parseLessFile(content);
     print("Time (Parser big1.less): ${stopwatch.elapsedMilliseconds}");
-    if (less.stderr.isNotEmpty){
+    if (less.stderr.isNotEmpty) {
       print("error: ${less.stderr}");
       print("----------------------");
     }
@@ -57,7 +58,7 @@ Future<Null> mainParserBig() async{
 ///
 /// Benchmark only for parser
 ///
-Future<Null> mainParser() async{
+Future<Null> mainParser() async {
   final String file =  "benchmark/benchmark.less";
   final Less less = new Less();
   final String data = readSampleFile(file);
@@ -82,7 +83,7 @@ Future<Null> mainParser() async{
   num totalTime = 0;
   num mintime = 9999999;
   num maxtime = 0;
-  for(int i = ignoreruns; i < totalruns; i++) {
+  for (int i = ignoreruns; i < totalruns; i++) {
     totalTime += benchMarkData[i];
     mintime = Math.min(mintime, benchMarkData[i]);
     maxtime = Math.max(maxtime, benchMarkData[i]);
@@ -103,7 +104,7 @@ Future<Null> mainParser() async{
 /// full benchmark, calculating the times in
 /// parsing, tree transforming and css generation
 ///
-Future<Null> mainFull() async{
+Future<Null> mainFull() async {
     totalruns = 30;
     ignoreruns = 5;
 
@@ -136,7 +137,7 @@ Future<Null> mainFull() async{
       final Parser parser = new Parser(options);
 
       try {
-        await parser.parse(data).then((Ruleset root){
+        await parser.parse(data).then((Ruleset root) {
           parserEnd = new DateTime.now();
           final Ruleset evaldRoot = new TransformTree().call(root, options);
           evalEnd = new DateTime.now();
@@ -155,7 +156,7 @@ Future<Null> mainFull() async{
       }
     }
 
-    if(!isError) {
+    if (!isError) {
       print('');
       analyze('Parsing', parserBenchmark, data.length);
       analyze('Tree Transforming', evalBenchmark, data.length);
@@ -176,7 +177,7 @@ void analyze(String benchmark, List<int> benchMarkData, int dataLength) {
   print(benchmark);
   print('----------------------');
 
-  for(int i = ignoreruns; i < totalruns; i++) {
+  for (int i = ignoreruns; i < totalruns; i++) {
       totalTime += benchMarkData[i];
       mintime = Math.min(mintime, benchMarkData[i]);
       maxtime = Math.max(maxtime, benchMarkData[i]);

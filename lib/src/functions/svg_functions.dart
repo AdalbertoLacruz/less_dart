@@ -41,9 +41,10 @@ class SvgFunctions extends FunctionBase {
     String          rectangleDimension = 'x="0" y="0" width="1" height="1"';
     List<Node>      stops;
     final Contexts  renderEnv = new Contexts()
-                            ..compress = false
-                            ..numPrecision = context.numPrecision;
+        ..compress = false
+        ..numPrecision = context.numPrecision;
     String          returner;
+    final StringBuffer    returnerSb = new StringBuffer();
 
     final String directionValue = direction.toCSS(renderEnv);
 
@@ -83,9 +84,11 @@ class SvgFunctions extends FunctionBase {
             message: "svg-gradient direction must be 'to bottom', 'to right', 'to bottom right', 'to top right' or 'ellipse at center'"));
     }
 
-    returner = '<?xml version="1.0" ?>' +
-        '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none">' +
-        '<' + gradientType + 'Gradient id="gradient" gradientUnits="userSpaceOnUse" ' + gradientDirectionSvg + '>';
+    //ignore: prefer_interpolation_to_compose_strings
+    returnerSb
+      ..write('<?xml version="1.0" ?>')
+      ..write('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none">')
+      ..write('<${gradientType}Gradient id="gradient" gradientUnits="userSpaceOnUse" $gradientDirectionSvg>');
 
     for (int i = 0; i < stops.length; i++) {
       if (stops[i] is Expression) {
@@ -100,17 +103,20 @@ class SvgFunctions extends FunctionBase {
         throwArgumentDescriptor();
       }
 
-      positionValue = position != null ? position.toCSS(renderEnv) : i == 0 ? "0%" : "100%";
-      alpha = (color as Color).alpha;
-      returner += '<stop offset="' + positionValue + '" stop-color="' + (color as Color).toRGB() + '"' + (alpha < 1 ? ' stop-opacity="' + alpha.toString() + '"' : '') + '/>';
+      positionValue = position != null
+          ? position.toCSS(renderEnv) : i == 0 ? "0%"
+          : "100%";
+      final Color col = color;
+      alpha = col.alpha;
+      final String stopOpacity = (alpha < 1)
+          ? ' stop-opacity="${alpha.toString()}"'
+          : '';
+      returnerSb.write('<stop offset="$positionValue" stop-color="${col.toRGB()}"$stopOpacity/>');
     }
-    
-    returner += '</' + gradientType + 'Gradient>' +
-                '<rect ' + rectangleDimension + ' fill="url(#gradient)" /></svg>';
 
-    returner = 'data:image/svg+xml,' + Uri.encodeComponent(returner);
-    //returner = 'data:image/svg+xml,' + returner;
-    return new URL(new Quoted("'" + returner + "'", returner, false, index, currentFileInfo), index, currentFileInfo);
+    returnerSb.write('</${gradientType}Gradient><rect $rectangleDimension fill="url(#gradient)" /></svg>');
+    returner = 'data:image/svg+xml,${Uri.encodeComponent(returnerSb.toString())}';
+    return new URL(new Quoted("'$returner'", returner, false, index, currentFileInfo), index, currentFileInfo);
 
 //2.4.0+
 //  functionRegistry.add("svg-gradient", function(direction) {

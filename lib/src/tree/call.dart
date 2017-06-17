@@ -12,14 +12,15 @@ class Call extends Node {
   List<Node>  args; // Expression | Dimension | Assignment
   int         index;
 
-  Call(this.name, this.args, this.index, FileInfo currentFileInfo){
-    this.currentFileInfo = currentFileInfo;
-  }
+  ///
+  Call(this.name, this.args, this.index, FileInfo currentFileInfo)
+      : super.init(currentFileInfo: currentFileInfo);
 
   ///
   @override
   void accept(covariant Visitor visitor) {
-    if (args != null) args = visitor.visitArray(args);
+    if (args != null)
+        args = visitor.visitArray(args);
 
 //2.3.1
 //  Call.prototype.accept = function (visitor) {
@@ -50,16 +51,18 @@ class Call extends Node {
     if (funcCaller.isValid()) {
       try {
         final Node result = funcCaller.call(args);
-        if (result != null) return result;
+        if (result != null)
+            return result;
       } catch (e) {
         String message = LessError.getMessage(e);
-        message = (message.isEmpty) ? '' : ': ' + message;
+        message = (message.isEmpty) ? '' : ': $message';
+
         final LessError error = LessError.transform(e,
             type: 'Runtime',
             index: index,
-            filename: currentFileInfo.filename
-        );
-        error.message = 'error evaluating function `$name`$message';
+            filename: currentFileInfo.filename)
+        ..message = 'error evaluating function `$name`$message';
+
         throw new LessExceptionError(error);
       }
     }
@@ -92,13 +95,15 @@ class Call extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (cleanCss != null) return genCleanCSS(context, output);
+    if (cleanCss != null)
+        return genCleanCSS(context, output);
 
-    output.add(name + '(', currentFileInfo, index);
+    output.add('$name(', currentFileInfo, index);
 
     for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
-      if (i + 1 < args.length) output.add(', ');
+      if (i + 1 < args.length)
+          output.add(', ');
     }
 
     output.add(')');
@@ -120,11 +125,12 @@ class Call extends Node {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    output.add(name + '(', currentFileInfo, index);
+    output.add('$name(', currentFileInfo, index);
 
-    for (int i = 0; i < args.length; i++){
+    for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
-      if (i + 1 < args.length) output.add(',');
+      if (i + 1 < args.length)
+          output.add(',');
     }
 
     output.add(')');

@@ -3,7 +3,7 @@
 part of tree.less;
 
 class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
-  @override String get        name => null;
+  @override final String      name = null;
   @override final String      type = 'Quoted';
   @override covariant String  value;
 
@@ -11,14 +11,19 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   String  quote; // ' or "
 
   ///
-  Quoted(String str, String content, bool this.escaped, [int index, FileInfo currentFileInfo]){
-    value = '';
+  Quoted(String str, String content, bool this.escaped,
+      [int index, FileInfo currentFileInfo]) {
+    // ignore: prefer_initializing_formals
     this.index = index;
+    // ignore: prefer_initializing_formals
     this.currentFileInfo = currentFileInfo;
-    if (this.escaped == null) this.escaped = true;
-    if(content != null) value = content;
+
+    //if (escaped == null) escaped = true;
+    escaped ??= true;
+    value = content ?? '';
     quote = str.isNotEmpty ? str[0] : '';
-    if (!(quote == '"' || quote == "'" || quote == '')) quote = '';
+    if (!(quote == '"' || quote == "'" || quote == ''))
+        quote = '';
 
 //2.3.1
 //  var Quoted = function (str, content, escaped, index, currentFileInfo) {
@@ -33,13 +38,11 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (!escaped) {
-      output.add(quote, currentFileInfo, index);
-    }
+    if (!escaped)
+        output.add(quote, currentFileInfo, index);
     output.add(value);
-    if (!escaped) {
-      output.add(quote);
-    }
+    if (!escaped)
+        output.add(quote);
 
 //2.3.1
 //  Quoted.prototype.genCSS = function (context, output) {
@@ -54,7 +57,8 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   }
 
   ///
-  bool containsVariables() => new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(value);
+  bool containsVariables() =>
+      new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(value);
 
 //2.3.1
 //  Quoted.prototype.containsVariables = function() {
@@ -63,7 +67,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 
   ///
   @override
-  Node eval(Contexts context){
+  Node eval(Contexts context) {
     //RegExp reJS = new RegExp(r'`([^`]+)`'); //javascript expresion
     final RegExp reVar = new RegExp(r'@\{([\w-]+)\}');
     final Quoted that = this;
@@ -78,7 +82,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     //result = @import 'variables.less';
     String interpolationReplacement(Match m) {
       final String  name = m[1];
-      final Node    v = new Variable('@' + name, that.index, that.currentFileInfo).eval(context);
+      final Node    v = new Variable('@$name', that.index, that.currentFileInfo).eval(context);
 
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
@@ -98,7 +102,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //      value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement); // JS Not supported
     value = iterativeReplace(value, reVar, interpolationReplacement);
 
-    return new Quoted(quote + value + quote, value, escaped, index, currentFileInfo);
+    return new Quoted('$quote$value$quote', value, escaped, index, currentFileInfo);
 
 //2.3.1
 //  Quoted.prototype.eval = function (context) {
@@ -124,7 +128,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //  };
   }
 
-
 //--- CompareNode
 
   /// Returns -1, 0 or +1 or null
@@ -133,10 +136,10 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     // when comparing quoted strings allow the quote to differ
     // We need compare strings with: string.copareTo(otherString)
 
-    if (other is Quoted && !this.escaped && !other.escaped) {
-      return this.value.compareTo(other.value);
+    if (other is Quoted && !escaped && !other.escaped) {
+      return value.compareTo(other.value);
     } else {
-      return this.toCSS(null) == other.toCSS(null) ? 0 : null;
+      return toCSS(null) == other.toCSS(null) ? 0 : null;
     }
 
 //2.4.0

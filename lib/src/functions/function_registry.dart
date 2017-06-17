@@ -14,9 +14,8 @@ class FunctionRegistry {
 
   FunctionRegistry._(this.base);
 
-  factory FunctionRegistry.inherit(FunctionRegistry base) {
-    return new FunctionRegistry._(base);
-  }
+  factory FunctionRegistry.inherit(FunctionRegistry base) =>
+      new FunctionRegistry._(base);
 
   ///
   /// Search in context.frames the first FunctionRegistry != null
@@ -26,7 +25,8 @@ class FunctionRegistry {
     VariableMixin frame;
     for (int i = 0; i < frames.length; i++) {
       frame = frames[i];
-      if (frame.functionRegistry != null) return frame.functionRegistry;
+      if (frame.functionRegistry != null)
+          return frame.functionRegistry;
     }
     return null;
   }
@@ -35,7 +35,8 @@ class FunctionRegistry {
   /// add the @plugin [functions]
   ///
   void add(List<FunctionBase> functions) {
-    if (functions != null) data.addAll(functions); //add to data and cache if not null
+    if (functions != null)
+        data.addAll(functions); //add to data and cache if not null
   }
 
   ///
@@ -47,7 +48,8 @@ class FunctionRegistry {
       if (base != null) {
         cache.addAll(base.get());
       } else {
-        if (globalFunctions != null) cache.addAll(globalFunctions);
+        if (globalFunctions != null)
+            cache.addAll(globalFunctions);
       }
     }
     return cache;

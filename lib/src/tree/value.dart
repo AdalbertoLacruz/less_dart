@@ -3,15 +3,15 @@
 part of tree.less;
 
 class Value extends Node {
-  @override String get            name => null;
+  @override final String          name = null;
   @override final String          type = 'Value';
   @override covariant List<Node>  value;
 
   ///
-  Value(List<Node> value) {
-    this.value = value;
-    if (this.value == null) throw new LessExceptionError(new LessError(
-        message: 'Value requires an array argument'));
+  Value(List<Node> this.value) {
+    if (value == null)
+        throw new LessExceptionError(new LessError(
+            message: 'Value requires an array argument'));
   }
 
 //2.3.1
@@ -25,7 +25,8 @@ class Value extends Node {
   ///
   @override
   void accept(covariant Visitor visitor) {
-    if (value != null) value = visitor.visitArray(value);
+    if (value != null)
+        value = visitor.visitArray(value);
 
 //2.3.1
 //  Value.prototype.accept = function (visitor) {
@@ -41,9 +42,7 @@ class Value extends Node {
     if (value.length == 1) {
       return value.first.eval(context);
     } else {
-      return new Value(value.map((Node v){
-        return v.eval(context);
-      }).toList());
+      return new Value(value.map((Node v) => v.eval(context)).toList());
     }
 
 //2.3.1
@@ -61,11 +60,13 @@ class Value extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (context != null && context.cleanCss) return genCleanCSS(context, output);
+    if (context != null && context.cleanCss)
+        return genCleanCSS(context, output);
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i+1 < value.length) output.add((context != null && context.compress) ? ',' : ', ');
+      if (i + 1 < value.length)
+          output.add((context != null && context.compress) ? ',' : ', ');
     }
 
 //2.3.1
@@ -84,7 +85,8 @@ class Value extends Node {
   void genCleanCSS(Contexts context, Output output) {
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i+1 < value.length) output.add(',');
+      if (i + 1 < value.length) 
+          output.add(',');
     }
   }
 }

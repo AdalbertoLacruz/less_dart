@@ -11,7 +11,7 @@ class Condition extends Node {
   String  op;
   Node    rvalue;
 
-  Condition (String op, Node this.lvalue, Node this.rvalue,
+  Condition(String op, Node this.lvalue, Node this.rvalue,
       [int this.index, bool this.negate = false]) {
     this.op = op.trim();
   }
@@ -34,14 +34,16 @@ class Condition extends Node {
   ///
   @override
   Node eval(Contexts context) {
-
+    //
     bool comparation(String op, Node aNode, Node bNode) {
       final bool a = aNode is Condition ? aNode.evaluated : false;
       final bool b = bNode is Condition ? bNode.evaluated : false;
 
       switch (op) {
-        case 'and': return a && b;
-        case 'or':  return a || b;
+        case 'and':
+          return a && b;
+        case 'or':
+          return a || b;
         default:
           switch (Node.compareNodes(aNode, bNode)) {
             case -1:
@@ -53,12 +55,12 @@ class Condition extends Node {
             default:
               return false;
           }
-        }
+      }
     }
 
     evaluated = comparation(op, lvalue.eval(context), rvalue.eval(context));
     evaluated = negate ? !evaluated : evaluated;
-    return this;  //this.evaluated was the js return
+    return this; //this.evaluated was the js return
 
 //2.3.1
 //  Condition.prototype.eval = function (context) {

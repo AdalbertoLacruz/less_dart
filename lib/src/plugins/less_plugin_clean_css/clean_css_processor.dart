@@ -9,9 +9,7 @@ class CleanCssProcessor extends Processor {
   CleanCssProcessor(CleanCssOptions cleanCssOptions):super(cleanCssOptions);
 
   @override
-  String process(String input, Map<String, dynamic> options) {
-      return input;
-  }
+  String process(String input, Map<String, dynamic> options) => input;
 }
 
 //CleanCSSProcessor.prototype = {

@@ -3,20 +3,20 @@
 part of parser.less;
 
 class Chunker {
-  String input;
-  Contexts env;
+  String    input;
+  Contexts  env;
 
-  int chunkerCurrentIndex;
-  List<String> chunks = <String>[];
-  int currentChunkStartIndex;
-  int emitFrom = 0;
+  int           chunkerCurrentIndex;
+  List<String>  chunks = <String>[];
+  int           currentChunkStartIndex;
+  int           emitFrom = 0;
 
   Chunker(String this.input, this.env);
 
   ///
   /// throw Parse error
   ///
-  Null fail (String message, int index) {
+  Null fail(String message, int index) {
     throw new LessExceptionError(new LessError(
         index: index,
         type: 'Parse',
@@ -28,10 +28,11 @@ class Chunker {
   ///
   /// Split a new chunk from input
   ///
-  void emitChunk([bool force=false]) {
+  void emitChunk([bool force = false]) {
     final int len = chunkerCurrentIndex - emitFrom;
 
-    if (((len < 512) && !force) || len == 0) return;
+    if (((len < 512) && !force) || len == 0)
+        return;
 
     chunks.add(input.substring(emitFrom, chunkerCurrentIndex + 1));
     emitFrom = chunkerCurrentIndex + 1;
@@ -40,22 +41,22 @@ class Chunker {
   ///
   /// Split the input into chunks.
   ///
-  List<String> getChunks(){
-    int cc;  //character
-    int cc2; //character
-    int lastMultiComment = 0;
-    int lastMultiCommentEndBrace = 0;
-    int lastOpening = 0;
-    int lastOpeningParen = 0;
+  List<String> getChunks() {
+    int       cc;  //character
+    int       cc2; //character
+    int       lastMultiComment = 0;
+    int       lastMultiCommentEndBrace = 0;
+    int       lastOpening = 0;
+    int       lastOpeningParen = 0;
     final int len = input.length;
-    int level = 0;
-    bool matched;
-    int parenLevel = 0;
+    int       level = 0;
+    bool      matched;
+    int       parenLevel = 0;
 
     for (chunkerCurrentIndex = 0; chunkerCurrentIndex < len; chunkerCurrentIndex++) {
       cc = input.codeUnitAt(chunkerCurrentIndex);
-      if (((cc >= Charcode.a_97)
-          && (cc <= Charcode.z_122)) || (cc < Charcode.DOUBLE_QUOTE_34)) {
+      if (((cc >= Charcode.a_97) && (cc <= Charcode.z_122)) ||
+          (cc < Charcode.DOUBLE_QUOTE_34)) {
         // a-z or whitespace
         continue;
       }
@@ -67,11 +68,13 @@ class Chunker {
           continue;
 
         case Charcode.CLOSE_PARENTHESIS_41: // )
-          if (--parenLevel < 0) return fail("missing opening `(`", chunkerCurrentIndex);
+          if (--parenLevel < 0)
+              return fail("missing opening `(`", chunkerCurrentIndex);
           continue;
 
         case Charcode.SEMICOLON_59:         // ;
-          if (parenLevel == 0) emitChunk();
+          if (parenLevel == 0)
+              emitChunk();
           continue;
 
         case Charcode.OPEN_BRACE_123:       // {
@@ -80,8 +83,10 @@ class Chunker {
           continue;
 
         case Charcode.CLOSE_BRACE_125:      // }
-          if (--level < 0) return fail("missing opening `{`", chunkerCurrentIndex);
-          if (level == 0 && parenLevel == 0) emitChunk();
+          if (--level < 0)
+              return fail("missing opening `{`", chunkerCurrentIndex);
+          if (level == 0 && parenLevel == 0)
+              emitChunk();
           continue;
 
         case Charcode.BACK_SLASH_92:        // \
@@ -98,23 +103,27 @@ class Chunker {
           currentChunkStartIndex = chunkerCurrentIndex;
           for (chunkerCurrentIndex = chunkerCurrentIndex + 1;
               chunkerCurrentIndex < len;
-              chunkerCurrentIndex++){
+              chunkerCurrentIndex++) {
             cc2 = input.codeUnitAt(chunkerCurrentIndex);
-            if (cc2 > Charcode.BACK_QUOTE_96) continue;
+            if (cc2 > Charcode.BACK_QUOTE_96)
+                continue;
             if (cc2 == cc) {
               matched = true;
               break;
             }
             if (cc2 == Charcode.BACK_SLASH_92) { // \
-              if (chunkerCurrentIndex == len - 1) return fail("unescaped `\\`", chunkerCurrentIndex);
+              if (chunkerCurrentIndex == len - 1)
+                  return fail("unescaped `\\`", chunkerCurrentIndex);
               chunkerCurrentIndex++;
             }
           }
-          if (matched) continue;
+          if (matched)
+              continue;
           return fail('unmatched `${input[currentChunkStartIndex]}`', currentChunkStartIndex);
 
         case Charcode.SLASH_47:               // /, check for comment
-          if ((parenLevel != 0) || (chunkerCurrentIndex == len - 1 )) continue;
+          if ((parenLevel != 0) || (chunkerCurrentIndex == len - 1 ))
+              continue;
           cc2 = input.codeUnitAt(chunkerCurrentIndex + 1);
           if (cc2 == Charcode.SLASH_47) {
             // //, find lnfeed
@@ -122,8 +131,9 @@ class Chunker {
                 chunkerCurrentIndex < len;
                 chunkerCurrentIndex++) {
               cc2 = input.codeUnitAt(chunkerCurrentIndex);
-              if ((cc2 <= Charcode.CR_13)
-                  && ((cc2 == Charcode.LF_10) || (cc2 == Charcode.CR_13))) break;
+              if ((cc2 <= Charcode.CR_13) &&
+                  ((cc2 == Charcode.LF_10) || (cc2 == Charcode.CR_13)))
+                  break;
             }
           } else if (cc2 == Charcode.ASTERISK_42) {
             // /*, find */
@@ -135,7 +145,8 @@ class Chunker {
               if (cc2 == Charcode.CLOSE_BRACE_125) {
                 lastMultiCommentEndBrace = chunkerCurrentIndex;
               }
-              if (cc2 != Charcode.ASTERISK_42) continue;
+              if (cc2 != Charcode.ASTERISK_42)
+                  continue;
               if (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47) {
                 break;
               }
@@ -148,10 +159,9 @@ class Chunker {
           continue;
 
         case Charcode.ASTERISK_42:           // *, check for unmatched */
-          if ((chunkerCurrentIndex < len - 1)
-              && (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47)) {
-            return fail("unmatched `/*`", chunkerCurrentIndex);
-          }
+          if ((chunkerCurrentIndex < len - 1) &&
+              (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47))
+              return fail("unmatched `/*`", chunkerCurrentIndex);
           continue;
       }
     }

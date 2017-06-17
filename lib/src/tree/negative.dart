@@ -6,9 +6,7 @@ class Negative extends Node {
   @override final String    type = 'Negative';
   @override covariant Node  value;
 
-  Negative (Node value){
-    this.value = value;
-  }
+  Negative(Node this.value);
 
   ///
   @override
@@ -27,7 +25,7 @@ class Negative extends Node {
   @override
   Node eval(Contexts context) {
     if (context.isMathOn()) {
-      return (new Operation('*', <Node>[new Dimension(-1), this.value])).eval(context);
+      return (new Operation('*', <Node>[new Dimension(-1), value])).eval(context);
     }
     return new Negative(value.eval(context));
 

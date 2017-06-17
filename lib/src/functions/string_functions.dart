@@ -3,7 +3,6 @@
 part of functions.less;
 
 class StringFunctions extends FunctionBase {
-
   ///
   /// CSS escaping, replaced with ~"value" syntax.
   /// It expects string as a parameter and return its content as is, but without quotes.
@@ -23,7 +22,6 @@ class StringFunctions extends FunctionBase {
 //        return new Anonymous(str instanceof JavaScript ? str.evaluated : str.value);
 //    }
 
-
   ///
   /// Applies URL-encoding to special characters found in the input string.
   /// These characters are not encoded: ,, /, ?, @, &, +, ', ~, ! and $.
@@ -40,12 +38,12 @@ class StringFunctions extends FunctionBase {
   /// on any other kind of argument. This behavior should not be relied on and may change in the future.
   ///
   Anonymous escape(Node str) =>  new Anonymous(Uri.encodeFull(str.value)
-                                    ..replaceAll(new RegExp(r'='), '%3D')
-                                    ..replaceAll(new RegExp(r':'), '%3A')
-                                    ..replaceAll(new RegExp(r'#'), '%23')
-                                    ..replaceAll(new RegExp(r';'), '%3B')
-                                    ..replaceAll(new RegExp(r'\('), '%28')
-                                    ..replaceAll(new RegExp(r'\)'), '%29'));
+      ..replaceAll(new RegExp(r'='), '%3D')
+      ..replaceAll(new RegExp(r':'), '%3A')
+      ..replaceAll(new RegExp(r'#'), '%23')
+      ..replaceAll(new RegExp(r';'), '%3B')
+      ..replaceAll(new RegExp(r'\('), '%28')
+      ..replaceAll(new RegExp(r'\)'), '%29'));
 
 //    escape: function (str) {
 //        return new Anonymous(encodeURI(str.value).replace(/=/g, "%3D").replace(/:/g, "%3A").replace(/#/g, "%23").replace(/;/g, "%3B").replace(/\(/g, "%28").replace(/\)/g, "%29"));
@@ -78,8 +76,8 @@ class StringFunctions extends FunctionBase {
     final MoreRegExp re = new MoreRegExp(pattern.value, flagsValue);
 
     final String replacementStr = (replacement is Quoted)
-      ? replacement.value
-      : replacement.toCSS(null);
+        ? replacement.value
+        : replacement.toCSS(null);
     final String result = re.replace(string.value, replacementStr);
 
     final String quote = (string is Quoted) ? string.quote : '';
@@ -126,17 +124,19 @@ class StringFunctions extends FunctionBase {
   Quoted format(List<Node> args) {
     final Node qstr = args[0];
     String result = qstr.value;
-    final MoreRegExp sda = new MoreRegExp(r'%[sda]','i');
+    final MoreRegExp sda = new MoreRegExp(r'%[sda]', 'i');
     final RegExp az = new RegExp(r'[A-Z]$', caseSensitive: true);
 
     String value;
     for (int i = 1; i < args.length; i++) {
       result = sda.replaceMap(result, (Match m) {
-        value =  (args[i] is Quoted &&  m[0].toLowerCase() == '%s') ? args[i].value : args[i].toCSS(context);
+        value =  (args[i] is Quoted &&  m[0].toLowerCase() == '%s')
+            ? args[i].value
+            : args[i].toCSS(context);
         return az.hasMatch(m[0]) ? Uri.encodeComponent(value) : value;
       });
     }
-    
+
     result.replaceAll(new RegExp(r'%%'), '%');
     if (qstr is Quoted) {
       //return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);

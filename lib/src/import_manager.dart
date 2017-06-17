@@ -6,9 +6,9 @@ import 'dart:async';
 import 'package:path/path.dart' as pathLib;
 
 import 'contexts.dart';
+import 'environment/environment.dart';
 import 'file_info.dart';
 import 'less_error.dart';
-import 'environment/environment.dart';
 import 'parser/parser.dart';
 import 'tree/tree.dart';
 
@@ -51,9 +51,10 @@ class ImportManager {
   List<String> queue = <String>[]; // Deprecated?
 
   ///
-  ImportManager(this.context, FileInfo rootFileInfo){
+  ImportManager(this.context, FileInfo rootFileInfo) {
     rootFilename = rootFileInfo.filename;
-    if (context.paths != null) paths = context.paths;
+    if (context.paths != null)
+        paths = context.paths;
     mime = context.mime;
     environment = new Environment();
 
@@ -77,7 +78,8 @@ class ImportManager {
     queue.remove(path);
 
     final bool importedEqualsRoot = (fullPath == rootFilename);
-    if (fullPath != null) files[fullPath] = root; // Store the root
+    if (fullPath != null)
+        files[fullPath] = root; // Store the root
     return new ImportedFile(root, importedEqualsRoot, fullPath);
   }
 
@@ -105,7 +107,9 @@ class ImportManager {
   ///   [currentFileInfo] the current file info (used for instance to work out relative paths)
   ///   [importOptions] import options
   ///
-  Future<ImportedFile> push(String path, bool tryAppendLessExtension, FileInfo currentFileInfo, ImportOptions importOptions) {
+  Future<ImportedFile> push(String path, bool tryAppendLessExtension,
+        FileInfo currentFileInfo, ImportOptions importOptions) {
+
     String                         _path = path;
     final Completer<ImportedFile>   task = new Completer<ImportedFile>();
 
@@ -119,68 +123,74 @@ class ImportManager {
     }
 
 //(js)if (tryAppendLessExtension) path = fileManager.tryAppendExtension(path, importOptions.plugin ? ".js" : ".less");
-    if (tryAppendLessExtension) _path = fileManager.tryAppendLessExtension(_path);
+    if (tryAppendLessExtension)
+        _path = fileManager.tryAppendLessExtension(_path);
 
-    fileManager.loadFile(_path, currentFileInfo.currentDirectory, context, environment).then((FileLoaded loadedFile){
-      final String resolvedFilename = loadedFile.filename;
-      final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
+    fileManager
+        .loadFile(_path, currentFileInfo.currentDirectory, context, environment)
+        .then((FileLoaded loadedFile) {
+          final String resolvedFilename = loadedFile.filename;
+          final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
 
-      // Pass on an updated rootpath if path of imported file is relative and file
-      // is in a (sub|sup) directory
-      //
-      // Examples:
-      // - If path of imported file is 'module/nav/nav.less' and rootpath is 'less/',
-      //   then rootpath should become 'less/module/nav/'
-      // - If path of imported file is '../mixins.less' and rootpath is 'less/',
-      //   then rootpath should become 'less/../'
+          // Pass on an updated rootpath if path of imported file is relative and file
+          // is in a (sub|sup) directory
+          //
+          // Examples:
+          // - If path of imported file is 'module/nav/nav.less' and rootpath is 'less/',
+          //   then rootpath should become 'less/module/nav/'
+          // - If path of imported file is '../mixins.less' and rootpath is 'less/',
+          //   then rootpath should become 'less/../'
 
-      newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
-      if (newFileInfo.relativeUrls) {
-        String currentDirectory = newFileInfo.currentDirectory;
-        if (!currentDirectory.endsWith(pathLib.separator)) currentDirectory += pathLib.separator;
+          newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
+          if (newFileInfo.relativeUrls) {
+            String currentDirectory = newFileInfo.currentDirectory;
+            if (!currentDirectory.endsWith(pathLib.separator))
+                // ignore: prefer_interpolation_to_compose_strings
+                currentDirectory += pathLib.separator;
 
-        final String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
-        newFileInfo.rootpath = fileManager.join((context.rootpath ?? ''), pathdiff);
+            final String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
+            newFileInfo.rootpath = fileManager.join((context.rootpath ?? ''), pathdiff);
 
-        if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
-          newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
-        }
-      }
-      newFileInfo.filename = resolvedFilename;
+            if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
+              newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
+            }
+          }
+          newFileInfo.filename = resolvedFilename;
 
-      final Contexts newEnv = new Contexts.parse(this.context);
-      newEnv.processImports = false;
-      newEnv.currentFileInfo = newFileInfo; // Not in original
+          final Contexts newEnv = new Contexts.parse(context)
+              ..processImports = false
+              ..currentFileInfo = newFileInfo; // Not in original
 
-      this.contents[resolvedFilename] = contents;
+          this.contents[resolvedFilename] = contents;
 
-      if (currentFileInfo.reference || (importOptions?.reference ?? false)) {
-        newFileInfo.reference = true;
-      }
+          if (currentFileInfo.reference || (importOptions?.reference ?? false))
+              newFileInfo.reference = true;
 
-//(js)  if (importOptions.plugin) {
-//          new FunctionImporter(newEnv, newFileInfo).eval(contents, function (e, root) {
-//              fileParsedFunc(e, root, resolvedFilename);
-//          });
-//      } else if (importOptions.inline) {
+          //(js)  if (importOptions.plugin) {
+          //          new FunctionImporter(newEnv, newFileInfo).eval(contents, function (e, root) {
+          //              fileParsedFunc(e, root, resolvedFilename);
+          //          });
+          //      } else if (importOptions.inline) {
 
-      if (importOptions?.inline ?? false) {
-        task.complete(fileParsedFunc(_path, contents, resolvedFilename));
-      } else {
-        new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents).then((Ruleset root){
-          task.complete(fileParsedFunc(_path, root, resolvedFilename));
+          if (importOptions?.inline ?? false) {
+            task.complete(fileParsedFunc(_path, contents, resolvedFilename));
+          } else {
+            new Parser.fromImporter(newEnv, this, newFileInfo)
+                .parse(contents)
+                .then((Ruleset root) {
+                  task.complete(fileParsedFunc(_path, root, resolvedFilename));
+                }).catchError((Object e) {
+                  task.completeError(e);
+                });
+          }
         }).catchError((Object e) {
-          task.completeError(e);
+          //importOptions.optional: continue compiling when file is not found
+          if (importOptions?.optional ?? false) {
+            task.complete(fileParsedFunc(_path, new Ruleset(<Selector>[], <Node>[]), null));
+          } else {
+            task.completeError(e);
+          }
         });
-      }
-    }).catchError((Object e){
-      //importOptions.optional: continue compiling when file is not found
-      if (importOptions?.optional ?? false) {
-        task.complete(fileParsedFunc(_path, new Ruleset(<Selector>[], <Node>[]), null));
-      } else {
-        task.completeError(e);
-      }
-    });
 
     return task.future;
 
@@ -282,9 +292,10 @@ class ImportManager {
   }
 }
 
-  class ImportedFile {
-    dynamic root; //String or Node - content
-    bool importedPreviously;
-    String fullPath;
-    ImportedFile(this.root, this.importedPreviously, this.fullPath);
+class ImportedFile {
+  dynamic root; //String or Node - content
+  bool    importedPreviously;
+  String  fullPath;
+
+  ImportedFile(this.root, this.importedPreviously, this.fullPath);
 }

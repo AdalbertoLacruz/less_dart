@@ -25,13 +25,13 @@ class IgnitionVisitor extends VisitorBase {
     lessOptions = environment.options;
     final PluginManager pluginManager = lessOptions.pluginManager;
     if (pluginManager != null) {
-      FunctionRegistry.globalFunctions = pluginManager.getCustomFunction().sublist(0);
+      FunctionRegistry.globalFunctions =
+          pluginManager.getCustomFunction().sublist(0);
       pluginManager.resetCustomFunction();
     }
 
     return _visitor.visit(root);
   }
-
 
   ///
   /// Load options and remove directive
@@ -52,14 +52,13 @@ class IgnitionVisitor extends VisitorBase {
 
   @override
   Function visitFtn(Node node) {
-    if (node is Options) return visitOptions;
+    if (node is Options)
+        return visitOptions;
 
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   @override
-  Function visitFtnOut(Node node) {
-    return null;
-  }
+  Function visitFtnOut(Node node) => null;
 }

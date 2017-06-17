@@ -11,7 +11,7 @@ class ParseTree {
 
   ///
   ParseTree(Ruleset this.root, ImportManager this.imports) {
-    this.environment = new Environment();
+    environment = new Environment();
   }
 
   ///
@@ -31,11 +31,11 @@ class ParseTree {
 //      }
 
       toCSSOptions = new Contexts()
-                          ..compress = options.compress
-                          ..cleanCss = options.cleanCss
-                          ..dumpLineNumbers = options.dumpLineNumbers
-                          ..strictUnits = options.strictUnits
-                          ..numPrecision = 8;
+          ..compress = options.compress
+          ..cleanCss = options.cleanCss
+          ..dumpLineNumbers = options.dumpLineNumbers
+          ..strictUnits = options.strictUnits
+          ..numPrecision = 8;
 
       if (options.sourceMap) {
         sourceMapBuilder = new LessSourceMapBuilder(options.sourceMapOptions);
@@ -48,23 +48,24 @@ class ParseTree {
     }
 
     if (options.pluginManager != null) {
-      final List<Processor> postProcessors = options.pluginManager.getPostProcessors();
-      postProcessors.forEach((Processor postProcessor){
-        result.css = postProcessor.process(result.css, <String, dynamic>{
-          'sourceMap': sourceMapBuilder,
-          'options': options,
-          'imports': this.imports
-        });
-      });
+      options.pluginManager
+          .getPostProcessors()
+          .forEach((Processor postProcessor) {
+            result.css = postProcessor.process(result.css, <String, dynamic>{
+                'sourceMap': sourceMapBuilder,
+                'options': options,
+                'imports': imports
+            });
+          });
     }
 
-    if (options.sourceMap) {
-      result.map = sourceMapBuilder.getExternalSourceMap();
-    }
+    if (options.sourceMap)
+        result.map = sourceMapBuilder.getExternalSourceMap();
 
     result.imports = <String>[];
-    this.imports.files.forEach((String file, dynamic node){ //node is Ruleset
-      if (file != this.imports.rootFilename) result.imports.add(file);
+    imports.files.forEach((String file, dynamic node) { //node is Ruleset
+      if (file != imports.rootFilename)
+          result.imports.add(file);
     });
 
     return result;

@@ -3,11 +3,11 @@ library visitor.less;
 import 'dart:async';
 import 'package:meta/meta.dart';
 import '../contexts.dart';
+import '../environment/environment.dart';
 import '../import_manager.dart';
 import '../less_error.dart';
 import '../less_options.dart';
 import '../logger.dart';
-import '../environment/environment.dart';
 import '../plugins/plugins.dart';
 import '../tree/tree.dart';
 
@@ -29,26 +29,23 @@ abstract class VisitorBase {
 
   //static Node noop(node) => node; //TODO delete not used
 
+  /// func visitor.visit distribuitor
+  Function visitFtn(Node node) => null;
 
-   /// func visitor.visit distribuitor
-   Function visitFtn(Node node) => null;
+  /// funcOut visitor.visit distribuitor
+  Function visitFtnOut(Node node) => null;
 
-   /// funcOut visitor.visit distribuitor
-   Function visitFtnOut(Node node) => null;
-
-   ///
-   void error({int index, String type, String message, String filename}) {
-     throw new LessExceptionError(new LessError(
+  ///
+  void error({int index, String type, String message, String filename}) {
+    throw new LessExceptionError(new LessError(
          index: index,
          type: type,
          message: message,
-         filename: filename
-         ));
-   }
+         filename: filename));
+  }
 
-   @virtual
-   dynamic visit(dynamic node) => node;
-
+  @virtual
+  dynamic visit(dynamic node) => node;
 }
 
 class VisitArgs {

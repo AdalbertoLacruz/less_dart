@@ -4,6 +4,7 @@ part of less_plugin_clean_css.plugins.less;
 
 class CleanCssCompatibility {
   String              source;
+
   CleanCssColors      colors = new CleanCssColors();
   CleanCssProperties  properties = new CleanCssProperties();
   CleanCssSelectors   selectors = new CleanCssSelectors();
@@ -17,10 +18,8 @@ class CleanCssCompatibility {
     String        option;
     String        part;
 
-
     final List<String> parts = source.split(',');
     final String nav = parts[0].trim();
-
 
     switch (nav) {
       case 'ie8':
@@ -174,7 +173,6 @@ class CleanCssSelectors {
       case 'ie7Hack':
         ie7Hack = isAdd;
         break;
-
     }
   }
 }

@@ -13,14 +13,13 @@ class UrlFileManager extends FileManager {
   /// True is can load the file
   ///
   @override
-  bool supports (String filename, String currentDirectory, Contexts options, Environment environment) {
-    return isUrlRe.hasMatch(filename) || isUrlRe.hasMatch(currentDirectory);
+  bool supports (String filename, String currentDirectory, Contexts options, Environment environment) =>
+      isUrlRe.hasMatch(filename) || isUrlRe.hasMatch(currentDirectory);
 
 //2.3.1
 //UrlFileManager.prototype.supports = function(filename, currentDirectory, options, environment) {
 //    return isUrlRe.test( filename ) || isUrlRe.test(currentDirectory);
 //};
-  }
 
   /// Load async the url
   //TODO options.strictSSL
@@ -30,40 +29,40 @@ class UrlFileManager extends FileManager {
     final HttpClient client = new HttpClient();
     final Completer<FileLoaded> task = new Completer<FileLoaded>();
 
-    final String urlStr = isUrlRe.hasMatch( filename ) ? filename : new Uri.file(currentDirectory).resolve(filename);
+    final String urlStr = isUrlRe.hasMatch(filename)
+        ? filename
+        : new Uri.file(currentDirectory).resolve(filename);
 
-    client.getUrl(Uri.parse(urlStr))
-    .then((HttpClientRequest request) {
-      return request.close();
-    })
-    .then((HttpClientResponse response) {
-      response.transform(UTF8.decoder).listen((String contents) {
-        dataBuffer.write(contents);
-      }, onDone: (){
-        if (response.statusCode == 404) {
-          final LessError error = new LessError(
+    client
+        .getUrl(Uri.parse(urlStr))
+        .then((HttpClientRequest request) => request.close())
+        .then((HttpClientResponse response) {
+          response.transform(UTF8.decoder).listen((String contents) {
+            dataBuffer.write(contents);
+          }, onDone: () {
+            if (response.statusCode == 404) {
+              final LessError error = new LessError(
                   type: 'File',
                   message: 'resource " $urlStr " was not found\n'
-          );
-          return task.completeError(error);
-        }
-        if (dataBuffer.isEmpty) {
-          environment.logger.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
-        }
-        final FileLoaded fileLoaded = new FileLoaded(
-            filename: urlStr,
-            contents: dataBuffer.toString()
-        );
-        task.complete(fileLoaded);
-      });
-    })
-    .catchError((dynamic e, StackTrace s) {
-      final LessError error = new LessError(
+              );
+              return task.completeError(error);
+            }
+            if (dataBuffer.isEmpty) {
+              environment.logger.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
+            }
+            final FileLoaded fileLoaded = new FileLoaded(
+                filename: urlStr,
+                contents: dataBuffer.toString()
+            );
+            task.complete(fileLoaded);
+          });
+        }).catchError((dynamic e, StackTrace s) {
+          final LessError error = new LessError(
               type: 'File',
               message: 'resource "$urlStr" gave this Error:\n  ${e.message}\n'
-      );
-      task.completeError(error);
-    });
+          );
+          task.completeError(error);
+        });
 
     return task.future;
 

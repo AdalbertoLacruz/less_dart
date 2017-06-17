@@ -55,18 +55,18 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   void genCSS(Contexts context, Output output) {
     if ((context?.strictUnits ?? false) && !unit.isSingular()) {
       throw new LessExceptionError(new LessError(
-          message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${this.unit.toString()}'));
+          message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${unit.toString()}'));
     }
 
-    if (cleanCss != null) return genCleanCSS(context, output);
+    if (cleanCss != null)
+        return genCleanCSS(context, output);
 
     final double value = fround(context, this.value);
     String strValue = numToString(value); //10.0 -> '10'
 
-    if (value != 0 && value < 0.000001 && value > -0.000001) {
-      // would be output 1e-6 etc.
-      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
-    }
+    if (value != 0 && value < 0.000001 && value > -0.000001)
+        // would be output 1e-6 etc.
+        strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
 
     if (context?.compress ?? false) {
       // Zero values doesn't need a unit
@@ -76,9 +76,8 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       }
 
       // Float values doesn't need a leading zero
-      if (value > 0 && value < 1) {
-        strValue = strValue.substring(1);
-      }
+      if (value > 0 && value < 1)
+          strValue = strValue.substring(1);
     }
 
     output.add(strValue);
@@ -121,17 +120,17 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     final double value = fround(context, this.value, cleanCss.precision);
     String strValue = numToString(value); //10.0 -> '10'
 
-    if (value != 0 && value < 0.000001 && value > -0.000001) {
-      // would be output 1e-6 etc.
-      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
-    }
-
+    if (value != 0 && value < 0.000001 && value > -0.000001)
+        // would be output 1e-6 etc.
+        strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
     if (value == 0 && (unit.isLength(context) || unit.isAngle(context))) {
       output.add(strValue);
       return;
     }
-    if (value > 0 && value < 1) strValue = strValue.substring(1); //0.5
-    if (value < 0 && value > -1) strValue = '-' + strValue.substring(2); // -0.5
+    if (value > 0 && value < 1)
+        strValue = strValue.substring(1); // 0.5
+    if (value < 0 && value > -1)
+        strValue = '-${strValue.substring(2)}'; // -0.5
 
     output.add(strValue);
     unit.genCSS(context, output);
@@ -140,10 +139,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   /// True if unit is [unitString]
   ///
-  bool isUnit(String unitString) {
-    if (unit == null) return false;
-    return unit.isUnit(unitString);
-  }
+  bool isUnit(String unitString) => unit?.isUnit(unitString) ?? false;
 
 //--- OperateNode
 
@@ -161,9 +157,8 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     if (op == '+' || op == '-') {
       if (unit.numerator.isEmpty && unit.denominator.isEmpty) {
         unit = _other.unit.clone();
-        if (this.unit.backupUnit != null) {
+        if (this.unit.backupUnit != null)
             unit.backupUnit = this.unit.backupUnit;
-        }
       } else if (_other.unit.numerator.isEmpty && unit.denominator.isEmpty) {
         // do nothing
       } else {
@@ -171,27 +166,26 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
         if (context.strictUnits && _other.unit.toString() != unit.toString()) {
           throw new LessExceptionError(new LessError(
-              message: "Incompatible units. Change the units or use the unit function. Bad units: '"
-                + unit.toString() + "' and '" + _other.unit.toString() + "'."));
+              message: "Incompatible units. Change the units or use the unit function. Bad units: '${
+                  unit.toString()}' and '${_other.unit.toString()}'."));
         }
-
         value = _operate(context, op, this.value, _other.value);
       }
     } else if (op == '*') {
       unit.numerator
-        ..addAll(_other.unit.numerator)
-        ..sort();
+          ..addAll(_other.unit.numerator)
+          ..sort();
       unit.denominator
-        ..addAll(_other.unit.denominator)
-        .. sort();
+          ..addAll(_other.unit.denominator)
+          .. sort();
       unit.cancel();
     } else if (op == '/') {
       unit.numerator
-        ..addAll(_other.unit.denominator)
-        ..sort();
+          ..addAll(_other.unit.denominator)
+          ..sort();
       unit.denominator
-        ..addAll(_other.unit.numerator)
-        ..sort();
+          ..addAll(_other.unit.numerator)
+          ..sort();
       unit.cancel();
     }
 
@@ -241,19 +235,21 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   @override
   int compare(Node otherNode) {
-    if (otherNode is! Dimension) return null;
+    if (otherNode is! Dimension)
+        return null;
 
-    Dimension a;
-    Dimension b;
-    final Dimension other = otherNode as Dimension;
+    Dimension       a;
+    Dimension       b;
+    final Dimension other = otherNode;
 
-    if (this.unit.isEmpty() || other.unit.isEmpty()) {
+    if (unit.isEmpty() || other.unit.isEmpty()) {
       a = this;
       b = other;
     } else {
-      a = this.unify();
+      a = unify();
       b = other.unify();
-      if (a.unit.compare(b.unit) != 0) return null;
+      if (a.unit.compare(b.unit) != 0)
+          return null;
     }
 
     return Node.numericCompare(a.value, b.value);
@@ -284,7 +280,11 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   /// Normalize the units to px, s, or rad
   ///
-  Dimension unify() => convertTo(<String, String>{ 'length': 'px', 'duration': 's', 'angle': 'rad' });
+  Dimension unify() => convertTo(<String, String>{
+      'length': 'px',
+      'duration': 's',
+      'angle': 'rad'
+  });
 
 //2.3.1
 //  Dimension.prototype.unify = function () {
@@ -300,10 +300,9 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     Map<String, String>       conversionsMap;
     final Map<String, String> derivedConversions = <String, String>{};
     Map<String, double>       group;
-    String                    groupName;
     String                    targetUnit; //new unit
     final Unit                unit = this.unit.clone();
-    double value =            this.value;
+    double                    value = this.value;
 
     if (conversions is String) {
       for (String i in UnitConversions.groups.keys) { //length, duration, angle
@@ -331,7 +330,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       return atomicUnit;
     }
 
-    for (groupName in conversionsMap.keys) {
+    for (String groupName in conversionsMap.keys) {
       if (conversionsMap.containsKey(groupName)) {
         targetUnit = conversionsMap[groupName];
         group = UnitConversions.groups[groupName];

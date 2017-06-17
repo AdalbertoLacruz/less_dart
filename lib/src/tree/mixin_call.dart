@@ -12,10 +12,12 @@ class MixinCall extends Node {
 
   ///
   MixinCall(List<Node> elements, List<MixinArgs> args, int this.index,
-        FileInfo currentFileInfo, bool this.important) {
-    this.currentFileInfo = currentFileInfo;
+      FileInfo currentFileInfo, bool this.important)
+      : super.init(currentFileInfo: currentFileInfo) {
+
     selector = new Selector(elements);
-    if (args?.isNotEmpty ?? false) this.arguments = args;
+    if (args?.isNotEmpty ?? false)
+        arguments = args;
 
 //2.3.1
 //  var MixinCall = function (elements, args, index, currentFileInfo, important) {
@@ -30,8 +32,10 @@ class MixinCall extends Node {
   ///
   @override
   void accept(covariant Visitor visitor) {
-    if (selector != null) selector = visitor.visit(selector);
-    if (arguments != null) arguments = visitor.visitArray(arguments);
+    if (selector != null)
+        selector = visitor.visit(selector);
+    if (arguments != null)
+        arguments = visitor.visitArray(arguments);
 
 //2.3.1
 //  MixinCall.prototype.accept = function (visitor) {
@@ -52,20 +56,15 @@ class MixinCall extends Node {
   @override
   Node eval(Contexts context) {
     List<MixinArgs>       args;
-    Candidate             candidate;
     final List<Candidate> candidates = <Candidate>[];
     final List<bool>      conditionResult = <bool>[null, null];
     int                   defaultResult;
     bool                  isOneFound = false;
     bool                  isRecursive;
     bool                  match = false;
-    MatchConditionNode    mixin;
     List<Node>            mixinPath;
     List<MixinFound>      mixins;
-    Node                  rule;
     final List<Node>      rules = <Node>[];
-
-    int i, m, f; // for counters
 
     DefaultFunc defaultFunc;
     if (context.defaultFunc == null) {
@@ -79,46 +78,42 @@ class MixinCall extends Node {
     final int defNone = 0;
     final int defTrue = 1;
     final int defFalse = 2;
-    List<int> count; // length == 3
-    Ruleset originalRuleset;
 
     // mixin is Node, mixinPath is List<Node>
     int calcDefGroup(MatchConditionNode mixin, List<Node> mixinPath) {
-      Node namespace;
-
       for (int f = 0; f < 2; f++) {
         conditionResult[f] = true;
         defaultFunc.value(f);
         for (int p = 0; p < mixinPath.length && conditionResult[f]; p++) {
-          namespace = mixinPath[p];
+          final Node namespace = mixinPath[p];
           if (namespace is MatchConditionNode) {
-            conditionResult[f] = conditionResult[f]
-              && (namespace as MatchConditionNode).matchCondition(null, context);
+            conditionResult[f] = conditionResult[f] &&
+                (namespace as MatchConditionNode).matchCondition(null, context);
           }
         }
-        if (mixin is MatchConditionNode) {
-          conditionResult[f] = conditionResult[f] && mixin.matchCondition(args, context);
-        }
+        if (mixin is MatchConditionNode)
+            conditionResult[f] = conditionResult[f] && mixin.matchCondition(args, context);
       }
       if (conditionResult[0] || conditionResult[1]) {
-        if (conditionResult[0] != conditionResult[1]) {
-          return conditionResult[1] ? defTrue : defFalse;
-        }
+        if (conditionResult[0] != conditionResult[1])
+            return conditionResult[1] ? defTrue : defFalse;
         return defNone;
       }
       return defFalseEitherCase;
     }
 
     if (arguments != null) {
-      args = arguments.map((MixinArgs a) {
-        return new MixinArgs(name: a.name, value: a.value.eval(context));
-      }).toList();
+      args = arguments
+          .map((MixinArgs a) =>
+              new MixinArgs(name: a.name, value: a.value.eval(context)))
+          .toList();
     }
 
-    bool noArgumentsFilter(MatchConditionNode rule) => rule.matchArgs(null, context);
+    bool noArgumentsFilter(MatchConditionNode rule) =>
+        rule.matchArgs(null, context);
 
     // Search MixinDefinition
-    for (i = 0; i < context.frames.length; i++) {
+    for (int i = 0; i < context.frames.length; i++) {
       if ((mixins = (context.frames[i] as VariableMixin).find(selector, null, noArgumentsFilter)).isNotEmpty) {
         isOneFound = true;
 
@@ -127,35 +122,34 @@ class MixinCall extends Node {
         // and build candidate list with corresponding flags. Then, when we know all possible matches,
         // we make a final decision.
 
-        for (m = 0; m < mixins.length; m++) {
-          mixin = mixins[m].rule as MatchConditionNode;
+        for (int m = 0; m < mixins.length; m++) {
+          final MatchConditionNode mixin = mixins[m].rule as MatchConditionNode;
           mixinPath = mixins[m].path;
           isRecursive = false;
-          for (f = 0; f < context.frames.length; f++) {
-            if ((mixin is! MixinDefinition)
-                && ((mixin as Node) == context.frames[f].originalRuleset
-                    || (mixin as Node) == context.frames[f])) {
+          for (int f = 0; f < context.frames.length; f++) {
+            if ((mixin is! MixinDefinition) &&
+                ((mixin as Node) == context.frames[f].originalRuleset ||
+                    (mixin as Node) == context.frames[f])) {
               isRecursive = true;
               break;
             }
           }
-          if (isRecursive) continue;
+          if (isRecursive)
+              continue;
 
           if (mixin.matchArgs(args, context)) {
-            candidate = new Candidate(mixin: mixin, group: calcDefGroup(mixin, mixinPath));
-
-            if (candidate.group != defFalseEitherCase) {
-              candidates.add(candidate);
-            }
-
+            final Candidate candidate = new Candidate(
+                mixin: mixin, group: calcDefGroup(mixin, mixinPath));
+            if (candidate.group != defFalseEitherCase)
+                candidates.add(candidate);
             match = true;
           }
         }
 
         defaultFunc.reset();
 
-        count = <int>[0, 0, 0];
-        for (m = 0; m < candidates.length; m++) {
+        final List<int> count = <int>[0, 0, 0];
+        for (int m = 0; m < candidates.length; m++) {
           count[candidates[m].group]++;
         }
 
@@ -166,23 +160,23 @@ class MixinCall extends Node {
           if ((count[defTrue] + count[defFalse]) > 1) {
             throw new LessExceptionError(new LessError(
                 type: 'Runtime',
-                message: 'Ambiguous use of `default()` found when matching for `' + format(args) + '`',
+                message: 'Ambiguous use of `default()` found when matching for `${format(args)}`',
                 index: index,
                 filename: currentFileInfo.filename));
           }
         }
 
-        for (m = 0; m < candidates.length; m++) {
+        for (int m = 0; m < candidates.length; m++) {
           final int candidateGroup = candidates[m].group;
           if (candidateGroup == defNone || candidateGroup == defaultResult) {
             try {
-              mixin = candidates[m].mixin;
+              MatchConditionNode mixin = candidates[m].mixin;
               if (mixin is! MixinDefinition) {
-                originalRuleset = (mixin as Ruleset).originalRuleset;
-                if (originalRuleset == null) originalRuleset = mixin;
+                final Ruleset originalRuleset = (mixin as Ruleset).originalRuleset ?? mixin;
                 mixin = new MixinDefinition('', <MixinArgs>[], mixin.rules, null, false, index, currentFileInfo);
                 (mixin as MixinDefinition).originalRuleset = originalRuleset;
-                if (originalRuleset != null) (mixin as MixinDefinition).id = originalRuleset.id;
+                if (originalRuleset != null)
+                    (mixin as MixinDefinition).id = originalRuleset.id;
               }
               rules.addAll((mixin as MixinDefinition).evalCall(context, args, important).rules);
             } catch (e, s) {
@@ -198,9 +192,10 @@ class MixinCall extends Node {
 
         if (match) {
           if (currentFileInfo == null || !currentFileInfo.reference) {
-            for (i = 0; i < rules.length; i++) {
-              rule = rules[i];
-              if (rule is MarkReferencedNode) (rule as MarkReferencedNode).markReferenced();
+            for (int i = 0; i < rules.length; i++) {
+              final Node rule = rules[i];
+              if (rule is MarkReferencedNode)
+                  (rule as MarkReferencedNode).markReferenced();
             }
           }
           //return rules;
@@ -212,14 +207,14 @@ class MixinCall extends Node {
     if (isOneFound) {
       throw new LessExceptionError(new LessError(
           type: 'Runtime',
-          message: 'No matching definition was found for `' + format(args) + '`',
+          message: 'No matching definition was found for `${format(args)}`',
           index: index,
           filename: currentFileInfo.filename
       ));
     } else {
       throw new LessExceptionError(new LessError(
           type: 'Name',
-          message: selector.toCSS(context).trim() + ' is undefined',
+          message: '${selector.toCSS(context).trim()} is undefined',
           index: index,
           filename: currentFileInfo.filename
       ));
@@ -363,19 +358,20 @@ class MixinCall extends Node {
   String format(List<MixinArgs> args) {
     final String result = selector.toCSS(null).trim();
     final String argsStr = (args != null)
-        ? args.map((MixinArgs a) {
-            String argValue = '';
-            if (isNotEmpty(a.name)) argValue += a.name + ':';
-            if (a.value is Node) {
-              argValue += a.value.toCSS(null);
-            } else {
-              argValue += '???';
-            }
-            return argValue;
-          }).toList().join(', ')
+        ? args.fold(new StringBuffer(), (StringBuffer sb, MixinArgs a) {
+          if (sb.isNotEmpty)
+              sb.write(', ');
+          if (isNotEmpty(a.name))
+              sb.write('${a.name}:');
+          if (a.value is Node) {
+            sb.write(a.value.toCSS(null));
+          } else {
+            sb.write('???');
+          }
+          return sb;
+          }).toString()
         : '';
-
-    return result + '(' + argsStr + ')';
+    return '$result($argsStr)';
 
 //2.3.1
 //  MixinCall.prototype.format = function (args) {
@@ -397,16 +393,16 @@ class MixinCall extends Node {
 }
 
 class MixinArgs {
-  String name;
-  Node value;
-  bool variadic;
+  String  name;
+  Node    value;
+  bool    variadic;
 
   MixinArgs({String this.name, Node this.value, bool this.variadic: false});
 }
 
 class Candidate {
-  MatchConditionNode mixin;
-  int group;
+  MatchConditionNode  mixin;
+  int                 group;
 
   Candidate({this.mixin, this.group});
 }

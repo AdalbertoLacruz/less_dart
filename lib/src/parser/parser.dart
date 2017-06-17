@@ -6,14 +6,14 @@ import 'dart:async';
 import 'dart:io';
 
 import '../contexts.dart';
+import '../environment/environment.dart';
 import '../file_info.dart';
 import '../import_manager.dart';
 import '../less_error.dart';
 import '../less_options.dart';
-import '../utils.dart';
-import '../environment/environment.dart';
 import '../plugins/plugins.dart';
 import '../tree/tree.dart';
+import '../utils.dart';
 import '../visitor/visitor_base.dart';
 
 part 'charcode.dart';
@@ -72,7 +72,7 @@ class Parser {
   String        preText = '';
 
   ///
-  Parser(LessOptions options){
+  Parser(LessOptions options) {
     context = new Contexts.parse(options);
 
     if (options.banner.isNotEmpty) {
@@ -81,11 +81,12 @@ class Parser {
       } catch (_) {}
     }
 
-    globalVars = serializeVars(options.globalVariables);
-    if (globalVars.isNotEmpty) globalVars += '\n';
-
-    modifyVars = serializeVars(options.modifyVariables);
-    if (modifyVars.isNotEmpty) modifyVars = '\n' + modifyVars;
+    globalVars = options.globalVariables.isNotEmpty
+        ? '${serializeVars(options.globalVariables)}\n'
+        : '';
+    modifyVars = options.modifyVariables.isNotEmpty
+        ? '\n${serializeVars(options.modifyVariables)}'
+        : '';
   }
 
   ///
@@ -104,34 +105,34 @@ class Parser {
 
     fileInfo ??= context.currentFileInfo;
     imports ??= new ImportManager(context, fileInfo);
+    final Map<String, dynamic> processOptions =  <String, dynamic>{
+        'context': context,
+        'imports': imports,
+        'fileInfo': fileInfo};
 
     if (context.pluginManager != null) {
-      context.pluginManager.getPreProcessors().forEach((Processor preProcessor){
-        _str = preProcessor.process(
-                    _str,
-                    <String, dynamic>{'context': context,
-                                      'imports': imports,
-                                      'fileInfo': fileInfo
-                                      });
+      context.pluginManager.getPreProcessors().forEach((Processor preProcessor) {
+        _str = preProcessor.process(_str, processOptions);
       });
     }
 
     if (globalVars.isNotEmpty || banner.isNotEmpty) {
-      preText = banner + globalVars;
-      preText = preText.replaceAll(new RegExp(r'\r\n?'), '\n');
-      if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename)) {
-        imports.contentsIgnoredChars[fileInfo.filename] = 0;
-      }
+      preText = '$banner$globalVars'.replaceAll(new RegExp(r'\r\n?'), '\n');
+
+      if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename))
+          imports.contentsIgnoredChars[fileInfo.filename] = 0;
       imports.contentsIgnoredChars[fileInfo.filename] += preText.length;
     }
 
-    _str = _str.replaceAll('\r\n', '\n');
     // Remove potential UTF Byte Order Mark
-    _str = preText + _str.replaceAll(new RegExp(r'^\uFEFF'), '') + modifyVars;
+    _str = _str.replaceAll('\r\n', '\n').replaceAll(new RegExp(r'^\uFEFF'), '');
+    _str = "$preText$_str$modifyVars";
+
     imports.contents[fileInfo.filename] = _str;
 
-    context.imports = imports;
-    context.input = _str;
+    context
+      ..imports = imports
+      ..input = _str;
 
     // Start with the primary rule.
     // The whole syntax tree is held under a Ruleset node,
@@ -140,19 +141,20 @@ class Parser {
 
     try {
       parsers = new Parsers(_str, context);
-      root = new Ruleset(null, parsers.primary());
-      root.root = true;
-      root.firstRoot = true;
+      root = new Ruleset(null, parsers.primary())
+          ..root = true
+          ..firstRoot = true;
       parsers.isFinished();
 
       new IgnitionVisitor().run(root); // @options directive process
 
       if (context.processImports) {
-        return new ImportVisitor(this.imports).runAsync(root).then((_){
-            return new Future<Ruleset>.value(root);
-        }).catchError((Object e){
-          throw new LessExceptionError(LessError.transform(e, type: 'Import', context: context));
-        });
+        return new ImportVisitor(imports)
+            .runAsync(root)
+            .then((_) => new Future<Ruleset>.value(root))
+            .catchError((Object e) {
+              throw new LessExceptionError(LessError.transform(e, type: 'Import', context: context));
+            });
       }
     } catch (e, s) {
       return new Future<Ruleset>.error(
@@ -164,14 +166,13 @@ class Parser {
   }
 
   ///
-  String serializeVars(List<VariableDefinition> vars) {
-    String s = '';
-    vars.forEach((VariableDefinition vardef){
-      s += vardef.name.startsWith('@') ? '' : '@';
-      s += vardef.name + ': ' + vardef.value;
-      s += vardef.value.endsWith(';') ? '' : ';';
-    });
-    return s;
+  String serializeVars(List<VariableDefinition> vars) =>
+      vars.fold(new StringBuffer(), (StringBuffer prev, VariableDefinition vardef) =>
+        prev
+            ..write(vardef.name.startsWith('@') ? '' : '@')
+            ..write('${vardef.name}: ${vardef.value}')
+            ..write(vardef.value.endsWith(';') ? '' : ';')
+      ).toString();
 
 //2.4.0
 //  Parser.serializeVars = function(vars) {
@@ -187,5 +188,5 @@ class Parser {
 //
 //      return s;
 //  };
-  }
+
 }

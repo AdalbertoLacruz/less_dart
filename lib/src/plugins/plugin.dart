@@ -1,39 +1,51 @@
 part of plugins.less;
 
+///
 /// Base clase for Plugin definition
+///
 abstract class Plugin {
-  Environment environment;
-  Logger logger;
-  String cmdOptions;
-  LessOptions lessOptions;
-  bool isLoaded = false; //true after first load
+  String        cmdOptions;
 
-  // Less required minimal version
-  List<int> get minVersion;
+  Environment   environment;
 
-  Plugin(){
-    this.environment = new Environment();
-    this.logger = environment.logger;
+  bool          isLoaded = false; //true after first load
+
+  LessOptions   lessOptions;
+
+  Logger        logger;
+
+  Plugin() {
+    environment = new Environment();
+    logger = environment.logger;
   }
 
   void init(LessOptions options) {
-    this.lessOptions = options;
+    lessOptions = options;
   }
 
   ///
   void install(PluginManager pluginManager) {}
 
   ///
+  /// Less required minimal version
+  ///
+  List<int> get minVersion;
+
+  ///
   ///Removes " at the start/end
   ///
   String normalizeCommand(String cmdOptions) {
-    String command = cmdOptions.startsWith('"') ? cmdOptions.substring(1) : cmdOptions;
-    command = command.endsWith('"') ? command.substring(0, command.length - 1) : command;
+    String command = cmdOptions.startsWith('"')
+        ? cmdOptions.substring(1)
+        : cmdOptions;
+    command = command.endsWith('"')
+        ? command.substring(0, command.length - 1)
+        : command;
     return command;
   }
 
   ///
-  void printUsage(){}
+  void printUsage() {}
 
   ///
   void printOptions() {}
@@ -42,7 +54,7 @@ abstract class Plugin {
   void setOptions(String cmdOptions) {}
 }
 
-// Base class for cmd options
-class PluginOptions {
-
-}
+///
+/// Base class for cmd options
+///
+class PluginOptions {}

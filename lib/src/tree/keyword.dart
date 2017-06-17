@@ -6,16 +6,14 @@ class Keyword extends Node {
   @override final String      type = 'Keyword';
   @override covariant String  value;
 
-  Keyword(String value){
-    this.value = value;
-  }
+  Keyword(String this.value);
 
   Keyword.True() {
-    this.value = 'true';
+    value = 'true';
   }
 
   Keyword.False() {
-    this.value = 'false';
+    value = 'false';
   }
 
   ///

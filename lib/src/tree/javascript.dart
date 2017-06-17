@@ -9,15 +9,16 @@ class JavaScript extends Node with JsEvalNodeMixin {
   String  expression;
 
   ///
-  JavaScript(String this.expression, bool this.escaped, int index, FileInfo currentFileInfo){
+  JavaScript(String this.expression, bool this.escaped, int index, FileInfo currentFileInfo) {
+    // ignore: prefer_initializing_formals
     this.index = index;
+    // ignore: prefer_initializing_formals
     this.currentFileInfo = currentFileInfo;
   }
 
   // Not supported javascript
   @override
-  Anonymous eval(Contexts context) {
-    return new Anonymous(expression);
+  Anonymous eval(Contexts context) => new Anonymous(expression);
 
 //2.3.1
 //  JavaScript.prototype.eval = function(context) {
@@ -33,5 +34,4 @@ class JavaScript extends Node with JsEvalNodeMixin {
 //          return new Anonymous(result);
 //      }
 //  };
-  }
 }

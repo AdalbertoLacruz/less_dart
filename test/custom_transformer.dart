@@ -34,9 +34,8 @@ class MyProcessor extends Processor {
   MyProcessor(PluginOptions options):super(options);
 
   @override
-  String process(String input, Map<String, dynamic> options) {
-      return '/* MyPlugin custom transformer post processor */\n' + input;
-  }
+  String process(String input, Map<String, dynamic> options) =>
+      '/* MyPlugin custom transformer post processor */\n$input';
 }
 
 class MyPlugin extends Plugin {

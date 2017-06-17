@@ -15,32 +15,28 @@ void main() {
   ], modifyOptions: (LessOptions options){
     options.definePlugin('myplugin', new MyPlugin(), true, '');
   }).then((int exitCode){
-    stderr.write(less.stderr.toString());
-    stdout.writeln('\nstdout:');
-    stdout.write(less.stdout.toString());
+    stderr
+        ..write(less.stderr.toString())
+        ..writeln('\nstdout:')
+        ..write(less.stdout.toString());
   });
 }
 
 class MyFunctions extends FunctionBase {
-  Dimension add(Node a, Node b) {
-    return new Dimension(a.value + b.value);
-  }
+  Dimension add(Node a, Node b) => new Dimension(a.value + b.value);
 
-  Dimension increment(Node a) {
-    return new Dimension(a.value + 1);
-  }
+  Dimension increment(Node a) => new Dimension(a.value + 1);
 
   @DefineMethod(name: '_color')
-  Color color(Node str) => (str.value == 'evil red') ? new Color('600') : null;  
+  Color color(Node str) => (str.value == 'evil red') ? new Color('600') : null;
 }
 
 class MyProcessor extends Processor {
   MyProcessor(PluginOptions options):super(options);
 
   @override
-  String process(String input, Map<String, dynamic> options) {
-      return '/* MyPlugin post processor */\n' + input;
-  }
+  String process(String input, Map<String, dynamic> options) =>
+      '/* MyPlugin post processor */\n$input';
 }
 
 class MyPlugin extends Plugin {

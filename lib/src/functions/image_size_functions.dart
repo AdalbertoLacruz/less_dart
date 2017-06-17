@@ -4,7 +4,7 @@ part of functions.less;
 
 class ImageSizeFunctions extends FunctionBase {
   Environment environment = new Environment();
-  ImageSize imageSizeProcessor = new ImageSize();
+  ImageSize   imageSizeProcessor = new ImageSize();
 
   @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
@@ -14,11 +14,13 @@ class ImageSizeFunctions extends FunctionBase {
         : currentFileInfo.entryPath;
 
     final int fragmentStart = filePath.indexOf('#');
-    if (fragmentStart != -1) filePath = filePath.substring(0, fragmentStart);
+    if (fragmentStart != -1)
+        filePath = filePath.substring(0, fragmentStart);
 
     final FileManager fileManager = environment.getFileManager(filePath, currentDirectory, context, environment, true);
     final FileLoaded fileSync = fileManager.existSync(filePath, currentDirectory, context, environment);
-    if (fileSync.error != null) throw fileSync.error;
+    if (fileSync.error != null)
+        throw fileSync.error;
 
     return imageSizeProcessor.sizeOf(fileSync.filename);
 
@@ -70,12 +72,13 @@ class ImageSizeFunctions extends FunctionBase {
   Expression imageSize(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
 
-    if (size == null) return null;
+    if (size == null)
+        return null;
 
     return new Expression(<Node>[
       new Dimension(size.width, 'px'),
       new Dimension(size.height, 'px')
-      ]);
+    ]);
 
 //2.4.0 20150321
 //  "image-size": function(filePathNode) {
@@ -100,7 +103,8 @@ class ImageSizeFunctions extends FunctionBase {
   Dimension imageWidth(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
 
-    if (size == null) return null;
+    if (size == null)
+        return null;
 
     return new Dimension(size.width, 'px');
 
@@ -124,8 +128,9 @@ class ImageSizeFunctions extends FunctionBase {
   Dimension imageHeigth(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
 
-    if (size == null) return null;
-    
+    if (size == null)
+        return null;
+
     return new Dimension(size.height, 'px');
 
 //2.4.0 20150321

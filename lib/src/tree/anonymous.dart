@@ -3,18 +3,20 @@
 part of tree.less;
 
 class Anonymous extends Node implements CompareNode {
-  @override String get  name => null;
-  @override String      type = 'Anonymous';
+  @override final String name = null;
+  @override String       type = 'Anonymous';
 
   int   index;
   bool  mapLines;
   bool  rulesetLike;
 
-  Anonymous(dynamic value, [int this.index, FileInfo currentFileInfo,
-           this.mapLines = false, bool this.rulesetLike = false]){
-    this.value = value;
-    this.currentFileInfo = currentFileInfo;
-  }
+  ///
+  Anonymous(dynamic value,
+      [int this.index,
+      FileInfo currentFileInfo,
+      this.mapLines = false,
+      bool this.rulesetLike = false])
+      : super.init(currentFileInfo: currentFileInfo, value: value);
 
   ///
   @override
@@ -30,7 +32,7 @@ class Anonymous extends Node implements CompareNode {
 
   ///
   @override
-  int compare(Node other) => this.toCSS(null).compareTo(other.toCSS(null));
+  int compare(Node other) => toCSS(null).compareTo(other.toCSS(null));
 
 //2.3.1
 //  Anonymous.prototype.compare = function (other) {

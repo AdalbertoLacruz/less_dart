@@ -4,7 +4,7 @@ part of tree.less;
 
 class Variable extends Node {
   @override String name;
-  @override String type = "Variable";
+  @override String type = 'Variable';
 
   bool  evaluating = false; // Recursivity control
   int   index;
@@ -24,10 +24,10 @@ class Variable extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    Node variable;
     String name = this.name;
 
     if (name.startsWith('@@')) {
+      // ignore: prefer_interpolation_to_compose_strings
       name = '@' + new Variable(name.substring(1), index, currentFileInfo).eval(context).value;
     }
 
@@ -42,13 +42,11 @@ class Variable extends Node {
 
     evaluating = true;
 
-    variable = find(context.frames, (VariableMixin frame){
+    final Node variable = find(context.frames, (VariableMixin frame) {
       final Rule v = frame.variable(name);
       if (v != null) {
-        if (v.important.isNotEmpty) {
-          final ImportantRule importantScope = context.importantScope.last;
-          importantScope.important = v.important;
-        }
+        if (v.important.isNotEmpty)
+            context.importantScope.last.important = v.important;
         return v.value.eval(context);
       }
     });
@@ -105,13 +103,14 @@ class Variable extends Node {
   }
 
   ///
-   Node find(List<Node> obj, Function fun) {
-     for (int i = 0; i < obj.length; i++) {
-       final Node r = fun(obj[i]);
-       if (r != null) return r;
-     }
-     return null;
-   }
+  Node find(List<Node> obj, Function fun) {
+    for (int i = 0; i < obj.length; i++) {
+      final Node r = fun(obj[i]);
+      if (r != null)
+          return r;
+    }
+    return null;
+  }
 
 //2.3.1
 // Variable.prototype.find = function (obj, fun) {

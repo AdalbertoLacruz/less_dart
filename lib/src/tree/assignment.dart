@@ -3,12 +3,13 @@
 part of tree.less;
 
 class Assignment extends Node {
-  @override String get      name => null;
+  @override final String    name = null;
   @override final String    type = 'Assignment';
   @override covariant Node  value;
 
   String key;
 
+  ///
   Assignment(String this.key, Node this.value);
 
   ///
@@ -38,7 +39,7 @@ class Assignment extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add(key + '=');
+    output.add('$key=');
     (value is Node) ? value.genCSS(context, output) : output.add(value);
 
 //2.3.1

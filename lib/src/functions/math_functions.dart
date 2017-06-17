@@ -3,7 +3,6 @@
 part of functions.less;
 
 class MathFunctions extends FunctionBase {
-
   ///
   /// Applies Function [fn] to Node [n].
   /// [unit] String ex: 'rad'
@@ -16,14 +15,14 @@ class MathFunctions extends FunctionBase {
          message: 'argument must be a number'));
     }
 
-    Dimension node = n as Dimension;
+    Dimension node = n;
     Unit nodeUnit;
 
     if (unit == null) {
-     nodeUnit = node.unit;
+      nodeUnit = node.unit;
     } else {
-     node = node.unify();
-     nodeUnit = new Unit(<String>[unit]);
+      node = node.unify();
+      nodeUnit = new Unit(<String>[unit]);
     }
     return new Dimension(fn(node.value.toDouble()), nodeUnit);
   }
@@ -202,7 +201,7 @@ class MathFunctions extends FunctionBase {
 
     return _math((num d) {
       final double exp = math.pow(10, fraction).toDouble();
-      return (d * exp).roundToDouble()/ exp;
+      return (d * exp).roundToDouble() / exp;
     }, null, n);
 
 //    mathFunctions.round = function (n, f) {

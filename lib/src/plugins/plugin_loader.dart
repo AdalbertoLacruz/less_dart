@@ -16,8 +16,8 @@ class PluginLoader {
 
   ///
   PluginLoader(this.options) {
-    this.environment = new Environment();
-    this.logger = environment.logger;
+    environment = new Environment();
+    logger = environment.logger;
 
 //    if (options.pluginManager == null) options.pluginManager = new PluginManager();
 //    pluginManager = options.pluginManager;
@@ -34,7 +34,8 @@ class PluginLoader {
   ///
   Plugin tryLoadPlugin(String name, String argument) {
     Plugin plugin;
-    final String pluginName = installable.containsKey(name) ? name : 'less-plugin-' + name;
+    final String prefix = installable.containsKey(name) ? '' : 'less-plugin-';
+    final String pluginName = '$prefix$name';
 
     if (installable.containsKey(pluginName)) {
       plugin = installable[pluginName];
@@ -44,7 +45,7 @@ class PluginLoader {
       }
       plugin.init(options);
 
-      if (argument!= null) {
+      if (argument != null) {
         try {
           plugin.setOptions(argument);
         } catch (e) {
@@ -93,11 +94,10 @@ class PluginLoader {
   }
 
   ///
-  int compareVersion(List<int> aVersion, List<int>  bVersion) {
+  int compareVersion(List<int> aVersion, List<int> bVersion) {
     for (int i = 0; i < aVersion.length; i++) {
-      if (aVersion[i] != bVersion[i]) {
-        return (aVersion[i] > bVersion[i]) ? -1: 1;
-      }
+      if (aVersion[i] != bVersion[i])
+          return (aVersion[i] > bVersion[i]) ? -1 : 1;
     }
     return 0;
 
@@ -113,13 +113,11 @@ class PluginLoader {
   }
 
   ///
-  String versionToString(List<int> version) {
-    String versionString = '';
-    version.forEach((int v){
-      versionString += (versionString.isNotEmpty ? '.' : '') + v.toString();
-    });
-
-    return versionString;
+  /// Transforms a int version list to String
+  ///
+  /// Example: [1,2,3] => '1.2.3'
+  ///
+  String versionToString(List<int> version) => version.join('.');
 
 //2.4.0
 //  PluginLoader.prototype.versionToString = function(version) {
@@ -129,7 +127,6 @@ class PluginLoader {
 //      }
 //      return versionString;
 //  };
-  }
 
   ///
   //tryRequirePlugin(name) {
@@ -165,7 +162,9 @@ class PluginLoader {
 
   ///
   void printUsage(List<Plugin> plugins) {
-    plugins.forEach((Plugin plugin){plugin.printUsage();});
+    plugins.forEach((Plugin plugin) {
+      plugin.printUsage();
+    });
 
 //2.4.0
 //  PluginLoader.prototype.printUsage = function(plugins) {
@@ -181,10 +180,10 @@ class PluginLoader {
   /// Load plugins
   void start() {
     if (options.plugins.isNotEmpty) {
-      if (options.pluginManager == null) options.pluginManager = new PluginManager();
-      pluginManager = options.pluginManager;
-
-      pluginManager.addPlugins(options.plugins);
+      if (options.pluginManager == null)
+          options.pluginManager = new PluginManager();
+      pluginManager = options.pluginManager
+          ..addPlugins(options.plugins);
     }
   }
 }

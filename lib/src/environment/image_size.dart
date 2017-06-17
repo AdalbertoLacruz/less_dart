@@ -7,6 +7,7 @@ part of environment.less;
 ///
 class ImageSize {
   String ext;
+
   String filePath;
 
   ///
@@ -51,6 +52,7 @@ class ImageSize {
 class ImageDimension {
   int width;  //px
   int height; //px
+
   ImageDimension({this.width, this.height});
 }
 
@@ -63,13 +65,12 @@ class BmpImage {
   BmpImage(this.codeUnits);
 
   /// check is bmp file
-  bool isBmp() {
-    return MoreList.compare(bmpSignature, codeUnits.sublist(0, 2));
-  }
+  bool isBmp() => MoreList.compare(bmpSignature, codeUnits.sublist(0, 2));
 
   /// Calculate size for bmp file
   ImageDimension calculate() {
-    if (!isBmp()) return null;
+    if (!isBmp())
+        return null;
     return new ImageDimension(
         width:  MoreList.readUInt32LE(codeUnits, 18),
         height: MoreList.readUInt32LE(codeUnits, 22));
@@ -86,14 +87,14 @@ class GifImage {
   GifImage(this.codeUnits);
 
   /// check is gif file
-  bool isGif() {
-    return MoreList.compare(gif87Signature, codeUnits.sublist(0, 6))
-        || MoreList.compare(gif89Signature, codeUnits.sublist(0, 6));
-  }
+  bool isGif() =>
+      MoreList.compare(gif87Signature, codeUnits.sublist(0, 6)) ||
+      MoreList.compare(gif89Signature, codeUnits.sublist(0, 6));
 
   /// Calculate size for gif file
   ImageDimension calculate() {
-    if (!isGif()) return null;
+    if (!isGif())
+        return null;
     return new ImageDimension(
         width:  MoreList.readUInt16LE(codeUnits, 6),
         height: MoreList.readUInt16LE(codeUnits, 8));
@@ -125,10 +126,12 @@ class JpgImage {
     final List<int> soiMarker = codeUnits.sublist(0, 2);
     final List<int> jfifMarker = codeUnits.sublist(2, 4);
 
-    if (!MoreList.compare(soiMarker, <int>[255, 216])) return false; // ffd8
+    if (!MoreList.compare(soiMarker, <int>[255, 216]))
+        return false; // ffd8
 
     final String jfif = MoreList.foldHex(jfifMarker);
-    if (!validJFIFMarkers.containsKey(jfif)) return false;
+    if (!validJFIFMarkers.containsKey(jfif))
+        return false;
 
     final String expected = validJFIFMarkers[jfif];
     final String got = MoreList.foldHex(codeUnits.sublist(6, 11));
@@ -140,20 +143,20 @@ class JpgImage {
   ///
   bool validateJpgBuffer(int i) {
     // index should be within buffer limits
-    if (i > codeUnits.length) return false;
+    if (i > codeUnits.length)
+        return false;
     // Every JPEG block must begin with a 0xFF
-    if (codeUnits[i] != 255) return false;
+    if (codeUnits[i] != 255)
+        return false;
     return true;
   }
 
   ///
   /// jpg file size
   ///
-  ImageDimension extractJpgSize(int i) {
-    return new ImageDimension(
-        width:  MoreList.readUInt16BE(codeUnits, i + 2),
-        height: MoreList.readUInt16BE(codeUnits, i));
-  }
+  ImageDimension extractJpgSize(int i) => new ImageDimension(
+      width:  MoreList.readUInt16BE(codeUnits, i + 2),
+      height: MoreList.readUInt16BE(codeUnits, i));
 
   ///
   /// Calculate size for jpg file
@@ -162,7 +165,8 @@ class JpgImage {
     int i;
     int next;
 
-    if (!isJpg()) return null;
+    if (!isJpg())
+        return null;
 
     // Skip 5 chars, they are for signature
     codeUnits = codeUnits.sublist(4);
@@ -172,12 +176,14 @@ class JpgImage {
       i = MoreList.readUInt16BE(codeUnits, 0);
 
       // ensure correct format
-      if (!validateJpgBuffer(i)) return null;
+      if (!validateJpgBuffer(i))
+          return null;
 
       // 0xFFC0 is baseline(SOF)
       // 0xFFC2 is progressive(SOF2)
       next = codeUnits[i + 1];
-      if (next == 192 || next == 194) return extractJpgSize(i + 5);
+      if (next == 192 || next == 194)
+          return extractJpgSize(i + 5);
 
       // move to the next block
       codeUnits = codeUnits.sublist(i + 2);
@@ -208,7 +214,8 @@ class PngImage {
   /// Calculate size for png file
   ///
   ImageDimension calculate() {
-    if (!isPng()) return null;
+    if (!isPng())
+        return null;
     return new ImageDimension(
         width:  MoreList.readUInt32BE(codeUnits, 16),
         height: MoreList.readUInt32BE(codeUnits, 20));
@@ -226,15 +233,14 @@ class PsdImage {
   ///
   /// check if is psd file
   ///
-  bool isPsd() {
-    return MoreList.compare(psdSignature, codeUnits.sublist(0, 4));
-  }
+  bool isPsd() => MoreList.compare(psdSignature, codeUnits.sublist(0, 4));
 
   ///
   /// Calculate size for psd file
   ///
   ImageDimension calculate() {
-    if (!isPsd()) return null;
+    if (!isPsd())
+        return null;
     return new ImageDimension(
         width:  MoreList.readUInt32BE(codeUnits, 18),
         height: MoreList.readUInt32BE(codeUnits, 14));
@@ -256,16 +262,14 @@ class SvgImage {
   ///
   /// check if is svg file
   ///
-  bool isSvg() {
-    return svgReg.hasMatch(contents);
-  }
+  bool isSvg() => svgReg.hasMatch(contents);
 
   double getSvgRatio(Match viewboxMatch) {
     double ratio = 1.0;
     if (viewboxMatch != null && viewboxMatch[2] != null) {
       final List<String> dim = viewboxMatch[2].split(' ');
       if (dim.length == 4) {
-        final List<int> dimi = dim.map((String s)=> int.parse(s)).toList();
+        final List<int> dimi = dim.map((String s) => int.parse(s)).toList();
         ratio = (dimi[2] - dimi[0]) / (dimi[3] - dimi[1]);
       }
     }
@@ -280,7 +284,8 @@ class SvgImage {
     double  ratio;
     int     width;
 
-    if (!isSvg()) return null;
+    if (!isSvg())
+        return null;
 
     contents = contents.replaceAll(new RegExp(r'[\r\n\s]+'), ' ');
     final Match section = svgRootReg.firstMatch(contents);
@@ -341,26 +346,25 @@ class WebpImage {
     return new ImageDimension(width: width, height: height);
   }
 
-
   ///
   /// calculate size of webp file
   ///
   ImageDimension calculate() {
-    if (!isWebp()) return null;
+    if (!isWebp())
+        return null;
 
     final List<int> chunkHeader = codeUnits.sublist(12, 16);
     final List<int> buffer = codeUnits.sublist(20, 30);
 
     // Lossless webp stream signature
-    if (MoreList.compare(<int>[86, 80, 56, 32], chunkHeader) && buffer[0] != 47) {  // 'VP8 ' 0x2f
-      return calculateWebpLossy(buffer);
-    }
+    if (MoreList.compare(<int>[86, 80, 56, 32], chunkHeader) && buffer[0] != 47)   // 'VP8 ' 0x2f
+        return calculateWebpLossy(buffer);
+
 
     //Lossy webp stream signature
     final String signature = MoreList.foldHex(buffer.sublist(3, 6));
-    if (MoreList.compare(<int>[86, 80, 56, 76], chunkHeader) && signature != '9d012a') { // 'VP8L'
-      return calculateWebpLossless(buffer);
-    }
+    if (MoreList.compare(<int>[86, 80, 56, 76], chunkHeader) && signature != '9d012a')  // 'VP8L'
+        return calculateWebpLossless(buffer);
 
     return null;
   }

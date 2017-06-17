@@ -9,16 +9,18 @@ class Media extends DirectiveBase {
   Node features;
 
   ///
-  Media(List<Node> value, List<Node> features, [int index, FileInfo currentFileInfo]):super() {
-    this.index = index;
-    this.currentFileInfo = currentFileInfo;
-    isReferenced = false;
-    //List<Node> selectors = emptySelectors();
-    final List<Node> selectors = (new Selector(<Element>[], null, null, this.index, this.currentFileInfo))
+  Media(List<Node> value, List<Node> features,
+      [int index, FileInfo currentFileInfo])
+      : super(
+          index: index,
+          currentFileInfo: currentFileInfo,
+          isReferenced: false) {
+
+    final List<Node> selectors = new Selector(<Element>[], null, null, this.index, this.currentFileInfo)
         .createEmptySelectors();
 
     this.features = new Value(features);
-    this.rules = <Ruleset>[new Ruleset(selectors, value)..allowImports = true];
+    rules = <Ruleset>[new Ruleset(selectors, value)..allowImports = true];
 
 //2.4.0+1
 //  var Media = function (value, features, index, currentFileInfo) {
@@ -36,8 +38,10 @@ class Media extends DirectiveBase {
   ///
   @override
   void accept(Visitor visitor) {
-    if (features != null) features = visitor.visit(features);
-    if (rules != null) rules = visitor.visitArray(rules);
+    if (features != null)
+        features = visitor.visit(features);
+    if (rules != null)
+        rules = visitor.visitArray(rules);
 
 //2.3.1
 //  Media.prototype.accept = function (visitor) {
@@ -69,11 +73,12 @@ class Media extends DirectiveBase {
   @override
   Node eval(Contexts context) {
     if (context.mediaBlocks == null) {
-      context.mediaBlocks = <Media>[];
-      context.mediaPath = <Media>[];
+      context
+          ..mediaBlocks = <Media>[]
+          ..mediaPath = <Media>[];
     }
 
-    final Media media = new Media (null, <Node>[], index, currentFileInfo);
+    final Media media = new Media(null, <Node>[], index, currentFileInfo);
     if (debugInfo != null) {
       rules[0].debugInfo = debugInfo;
       media.debugInfo = debugInfo;
@@ -81,19 +86,20 @@ class Media extends DirectiveBase {
     bool strictMathBypass = false;
     if (!context.strictMath) {
       strictMathBypass = true;
-      context.strictMath = true; //??
+      context.strictMath = true;
     }
 
     try {
       media.features = features.eval(context);
     } finally {
-      if (strictMathBypass) context.strictMath = false;
+      if (strictMathBypass)
+          context.strictMath = false;
     }
 
     context.mediaPath.add(media);
     context.mediaBlocks.add(media);
 
-    this.rules[0].functionRegistry =
+    rules[0].functionRegistry =
         new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
     context.frames.insert(0, rules[0]);
     media.rules = <Ruleset>[rules[0].eval(context)];
@@ -101,7 +107,9 @@ class Media extends DirectiveBase {
 
     context.mediaPath.removeLast();
 
-    return context.mediaPath.isEmpty ? media.evalTop(context) : media.evalNested(context);
+    return context.mediaPath.isEmpty
+        ? media.evalTop(context)
+        : media.evalNested(context);
 
 //2.4.0 20150320
 //  Media.prototype.eval = function (context) {
@@ -152,14 +160,16 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      final List<Selector> selectors = (new Selector(<Element>[], null, null, index, currentFileInfo))
-          .createEmptySelectors();
+      final List<Selector> selectors =
+          new Selector(<Element>[], null, null, index, currentFileInfo)
+              .createEmptySelectors();
       result = new Ruleset(selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
           ..multiMedia = true;
     }
 
-    context.mediaBlocks = null;
-    context.mediaPath = null;
+    context
+        ..mediaBlocks = null
+        ..mediaPath = null;
 
     return result;
 
@@ -203,10 +213,12 @@ class Media extends DirectiveBase {
     //    b and c and d
     //    b and c and e
 
-    features = new Value(permute(path).map((List<Node>path) {
-      path = path.map((Node fragment){
-        return (fragment is Node) ? fragment : new Anonymous(fragment); //All must be Node!!. This not necessary
-      }).toList();
+    features = new Value(permute(path).map((List<Node> path) {
+      path = path
+          //All must be Node!!. This not necessary
+          .map((Node fragment) =>
+              (fragment is Node) ? fragment : new Anonymous(fragment))
+          .toList();
 
       for (int i = path.length - 1; i > 0; i--) {
         path.insert(i, new Anonymous('and'));
@@ -266,7 +278,8 @@ class Media extends DirectiveBase {
   /// `[[Node1, Node2], [Node3, Node4]]` to `[[Node1, Node3], [Node2, Node3], [Node1, Node4], [Node2, Node4]]`
   ///
   List<List<Node>> permute(List<List<Node>> arr) {
-    if (arr.length <2) return arr;
+    if (arr.length < 2)
+        return arr;
 
     final List<List<Node>> result = <List<Node>>[];
     final List<dynamic> rest = (arr.length == 2)
@@ -276,8 +289,7 @@ class Media extends DirectiveBase {
     for (int i = 0; i < rest.length; i++) {
       for (int j = 0; j < arr[0].length; j++) {
         result.add(<Node>[arr[0][j]]
-            ..addAll(rest[i] is! List ? <Node>[rest[i]] : rest[i])
-        );
+          ..addAll(rest[i] is! List ? <Node>[rest[i]] : rest[i]));
       }
     }
     return result;
@@ -303,7 +315,8 @@ class Media extends DirectiveBase {
 
   ///
   void bubbleSelectors(List<Selector> selectors) {
-    if (selectors == null) return;
+    if (selectors == null)
+        return;
     rules = <Ruleset>[new Ruleset(selectors.sublist(0), <Node>[rules[0]])];
 
 //2.3.1

@@ -16,65 +16,64 @@ class LesscHelper {
   /// Print command line options
   ///
   static void printUsage() {
-    final Logger console = new Logger();
-
-    console.log("usage: lessc [option option=parameter ...] <source> [destination]");
-    console.log("");
-    console.log("If source is set to `-' (dash or hyphen-minus), input is read from stdin.");
-    console.log("");
-    console.log("options:");
-    console.log("  -h, --help               Print help (this message) and exit.");
-    console.log("  --include-path=PATHS     Sets include paths. Separated by `:'. `;' also supported on windows.");
-    console.log("  -M, --depends            Output a makefile import dependency list to stdout");
-    console.log("  --no-color               Disable colorized output.");
-    console.log("  --no-ie-compat           Disable IE compatibility checks.");
-    console.log("  --no-js                  Disable JavaScript in less files");
-    console.log("  -l, --lint               Syntax check only (lint).");
-    console.log("  -s, --silent             Suppress output of error messages.");
-    console.log("  --strict-imports         Force evaluation of imports.");
-    console.log("  --insecure               Allow imports from insecure https hosts.");
-    console.log("  -v, --version            Print version number and exit.");
-    console.log("  --verbose                Be verbose.");
-    console.log("  -x, --compress           Compress output by removing some whitespaces.");
-    console.log("  --source-map[=FILENAME]  Outputs a v3 sourcemap to the filename (or output filename.map)");
-    console.log("  --source-map-rootpath=X  adds this path onto the sourcemap filename and less file paths");
-    console.log("  --source-map-basepath=X  Sets sourcemap base path, defaults to current working directory.");
-    console.log("  --source-map-less-inline puts the less files into the map instead of referencing them");
-    console.log("  --source-map-map-inline  Puts the map (and any less files) as a base64 data uri into the output css file.");
-    console.log("  --source-map-url=URL     Sets a custom URL to map file, for sourceMappingURL comment");
-    console.log("                           in generated CSS file.");
-    console.log("  -rp, --rootpath=URL      Set rootpath for url rewriting in relative imports and urls.");
-    console.log("                           Works with or without the relative-urls option.");
-    console.log("  -ru, --relative-urls     re-write relative urls to the base less file.");
-    console.log("  -sm=on|off               Turn on or off strict math, where in strict mode, math");
-    console.log("  --strict-math=on|off     requires brackets. This option may default to on and then");
-    console.log("                           be removed in the future.");
-    console.log("  -su=on|off               Allow mixed units, e.g. 1px+1em or 1px*1px which have units");
-    console.log("  --strict-units=on|off    that cannot be represented.");
-    console.log("  --global-var='VAR=VALUE' Defines a variable that can be referenced by the file.");
-    console.log("  --modify-var='VAR=VALUE' Modifies a variable already declared in the file.");
-    console.log("  --url-args='QUERYSTRING' Adds params into url tokens (e.g. 42, cb=42 or 'a=1&b=2')");
-    console.log("  --plugin=PLUGIN=OPTIONS  Loads a plugin. You can also omit the --plugin= if the plugin begins");
-    console.log("                           less-plugin. E.g. the clean css plugin is called less-plugin-clean-css");
-    console.log("                           once installed, use either with");
-    console.log("                           --plugin=less-plugin-clean-css or just --clean-css");
-    console.log("                           specify options afterwards e.g. --plugin=less-plugin-clean-css=\"advanced\"");
-    console.log("                           or --clean-css=\"advanced\"");
-    console.log("");
-    console.log("-------------------------- Deprecated ----------------");
-    console.log("  --clean-css              Compress output using clean-css");
-    console.log("  --clean-option=opt:val   Pass an option to clean css, using CLI arguments from ");
-    console.log("                           https://github.com/GoalSmashers/clean-css e.g.");
-    console.log("                           --clean-option=--selectors-merge-mode:ie8");
-    console.log("                           and to switch on advanced use --clean-option=--advanced");
-    console.log("  --line-numbers=TYPE      Outputs filename and line numbers.");
-    console.log("                           TYPE can be either 'comments', which will output");
-    console.log("                           the debug info within comments, 'mediaquery'");
-    console.log("                           that will output the information within a fake");
-    console.log("                           media query which is compatible with the SASS");
-    console.log("                           format, and 'all' which will do both.");
-    console.log("");
-    console.log("Report bugs to: http://github.com/less/less.js/issues");
-    console.log("Home page: <http://lesscss.org/>");
+    new Logger()
+        ..log("usage: lessc [option option=parameter ...] <source> [destination]")
+        ..log("")
+        ..log("If source is set to `-' (dash or hyphen-minus), input is read from stdin.")
+        ..log("")
+        ..log("options:")
+        ..log("  -h, --help               Print help (this message) and exit.")
+        ..log("  --include-path=PATHS     Sets include paths. Separated by `:'. `;' also supported on windows.")
+        ..log("  -M, --depends            Output a makefile import dependency list to stdout")
+        ..log("  --no-color               Disable colorized output.")
+        ..log("  --no-ie-compat           Disable IE compatibility checks.")
+        ..log("  --no-js                  Disable JavaScript in less files")
+        ..log("  -l, --lint               Syntax check only (lint).")
+        ..log("  -s, --silent             Suppress output of error messages.")
+        ..log("  --strict-imports         Force evaluation of imports.")
+        ..log("  --insecure               Allow imports from insecure https hosts.")
+        ..log("  -v, --version            Print version number and exit.")
+        ..log("  --verbose                Be verbose.")
+        ..log("  -x, --compress           Compress output by removing some whitespaces.")
+        ..log("  --source-map[=FILENAME]  Outputs a v3 sourcemap to the filename (or output filename.map)")
+        ..log("  --source-map-rootpath=X  adds this path onto the sourcemap filename and less file paths")
+        ..log("  --source-map-basepath=X  Sets sourcemap base path, defaults to current working directory.")
+        ..log("  --source-map-less-inline puts the less files into the map instead of referencing them")
+        ..log("  --source-map-map-inline  Puts the map (and any less files) as a base64 data uri into the output css file.")
+        ..log("  --source-map-url=URL     Sets a custom URL to map file, for sourceMappingURL comment")
+        ..log("                           in generated CSS file.")
+        ..log("  -rp, --rootpath=URL      Set rootpath for url rewriting in relative imports and urls.")
+        ..log("                           Works with or without the relative-urls option.")
+        ..log("  -ru, --relative-urls     re-write relative urls to the base less file.")
+        ..log("  -sm=on|off               Turn on or off strict math, where in strict mode, math")
+        ..log("  --strict-math=on|off     requires brackets. This option may default to on and then")
+        ..log("                           be removed in the future.")
+        ..log("  -su=on|off               Allow mixed units, e.g. 1px+1em or 1px*1px which have units")
+        ..log("  --strict-units=on|off    that cannot be represented.")
+        ..log("  --global-var='VAR=VALUE' Defines a variable that can be referenced by the file.")
+        ..log("  --modify-var='VAR=VALUE' Modifies a variable already declared in the file.")
+        ..log("  --url-args='QUERYSTRING' Adds params into url tokens (e.g. 42, cb=42 or 'a=1&b=2')")
+        ..log("  --plugin=PLUGIN=OPTIONS  Loads a plugin. You can also omit the --plugin= if the plugin begins")
+        ..log("                           less-plugin. E.g. the clean css plugin is called less-plugin-clean-css")
+        ..log("                           once installed, use either with")
+        ..log("                           --plugin=less-plugin-clean-css or just --clean-css")
+        ..log("                           specify options afterwards e.g. --plugin=less-plugin-clean-css=\"advanced\"")
+        ..log("                           or --clean-css=\"advanced\"")
+        ..log("")
+        ..log("-------------------------- Deprecated ----------------")
+        ..log("  --clean-css              Compress output using clean-css")
+        ..log("  --clean-option=opt:val   Pass an option to clean css, using CLI arguments from ")
+        ..log("                           https://github.com/GoalSmashers/clean-css e.g.")
+        ..log("                           --clean-option=--selectors-merge-mode:ie8")
+        ..log("                           and to switch on advanced use --clean-option=--advanced")
+        ..log("  --line-numbers=TYPE      Outputs filename and line numbers.")
+        ..log("                           TYPE can be either 'comments', which will output")
+        ..log("                           the debug info within comments, 'mediaquery'")
+        ..log("                           that will output the information within a fake")
+        ..log("                           media query which is compatible with the SASS")
+        ..log("                           format, and 'all' which will do both.")
+        ..log("")
+        ..log("Report bugs to: http://github.com/less/less.js/issues")
+        ..log("Home page: <http://lesscss.org/>");
   }
 }

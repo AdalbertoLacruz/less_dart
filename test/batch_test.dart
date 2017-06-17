@@ -10,7 +10,6 @@ import 'package:test/test.dart';
 
 import '../lib/less.dart';
 
-
 Map<int, Config> config;
 String errorTests;
 //List<Future> run = <Future>[];
@@ -38,24 +37,23 @@ void main() {
 
   group('simple', () {
     for (int id in config.keys) {
-      if (!config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
-        declareTest(id);
-      }
+      if (!config[id].isExtendedText && (runOnly?.contains(id) ?? true))
+          declareTest(id);
     }
   });
 
   group('extended', () {
     for (int id in config.keys) {
-      if (config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
-        declareTest(id);
-      }
+      if (config[id].isExtendedText && (runOnly?.contains(id) ?? true))
+          declareTest(id);
     }
   });
 }
 
 void declareTest(int id) {
   final Config c = config[id];
-  final String ref = "(#${id.toString()})";
+  final String ref = '(#${id.toString()})';
+  // ignore: prefer_interpolation_to_compose_strings
   test(c.name + ref, () async {
     await runZoned(() async {
       await testRun(id);
@@ -63,8 +61,7 @@ void declareTest(int id) {
   });
 }
 
-Map<int, Config> configFill() {
-  return <int, Config>{
+Map<int, Config> configFill() => <int, Config>{
      0: def('charsets'), //@import
      1: def('colors'),
      2: def('comments'),
@@ -110,9 +107,10 @@ Map<int, Config> configFill() {
     42: def('parens', options: <String>['--strict-math=on']),
     43: def('plugin',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('plugin-global', new PluginGlobal());
-          options.definePlugin('plugin-local', new PluginLocal());
-          options.definePlugin('plugin-transitive', new PluginTransitive());
+          options
+              ..definePlugin('plugin-global', new PluginGlobal())
+              ..definePlugin('plugin-local', new PluginLocal())
+              ..definePlugin('plugin-transitive', new PluginTransitive());
         }),
     46: def('property-name-interp'),
     47: def('rulesets'),
@@ -129,52 +127,67 @@ Map<int, Config> configFill() {
     60: def('compression/compression', options: <String>['-x']),
 
     // globalVars
-    61: def('globalVars/simple',
-        options: <String>['--global-var=my-color=red', '--banner='+dirPath+'banner.txt']),
-    62: def('globalVars/extended',
-        options: <String>['--global-var=the-border=1px', '--global-var=base-color=#111',
-                  '--global-var=red=#842210', '--banner='+dirPath+'banner.txt']),
+    61: def('globalVars/simple', options: <String>[
+          '--global-var=my-color=red',
+          '--banner=${dirPath}banner.txt'
+        ]),
+    62: def('globalVars/extended', options: <String>[
+          '--global-var=the-border=1px',
+          '--global-var=base-color=#111',
+          '--global-var=red=#842210',
+          '--banner=${dirPath}banner.txt'
+        ]),
 
     // modifyVars
-    63: def('modifyVars/extended',
-        options: <String>['--modify-var=the-border=1px', '--modify-var=base-color=#111',
-                  '--modify-var=red=#842210']),
+    63: def('modifyVars/extended', options: <String>[
+          '--modify-var=the-border=1px',
+          '--modify-var=base-color=#111',
+          '--modify-var=red=#842210'
+        ]),
 
     // debug line-numbers
     64: def('debug/linenumbers',
         options: <String>['--line-numbers=comments'],
         cssName: 'debug/linenumbers-comments',
         replace: <Map<String, String>>[
-          <String, String>{'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
-          <String, String>{'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')}
+          <String, String>{'from': '{path}', 'to': absPath('${dirPath}less/debug')},
+          <String, String>{'from': '{pathimport}', 'to': absPath('${dirPath}less/debug/import')}
         ]),
     65: def('debug/linenumbers',
         options: <String>['--line-numbers=mediaquery'],
         cssName: 'debug/linenumbers-mediaquery',
         replace: <Map<String, String>>[
-          <String, String>{'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
-          <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
+          <String, String>{'from': '{pathesc}', 'to': escFile(absPath('${dirPath}less/debug'))},
+          <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
     66: def('debug/linenumbers',
         options: <String>['--line-numbers=all'],
         cssName: 'debug/linenumbers-all',
         replace: <Map<String, String>>[
-          <String, String>{'from': '{path}', 'to': absPath(dirPath + 'less/debug')},
-          <String, String>{'from': '{pathimport}', 'to': absPath(dirPath + 'less/debug/import')},
-          <String, String>{'from': '{pathesc}', 'to': escFile(absPath(dirPath + 'less/debug'))},
-          <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath(dirPath + 'less/debug/import'))}
+          <String, String>{'from': '{path}', 'to': absPath('${dirPath}less/debug')},
+          <String, String>{'from': '{pathimport}', 'to': absPath('${dirPath}less/debug/import')},
+          <String, String>{'from': '{pathesc}', 'to': escFile(absPath('${dirPath}less/debug'))},
+          <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
 
     67: def('legacy/legacy'),
 
     74: def('filemanagerPlugin/filemanager',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestFileManagerPlugin', new TestFileManagerPlugin(), true, '');}),
+        modifyOptions: (LessOptions options) {
+          options.definePlugin('TestFileManagerPlugin', new TestFileManagerPlugin(), true, '');
+        }),
     75: def('postProcessorPlugin/postProcessor',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(), true, '');}),
+        modifyOptions: (LessOptions options) {
+          options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(), true, '');
+        }),
     76: def('preProcessorPlugin/preProcessor',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestPreProcessorPlugin', new TestPreProcessorPlugin(), true, '');}),
+        modifyOptions: (LessOptions options) {
+          options.definePlugin('TestPreProcessorPlugin', new TestPreProcessorPlugin(), true, '');
+        }),
     77: def('visitorPlugin/visitor',
-        modifyOptions: (LessOptions options) {options.definePlugin('TestVisitorPlugin', new TestVisitorPlugin(), true, '');}),
+        modifyOptions: (LessOptions options) {
+          options.definePlugin('TestVisitorPlugin', new TestVisitorPlugin(), true, '');
+        }),
 
     // static-urls
     79: def('static-urls/urls',
@@ -185,26 +198,38 @@ Map<int, Config> configFill() {
         options: <String>['--url-args=424242']),
 
     //sourcemaps
-    85: def('index', isExtendedTest: true,
-        isSourcemapTest: true, cssName: 'index-expected',
-        options: <String>['--source-map=' + dirPath + 'webSourceMap/index.map',
-                  '--banner=' + dirPath + 'webSourceMap/banner.txt']),
-    86: def('index-less-inline', isExtendedTest: true,
-        isSourcemapTest: true, cssName: 'index-less-inline-expected',
-        options: <String>['--source-map=' + dirPath + 'webSourceMap/index-less-inline.map',
-                  '--source-map-less-inline',
-                  '--banner=' + dirPath + 'webSourceMap/banner.txt']),
-    87: def('index-map-inline', isExtendedTest: true,
-        isSourcemapTest: true, cssName: 'index-map-inline-expected',
-        options: <String>['--source-map-map-inline',
-                  '--banner=' + dirPath + 'webSourceMap/banner.txt']),
+    85: def('index',
+        isExtendedTest: true,
+        isSourcemapTest: true,
+        cssName: 'index-expected',
+        options: <String>[
+          '--source-map=${dirPath}webSourceMap/index.map',
+          '--banner=${dirPath}webSourceMap/banner.txt'
+        ]),
+    86: def('index-less-inline',
+        isExtendedTest: true,
+        isSourcemapTest: true,
+        cssName: 'index-less-inline-expected',
+        options: <String>[
+          '--source-map=${dirPath}webSourceMap/index-less-inline.map',
+          '--source-map-less-inline',
+          '--banner=${dirPath}webSourceMap/banner.txt'
+        ]),
+    87: def('index-map-inline',
+        isExtendedTest: true,
+        isSourcemapTest: true,
+        cssName: 'index-map-inline-expected',
+        options: <String>[
+          '--source-map-map-inline',
+          '--banner=${dirPath}webSourceMap/banner.txt'
+        ]),
     88: def('sourcemaps-empty/empty', options: <String>['--source-map-map-inline']),
 
     //include-path
     90: def('include-path/include-path',
-        options: <String>['--include-path=' + dirPath + 'less/import:' + dirPath + 'data']),
+        options: <String>['--include-path=${dirPath}less/import:${dirPath}data']),
     91: def('include-path-string/include-path-string',
-        options: <String>['--include-path=' + dirPath + 'data']),
+        options: <String>['--include-path=${dirPath}data']),
 
     //errors
     100: def('errors/add-mixed-units', isErrorTest: true),
@@ -275,16 +300,28 @@ Map<int, Config> configFill() {
     202: def('extendedTest/image-size', isExtendedTest: true),
     203: def('extendedTest/function-rem', isExtendedTest: true),
     //absolute path
-    210: def('import-absolute-path', isExtendedTest: true, isReplaceSource: true,
-        replace: <Map<String, String>>[<String, String>{'from': '{pathabs}', 'to': absPath(dirPath + 'less')}]),
+    210: def('import-absolute-path',
+        isExtendedTest: true,
+        isReplaceSource: true,
+        replace: <Map<String, String>>[
+          <String, String>{'from': '{pathabs}', 'to': absPath('${dirPath}less')}
+        ]),
     //sync import
-    211: def('charsets', isExtendedTest: true, modifyOptions: (LessOptions options){options.syncImport = true;}),
+    211: def('charsets',
+        isExtendedTest: true,
+        modifyOptions: (LessOptions options) {
+          options.syncImport = true;
+        }),
     //options.variables
-    212: def('globalVars/simple', isExtendedTest: true,
-              options: <String>['--banner=' + dirPath + 'banner.txt'],
-              modifyOptions: (LessOptions options){options.variables = <String, Node>{ 'my-color': new Color.fromKeyword('red') };}),
-    213: def('extendedTest/plugin-advanced-color', isExtendedTest: true,
-              options: <String>['--plugin=less-plugin-advanced-color-functions']),
+    212: def('globalVars/simple',
+        isExtendedTest: true,
+        options: <String>['--banner=${dirPath}banner.txt'],
+        modifyOptions: (LessOptions options) {
+          options.variables = <String, Node>{ 'my-color': new Color.fromKeyword('red') };
+        }),
+    213: def('extendedTest/plugin-advanced-color',
+        isExtendedTest: true,
+        options: <String>['--plugin=less-plugin-advanced-color-functions']),
     //@options and @plugin directives
     220: def('extendedTest/options-strict-math', isExtendedTest: true),
     221: def('extendedTest/options-import', isExtendedTest: true),
@@ -292,16 +329,25 @@ Map<int, Config> configFill() {
     //@apply
     230: def('extendedTest/apply', isExtendedTest: true),
     //clean-css
-    300: def('cleancss/main', options: <String>['--clean-css="keep-line-breaks s1"'], isCleancssTest: true),
-    301: def('cleancss/main-skip-advanced', options: <String>['--clean-css="skip-advanced"'], isCleancssTest: true),
-    302: def('cleancss/colors-no', options: <String>['--clean-css="compatibility=*,-properties.colors"'], isCleancssTest: true),
-    303: def('cleancss/main-ie7', options: <String>['--clean-css="compatibility=ie7"'], isCleancssTest: true),
-    304: def('cleancss/main-ie8', options: <String>['--clean-css="compatibility=ie8"'], isCleancssTest: true),
+    300: def('cleancss/main',
+        options: <String>['--clean-css="keep-line-breaks s1"'],
+        isCleancssTest: true),
+    301: def('cleancss/main-skip-advanced',
+        options: <String>['--clean-css="skip-advanced"'],
+        isCleancssTest: true),
+    302: def('cleancss/colors-no',
+        options: <String>['--clean-css="compatibility=*,-properties.colors"'],
+        isCleancssTest: true),
+    303: def('cleancss/main-ie7',
+        options: <String>['--clean-css="compatibility=ie7"'],
+        isCleancssTest: true),
+    304: def('cleancss/main-ie8',
+        options: <String>['--clean-css="compatibility=ie8"'],
+        isCleancssTest: true),
     310: def('colors', isCleancssTest: true),
     311: def('css-3', isCleancssTest: true),
     312: def('css', isCleancssTest: true)
-  };
-}
+};
 
 Config def(String name, {List<String> options, String cssName, List<Map<String, String>> replace,
   bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
@@ -311,21 +357,22 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
   List<String>              _options = options;
   List<Map<String, String>> _replace = replace;
 
-  String baseLess = dirPath + 'less'; //base directory for less sources
-  String baseCss  = dirPath + 'css';  //base directory for css comparation
+  String baseLess = '${dirPath}less'; //base directory for less sources
+  String baseCss  = '${dirPath}css';  //base directory for css comparation
 
   if (isSourcemapTest) {
-    baseLess = dirPath + 'webSourceMap';
-    baseCss  = dirPath + 'webSourceMap';
+    baseLess = '${dirPath}webSourceMap';
+    baseCss  = '${dirPath}webSourceMap';
   } else if (isErrorTest) {
     _options ??= <String>['--strict-math=on', '--strict-units=on'];
     _replace ??= <Map<String, String>>[
+      // ignore: prefer_interpolation_to_compose_strings
       <String, String>{'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
       <String, String>{'from': '{pathhref}', 'to': ''},
       <String, String>{'from': '{404status}', 'to': ''}
     ];
   } else if (isCleancssTest) {
-    baseCss = dirPath + 'cleancss';
+    baseCss = '${dirPath}cleancss';
     _isExtendedTest = true;
     _options ??= <String>['--clean-css'];
   }
@@ -334,7 +381,7 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
   return new Config(name)
       ..lessFile = path.normalize('$baseLess/$name.less')
       ..cssFile = path.normalize('$baseCss/$cssName.css')
-      ..errorFile = path.normalize(dirPath + 'less/$name.txt')
+      ..errorFile = path.normalize('${dirPath}less/$name.txt')
       ..options = _options
       ..replace = _replace
       ..isErrorTest = isErrorTest
@@ -346,16 +393,20 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
 
 String escFile(String fileName) {
   final String file = fileName.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
-        String a = m[1];
-        if (a == '\\') a = '\/';
-        return '\\' + a;
-      });
+    String a = m[1];
+    if (a == '\\')
+        a = '\/';
+    // ignore: prefer_interpolation_to_compose_strings
+    return '\\' + a;
+  });
 //    pathesc = p.replace(/[.:/\\]/g, function(a) { return '\\' + (a=='\\' ? '\/' : a); }),
   return file;
 }
 
 // c:\CWD\pathName\ or c:/CWD/pathName/
-String absPath(String pathName) => path.normalize(path.absolute(pathName)) + path.separator;
+String absPath(String pathName) =>
+    // ignore: prefer_interpolation_to_compose_strings
+    path.normalize(path.absolute(pathName)) + path.separator;
 
 Future<Null> testRun(int c) async {
   final List<String> args = <String>[];
@@ -366,11 +417,12 @@ Future<Null> testRun(int c) async {
   final Less less = new Less();
 
   args.add('--no-color');
-  if (config[c].options != null) args.addAll(config[c].options);
+  if (config[c].options != null)
+      args.addAll(config[c].options);
 
   if (config[c].isReplaceSource) {
     String source = new File(fileToTest).readAsStringSync();
-    if (config[c].replace != null ) {
+    if (config[c].replace != null) {
       for (int i = 0; i < config[c].replace.length; i++) {
         source = source.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
@@ -381,8 +433,8 @@ Future<Null> testRun(int c) async {
     args.add(fileToTest);
   }
 
-  if(config[c].isSourcemapTest){
-    fileOutputName = path.withoutExtension(config[c].lessFile) + '.css';
+  if (config[c].isSourcemapTest) {
+    fileOutputName = '${path.withoutExtension(config[c].lessFile)}.css';
     args.add(fileOutputName);
   }
   final int exitCode = await less.transform(args, modifyOptions: config[c].modifyOptions);
@@ -395,8 +447,8 @@ Future<Null> testRun(int c) async {
     final String resultCss = new File(fileOutputName).readAsStringSync();
     expect(resultCss, equals(expectedCss));
 
-    final String mapFileName = path.withoutExtension(config[c].lessFile) + '.map';
-    final String expectedMapFileName = path.withoutExtension(config[c].cssFile) + '.map';
+    final String mapFileName = '${path.withoutExtension(config[c].lessFile)}.map';
+    final String expectedMapFileName =  '${path.withoutExtension(config[c].cssFile)}.map';
     if (new File(mapFileName).existsSync()) {
       final String resultMap = new File(mapFileName).readAsStringSync();
       final String expectedResultMap = new File(expectedMapFileName).readAsStringSync();
@@ -406,18 +458,20 @@ Future<Null> testRun(int c) async {
     final String errorContent = await new File(fileError).readAsString();
 
     String errorContentReplaced = errorContent;
-    if (config[c].replace != null ) {
+    if (config[c].replace != null) {
       for (int i = 0; i < config[c].replace.length; i++) {
         errorContentReplaced = errorContentReplaced.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
     }
 
     if (c == testNumResults) {
-          new File(dirPath + 'result/expected.txt')
-            ..createSync(recursive: true)
-            ..writeAsStringSync(errorContentReplaced);
-          new File(dirPath + 'result/result.txt').writeAsStringSync(config[c].stderr);
-          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
+      new File('${dirPath}result/expected.txt')
+          ..createSync(recursive: true)
+          ..writeAsStringSync(errorContentReplaced);
+      new File('${dirPath}result/result.txt')
+          .writeAsStringSync(config[c].stderr);
+      new File('${dirPath}result/result.css')
+          .writeAsStringSync(less.stdout.toString());
     }
 
     try {
@@ -427,22 +481,23 @@ Future<Null> testRun(int c) async {
       writeTestResult(c, 'txt', config[c].stderr);
       throw e;
     }
-
   } else {
     final String cssGood = await new File(fileResult).readAsString();
 
     String cssGoodReplaced = cssGood;
-    if (config[c].replace != null ) {
+    if (config[c].replace != null) {
       for (int i = 0; i < config[c].replace.length; i++) {
-        cssGoodReplaced = cssGoodReplaced.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
+        cssGoodReplaced = cssGoodReplaced
+            .replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
     }
 
     if (c == testNumResults) {
-          new File(dirPath + 'result/expected.css')
-            ..createSync(recursive: true)
-            ..writeAsStringSync(cssGoodReplaced);
-          new File(dirPath + 'result/result.css').writeAsStringSync(less.stdout.toString());
+      new File('${dirPath}result/expected.css')
+        ..createSync(recursive: true)
+        ..writeAsStringSync(cssGoodReplaced);
+      new File('${dirPath}result/result.css')
+          .writeAsStringSync(less.stdout.toString());
     }
 
     try {
@@ -452,13 +507,11 @@ Future<Null> testRun(int c) async {
       writeTestResult(c, 'txt', config[c].stderr);
       throw e;
     }
-
-
   }
 }
 
 void writeTestResult(int c, String fileType, String content) {
-  final String name = dirPath + 'result/TestFile$c.$fileType';
+  final String name = '${dirPath}result/TestFile$c.$fileType';
   new File(name)
       ..createSync(recursive: true)
       ..writeAsStringSync(content);
@@ -481,21 +534,23 @@ class Config {
   Config(this.name);
 }
 
- // ---------------------------------------------- TestFunctionsPlugin plugin
+// ---------------------------------------------- TestFunctionsPlugin plugin
 class TestFileManager extends FileManager {
   TestFileManager(Environment environment) : super(environment);
 
   @override
-  bool supports (String filename, String currentDirectory, Contexts options,
+  bool supports(String filename, String currentDirectory, Contexts options,
       Environment environment) => true;
 
   @override
-  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
+  Future<FileLoaded> loadFile(String filename, String currentDirectory,
+      Contexts options, Environment environment) {
     final RegExp testRe = new RegExp(r'.*\.test$');
-    if (testRe.hasMatch(filename)) {
-      return environment.fileManagers[0].loadFile('colors.test', currentDirectory, options, environment);
-    }
-    return environment.fileManagers[0].loadFile(filename, currentDirectory, options, environment);
+    if (testRe.hasMatch(filename))
+        return environment.fileManagers[0]
+            .loadFile('colors.test', currentDirectory, options, environment);
+    return environment.fileManagers[0]
+        .loadFile(filename, currentDirectory, options, environment);
   }
 }
 
@@ -509,7 +564,7 @@ class TestFileManagerPlugin extends Plugin {
   }
 }
 
- // ---------------------------------------------- FunctionsPlugin plugin
+// ---------------------------------------------- FunctionsPlugin plugin
 class PluginGlobalFunctions extends FunctionBase {
   @DefineMethod(name: 'test-shadow')
   Anonymous testShadow() => new Anonymous('global');
@@ -561,21 +616,19 @@ class PluginTransitive extends Plugin {
   }
 }
 
-
 // ---------------------------------------------- TestPostProcessorPlugin plugin
 class TestPostProcessor extends Processor {
-  TestPostProcessor(PluginOptions options):super(options);
+  TestPostProcessor(PluginOptions options) : super(options);
 
   @override
-  String process(String css, Map<String, dynamic> options) {
-      return 'hr {height:50px;}\n' + css;
-  }
+  String process(String css, Map<String, dynamic> options) =>
+      'hr {height:50px;}\n$css';
 }
 
 class TestPostProcessorPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
-  TestPostProcessorPlugin(): super();
+  TestPostProcessorPlugin() : super();
 
   @override
   void install(PluginManager pluginManager) {
@@ -584,27 +637,27 @@ class TestPostProcessorPlugin extends Plugin {
   }
 }
 
-
 // ---------------------------------------------- TestPreProcessorPlugin plugin
 class TestPreProcessor extends Processor {
-  TestPreProcessor(PluginOptions options):super(options);
+  TestPreProcessor(PluginOptions options) : super(options);
 
   @override
   String process(String src, Map<String, dynamic> options) {
     final String injected = '@color: red;\n';
     final Map<String, int> ignored = options['imports'].contentsIgnoredChars;
     final FileInfo fileInfo = options['fileInfo'];
-    if (ignored[fileInfo.filename] == null) ignored[fileInfo.filename] = 0;
+    if (ignored[fileInfo.filename] == null)
+        ignored[fileInfo.filename] = 0;
     ignored[fileInfo.filename] += injected.length;
 
-    return injected + src;
+    return '$injected$src';
   }
 }
 
 class TestPreProcessorPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
-  TestPreProcessorPlugin(): super();
+  TestPreProcessorPlugin() : super();
 
   @override
   void install(PluginManager pluginManager) {
@@ -623,9 +676,7 @@ class RemoveProperty extends VisitorBase {
   }
 
   @override
-  Ruleset run(Ruleset root) {
-    return _visitor.visit(root);
-  }
+  Ruleset run(Ruleset root) => _visitor.visit(root);
 
   ///returns Node | List<Node>
   dynamic visitRule(Rule ruleNode, VisitArgs visitArgs) {
@@ -638,7 +689,8 @@ class RemoveProperty extends VisitorBase {
 
   @override
   Function visitFtn(Node node) {
-    if (node is Rule)       return visitRule;
+    if (node is Rule)
+        return visitRule;
     return null;
   }
 
@@ -649,7 +701,7 @@ class RemoveProperty extends VisitorBase {
 class TestVisitorPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
-  TestVisitorPlugin(): super();
+  TestVisitorPlugin() : super();
 
   @override
   void install(PluginManager pluginManager) {

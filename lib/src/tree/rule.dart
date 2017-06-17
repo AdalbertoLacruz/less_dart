@@ -14,17 +14,21 @@ class Rule extends Node implements MakeImportantNode {
   bool    variable = false;
 
   ///
-  Rule(dynamic this.name, Node this.value, [String important, String this.merge,
-      int this.index, FileInfo currentFileInfo, bool this.inline = false,
-      bool variable = null]) {
+  Rule(dynamic this.name, Node this.value,
+      [String important,
+      String this.merge,
+      int this.index,
+      FileInfo currentFileInfo,
+      bool this.inline = false,
+      bool variable = null])
+      : super.init(currentFileInfo: currentFileInfo) {
 
-    this.currentFileInfo = currentFileInfo;
     //this.value = (value is Node) ? value : new Value(<Node>[value]);  // value is Node always
 
-    if (important?.isNotEmpty ?? false) this.important = ' ' + important.trim();
+    if (important?.isNotEmpty ?? false)
+        this.important = ' ${important.trim()}';
 
-    this.variable = variable ??
-      (this.name is String && (this.name as String).startsWith('@'));
+    this.variable = variable ?? (name is String && name.startsWith('@'));
 
 //2.3.1
 //  var Rule = function (name, value, important, merge, index, currentFileInfo, inline, variable) {
@@ -64,12 +68,15 @@ class Rule extends Node implements MakeImportantNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (cleanCss != null) return genCleanCSS(context, output);
+    if (cleanCss != null)
+        return genCleanCSS(context, output);
 
-    output.add(name + (context.compress ? ':' : ': '), currentFileInfo, index);
+    final String colon = context.compress ? ':' : ': ';
+    output.add('$name$colon', currentFileInfo, index);
 
     try {
-      if (value != null) value.genCSS(context, output);
+      if (value != null)
+          value.genCSS(context, output);
     } catch (e) {
       throw new LessExceptionError(LessError.transform(e,
           index: index,
@@ -78,8 +85,9 @@ class Rule extends Node implements MakeImportantNode {
     }
 
     String out = '';
-    if (!inline) out = (context.lastRule && context.compress) ? '' : ';';
-    output.add(important + out, currentFileInfo, index);
+    if (!inline)
+        out = (context.lastRule && context.compress) ? '' : ';';
+    output.add('$important$out', currentFileInfo, index);
 
 //2.3.1
 //  Rule.prototype.genCSS = function (context, output) {
@@ -98,10 +106,11 @@ class Rule extends Node implements MakeImportantNode {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    output.add(name + ':', currentFileInfo, index);
+    output.add('$name:', currentFileInfo, index);
 
     try {
-      if (value != null) value.genCSS(context, output);
+      if (value != null)
+          value.genCSS(context, output);
     } catch (e) {
       throw new LessExceptionError(LessError.transform(e,
           index: index,
@@ -110,8 +119,9 @@ class Rule extends Node implements MakeImportantNode {
     }
 
     String out = '';
-    if (!inline) out = (context.lastRule) ? '' : ';';
-    output.add(important + out, currentFileInfo, index);
+    if (!inline)
+        out = (context.lastRule) ? '' : ';';
+    output.add('$important$out', currentFileInfo, index);
   }
 
   ///
@@ -120,7 +130,6 @@ class Rule extends Node implements MakeImportantNode {
     bool strictMathBypass = false;
     dynamic name = this.name; // String || List<Node> (Variable, Keyword, ...)
     bool variable = this.variable;
-    Node evaldValue;
 
     if (name is! String) {
       // expand 'primitive' name directly to get
@@ -136,32 +145,30 @@ class Rule extends Node implements MakeImportantNode {
     }
     try {
       context.importantScope.add(new ImportantRule());
-      evaldValue = this.value.eval(context);
+      final Node evaldValue = value.eval(context);
 
       if (!this.variable && (evaldValue is DetachedRuleset)) {
         throw new LessExceptionError(new LessError(
             message: 'Rulesets cannot be evaluated on a property.',
             index: index,
             filename: currentFileInfo.filename,
-            context: context
-         ));
+            context: context));
       }
 
       String important = this.important;
       final ImportantRule importantResult = context.importantScope.removeLast();
-      if (important.isEmpty && importantResult.important.isNotEmpty) {
-        important = importantResult.important;
-      }
+      if (important.isEmpty && importantResult.important.isNotEmpty)
+          important = importantResult.important;
 
-      return new Rule(name, evaldValue, important, merge, index, currentFileInfo,
-        inline, variable);
-
+      return new Rule(name, evaldValue, important, merge, index,
+          currentFileInfo, inline, variable);
     } catch (e) {
       throw new LessExceptionError(LessError.transform(e,
           index: index,
           filename: currentFileInfo.filename));
     } finally {
-      if (strictMathBypass) context.strictMath = false;
+      if (strictMathBypass)
+          context.strictMath = false;
     }
 
 //2.3.1

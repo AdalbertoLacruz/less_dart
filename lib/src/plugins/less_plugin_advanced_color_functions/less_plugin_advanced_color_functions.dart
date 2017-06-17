@@ -1,12 +1,11 @@
 library less_plugin_advanced_color_functions.plugins.less;
 
-import '../plugins.dart';
 import '../../tree/tree.dart';
+import '../plugins.dart';
 
-part 'advancedColorFunctions.dart';
+part 'advanced_color_functions.dart';
 
 class LessPluginAdvancedColorFunctions extends Plugin {
-
   ///
   @override
   void install(PluginManager pluginManager) {

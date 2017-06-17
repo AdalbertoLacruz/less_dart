@@ -7,9 +7,7 @@ part of tree.less;
 class Nodeset extends Node {
   @override final String type = 'Nodeset';
 
-  Nodeset(List<Node> rules) {
-    this.rules = rules;
-  }
+  Nodeset(List<Node> rules) : super.init(rules: rules);
 
   ///
   /// Control test. Nodeset must be destroyed before this point

@@ -8,7 +8,7 @@ class DetachedRuleset extends Node {
   List<Node>  frames;
   Ruleset     ruleset;
 
-  DetachedRuleset(this.ruleset, [this.frames]){
+  DetachedRuleset(this.ruleset, [this.frames]) {
     evalFirst = true;
   }
 
@@ -25,15 +25,14 @@ class DetachedRuleset extends Node {
 
   ///
   @override
-  DetachedRuleset eval(Contexts context) {
-    return new DetachedRuleset(ruleset, this.frames ?? context.frames.sublist(0));
+  DetachedRuleset eval(Contexts context) =>
+      new DetachedRuleset(ruleset, frames ?? context.frames.sublist(0));
 
 //2.3.1
 //  DetachedRuleset.prototype.eval = function (context) {
 //      var frames = this.frames || context.frames.slice(0);
 //      return new DetachedRuleset(this.ruleset, frames);
 //  };
-  }
 
   ///
   Ruleset callEval(Contexts context) {

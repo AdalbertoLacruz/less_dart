@@ -22,7 +22,7 @@ class ToCSSVisitor extends VisitorBase{
 
   ///
   @override
-  Ruleset run (Ruleset root) => _visitor.visit(root);
+  Ruleset run(Ruleset root) => _visitor.visit(root);
 
 //2.3.1
 //  run: function (root) {
@@ -30,8 +30,9 @@ class ToCSSVisitor extends VisitorBase{
 //  },
 
   /// Eliminates for output @variable
-  Rule visitRule (Rule ruleNode, VisitArgs visitArgs) {
-    if (ruleNode.variable) return null;
+  Rule visitRule(Rule ruleNode, VisitArgs visitArgs) {
+    if (ruleNode.variable)
+        return null;
     return ruleNode;
 
 //2.3.1
@@ -47,7 +48,7 @@ class ToCSSVisitor extends VisitorBase{
   /// mixin definitions do not get eval'd - this means they keep state
   /// so we have to clear that state here so it isn't used if toCSS is called twice
   ///
-  void visitMixinDefinition (MixinDefinition mixinNode, VisitArgs visitArgs) {
+  void visitMixinDefinition(MixinDefinition mixinNode, VisitArgs visitArgs) {
     mixinNode.frames = <Node>[];
 
 //2.3.1
@@ -59,15 +60,16 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  void visitExtend (Extend extendNode, VisitArgs visitArgs) {}
+  void visitExtend(Extend extendNode, VisitArgs visitArgs) {}
 
 //2.3.1
 //  visitExtend: function (extendNode, visitArgs) {
 //  },
 
   ///
-  Comment visitComment (Comment commentNode, VisitArgs visitArgs) {
-    if (commentNode.isSilent(this._context)) return null;
+  Comment visitComment(Comment commentNode, VisitArgs visitArgs) {
+    if (commentNode.isSilent(_context))
+        return null;
     return commentNode;
 
 //2.3.1
@@ -80,11 +82,12 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  Media visitMedia (Media mediaNode, VisitArgs visitArgs) {
-    mediaNode.accept(this._visitor);
+  Media visitMedia(Media mediaNode, VisitArgs visitArgs) {
+    mediaNode.accept(_visitor);
     visitArgs.visitDeeper = false;
 
-    if (mediaNode.rules.isEmpty) return null;
+    if (mediaNode.rules.isEmpty)
+        return null;
     return mediaNode;
 
 //2.3.1
@@ -101,7 +104,8 @@ class ToCSSVisitor extends VisitorBase{
 
   ///
   Import visitImport(Import importNode, VisitArgs visitArgs) {
-    if (importNode.path.currentFileInfo.reference && importNode.css) return null;
+    if (importNode.path.currentFileInfo.reference && importNode.css)
+        return null;
     return importNode;
 
 //2.4.0+6
@@ -113,32 +117,29 @@ class ToCSSVisitor extends VisitorBase{
 //  },
   }
 
-  /// remove
-  Options visitOptions(Options optionsNode, VisitArgs visitArgs) {
-    return null;
-  }
+  // remove
+  Options visitOptions(Options optionsNode, VisitArgs visitArgs) => null;
 
   ///
   bool hasVisibleChild(Directive directiveNode) {
     //prepare list of childs
     List<Ruleset> bodyRules = directiveNode.rules;
-    Node          rule;
 
     // if there is only one nested ruleset and that one has no path, then it is
     // just fake ruleset that got not replaced and we need to look inside it to
     // get real childs
-    if (bodyRules.length == 1
-        && (bodyRules[0].paths == null || bodyRules[0].paths.isEmpty)) {
+    if (bodyRules.length == 1 &&
+        (bodyRules[0].paths == null || bodyRules[0].paths.isEmpty)) {
       bodyRules = bodyRules[0].rules;
     }
 
     for (int r = 0; r < bodyRules.length; r++) {
-      rule = bodyRules[r];
-      if (rule is GetIsReferencedNode && (rule as GetIsReferencedNode).getIsReferenced()) {
-        // the directive contains something that was referenced (likely by extend)
-        // therefore it needs to be shown in output too
-        return true;
-      }
+      final Node rule = bodyRules[r];
+      if (rule is GetIsReferencedNode &&
+          (rule as GetIsReferencedNode).getIsReferenced())
+          // the directive contains something that was referenced (likely by extend)
+          // therefore it needs to be shown in output too
+          return true;
     }
     return false;
 
@@ -165,17 +166,20 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  Node visitDirective (Directive directiveNode, VisitArgs visitArgs) {
+  Node visitDirective(Directive directiveNode, VisitArgs visitArgs) {
     if (directiveNode.name == '@charset') {
-      if (!directiveNode.getIsReferenced()) return null;
+      if (!directiveNode.getIsReferenced())
+          return null;
 
       // Only output the debug info together with subsequent @charset definitions
       // a comment (or @media statement) before the actual @charset directive would
       // be considered illegal css as it has to be on the first line
       if (charset) {
         if (directiveNode.debugInfo != null) {
-          final Comment comment = new Comment('/* ' + directiveNode.toCSS(_context).replaceAll(r'\n', '') + ' */\n');
-          comment.debugInfo = directiveNode.debugInfo;
+          final String directive =
+              directiveNode.toCSS(_context).replaceAll(r'\n', '');
+          final Comment comment = new Comment('/* $directive */\n')
+              ..debugInfo = directiveNode.debugInfo;
           return _visitor.visit(comment);
         }
         return null;
@@ -192,10 +196,12 @@ class ToCSSVisitor extends VisitorBase{
       visitArgs.visitDeeper = false;
 
       // the directive was directly referenced and therefore needs to be shown in the output
-      if (directiveNode.getIsReferenced()) return directiveNode;
+      if (directiveNode.getIsReferenced())
+          return directiveNode;
 
       // if (directiveNode.rules == null || (directiveNode.rules is List) || directiveNode.rules.rules == null) return null;
-      if (directiveNode.rules == null || directiveNode.rules.isEmpty) return null;
+      if (directiveNode.rules == null || directiveNode.rules.isEmpty)
+          return null;
 
       // the directive was not directly referenced - we need to check whether some of its childs
       // was referenced
@@ -209,7 +215,8 @@ class ToCSSVisitor extends VisitorBase{
       // was referenced. Therefore it must not be shown in output.
       return null;
     } else {
-      if (!directiveNode.getIsReferenced()) return null;
+      if (!directiveNode.getIsReferenced())
+          return null;
     }
 
     return directiveNode;
@@ -293,15 +300,15 @@ class ToCSSVisitor extends VisitorBase{
   ///
   /// Check for errors in Rules with variables (for firstRoot).
   ///
-  void checkPropertiesInRoot (List<Node> rules) {
-    Node ruleNode;
-
+  void checkPropertiesInRoot(List<Node> rules) {
     for (int i = 0; i < rules.length; i++) {
-      ruleNode = rules[i];
+      final Node ruleNode = rules[i];
       if (ruleNode is Rule && !ruleNode.variable) {
         error(message: 'properties must be inside selector blocks, they cannot be in the root.',
             index: ruleNode.index,
-            filename: ruleNode.currentFileInfo != null ? ruleNode.currentFileInfo.filename : null);
+            filename: ruleNode.currentFileInfo != null
+                ? ruleNode.currentFileInfo.filename
+                : null);
       }
     }
 
@@ -319,10 +326,11 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   /// return Node | List<Node>
-  dynamic visitRuleset (Ruleset rulesetNode, VisitArgs visitArgs) {
-    final List<dynamic>  rulesets = <dynamic>[]; //Node || List<Node>
+  dynamic visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
+    final List<dynamic> rulesets = <dynamic>[]; //Node || List<Node>
 
-    if (rulesetNode.firstRoot) this.checkPropertiesInRoot(rulesetNode.rules);
+    if (rulesetNode.firstRoot)
+        checkPropertiesInRoot(rulesetNode.rules);
 
     if (!rulesetNode.root) {
       if (rulesetNode.paths != null) {
@@ -331,7 +339,8 @@ class ToCSSVisitor extends VisitorBase{
             p[0].elements[0].combinator = new Combinator('');
           }
           for (int i = 0; i < p.length; i++) {
-            if (p[i].getIsReferenced() && p[i].getIsOutput()) return true;
+            if (p[i].getIsReferenced() && p[i].getIsOutput())
+                return true;
           }
           return false;
         });
@@ -340,10 +349,9 @@ class ToCSSVisitor extends VisitorBase{
       // Compile rules and rulesets
       List<Node>  nodeRules = rulesetNode.rules;
       int         nodeRuleCnt = nodeRules?.length ?? 0;
-      Node        rule; // Rule | Ruleset
 
-      for (int i = 0; i < nodeRuleCnt; ) {
-        rule = nodeRules[i];
+      for (int i = 0; i < nodeRuleCnt;) {
+        final Node rule = nodeRules[i];
         if (rule?.rules != null) {
           // visit because we are moving them out from being a child
           rulesets.add(_visitor.visit(rule));
@@ -374,18 +382,17 @@ class ToCSSVisitor extends VisitorBase{
       }
 
       // now decide whether we keep the ruleset
-      if (isNotEmpty(nodeRules) && isNotEmpty(rulesetNode.paths)) {
-        rulesets.insert(0, rulesetNode);
-      }
+      if (isNotEmpty(nodeRules) && isNotEmpty(rulesetNode.paths))
+          rulesets.insert(0, rulesetNode);
     } else {
       rulesetNode.accept(_visitor);
       visitArgs.visitDeeper = false;
-      if (rulesetNode.firstRoot || isNotEmpty(rulesetNode.rules)) {
-        rulesets.insert(0, rulesetNode);
-      }
+      if (rulesetNode.firstRoot || isNotEmpty(rulesetNode.rules))
+          rulesets.insert(0, rulesetNode);
     }
 
-    if (rulesets.length == 1) return rulesets.first;
+    if (rulesets.length == 1)
+        return rulesets.first;
     return rulesets;
 
 //2.3.1
@@ -464,29 +471,26 @@ class ToCSSVisitor extends VisitorBase{
   ///
   /// Remove duplicates
   ///
-  void _removeDuplicateRules (List<Node> rules) {
-    if (rules == null) return;
-
-    Node                        rule;
+  void _removeDuplicateRules(List<Node> rules) {
+    if (rules == null)
+        return;
 
     // If !Key Map[Rule1.name] = Rule1
     // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
     final Map<String, dynamic>  ruleCache = <String, dynamic>{}; //<String, Rule || List<String>>
 
-    String                      ruleCSS;
-    List<String>                ruleList;
-
     for (int i = rules.length - 1; i >= 0; i--) {
-      rule = rules[i];
+      final Node rule = rules[i];
       if (rule is Rule) {
         if (!ruleCache.containsKey(rule.name)) {
           ruleCache[rule.name] = rule;
         } else {
-          ruleList = ruleCache[rule.name] = (ruleCache[rule.name] is Rule)
-            ? <String>[ruleCache[rule.name].toCSS(_context)]
-            : ruleCache[rule.name];
+          final List<String> ruleList = ruleCache[rule.name] =
+              (ruleCache[rule.name] is Rule)
+                  ? <String>[ruleCache[rule.name].toCSS(_context)]
+                  : ruleCache[rule.name];
 
-          ruleCSS = rule.toCSS(_context);
+          final String ruleCSS = rule.toCSS(_context);
 
           if (ruleList.contains(ruleCSS)) {
             rules.removeAt(i);
@@ -528,8 +532,9 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   ///
-  void _mergeRules (List<Node> rules) {
-    if (rules == null) return;
+  void _mergeRules(List<Node> rules) {
+    if (rules == null)
+        return;
 
     final Map<String, List<Rule>> groups = <String, List<Rule>>{};
 
@@ -537,8 +542,11 @@ class ToCSSVisitor extends VisitorBase{
       final Node rule = rules[i];
 
       if (rule is Rule && rule.merge.isNotEmpty) {
-        final String key = <String>[rule.name,
-            isNotEmpty(rule.important) ? '!' : ''].join(','); //important == '!' or ''
+        final String key = <String>[
+          rule.name,
+          isNotEmpty(rule.important) ? '!' : ''
+        ].join(','); //important == '!' or ''
+
         if (!groups.containsKey(key)) {
           groups[key] = <Rule>[];
         } else {
@@ -556,15 +564,14 @@ class ToCSSVisitor extends VisitorBase{
           new Value(values.map((Expression p) => p).toList());
 
       if (parts.length > 1) {
-        List<Rule>              lastSpacedGroup = <Rule>[];
-        final Rule              rule = parts[0];
-        final List<Expression>  spacedGroups = <Expression>[];
+        List<Rule> lastSpacedGroup = <Rule>[];
+        final Rule rule = parts[0];
+        final List<Expression> spacedGroups = <Expression>[];
 
         parts.forEach((Rule p) {
           if (p.merge == '+') {
-            if (lastSpacedGroup.isNotEmpty) {
-              spacedGroups.add(toExpression(lastSpacedGroup));
-            }
+            if (lastSpacedGroup.isNotEmpty)
+                spacedGroups.add(toExpression(lastSpacedGroup));
             lastSpacedGroup = <Rule>[];
           }
           lastSpacedGroup.add(p);
@@ -639,16 +646,24 @@ class ToCSSVisitor extends VisitorBase{
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Comment)    return visitComment;
-    if (node is Media)      return visitMedia;
-    if (node is Directive)  return visitDirective;
-    if (node is Extend)     return visitExtend;
-    if (node is Import)     return visitImport;
-    if (node is MixinDefinition) return visitMixinDefinition;
-    if (node is Options)    return visitOptions;
-    if (node is Rule)       return visitRule;
-    if (node is Ruleset)    return visitRuleset;
-
+    if (node is Comment)
+        return visitComment;
+    if (node is Media)
+        return visitMedia;
+    if (node is Directive)
+        return visitDirective;
+    if (node is Extend)
+        return visitExtend;
+    if (node is Import)
+        return visitImport;
+    if (node is MixinDefinition)
+        return visitMixinDefinition;
+    if (node is Options)
+        return visitOptions;
+    if (node is Rule)
+        return visitRule;
+    if (node is Ruleset)
+        return visitRuleset;
     return null;
   }
 

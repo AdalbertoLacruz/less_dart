@@ -3,8 +3,8 @@
 part of tree.less;
 
 class Comment extends Node implements MarkReferencedNode {
-  @override String get        name => null;
-  @override final String      type ="Comment";
+  @override final String      name = null;
+  @override final String      type = "Comment";
   @override covariant String  value;
 
   int   index;
@@ -12,18 +12,19 @@ class Comment extends Node implements MarkReferencedNode {
   bool  isReferenced = false;
 
   ///
-  Comment(String this.value, [bool this.isLineComment = false, int this.index, FileInfo currentFileInfo]){
-    this.currentFileInfo = currentFileInfo;
-  }
+  Comment(String this.value,
+      [bool this.isLineComment = false,
+      int this.index,
+      FileInfo currentFileInfo])
+      : super.init(currentFileInfo: currentFileInfo);
 
   ///
   /// Writes the comment in [output].
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (debugInfo != null) {
-      output.add(debugInfo.toOutput(context), currentFileInfo, index);
-    }
+    if (debugInfo != null)
+        output.add(debugInfo.toOutput(context), currentFileInfo, index);
     output.add(value);
 
 //2.2.0
@@ -42,7 +43,7 @@ class Comment extends Node implements MarkReferencedNode {
   bool isSilent(Contexts context) {
     final bool isReference =
         (currentFileInfo?.reference ?? false) && !isReferenced;
-    final bool isCompressed = 
+    final bool isCompressed =
         context.compress && (value.length > 2) && (value[2] != '!');
     return isLineComment || isReference || isCompressed;
 
@@ -52,7 +53,6 @@ class Comment extends Node implements MarkReferencedNode {
 //            isCompressed = context.compress && this.value[2] !== "!";
 //        return this.isLineComment || isReference || isCompressed;
 //    };
-
   }
 
   //--- MarkReferencedNode

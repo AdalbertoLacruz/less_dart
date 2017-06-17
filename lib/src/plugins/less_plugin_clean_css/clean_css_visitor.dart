@@ -19,8 +19,10 @@ class CleanCssVisitor extends VisitorBase {
     lessOptions = new Environment().options;
     _visitor = new Visitor(this);
 
-    if (cleanCssOptions.keepSpecialComments == '*') keepAllComments = true;
-    if (cleanCssOptions.keepSpecialComments == '1') keepOneComment = true;
+    if (cleanCssOptions.keepSpecialComments == '*')
+        keepAllComments = true;
+    if (cleanCssOptions.keepSpecialComments == '1')
+        keepOneComment = true;
 
     cleancsscontext.compatibility = cleanCssOptions.compatibility;
     Output.separators[')'] = !cleancsscontext.compatibility.properties.spaceAfterClosingBrace;
@@ -53,7 +55,7 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove comments, except important '/*!'
   /// according to keepSpecialComments * - all, 1 - only keep first
   Comment visitComment(Comment commentNode, VisitArgs visitArgs) {
-    if(commentNode.isImportant && (keepAllComments || keepOneComment)) {
+    if (commentNode.isImportant && (keepAllComments || keepOneComment)) {
       keepOneComment = false;
       return commentNode;
     }
@@ -76,14 +78,14 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove empty block
   /// Remove value spaces. @supports ( box-shadow: 2px 2px 2px black ) or ( -moz-box-shadow: 2px 2px 2px black )
   ///
-  Directive visitDirective (Directive directiveNode, VisitArgs visitArgs) {
-    if (directiveNode.rules != null && directiveNode.rules.isEmpty) return null;
+  Directive visitDirective(Directive directiveNode, VisitArgs visitArgs) {
+    if (directiveNode.rules != null && directiveNode.rules.isEmpty)
+        return null;
 
     if (directiveNode.value is Anonymous) {
       final Anonymous anonymous = directiveNode.value;
-      if (anonymous.value is String) {
-        anonymous.value = removeSpaces(anonymous.value);
-      }
+      if (anonymous.value is String)
+          anonymous.value = removeSpaces(anonymous.value);
     }
     return directiveNode;
   }
@@ -91,7 +93,7 @@ class CleanCssVisitor extends VisitorBase {
   ///
   /// Remove spaces after ')' '/' url() 0 0 / content -> url()0 0 /content
   ///
-  Expression visitExpression (Expression expressionNode, VisitArgs visitArgs) {
+  Expression visitExpression(Expression expressionNode, VisitArgs visitArgs) {
     expressionNode.cleanCss = cleancsscontext;
     return expressionNode;
   }
@@ -111,39 +113,45 @@ class CleanCssVisitor extends VisitorBase {
     ruleNode.cleanCss = cleancsscontext;
 
     // ' ! important'
-    if (ruleNode.important.isNotEmpty) {
-      ruleNode.important = ruleNode.important.replaceAll(' ', '');
-    }
+    if (ruleNode.important.isNotEmpty)
+        ruleNode.important = ruleNode.important.replaceAll(' ', '');
 
     if (ruleNode.name == 'background') {
       if (ruleNode.value is Keyword) {
         keyword = ruleNode.value;
-        if (keyword.value == 'none') keyword.value = '0 0';
+        if (keyword.value == 'none')
+            keyword.value = '0 0';
       }
       if (ruleNode.value is Color) {
         color = ruleNode.value;
-        if (color.value != null && color.value == 'transparent') ruleNode.value = new Keyword('0 0');
+        if (color.value != null && color.value == 'transparent')
+            ruleNode.value = new Keyword('0 0');
       }
     }
 
     if (ruleNode.name == 'font') {
       if ((keyword = getFirstKeyword(ruleNode)) != null) {
-        if (keyword.value == 'normal') keyword.value = '400';
-        if (keyword.value == 'bold') keyword.value = '700';
+        if (keyword.value == 'normal')
+            keyword.value = '400';
+        if (keyword.value == 'bold')
+            keyword.value = '700';
       }
     }
 
     if (ruleNode.name == 'font-weight') {
       if (ruleNode.value is Keyword) {
-        if (ruleNode.value.value == 'normal') ruleNode.value = new Dimension(400);
-        if (ruleNode.value.value == 'bold') ruleNode.value = new Dimension(700);
+        if (ruleNode.value.value == 'normal')
+            ruleNode.value = new Dimension(400);
+        if (ruleNode.value.value == 'bold')
+            ruleNode.value = new Dimension(700);
       }
     }
 
     if (ruleNode.name == 'outline') {
       if (ruleNode.value is Keyword) {
         keyword = ruleNode.value;
-        if (keyword.value == 'none') keyword.value = '0';
+        if (keyword.value == 'none')
+            keyword.value = '0';
       }
     }
 
@@ -172,25 +180,23 @@ class CleanCssVisitor extends VisitorBase {
     if (!rulesetNode.root) {
       selectors = rulesetNode.selectors;
       if (selectors != null) {
-        selectors.forEach((Selector selector){
+        selectors.forEach((Selector selector) {
           elements = selector.elements;
           if (elements != null) {
-            elements.forEach((Element element){
+            elements.forEach((Element element) {
               if (element.value is Attribute) {
                 attribute = element.value;
                 if (attribute.value is Quoted) {
                   quoted = attribute.value;
                   valueStr = quoted.value;
-                  if (!hasSymbol(valueStr)) {
-                    quoted.quote = ''; //remove for text/digits only: input[type="text"] -> input[type=text]
-                  }
+                  if (!hasSymbol(valueStr))
+                      quoted.quote = ''; //remove for text/digits only: input[type="text"] -> input[type=text]
                 }
               } else if (cleanCssOptions.advanced) {
                 if (element.value is String) { // "([class*="lead"])"
                   valueStr = element.value;
-                  if ((match = attrRe.firstMatch(valueStr)) != null) {
-                    element.value = removeQuotesAndSpace(match, valueStr, 2);
-                  }
+                  if ((match = attrRe.firstMatch(valueStr)) != null)
+                      element.value = removeQuotesAndSpace(match, valueStr, 2);
                 }
               }
             });
@@ -206,9 +212,8 @@ class CleanCssVisitor extends VisitorBase {
   /// `url('...') -> url(...)`
   ///
   URL visitUrl(URL urlNode, VisitArgs visitArgs) {
-    if (urlNode.value is Quoted) {
-      (urlNode.value as Quoted).quote = '';
-    }
+    if (urlNode.value is Quoted)
+        (urlNode.value as Quoted).quote = '';
     return urlNode;
   }
 
@@ -216,9 +221,12 @@ class CleanCssVisitor extends VisitorBase {
   /// Get the first Keyword in the tree after [node]
   ///
   Keyword getFirstKeyword(Node node) {
-    if (node is Keyword) return node;
-    if (node.value is List) return getFirstKeyword(node.value[0]);
-    if (node.value is Node) return getFirstKeyword(node.value);
+    if (node is Keyword)
+        return node;
+    if (node.value is List)
+        return getFirstKeyword(node.value[0]);
+    if (node.value is Node)
+        return getFirstKeyword(node.value);
     return null;
   }
 
@@ -237,20 +245,17 @@ class CleanCssVisitor extends VisitorBase {
   /// Example: "([class *= "lead"])" -> "([class*=lead])"
   ///
   String removeQuotesAndSpace(Match match, String source, int indexQuoted) {
-    String newQuoted;
     String quoted = match[indexQuoted];
-    
     final int start = source.indexOf(quoted);
-    String prefix = source.substring(0, start);
-    String suffix = source.substring(start + quoted.length);
 
-    newQuoted = quoted.substring(1, quoted.length-1); //remove quotes
-    if (!hasSymbol(newQuoted)) {
-      quoted = newQuoted;
-    }
-    prefix = prefix.replaceAll(' ', '');
-    suffix = suffix.replaceAll(' ', '');
-    return prefix + quoted + suffix;
+    final String prefix = source.substring(0, start).replaceAll(' ', '');
+    final String suffix = source.substring(start + quoted.length).replaceAll(' ', '');
+
+    final String newQuoted = quoted.substring(1, quoted.length-1); //remove quotes
+    if (!hasSymbol(newQuoted))
+        quoted = newQuoted;
+
+    return '$prefix$quoted$suffix';
   }
 
   ///
@@ -270,9 +275,8 @@ class CleanCssVisitor extends VisitorBase {
     _value = _value.replaceAll('( ', '(');
     _value = _value.replaceAll(' )', ')');
 
-    if (!cleancsscontext.compatibility.properties.spaceAfterClosingBrace) {
-      _value = _value.replaceAll(') ', ')');
-    }
+    if (!cleancsscontext.compatibility.properties.spaceAfterClosingBrace)
+        _value = _value.replaceAll(') ', ')');
 
     _value = _value.replaceAll(': ', ':');
 
@@ -281,15 +285,24 @@ class CleanCssVisitor extends VisitorBase {
 
   @override
   Function visitFtn(Node node) {
-    if (node is Call)        return visitCall;
-    if (node is Color)       return visitColor;
-    if (node is Comment)     return visitComment;
-    if (node is Dimension)   return visitDimension;
-    if (node is Directive)   return visitDirective;
-    if (node is Expression)  return visitExpression;
-    if (node is Rule)        return visitRule;
-    if (node is Ruleset)     return visitRuleset;
-    if (node is URL)         return visitUrl;
+    if (node is Call)
+        return visitCall;
+    if (node is Color)
+        return visitColor;
+    if (node is Comment)
+        return visitComment;
+    if (node is Dimension)
+        return visitDimension;
+    if (node is Directive)
+        return visitDirective;
+    if (node is Expression)
+        return visitExpression;
+    if (node is Rule)
+        return visitRule;
+    if (node is Ruleset)
+        return visitRuleset;
+    if (node is URL)
+        return visitUrl;
     return null;
   }
 

@@ -40,9 +40,9 @@ class FileInfo {
   /// #
   ///
   FileInfo.cloneForLoader(FileInfo current, Contexts context) {
-    this.relativeUrls   = context.relativeUrls;
-    this.entryPath      = current.entryPath;
-    this.rootpath       = current.rootpath;
-    this.rootFilename   = current.rootFilename;
+    relativeUrls   = context.relativeUrls;
+    entryPath      = current.entryPath;
+    rootpath       = current.rootpath;
+    rootFilename   = current.rootFilename;
   }
 }

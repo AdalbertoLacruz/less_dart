@@ -9,13 +9,13 @@ class Directive extends DirectiveBase {
   Directive(String name, Node this.value, dynamic rules, int index,
       FileInfo currentFileInfo, DebugInfo debugInfo,
       [bool isReferenced = false, bool isRooted = false])
-      : super() {
-    this.name = name;
-    this.index = index;
-    this.currentFileInfo = currentFileInfo;
-    this.debugInfo = debugInfo;
-    this.isReferenced = isReferenced;
-    this.isRooted = isRooted;
+      : super(
+            name: name,
+            index: index,
+            currentFileInfo: currentFileInfo,
+            debugInfo: debugInfo,
+            isReferenced: isReferenced,
+            isRooted: isRooted) {
 
     if (rules != null) {
       if (rules is List<Ruleset>) {
@@ -61,23 +61,34 @@ class Directive extends DirectiveBase {
 /// Base class for Directive and Media
 ///
 class DirectiveBase extends Node
-    with OutputRulesetMixin, VariableMixin
-    implements GetIsReferencedNode, MarkReferencedNode {
+      with OutputRulesetMixin, VariableMixin
+      implements GetIsReferencedNode, MarkReferencedNode {
+
+  @override FileInfo                currentFileInfo;
+  @override DebugInfo               debugInfo;
   @override String                  name;
   @override covariant List<Ruleset> rules; //more restrictive type
-  @override String get              type => 'DirectiveBase';
+  @override final String            type = 'DirectiveBase';
 
   int   index;
   bool  isReferenced = false;
   bool  isRooted = false;
 
-  DirectiveBase();
+  DirectiveBase(
+      {this.currentFileInfo,
+      this.debugInfo,
+      this.index,
+      this.isReferenced,
+      this.isRooted,
+      this.name});
 
   ///
   @override
   void accept(covariant Visitor visitor) {
-    if (rules != null) rules = visitor.visitArray(rules);
-    if (value != null) value = visitor.visit(value);
+    if (rules != null)
+        rules = visitor.visitArray(rules);
+    if (value != null)
+        value = visitor.visit(value);
 
 //2.4.0+
 //  Directive.prototype.accept = function (visitor) {
@@ -93,7 +104,7 @@ class DirectiveBase extends Node
 
   ///
   @override
-  bool isRulesetLike()  => (rules != null) || !isCharset();
+  bool isRulesetLike() => (rules != null) || !isCharset();
 
 //2.3.1
 //  Directive.prototype.isRulesetLike = function() {
@@ -139,29 +150,33 @@ class DirectiveBase extends Node
   ///
   @virtual @override
   Node eval(Contexts context) {
-    Node value = this.value;
+    Node          value = this.value;
     List<Ruleset> rules = this.rules;
 
     // media stored inside other directive should not bubble over it
     // backpup media bubbling information
     final List<Media> mediaPathBackup = context.mediaPath;
     final List<Media> mediaBlocksBackup = context.mediaBlocks;
-    // deleted media bubbling information
-    context.mediaPath = <Media>[];
-    context.mediaBlocks = <Media>[];
 
-    if (value != null) value = value.eval(context);
+    // deleted media bubbling information
+    context
+        ..mediaPath = <Media>[]
+        ..mediaBlocks = <Media>[];
+
+    if (value != null)
+        value = value.eval(context);
     if (rules != null) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
       rules = <Ruleset>[rules[0].eval(context)];
       rules[0].root = true;
     }
     // restore media bubbling information
-    context.mediaPath = mediaPathBackup;
-    context.mediaBlocks = mediaBlocksBackup;
+    context
+        ..mediaPath = mediaPathBackup
+        ..mediaBlocks = mediaBlocksBackup;
 
-    return new Directive(name, value, rules,
-        index, currentFileInfo, debugInfo, isReferenced, isRooted);
+    return new Directive(name, value, rules, index, currentFileInfo, debugInfo,
+        isReferenced, isRooted);
 
 //2.4.0 20150319
 //  Directive.prototype.eval = function (context) {
@@ -198,9 +213,8 @@ class DirectiveBase extends Node
   //untested - no covered by tests
   @override
   Node variable(String name) {
-    if (rules?.isNotEmpty ?? false) {
-      return rules[0].value(name);
-    }
+    if (rules?.isNotEmpty ?? false)
+        return rules[0].value(name);
     return null;
 
 //2.4.0+
@@ -216,11 +230,10 @@ class DirectiveBase extends Node
   //untested - no covered by tests
   // self type?
   @override
-  List<MixinFound> find (Selector selector, [dynamic self, Function filter]) {
-    if (rules?.isNotEmpty ?? false) {
-      // assuming that there is only one rule at this point - that is how parser constructs the rule
-      return rules[0].find(selector, self, filter);
-    }
+  List<MixinFound> find(Selector selector, [dynamic self, Function filter]) {
+    if (rules?.isNotEmpty ?? false)
+        // assuming that there is only one rule at this point - that is how parser constructs the rule
+        return rules[0].find(selector, self, filter);
     return null;
 
 //2.4.0+
@@ -236,10 +249,9 @@ class DirectiveBase extends Node
   //untested
   @override
   List<Node> rulesets() {
-    if (rules?.isNotEmpty ?? false) {
-      // assuming that there is only one rule at this point - that is how parser constructs the rule
-      return rules[0].rulesets();
-    }
+    if (rules?.isNotEmpty ?? false)
+        // assuming that there is only one rule at this point - that is how parser constructs the rule
+        return rules[0].rulesets();
     return null;
 
 //2.4.0+
@@ -262,9 +274,8 @@ class DirectiveBase extends Node
     if (this.rules != null) {
       rules = this.rules;
       for (int i = 0; i < rules.length; i++) {
-        if (rules[i] is MarkReferencedNode) {
-          (rules[i] as MarkReferencedNode).markReferenced();
-        }
+        if (rules[i] is MarkReferencedNode)
+            (rules[i] as MarkReferencedNode).markReferenced();
       }
     }
 

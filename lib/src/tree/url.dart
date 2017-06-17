@@ -3,16 +3,16 @@
 part of tree.less;
 
 class URL extends Node {
-  @override String    type = 'Url';
-  @override covariant Node value;
+  @override String          type = 'Url';
+  @override covariant Node  value;
 
   int   index;
   bool  isEvald;
 
   ///
-  URL(Node this.value, [int this.index, FileInfo currentFileInfo, bool this.isEvald = false]){
-    this.currentFileInfo = currentFileInfo;
-  }
+  URL(Node this.value,
+      [int this.index, FileInfo currentFileInfo, bool this.isEvald = false])
+      : super.init(currentFileInfo: currentFileInfo);
 
   ///
   @override
@@ -49,12 +49,14 @@ class URL extends Node {
     if (!isEvald) {
       // Add the base path if the URL is relative
       rootpath = (currentFileInfo != null) ? currentFileInfo.rootpath : null;
-      if ((rootpath.isNotEmpty) && (val.value is String) && context.isPathRelative(val.value)) {
+      if (rootpath.isNotEmpty &&
+          (val.value is String) &&
+          context.isPathRelative(val.value)) {
         if (val is! Quoted) {
-          rootpath = rootpath.replaceAllMapped(new RegExp(r'''[\(\)'"\s]'''), (Match match){
-            return '\\' + match[0];
-          });
+          rootpath = rootpath.replaceAllMapped(
+              new RegExp(r'''[\(\)'"\s]'''), (Match match) => '\\${match[0]}');
         }
+        // ignore: prefer_interpolation_to_compose_strings
         val.value = rootpath + val.value;
       }
       val.value = context.normalizePath(val.value);
@@ -64,11 +66,14 @@ class URL extends Node {
         final RegExp reData = new RegExp(r'^\s*data:');
         final Match match = reData.firstMatch(val.value);
         if (match == null) {
-          final String delimiter = (val.value as String).indexOf('?') == -1 ? '?' : '&';
+          final String delimiter =
+              !(val.value as String).contains('?') ? '?' : '&';
+          // ignore: prefer_interpolation_to_compose_strings
           final String urlArgs = delimiter + context.urlArgs;
-          if ((val.value as String).indexOf('#') != -1) {
-            val.value = (val.value as String).replaceFirst('#', urlArgs + '#');
+          if ((val.value as String).contains('#')) {
+            val.value = (val.value as String).replaceFirst('#', '$urlArgs#');
           } else {
+            // ignore: prefer_interpolation_to_compose_strings
             val.value += urlArgs;
           }
         }

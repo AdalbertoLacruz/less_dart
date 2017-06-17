@@ -32,7 +32,7 @@ class FunctionCaller {
       new StringFunctions(),
       new SvgFunctions(),
       new TypesFunctions()
-      ];
+    ];
     defaultCache = new DefaultFunc();
 
 //2.4.0 20150305
@@ -47,7 +47,8 @@ class FunctionCaller {
   }
 
   factory FunctionCaller(String name, Contexts context, int index, FileInfo currentFileInfo) {
-    if (cache == null) cache = new FunctionCaller._(context);
+    if (cache == null)
+        cache = new FunctionCaller._(context);
     cache
       ..name = name.toLowerCase()
       ..context = context
@@ -66,9 +67,9 @@ class FunctionCaller {
   /// Search the method in the instances, return true if found
   ///
   bool isValid() {
-    final List<FunctionBase> inner = innerCache.sublist(0);
-    inner.add(context.defaultFunc != null ? context.defaultFunc : defaultCache);
-    inner.addAll(customCache);
+    final List<FunctionBase> inner = innerCache.sublist(0)
+        ..add(context.defaultFunc != null ? context.defaultFunc : defaultCache)
+        ..addAll(customCache);
     found = null;
 
     for (int i = 0; i < inner.length; i++) {
@@ -95,10 +96,10 @@ class FunctionCaller {
 
     if (_args?.isNotEmpty ?? false) {
       _args.retainWhere((Node item) => item is! Comment);
-      _args = _args.map((Node item){
+      _args = _args.map((Node item) {
         if (item is Expression) {
-          final List<Node> subNodes = item.value;
-          subNodes.retainWhere((Node item) => item is! Comment);
+          final List<Node> subNodes = item.value
+              ..retainWhere((Node item) => item is! Comment);
           if (subNodes.length == 1) {
             return subNodes[0];
           } else {
@@ -111,7 +112,6 @@ class FunctionCaller {
 
     found.init(context, index, currentFileInfo);
     return found.call(_args);
-
 
 //2.4.0+2
 //  functionCaller.prototype.call = function(args) {

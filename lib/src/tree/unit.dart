@@ -10,15 +10,15 @@ class Unit extends Node implements CompareNode {
   List<String>    numerator;
 
   ///
-  Unit( [List<String> numerator = const <String>[],
-        List<String> denominator = const <String>[],
-        this.backupUnit = null]) {
+  Unit(
+      [List<String> numerator = const <String>[],
+      List<String> denominator = const <String>[],
+      this.backupUnit = null]) {
 
-   this.numerator = numerator.sublist(0)..sort(); //clone
-   this.denominator = denominator.sublist(0)..sort();
-   if (this.backupUnit == null && this.numerator.isNotEmpty) {
-     this.backupUnit = this.numerator[0];
-   }
+    this.numerator = numerator.sublist(0)..sort(); //clone
+    this.denominator = denominator.sublist(0)..sort();
+    if (backupUnit == null && this.numerator.isNotEmpty)
+        backupUnit = this.numerator[0];
 
 //2.3.1
 // var Unit = function (numerator, denominator, backupUnit) {
@@ -33,7 +33,8 @@ class Unit extends Node implements CompareNode {
   }
 
   ///
-  Unit clone()=> new Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);
+  Unit clone() =>
+      new Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);
 
 //2.3.1
 //  Unit.prototype.clone = function () {
@@ -70,12 +71,8 @@ class Unit extends Node implements CompareNode {
 
   ///
   @override
-  String toString() {
-    String returnStr = numerator.join('*');
-    for (int i = 0; i < denominator.length; i++) {
-      returnStr += '/' + denominator[i];
-    }
-    return returnStr;
+  String toString() =>
+      denominator.fold(numerator.join('*'), (String prev, String d) => '$prev/$d');
 
 //2.3.1
 //  Unit.prototype.toString = function () {
@@ -85,13 +82,12 @@ class Unit extends Node implements CompareNode {
 //      }
 //      return returnStr;
 //  };
-  }
 
   //--- CompareNode
 
   /// Returns -1 for different, 0 for equal
   @override
-  int compare(Node other) => this.isUnit(other.toString()) ? 0 : null;
+  int compare(Node other) => isUnit(other.toString()) ? 0 : null;
 
 //2.3.1
 //  Unit.prototype.compare = function (other) {
@@ -100,8 +96,8 @@ class Unit extends Node implements CompareNode {
 
   ///
   //is in js
-  bool isUnit(String unitString)
-    => this.toString().toUpperCase() == unitString.toUpperCase();
+  bool isUnit(String unitString) =>
+      toString().toUpperCase() == unitString.toUpperCase();
 
 //2.3.1
 //  Unit.prototype.is = function (unitString) {
@@ -149,13 +145,11 @@ class Unit extends Node implements CompareNode {
   /// callback returns new unit
   ///
   void map(Function callback) {
-    int i;
-
-    for (i = 0; i < numerator.length; i++) {
+    for (int i = 0; i < numerator.length; i++) {
       numerator[i] = callback(numerator[i], false);
     }
 
-    for (i = 0; i < denominator.length; i++) {
+    for (int i = 0; i < denominator.length; i++) {
       denominator[i] = callback(denominator[i], true);
     }
 
@@ -180,16 +174,14 @@ class Unit extends Node implements CompareNode {
     final Map<String, String> result = <String, String>{};
 
     String mapUnit(String atomicUnit, bool isDenominator) {
-      if (group.containsKey(atomicUnit) && !result.containsKey(groupName)) {
-        result[groupName] = atomicUnit;
-      }
+      if (group.containsKey(atomicUnit) && !result.containsKey(groupName))
+          result[groupName] = atomicUnit;
       return atomicUnit;
     }
 
     for (groupName in UnitConversions.groups.keys) {
       if (UnitConversions.groups.containsKey(groupName)) {//redundant?
         group = UnitConversions.groups[groupName];
-
         map(mapUnit);
       }
     }
@@ -230,14 +222,16 @@ class Unit extends Node implements CompareNode {
 
     for (int i = 0; i < numerator.length; i++) {
       atomicUnit = numerator[i];
-      if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
+      if (!counter.containsKey(atomicUnit))
+          counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] + 1;
     }
 
     for (int i = 0; i < denominator.length; i++) {
       atomicUnit = denominator[i];
-      if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
-      counter[atomicUnit] = counter[atomicUnit] -1;
+      if (!counter.containsKey(atomicUnit))
+          counter[atomicUnit] = 0;
+      counter[atomicUnit] = counter[atomicUnit] - 1;
     }
 
     numerator = <String>[];
@@ -247,9 +241,11 @@ class Unit extends Node implements CompareNode {
       if (counter.containsKey(atomicUnit)) {
         final int count = counter[atomicUnit];
         if (count > 0) {
-          for (int i = 0; i < count; i++) numerator.add(atomicUnit);
+          for (int i = 0; i < count; i++)
+              numerator.add(atomicUnit);
         } else if (count < 0) {
-          for (int i = 0; i < -count; i++) denominator.add(atomicUnit);
+          for (int i = 0; i < -count; i++)
+              denominator.add(atomicUnit);
         }
       }
     }

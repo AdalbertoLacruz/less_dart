@@ -3,7 +3,7 @@
 part of tree.less;
 
 class Extend extends Node {
-  @override String get   name => null;
+  @override final String name = null;
   @override final String type = 'Extend';
 
   bool            allowAfter;
@@ -24,7 +24,7 @@ class Extend extends Node {
     objectId = nextId++;
     parentIds = <int>[objectId];
 
-    switch(option) {
+    switch (option) {
       case 'all':
         allowBefore = true;
         allowAfter = true;
@@ -69,7 +69,8 @@ class Extend extends Node {
 
   ///
   @override
-  Extend eval(Contexts context) => new Extend(selector.eval(context), option, index);
+  Extend eval(Contexts context) =>
+      new Extend(selector.eval(context), option, index);
 
 //2.3.1
 //  Extend.prototype.eval = function (context) {
@@ -87,21 +88,23 @@ class Extend extends Node {
 
   ///
   void findSelfSelectors(List<Selector> selectors) {
-    final List<Element> selfElements = <Element>[];
     List<Element>       selectorElements;
+    final List<Element> selfElements = <Element>[];
 
     for (int i = 0; i < selectors.length; i++) {
       selectorElements = selectors[i].elements;
 
       // duplicate the logic in genCSS function inside the selector node.
       // future todo (js) - move both logics into the selector joiner visitor
-      if (i > 0 && selectorElements.isNotEmpty && selectorElements.first.combinator.value.isEmpty) {
+      if (i > 0 &&
+          selectorElements.isNotEmpty &&
+          selectorElements.first.combinator.value.isEmpty) {
         selectorElements.first.combinator.value = ' ';
       }
       selfElements.addAll(selectors[i].elements);
     }
 
-    this.selfSelectors = <Selector>[new Selector(selfElements)];
+    selfSelectors = <Selector>[new Selector(selfElements)];
 
 //2.3.1
 //  Extend.prototype.findSelfSelectors = function (selectors) {

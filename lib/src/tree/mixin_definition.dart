@@ -2,7 +2,9 @@
 
 part of tree.less;
 
-class MixinDefinition extends Node with VariableMixin implements MakeImportantNode, MatchConditionNode {
+class MixinDefinition extends Node
+    with VariableMixin
+    implements MakeImportantNode, MatchConditionNode {
   @override String        name; //Same as Selector
   @override final String  type = 'MixinDefinition';
 
@@ -18,18 +20,27 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
   /// name, params, rules, condition, variadic, index, currentFileInfo, frames
   //index, currentFileInfo not in original. See order when calling with frames.
-  MixinDefinition(String this.name, List<MixinArgs> this.params,
-      List<Node> this.rules, Node this.condition, bool this.variadic,
-      int this.index, FileInfo currentFileInfo, [this.frames]) {
+  MixinDefinition(
+      String this.name,
+      List<MixinArgs> this.params,
+      List<Node> this.rules,
+      Node this.condition,
+      bool this.variadic,
+      int this.index,
+      FileInfo currentFileInfo,
+      [this.frames]) {
 
     evalFirst = true;
     isRuleset = true;
+    // ignore: prefer_initializing_formals
     this.currentFileInfo = currentFileInfo;
 
-    selectors = <Selector>[new Selector(<Element>[new Element(null, name, this.index, this.currentFileInfo)])];
-    arity = this.params.length;
+    selectors = <Selector>[
+      new Selector(<Element>[new Element(null, name, index, currentFileInfo)])
+    ];
+    arity = params.length;
 
-    required = params.fold(0, (int count , MixinArgs p){
+    required = params.fold(0, (int count, MixinArgs p) {
       if (p.name == null || (p.name != null && p.value == null)) {
         return count + 1;
       } else {
@@ -60,11 +71,11 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   ///
   @override
   void accept(covariant Visitor visitor) {
-    if (params?.isNotEmpty ?? false) {
-      params = visitor.visitArray(params);
-    }
+    if (params?.isNotEmpty ?? false)
+        params = visitor.visitArray(params);
     rules = visitor.visitArray(rules);
-    if (condition != null) condition = visitor.visit(condition);
+    if (condition != null)
+        condition = visitor.visit(condition);
 
 //2.3.1
 //  Definition.prototype.accept = function (visitor) {
@@ -98,16 +109,14 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   /// Build a Ruleset where the rules are the mixin params evaluated
   /// Build evaldArguments
   ///
-  Ruleset evalParams(Contexts context, Contexts mixinEnv, List<MixinArgs> args, List<Node> evaldArguments) {
-    MixinArgs             arg;
+  Ruleset evalParams(Contexts context, Contexts mixinEnv, List<MixinArgs> args,
+      List<Node> evaldArguments) {
     int                   argIndex;
     int                   argsLength = 0;
     final Ruleset         frame = new Ruleset(null, null);
     bool                  isNamedFound;
     String                name;
     final List<MixinArgs> params = this.params.sublist(0);
-    Node                  val;
-    List<Node>            varargs;
 
     //Fill with nulls the list
     evaldArguments.length = math.max(params?.length ?? 0, args?.length ?? 0);
@@ -116,14 +125,15 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
       frame.functionRegistry = new FunctionRegistry.inherit((mixinEnv.frames[0] as VariableMixin).functionRegistry);
     }
 
-    final Contexts _mixinEnv = new Contexts.eval(mixinEnv, <Node>[frame]..addAll(mixinEnv.frames));
+    final Contexts _mixinEnv =
+        new Contexts.eval(mixinEnv, <Node>[frame]..addAll(mixinEnv.frames));
     final List<MixinArgs> _args = args?.sublist(0);
 
     if (_args != null) {
       argsLength = _args.length;
 
       for (int i = 0; i < _args.length; i++) {
-        arg = _args[i];
+        final MixinArgs arg = _args[i];
         name = arg?.name;
         if (name != null) {
           isNamedFound = false;
@@ -142,8 +152,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
           } else {
             throw new LessExceptionError(new LessError(
                 type: 'Runtime',
-                message: 'Named argument for ${this.name} ${_args[i].name}  not found'
-                ));
+                message: 'Named argument for ${this.name} ${_args[i].name}  not found'));
           }
         }
       }
@@ -151,19 +160,22 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
 
     argIndex = 0;
     for (int i = 0; i < params.length; i++) {
-      if (i < evaldArguments.length && evaldArguments[i] != null) continue;
+      if (i < evaldArguments.length && evaldArguments[i] != null)
+          continue;
 
-      arg = (_args != null && argIndex < _args.length) ? _args[argIndex] : null;
+      final MixinArgs arg = (_args != null && argIndex < _args.length)
+          ? _args[argIndex]
+          : null;
 
       if ((name = params[i].name) != null) {
         if (params[i].variadic) {
-          varargs = <Node>[];
+          final List<Node> varargs = <Node>[];
           for (int j = argIndex; j < argsLength; j++) {
             varargs.add(_args[j].value.eval(context));
           }
           frame.prependRule(new Rule(name, new Expression(varargs).eval(context)));
         } else {
-          val = arg?.value;
+          Node val = arg?.value;
           if (val != null) {
             val = val.eval(context);
           } else if (params[i].value != null) {
@@ -172,7 +184,7 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
           } else {
             throw new LessExceptionError(new LessError(
                 type: 'Runtime',
-                message: 'wrong number of arguments for ${this.name} ($argsLength for ${this.arity})'));
+                message: 'wrong number of arguments for ${this.name} ($argsLength for $arity)'));
           }
           frame.prependRule(new Rule(name, val));
           evaldArguments[i] = val;
@@ -285,15 +297,15 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   MixinDefinition makeImportant() {
     final List<Node> rules = (this.rules == null)
         ? this.rules
-        : this.rules.map((Node r){
-          if (r is MakeImportantNode) {
-            return (r as MakeImportantNode).makeImportant();
-          } else {
-            return r;
-          }
-        }).toList();
-    return new MixinDefinition(name, params, rules, condition,
-        variadic, index, currentFileInfo, frames);
+        : this.rules.map((Node r) {
+            if (r is MakeImportantNode) {
+              return (r as MakeImportantNode).makeImportant();
+            } else {
+              return r;
+            }
+          }).toList();
+    return new MixinDefinition(name, params, rules, condition, variadic, index,
+        currentFileInfo, frames);
 
 //2.4.0
 //  Definition.prototype.makeImportant = function() {
@@ -314,9 +326,9 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   ///
   @override
   MixinDefinition eval(Contexts context) {
-    final List<Node> frames = (this.frames != null) ? this.frames : context.frames.sublist(0);
-    return new MixinDefinition(name, params, rules, condition,
-        variadic, index, currentFileInfo, frames);
+    final List<Node> frames = this.frames ?? context.frames.sublist(0);
+    return new MixinDefinition(name, params, rules, condition, variadic, index,
+        currentFileInfo, frames);
 
 //2.3.1
 //  Definition.prototype.eval = function (context) {
@@ -333,24 +345,21 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
     final List<Node> mixinFrames = (frames != null)
         ? (frames.sublist(0)..addAll(context.frames))
         : context.frames;
-    final Ruleset frame = evalParams(
-        context, new Contexts.eval(context, mixinFrames), args, _arguments);
 
-    frame.prependRule(
-        new Rule('@arguments', new Expression(_arguments).eval(context)));
+    final Ruleset frame = evalParams(context, new Contexts.eval(context, mixinFrames), args, _arguments)
+        ..prependRule(new Rule('@arguments', new Expression(_arguments).eval(context)));
 
     rules = this.rules.sublist(0);
 
-    ruleset = new Ruleset(null, rules);
-    ruleset.originalRuleset = this;
-    ruleset.id = id;
+    ruleset = new Ruleset(null, rules)
+        ..originalRuleset = this
+        ..id = id;
 
     ruleset = ruleset.eval(
         new Contexts.eval(context, <Node>[this, frame]..addAll(mixinFrames)));
 
-    if (important) {
-      ruleset = ruleset.makeImportant();
-    }
+    if (important)
+        ruleset = ruleset.makeImportant();
     return ruleset;
 
 //2.4.0
@@ -383,13 +392,14 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
         ? (this.frames.sublist(0)..addAll(context.frames))
         : context.frames;
     final List<Node> frames = <Node>[
-        evalParams(context, new Contexts.eval(context, thisFrames), args, <Node>[])
-    ]; // the parameter variables
-    frames.addAll(this.frames != null ? this.frames : <Node>[]); // the parent namespace/mixin frames
-    frames.addAll(context.frames); // the current environment frames
+      // the parameter variables
+      evalParams(context, new Contexts.eval(context, thisFrames), args, <Node>[])
+    ]
+        ..addAll(this.frames ?? <Node>[]) // the parent namespace/mixin frames
+        ..addAll(context.frames); // the current environment frames
 
-    if (condition != null
-        && !condition.eval(new Contexts.eval(context, frames)).evaluated) {
+    if (condition != null &&
+        !condition.eval(new Contexts.eval(context, frames)).evaluated) {
       return false;
     }
     return true;
@@ -413,25 +423,24 @@ class MixinDefinition extends Node with VariableMixin implements MakeImportantNo
   ///
   @override
   bool matchArgs(List<MixinArgs> args, Contexts context) {
-    int argsLength = 0;
-    if (args != null) argsLength = args.length;
-    int len;
+    final int argsLength = args?.length ?? 0;
 
-    if (!this.variadic) {
-      if (argsLength < required)       return false;
-      if (argsLength > params.length)  return false;
+    if (!variadic) {
+      if (argsLength < required)
+          return false;
+      if (argsLength > params.length)
+          return false;
     } else {
-      if (argsLength < (required - 1)) return false;
+      if (argsLength < (required - 1))
+          return false;
     }
 
-    len = math.min(argsLength, arity);
-
+    final int len = math.min(argsLength, arity);
     for (int i = 0; i < len; i++) {
       if (params[i].name == null && !params[i].variadic) {
         if (args[i].value.eval(context).toCSS(context) !=
-            params[i].value.eval(context).toCSS(context)) {
-          return false;
-        }
+            params[i].value.eval(context).toCSS(context))
+            return false;
       }
     }
     return true;

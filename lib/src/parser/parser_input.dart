@@ -37,7 +37,8 @@ class ParserInput {
 
   ///
   String charAt(int pos) {
-    if (pos >= input.length) return null;
+    if (pos >= input.length)
+        return null;
     return input[pos];
   }
 
@@ -49,7 +50,8 @@ class ParserInput {
 
   ///
   int charCodeAt(int pos) {
-    if (pos >= input.length) return null;
+    if (pos >= input.length)
+        return null;
     return input.codeUnitAt(pos);
   }
 
@@ -67,9 +69,9 @@ class ParserInput {
   /// restore input pointers from stack
   ///
   void restore([String possibleErrorMessage]) {
-    if (i > furthest
-        || ((i == furthest) && (possibleErrorMessage != null)
-            && (furthestPossibleErrorMessage == null))) {
+    if (i > furthest ||
+        ((i == furthest) && (possibleErrorMessage != null) &&
+        (furthestPossibleErrorMessage == null))) {
       furthest = i;
       furthestPossibleErrorMessage = possibleErrorMessage;
     }
@@ -89,11 +91,14 @@ class ParserInput {
   ///
   bool isWhitespace([int offset = 0]) {
     final int pos = i + offset;
-    if (pos < 0 || pos >= input.length) return false;
+    if (pos < 0 || pos >= input.length)
+        return false;
 
     final int code = input.codeUnitAt(pos);
-    return (code == Charcode.SPACE_32 || code == Charcode.CR_13
-         || code == Charcode.TAB_9 || code == Charcode.LF_10);
+    return (code == Charcode.SPACE_32 ||
+        code == Charcode.CR_13 ||
+        code == Charcode.TAB_9 ||
+        code == Charcode.LF_10);
 
 //2.2.0
 //    parserInput.isWhitespace = function (offset) {
@@ -118,16 +123,21 @@ class ParserInput {
   /// [index] if match returns m[index]
   ///
   dynamic $re(RegExp reg, [int index]) {
-    if (i >= input.length) return null;
+    if (i >= input.length)
+        return null;
 
     final Match m = reg.matchAsPrefix(input, i);
-    if (m == null) return null;
+    if (m == null)
+        return null;
 
     assert(m.end == (m[0].length + i));
     skipWhitespace(m.end);
-    if (index != null && m.groupCount >= index) return m[index];
-    if (m.groupCount == 0) return m[0];
-    if (m.groupCount == 1) return m[1];
+    if (index != null && m.groupCount >= index)
+        return m[index];
+    if (m.groupCount == 0)
+        return m[0];
+    if (m.groupCount == 1)
+        return m[1];
 
     final List<String> resultList = <String>[];
     for (int item = 0; item <= m.groupCount; item++) {
@@ -139,7 +149,8 @@ class ParserInput {
   ///
   Match $reMatch(RegExp reg) {
     final Match m = reg.matchAsPrefix(input, i);
-    if (m == null) return null;
+    if (m == null)
+        return null;
 
     assert(m.end == (m[0].length + i));
     skipWhitespace(m.end);
@@ -152,7 +163,8 @@ class ParserInput {
   /// [tok] is a String.
   ///
   String $char(String tok) {
-    if (currentChar() != tok) return null;
+    if (currentChar() != tok)
+        return null;
 
     skipWhitespace(i + 1);
     return tok;
@@ -162,7 +174,8 @@ class ParserInput {
   /// Returns tok if found at current position
   ///
   String $str(String tok) {
-    if (i >= input.length || !input.startsWith(tok, i)) return null;
+    if (i >= input.length || !input.startsWith(tok, i))
+        return null;
 
     skipWhitespace(i + tok.length);
     return tok;
@@ -173,7 +186,8 @@ class ParserInput {
   ///
   String $quoted() {
     final String startChar = currentChar();
-    if (startChar != "'" && startChar != '"') return null;
+    if (startChar != "'" && startChar != '"')
+        return null;
 
     final int start = i;
     for (int end = (i + 1); end < input.length; end++) {
@@ -215,7 +229,8 @@ class ParserInput {
           final CommentPointer comment = new CommentPointer(index: i, isLineComment: true);
           int nextNewLine = input.indexOf('\n', i + 2);
 
-          if (nextNewLine < 0) nextNewLine = endIndex;
+          if (nextNewLine < 0)
+              nextNewLine = endIndex;
           i = nextNewLine;
           comment.text = input.substring(comment.index, i);
           commentStore.add(comment);
@@ -234,8 +249,11 @@ class ParserInput {
         }
         break;
       }
-      if ((c != Charcode.SPACE_32) && (c != Charcode.LF_10)
-          && (c != Charcode.TAB_9) && (c != Charcode.CR_13)) break;
+      if ((c != Charcode.SPACE_32) &&
+          (c != Charcode.LF_10) &&
+          (c != Charcode.TAB_9) &&
+          (c != Charcode.CR_13))
+          break;
     }
 
     if (i == endIndex) {
@@ -251,10 +269,12 @@ class ParserInput {
   // parser.js 2.4.0 40-52
   dynamic expect(dynamic arg, [String msg, int index]) {
     final dynamic result = (arg is Function) ? arg() : $re(arg);
-    if (result != null) return result;
+    if (result != null)
+        return result;
 
-    final String message = msg
-      ?? (arg is String) ? "expected '$arg' got '${currentChar()}'" : 'unexpected token';
+    final String message = msg ?? (arg is String)
+        ? "expected '$arg' got '${currentChar()}'"
+        : 'unexpected token';
     return error(message);
   }
 
@@ -263,7 +283,8 @@ class ParserInput {
   ///
   //parser.js 2.2.0 56-62
   String expectChar(String arg, [String msg]) {
-    if ($char(arg) != null) return arg;
+    if ($char(arg) != null)
+        return arg;
 
     final String message = msg ?? "expected '$arg' got '${currentChar()}'";
     return error(message);
@@ -273,10 +294,10 @@ class ParserInput {
   //parser.js 2.2.0 lines 64-74
   Null error(String msg, [String type]) {
     throw new LessExceptionError(new LessError(
-      index: i,
-      type: type != null ? type :  'Syntax',
-      message: msg,
-      context: context)
+        index: i,
+        type: type != null ? type : 'Syntax',
+        message: msg,
+        context: context)
     );
 
 //2.2.0
@@ -303,7 +324,7 @@ class ParserInput {
       // https://jsperf.com/string-startswith/21
       return input.startsWith(tok, i);
     } else {
-      final RegExp r = (tok as RegExp);
+      final RegExp r = tok;
       return r.matchAsPrefix(input, i) != null;
     }
   }
@@ -312,7 +333,8 @@ class ParserInput {
   /// Specialization of peek()
   ///
   bool peekChar(String tok) {
-    if (i >= input.length) return false;
+    if (i >= input.length)
+        return false;
     return input[i] == tok;
   }
 
@@ -323,9 +345,9 @@ class ParserInput {
   bool peekNotNumeric() {
     final int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
-    return (c > Charcode.$9_57 || c < Charcode.PLUS_43)
-        || c == Charcode.SLASH_47
-        || c == Charcode.COMMA_44;
+    return (c > Charcode.$9_57 || c < Charcode.PLUS_43) ||
+        c == Charcode.SLASH_47 ||
+        c == Charcode.COMMA_44;
 
 //    parserInput.peekNotNumeric = function() {
 //        var c = input.charCodeAt(parserInput.i);
@@ -389,10 +411,13 @@ class ParserInput {
       if (message == null) {
         message = 'Unrecognised input';
         if (endInfo.furthestChar == '}') {
+          // ignore: prefer_interpolation_to_compose_strings
           message += ". Possibly missing opening '{'";
         } else if (endInfo.furthestChar == ')') {
+          // ignore: prefer_interpolation_to_compose_strings
           message += ". Possibly missing opening '('";
         } else if (endInfo.furthestReachedEnd) {
+          // ignore: prefer_interpolation_to_compose_strings
           message += ". Possibly missing something";
         }
       }
@@ -450,6 +475,10 @@ class ParserStatus {
   bool    furthestReachedEnd;
   String  furthestChar;
 
-  ParserStatus({this.isFinished, this.furthest, this.furthestPossibleErrorMessage,
-    this.furthestReachedEnd, this.furthestChar});
+  ParserStatus(
+      {this.isFinished,
+      this.furthest,
+      this.furthestPossibleErrorMessage,
+      this.furthestReachedEnd,
+      this.furthestChar});
 }

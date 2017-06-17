@@ -3,7 +3,7 @@
 part of tree.less;
 
 class RulesetCall extends Node {
-  @override String get    name => null;
+  @override final String  name = null;
   @override final String  type = 'RulesetCall';
 
   String variable;

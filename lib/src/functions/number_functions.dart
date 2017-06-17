@@ -3,14 +3,12 @@
 part of functions.less;
 
 class NumberFunctions extends FunctionBase {
-
   @defineMethodSkip
   Node _minmax(bool isMin, List<Node> args) {
-    if (args.isEmpty) {
-      throw new LessExceptionError(new LessError(
-          type: 'Argument',
-          message: 'one or more arguments required'));
-    }
+    if (args.isEmpty)
+        throw new LessExceptionError(new LessError(
+            type: 'Argument',
+            message: 'one or more arguments required'));
 
     Dimension current;
     Dimension currentUnified;
@@ -29,11 +27,12 @@ class NumberFunctions extends FunctionBase {
 
     for (int i = 0; i < args.length; i++) {
       if (args[i] is! Dimension) {
-        if (args[i].value is List) args.addAll(args[i].value);
+        if (args[i].value is List)
+            args.addAll(args[i].value);
         continue;
       }
       current = args[i];
-      currentUnified = ( current.unit.toString() == '' && unitClone != null)
+      currentUnified = (current.unit.toString() == '' && unitClone != null)
           ? new Dimension(current.value, unitClone).unify()
           : current.unify();
       unit = (currentUnified.unit.toString() == '' && unitStatic != null)
@@ -49,11 +48,10 @@ class NumberFunctions extends FunctionBase {
           ? values['']
           : values[unit];
       if (j == null) {
-        if (unitStatic != null && unit != unitStatic) {
-          throw new LessExceptionError(new LessError(
-              type: 'Argument',
-              message: 'incompatible types'));
-        }
+        if (unitStatic != null && unit != unitStatic)
+            throw new LessExceptionError(new LessError(
+                type: 'Argument',
+                message: 'incompatible types'));
         values[unit] = order.length;
         order.add(current);
         continue;
@@ -62,18 +60,18 @@ class NumberFunctions extends FunctionBase {
           ? new Dimension(order[j].value, unitClone).unify()
           : order[j].unify();
       if (isMin && currentUnified.value < referenceUnified.value ||
-         !isMin && currentUnified.value > referenceUnified.value) {
-        order[j] = current;
-      }
+          !isMin && currentUnified.value > referenceUnified.value)
+          order[j] = current;
     }
 
-    if (order.length == 1) return order[0];
+    if (order.length == 1)
+        return order[0];
     final String arguments = order
-      .map((Dimension a) => a.toCSS(this.context))
-      .toList()
-      .join(this.context.compress ? ',' : ', ');
+        .map((Dimension a) => a.toCSS(context))
+        .toList()
+        .join(context.compress ? ',' : ', ');
 
-    return new Anonymous((isMin ? 'min' : 'max') + '($arguments)');
+    return new Anonymous('${isMin ? 'min' : 'max'}($arguments)');
 
 //    var minMax = function (isMin, args) {
 //        args = Array.prototype.slice.call(args);
@@ -190,7 +188,8 @@ class NumberFunctions extends FunctionBase {
   ///   mod(11cm, 6px);
   ///   Output: 5cm
   ///
-  Dimension mod(Dimension a, Dimension b) => new Dimension(a.value % b.value, a.unit);
+  Dimension mod(Dimension a, Dimension b) =>
+      new Dimension(a.value % b.value, a.unit);
 
   ///
   /// Returns the value of the first argument raised to the power of the second argument.
