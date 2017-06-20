@@ -24,18 +24,28 @@ part of tree.less;
  * ruleset.
  */
 
+///
 class Import extends Node {
   @override final String  name = null;
   @override final String  type = 'Import';
 
+  ///
   bool          css = false;
+  ///
   LessError     errorImport;
+  ///
   Node          features;
+  ///
   String        importedFilename;
+  ///
   int           index;
+  ///
   ImportOptions options;
+  ///
   dynamic       root; // Ruleset or String
+  ///
   dynamic       skip; // bool or Function - initialized in import_visitor
+  ///
   Node          path;
 
   ///
@@ -99,7 +109,7 @@ class Import extends Node {
   @override
   void genCSS(Contexts context, Output output) {
     if (css && !path.currentFileInfo.reference) {
-      output.add('@import ', currentFileInfo, index);
+      output.add('@import ', fileInfo: currentFileInfo, index: index);
       path.genCSS(context, output);
       if (features != null) {
         output.add(' ');
@@ -230,9 +240,11 @@ class Import extends Node {
     }
 
     if (options.inline ?? false) {
-      final Anonymous contents = new Anonymous(root, 0, new FileInfo()
-          ..filename = importedFilename, true, true);
-      //return (this.features != null) ? new Media([contents], this.features.value) : [contents];
+      final Anonymous contents = new Anonymous(root,
+          index: 0,
+          currentFileInfo: new FileInfo()..filename = importedFilename,
+          mapLines: true,
+          rulesetLike: true);
       return (this.features != null)
           ? new Media(<Node>[contents], this.features.value)
           : new Nodeset(<Node>[contents]);
@@ -297,15 +309,26 @@ class Import extends Node {
 /// Example: options = new ImportOptions(); options['less'] = true;  options.less = true;
 ///
 class ImportOptions {
+  ///
   bool less;
+  ///
   bool css;
+  ///
   bool multiple;
+  ///
   bool once;
+  ///
   bool inline;
+
   //bool plugin;  //Here @plugin directive is based in @options, not on import
+
+  ///
   bool reference;
+  ///
   bool optional;
 
+  ///
+  // ignore: avoid_positional_boolean_parameters
   void operator []=(String optionName, bool value) {
     switch (optionName) {
       case 'less':

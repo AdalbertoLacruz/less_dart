@@ -2,22 +2,24 @@
 
 part of visitor.less;
 
+///
 class ImportVisitor extends VisitorBase {
+  ///
   Contexts              context;
-
+  ///
   ImportManager         importer;
-
+  ///
   LessError             lessError;
-
+  ///
   ImportDetector        onceFileDetectionMap;
-
+  ///
   ImportDetector        recursionDetector;
 
   /// visitImport futures for await their completion
   List<Future<Null>>    runners = <Future<Null>>[];
-
+  ///
   List<VariableImport>  variableImports = <VariableImport>[];
-
+  ///
   Visitor               _visitor;
 
   ///
@@ -77,6 +79,7 @@ class ImportVisitor extends VisitorBase {
 //  }
   }
 
+///
   Future<Null> tryRun() {
     final Completer<Null> task = new Completer<Null>();
     Future.wait(runners, eagerError: true).then((_) {
@@ -171,9 +174,6 @@ class ImportVisitor extends VisitorBase {
       if (evaldImportNode.options.multiple ?? false)
           context.importMultiple = true;
 
-      // try appending if we haven't determined if it is css or not
-      final bool tryAppendLessExtension = !evaldImportNode.css;
-
       for (int i = 0; i < importParent.rules.length; i++) {
         if (importParent.rules[i] == importNode) {
           importParent.rules[i] = evaldImportNode;
@@ -181,11 +181,13 @@ class ImportVisitor extends VisitorBase {
         }
       }
       importer
-        .push(evaldImportNode.getPath(), tryAppendLessExtension,
-            evaldImportNode.currentFileInfo, evaldImportNode.options)
+        .push(evaldImportNode.getPath(),
+            evaldImportNode.currentFileInfo,
+            evaldImportNode.options,
+            tryAppendLessExtension: !evaldImportNode.css)
         .then((ImportedFile importedFile) {
-          onImported(evaldImportNode, context, importedFile.root,
-              importedFile.importedPreviously, importedFile.fullPath)
+          onImported(evaldImportNode, context, importedFile.root, importedFile.fullPath,
+              importedAtRoot: importedFile.importedPreviously)
           .then((_) {
             completer.complete();
           }).catchError((Object e) {
@@ -253,7 +255,8 @@ class ImportVisitor extends VisitorBase {
   /// Recursively analyze the imported root for more imports
   /// [root] is String or Ruleset
   ///
-  Future<Null> onImported(Import importNode, Contexts context, dynamic root, bool importedAtRoot, String fullPath) {
+  Future<Null> onImported(Import importNode, Contexts context, dynamic root, String fullPath,
+      {bool importedAtRoot}) {
     final Completer<Null> completer = new Completer<Null>();
     final ImportVisitor importVisitor = this;
     final bool inlineCSS = importNode.options.inline ?? false;
@@ -280,7 +283,7 @@ class ImportVisitor extends VisitorBase {
           ..root = root
           ..importedFilename = fullPath;
 
-      if (!inlineCSS && (isTrue(context.importMultiple) || !duplicateImport)) {
+      if (!inlineCSS && ((context.importMultiple ?? false) || !duplicateImport)) {
         recursionDetector[fullPath] = true;
         new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector)
           .runAsync(root)
@@ -506,9 +509,13 @@ class ImportVisitor extends VisitorBase {
 /// Example: @import "less/import/import-@{in}@{terpolation}.less";
 ///
 class VariableImport {
+  ///
   Import importNode;
+  ///
   Contexts context;
+  ///
   Node importParent;
 
+  ///
   VariableImport(this.importNode, this.context, this.importParent);
 }

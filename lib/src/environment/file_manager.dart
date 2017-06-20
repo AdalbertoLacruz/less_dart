@@ -2,7 +2,9 @@
 
 part of environment.less;
 
+///
 class FileManager {
+  ///
   Environment environment;
 
   ///
@@ -337,18 +339,29 @@ class FileManager {
 
 /// return type for loadFile
 class FileLoaded {
+  ///
   String    filename;
+  ///
   String    contents;
+  ///
   LessError error;
+  ///
   List<int> codeUnits;
 
+  ///
   FileLoaded({this.filename, this.contents, this.error, this.codeUnits});
 }
 
+///
 class UrlParts {
+  ///
   List<String>  directories;
+  ///
   String        hostPart;
+  ///
   String        fileUrl;
+  ///
   String        path;
+  ///
   String        url;
 }

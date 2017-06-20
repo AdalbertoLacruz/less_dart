@@ -3,9 +3,11 @@
 part of tree.less;
 
 //2.3.1 extends from Directive
+///
 class Media extends DirectiveBase {
   @override final String type = 'Media';
 
+  ///
   Node features;
 
   ///
@@ -16,7 +18,9 @@ class Media extends DirectiveBase {
           currentFileInfo: currentFileInfo,
           isReferenced: false) {
 
-    final List<Node> selectors = new Selector(<Element>[], null, null, this.index, this.currentFileInfo)
+    final List<Node> selectors = new Selector(<Element>[],
+        index: this.index,
+        currentFileInfo: this.currentFileInfo)
         .createEmptySelectors();
 
     this.features = new Value(features);
@@ -57,7 +61,7 @@ class Media extends DirectiveBase {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add('@media ', currentFileInfo, index);
+    output.add('@media ', fileInfo: currentFileInfo, index: index);
     features.genCSS(context, output);
     outputRuleset(context, output, rules);
 
@@ -160,9 +164,10 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      final List<Selector> selectors =
-          new Selector(<Element>[], null, null, index, currentFileInfo)
-              .createEmptySelectors();
+      final List<Selector> selectors = new Selector(<Element>[],
+          index: index,
+          currentFileInfo: currentFileInfo)
+          .createEmptySelectors();
       result = new Ruleset(selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
           ..multiMedia = true;
     }

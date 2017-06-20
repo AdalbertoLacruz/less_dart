@@ -23,22 +23,40 @@ export 'src/render/render.dart';
 export 'src/tree/tree.dart';
 export 'src/visitor/visitor_base.dart';
 
+///
 class Less {
+  ///
   bool          continueProcessing = true;
+
+  ///
   int           currentErrorCode = 0;
-  List<String>  imports = <String>[]; //return list of imported files
+
+  /// return list of imported files
+  List<String>  imports = <String>[];
+
+  ///
   Logger        logger;
+
+  ///
   LessOptions   _options;
+
+  ///
   StringBuffer  stdin  = new StringBuffer();
+
+  ///
   StringBuffer  stdout = new StringBuffer();
+
+  ///
   StringBuffer  stderr = new StringBuffer();
 
+  ///
   Less() {
     logger = new Logger(stderr); // care the order
     _options = new LessOptions();
     new Environment()..options = _options; //make global
   }
 
+  ///
   void loggerReset() {
     logger.reset();
   }
@@ -123,6 +141,7 @@ class Less {
     return continueProcessing;
   }
 
+  ///
   Future<int> parseLessFile(String data) {
     final Parser parser = new Parser(_options);
     return parser.parse(data).then((Ruleset tree) {

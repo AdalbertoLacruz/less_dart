@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class ColorFunctions extends FunctionBase {
   ///
   /// Returns [val] clamped to be in the range 0..val..1.

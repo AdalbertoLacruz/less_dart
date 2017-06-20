@@ -2,9 +2,10 @@
 
 part of visitor.less;
 
+///
 class Visitor extends VisitorBase {
   VisitorBase _implementation; //Join_Selector_visitor, ...
-  VisitArgs   _visitArgs = new VisitArgs(true);
+  VisitArgs   _visitArgs = new VisitArgs(visitDeeper: true);
 
   ///
   Visitor(VisitorBase this._implementation);
@@ -90,7 +91,7 @@ class Visitor extends VisitorBase {
   ///
   /// [nodes] List<Node> | List<List<>> | List<MixinArgs> ...
   ///
-  List<T> visitArray<T>(List<T> nodes, [bool nonReplacing = false]) {
+  List<T> visitArray<T>(List<T> nodes, {bool nonReplacing = false}) {
     if (nodes == null)
         return nodes;
 

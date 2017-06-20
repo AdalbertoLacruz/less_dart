@@ -6,12 +6,15 @@ part of transformer.less;
 /// Suports inclusion/exclusion paths with wildcards (*).
 /// Default values are '*.less' and '*.html'
 ///
-
 class EntryPoints {
+  ///
   List<RegExp>  include = <RegExp>[];
+  ///
   bool          isLessSingle = false;
+  ///
   List<RegExp>  exclude = <RegExp>[];
 
+  ///
   EntryPoints();
 
   ///

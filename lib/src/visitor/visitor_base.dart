@@ -20,11 +20,16 @@ part 'process_extends_visitor.dart';
 part 'to_css_visitor.dart';
 part 'visitor.dart';
 
+///
 abstract class VisitorBase {
+  ///
   bool isPreEvalVisitor = false; //plugins
+  ///
   bool isPreVisitor = false; //plugins
+  ///
   bool isReplacing = false;
 
+  ///
   Ruleset run(Ruleset root) => null;
 
   //static Node noop(node) => node; //TODO delete not used
@@ -44,12 +49,16 @@ abstract class VisitorBase {
          filename: filename));
   }
 
+  ///
   @virtual
   dynamic visit(dynamic node) => node;
 }
 
+///
 class VisitArgs {
+  ///
   bool visitDeeper;
 
-  VisitArgs(bool this.visitDeeper);
+  ///
+  VisitArgs({bool this.visitDeeper});
 }

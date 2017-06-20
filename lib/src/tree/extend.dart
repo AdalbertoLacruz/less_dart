@@ -2,21 +2,34 @@
 
 part of tree.less;
 
+///
 class Extend extends Node {
   @override final String name = null;
   @override final String type = 'Extend';
 
+  ///
   bool            allowAfter;
+  ///
   bool            allowBefore;
+  ///
   bool            firstExtendOnThisSelectorPath = false;
+  ///
   bool            hasFoundMatches = false; // ProcessExtendsVisitor
+  ///
   int             index;
+  ///
   static int      nextId = 0;
+  ///
   int             objectId;
+  ///
   String          option;
+  ///
   List<int>       parentIds;
+  ///
   Ruleset         ruleset; //extend
+  ///
   Node            selector;
+  ///
   List<Selector>  selfSelectors;
 
   ///

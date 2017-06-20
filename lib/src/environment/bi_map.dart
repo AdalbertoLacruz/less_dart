@@ -1,16 +1,19 @@
 part of environment.less;
 
 //Only tested [] getValue, getKey
+///
 class BiMap<K, V> implements Map<K, V> {
   final Map<V, K> _inverse;
   final Map<K, V> _map;
 
+  ///
   BiMap([Map<K, V> other])
-    : this.from(other ?? new Map<K, V>());
+    : this.from(other ?? <K, V>{});
 
+  ///
   BiMap.from(Map<K, V> other)
       : _map = other,
-        _inverse = new Map<V, K>();
+        _inverse =  <V, K>{};
 
   @override
   V operator [](Object key) => _map[key];

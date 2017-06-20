@@ -2,21 +2,30 @@ library cleancss.less;
 
 import 'logger.dart';
 
+///
 class CleancssOptions {
+  ///
   String  compatibility;
+  ///
   Logger  console = new Logger();
+  ///
   bool    keepBreaks;
+  ///
   int     keepSpecialComments;
+  ///
   bool    noAdvanced;
+  ///
   bool    parseError = false;
+  ///
   int     roundingPrecision;
 
+  ///
   CleancssOptions();
 
-  /*
-   * Update cleancss options from command
-   * ej.: --compatibility:ie7
-   */
+  ///
+  /// Update cleancss options from command
+  /// ej.: --compatibility:ie7
+  ///
   bool parse(String command) {
     if (command == null)
         return setParseError('empty');

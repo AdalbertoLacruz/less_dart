@@ -2,25 +2,31 @@
 
 part of tree.less;
 
+///
 class Rule extends Node implements MakeImportantNode {
   @override dynamic         name; //String or List<Keyword>
   @override final String    type = 'Rule';
   @override covariant Node  value;
 
+  ///
   String  important = '';
+  ///
   int     index;
+  ///
   bool    inline;
+  ///
   String  merge;
+  ///
   bool    variable = false;
 
   ///
   Rule(dynamic this.name, Node this.value,
-      [String important,
+      {String important,
       String this.merge,
       int this.index,
       FileInfo currentFileInfo,
       bool this.inline = false,
-      bool variable = null])
+      bool variable})
       : super.init(currentFileInfo: currentFileInfo) {
 
     //this.value = (value is Node) ? value : new Value(<Node>[value]);  // value is Node always
@@ -72,7 +78,7 @@ class Rule extends Node implements MakeImportantNode {
         return genCleanCSS(context, output);
 
     final String colon = context.compress ? ':' : ': ';
-    output.add('$name$colon', currentFileInfo, index);
+    output.add('$name$colon', fileInfo: currentFileInfo, index: index);
 
     try {
       if (value != null)
@@ -87,7 +93,7 @@ class Rule extends Node implements MakeImportantNode {
     String out = '';
     if (!inline)
         out = (context.lastRule && context.compress) ? '' : ';';
-    output.add('$important$out', currentFileInfo, index);
+    output.add('$important$out', fileInfo: currentFileInfo, index: index);
 
 //2.3.1
 //  Rule.prototype.genCSS = function (context, output) {
@@ -106,7 +112,7 @@ class Rule extends Node implements MakeImportantNode {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    output.add('$name:', currentFileInfo, index);
+    output.add('$name:', fileInfo: currentFileInfo, index: index);
 
     try {
       if (value != null)
@@ -121,7 +127,7 @@ class Rule extends Node implements MakeImportantNode {
     String out = '';
     if (!inline)
         out = (context.lastRule) ? '' : ';';
-    output.add('$important$out', currentFileInfo, index);
+    output.add('$important$out', fileInfo: currentFileInfo, index: index);
   }
 
   ///
@@ -160,8 +166,13 @@ class Rule extends Node implements MakeImportantNode {
       if (important.isEmpty && importantResult.important.isNotEmpty)
           important = importantResult.important;
 
-      return new Rule(name, evaldValue, important, merge, index,
-          currentFileInfo, inline, variable);
+      return new Rule(name, evaldValue,
+          important: important,
+          merge: merge,
+          index: index,
+          currentFileInfo: currentFileInfo,
+          inline: inline,
+          variable: variable);
     } catch (e) {
       throw new LessExceptionError(LessError.transform(e,
           index: index,
@@ -224,7 +235,12 @@ class Rule extends Node implements MakeImportantNode {
   ///
   @override
   Rule makeImportant() =>
-      new Rule(name, value, '!important', merge,index, currentFileInfo, inline);
+      new Rule(name, value,
+          important: '!important',
+          merge: merge,
+          index: index,
+          currentFileInfo: currentFileInfo,
+          inline: inline);
 
 //2.3.1
 //  Rule.prototype.makeImportant = function () {
@@ -240,5 +256,6 @@ class Rule extends Node implements MakeImportantNode {
 
 ///
 class ImportantRule {
+  ///
   String important = ''; // '!important'
 }

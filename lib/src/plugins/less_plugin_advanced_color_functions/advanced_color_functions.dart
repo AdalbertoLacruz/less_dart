@@ -1,5 +1,6 @@
 part of less_plugin_advanced_color_functions.plugins.less;
 
+///
 class AdvancedColorFunctions extends ColorFunctions {
   ///
   /// Inverts the luma of a color giving a version darken or lighter than the original

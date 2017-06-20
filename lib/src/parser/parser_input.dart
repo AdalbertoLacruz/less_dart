@@ -2,30 +2,33 @@
 
 part of parser.less;
 
+///
 class ParserInput {
+  ///
   bool                  autoCommentAbsorb = true;
-
+  ///
   List<CommentPointer>  commentStore = <CommentPointer>[];
-
+  ///
   Contexts              context;
-
+  ///
   bool                  finished = false;
 
-  // furthest index the parser has gone to
+  /// furthest index the parser has gone to
   int                   furthest = 0;
 
-  // if this is furthest we got to, this is the probably cause
+  /// if this is furthest we got to, this is the probably cause
   String                furthestPossibleErrorMessage;
 
-  // current index in `input`
+  /// current index in `input`
   int                   i = 0;
 
-  // Less input string
+  /// Less input string
   final String          input;
 
-  // holds state for backtracking
+  /// holds state for backtracking
   List<int>             saveStack = <int>[];
 
+  ///
   ParserInput(String this.input, Contexts this.context) {
     i = furthest = 0;
     skipWhitespace(0);
@@ -460,21 +463,33 @@ class ParserInput {
 
 // **********************************************
 
+///
 class CommentPointer {
+  ///
   int     index;
+  ///
   bool    isLineComment;
+  ///
   String  text;
 
+  ///
   CommentPointer({this.index, this.isLineComment, this.text});
 }
 
+///
 class ParserStatus {
+  ///
   bool    isFinished;
+  ///
   int     furthest;
+  ///
   String  furthestPossibleErrorMessage;
+  ///
   bool    furthestReachedEnd;
+  ///
   String  furthestChar;
 
+  ///
   ParserStatus(
       {this.isFinished,
       this.furthest,

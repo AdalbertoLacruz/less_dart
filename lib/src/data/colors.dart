@@ -4,6 +4,7 @@ library colors.less;
 
 import '../environment/environment.dart';
 
+///
  BiMap<String, String> colors = new BiMap<String, String>(<String, String>{
     'aliceblue':'#f0f8ff',
     'antiquewhite':'#faebd7',

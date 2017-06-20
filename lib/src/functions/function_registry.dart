@@ -6,14 +6,18 @@ part of functions.less;
 /// Manages the custom functions defined by plugins
 ///
 class FunctionRegistry {
+  ///
   static List<FunctionBase> globalFunctions = <FunctionBase>[];  //imported by plugin at root
-
+  ///
   FunctionRegistry    base; //parent
+  ///
   List<FunctionBase>  cache;
+  ///
   List<FunctionBase>  data = <FunctionBase>[]; //scoped functions
 
   FunctionRegistry._(this.base);
 
+  ///
   factory FunctionRegistry.inherit(FunctionRegistry base) =>
       new FunctionRegistry._(base);
 

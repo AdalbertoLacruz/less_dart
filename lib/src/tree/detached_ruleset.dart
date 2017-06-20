@@ -2,12 +2,16 @@
 
 part of tree.less;
 
+///
 class DetachedRuleset extends Node {
   @override final String type = 'DetachedRuleset';
 
+  ///
   List<Node>  frames;
+  ///
   Ruleset     ruleset;
 
+  ///
   DetachedRuleset(this.ruleset, [this.frames]) {
     evalFirst = true;
   }

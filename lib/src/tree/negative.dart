@@ -2,10 +2,12 @@
 
 part of tree.less;
 
+///
 class Negative extends Node {
   @override final String    type = 'Negative';
   @override covariant Node  value;
 
+  ///
   Negative(Node this.value);
 
   ///

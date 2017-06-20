@@ -2,13 +2,15 @@
 
 part of tree.less;
 
+///
 class Directive extends DirectiveBase {
   @override final String    type = 'Directive';
   @override covariant Node  value;
 
+  ///
   Directive(String name, Node this.value, dynamic rules, int index,
       FileInfo currentFileInfo, DebugInfo debugInfo,
-      [bool isReferenced = false, bool isRooted = false])
+      {bool isReferenced = false, bool isRooted = false})
       : super(
             name: name,
             index: index,
@@ -22,9 +24,10 @@ class Directive extends DirectiveBase {
         this.rules = rules;
       } else {
         this.rules = <Ruleset>[rules as Ruleset];
-        this.rules[0].selectors =
-            (new Selector(<Element>[], null, null, this.index, currentFileInfo))
-                .createEmptySelectors();
+        this.rules[0].selectors = new Selector(<Element>[],
+            index: this.index,
+            currentFileInfo: currentFileInfo)
+            .createEmptySelectors();
       }
       this.rules.forEach((Ruleset rule) {
         rule.allowImports = true;
@@ -63,17 +66,21 @@ class Directive extends DirectiveBase {
 class DirectiveBase extends Node
       with OutputRulesetMixin, VariableMixin
       implements GetIsReferencedNode, MarkReferencedNode {
-
+  //
   @override FileInfo                currentFileInfo;
   @override DebugInfo               debugInfo;
   @override String                  name;
   @override covariant List<Ruleset> rules; //more restrictive type
   @override final String            type = 'DirectiveBase';
 
+  ///
   int   index;
+  ///
   bool  isReferenced = false;
+  ///
   bool  isRooted = false;
 
+  ///
   DirectiveBase(
       {this.currentFileInfo,
       this.debugInfo,
@@ -118,7 +125,7 @@ class DirectiveBase extends Node
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add(name, currentFileInfo, index);
+    output.add(name, fileInfo: currentFileInfo, index: index);
 
     if (value != null) {
       output.add(' ');
@@ -176,7 +183,8 @@ class DirectiveBase extends Node
         ..mediaBlocks = mediaBlocksBackup;
 
     return new Directive(name, value, rules, index, currentFileInfo, debugInfo,
-        isReferenced, isRooted);
+        isReferenced: isReferenced,
+        isRooted: isRooted);
 
 //2.4.0 20150319
 //  Directive.prototype.eval = function (context) {

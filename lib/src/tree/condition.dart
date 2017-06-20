@@ -2,17 +2,24 @@
 
 part of tree.less;
 
+///
 class Condition extends Node {
   @override final String type = 'Condition';
 
+  ///
   int     index;
+  ///
   Node    lvalue;
+  ///
   bool    negate;
+  ///
   String  op;
+  ///
   Node    rvalue;
 
+  ///
   Condition(String op, Node this.lvalue, Node this.rvalue,
-      [int this.index, bool this.negate = false]) {
+      {int this.index, bool this.negate = false}) {
     this.op = op.trim();
   }
 

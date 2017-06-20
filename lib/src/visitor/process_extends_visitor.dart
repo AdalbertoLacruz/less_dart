@@ -2,10 +2,15 @@
 
 part of visitor.less;
 
+///
 class ProcessExtendsVisitor extends VisitorBase {
+  ///
   List<List<Extend>>  allExtendsStack;
+  ///
   int                 extendChainCount = 0;
+  ///
   Map<String, bool>   extendIndicies;
+
   Visitor             _visitor;
 
   ///
@@ -857,13 +862,22 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 }
 
+///
 class MatchSelector {
+  ///
   int   endPathElementIndex;
+  ///
   int   endPathIndex;
+  ///
   bool  finished;
+  ///
   int   index;
+  ///
   Combinator initialCombinator;
+  ///
   int   length;
+  ///
   int   matched;
+  ///
   int   pathIndex;
 }

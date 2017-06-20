@@ -5,12 +5,16 @@ part of functions.less;
 class FunctionBase {
   /// Method registry: { 'externalName': {'name': internalName, 'listArguments': false}  }
   Map<String, FunctionRegistryItem> registry = <String, FunctionRegistryItem>{};
-
+  ///
   Contexts  context;
+  ///
   FileInfo  currentFileInfo;
+  ///
   int       index;
+  ///
   String    name;
 
+  ///
   FunctionBase() {
     DefineMethod          annotation;
     final ClassMirror     classMirror = reflect(this).type;
@@ -32,7 +36,9 @@ class FunctionBase {
             externalName = annotation.name;
         listArguments = annotation.listArguments;
       }
-      item = new FunctionRegistryItem(internalName, listArguments);
+      item = new FunctionRegistryItem(
+          name: internalName,
+          listArguments: listArguments);
       if (method is MethodMirror && !method.isConstructor)
           registry[externalName] = item;
     }
@@ -60,7 +66,7 @@ class FunctionBase {
   /// Call the last valid name of method
   ///
   dynamic call(List<Node> args) {
-    if (name == null) 
+    if (name == null)
         return null;
 
     final FunctionRegistryItem item = registry[name];
@@ -71,7 +77,10 @@ class FunctionBase {
   }
 }
 
+///
 const DefineMethod defineMethodSkip = const DefineMethod(skip: true);
+
+///
 const DefineMethod defineMethodListArguments = const DefineMethod(listArguments: true);
 
 ///
@@ -90,6 +99,7 @@ class DefineMethod {
   /// Example: [arg1, arg2, ... argN] in a min(...) method.
   final bool    listArguments;
 
+  ///
   const DefineMethod({this.name, this.skip: false, this.listArguments: false});
 }
 
@@ -101,5 +111,6 @@ class FunctionRegistryItem {
   /// Pass arguments as list
   bool    listArguments;
 
-  FunctionRegistryItem(this.name, this.listArguments);
+  ///
+  FunctionRegistryItem({this.name, this.listArguments});
 }

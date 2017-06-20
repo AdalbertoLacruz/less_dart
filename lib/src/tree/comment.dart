@@ -2,20 +2,24 @@
 
 part of tree.less;
 
+///
 class Comment extends Node implements MarkReferencedNode {
   @override final String      name = null;
   @override final String      type = "Comment";
   @override covariant String  value;
 
+  ///
   int   index;
+  ///
   bool  isLineComment;
+  ///
   bool  isReferenced = false;
 
   ///
   Comment(String this.value,
-      [bool this.isLineComment = false,
+      {bool this.isLineComment = false,
       int this.index,
-      FileInfo currentFileInfo])
+      FileInfo currentFileInfo})
       : super.init(currentFileInfo: currentFileInfo);
 
   ///
@@ -24,7 +28,7 @@ class Comment extends Node implements MarkReferencedNode {
   @override
   void genCSS(Contexts context, Output output) {
     if (debugInfo != null)
-        output.add(debugInfo.toOutput(context), currentFileInfo, index);
+        output.add(debugInfo.toOutput(context), fileInfo: currentFileInfo, index: index);
     output.add(value);
 
 //2.2.0

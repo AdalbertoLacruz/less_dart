@@ -2,8 +2,11 @@
 
 part of visitor.less;
 
+///
 class JoinSelectorVisitor extends VisitorBase{
+  ///
   List<List<List<Selector>>>  contexts;
+  ///
   Visitor                     _visitor;
 
   ///

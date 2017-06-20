@@ -1,17 +1,35 @@
 part of transformer.less;
 
+///
 class TransformerOptions {
-  final List<String>  entryPoints;  // entry_point: web/builder.less - main file to build or [file1.less, ...,fileN.less]
-  final String        includePath; // include_path: /lib/lessIncludes - variable and mixims files
-  final String        output;       // output: web/output.css - result file. If '' same as web/input.css
-  final String        cleancss;     // cleancss: "options" - compress output by using clean-css
-  final bool          compress;       // compress: true - compress output by removing some whitespaces
+  /// entry_point: web/builder.less - main file to build or [file1.less, ...,fileN.less]
+  final List<String>  entryPoints;
 
-  final String        executable;   // executable: lessc - command to execute lessc  - NOT USED
-  final String        buildMode;   // build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
-  final List<String>  otherFlags;    // other options in the command line
-  final bool          silence;        // Only error messages in log
+  /// include_path: /lib/lessIncludes - variable and mixims files
+  final String        includePath;
 
+  /// output: web/output.css - result file. If '' same as web/input.css
+  final String        output;
+
+  /// cleancss: "options" - compress output by using clean-css
+  final String        cleancss;
+
+  /// compress: true - compress output by removing some whitespaces
+  final bool          compress;
+
+  /// executable: lessc - command to execute lessc  - NOT USED
+  final String        executable;
+
+  /// build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
+  final String        buildMode;
+
+  /// other options in the command line
+  final List<String>  otherFlags;     
+
+  /// Only error messages in log
+  final bool          silence;        //
+
+  ///
   TransformerOptions(
       {this.entryPoints,
       this.includePath,
@@ -23,6 +41,7 @@ class TransformerOptions {
       this.otherFlags,
       this.silence});
 
+  ///
   factory TransformerOptions.parse(Map<String, dynamic> configuration) {
     T config<T>(String key, T defaultValue) {
       final T value = configuration[key];

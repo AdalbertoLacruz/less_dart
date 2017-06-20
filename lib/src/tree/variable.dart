@@ -2,11 +2,14 @@
 
 part of tree.less;
 
+///
 class Variable extends Node {
   @override String name;
   @override String type = 'Variable';
 
+  ///
   bool  evaluating = false; // Recursivity control
+  ///
   int   index;
 
   ///

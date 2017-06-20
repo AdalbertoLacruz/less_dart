@@ -54,21 +54,23 @@ part 'parsers.dart';
  *  It also takes care of moving all the indices forwards.
  *
  */
+///
 class Parser {
+  ///
   String        banner = '';
-
+  ///
   Contexts      context;
-
+  ///
   FileInfo      fileInfo;
-
+  ///
   String        globalVars = '';
-
+  ///
   ImportManager imports;
-
+  ///
   String        modifyVars = '';
-
+  ///
   Parsers       parsers;
-
+  ///
   String        preText = '';
 
   ///

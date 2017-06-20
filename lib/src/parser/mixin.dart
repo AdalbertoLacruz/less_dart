@@ -5,18 +5,20 @@ part of parser.less;
 /*
  * Mixins
  */
-
+///
 class Mixin {
+  ///
   Contexts    context;
-
+  ///
   Entities    entities;
-
+  ///
   FileInfo    fileInfo;
-
+  ///
   ParserInput parserInput;
-
+  ///
   Parsers     parsers;
 
+  ///
   Mixin(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
     fileInfo = context.currentFileInfo;
   }
@@ -66,14 +68,17 @@ class Mixin {
 
     if (elements != null) {
       if (parserInput.$char('(') != null) {
-        args = this.args(true).args;
+        args = this.args(isCall: true).args;
         parserInput.expectChar(')');
       }
       if (parsers.important() != null)
           important = true;
       if (parsers.end()) {
         parserInput.forget();
-        return new MixinCall(elements, args, index, fileInfo, important);
+        return new MixinCall(elements, args,
+            index: index,
+            currentFileInfo: fileInfo,
+            important: important);
       }
     }
 
@@ -125,7 +130,7 @@ class Mixin {
   }
 
   ///
-  MixinReturner args(bool isCall) {
+  MixinReturner args({bool isCall = false}) {
     Node                  arg;
     final List<MixinArgs> argsComma = <MixinArgs>[];
     final List<MixinArgs> argsSemiColon = <MixinArgs>[];
@@ -397,7 +402,7 @@ class Mixin {
 
     name = parserInput.$re(_definitionRegExp);
     if (name != null) {
-      final MixinReturner argInfo = args(false);
+      final MixinReturner argInfo = args(isCall: false);
       params = argInfo.args;
       variadic = argInfo.variadic;
 
@@ -419,7 +424,10 @@ class Mixin {
       ruleset = parsers.block();
       if (ruleset != null) {
         parserInput.forget();
-        return new MixinDefinition(name, params, ruleset, cond, variadic, index, context.currentFileInfo);
+        return new MixinDefinition(name, params, ruleset, cond,
+            variadic: variadic,
+            index: index,
+            currentFileInfo: context.currentFileInfo);
       } else {
         parserInput.restore();
       }
@@ -481,9 +489,13 @@ class Mixin {
 
 /* ************************************************ */
 
+///
 class MixinReturner {
+  ///
   List<MixinArgs> args;
+  ///
   bool            variadic;
 
-  MixinReturner([this.args = null, this.variadic = false]);
+  ///
+  MixinReturner({this.args, this.variadic = false});
 }

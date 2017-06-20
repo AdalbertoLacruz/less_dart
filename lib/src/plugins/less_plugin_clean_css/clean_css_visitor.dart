@@ -7,13 +7,20 @@ part of less_plugin_clean_css.plugins.less;
 /// In the last phase marks node.cleanCss = true to avoid conflicts with eval().
 ///
 class CleanCssVisitor extends VisitorBase {
+  ///
   CleanCssContext cleancsscontext = new CleanCssContext();
+  ///
   CleanCssOptions cleanCssOptions;
+  ///
   bool            keepOneComment = false;
+  ///
   bool            keepAllComments = false;
+  ///
   LessOptions     lessOptions;
+  ///
   Visitor         _visitor;
 
+  ///
   CleanCssVisitor(this.cleanCssOptions) {
     isReplacing = true;
     lessOptions = new Environment().options;
@@ -233,11 +240,7 @@ class CleanCssVisitor extends VisitorBase {
   ///
   /// Has ./$ ... characters
   ///
-  bool hasSymbol(String value) {
-    final RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
-
-    return symbolRe.hasMatch(value);
-  }
+  bool hasSymbol(String value) => new RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
 
   ///
   /// Remove spaces and quotes. [indexQuoted] for quotes in the [match]
@@ -270,17 +273,16 @@ class CleanCssVisitor extends VisitorBase {
       _value = _value.replaceAll('  ', ' ');
     } while (_value.length != len);
 
-    _value = _value.replaceAll('\n', '');
-    _value = _value.replaceAll(' (', '(');
-    _value = _value.replaceAll('( ', '(');
-    _value = _value.replaceAll(' )', ')');
+    _value = _value
+        .replaceAll('\n', '')
+        .replaceAll(' (', '(')
+        .replaceAll('( ', '(')
+        .replaceAll(' )', ')');
 
     if (!cleancsscontext.compatibility.properties.spaceAfterClosingBrace)
         _value = _value.replaceAll(') ', ')');
 
-    _value = _value.replaceAll(': ', ':');
-
-    return _value;
+    return _value.replaceAll(': ', ':');
   }
 
   @override

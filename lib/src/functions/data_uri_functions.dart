@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class DataUriFunctions extends FunctionBase {
   ///
   /// Inlines a resource and falls back to url() if the ieCompat option is on and
@@ -21,9 +22,10 @@ class DataUriFunctions extends FunctionBase {
     Node _mimetypeNode = mimetypeNode;
     Node _filePathNode = filePathNode;
 
-    URL fallback() =>
-       new URL((_filePathNode ?? _mimetypeNode), index, currentFileInfo).eval(context);
-
+    URL fallback() => new URL((_filePathNode ?? _mimetypeNode),
+        index: index,
+        currentFileInfo: currentFileInfo)
+        .eval(context);
 
     final Environment environment = new Environment();
     final Logger logger = environment.logger;
@@ -47,7 +49,7 @@ class DataUriFunctions extends FunctionBase {
     }
 
     final FileManager fileManager = environment.getFileManager(
-        filePath, currentDirectory, context, environment, true);
+        filePath, currentDirectory, context, environment, isSync: true);
     if (fileManager == null)
         return fallback();
 
@@ -93,7 +95,13 @@ class DataUriFunctions extends FunctionBase {
         return fallback();
       }
     }
-    return new URL(new Quoted('"$uri"', uri, false, index, currentFileInfo), index, currentFileInfo);
+    return new URL(
+        new Quoted('"$uri"', uri,
+            escaped: false,
+            index: index,
+            currentFileInfo: currentFileInfo),
+        index: index,
+        currentFileInfo: currentFileInfo);
 
 //2.4.0
 //  fallback = function(functionThis, node) {

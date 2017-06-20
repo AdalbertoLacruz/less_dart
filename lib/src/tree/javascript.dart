@@ -2,14 +2,18 @@
 
 part of tree.less;
 
+///
 class JavaScript extends Node with JsEvalNodeMixin {
   @override final String type = 'JavaScript';
 
+  ///
   bool    escaped;
+  ///
   String  expression;
 
   ///
-  JavaScript(String this.expression, bool this.escaped, int index, FileInfo currentFileInfo) {
+  JavaScript(String this.expression,
+      {bool this.escaped, int index, FileInfo currentFileInfo}) {
     // ignore: prefer_initializing_formals
     this.index = index;
     // ignore: prefer_initializing_formals

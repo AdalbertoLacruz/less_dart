@@ -13,7 +13,9 @@ part 'clean_css_options.dart';
 part 'clean_css_processor.dart';
 part 'clean_css_visitor.dart';
 
+///
 class LessPluginCleanCss extends Plugin {
+  ///
   CleanCssOptions cleanCssOptions;
 
   @override List<int> minVersion = <int>[2, 1, 0];

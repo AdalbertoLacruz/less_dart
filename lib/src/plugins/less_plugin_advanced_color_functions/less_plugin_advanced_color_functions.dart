@@ -5,6 +5,7 @@ import '../plugins.dart';
 
 part 'advanced_color_functions.dart';
 
+///
 class LessPluginAdvancedColorFunctions extends Plugin {
   ///
   @override

@@ -3,22 +3,27 @@ library logger.less;
 import 'dart:async';
 
 // The amount of logging to the console (stderr).
+///
 const int logLevelDebug = 4; // Debug, Info, Warns and Errors
+///
 const int logLevelInfo  = 3; // Info, Warns and Errors
+///
 const int logLevelWarn  = 2; // Warns and Errors - DEFAULT
+///
 const int logLevelError = 1; // Errors
+///
 const int logLevelNone  = 0; // None
 
+///
 class Logger {
+  ///
   static Map<int, Logger> cache = <int, Logger>{};
+  ///
   StringBuffer            capture;
+  ///
   int                     logLevel;
+  ///
   StringBuffer            stderr;
-
-  Logger._(this.stderr) {
-    stderr ??= new StringBuffer();
-    logLevel = logLevelWarn;
-  }
 
   /*
    * If not runZoned, #id == null. Example:
@@ -28,15 +33,21 @@ class Logger {
    * },
    * zoneValues: {#id: new Random().nextInt(10000)});
    */
+  ///
   factory Logger([StringBuffer buffer]) {
     final int id = Zone.current[#id] ?? -1;
 
-    if (buffer != null && cache[id] != null) {
-      throw new StateError('Console buffer yet initialized');
-    }
+    if (buffer != null && cache[id] != null)
+        throw new StateError('Console buffer yet initialized');
 
     cache[id] ??= new Logger._(buffer);
     return cache[id];
+  }
+
+  ///
+  Logger._(this.stderr) {
+    stderr ??= new StringBuffer();
+    logLevel = logLevelWarn;
   }
 
   /// remove cache for this id

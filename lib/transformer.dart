@@ -27,17 +27,21 @@ import 'package:barback/barback.dart';
 
 export 'package:less_dart/less.dart';
 
-/*
- * Transformer used by 'pub build' & 'pub serve' to convert .less files to .css
- * Also works in .html files, converting <less> tags to <style>
- * entry_points has default values and support * in path, and exclusion paths (!).
- * See http://lesscss.org/ for more information
- */
+///
+/// Transformer used by 'pub build' & 'pub serve' to convert .less files to .css
+/// Also works in .html files, converting <less> tags to <style>
+/// entry_points has default values and support * in path, and exclusion paths (!).
+/// See http://lesscss.org/ for more information
+///
 class FileTransformer extends AggregateTransformer {
+  ///
   EntryPoints               entryPoints;
+  ///
   final TransformerOptions  options;
+  ///
   final BarbackSettings     settings;
 
+  ///
   FileTransformer(BarbackSettings this.settings)
       : options = new TransformerOptions.parse(settings.configuration as Map<String, dynamic>) {
 
@@ -46,6 +50,7 @@ class FileTransformer extends AggregateTransformer {
         ..assureDefault(<String>['*.less', '*.html']);
   }
 
+  ///
   FileTransformer.asPlugin(BarbackSettings settings)
       : this(settings);
 
@@ -145,16 +150,20 @@ class FileTransformer extends AggregateTransformer {
     return options.output;
   }
 
+  ///
   void customOptions(LessOptions options) {}
 }
 
 /* ************************************** */
-/*
- * Process error management
- */
+
+///
+/// Process error management
+///
 class LessException implements Exception {
+  ///
   final String message;
 
+  ///
   LessException(this.message);
 
   @override

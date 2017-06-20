@@ -32,18 +32,20 @@ part of parser.less;
 ///  first, before parsing, that's when we use `peek()`.
 ///
 class Parsers {
+  ///
   Contexts    context;
-
+  ///
   Entities    entities;
-
+  ///
   FileInfo    fileInfo;
-
+  ///
   String      input;
-
+  ///
   Mixin       mixin;
-
+  ///
   ParserInput parserInput;
 
+  ///
   Parsers(String this.input, Contexts this.context) {
     context.input = input;
     fileInfo = context.currentFileInfo;
@@ -169,7 +171,10 @@ class Parsers {
   Comment comment() {
     if (parserInput.commentStore.isNotEmpty) {
       final CommentPointer comment = parserInput.commentStore.removeAt(0);
-      return new Comment(comment.text, comment.isLineComment, comment.index, context.currentFileInfo);
+      return new Comment(comment.text,
+          isLineComment: comment.isLineComment,
+          index: comment.index,
+          currentFileInfo: context.currentFileInfo);
     }
     return null;
 
@@ -238,7 +243,7 @@ class Parsers {
   ///
   /// extend syntax - used to extend selectors
   ///
-  List<Extend> extend([bool isRule = false]) {
+  List<Extend> extend({bool isRule = false}) {
     Element       e;
     List<Element> elements;
     List<Extend>  extendedList;
@@ -324,7 +329,7 @@ class Parsers {
   }
 
   /// extendRule - used in a rule to extend all the parent selectors
-  List<Extend> extendRule() => extend(true);
+  List<Extend> extendRule() => extend(isRule: true);
 
   ///
   /// Entities are the smallest recognized token,
@@ -521,7 +526,7 @@ class Parsers {
   /// A CSS selector (see selector below)
   /// with less extensions e.g. the ability to extend and guard
   ///
-  Selector lessSelector() => selector(true);
+  Selector lessSelector() => selector(isLess: true);
 
   ///
   /// A CSS Selector
@@ -531,7 +536,7 @@ class Parsers {
   ///
   /// Selectors are made out of one or more Elements, see above.
   ///
-  Selector selector([bool isLess = false]) {
+  Selector selector({bool isLess = false}) {
     List<Extend>  allExtends;
     String        c;
     Condition     condition;
@@ -569,7 +574,11 @@ class Parsers {
     }
 
     if (elements != null)
-        return new Selector(elements, allExtends, condition, index, fileInfo);
+        return new Selector(elements,
+            extendList: allExtends,
+            condition: condition,
+            index: index,
+            currentFileInfo: fileInfo);
     if (allExtends != null)
         parserInput.error('Extend must be used to extend a selector, it cannot be used on its own');
 
@@ -761,7 +770,8 @@ class Parsers {
 
     if (selectors != null && (rules = block()) != null) {
       parserInput.forget();
-      final Ruleset ruleset = new Ruleset(selectors, rules, context.strictImports);
+      final Ruleset ruleset = new Ruleset(selectors, rules,
+          strictImports: context.strictImports);
       if (context.dumpLineNumbers?.isNotEmpty ?? false)
           ruleset.debugInfo = debugInfo;
       return ruleset;
@@ -815,7 +825,7 @@ class Parsers {
   }
 
   ///
-  Rule rule([bool tryAnonymous = false]) {
+  Rule rule({bool tryAnonymous = false}) {
     final String  c = parserInput.currentChar();
     String        important;
     bool          isVariable;
@@ -857,7 +867,11 @@ class Parsers {
           if (value != null) {
             parserInput.forget();
             // anonymous values absorb the end ';' which is required for them to work
-            return new Rule(name, value, '', merge, startOfRule, fileInfo); //TODO important '' is false
+            return new Rule(name, value,
+                important: '',
+                merge: merge,
+                index: startOfRule,
+                currentFileInfo: fileInfo);
           }
         }
 
@@ -869,11 +883,15 @@ class Parsers {
 
       if (value != null && end()) {
         parserInput.forget();
-        return new Rule(name, value, important, merge, startOfRule, fileInfo);
+        return new Rule(name, value,
+            important: important,
+            merge: merge,
+            index: startOfRule,
+            currentFileInfo: fileInfo);
       } else {
         parserInput.restore();
         if (value != null && !tryAnonymous)
-            return rule(true);
+            return rule(tryAnonymous: true);
       }
     } else {
       parserInput.forget();
@@ -1189,7 +1207,10 @@ class Parsers {
         e = value();
         if (parserInput.$char(')') != null) {
           if (p != null && e != null) {
-            nodes.add(new Paren(new Rule(p, e, null, null, parserInput.i, fileInfo, true)));
+            nodes.add(new Paren(new Rule(p, e,
+              index: parserInput.i,
+              currentFileInfo: fileInfo,
+              inline: true)));
           } else if (e != null) {
             nodes.add(new Paren(e));
           } else {
@@ -1588,7 +1609,8 @@ class Parsers {
       parserInput.forget();
       return new Directive(name, value, rules, index, fileInfo,
           isNotEmpty(context.dumpLineNumbers) ? getDebugInfo(index) : null,
-          false, isRooted);
+          isReferenced: false,
+          isRooted: isRooted);
     }
 
     parserInput.restore('directive options not recognised');
@@ -1836,7 +1858,9 @@ class Parsers {
         parserInput.forget();
         m.parensInOp = true;
         a.parensInOp = true;
-        operation = new Operation(op, <Node>[operation != null ? operation : m, a], isSpaced);
+        operation = new Operation(op,
+            <Node>[operation != null ? operation : m, a],
+            isSpaced: isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
       return operation ?? m;
@@ -1903,7 +1927,9 @@ class Parsers {
 
         m.parensInOp = true;
         a.parensInOp = true;
-        operation = new Operation(op, <Node>[operation != null ? operation : m, a], isSpaced);
+        operation = new Operation(op,
+            <Node>[operation != null ? operation : m, a],
+            isSpaced: isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
       return operation ?? m;
@@ -1955,7 +1981,8 @@ class Parsers {
         if (b == null)
             break;
 
-        condition = new Condition('or', condition != null ? condition : a, b, index);
+        condition = new Condition('or', condition != null ? condition : a, b,
+            index: index);
       }
       return condition ?? a;
     }
@@ -2027,12 +2054,13 @@ class Parsers {
         b ??= entities.keyword();
         b ??= entities.quoted();
         if (b != null) {
-          c = new Condition(op, a, b, index, negate);
+          c = new Condition(op, a, b, index: index, negate: negate);
         } else {
           parserInput.error('expected expression');
         }
       } else {
-        c = new Condition('=', a, new Keyword.True(), index, negate);
+        c = new Condition('=', a, new Keyword.True(),
+            index: index, negate: negate);
       }
       parserInput.expectChar(')');
       return parserInput.$str('and') != null

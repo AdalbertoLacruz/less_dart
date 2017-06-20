@@ -2,11 +2,14 @@
 
 part of tree.less;
 
+///
 class Attribute extends Node {
   @override final String  name = null;
   @override final String  type = 'Attribute';
 
+  ///
   dynamic key; // String or Node
+  ///
   String  op; // '=', '^=', ...
 
   ///

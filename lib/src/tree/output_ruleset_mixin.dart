@@ -3,6 +3,7 @@
 part of tree.less;
 
 // Used in Directive & Media -
+///
 class OutputRulesetMixin {
   ///
   void outputRuleset(Contexts context, Output output, List<Node> rules) {
@@ -11,8 +12,7 @@ class OutputRulesetMixin {
 
     final int ruleCnt = rules.length;
 
-    if (context.tabLevel == null)
-        context.tabLevel = 0;
+    context.tabLevel ??= 0;
     context.tabLevel++;
 
     // Compressed
@@ -77,11 +77,11 @@ class OutputRulesetMixin {
 //  };
   }
 
+  ///
   void outputCleanRuleset(Contexts context, Output output, List<Node> rules) {
     final int ruleCnt = rules.length;
 
-    if (context.tabLevel == null)
-        context.tabLevel = 0;
+    context.tabLevel ??= 0;
     context.tabLevel++;
 
     output.add('{');

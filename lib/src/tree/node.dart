@@ -2,22 +2,39 @@
 
 part of tree.less;
 
+///
 abstract class Node {
+  ///
   List<Extend>        allExtends; //Ruleset
+  ///
   CleanCssContext     cleanCss; // Info to optimize the node with cleanCss
+  ///
   FileInfo            currentFileInfo;
+  ///
   DebugInfo           debugInfo;
+  ///
   List<Element>       elements;
+  ///
   bool                evalFirst = false; //see Ruleset.eval
+  ///
   bool                evaluated; //result from bool eval, used in condition
+  ///
   int                 id; // hashCode own or inherited for object compare
+  ///
   bool                isRuleset = false; //true in MixinDefinition & Ruleset
+  ///
   List<Node>          operands;
+  ///
   Node                originalRuleset; //see mixin_call
+  ///
   bool                parens = false; //Expression
+  ///
   bool                parensInOp = false; //See parsers.operand & Expression
+  ///
   @virtual List<Node> rules; //Ruleset
+  ///
   List<Selector>      selectors;
+  ///
   @virtual dynamic    value;
 
   ///
@@ -25,11 +42,14 @@ abstract class Node {
     id = hashCode;
   }
 
+  ///
   Node.init({this.currentFileInfo, this.operands, this.rules, this.value}) {
     id = hashCode;
   }
 
+  ///
   dynamic get         name => null; //String | List<Node>
+  ///
   String get          type;
 
   /// Directive overrides it
@@ -234,6 +254,7 @@ abstract class Node {
 //  };
 
   //debug print the node tree
+  ///
   StringBuffer toTree(LessOptions options) {
     final Contexts  env = new Contexts.eval(options);
     final Output    output = new Output();
@@ -242,6 +263,7 @@ abstract class Node {
     return output.value;
   }
 
+  ///
   void genTree(Contexts env, Output output) {
     int i;
     //Node rule;
@@ -249,8 +271,7 @@ abstract class Node {
     final List<dynamic> process = <dynamic>[];
 
     String nameNode = name is String ? name : null;
-    if (nameNode == null)
-        nameNode = value is String ? value : '';
+    nameNode ??= value is String ? value : '';
     nameNode = nameNode.replaceAll('\n', '');
 
     output.add('$tabStr$type ($nameNode)\n');
@@ -282,30 +303,43 @@ abstract class Node {
 
 //-----------------------------------------------------------
 
+///
 abstract class CompareNode {
   /// Returns -1, 0 or +1
   int compare(Node x);
 }
 
+///
 abstract class GetIsReferencedNode {
+  ///
   bool getIsReferenced();
 }
 
+///
 abstract class MakeImportantNode {
+  ///
   Node makeImportant();
 }
 
+///
 abstract class MarkReferencedNode {
+  ///
   void markReferenced();
 }
 
+///
 abstract class MatchConditionNode {
+  ///
   List<Node> rules;
+  ///
   bool matchCondition(List<MixinArgs> args, Contexts context);
+  ///
   bool matchArgs(List<MixinArgs> args, Contexts context);
 }
 
+///
 abstract class OperateNode<T> {
   //Node operate(Contexts context, String op, Node other);
+  ///
   T operate(Contexts context, String op, T other);
 }

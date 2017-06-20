@@ -18,10 +18,11 @@
 import 'package:barback/barback.dart';
 import 'package:less_dart/transformer.dart';
 
+///
 class MyTransformer extends FileTransformer {
-
+  ///
   MyTransformer(BarbackSettings settings):super(settings);
-
+  ///
   MyTransformer.asPlugin(BarbackSettings settings): super(settings);
 
   @override
@@ -30,7 +31,9 @@ class MyTransformer extends FileTransformer {
   }
 }
 
+///
 class MyProcessor extends Processor {
+  ///
   MyProcessor(PluginOptions options):super(options);
 
   @override
@@ -38,9 +41,11 @@ class MyProcessor extends Processor {
       '/* MyPlugin custom transformer post processor */\n$input';
 }
 
+///
 class MyPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
+  ///
   MyPlugin(): super();
 
   @override

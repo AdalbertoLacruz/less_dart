@@ -5,11 +5,15 @@ library error.less;
 import 'contexts.dart';
 import 'utils.dart';
 
+///
 class LessError {
+  ///
   int           call;
 
+  ///
   int           callLine;
 
+  ///
   String        callExtract;
 
   /// color in error messages
@@ -27,6 +31,7 @@ class LessError {
   /// error character position
   int           index;
 
+  ///
   bool          isSimplyFormat = true;
 
   /// error line
@@ -37,12 +42,14 @@ class LessError {
 
   //bool silent = false;
 
+  ///
   StackTrace    stack;
 
   /// error type
   String        type;
 
   // less/parser.js 1.7.5 lines 309-331
+  ///
   LessError(
       {int this.call,
       Contexts context,
@@ -152,21 +159,31 @@ class LessError {
 }
 
 //Style for LessExceptionError.stylize
+///
 const int STYLE_RESET       = 0;
+///
 const int STYLE_BOLD        = 1;
+///
 const int STYLE_INVERSE     = 2;
+///
 const int STYLE_UNDERLINE   = 3;
+///
 const int STYLE_YELLOW      = 4;
+///
 const int STYLE_GREEN       = 5;
+///
 const int STYLE_RED         = 6;
+///
 const int STYLE_GREY        = 7;
 
+///
 class LessExceptionError implements Exception {
   bool _color;
 
   /// compound information about the error and context
   final LessError error;
 
+  ///
   LessExceptionError(this.error) {
     _color = error.color ?? false;
   }
@@ -223,7 +240,7 @@ class LessExceptionError implements Exception {
         ..write(errorLines.join('\n'))
         ..write(stReset(''))
         ..write('\n');
-        
+
 //    if (ctx.callLine) {
 //        message += stylize('from ', STYLE_RED) + (error.filename || '') + '/n';
 //        message += stylize(error.callLine, STYLE_GREY) + ' ' + error.callExtract + '/n';

@@ -6,11 +6,13 @@ import 'dart:math' as math;
 
 /// http://www.w3.org/TR/css3-values/#absolute-lengths
 class UnitConversions {
+  ///
   static Map<String, Map<String, double>> groups = <String, Map<String, double>>{
     'length': length,
     'duration': duration,
     'angle': angle};
 
+  ///
   static Map<String, double> length = <String, double>{
      'm': 1.0,
     'cm': 0.01,
@@ -20,10 +22,14 @@ class UnitConversions {
     'pt': 0.0254 / 72,
     'pc': 0.0254 / 72 * 12
   };
+
+  ///
   static Map<String, double> duration = <String, double>{
      's': 1.0,
     'ms': 0.001
   };
+
+  ///
   static Map<String, double> angle = <String, double>{
     'rad':  1 / (2*math.PI),
     'deg':  1 / 360,

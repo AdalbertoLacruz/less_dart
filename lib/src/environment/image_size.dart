@@ -6,8 +6,9 @@ part of environment.less;
 /// Calculate the size (width * hight) from a file image
 ///
 class ImageSize {
+  ///
   String ext;
-
+  ///
   String filePath;
 
   ///
@@ -49,19 +50,28 @@ class ImageSize {
 }
 
 //------------------------------------------------
+
+///
 class ImageDimension {
+  ///
   int width;  //px
+  ///
   int height; //px
 
+  ///
   ImageDimension({this.width, this.height});
 }
 
 //------------------------------------------------ .bmp
-class BmpImage {
-  List<int> codeUnits;
 
+///
+class BmpImage {
+  ///
+  List<int> codeUnits;
+  ///
   List<int> bmpSignature = <int>[66, 77]; // 'BM'
 
+  ///
   BmpImage(this.codeUnits);
 
   /// check is bmp file
@@ -78,12 +88,17 @@ class BmpImage {
 }
 
 //------------------------------------------------ .gif
-class GifImage {
-  List<int> codeUnits;
 
+///
+class GifImage {
+  ///
+  List<int> codeUnits;
+  ///
   List<int> gif87Signature = <int>[71, 73, 70, 56, 55, 97]; // 'GIF87a'
+  ///
   List<int> gif89Signature = <int>[71, 73, 70, 56, 57, 97]; // 'GIF89a'
 
+  ///
   GifImage(this.codeUnits);
 
   /// check is gif file
@@ -102,9 +117,13 @@ class GifImage {
 }
 
 //------------------------------------------------ .jpg
+
+///
 class JpgImage {
+  ///
   List<int> codeUnits;
 
+  ///
   Map<String, String> validJFIFMarkers = <String, String>{
     'ffdb': '0001010101', // Samsung D807 JPEG
     'ffe0': '4a46494600', // Standard JPEG
@@ -117,6 +136,7 @@ class JpgImage {
     'ffee': '41646f6265'  // Adobe JPEG, Unrecognised (Lightroom??)
   };
 
+  ///
   JpgImage(this.codeUnits);
 
   ///
@@ -193,22 +213,25 @@ class JpgImage {
 }
 
 //------------------------------------------------ .png
-class PngImage {
-  List<int> codeUnits;
 
+///
+class PngImage {
+  ///
+  List<int> codeUnits;
+  ///
   List<int> pngSignature = <int>[80, 78, 71, 13, 10, 26, 10]; // 'PNG\r\n\x1a\n'
+  ///
   List<int> ihdrSignature = <int>[73, 72, 68, 82]; // 'IHDR'
 
+  ///
   PngImage(this.codeUnits);
 
   ///
   /// check if is png file
   ///
-  bool isPng() {
-    bool result = MoreList.compare(pngSignature, codeUnits.sublist(1, 8));
-    result = result && MoreList.compare(ihdrSignature, codeUnits.sublist(12, 16));
-    return result;
-  }
+  bool isPng() =>
+      MoreList.compare(pngSignature, codeUnits.sublist(1, 8)) &&
+      MoreList.compare(ihdrSignature, codeUnits.sublist(12, 16));
 
   ///
   /// Calculate size for png file
@@ -223,11 +246,14 @@ class PngImage {
 }
 
 //------------------------------------------------ .psd
+
+///
 class PsdImage {
+  ///
   List<int> codeUnits;
-
+  ///
   List<int> psdSignature = <int>[56, 66, 80, 83]; // '8BPS'
-
+  ///
   PsdImage(this.codeUnits);
 
   ///
@@ -248,15 +274,23 @@ class PsdImage {
 }
 
 //------------------------------------------------ .svg
-class SvgImage {
-  String contents;
 
+///
+class SvgImage {
+  ///
+  String contents;
+  ///
   RegExp svgReg = new RegExp(r'<svg[^>]+[^>]*>');
+  ///
   RegExp svgRootReg = new RegExp(r'<svg [^>]+>');
+  ///
   RegExp svgWidthReg = new RegExp(r'(^|\s)width\s*=\s*"(.+?)(px)?"', caseSensitive: false);
+  ///
   RegExp svgHeightReg = new RegExp(r'(^|\s)height\s*=\s*"(.+?)(px)?"', caseSensitive: false);
+  ///
   RegExp svgViewboxReg = new RegExp(r'(^|\s)viewbox\s*=\s*"(.+?)"', caseSensitive: false);
 
+  ///
   SvgImage(this.contents);
 
   ///
@@ -264,6 +298,7 @@ class SvgImage {
   ///
   bool isSvg() => svgReg.hasMatch(contents);
 
+  ///
   double getSvgRatio(Match viewboxMatch) {
     double ratio = 1.0;
     if (viewboxMatch != null && viewboxMatch[2] != null) {
@@ -315,9 +350,12 @@ class SvgImage {
 }
 
 //------------------------------------------------ .webp
-class WebpImage {
-  List<int> codeUnits;
 
+///
+class WebpImage {
+  ///
+  List<int> codeUnits;
+  ///
   WebpImage(this.codeUnits);
 
   ///

@@ -6,24 +6,30 @@ part of tree.less;
 class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   @override final String type = 'Selector';
 
+  ///
   Node            condition;
+  ///
   String          _css;
-  // Cached string elements List, such as ['#selector1', .., '.selectorN']
+  /// Cached string elements List, such as ['#selector1', .., '.selectorN']
   List<String>    _elements;
-  //  List<Element> elements; //body, ...
+  ///  List<Element> elements; //body, ...
   List<Extend>    extendList;
+  ///
   bool            evaldCondition = false;
+  ///
   int             index;
+  ///
   bool            isReferenced = false;
+  ///
   bool            mediaEmpty = false;
 
   /// Changed List<Node> to List<Element>
   Selector(List<Element> elements,
-      [List<Extend> this.extendList,
+      {List<Extend> this.extendList,
       Node this.condition,
       int this.index,
       FileInfo currentFileInfo,
-      bool this.isReferenced]) {
+      bool this.isReferenced}) {
 
     this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
     this.currentFileInfo = currentFileInfo ?? new FileInfo();
@@ -76,18 +82,14 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   Selector createDerived(List<Element> elements,
-      [List<Extend> extendList, bool evaldCondition]) {
-    //final Selector newSelector = new Selector(elements, extendList != null ? extendList : this.extendList, null,
-    final Selector newSelector = new Selector(
-        elements,
-        extendList ?? this.extendList,
-        null,
-        index,
-        currentFileInfo,
-        isReferenced)
-        ..evaldCondition = evaldCondition ?? this.evaldCondition
-        ..mediaEmpty = mediaEmpty;
-    return newSelector;
+      {List<Extend> extendList, bool evaldCondition}) => new Selector(elements,
+          extendList: extendList ?? this.extendList,
+          condition: null,
+          index: index,
+          currentFileInfo: currentFileInfo,
+          isReferenced: isReferenced)
+          ..evaldCondition = evaldCondition ?? this.evaldCondition
+          ..mediaEmpty = mediaEmpty;
 
 //2.3.1
 //  Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
@@ -97,13 +99,14 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //      newSelector.mediaEmpty = this.mediaEmpty;
 //      return newSelector;
 //  };
-  }
 
   ///
   List<Selector> createEmptySelectors() {
     final Element el = new Element('', '&', index, currentFileInfo);
     final List<Selector> sels = <Selector>[
-      new Selector(<Element>[el], null, null, index, currentFileInfo)
+      new Selector(<Element>[el],
+        index: index,
+        currentFileInfo: currentFileInfo)
     ];
     sels[0].mediaEmpty = true;
     return sels;
@@ -254,7 +257,9 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
     if (extendList != null)
         extendList = extendList.map((Node extend) => extend.eval(context)).toList();
 
-    return createDerived(elements, extendList, evaldCondition);
+    return createDerived(elements,
+        extendList: extendList,
+        evaldCondition: evaldCondition);
 
 //2.3.1
 //  Selector.prototype.eval = function (context) {
@@ -276,7 +281,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   void genCSS(Contexts context, Output output) {
     if ((context == null || !context.firstSelector) &&
         elements[0].combinator.value == '')
-        output.add(' ', currentFileInfo, index);
+        output.add(' ', fileInfo: currentFileInfo, index: index);
     if (!isNotEmpty(_css)) {
       // todo caching? speed comparison?
       for (int i = 0; i < elements.length; i++) {
@@ -315,7 +320,8 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   @override
-  bool getIsReferenced() => !currentFileInfo.reference || isTrue(isReferenced);
+  bool getIsReferenced() =>
+      !currentFileInfo.reference || (isReferenced ?? false);
 
 //2.3.1
 //  Selector.prototype.getIsReferenced = function() {

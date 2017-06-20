@@ -2,6 +2,7 @@
 
 part of render.less;
 
+///
 class TransformTree {
   ///
   /// Transform [root] according the visitors
@@ -34,7 +35,8 @@ class TransformTree {
           value = new Value(<Node>[value]);
         }
         //vars.add(new Rule('@' + k, value, null, null, 0));
-        vars.add(new Rule('@$k', value, null, null, 0));
+        vars.add(new Rule('@$k', value,
+            index: 0));
       });
       evalEnv.frames = <Node>[new Ruleset(null, vars)];
     }

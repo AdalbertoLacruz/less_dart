@@ -13,7 +13,7 @@ void main() {
     '-no-color',
     'test/less/functions.less',
   ], modifyOptions: (LessOptions options){
-    options.definePlugin('myplugin', new MyPlugin(), true, '');
+    options.definePlugin('myplugin', new MyPlugin(), load: true, options: '');
   }).then((int exitCode){
     stderr
         ..write(less.stderr.toString())
@@ -22,16 +22,21 @@ void main() {
   });
 }
 
+///
 class MyFunctions extends FunctionBase {
+  ///
   Dimension add(Node a, Node b) => new Dimension(a.value + b.value);
-
+  ///
   Dimension increment(Node a) => new Dimension(a.value + 1);
 
+  ///
   @DefineMethod(name: '_color')
   Color color(Node str) => (str.value == 'evil red') ? new Color('600') : null;
 }
 
+///
 class MyProcessor extends Processor {
+  ///
   MyProcessor(PluginOptions options):super(options);
 
   @override
@@ -39,9 +44,11 @@ class MyProcessor extends Processor {
       '/* MyPlugin post processor */\n$input';
 }
 
+///
 class MyPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
+  ///
   MyPlugin(): super();
 
   @override

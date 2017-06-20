@@ -2,22 +2,39 @@
 
 part of sourcemap.less;
 
+///
 class SourceMapOutput extends Output {
+  ///
   int                 column = 0;
+  ///
   Map<String, int>    contentsIgnoredCharsMap;
+  ///
   Map<String, String> contentsMap;
+  ///
   int                 indexGenerated = 0;
+  ///
   int                 lineNumber = 0;
+  ///
   Map<String, String> normalizeCache = <String, String>{};
+  ///
   String              outputFilename;
+  ///
   bool                outputSourceFiles;
+  ///
   Ruleset             rootNode;
+  ///
   String              sourceMap; //result
+  ///
   String              sourceMapBasepath;
+  ///
   String              sourceMapFilename;
+  ///
   SourceMapBuilder    sourceMapGenerator; //class instance
+  ///
   bool                sourceMapFileInline;
+  ///
   String              sourceMapRootpath;
+  ///
   String              sourceMapURL;
 
   ///
@@ -114,7 +131,7 @@ class SourceMapOutput extends Output {
   /// [s] String | Node
   ///
   @override
-  void add(Object s, [FileInfo fileInfo, int index, bool mapLines = false]) {
+  void add(Object s, {FileInfo fileInfo, int index = 0, bool mapLines = false}) {
     if (s == null)
         return;
 
@@ -334,29 +351,28 @@ class SourceMapOutput extends Output {
 /// Build data to use in SourceMapBuilder.addLocation
 ///
 class SourcemapData {
+  ///
   SourceLocation  original;
+  ///
   int             originalIndex;
+  ///
   int             originalLine;
+  ///
   int             originalColumn;
+  ///
   String          originalFile;
-
+  ///
   SourceLocation  generated;
+  ///
   int             generatedIndex;
+  ///
   int             generatedLine;
+  ///
   int             generatedColumn;
+  ///
   String          generatedFile;
-
+  ///
   static SourcemapData last;
-
-  SourcemapData.create(
-      this.originalIndex,
-      this.originalLine,
-      this.originalColumn,
-      this.originalFile,
-      this.generatedIndex,
-      this.generatedLine,
-      this.generatedColumn,
-      this.generatedFile);
 
   /// Compares with last call. If is same line, return null
   factory SourcemapData(
@@ -391,4 +407,15 @@ class SourcemapData {
     last = data;
     return data;
   }
+
+///
+SourcemapData.create(
+    this.originalIndex,
+    this.originalLine,
+    this.originalColumn,
+    this.originalFile,
+    this.generatedIndex,
+    this.generatedLine,
+    this.generatedColumn,
+    this.generatedFile);
 }

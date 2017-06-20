@@ -2,20 +2,31 @@
 
 part of tree.less;
 
+///
 class MixinDefinition extends Node
     with VariableMixin
     implements MakeImportantNode, MatchConditionNode {
   @override String        name; //Same as Selector
   @override final String  type = 'MixinDefinition';
 
+  ///
   int                   arity; // Number of params
+  ///
   Node                  condition; // when (condition) {}
+  ///
   int                   index; //not in js original
+  ///
   List<Node>            frames;
+  ///
   List<MixinArgs>       params; // Mixin params
+  ///
   int                   required; // Arguments number required
+  ///
   @override List<Node>  rules; // Mixin body
+
   //List<Node>          selectors; // Same as name
+
+  ///
   bool                  variadic; // Arguments number is variable
 
   /// name, params, rules, condition, variadic, index, currentFileInfo, frames
@@ -25,10 +36,10 @@ class MixinDefinition extends Node
       List<MixinArgs> this.params,
       List<Node> this.rules,
       Node this.condition,
-      bool this.variadic,
+      {bool this.variadic,
       int this.index,
       FileInfo currentFileInfo,
-      [this.frames]) {
+      this.frames}) {
 
     evalFirst = true;
     isRuleset = true;
@@ -304,8 +315,11 @@ class MixinDefinition extends Node
               return r;
             }
           }).toList();
-    return new MixinDefinition(name, params, rules, condition, variadic, index,
-        currentFileInfo, frames);
+    return new MixinDefinition(name, params, rules, condition,
+        variadic: variadic,
+        index: index,
+        currentFileInfo: currentFileInfo,
+        frames: frames);
 
 //2.4.0
 //  Definition.prototype.makeImportant = function() {
@@ -327,8 +341,11 @@ class MixinDefinition extends Node
   @override
   MixinDefinition eval(Contexts context) {
     final List<Node> frames = this.frames ?? context.frames.sublist(0);
-    return new MixinDefinition(name, params, rules, condition, variadic, index,
-        currentFileInfo, frames);
+    return new MixinDefinition(name, params, rules, condition,
+        variadic: variadic,
+        index: index,
+        currentFileInfo: currentFileInfo,
+        frames: frames);
 
 //2.3.1
 //  Definition.prototype.eval = function (context) {
@@ -337,7 +354,8 @@ class MixinDefinition extends Node
   }
 
   ///
-  Ruleset evalCall(Contexts context, List<MixinArgs> args, bool important) {
+  Ruleset evalCall(Contexts context, List<MixinArgs> args,
+        {bool important}) {
     final List<Node>  _arguments = <Node>[];
     List<Node>        rules;
     Ruleset           ruleset;

@@ -2,15 +2,22 @@
 
 part of less_plugin_clean_css.plugins.less;
 
+///
 class CleanCssCompatibility {
+  ///
   String              source;
-
+  ///
   CleanCssColors      colors = new CleanCssColors();
+  ///
   CleanCssProperties  properties = new CleanCssProperties();
+  ///
   CleanCssSelectors   selectors = new CleanCssSelectors();
+  ///
   CleanCssUnits       units = new CleanCssUnits();
 
   // --compatibility: 'ie8,+units.rem'
+
+  ///
   CleanCssCompatibility(this.source) {
     bool          isAdd;
     List<String>  key;
@@ -63,34 +70,37 @@ class CleanCssCompatibility {
         key = part.substring(1).split('.');
         group = key[0].trim();
         option = key[1].trim();
-        setOption(group, option, isAdd);
+        setOption(group, option, isAdd: isAdd);
       }
     }
   }
 
-  void setOption(String group, String option, bool isAdd) {
+  ///
+  void setOption(String group, String option, {bool isAdd = false}) {
     switch (group) {
       case 'colors':
-        colors.setOption(option, isAdd);
+        colors.setOption(option, isAdd: isAdd);
         break;
       case 'properties':
-        properties.setOption(option, isAdd);
+        properties.setOption(option, isAdd: isAdd);
         break;
       case 'selectors':
-        selectors.setOption(option, isAdd);
+        selectors.setOption(option, isAdd: isAdd);
         break;
       case 'units':
-        units.setOption(option, isAdd);
+        units.setOption(option, isAdd: isAdd);
         break;
     }
   }
 }
 
+///
 class CleanCssColors {
   /// rgba / hsla. Replace rgb(0,0,0,0) by transparent
   bool opacity = true;
 
-  void setOption(String option, bool isAdd) {
+  ///
+  void setOption(String option, {bool isAdd = false}) {
     switch (option) {
       case 'opacity':
         opacity = isAdd;
@@ -99,6 +109,7 @@ class CleanCssColors {
   }
 }
 
+///
 class CleanCssProperties {
   /// background-size to shorthand
   bool backgroundSizeMerging = false;
@@ -125,7 +136,8 @@ class CleanCssProperties {
   /// 0unit -> 0
   bool zeroUnits = true;
 
-  void setOption(String option, bool isAdd) {
+  ///
+  void setOption(String option, {bool isAdd = false}) {
     switch (option) {
       case 'backgroundSizeMerging':
         backgroundSizeMerging = isAdd;
@@ -155,6 +167,7 @@ class CleanCssProperties {
   }
 }
 
+///
 class CleanCssSelectors {
   /// div+ nav Android stock browser hack
   bool adjacentSpace = false;
@@ -165,7 +178,8 @@ class CleanCssSelectors {
   /// special selectors which prevent merging
   RegExp special = new RegExp(r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:dir\([a-z-]*\)|:first(?![a-z-])|:fullscreen|:left|:read-only|:read-write|:right)');
 
-  void setOption(String option, bool isAdd) {
+  ///
+  void setOption(String option, {bool isAdd = false}) {
     switch (option) {
       case 'adjacentSpace':
         adjacentSpace = isAdd;
@@ -177,16 +191,25 @@ class CleanCssSelectors {
   }
 }
 
+///
 class CleanCssUnits {
+  ///
   bool ch = true;
+  ///
   bool rem = true;
+  ///
   bool vh = true;
+  ///
   bool vm = true; // vm is vmin on IE9+ see https://developer.mozilla.org/en-US/docs/Web/CSS/length
+  ///
   bool vmax = true;
+  ///
   bool vmin = true;
+  ///
   bool vw = true;
 
-  void setOption(String option, bool isAdd) {
+  ///
+  void setOption(String option, {bool isAdd = false}) {
     switch (option) {
       case 'ch':
         ch = isAdd;

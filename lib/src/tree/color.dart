@@ -10,8 +10,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   @override final String      type = 'Color';
   @override covariant String  value; //TODO used?
 
+  ///
   num           alpha;
+  ///
   List<num>     rgb;
+  ///
   static String transparentKeyword = 'transparent';
 
 
@@ -107,8 +110,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 //  };
   }
 
+  ///
   num get r => rgb[0];
+  ///
   num get g => rgb[1];
+  ///
   num get b => rgb[2];
 
   /// Don't use spaces to css
@@ -567,20 +573,32 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   }
 }
 
+///
 class HSLType {
+  ///
   double h;
+  ///
   double s;
+  ///
   double l;
+  ///
   double a;
 
+  ///
   HSLType({this.h, this.s, this.l, this.a});
 }
 
+///
 class HSVType {
+  ///
   double h;
+  ///
   double s;
+  ///
   double v;
+  ///
   double a;
 
+  ///
   HSVType({this.h, this.s, this.v, this.a});
 }

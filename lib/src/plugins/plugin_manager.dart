@@ -2,15 +2,24 @@
 
 part of plugins.less;
 
+///
 class PluginManager {
+  ///
   List<FunctionBase>  customFunctions = <FunctionBase>[];
+  ///
   List<FileManager>   fileManagers = <FileManager>[];
+  ///
   bool                isLoaded = false; //true if plugin has been loaded previously
+  ///
   List<Plugin>        installedPlugins = <Plugin>[];
+  ///
   List<ProcessorItem> postProcessors = <ProcessorItem>[];
+  ///
   List<ProcessorItem> preProcessors = <ProcessorItem>[];
+  ///
   List<VisitorBase>   visitors = <VisitorBase>[];
 
+  ///
   PluginManager();
 
   ///
@@ -208,10 +217,15 @@ class PluginManager {
 
 // *******************************
 
+///
 class ProcessorItem {
+  ///
   Processor preProcessor;
+  ///
   Processor postProcessor;
+  ///
   int       priority;
 
+  ///
   ProcessorItem({this.preProcessor, this.postProcessor, this.priority});
 }

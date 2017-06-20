@@ -94,7 +94,7 @@ class FileFileManager extends FileManager {
 
     final Contexts              _options = options ?? new Contexts();
     final Completer<FileLoaded> task = new Completer<FileLoaded>();
-
+    
     if (_options.syncImport ?? false) {
       final FileLoaded fileLoaded = loadFileSync(filename, currentDirectory, _options, environment);
       fileLoaded.error == null

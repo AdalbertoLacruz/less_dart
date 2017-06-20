@@ -6,15 +6,16 @@ part of parser.less;
 /// Entities are tokens which can be found inside an Expression
 ///
 class Entities {
+  ///
   Contexts    context;
-
+  ///
   FileInfo    fileInfo;
-
+  ///
   ParserInput parserInput;
-
+  ///
   Parsers     parsers; //To reference parsers.expression() and parsers.entity()
 
-
+  ///
   Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
     fileInfo = context.currentFileInfo;
   }
@@ -38,7 +39,10 @@ class Entities {
       return null;
     }
     parserInput.forget();
-    return new Quoted(str[0], str.substring(1, str.length - 1), isEscaped, index, fileInfo);
+    return new Quoted(str[0], str.substring(1, str.length - 1),
+        escaped: isEscaped,
+        index: index,
+        currentFileInfo: fileInfo);
 
 //2.4.0 20150315-1345
 //  quoted: function () {
@@ -381,7 +385,7 @@ class Entities {
         ..autoCommentAbsorb = true
         ..expectChar(')');
 
-    return new URL(value, index, fileInfo);
+    return new URL(value, index: index, currentFileInfo: fileInfo);
 
 //2.4.0 20150315
 //  url: function () {
@@ -587,7 +591,10 @@ class Entities {
     js = parserInput.$re(_javascriptRegExp);
     if (js != null) {
       parserInput.forget();
-      return new JavaScript(js.substring(0, js.length - 1), escape != null, index, fileInfo);
+      return new JavaScript(js.substring(0, js.length - 1),
+          escaped: escape != null,
+          index: index,
+          currentFileInfo: fileInfo);
     }
 
     parserInput.restore('invalid javascript definition');

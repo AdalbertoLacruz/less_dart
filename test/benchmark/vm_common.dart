@@ -8,6 +8,7 @@ import 'package:path/path.dart' as path;
 
 export "package:test/test.dart";
 
+///
 final  String inputPath = _getInputPath();
 
 String _getInputPath() {
@@ -28,14 +29,17 @@ String _getInputPath() {
   return testRootPath;
 }
 
+///
 File getSampleFile(String name) {
   final String _name = path.join(inputPath, name).replaceAll(new RegExp('\\+'), '\\')
       ..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
   return new File(_name);
 }
 
+///
 String readSampleFile(String name) => getSampleFile(name).readAsStringSync();
 
+///
 Future<Object> loadSampleJSON(String name) {
   String _name = name
       .replaceAll(new RegExp('\\+'), '\\')
@@ -47,6 +51,7 @@ Future<Object> loadSampleJSON(String name) {
   return getSampleFile(_name).readAsString().then(JSON.decode);
 }
 
+///
 void initTestCommonSetting(){
   //useVMConfiguration();
   _initLog();

@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class NumberFunctions extends FunctionBase {
   @defineMethodSkip
   Node _minmax(bool isMin, List<Node> args) {

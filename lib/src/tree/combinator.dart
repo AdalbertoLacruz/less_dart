@@ -2,11 +2,14 @@
 
 part of tree.less;
 
+///
 class Combinator extends Node {
   @override final String  name = null;
   @override final String  type = 'Combinator';
 
+  ///
   bool              emptyOrWhitespace;
+  
   Map<String, bool> _noSpaceCombinators = <String, bool>{
       '':  true,
       ' ': true,

@@ -26,16 +26,16 @@ part 'more_list.dart';
 part 'more_reg_exp.dart';
 part 'url_file_manager.dart';
 
+///
 class Environment {
+  ///
   static Map<int, Environment>  cache = <int, Environment>{};
-
+  ///
   List<FileManager>             fileManagers;
-
+  ///
   Logger                        logger = new Logger();
-
+  ///
   LessOptions                   options;
-
-  Environment._();
 
   ///
   /// Returns the environment for this runZoned
@@ -51,6 +51,8 @@ class Environment {
     cache[id] ??= new Environment._();
     return cache[id];
   }
+
+  Environment._();
 
   /// Join and normalize two parts of path
   String pathJoin(String basePath, String laterPath) =>
@@ -87,7 +89,8 @@ class Environment {
   /// Returns the UrlFileManager or FileFileManager to load the [filename]
   ///
   FileManager getFileManager(String filename, String currentDirectory,
-        Contexts options, Environment environment, [bool isSync = false]) {
+        Contexts options, Environment environment,
+        {bool isSync = false}) {
 
     FileManager fileManager;
 
@@ -99,9 +102,10 @@ class Environment {
 
     if (fileManagers == null) {
       fileManagers = <FileManager>[
+          //order is important
           new FileFileManager(environment),
           new UrlFileManager(environment)
-      ]; //order is important
+      ];
       if (options.pluginManager != null)
           fileManagers.addAll(options.pluginManager.getFileManagers());
     }

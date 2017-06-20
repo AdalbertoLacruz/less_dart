@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class SvgFunctions extends FunctionBase {
   ///
   /// svg-gradient function generates multi-stop svg gradients.
@@ -116,7 +117,13 @@ class SvgFunctions extends FunctionBase {
 
     returnerSb.write('</${gradientType}Gradient><rect $rectangleDimension fill="url(#gradient)" /></svg>');
     returner = 'data:image/svg+xml,${Uri.encodeComponent(returnerSb.toString())}';
-    return new URL(new Quoted("'$returner'", returner, false, index, currentFileInfo), index, currentFileInfo);
+    return new URL(
+        new Quoted("'$returner'", returner,
+            escaped: false,
+            index: index,
+            currentFileInfo: currentFileInfo),
+        index: index,
+        currentFileInfo: currentFileInfo);
 
 //2.4.0+
 //  functionRegistry.add("svg-gradient", function(direction) {

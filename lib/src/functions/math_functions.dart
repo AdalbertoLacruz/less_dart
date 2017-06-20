@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class MathFunctions extends FunctionBase {
   ///
   /// Applies Function [fn] to Node [n].

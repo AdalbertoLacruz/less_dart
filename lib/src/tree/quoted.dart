@@ -2,17 +2,20 @@
 
 part of tree.less;
 
+///
 class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   @override final String      name = null;
   @override final String      type = 'Quoted';
   @override covariant String  value;
 
+  ///
   bool    escaped;
+  ///
   String  quote; // ' or "
 
   ///
-  Quoted(String str, String content, bool this.escaped,
-      [int index, FileInfo currentFileInfo]) {
+  Quoted(String str, String content,
+      {bool this.escaped, int index, FileInfo currentFileInfo}) {
     // ignore: prefer_initializing_formals
     this.index = index;
     // ignore: prefer_initializing_formals
@@ -39,7 +42,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   @override
   void genCSS(Contexts context, Output output) {
     if (!escaped)
-        output.add(quote, currentFileInfo, index);
+        output.add(quote, fileInfo: currentFileInfo, index: index);
     output.add(value);
     if (!escaped)
         output.add(quote);
@@ -102,7 +105,10 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //      value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement); // JS Not supported
     value = iterativeReplace(value, reVar, interpolationReplacement);
 
-    return new Quoted('$quote$value$quote', value, escaped, index, currentFileInfo);
+    return new Quoted('$quote$value$quote', value,
+        escaped: escaped,
+        index: index,
+        currentFileInfo: currentFileInfo);
 
 //2.3.1
 //  Quoted.prototype.eval = function (context) {

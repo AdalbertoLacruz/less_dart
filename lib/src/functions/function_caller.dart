@@ -2,9 +2,13 @@
 
 part of functions.less;
 
+///
 class FunctionCaller {
+  ///
   Contexts  context;
+  ///
   FileInfo  currentFileInfo;
+  ///
   int       index;
 
   /// Instance reutilitation
@@ -15,12 +19,30 @@ class FunctionCaller {
 
   /// Inner instance classes
   List<FunctionBase>  innerCache;
+  ///
   List<FunctionBase>  customCache;
+  ///
   FunctionBase        defaultCache;
 
   /// Instance that has the method to call
   FunctionBase found;
 
+  ///
+  factory FunctionCaller(String name, Contexts context, int index, FileInfo currentFileInfo) {
+    cache ??= new FunctionCaller._(context);
+
+    return cache
+      ..name = name.toLowerCase()
+      ..context = context
+      ..index = index
+      ..currentFileInfo = currentFileInfo
+      ..found = null
+      ..customCache = (context.frames != null)
+          ? (context.frames[0] as VariableMixin).functionRegistry.get()
+          : <FunctionBase>[];
+  }
+
+  ///
   FunctionCaller._(Contexts context) {
     innerCache = <FunctionBase>[
       new ColorBlend(),
@@ -44,23 +66,6 @@ class FunctionCaller {
 //
 //      this.func = context.frames[0].functionRegistry.get(this.name);
 //  };
-  }
-
-  factory FunctionCaller(String name, Contexts context, int index, FileInfo currentFileInfo) {
-    if (cache == null)
-        cache = new FunctionCaller._(context);
-    cache
-      ..name = name.toLowerCase()
-      ..context = context
-      ..index = index
-      ..currentFileInfo = currentFileInfo
-      ..found = null;
-    if (context.frames != null) {
-      cache.customCache = (context.frames[0] as VariableMixin).functionRegistry.get();
-    } else {
-      cache.customCache = <FunctionBase>[];
-    }
-    return cache;
   }
 
   ///
@@ -100,6 +105,7 @@ class FunctionCaller {
         if (item is Expression) {
           final List<Node> subNodes = item.value
               ..retainWhere((Node item) => item is! Comment);
+
           if (subNodes.length == 1) {
             return subNodes[0];
           } else {

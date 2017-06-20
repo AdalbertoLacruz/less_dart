@@ -2,11 +2,13 @@
 
 part of tree.less;
 
+///
 class Assignment extends Node {
   @override final String    name = null;
   @override final String    type = 'Assignment';
   @override covariant Node  value;
 
+  ///
   String key;
 
   ///

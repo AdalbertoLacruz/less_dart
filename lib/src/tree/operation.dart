@@ -2,14 +2,18 @@
 
 part of tree.less;
 
+///
 class Operation extends Node {
   @override final String type = 'Operation';
 
+  ///
   bool    isSpaced;
+  ///
   String  op;
 
   ///
-  Operation(String op, List<Node> operands, [bool this.isSpaced = false])
+  Operation(String op, List<Node> operands,
+      {bool this.isSpaced = false})
       : super.init(operands: operands) {
 
     this.op = op.trim();
@@ -55,7 +59,7 @@ class Operation extends Node {
         ? (a as OperateNode<Dimension>).operate(context, op, b)
         : (a as OperateNode<Color>).operate(context, op, b);
     } else {
-      return new Operation(op, <Node>[a, b], isSpaced);
+      return new Operation(op, <Node>[a, b], isSpaced: isSpaced);
     }
 
 //2.3.1

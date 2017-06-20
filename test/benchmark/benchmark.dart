@@ -5,8 +5,11 @@ import 'package:less_dart/less.dart';
 import 'package:path/path.dart' as path;
 import 'vm_common.dart';
 
+///
 int totalruns;
+///
 int ignoreruns;
+///
 Less less;
 
 Future<Null> main(List<String> args) async {
@@ -27,6 +30,7 @@ Future<Null> main(List<String> args) async {
   }
 }
 
+///
 Null help() {
   print ('benchmark                   : Parse big file');
   print ('benchmark parser (p)        : Parse file several times and show max and min times');

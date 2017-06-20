@@ -2,14 +2,16 @@
 
 part of tree.less;
 
+///
 abstract class JsEvalNodeMixin implements Node {
+  ///
   int index;
 
   ///
   /// JavaScript evaluation - not supported
   ///
   String evaluateJavaScript(String expression, Contexts context) {
-    String                result;
+    //String                result;
     final JsEvalNodeMixin that = this;
     //Map evalContext = {};
 
@@ -54,8 +56,7 @@ abstract class JsEvalNodeMixin implements Node {
 //              index: this.index };
 //      }
 
-    result = _expression;
-    return result;
+    return _expression;
 
 //2.3.1
 //  JsEvalNode.prototype.evaluateJavaScript = function (expression, context) {

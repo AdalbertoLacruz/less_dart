@@ -2,10 +2,12 @@
 
 part of tree.less;
 
+///
 class Paren extends Node {
   @override final String    type = 'Paren';
   @override covariant Node  value;
 
+  ///
   Paren(Node this.value);
 
   ///

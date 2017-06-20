@@ -7,9 +7,12 @@ part of tree.less;
 /// Example: new LessDebugIngo({lineNumber: 30, fileName: 'file.less'});
 ///
 class DebugInfo {
+  ///
   String  fileName;
+  ///
   int     lineNumber;
 
+  ///
   DebugInfo({int this.lineNumber, String fileName}) {
     this.fileName = (path.isAbsolute(fileName))
         ? fileName

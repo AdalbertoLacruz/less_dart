@@ -10,11 +10,18 @@ import 'package:test/test.dart';
 
 import '../lib/less.dart';
 
+///
 Map<int, Config> config;
+///
 String errorTests;
+
 //List<Future> run = <Future>[];
+
+///
 int passCount = 0;
+///
 int testCount = 0;
+///
 Stopwatch timeInProcess;
 
 // ------------- CONFIGURATION -------
@@ -30,6 +37,7 @@ List<int> runOnly;
 /// example: int testNumResults = 16;
 int testNumResults;
 
+///
 bool useExtendedTest = true;
 
 void main() {
@@ -50,6 +58,7 @@ void main() {
   });
 }
 
+///
 void declareTest(int id) {
   final Config c = config[id];
   final String ref = '(#${id.toString()})';
@@ -61,6 +70,7 @@ void declareTest(int id) {
   });
 }
 
+///
 Map<int, Config> configFill() => <int, Config>{
      0: def('charsets'), //@import
      1: def('colors'),
@@ -174,19 +184,23 @@ Map<int, Config> configFill() => <int, Config>{
 
     74: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestFileManagerPlugin', new TestFileManagerPlugin(), true, '');
+          options.definePlugin('TestFileManagerPlugin', new TestFileManagerPlugin(),
+              load: true, options: '');
         }),
     75: def('postProcessorPlugin/postProcessor',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(), true, '');
+          options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(),
+              load: true, options: '');
         }),
     76: def('preProcessorPlugin/preProcessor',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestPreProcessorPlugin', new TestPreProcessorPlugin(), true, '');
+          options.definePlugin('TestPreProcessorPlugin', new TestPreProcessorPlugin(),
+              load: true, options: '');
         }),
     77: def('visitorPlugin/visitor',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestVisitorPlugin', new TestVisitorPlugin(), true, '');
+          options.definePlugin('TestVisitorPlugin', new TestVisitorPlugin(),
+              load: true, options: '');
         }),
 
     // static-urls
@@ -349,6 +363,7 @@ Map<int, Config> configFill() => <int, Config>{
     312: def('css', isCleancssTest: true)
 };
 
+///
 Config def(String name, {List<String> options, String cssName, List<Map<String, String>> replace,
   bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
   bool isSourcemapTest: false, Function modifyOptions}) {
@@ -391,6 +406,7 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
       ..modifyOptions = modifyOptions;
 }
 
+///
 String escFile(String fileName) {
   final String file = fileName.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
     String a = m[1];
@@ -404,10 +420,12 @@ String escFile(String fileName) {
 }
 
 // c:\CWD\pathName\ or c:/CWD/pathName/
+///
 String absPath(String pathName) =>
     // ignore: prefer_interpolation_to_compose_strings
     path.normalize(path.absolute(pathName)) + path.separator;
 
+///
 Future<Null> testRun(int c) async {
   final List<String> args = <String>[];
   final String fileError = config[c].errorFile;
@@ -510,6 +528,7 @@ Future<Null> testRun(int c) async {
   }
 }
 
+///
 void writeTestResult(int c, String fileType, String content) {
   final String name = '${dirPath}result/TestFile$c.$fileType';
   new File(name)
@@ -517,25 +536,41 @@ void writeTestResult(int c, String fileType, String content) {
       ..writeAsStringSync(content);
 }
 
+///
 class Config {
+  ///
   final String name;
+  ///
   String cssFile;
+  ///
   String errorFile;
+  ///
   bool isErrorTest;
+  ///
   bool isExtendedText;
+  ///
   bool isReplaceSource;
+  ///
   bool isSourcemapTest;
+  ///
   String lessFile;
+  ///
   Function modifyOptions; // (LessOptions options){}
+  ///
   List<String> options;
+  ///
   List<Map<String, String>> replace;
+  ///
   String stderr;
 
+  ///
   Config(this.name);
 }
 
 // ---------------------------------------------- TestFunctionsPlugin plugin
+///
 class TestFileManager extends FileManager {
+  ///
   TestFileManager(Environment environment) : super(environment);
 
   @override
@@ -554,6 +589,7 @@ class TestFileManager extends FileManager {
   }
 }
 
+///
 class TestFileManagerPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
@@ -565,27 +601,37 @@ class TestFileManagerPlugin extends Plugin {
 }
 
 // ---------------------------------------------- FunctionsPlugin plugin
+
+///
 class PluginGlobalFunctions extends FunctionBase {
+  ///
   @DefineMethod(name: 'test-shadow')
   Anonymous testShadow() => new Anonymous('global');
 
+  ///
   @DefineMethod(name: 'test-global')
   Anonymous testGlobal() => new Anonymous('global');
 }
 
+///
 class PluginLocalFunctions extends FunctionBase {
+  ///
   @DefineMethod(name: 'test-shadow')
   Anonymous testShadow() => new Anonymous('local');
 
+  ///
   @DefineMethod(name: 'test-local')
   Anonymous testLocal() => new Anonymous('local');
 }
 
+///
 class PluginTransitiveFunctions extends FunctionBase {
+  ///
   @DefineMethod(name: 'test-transitive')
   Anonymous testTransitive() => new Anonymous('transitive');
 }
 
+///
 class PluginGlobal extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
@@ -596,6 +642,7 @@ class PluginGlobal extends Plugin {
   }
 }
 
+///
 class PluginLocal extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
@@ -606,6 +653,7 @@ class PluginLocal extends Plugin {
   }
 }
 
+///
 class PluginTransitive extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
@@ -617,7 +665,10 @@ class PluginTransitive extends Plugin {
 }
 
 // ---------------------------------------------- TestPostProcessorPlugin plugin
+
+///
 class TestPostProcessor extends Processor {
+  ///
   TestPostProcessor(PluginOptions options) : super(options);
 
   @override
@@ -625,9 +676,11 @@ class TestPostProcessor extends Processor {
       'hr {height:50px;}\n$css';
 }
 
+///
 class TestPostProcessorPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
+  ///
   TestPostProcessorPlugin() : super();
 
   @override
@@ -638,7 +691,10 @@ class TestPostProcessorPlugin extends Plugin {
 }
 
 // ---------------------------------------------- TestPreProcessorPlugin plugin
+
+///
 class TestPreProcessor extends Processor {
+  ///
   TestPreProcessor(PluginOptions options) : super(options);
 
   @override
@@ -654,9 +710,11 @@ class TestPreProcessor extends Processor {
   }
 }
 
+///
 class TestPreProcessorPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
+  ///
   TestPreProcessorPlugin() : super();
 
   @override
@@ -667,9 +725,12 @@ class TestPreProcessorPlugin extends Plugin {
 }
 
 // ---------------------------------------------- TestVisitorPlugin plugin
+
+///
 class RemoveProperty extends VisitorBase {
   Visitor _visitor;
 
+  ///
   RemoveProperty() {
     isReplacing = true;
     _visitor = new Visitor(this);
@@ -698,9 +759,11 @@ class RemoveProperty extends VisitorBase {
   Function visitFtnOut(Node node) => null;
 }
 
+///
 class TestVisitorPlugin extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
+  ///
   TestVisitorPlugin() : super();
 
   @override

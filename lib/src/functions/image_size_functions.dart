@@ -2,10 +2,14 @@
 
 part of functions.less;
 
+///
 class ImageSizeFunctions extends FunctionBase {
+  ///
   Environment environment = new Environment();
+  ///
   ImageSize   imageSizeProcessor = new ImageSize();
 
+  ///
   @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
     String        filePath = filePathNode.value;
@@ -17,8 +21,10 @@ class ImageSizeFunctions extends FunctionBase {
     if (fragmentStart != -1)
         filePath = filePath.substring(0, fragmentStart);
 
-    final FileManager fileManager = environment.getFileManager(filePath, currentDirectory, context, environment, true);
-    final FileLoaded fileSync = fileManager.existSync(filePath, currentDirectory, context, environment);
+    final FileManager fileManager = environment.getFileManager(
+        filePath, currentDirectory, context, environment, isSync: true);
+    final FileLoaded fileSync = fileManager.existSync(
+        filePath, currentDirectory, context, environment);
     if (fileSync.error != null)
         throw fileSync.error;
 

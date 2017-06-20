@@ -21,7 +21,9 @@ import 'tree/tree.dart';
 //  'entryPath' - absolute path to the entry file
 //  'reference' - whether the file should not be output and only output parts that are referenced
 
+///
 class ImportManager {
+  ///
   Contexts context;
 
   /// Map - filename to contents of all the imported files
@@ -30,6 +32,7 @@ class ImportManager {
   /// Map - filename to lines at the beginning of each file to ignore
   Map<String, int> contentsIgnoredChars = <String, int>{};
 
+  ///
   Environment environment;
 
   /// Error in parsing/evaluating an import
@@ -45,6 +48,7 @@ class ImportManager {
   /// Directories where to search the file when importing
   List<String> paths = <String>[];
 
+  ///
   String rootFilename;
 
   /// Files which haven't been imported yet
@@ -73,14 +77,22 @@ class ImportManager {
 //  };
   }
 
+  ///
   /// Build the return content
-  ImportedFile fileParsedFunc(String path, dynamic root, String fullPath) { //root = Node | String
+  /// [root] = Node | String
+  ///
+  ImportedFile fileParsedFunc(String path, dynamic root, String fullPath) {
     queue.remove(path);
 
     final bool importedEqualsRoot = (fullPath == rootFilename);
+
     if (fullPath != null)
         files[fullPath] = root; // Store the root
-    return new ImportedFile(root, importedEqualsRoot, fullPath);
+
+    return new ImportedFile(
+        root: root,
+        importedPreviously: importedEqualsRoot,
+        fullPath: fullPath);
   }
 
 //2.3.1
@@ -103,22 +115,28 @@ class ImportManager {
   ///
   /// Parameters:
   ///   [path] is the raw path
-  ///   [tryAppendLessExtension] whether to try appending the less extension (if the path has no extension)
   ///   [currentFileInfo] the current file info (used for instance to work out relative paths)
   ///   [importOptions] import options
+  ///   [tryAppendLessExtension] whether to try appending the less extension (if the path has no extension)
   ///
-  Future<ImportedFile> push(String path, bool tryAppendLessExtension,
-        FileInfo currentFileInfo, ImportOptions importOptions) {
+  Future<ImportedFile> push(
+      String path,
+      FileInfo currentFileInfo,
+      ImportOptions importOptions,
+      {bool tryAppendLessExtension = false}) {
 
     String                         _path = path;
     final Completer<ImportedFile>   task = new Completer<ImportedFile>();
 
     queue.add(_path);
-    final FileInfo newFileInfo = new FileInfo.cloneForLoader(currentFileInfo, context);
-    final FileManager fileManager = environment.getFileManager(_path, currentFileInfo.currentDirectory, context, environment);
+    final FileInfo newFileInfo = new FileInfo
+        .cloneForLoader(currentFileInfo, context);
+    final FileManager fileManager = environment.getFileManager(
+        _path, currentFileInfo.currentDirectory, context, environment);
 
     if (fileManager == null) {
-      task.completeError(new LessError(message: 'Could not find a file-manager for $_path'));
+      task.completeError(new LessError(
+          message: 'Could not find a file-manager for $_path'));
       return task.future;
     }
 
@@ -292,10 +310,15 @@ class ImportManager {
   }
 }
 
+///
 class ImportedFile {
+  ///
   dynamic root; //String or Node - content
+  ///
   bool    importedPreviously;
+  ///
   String  fullPath;
 
-  ImportedFile(this.root, this.importedPreviously, this.fullPath);
+  ///
+  ImportedFile({this.root, this.importedPreviously, this.fullPath});
 }

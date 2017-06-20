@@ -9,9 +9,10 @@ import 'less_options.dart';
 import 'plugins/plugins.dart';
 import 'tree/tree.dart';
 
+///
 class Contexts {
   // ***** From options
-
+  ///
   bool avoidDartOptimization; //Dart prune some code apparently not used
 
   /// options.chunkInput
@@ -42,14 +43,17 @@ class Contexts {
   /// options.dumpLineNumbers
   String dumpLineNumbers;
 
+  ///
   String input; // for LessError
 
   /// List of files that have been imported, used for import-once
   Map<String, Node> files = <String, Node>{};
 
-  bool firstSelector = false; //Ruleset
+  ///Ruleset
+  bool firstSelector = false;
 
-  List<Node> frames = <Node>[]; //Ruleset/MixinDefinition/Directive = VariableMixin
+  ///Ruleset/MixinDefinition/Directive = VariableMixin
+  List<Node> frames = <Node>[];
 
   /// options.javascriptEnabled
   bool javascriptEnabled = true;
@@ -63,15 +67,19 @@ class Contexts {
   /// options.importMultiple
   bool importMultiple = false;
 
-  ImportManager imports; //for LessError
+  /// for LessError
+  ImportManager imports;
 
   /// options.insecure
   bool insecure = false;
 
-  bool lastRule = false; // Ruleset
+  /// Ruleset
+  bool lastRule = false;
 
-  List<Media> mediaBlocks; // Ruleset
+  /// Ruleset
+  List<Media> mediaBlocks;
 
+  ///
   List<Media> mediaPath;
 
   /// options.mime
@@ -98,9 +106,10 @@ class Contexts {
   /// option.rootpath
   String rootpath;
 
-  List<List<Selector>> selectors; // used in Ruleset
+  /// used in Ruleset
+  List<List<Selector>> selectors;
 
-  /// options.silent
+  // options.silent
   //bool silent;
 
   /// options.sourceMap
@@ -118,7 +127,8 @@ class Contexts {
   /// option.syncImport
   bool syncImport = false;
 
-  int tabLevel = 0; // Ruleset
+  /// Ruleset
+  int tabLevel = 0;
 
   /// options.urlArgs
   String urlArgs;

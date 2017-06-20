@@ -1,11 +1,6 @@
 part of environment.less;
 
 ///
-/// Resolves null as false.
-///
-bool isTrue(bool value) => value != null ? value : false;
-
-///
 /// Resolves null as empty. Return false if null.
 /// Supports String, List, Map.
 ///

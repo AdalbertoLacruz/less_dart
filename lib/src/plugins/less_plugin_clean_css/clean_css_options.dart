@@ -2,6 +2,7 @@
 
 part of less_plugin_clean_css.plugins.less;
 
+///
 class CleanCssOptions extends PluginOptions {
   /// set to false to disable advanced optimizations - selector & property merging, reduction, etc.
   bool                  advanced = true;
@@ -27,7 +28,7 @@ class CleanCssOptions extends PluginOptions {
   /// set to false to skip shorthand compacting (default is true unless sourceMap is set when it's false)
   bool                  shorthandCompacting = true;
 
-
+  ///
   CleanCssOptions(String cmdOptions) {
     String              argName;
     List<String>        argSplit;

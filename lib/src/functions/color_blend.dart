@@ -4,6 +4,7 @@ part of functions.less;
 
 // Color Blending
 // ref: http://www.w3.org/TR/compositing-1
+///
 class ColorBlend extends FunctionBase {
   ///
   /// Mix two colors [color1] and [color2] according [fMode] function

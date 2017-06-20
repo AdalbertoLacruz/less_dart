@@ -9,6 +9,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   @override final String      type = 'Dimension';
   @override covariant double  value;
 
+  ///
   Unit unit;
 
   ///
@@ -318,6 +319,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
     // maths on units
     // [atomicUnit] origina unit
+    // ignore: avoid_positional_boolean_parameters
     String applyUnit(String atomicUnit, bool denominator) {
       if (group.containsKey(atomicUnit)) {
         if (denominator) {

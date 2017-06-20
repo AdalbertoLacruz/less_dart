@@ -2,9 +2,13 @@
 
 part of visitor.less;
 
+///
 class ToCSSVisitor extends VisitorBase{
+  ///
   bool      charset = false;
+
   Contexts  _context;
+
   Visitor   _visitor;
 
   ///
@@ -118,6 +122,7 @@ class ToCSSVisitor extends VisitorBase{
   }
 
   // remove
+  ///
   Options visitOptions(Options optionsNode, VisitArgs visitArgs) => null;
 
   ///

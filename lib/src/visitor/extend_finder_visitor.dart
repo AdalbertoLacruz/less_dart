@@ -2,10 +2,15 @@
 
 part of visitor.less;
 
+///
 class ExtendFinderVisitor extends VisitorBase {
+  ///
   List<List<Extend>>    allExtendsStack;
+  ///
   List<List<Selector>>  contexts;
+  ///
   bool                  foundExtends = false;
+  ///
   Visitor               _visitor;
 
   ///

@@ -10,6 +10,7 @@ class Apply extends Node {
   @override final String        type = 'Apply';
   @override covariant Anonymous value;
 
+  ///
   int index;
 
   ///
@@ -19,7 +20,7 @@ class Apply extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add('@apply(', currentFileInfo, index);
+    output.add('@apply(', fileInfo: currentFileInfo, index: index);
     value.genCSS(context, output);
     output.add(');');
   }

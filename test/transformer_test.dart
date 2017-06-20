@@ -5,8 +5,10 @@ import 'package:test/test.dart';
 
 import '../lib/srcTransformer/base_transformer.dart';
 
-String pass(bool result) => result ? 'pass' : 'no pass';
+///
+String pass({bool result = false}) => result ? 'pass' : 'no pass'; //not used
 
+///
 String load(String path) => new File(path).readAsStringSync();
 
 Future<Null> main () async {

@@ -2,6 +2,7 @@
 
 part of tree.less;
 
+///
 class Alpha extends Node {
   @override final String type = 'Alpha';
 

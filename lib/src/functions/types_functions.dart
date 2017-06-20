@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class TypesFunctions extends FunctionBase {
 //  var isa = function (n, Type) {
 //      return (n instanceof Type) ? Keyword.True : Keyword.False;

@@ -2,13 +2,18 @@
 
 part of plugins.less;
 
+///
 class PluginLoader {
+  ///
   Environment   environment;
+  ///
   Logger        logger;
+  ///
   LessOptions   options;
+  ///
   PluginManager pluginManager;
 
-  //Plugins to install
+  /// Plugins to install
   Map<String, Plugin> installable = <String, Plugin>{
     'less-plugin-clean-css': new LessPluginCleanCss(),
     'less-plugin-advanced-color-functions': new LessPluginAdvancedColorFunctions()
@@ -180,8 +185,7 @@ class PluginLoader {
   /// Load plugins
   void start() {
     if (options.plugins.isNotEmpty) {
-      if (options.pluginManager == null)
-          options.pluginManager = new PluginManager();
+      options.pluginManager ??= new PluginManager();
       pluginManager = options.pluginManager
           ..addPlugins(options.plugins);
     }

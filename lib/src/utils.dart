@@ -2,6 +2,7 @@
 
 library utils.less;
 
+///
 class Utils {
   ///
   /// Returns line and column corresponding to index
@@ -53,8 +54,11 @@ class Utils {
 /// Example: new LocationPoint({line: 9, column: 30});
 ///
 class LocationPoint {
+  ///
   int line;
+  ///
   int column;
 
+  ///
   LocationPoint({int this.line, int this.column});
 }

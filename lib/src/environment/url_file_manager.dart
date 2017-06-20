@@ -4,6 +4,7 @@ part of environment.less;
 
 /// URL loader
 class UrlFileManager extends FileManager {
+  ///
   RegExp isUrlRe = new RegExp(r'^(?:https?:)?\/\/', caseSensitive: false);
 
   ///

@@ -2,16 +2,20 @@
 
 part of tree.less;
 
+///
 class Keyword extends Node {
   @override final String      type = 'Keyword';
   @override covariant String  value;
 
+  ///
   Keyword(String this.value);
 
+  ///
   Keyword.True() {
     value = 'true';
   }
 
+  ///
   Keyword.False() {
     value = 'false';
   }

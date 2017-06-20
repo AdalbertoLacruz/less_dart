@@ -2,15 +2,17 @@ library output.less;
 
 import 'file_info.dart';
 
+///
 class Output {
+  ///
   StringBuffer              value = new StringBuffer();
-
+  ///
   bool get                  isEmpty => value.isEmpty;
-
+  ///
   String                    last = '';
-
+  ///
   String                    separator;
-
+  ///
   static Map<String, bool>  separators = <String, bool>{
       '(': true,
       ')': true,
@@ -23,7 +25,8 @@ class Output {
   };
 
   /// [s] String | Node. (Node.toString())
-  void add(Object s, [FileInfo currentFileInfo, int index, bool mapLines]) {
+  void add(Object s,
+      {FileInfo fileInfo, int index, bool mapLines}) {
     final Object _s = (separator != null) ? compose(s) : s;
     last = (_s is String && _s.isNotEmpty) ? _s[_s.length-1] : ''; //for cleanCss
     value.write(_s);

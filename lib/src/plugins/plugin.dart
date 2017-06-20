@@ -4,21 +4,24 @@ part of plugins.less;
 /// Base clase for Plugin definition
 ///
 abstract class Plugin {
+  ///
   String        cmdOptions;
-
+  ///
   Environment   environment;
-
+  ///
   bool          isLoaded = false; //true after first load
-
+  ///
   LessOptions   lessOptions;
-
+  ///
   Logger        logger;
 
+  ///
   Plugin() {
     environment = new Environment();
     logger = environment.logger;
   }
 
+  ///
   void init(LessOptions options) {
     lessOptions = options;
   }
@@ -35,13 +38,13 @@ abstract class Plugin {
   ///Removes " at the start/end
   ///
   String normalizeCommand(String cmdOptions) {
-    String command = cmdOptions.startsWith('"')
+    final String command = cmdOptions.startsWith('"')
         ? cmdOptions.substring(1)
         : cmdOptions;
-    command = command.endsWith('"')
+
+    return command.endsWith('"')
         ? command.substring(0, command.length - 1)
         : command;
-    return command;
   }
 
   ///

@@ -20,35 +20,52 @@ import 'dart:math';
 import 'package:barback/barback.dart';
 import '../less.dart';
 
+///
 const String INFO_TEXT = '[Info from deprecated/less-dart]';
+
+///
 const String BUILD_MODE_LESS = 'less';
+
+///
 const String BUILD_MODE_DART = 'dart';
+
+///
 const String BUILD_MODE_MIXED = 'mixed';
 
-/*
- * Transformer used by 'pub build' & 'pub serve' to convert .less files to .css
- * Based on lessc over nodejs executing a process like
- * CMD> lessc --flags input.less output.css
- * It use one or various files as entry point and produces the css files
- * To mix several .less files in one, the input contents could be "@import 'filexx.less'; ..." directives
- * See http://lesscss.org/ for more information
- */
+///
+/// Transformer used by 'pub build' & 'pub serve' to convert .less files to .css
+/// Based on lessc over nodejs executing a process like
+/// CMD> lessc --flags input.less output.css
+/// It use one or various files as entry point and produces the css files
+/// To mix several .less files in one, the input contents could be "@import 'filexx.less'; ..." directives
+/// See http://lesscss.org/ for more information
+///
 class LessTransformer extends Transformer {
+  ///
   final BarbackSettings settings;
+
+  ///
   final TransformerOptions options;
 
+  ///
   LessTransformer(BarbackSettings this.settings)
       : options = new TransformerOptions.parse(settings.configuration);
 
+  ///
   LessTransformer.asPlugin(BarbackSettings settings)
       : this(settings);
 
+  /// input file, output file
   bool get isBuildModeLess =>
-      options.buildMode == BUILD_MODE_LESS; //input file, output file
+      options.buildMode == BUILD_MODE_LESS;
+
+  /// input stdin, output stdout
   bool get isBuildModeDart =>
-      options.buildMode == BUILD_MODE_DART; //input stdin, output stdout
+      options.buildMode == BUILD_MODE_DART;
+
+  /// input file, output stdout
   bool get isBuildModeMixed =>
-      options.buildMode == BUILD_MODE_MIXED; //input file, output stdout
+      options.buildMode == BUILD_MODE_MIXED;
 
   @override
   Future<bool> isPrimary(AssetId id) =>
@@ -114,6 +131,7 @@ class LessTransformer extends Transformer {
     return flags;
   }
 
+  ///
   String getOutputFileName(AssetId id) {
     if (options.entryPoints.length > 1 || options.output == '')
         return id.changeExtension('.css').path;
@@ -121,9 +139,9 @@ class LessTransformer extends Transformer {
     return options.output;
   }
 
-  /*
-   * lessc process wrapper
-   */
+  ///
+  /// lessc process wrapper
+  ///
   Future<String> executeProcess(String executable, List<String> flags, String content, ProcessInfo processInfo) =>
     runZoned(() {
       final Stopwatch _timeInProcess = new Stopwatch();
@@ -146,18 +164,36 @@ class LessTransformer extends Transformer {
     },
     zoneValues: <Symbol, int>{#id: new Random().nextInt(10000)});
 }
+
 /* ************************************** */
+
+///
 class TransformerOptions {
-  final List<String> entryPoints;  // entry_point: web/builder.less - main file to build or [file1.less, ...,fileN.less]
-  final String includePath; // include_path: /lib/lessIncludes - variable and mixims files
-  final String output;       // output: web/output.css - result file. If '' same as web/input.css
-  final bool cleancss;       // cleancss: true - compress output by using clean-css
-  final bool compress;       // compress: true - compress output by removing some whitespaces
+  /// entry_point: web/builder.less - main file to build or [file1.less, ...,fileN.less]
+  final List<String> entryPoints;
 
-  final String executable;   // executable: lessc - command to execute lessc  - NOT USED
-  final String buildMode;   // build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
-  final List<String> otherFlags;    // other options in the command line
+  /// include_path: /lib/lessIncludes - variable and mixims files
+  final String includePath;
 
+  /// output: web/output.css - result file. If '' same as web/input.css
+  final String output;
+
+  /// cleancss: true - compress output by using clean-css
+  final bool cleancss;
+
+  /// compress: true - compress output by removing some whitespaces
+  final bool compress;
+
+  /// executable: lessc - command to execute lessc  - NOT USED
+  final String executable;
+
+  /// build_mode: dart - io managed by lessc compiler (less) by (dart) or (mixed)
+  final String buildMode;
+
+  /// other options in the command line
+  final List<String> otherFlags;
+
+  ///
   TransformerOptions(
       {List<String> this.entryPoints,
       String this.includePath,
@@ -168,6 +204,7 @@ class TransformerOptions {
       String this.buildMode,
       this.otherFlags});
 
+  ///
   factory TransformerOptions.parse(Map<dynamic, dynamic> configuration) {
     //returns bool | String | List<String>
     dynamic config(String key, dynamic defaultValue) {
@@ -195,7 +232,7 @@ class TransformerOptions {
       if (value != null)
           result.addAll(value);
 
-      if (result.length < 1)
+      if (result.isEmpty)
           print('$INFO_TEXT No entry_point supplied!');
 
       return result;
@@ -216,15 +253,26 @@ class TransformerOptions {
 }
 
 /* ************************************** */
+
+///
 class ProcessInfo {
+  ///
   String        executable;
+
+  ///
   List<String>  flags;
+
+  ///
   String        inputFile = '';
+
+  ///
   String        outputFile = '';
 
+  ///
   ProcessInfo(this.executable, this.flags);
 
-  void nicePrint(Duration elapsed){
+  ///
+  void nicePrint(Duration elapsed) {
     print('$INFO_TEXT command: $executable ${flags.join(' ')}');
     if (inputFile  != '')
         print('$INFO_TEXT input File: $inputFile');
@@ -248,9 +296,13 @@ class ProcessInfo {
 /*
  * Process error management
  */
+
+///
 class LessException implements Exception {
+  ///
   final String message;
 
+  ///
   LessException(this.message);
 
   @override

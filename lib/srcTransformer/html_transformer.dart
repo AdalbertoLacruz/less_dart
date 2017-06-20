@@ -1,12 +1,17 @@
 part of transformer.less;
 
-class HtmlTransformer extends BaseTransformer{
+///
+class HtmlTransformer extends BaseTransformer {
+  ///
   List<ContentElement>  elements;
 
-  List<String>          imports = <String>[]; // aggregate dependencies
+  /// aggregate dependencies
+  List<String>          imports = <String>[];
 
+  ///
   List<Future<Null>>    runners = <Future<Null>>[];
 
+  ///
   HtmlTransformer(String inputContent, String inputFile, Function modifyOptions)
       : super(inputContent.replaceAll(new RegExp(r'\r\n'), '\n'), inputFile,
             inputFile, null, modifyOptions);
@@ -54,14 +59,13 @@ class HtmlTransformer extends BaseTransformer{
   /// [content] is the html file content
   ///
   List<ContentElement> parse(String content) {
-    List<ContentElement> result = <ContentElement>[]
+    final List<ContentElement> result = <ContentElement>[]
         ..addAll(LessElement.parse(content))
         ..addAll(StyleElement.parse(content))
         ..sort((ContentElement x, ContentElement y) =>
             x.openTagStart.compareTo(y.openTagStart));
-    result = FragmentElement.parse(content, result);
 
-    return result;
+    return FragmentElement.parse(content, result);
   }
 
   ///
@@ -109,32 +113,57 @@ class HtmlTransformer extends BaseTransformer{
 
 // ------------------------ class ------
 
+///
 /// Base class for LessElement and StyleElement
+///
 class ContentElement {
+  ///
   bool hasLessCode = false;
-  String openTag;   // <tag...>
-  int openTagStart; // '<'  - absolute position to content file. fragment start
-  int openTagEnd;   // next to '>'
 
-  String closeTag;  // </tag>
+  /// <tag...>
+  String openTag;
+
+  /// '<'  - absolute position to content file. fragment start
+  int openTagStart;
+
+  /// next to '>'
+  int openTagEnd;
+
+  /// </tag>
+  String closeTag;
+
+  ///
   int closeTagStart;
-  int closeTagEnd;  // fragment end
 
-  String outer;     // <tag...>...</tag>
+  /// fragment end
+  int closeTagEnd;
 
-  String openTagResult;  // openTag transformed
-  String closeTagResult; // closeTag transformed
-  String css;       // result of less process
+  /// <tag...>...</tag>
+  String outer;
 
-  String tabStr;    // '   '<tag...  - distance to line start. Source tag tabulation
-  String tabStr2;   // '     '        - distance to line start + 2. Content tabulation
+  /// openTag transformed
+  String openTagResult;
 
+  /// closeTag transformed
+  String closeTagResult;
+
+  /// result of less process
+  String css;
+
+  /// '   '<tag...  - distance to line start. Source tag tabulation
+  String tabStr;
+
+  /// '     '        - distance to line start + 2. Content tabulation
+  String tabStr2;
+
+  ///
   ContentElement(
       {this.openTagStart,
       this.openTagEnd,
       this.closeTagStart,
       this.closeTagEnd});
 
+  ///
   String get inner =>
       outer.substring(openTagEnd - openTagStart, closeTagStart - openTagStart);
 
@@ -199,8 +228,8 @@ class ContentElement {
     while (result.contains('  ')) {
       result = result.replaceAll('  ', ' ');
     }
-    result = result.replaceFirst(' >', '>');
-    return result;
+
+    return result.replaceFirst(' >', '>');
   }
 
   ///
@@ -225,11 +254,16 @@ class ContentElement {
 /// <style type="text/less"> ... </style>
 ///
 class StyleElement extends ContentElement {
+  ///
   static RegExp outerTagReg = new RegExp(r'<style[^>]*>(.|\n)*?<\/style>');
+  ///
   static RegExp openTagReg = new RegExp(r'<style[^>]*>');
+  ///
   static RegExp closeTagReg = new RegExp(r'<\/style>');
+  ///
   static RegExp styleTypeReg = new RegExp(r'type="text\/less"');
 
+  ///
   StyleElement(Match fragment) {
     hasLessCode = true;
     analyzeContent(fragment, openTagReg, closeTagReg);
@@ -261,14 +295,23 @@ class StyleElement extends ContentElement {
 /// <less...>...</less>
 ///
 class LessElement extends ContentElement {
+  ///
   bool isReplace = false;
-  String cssOpenTag; // <style...>
+
+  /// <style...>
+  String cssOpenTag;
+   
+  ///
   String cssCloseTag = '</style>';
 
+  ///
   static RegExp outerTagReg = new RegExp(r'<less[^>]*>(.|\n)*?<\/less>');
+  ///
   static RegExp openTagReg = new RegExp(r'<less[^>]*>');
+  ///
   static RegExp closeTagReg = new RegExp(r'<\/less>');
 
+  ///
   LessElement(Match fragment) {
     hasLessCode = true;
     analyzeContent(fragment, openTagReg, closeTagReg);
@@ -282,6 +325,7 @@ class LessElement extends ContentElement {
     openTagResult = trimSpaces(openTag.substring(0, openTag.length - 1) + ' style="display:none"' + '>');
   }
 
+  ///
   static List<LessElement> parse(String content) {
     final List<LessElement> result = <LessElement>[];
 
@@ -319,6 +363,7 @@ class LessElement extends ContentElement {
 /// Html content between less tags
 ///
 class FragmentElement extends ContentElement {
+  ///
   FragmentElement(String content, int openTagStart, int closeTagEnd)
       : super(
             openTagStart: openTagStart,

@@ -2,15 +2,22 @@
 
 part of parser.less;
 
+///
 class Chunker {
+  ///
   String    input;
+  ///
   Contexts  env;
-
+  ///
   int           chunkerCurrentIndex;
+  ///
   List<String>  chunks = <String>[];
+  ///
   int           currentChunkStartIndex;
+  ///
   int           emitFrom = 0;
 
+  ///
   Chunker(String this.input, this.env);
 
   ///
@@ -28,7 +35,7 @@ class Chunker {
   ///
   /// Split a new chunk from input
   ///
-  void emitChunk([bool force = false]) {
+  void emitChunk({bool force = false}) {
     final int len = chunkerCurrentIndex - emitFrom;
 
     if (((len < 512) && !force) || len == 0)
@@ -178,7 +185,7 @@ class Chunker {
         return fail("missing closing `)`", lastOpeningParen);
     }
 
-    emitChunk(true);
+    emitChunk(force: true);
     return chunks;
   }
 }

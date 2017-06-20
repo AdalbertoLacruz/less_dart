@@ -10,6 +10,7 @@ import 'logger.dart';
 import 'plugins/plugins.dart';
 import 'tree/tree.dart';
 
+///
 class LessOptions {
   ///
   LessOptions() {
@@ -78,8 +79,10 @@ class LessOptions {
   /// whether JavaScript is enabled. Dart version don't evaluate JavaScript
   bool                      javascriptEnabled = true;
 
+  ///
   bool                      lint = false;
 
+  ///
   int                       logLevel = logLevelWarn;
 
 
@@ -105,6 +108,7 @@ class LessOptions {
   /// Rootpath to append to URL's
   String                    rootpath = '';
 
+  ///
   int                       showTreeLevel; // debug level - not official
 
   /// whether to swallow errors and warnings
@@ -141,26 +145,27 @@ class LessOptions {
 
 // ****************** Internal ******************************
 
+  ///
   bool            cleanCss = false; //clean-css optimizations
-
+  ///
   CleancssOptions cleancssOptions = new CleancssOptions();
-
+  ///
   String          filename = ''; //same as input
-
+  ///
   String          inputBase = ''; //same as input
-
+  ///
   Logger          logger = new Logger();
-
+  ///
   String          outputBase = ''; // same as output
-
+  ///
   bool            parseError = false; // error detected in command line
-
+  ///
   List<Plugin>    plugins = <Plugin>[];
-
+  ///
   PluginLoader    pluginLoader;
-
+  ///
   PluginManager   pluginManager;
-
+  ///
   RegExp          pluginRe = new RegExp(r'^([^=]+)(=(.*))?'); //plugin arguments split
 
   //String warningMessages = '';
@@ -401,6 +406,7 @@ class LessOptions {
     return true;
   }
 
+  ///
   bool setParseError([String option]) {
     if (option != null)
         logger.error('unrecognised less option $option');
@@ -464,7 +470,7 @@ class LessOptions {
   /// Example1: definePlugin('myPlugin', new MyPlugin());
   /// Exmaple2: definePlugin('myPlugin', new MyPlugin(), true, '');
   ///
-  void definePlugin(String name, Plugin plugin, [bool load = false, String options = '']) {
+  void definePlugin(String name, Plugin plugin, {bool load = false, String options = ''}) {
     pluginLoader.define(name, plugin);
 
     if (load) {
@@ -474,9 +480,9 @@ class LessOptions {
     }
   }
 
-  /*
-   * check options combinations
-   */
+  ///
+  /// check options combinations
+  ///
   bool validate() {
     if (input.isNotEmpty) {
       inputBase = input;
@@ -554,6 +560,7 @@ class LessOptions {
     return true;
   }
 
+  ///
   LessOptions clone() {
     final LessOptions op = new LessOptions()
         ..silent           = silent
@@ -581,6 +588,7 @@ class LessOptions {
 
 // *********************************
 
+///
 class SourceMapOptions {
   /// Puts the less files into the map instead of referencing them
   bool    outputSourceFiles = false;
@@ -591,10 +599,13 @@ class SourceMapOptions {
   /// Puts the map (and any less files) into the output css file
   bool    sourceMapFileInline = false;
 
+  ///
   String  sourceMapFilename = '';
 
+  ///
   String  sourceMapFullFilename = '';
 
+  ///
   String  sourceMapInputFilename = '';
 
   /// Outputs a v3 sourcemap to the filename (or output filename.map)
@@ -609,8 +620,11 @@ class SourceMapOptions {
 
 /// GlobalVariables & ModifyVariables item definition
 class VariableDefinition {
+  ///
   String name;
+  ///
   String value;
 
+  ///
   VariableDefinition(this.name, this.value);
 }

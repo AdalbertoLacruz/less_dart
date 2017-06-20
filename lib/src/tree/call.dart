@@ -9,7 +9,9 @@ class Call extends Node {
   @override String        name;
   @override final String  type = 'Call';
 
+  ///
   List<Node>  args; // Expression | Dimension | Assignment
+  ///
   int         index;
 
   ///
@@ -98,7 +100,7 @@ class Call extends Node {
     if (cleanCss != null)
         return genCleanCSS(context, output);
 
-    output.add('$name(', currentFileInfo, index);
+    output.add('$name(', fileInfo: currentFileInfo, index: index);
 
     for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
@@ -125,7 +127,7 @@ class Call extends Node {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    output.add('$name(', currentFileInfo, index);
+    output.add('$name(', fileInfo: currentFileInfo, index: index);
 
     for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);

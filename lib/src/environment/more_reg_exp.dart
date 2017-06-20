@@ -1,9 +1,14 @@
 part of environment.less;
 
+///
 class MoreRegExp {
+  ///
   bool    caseSensitive = true;
+  ///
   bool    global = false;
+  ///
   String  pattern;
+  
   RegExp  _thisRE;
 
   ///

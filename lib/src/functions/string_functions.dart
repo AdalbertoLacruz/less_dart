@@ -2,6 +2,7 @@
 
 part of functions.less;
 
+///
 class StringFunctions extends FunctionBase {
   ///
   /// CSS escaping, replaced with ~"value" syntax.
@@ -82,7 +83,7 @@ class StringFunctions extends FunctionBase {
 
     final String quote = (string is Quoted) ? string.quote : '';
     final bool escaped = (string is Quoted) ? string.escaped : false;
-    return new Quoted(quote, result, escaped);
+    return new Quoted(quote, result, escaped: escaped);
 
 //2.4.0 20150331
 //  replace: function (string, pattern, replacement, flags) {
@@ -140,9 +141,12 @@ class StringFunctions extends FunctionBase {
     result.replaceAll(new RegExp(r'%%'), '%');
     if (qstr is Quoted) {
       //return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);
-      return new Quoted((qstr.quote ?? ''), result, qstr.escaped, qstr.index, currentFileInfo);
+      return new Quoted((qstr.quote ?? ''), result,
+        escaped: qstr.escaped,
+        index: qstr.index,
+        currentFileInfo: currentFileInfo);
     } else {
-      return new Quoted('', result, null);
+      return new Quoted('', result, escaped: null);
     }
 
 //2.4.0 20150331

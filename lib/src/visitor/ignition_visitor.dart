@@ -6,12 +6,16 @@ part of visitor.less;
 /// Visitor to run after parse input file, before imports
 ///
 class IgnitionVisitor extends VisitorBase {
+  ///
   Contexts    context;
+  ///
   Environment environment;
+  ///
   LessOptions lessOptions;
+  ///
   Visitor     _visitor;
 
-
+  ///
   IgnitionVisitor() {
     isReplacing = true;
     _visitor = new Visitor(this);

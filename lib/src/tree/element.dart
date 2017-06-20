@@ -17,7 +17,9 @@ part of tree.less;
 class Element extends Node {
   @override final String type = 'Element';
 
+  ///
   Combinator  combinator;
+  ///
   int         index;
 
   ///
@@ -91,7 +93,7 @@ class Element extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add(toCSS(context), currentFileInfo, index);
+    output.add(toCSS(context), fileInfo: currentFileInfo, index: index);
 
 //2.3.1
 //  Element.prototype.genCSS = function (context, output) {

@@ -2,11 +2,13 @@
 
 part of functions.less;
 
+///
 class DefaultFunc extends FunctionBase {
   LessError _error;
 
   int       _value;
 
+  ///
   @DefineMethod(name: 'default')
   Node eval() {
     final int v = _value;
@@ -29,14 +31,17 @@ class DefaultFunc extends FunctionBase {
 //    }
   }
 
+  ///
   void value(int v) {
     _value = v;
   }
 
+  ///
   void error(LessError e) {
     _error = e;
   }
 
+  ///
   void reset() {
     _value = _error = null;
   }

@@ -2,12 +2,15 @@
 
 part of tree.less;
 
+///
 class RulesetCall extends Node {
   @override final String  name = null;
   @override final String  type = 'RulesetCall';
 
+  ///
   String variable;
 
+  ///
   RulesetCall(String this.variable);
 
   ///

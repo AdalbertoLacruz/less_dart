@@ -3,10 +3,15 @@
 part of sourcemap.less;
 
 //conflict name with SourceMapBuilder dart package. Renamed to LessSourceMapBuilder
+///
 class LessSourceMapBuilder {
+  ///
   SourceMapOptions  options;
+  ///
   String            sourceMap;    //map contents
+  ///
   String            sourceMapInputFilename;
+  ///
   String            sourceMapURL; //map filename or base64 contents
 
   ///

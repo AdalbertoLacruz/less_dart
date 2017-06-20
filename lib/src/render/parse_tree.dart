@@ -2,11 +2,13 @@
 
 part of render.less;
 
+///
 class ParseTree {
+  ///
   ImportManager imports;
-
+  ///
   Environment   environment;
-
+  ///
   Ruleset       root;
 
   ///
@@ -126,9 +128,13 @@ class ParseTree {
 
 /// Result type for ParseTree
 class RenderResult {
+  ///
   String        css;
+  ///
   List<String>  imports; //filename
+  ///
   String        map;
 
+  ///
   RenderResult();
 }

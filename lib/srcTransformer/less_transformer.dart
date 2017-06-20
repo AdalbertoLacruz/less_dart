@@ -1,10 +1,13 @@
 part of transformer.less;
 
+///
 class LessTransformer extends BaseTransformer {
+  ///
   LessTransformer(String inputContent, String inputFile, String outputFile,
       String buildMode, Function modifyOptions)
       : super(inputContent, inputFile, outputFile, buildMode, modifyOptions);
 
+  ///
   Future<LessTransformer> transform(List<String> args) {
     timerStart();
 

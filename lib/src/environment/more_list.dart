@@ -33,7 +33,7 @@ class MoreList {
   static bool compare<T>(List<T> a, List<T> b) {
     if (a == null || b == null)
         return false;
-    if(a.length != b.length)
+    if (a.length != b.length)
         return false;
 
     bool result = true;
@@ -62,7 +62,8 @@ class MoreList {
   ///
   static String foldHex(List<int> list) => list
       .fold(new StringBuffer(), (StringBuffer hex, int x) =>
-          hex..write(x.toRadixString(16).padLeft(2, '0')))
+          hex
+              ..write(x.toRadixString(16).padLeft(2, '0')))
       .toString();
 
   ///
@@ -78,43 +79,27 @@ class MoreList {
   /// Reads an unsigned 16 bit integer from the [buffer] at the specified [offset] position
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
-  static int readUInt16BE(List<int> buffer, int offset) {
-    int result = buffer[offset];
-    result = result * 256 + buffer[offset + 1];
-    return result;
-  }
+  static int readUInt16BE(List<int> buffer, int offset) =>
+      buffer[offset] * 256 + buffer[offset + 1];
 
   ///
   /// Reads an unsigned 16 bit integer from the [buffer] at the specified [offset] position
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
-  static int readUInt16LE(List<int> buffer, int offset) {
-    int result = buffer[offset + 1];
-    result = result * 256 + buffer[offset];
-    return result;
-  }
+  static int readUInt16LE(List<int> buffer, int offset) =>
+      buffer[offset + 1] * 256 + buffer[offset];
 
   ///
   /// Reads an unsigned 32 bit integer from the [buffer] at the specified [offset] position
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
-  static int readUInt32BE(List<int> buffer, int offset) {
-    int result = buffer[offset];
-    result = result * 256 + buffer[offset + 1];
-    result = result * 256 + buffer[offset + 2];
-    result = result * 256 + buffer[offset + 3];
-    return result;
-  }
+  static int readUInt32BE(List<int> buffer, int offset) =>
+      ((buffer[offset] * 256 + buffer[offset + 1]) * 256 + buffer[offset + 2]) * 256 + buffer[offset + 3];
 
   ///
   /// Reads an unsigned 32 bit integer from the buffer at the specified [offset]
   /// with specified endian format.
   ///
-  static int readUInt32LE(List<int> buffer, int offset) {
-    int result = buffer[offset + 3];
-    result = result * 256 + buffer[offset + 2];
-    result = result * 256 + buffer[offset + 1];
-    result = result * 256 + buffer[offset];
-    return result;
-  }
+  static int readUInt32LE(List<int> buffer, int offset) =>
+      ((buffer[offset + 3] * 256 + buffer[offset + 2]) * 256 + buffer[offset + 1]) * 256 + buffer[offset];
 }

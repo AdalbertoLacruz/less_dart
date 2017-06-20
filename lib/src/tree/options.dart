@@ -10,8 +10,11 @@ class Options extends Node {
   @override final String      type = 'Options';
   @override covariant Quoted  value;
 
+  ///
   List<FunctionBase>  functions;
+  ///
   int                 index;
+  ///
   bool                isPlugin;
 
   ///
