@@ -117,6 +117,12 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   num get b => rgb[2];
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'rgb': rgb,
+    'alpha': alpha
+  };
+
   /// Don't use spaces to css
   bool isCompress(Contexts context) =>
       (cleanCss != null) || (context?.compress ?? false);
@@ -561,16 +567,8 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 //      return Math.min(Math.max(v, 0), max);
 //  }
 
-  // Dart only
   @override
-  void genTree(Contexts env, Output output) {
-    final String tabStr = '  ' * env.tabLevel;
-    String result = 'null';
-    if (rgb != null)
-        result = toRGB();
-
-    output.add('$tabStr$type ($result)\n');
-  }
+  String toString() => toCSS(null);
 }
 
 ///

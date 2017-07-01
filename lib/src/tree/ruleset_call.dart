@@ -13,6 +13,11 @@ class RulesetCall extends Node {
   ///
   RulesetCall(String this.variable);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'variable': variable
+  };
+
   ///
   @override
   Ruleset eval(Contexts context) {
@@ -25,4 +30,7 @@ class RulesetCall extends Node {
 //      return detachedRuleset.callEval(context);
 //  };
   }
+
+  @override
+  String toString() => variable;
 }

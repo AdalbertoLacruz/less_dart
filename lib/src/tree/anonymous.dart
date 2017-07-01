@@ -22,6 +22,11 @@ class Anonymous extends Node implements CompareNode {
       bool this.rulesetLike = false})
       : super.init(currentFileInfo: currentFileInfo, value: value);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   Node eval(Contexts context) => new Anonymous(value,
@@ -59,5 +64,15 @@ class Anonymous extends Node implements CompareNode {
 //  Anonymous.prototype.genCSS = function (context, output) {
 //      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
 //  };
+  }
+
+  @override
+  String toString() {
+    if (value is String)
+        return value;
+
+    final Output output = new Output();
+    value.genCSS(null, output);
+    return output.toString();
   }
 }

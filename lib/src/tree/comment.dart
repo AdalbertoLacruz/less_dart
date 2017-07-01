@@ -22,6 +22,11 @@ class Comment extends Node implements MarkReferencedNode {
       FileInfo currentFileInfo})
       : super.init(currentFileInfo: currentFileInfo);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   /// Writes the comment in [output].
   ///
@@ -66,4 +71,7 @@ class Comment extends Node implements MarkReferencedNode {
   void markReferenced() {
     isReferenced = true;
   }
+
+  @override
+  String toString() => value;
 }

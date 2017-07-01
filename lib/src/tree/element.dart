@@ -54,6 +54,12 @@ class Element extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'combinator': combinator,
+    'value': value
+  };
+
   ///
   /// Tree navegation for visitors
   ///
@@ -143,4 +149,7 @@ class Element extends Node {
 //      }
 //  };
   }
+
+  @override
+  String toString() => toCSS(null).trim();
 }

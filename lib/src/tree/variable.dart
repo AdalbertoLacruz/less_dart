@@ -24,6 +24,11 @@ class Variable extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'name': name
+  };
+
   ///
   @override
   Node eval(Contexts context) {
@@ -123,4 +128,13 @@ class Variable extends Node {
 //     }
 //     return null;
 // };
+
+// Used by genTree
+@override
+void genCSS(Contexts context, Output output) {
+  output.add(name);
+}
+
+@override
+String toString() => name;
 }

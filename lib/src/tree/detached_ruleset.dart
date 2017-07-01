@@ -16,6 +16,12 @@ class DetachedRuleset extends Node {
     evalFirst = true;
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'ruleset': ruleset,
+    'frames': frames
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -50,4 +56,11 @@ class DetachedRuleset extends Node {
 //      return this.ruleset.eval(this.frames ? new contexts.Eval(context, this.frames.concat(context.frames)) : context);
 //  };
   }
+
+  // for genTree
+  @override
+  void genCSS(Contexts context, Output output){}
+
+  @override
+  String toString() => '';
 }

@@ -23,6 +23,13 @@ class Condition extends Node {
     this.op = op.trim();
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'op': op,
+    'lvalue': lvalue,
+    'rvalue': rvalue
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -88,4 +95,7 @@ class Condition extends Node {
 //      return this.negate ? !result : result;
 //  };
   }
+
+  @override
+  String toString() => 'when';
 }

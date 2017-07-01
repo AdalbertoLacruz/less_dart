@@ -9,7 +9,7 @@ class Combinator extends Node {
 
   ///
   bool              emptyOrWhitespace;
-  
+
   Map<String, bool> _noSpaceCombinators = <String, bool>{
       '':  true,
       ' ': true,
@@ -39,6 +39,11 @@ class Combinator extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   /// Writes value in [output]
   ///
@@ -64,4 +69,7 @@ class Combinator extends Node {
   void genCleanCSS(Contexts context, Output output) {
     output.add(value);
   }
+
+  @override
+  String toString() => value;
 }

@@ -14,6 +14,12 @@ class Assignment extends Node {
   ///
   Assignment(String this.key, Node this.value);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'key': key,
+    'value': value
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -53,5 +59,12 @@ class Assignment extends Node {
 //          output.add(this.value);
 //      }
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

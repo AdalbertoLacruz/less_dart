@@ -36,6 +36,12 @@ class Unit extends Node implements CompareNode {
 // };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'numerator': numerator,
+    'denominator': denominator
+  };
+
   ///
   Unit clone() =>
       new Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);

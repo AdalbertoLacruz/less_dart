@@ -49,6 +49,13 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'condition': condition,
+    'elements': elements,
+    'extendList': extendList
+  };
+
   /// String Elements List
   List<String> get strElements {
     if (_elements == null)
@@ -335,4 +342,13 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //  Selector.prototype.getIsOutput = function() {
 //      return this.evaldCondition;
 //  };
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    elements.forEach((Node e) {
+      e.genCSS(null, output);
+    });
+    return output.toString().trim();
+  }
 }

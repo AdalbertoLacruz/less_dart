@@ -25,6 +25,11 @@ class Paren extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   Paren eval(Contexts context) => new Paren(value.eval(context));
@@ -33,4 +38,11 @@ class Paren extends Node {
 //  Paren.prototype.eval = function (context) {
 //      return new Paren(this.value.eval(context));
 //  };
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
+  }
 }

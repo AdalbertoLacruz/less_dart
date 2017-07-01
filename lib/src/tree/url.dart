@@ -17,6 +17,11 @@ class URL extends Node {
       {int this.index, FileInfo currentFileInfo, bool this.isEvald = false})
       : super.init(currentFileInfo: currentFileInfo);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -123,5 +128,12 @@ class URL extends Node {
 //
 //      return new URL(val, this.index, this.currentFileInfo, true);
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

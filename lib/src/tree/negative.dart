@@ -10,6 +10,11 @@ class Negative extends Node {
   ///
   Negative(Node this.value);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   void genCSS(Contexts context, Output output) {
@@ -38,5 +43,12 @@ class Negative extends Node {
 //      }
 //      return new Negative(this.value.eval(context));
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

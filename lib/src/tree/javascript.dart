@@ -20,6 +20,11 @@ class JavaScript extends Node with JsEvalNodeMixin {
     this.currentFileInfo = currentFileInfo;
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'expression': expression
+  };
+
   // Not supported javascript
   @override
   Anonymous eval(Contexts context) => new Anonymous(expression);
@@ -38,4 +43,17 @@ class JavaScript extends Node with JsEvalNodeMixin {
 //          return new Anonymous(result);
 //      }
 //  };
+
+  //for genTree
+  @override
+  void genCSS(Contexts context, Output output) {
+    final String escape = escaped ? '~' : '';
+    output.add('$escape`$expression`');
+  }
+
+  @override
+  String toString() {
+    final String escape = escaped ? '~' : '';
+    return '$escape`$expression`';
+  }
 }

@@ -33,6 +33,12 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value,
+    'unit': unit
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -387,5 +393,12 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 //
 //      return new Dimension(value, unit);
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

@@ -38,6 +38,11 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   void genCSS(Contexts context, Output output) {
@@ -158,4 +163,7 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //      }
 //  };
   }
+
+  @override
+  String toString() => '${!escaped ? quote : ""}$value${!escaped ? quote : ""}';
 }

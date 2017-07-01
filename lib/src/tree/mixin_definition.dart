@@ -79,6 +79,14 @@ class MixinDefinition extends Node
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'name': name,
+    'params': params,
+    'condition': condition,
+    'rules': rules
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -485,5 +493,23 @@ class MixinDefinition extends Node
 //      }
 //      return true;
 //  };
+  }
+
+  @override
+  String toString() {
+    bool first = true;
+    final StringBuffer sb = new StringBuffer()
+        ..write(name);
+    if (params != null) {
+      sb.write('(');
+      params.forEach((MixinArgs m) {
+        if (!first)
+            sb.write(', ');
+        sb.write(m.toString());
+        first = false;
+      });
+      sb.write(')');
+    }
+    return sb.toString();
   }
 }

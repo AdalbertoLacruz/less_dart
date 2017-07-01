@@ -9,6 +9,11 @@ class Alpha extends Node {
   ///
   Alpha(dynamic value) : super.init(value: value); //value = Varaible | Dimension?
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -50,5 +55,12 @@ class Alpha extends Node {
 //
 //      output.add(")");
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

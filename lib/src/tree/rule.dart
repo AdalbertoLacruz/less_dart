@@ -3,9 +3,25 @@
 part of tree.less;
 
 ///
+/// a css rule 'name: value;' such as:
+///
+///   color: black;
+///   @a: 2;
+///   *zoom: 1;
+///
 class Rule extends Node implements MakeImportantNode {
+  ///
+  /// rule left side:
+  ///
+  ///   color ->  [0] keyword color
+  ///   @a    -> String
+  ///   *zoom -> [0] keyword *, [1] keyword zoom
+  ///
   @override dynamic         name; //String or List<Keyword>
+
   @override final String    type = 'Rule';
+
+  /// rule right side
   @override covariant Node  value;
 
   ///
@@ -28,7 +44,7 @@ class Rule extends Node implements MakeImportantNode {
       bool this.inline = false,
       bool variable})
       : super.init(currentFileInfo: currentFileInfo) {
-
+    //
     //this.value = (value is Node) ? value : new Value(<Node>[value]);  // value is Node always
 
     if (important?.isNotEmpty ?? false)
@@ -49,6 +65,12 @@ class Rule extends Node implements MakeImportantNode {
 //          : (name.charAt && (name.charAt(0) === '@'));
 //  };
   }
+
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'name': name,
+    'value': value
+  };
 
   ///
   //function external to class. static?
@@ -77,7 +99,7 @@ class Rule extends Node implements MakeImportantNode {
     if (cleanCss != null)
         return genCleanCSS(context, output);
 
-    final String colon = context.compress ? ':' : ': ';
+    final String colon = (context?.compress ?? false) ? ':' : ': ';
     output.add('$name$colon', fileInfo: currentFileInfo, index: index);
 
     try {
@@ -92,7 +114,7 @@ class Rule extends Node implements MakeImportantNode {
 
     String out = '';
     if (!inline)
-        out = (context.lastRule && context.compress) ? '' : ';';
+        out = ((context?.lastRule ?? false) && (context?.compress ?? false)) ? '' : ';';
     output.add('$important$out', fileInfo: currentFileInfo, index: index);
 
 //2.3.1
@@ -250,6 +272,58 @@ class Rule extends Node implements MakeImportantNode {
 //                            this.merge,
 //                            this.index, this.currentFileInfo, this.inline);
 //  };
+
+  @override
+  void genTree(Contexts env, Output output, [String prefix = '']) {
+      genTreeTitle(env, output, prefix, type, toString());
+
+      final int tabs = prefix.isEmpty ? 1 : 2;
+      env.tabLevel = env.tabLevel + tabs ;
+
+      if (treeField == null) {
+        output.add('***** FIELDS NOT DEFINED *****');
+      } else {
+        treeField.forEach((String fieldName, dynamic fieldValue){
+          genTreeField(env, output, fieldName, fieldValue);
+        });
+      }
+
+      env.tabLevel = env.tabLevel - tabs;
+  }
+  ///
+  /*
+  @override
+  void genTree(Contexts env, Output output, [String prefix = '']) {
+    genTreeTitle(env, output, prefix, type, toString());
+
+    env.tabLevel++;
+
+    genTreeField(env, output, 'name', name);
+    genTreeField(env, output, 'value', value);
+
+    env.tabLevel--;
+  }
+  */
+
+  ///
+  /// Rebuild the original rule, such as
+  ///     color: black;
+  ///
+  @override
+  String toString() {
+    final StringBuffer sb = new StringBuffer();
+
+    if (name is String)
+        sb.write(name);
+    if (name is List)
+        name.forEach((Node e) {
+          sb.write(e.toString());
+        });
+
+    sb.write(': ${value.toString()};');
+
+    return sb.toString();
+  }
 }
 
 // ------------------------------------------------

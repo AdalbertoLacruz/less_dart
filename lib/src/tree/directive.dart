@@ -58,6 +58,9 @@ class Directive extends DirectiveBase {
 //      this.isRooted = isRooted || false;
 //  };
   }
+
+  @override
+  String toString() => name;
 }
 
 ///
@@ -88,6 +91,13 @@ class DirectiveBase extends Node
       this.isReferenced,
       this.isRooted,
       this.name});
+
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'name': name,
+    'value': value,
+    'rules': rules
+  };
 
   ///
   @override

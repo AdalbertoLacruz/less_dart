@@ -82,6 +82,12 @@ class Import extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'path': path,
+    'features': features
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -301,6 +307,13 @@ class Import extends Node {
 //          return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
 //      }
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    path.genCSS(null, output);
+    return output.toString();
   }
 }
 

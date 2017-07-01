@@ -9,4 +9,12 @@ class UnicodeDescriptor extends Node {
 
   ///
   UnicodeDescriptor(String this.value);
+
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
+  @override
+  String toString() => value;
 }

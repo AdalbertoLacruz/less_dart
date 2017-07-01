@@ -41,6 +41,12 @@ class Ruleset extends Node
     isRuleset = true;
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'selectors': selectors,
+    'rules': rules
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -1381,6 +1387,18 @@ class Ruleset extends Node
 //              }
 //          }
 //      }
+  }
+
+  // used by genTree
+  @override
+  String toString() {
+    if (selectors == null)
+        return '';
+    return selectors.fold(new StringBuffer(), (StringBuffer sb, Selector selector) {
+      if (sb.isNotEmpty)
+          sb.write(', ');
+      return sb..write(selector.toString());
+    }).toString();
   }
 
   // -----------------------------------------------------------------------

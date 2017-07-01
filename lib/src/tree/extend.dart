@@ -69,6 +69,12 @@ class Extend extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'selector': selector,
+    'option': option
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -137,5 +143,14 @@ class Extend extends Node {
 //
 //      this.selfSelectors = [{ elements: selfElements }];
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    selector.genCSS(null, output);
+    if(option != null)
+        output.add(' $option');
+    return output.toString().trim();
   }
 }

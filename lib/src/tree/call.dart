@@ -18,6 +18,12 @@ class Call extends Node {
   Call(this.name, this.args, this.index, FileInfo currentFileInfo)
       : super.init(currentFileInfo: currentFileInfo);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'name': name,
+    'args': args
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -136,5 +142,12 @@ class Call extends Node {
     }
 
     output.add(')');
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

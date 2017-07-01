@@ -20,6 +20,9 @@ class Keyword extends Node {
     value = 'false';
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
+
   ///
   @override
   void genCSS(Contexts context, Output output) {
@@ -36,4 +39,7 @@ class Keyword extends Node {
 //      output.add(this.value);
 //  };
   }
+
+  @override
+  String toString() => value;
 }

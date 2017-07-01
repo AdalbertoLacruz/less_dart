@@ -16,6 +16,13 @@ class Attribute extends Node {
   Attribute(this.key, this.op, dynamic value)
       : super.init(value: value);
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'key': key,
+    'op': op,
+    'value': value
+  };
+
   ///
   @override
   Attribute eval(Contexts context) => new Attribute(
@@ -66,4 +73,7 @@ class Attribute extends Node {
 //      return '[' + value + ']';
 //  };
   }
+
+  @override
+  String toString() => toCSS(null);
 }

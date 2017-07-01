@@ -26,6 +26,12 @@ class Operation extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'op': op,
+    'operands': operands
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -109,5 +115,12 @@ class Operation extends Node {
 //      }
 //      this.operands[1].genCSS(context, output);
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

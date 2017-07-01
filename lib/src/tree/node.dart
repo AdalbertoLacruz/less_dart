@@ -34,6 +34,7 @@ abstract class Node {
   @virtual List<Node> rules; //Ruleset
   ///
   List<Selector>      selectors;
+
   ///
   @virtual dynamic    value;
 
@@ -47,6 +48,8 @@ abstract class Node {
     id = hashCode;
   }
 
+  /// Fields to show with genTree
+  Map<String, dynamic> get treeField => null;
   ///
   dynamic get         name => null; //String | List<Node>
   ///
@@ -264,40 +267,72 @@ abstract class Node {
   }
 
   ///
-  void genTree(Contexts env, Output output) {
-    int i;
-    //Node rule;
-    final String tabStr = '  ' * env.tabLevel;
-    final List<dynamic> process = <dynamic>[];
+  void genTree(Contexts env, Output output, [String prefix = '']) {
+      genTreeTitle(env, output, prefix, type, toString());
 
-    String nameNode = name is String ? name : null;
-    nameNode ??= value is String ? value : '';
-    nameNode = nameNode.replaceAll('\n', '');
+      final int tabs = prefix.isEmpty ? 1 : 2;
+      env.tabLevel = env.tabLevel + tabs ;
 
-    output.add('$tabStr$type ($nameNode)\n');
-    env.tabLevel++;
-
-    if (selectors is List)
-        process.addAll(selectors);
-    if (rules is List)
-        process.addAll(rules);
-    if (elements is List)
-        process.addAll(elements);
-    if (name is List)
-        process.addAll(name);
-    if (value is List)
-        process.addAll(value);
-    if (operands is List)
-        process.addAll(operands);
-
-    if (process.isNotEmpty) {
-      for (i = 0; i < process.length; i++) {
-        process[i].genTree(env, output);
+      if (treeField == null) {
+        output.add('***** FIELDS NOT DEFINED in $type *****');
+      } else {
+        treeField.forEach((String fieldName, dynamic fieldValue){
+          genTreeField(env, output, fieldName, fieldValue);
+        });
       }
+
+      env.tabLevel = env.tabLevel - tabs;
+  }
+
+  ///
+  void genTreeTitle(Contexts env, Output output, String prefix, String type, String value) {
+    final String tabStr = '  ' * env.tabLevel;
+    output.add('$tabStr$prefix$type ($value)\n');
+  }
+
+  ///
+  void genTreeField(Contexts env, Output output, String fieldName, dynamic fieldValue) {
+    final String tabStr = '  ' * env.tabLevel;
+
+    if (fieldValue == null) {
+
+    } else if (fieldValue is String) {
+      if (fieldValue.isNotEmpty)
+          output.add('$tabStr.$fieldName: String ($fieldValue)\n');
+    } else if (fieldValue is num) {
+      output.add('$tabStr.$fieldName: num (${fieldValue.toString()})\n');
+    } else if (fieldValue is Node) {
+      fieldValue.genTree(env, output, '.$fieldName: ');
+    } else if (fieldValue is List && fieldValue.isEmpty) {
+
+    } else if (fieldValue is List && fieldValue.isNotEmpty) {
+      output.add('$tabStr.$fieldName: \n');
+      env.tabLevel++;
+      if (fieldValue.first is Node) {
+        fieldValue.forEach((Node e) {
+          e.genTree(env, output, '- ');
+        });
+      } else if (fieldValue.first is MixinArgs) {
+        fieldValue.forEach((MixinArgs a) {
+          a.genTree(env, output, '- ');
+        });
+      } else if (fieldValue.first is String) {
+        final String tabStr = '  ' * env.tabLevel;
+        fieldValue.forEach((String s) {
+          output.add('$tabStr- String ($s)\n');
+        });
+      } else if (fieldValue.first is num) {
+        final String tabStr = '  ' * env.tabLevel;
+        fieldValue.forEach((num n) {
+          output.add('$tabStr- num (${n.toString()})\n');
+        });
+      } else {
+        output.add('*** field type not implemented ***');
+      }
+      env.tabLevel--;
+    } else {
+      output.add('$tabStr.$fieldName: ***********\n');
     }
-    if (value is Node)
-        value.genTree(env, output);
-    env.tabLevel--;
   }
 }
 

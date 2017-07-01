@@ -34,6 +34,12 @@ class MixinCall extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'elements': elements,
+    'arguments': arguments
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -398,6 +404,9 @@ class MixinCall extends Node {
 //          }).join(', ') : "") + ")";
 //  };
   }
+
+  @override
+  String toString() => format(arguments);
 }
 
 ///
@@ -411,6 +420,33 @@ class MixinArgs {
 
   ///
   MixinArgs({String this.name, Node this.value, bool this.variadic: false});
+
+  ///
+  void genTree(Contexts env, Output output, [String prefix = '']) {
+    String tabStr = '  ' * env.tabLevel;
+    output.add('$tabStr${prefix}MixinArgs (${toString()})\n');
+
+    env.tabLevel = env.tabLevel + 2;
+    tabStr = '  ' * env.tabLevel;
+
+    if (name?.isNotEmpty ?? false)
+        output.add('$tabStr.name: String ($name)\n');
+
+    if (value != null)
+      value.genTree(env, output, '.value: ');
+
+    env.tabLevel = env.tabLevel - 2;
+  }
+
+  ///
+  @override
+  String toString() {
+    final String _name = name ?? '';
+    final String _value = (value != null) ? value.toString() : '';
+    final String _separator = _value.isNotEmpty ? ': ' : '';
+
+    return '$_name$_separator$_value';
+  }
 }
 
 ///

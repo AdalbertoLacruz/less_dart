@@ -26,6 +26,11 @@ class Expression extends Node {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -133,5 +138,12 @@ class Expression extends Node {
 //          return !(v instanceof Comment);
 //      });
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

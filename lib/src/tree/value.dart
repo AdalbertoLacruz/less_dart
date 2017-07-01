@@ -23,6 +23,11 @@ class Value extends Node {
 //      }
 //  };
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'value': value
+  };
+  
   ///
   @override
   void accept(covariant Visitor visitor) {
@@ -89,5 +94,12 @@ class Value extends Node {
       if (i + 1 < value.length)
           output.add(',');
     }
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output();
+    genCSS(null, output);
+    return output.toString();
   }
 }

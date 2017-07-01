@@ -39,6 +39,12 @@ class Media extends DirectiveBase {
 //  };
   }
 
+  /// Fields to show with genTree
+  @override Map<String, dynamic> get treeField => <String, dynamic>{
+    'features': features,
+    'rules': rules
+  };
+
   ///
   @override
   void accept(Visitor visitor) {
@@ -331,5 +337,13 @@ class Media extends DirectiveBase {
 //    }
 //    this.rules = [new Ruleset(selectors.slice(0), [this.rules[0]])];
 //  };
+  }
+
+  @override
+  String toString() {
+    final Output output = new Output()
+        ..add('@media ');
+    features.genCSS(null, output);
+    return output.toString();
   }
 }
