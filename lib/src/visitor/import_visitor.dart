@@ -1,4 +1,4 @@
-// source: less/import-visitor.js 2.5.0
+// source: less/import-visitor.js 2.5.1 20150613
 
 part of visitor.less;
 
@@ -260,6 +260,7 @@ class ImportVisitor extends VisitorBase {
     final Completer<Null> completer = new Completer<Null>();
     final ImportVisitor importVisitor = this;
     final bool inlineCSS = importNode.options.inline ?? false;
+    final bool isOptional = importNode.options.optional ?? false;
     final bool duplicateImport =
         importedAtRoot || recursionDetector.containsKey(fullPath);
 
@@ -276,6 +277,9 @@ class ImportVisitor extends VisitorBase {
         };
       }
     }
+
+    if (!(fullPath?.isNotEmpty ?? false) && isOptional)
+        importNode.skip = true;
 
     // recursion - analyze the new root
     if (root != null) {
@@ -301,58 +305,63 @@ class ImportVisitor extends VisitorBase {
 
     return completer.future;
 
-//2.4.0 20150320
-//  onImported: function (importNode, context, e, root, importedAtRoot, fullPath) {
-//      if (e) {
-//          if (!e.filename) {
-//              e.index = importNode.index; e.filename = importNode.currentFileInfo.filename;
-//          }
-//          this.error = e;
-//      }
+//2.5.1 20150613
+// onImported: function (importNode, context, e, root, importedAtRoot, fullPath) {
+//     if (e) {
+//         if (!e.filename) {
+//             e.index = importNode.index; e.filename = importNode.currentFileInfo.filename;
+//         }
+//         this.error = e;
+//     }
 //
-//      var importVisitor = this,
-//          inlineCSS = importNode.options.inline,
-//          isPlugin = importNode.options.plugin,
-//          duplicateImport = importedAtRoot || fullPath in importVisitor.recursionDetector;
+//     var importVisitor = this,
+//         inlineCSS = importNode.options.inline,
+//         isPlugin = importNode.options.plugin,
+//         isOptional = importNode.options.optional,
+//         duplicateImport = importedAtRoot || fullPath in importVisitor.recursionDetector;
 //
-//      if (!context.importMultiple) {
-//          if (duplicateImport) {
-//              importNode.skip = true;
-//          } else {
-//              importNode.skip = function() {
-//                  if (fullPath in importVisitor.onceFileDetectionMap) {
-//                      return true;
-//                  }
-//                  importVisitor.onceFileDetectionMap[fullPath] = true;
-//                  return false;
-//              };
-//          }
-//      }
+//     if (!context.importMultiple) {
+//         if (duplicateImport) {
+//             importNode.skip = true;
+//         } else {
+//             importNode.skip = function() {
+//                 if (fullPath in importVisitor.onceFileDetectionMap) {
+//                     return true;
+//                 }
+//                 importVisitor.onceFileDetectionMap[fullPath] = true;
+//                 return false;
+//             };
+//         }
+//     }
 //
-//      if (root) {
-//          importNode.root = root;
-//          importNode.importedFilename = fullPath;
+//     if (!fullPath && isOptional) {
+//         importNode.skip = true;
+//     }
 //
-//          if (!inlineCSS && !isPlugin && (context.importMultiple || !duplicateImport)) {
-//              importVisitor.recursionDetector[fullPath] = true;
+//     if (root) {
+//         importNode.root = root;
+//         importNode.importedFilename = fullPath;
 //
-//              var oldContext = this.context;
-//              this.context = context;
-//              try {
-//                  this._visitor.visit(root);
-//              } catch (e) {
-//                  this.error = e;
-//              }
-//              this.context = oldContext;
-//          }
-//      }
+//         if (!inlineCSS && !isPlugin && (context.importMultiple || !duplicateImport)) {
+//             importVisitor.recursionDetector[fullPath] = true;
 //
-//      importVisitor.importCount--;
+//             var oldContext = this.context;
+//             this.context = context;
+//             try {
+//                 this._visitor.visit(root);
+//             } catch (e) {
+//                 this.error = e;
+//             }
+//             this.context = oldContext;
+//         }
+//     }
 //
-//      if (importVisitor.isFinished) {
-//          importVisitor._sequencer.tryRun();
-//      }
-//  },
+//     importVisitor.importCount--;
+//
+//     if (importVisitor.isFinished) {
+//         importVisitor._sequencer.tryRun();
+//     }
+// },
   }
 
   ///

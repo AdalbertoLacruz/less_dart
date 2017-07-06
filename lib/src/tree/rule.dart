@@ -9,7 +9,7 @@ part of tree.less;
 ///   @a: 2;
 ///   *zoom: 1;
 ///
-class Rule extends Node implements MakeImportantNode {
+class Rule extends Node implements MakeImportantNode, MarkReferencedNode {
   ///
   /// rule left side:
   ///
@@ -273,6 +273,47 @@ class Rule extends Node implements MakeImportantNode {
 //                            this.index, this.currentFileInfo, this.inline);
 //  };
 
+  ///
+  /// Recursive marking for rules
+  ///
+  void mark(dynamic value) {
+    if (value is! List) {
+      if (value is MarkReferencedNode)
+          value.markReferenced();
+    } else {
+      value.forEach((dynamic ar) {
+        mark(ar);
+      });
+    }
+
+//2.5.1 20150831
+// Recursive marking for rules
+// var mark = function(value) {
+//     if (!Array.isArray(value)) {
+//         if (value.markReferenced) {
+//             value.markReferenced();
+//         }
+//     } else {
+//         value.forEach(function (ar) {
+//             mark(ar);
+//         });
+//     }
+// };
+  }
+
+  @override
+  void markReferenced() {
+    if (value is MarkReferencedNode)
+        mark(value);
+
+//2.5.1 20150831
+// Rule.prototype.markReferenced = function () {
+//     if (this.value) {
+//         mark(this.value);
+//     }
+// };
+  }
+
   @override
   void genTree(Contexts env, Output output, [String prefix = '']) {
       genTreeTitle(env, output, prefix, type, toString());
@@ -290,20 +331,6 @@ class Rule extends Node implements MakeImportantNode {
 
       env.tabLevel = env.tabLevel - tabs;
   }
-  ///
-  /*
-  @override
-  void genTree(Contexts env, Output output, [String prefix = '']) {
-    genTreeTitle(env, output, prefix, type, toString());
-
-    env.tabLevel++;
-
-    genTreeField(env, output, 'name', name);
-    genTreeField(env, output, 'value', value);
-
-    env.tabLevel--;
-  }
-  */
 
   ///
   /// Rebuild the original rule, such as

@@ -1,4 +1,4 @@
-//source: less/tree/color.js 2.5.0
+//source: less/tree/color.js 2.5.1 20150719
 
 part of tree.less;
 
@@ -7,8 +7,11 @@ part of tree.less;
 ///
 class Color extends Node implements CompareNode, OperateNode<Color> {
   @override final String      name = null;
+
   @override final String      type = 'Color';
-  @override covariant String  value; //TODO used?
+
+  /// original form or named color to return to CSS
+  @override covariant String  value;
 
   ///
   num           alpha;
@@ -26,13 +29,17 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// [rgb] could be a List<int> [128, 255, 0]
   /// or String length=6 # 'deb887' or length=3 # 'f01'.
+  ///
   /// [alpha] 0 < alpha < 1. Default = 1.
   ///
-  Color(dynamic rgb, [num this.alpha = 1]){
+  /// [originalForm] returned to CSS if color is not processed: #rgb or #rrggbb.
+  ///
+  Color(dynamic rgb, [num this.alpha = 1, String originalForm]) {
     if (alpha == 0)
         alpha = 0; // convert to int
     if (alpha == 1)
         alpha = 1;
+    alpha ??= 1;
 
     final RegExp hex6 = new RegExp('.{2}');
 
@@ -50,27 +57,33 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
           .toList();
     }
 
-//2.2.0
-//  var Color = function (rgb, a) {
-//      //
-//      // The end goal here, is to parse the arguments
-//      // into an integer triplet, such as `128, 255, 0`
-//      //
-//      // This facilitates operations and conversions.
-//      //
-//      if (Array.isArray(rgb)) {
-//          this.rgb = rgb;
-//      } else if (rgb.length == 6) {
-//          this.rgb = rgb.match(/.{2}/g).map(function (c) {
-//              return parseInt(c, 16);
-//          });
-//      } else {
-//          this.rgb = rgb.split('').map(function (c) {
-//              return parseInt(c + c, 16);
-//          });
-//      }
-//      this.alpha = typeof(a) === 'number' ? a : 1;
-//  };
+    if (originalForm != null)
+        value = originalForm;
+
+//2.5.1 20150719
+// var Color = function (rgb, a, originalForm) {
+//     //
+//     // The end goal here, is to parse the arguments
+//     // into an integer triplet, such as `128, 255, 0`
+//     //
+//     // This facilitates operations and conversions.
+//     //
+//     if (Array.isArray(rgb)) {
+//         this.rgb = rgb;
+//     } else if (rgb.length == 6) {
+//         this.rgb = rgb.match(/.{2}/g).map(function (c) {
+//             return parseInt(c, 16);
+//         });
+//     } else {
+//         this.rgb = rgb.split('').map(function (c) {
+//             return parseInt(c + c, 16);
+//         });
+//     }
+//     this.alpha = typeof a === 'number' ? a : 1;
+//     if (typeof originalForm !== 'undefined') {
+//         this.value = originalForm;
+//     }
+// };
   }
 
   ///

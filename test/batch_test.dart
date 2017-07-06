@@ -1,4 +1,4 @@
-//Less 2.5.0
+//Less 2.5.1
 // use:
 // cmd> pub run test test/batch_test.dart
 //
@@ -293,21 +293,22 @@ Map<int, Config> configFill() => <int, Config>{
     145: def('errors/parse-error-missing-parens', isErrorTest: true),
     146: def('errors/parse-error-with-import', isErrorTest: true),
     147: def('errors/percentage-missing-space', isErrorTest: true),
-    148: def('errors/property-asterisk-only-name', isErrorTest: true),
-    149: def('errors/property-ie5-hack', isErrorTest: true),
-    150: def('errors/property-in-root', isErrorTest: true),
-    151: def('errors/property-in-root2', isErrorTest: true),
-    152: def('errors/property-in-root3', isErrorTest: true),
-    153: def('errors/property-interp-not-defined', isErrorTest: true),
-    154: def('errors/recursive-variable', isErrorTest: true),
-    155: def('errors/single-character', isErrorTest: true),
-    156: def('errors/svg-gradient1', isErrorTest: true),
-    157: def('errors/svg-gradient2', isErrorTest: true),
-    158: def('errors/svg-gradient3', isErrorTest: true),
-    159: def('errors/svg-gradient4', isErrorTest: true),
-    160: def('errors/svg-gradient5', isErrorTest: true),
-    161: def('errors/svg-gradient6', isErrorTest: true),
-    162: def('errors/unit-function', isErrorTest: true),
+    148: def('errors/percentage-non-number-argument', isErrorTest: true),
+    149: def('errors/property-asterisk-only-name', isErrorTest: true),
+    150: def('errors/property-ie5-hack', isErrorTest: true),
+    151: def('errors/property-in-root', isErrorTest: true),
+    152: def('errors/property-in-root2', isErrorTest: true),
+    153: def('errors/property-in-root3', isErrorTest: true),
+    154: def('errors/property-interp-not-defined', isErrorTest: true),
+    155: def('errors/recursive-variable', isErrorTest: true),
+    156: def('errors/single-character', isErrorTest: true),
+    157: def('errors/svg-gradient1', isErrorTest: true),
+    158: def('errors/svg-gradient2', isErrorTest: true),
+    159: def('errors/svg-gradient3', isErrorTest: true),
+    160: def('errors/svg-gradient4', isErrorTest: true),
+    161: def('errors/svg-gradient5', isErrorTest: true),
+    162: def('errors/svg-gradient6', isErrorTest: true),
+    163: def('errors/unit-function', isErrorTest: true),
     //
     200: def('extendedTest/svg', isExtendedTest: true),
     201: def('extendedTest/url', isExtendedTest: true),

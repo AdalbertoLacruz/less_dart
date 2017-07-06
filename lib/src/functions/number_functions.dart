@@ -1,4 +1,4 @@
-// source: lib/less/functions/number.js 2.5.0
+// source: lib/less/functions/number.js 2.5.1 20150720
 
 part of functions.less;
 
@@ -241,5 +241,14 @@ class NumberFunctions extends FunctionBase {
   /// Example: percentage(0.5)
   ///   Output: 50%
   ///
-  Dimension percentage(Node n) => new Dimension(n.value * 100, '%');
+  Dimension percentage(Node n) => MathHelper._math((num d) => d * 100, '%', n);
+
+//2.5.1 20150720
+// percentage: function (n) {
+//     var result = mathHelper._math(function(num) {
+//         return num * 100;
+//     }, '%', n);
+//
+//     return result;
+// }
 }

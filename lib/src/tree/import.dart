@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.5.0
+//source: less/tree/import.js 2.5.1 20150725
 
 part of tree.less;
 
@@ -248,9 +248,12 @@ class Import extends Node {
     if (options.inline ?? false) {
       final Anonymous contents = new Anonymous(root,
           index: 0,
-          currentFileInfo: new FileInfo()..filename = importedFilename,
+          currentFileInfo: new FileInfo()
+              ..filename = importedFilename
+              ..reference = path.currentFileInfo.reference,
           mapLines: true,
-          rulesetLike: true);
+          rulesetLike: true,
+          isReferenced: false);
       return (this.features != null)
           ? new Media(<Node>[contents], this.features.value)
           : new Nodeset(<Node>[contents]);
@@ -268,45 +271,45 @@ class Import extends Node {
           : new Nodeset(ruleset.rules);
     }
 
-//2.4.0 20150320
-//  Import.prototype.eval = function (context) {
-//      var ruleset, registry,
-//          features = this.features && this.features.eval(context);
+//2.5.1 20150725
+// Import.prototype.eval = function (context) {
+//     var ruleset, registry,
+//         features = this.features && this.features.eval(context);
 //
-//      if (this.options.plugin) {
-//          registry = context.frames[0] && context.frames[0].functionRegistry;
-//          if ( registry && this.root && this.root.functions ) {
-//              registry.addMultiple( this.root.functions );
-//          }
-//          return [];
-//      }
+//     if (this.options.plugin) {
+//         registry = context.frames[0] && context.frames[0].functionRegistry;
+//         if ( registry && this.root && this.root.functions ) {
+//             registry.addMultiple( this.root.functions );
+//         }
+//         return [];
+//     }
 //
-//      if (this.skip) {
-//          if (typeof this.skip === "function") {
-//              this.skip = this.skip();
-//          }
-//          if (this.skip) {
-//              return [];
-//          }
-//      }
+//     if (this.skip) {
+//         if (typeof this.skip === "function") {
+//             this.skip = this.skip();
+//         }
+//         if (this.skip) {
+//             return [];
+//         }
+//     }
 //
-//      if (this.options.inline) {
-//          var contents = new Anonymous(this.root, 0, {filename: this.importedFilename}, true, true);
-//          return this.features ? new Media([contents], this.features.value) : [contents];
-//      } else if (this.css) {
-//          var newImport = new Import(this.evalPath(context), features, this.options, this.index);
-//          if (!newImport.css && this.error) {
-//              throw this.error;
-//          }
-//          return newImport;
-//      } else {
-//          ruleset = new Ruleset(null, this.root.rules.slice(0));
+//     if (this.options.inline) {
+//         var contents = new Anonymous(this.root, 0, {filename: this.importedFilename, reference: this.path.currentFileInfo.reference}, true, true, false);
+//         return this.features ? new Media([contents], this.features.value) : [contents];
+//     } else if (this.css) {
+//         var newImport = new Import(this.evalPath(context), features, this.options, this.index);
+//         if (!newImport.css && this.error) {
+//             throw this.error;
+//         }
+//         return newImport;
+//     } else {
+//         ruleset = new Ruleset(null, this.root.rules.slice(0));
 //
-//          ruleset.evalImports(context);
+//         ruleset.evalImports(context);
 //
-//          return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
-//      }
-//  };
+//         return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
+//     }
+// };
   }
 
   @override

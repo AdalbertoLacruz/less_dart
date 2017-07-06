@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.5.0
+//source: less/to-css-visitor.js 2.5.1 20150725
 
 part of visitor.less;
 
@@ -648,9 +648,30 @@ class ToCSSVisitor extends VisitorBase{
 //  }
   }
 
+  ///
+  Anonymous visitAnonymous(Anonymous anonymousNode, VisitArgs visitArgs) {
+    if (!anonymousNode.getIsReferenced())
+        return null;
+
+    anonymousNode.accept(_visitor);
+    return anonymousNode;
+
+//2.5.1 20150725
+// visitAnonymous: function(anonymousNode, visitArgs) {
+//     if (!anonymousNode.getIsReferenced()) {
+//         return ;
+//     }
+//
+//     anonymousNode.accept(this._visitor);
+//     return anonymousNode;
+// }
+  }
+
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
+    if (node is Anonymous)
+        return visitAnonymous;
     if (node is Comment)
         return visitComment;
     if (node is Media)

@@ -19,6 +19,7 @@ part 'function_caller.dart';
 part 'function_registry.dart';
 part 'image_size_functions.dart';
 part 'math_functions.dart';
+part 'math_helper.dart';
 part 'number_functions.dart';
 part 'string_functions.dart';
 part 'svg_functions.dart';

@@ -3,7 +3,7 @@
 part of tree.less;
 
 ///
-class Expression extends Node {
+class Expression extends Node implements MarkReferencedNode {
   @override final String          type = 'Expression';
   @override covariant List<Node>  value;
 
@@ -138,6 +138,22 @@ class Expression extends Node {
 //          return !(v instanceof Comment);
 //      });
 //  };
+  }
+
+  ///
+  @override
+  void markReferenced() {
+    value.forEach((Node value) {
+      if (value is MarkReferencedNode)
+          (value as MarkReferencedNode).markReferenced();
+    });
+    
+//2.5.1 20150831
+//   Expression.prototype.markReferenced = function () {
+//     this.value.forEach(function (value) {
+//         if (value.markReferenced) { value.markReferenced(); }
+//     });
+// };
   }
 
   @override

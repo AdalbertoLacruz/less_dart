@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 2.5.0 20150419
+//source: tree/mixin-definition.js 2.5.1 20150722
 
 part of tree.less;
 
@@ -9,27 +9,36 @@ class MixinDefinition extends Node
   @override String        name; //Same as Selector
   @override final String  type = 'MixinDefinition';
 
-  ///
-  int                   arity; // Number of params
-  ///
-  Node                  condition; // when (condition) {}
+  /// Number of params
+  int                   arity;
+
+  /// when (condition) {}
+  Node                  condition;
+
   ///
   int                   index; //not in js original
+
   ///
   List<Node>            frames;
-  ///
-  List<MixinArgs>       params; // Mixin params
-  ///
-  int                   required; // Arguments number required
-  ///
-  @override List<Node>  rules; // Mixin body
+
+  /// Arguments number optional
+  List<String>          optionalParameters;
+
+  /// Mixin params
+  List<MixinArgs>       params;
+
+  /// Arguments number required
+  int                   required;
+
+  /// Mixin body
+  @override List<Node>  rules;
 
   //List<Node>          selectors; // Same as name
 
-  ///
-  bool                  variadic; // Arguments number is variable
+  /// Arguments number is variable
+  bool                  variadic;
 
-  /// name, params, rules, condition, variadic, index, currentFileInfo, frames
+  ///
   //index, currentFileInfo not in original. See order when calling with frames.
   MixinDefinition(
       String this.name,
@@ -51,32 +60,41 @@ class MixinDefinition extends Node
     ];
     arity = params.length;
 
+    optionalParameters = <String>[];
     required = params.fold(0, (int count, MixinArgs p) {
       if (p.name == null || (p.name != null && p.value == null)) {
         return count + 1;
       } else {
+        optionalParameters.add(p.name);
         return count;
       }
     });
 
     //this._lookups = {}; //inside VariableMixin
 
-//2.3.1
-//  var Definition = function (name, params, rules, condition, variadic, frames) {
-//      this.name = name;
-//      this.selectors = [new Selector([new Element(null, name, this.index, this.currentFileInfo)])];
-//      this.params = params;
-//      this.condition = condition;
-//      this.variadic = variadic;
-//      this.arity = params.length;
-//      this.rules = rules;
-//      this._lookups = {};
-//      this.required = params.reduce(function (count, p) {
-//          if (!p.name || (p.name && !p.value)) { return count + 1; }
-//          else                                 { return count; }
-//      }, 0);
-//      this.frames = frames;
-//  };
+//2.5.1 20150722
+// var Definition = function (name, params, rules, condition, variadic, frames) {
+//     this.name = name;
+//     this.selectors = [new Selector([new Element(null, name, this.index, this.currentFileInfo)])];
+//     this.params = params;
+//     this.condition = condition;
+//     this.variadic = variadic;
+//     this.arity = params.length;
+//     this.rules = rules;
+//     this._lookups = {};
+//     var optionalParameters = [];
+//     this.required = params.reduce(function (count, p) {
+//         if (!p.name || (p.name && !p.value)) {
+//             return count + 1;
+//         }
+//         else {
+//             optionalParameters.push(p.name);
+//             return count;
+//         }
+//     }, 0);
+//     this.optionalParameters = optionalParameters;
+//     this.frames = frames;
+// };
   }
 
   /// Fields to show with genTree
@@ -449,19 +467,29 @@ class MixinDefinition extends Node
   ///
   @override
   bool matchArgs(List<MixinArgs> args, Contexts context) {
-    final int argsLength = args?.length ?? 0;
+    final int allArgsCnt = args?.length ?? 0;
+    final int requiredArgsCnt = (args == null)
+        ? 0
+        : args.fold(0, (int count, MixinArgs p) {
+          if (!optionalParameters.contains(p.name)) {
+            return count + 1;
+          } else {
+            return count;
+          }
+        });
 
     if (!variadic) {
-      if (argsLength < required)
+      if (requiredArgsCnt < required)
           return false;
-      if (argsLength > params.length)
+      if (allArgsCnt > params.length)
           return false;
     } else {
-      if (argsLength < (required - 1))
+      if (requiredArgsCnt < (required - 1))
           return false;
     }
 
-    final int len = math.min(argsLength, arity);
+    // check patterns
+    final int len = math.min(requiredArgsCnt, arity);
     for (int i = 0; i < len; i++) {
       if (params[i].name == null && !params[i].variadic) {
         if (args[i].value.eval(context).toCSS(context) !=
@@ -471,28 +499,42 @@ class MixinDefinition extends Node
     }
     return true;
 
-//2.3.1
-//  Definition.prototype.matchArgs = function (args, context) {
-//      var argsLength = (args && args.length) || 0, len;
+//2.5.1 20150722
+// Definition.prototype.matchArgs = function (args, context) {
+//     var allArgsCnt = (args && args.length) || 0, len, optionalParameters = this.optionalParameters;
+//     var requiredArgsCnt = !args ? 0 : args.reduce(function (count, p) {
+//         if (optionalParameters.indexOf(p.name) < 0) {
+//             return count + 1;
+//         } else {
+//             return count;
+//         }
+//     }, 0);
 //
-//      if (! this.variadic) {
-//          if (argsLength < this.required)                               { return false; }
-//          if (argsLength > this.params.length)                          { return false; }
-//      } else {
-//          if (argsLength < (this.required - 1))                         { return false; }
-//      }
+//     if (! this.variadic) {
+//         if (requiredArgsCnt < this.required) {
+//             return false;
+//         }
+//         if (allArgsCnt > this.params.length) {
+//             return false;
+//         }
+//     } else {
+//         if (requiredArgsCnt < (this.required - 1)) {
+//             return false;
+//         }
+//     }
 //
-//      len = Math.min(argsLength, this.arity);
+//     // check patterns
+//     len = Math.min(requiredArgsCnt, this.arity);
 //
-//      for (var i = 0; i < len; i++) {
-//          if (!this.params[i].name && !this.params[i].variadic) {
-//              if (args[i].value.eval(context).toCSS() != this.params[i].value.eval(context).toCSS()) {
-//                  return false;
-//              }
-//          }
-//      }
-//      return true;
-//  };
+//     for (var i = 0; i < len; i++) {
+//         if (!this.params[i].name && !this.params[i].variadic) {
+//             if (args[i].value.eval(context).toCSS() != this.params[i].value.eval(context).toCSS()) {
+//                 return false;
+//             }
+//         }
+//     }
+//     return true;
+// };
   }
 
   @override
