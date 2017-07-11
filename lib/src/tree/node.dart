@@ -1,4 +1,4 @@
-//source: less/tree/node.js 2.5.0
+//source: less/tree/node.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -23,6 +23,8 @@ abstract class Node {
   ///
   bool                isRuleset = false; //true in MixinDefinition & Ruleset
   ///
+  bool                nodeVisible;
+  ///
   List<Node>          operands;
   ///
   Node                originalRuleset; //see mixin_call
@@ -37,6 +39,9 @@ abstract class Node {
 
   ///
   @virtual dynamic    value;
+
+  ///
+  int                 visibilityBlocks;
 
   ///
   Node() {
@@ -256,7 +261,122 @@ abstract class Node {
 //          : a  >  b ?  1 : undefined;
 //  };
 
-  //debug print the node tree
+///
+/// Returns true if this node represents root of ast imported by reference
+///
+  bool blocksVisibility() {
+    visibilityBlocks ??= 0;
+    return visibilityBlocks != 0;
+
+//2.5.3 20151120
+// Node.prototype.blocksVisibility = function () {
+//     if (this.visibilityBlocks == null) {
+//         this.visibilityBlocks = 0;
+//     }
+//     return this.visibilityBlocks !== 0;
+// };
+  }
+
+  ///
+  void addVisibilityBlock() {
+    visibilityBlocks ??= 0;
+    visibilityBlocks++;
+
+//2.5.3 20151120
+// Node.prototype.addVisibilityBlock = function () {
+//     if (this.visibilityBlocks == null) {
+//         this.visibilityBlocks = 0;
+//     }
+//     this.visibilityBlocks = this.visibilityBlocks + 1;
+// };
+  }
+
+  ///
+  void removeVisibilityBlock() {
+    visibilityBlocks ??= 0;
+    visibilityBlocks--;
+
+//2.5.3 20151120
+// Node.prototype.removeVisibilityBlock = function () {
+//     if (this.visibilityBlocks == null) {
+//         this.visibilityBlocks = 0;
+//     }
+//     this.visibilityBlocks = this.visibilityBlocks - 1;
+// };
+  }
+
+  ///
+  /// Turns on node visibility - if called node will be shown in output regardless
+  /// of whether it comes from import by reference or not
+  ///
+  void ensureVisibility() {
+    nodeVisible = true;
+
+//2.5.3 20151120
+// Node.prototype.ensureVisibility = function () {
+//     this.nodeVisible = true;
+// };
+  }
+
+  ///
+  /// Turns off node visibility - if called node will NOT be shown in output regardless
+  /// of whether it comes from import by reference or not
+  ///
+  void ensureInvisibility() {
+    nodeVisible = false;
+
+//2.5.3 20151120
+// Node.prototype.ensureInvisibility = function () {
+//     this.nodeVisible = false;
+// };
+  }
+
+  ///
+  /// return values:
+  ///  false - the node must not be visible
+  ///  true - the node must be visible
+  ///  null - the node has the same visibility as its parent
+  ///
+  bool isVisible() => nodeVisible;
+
+//2.5.3 20151120
+// Node.prototype.isVisible = function () {
+//     return this.nodeVisible;
+// };
+
+///
+  VisibilityInfo visibilityInfo() => new VisibilityInfo(
+      visibilityBlocks: visibilityBlocks,
+      nodeVisible: nodeVisible
+    );
+
+//2.5.3 20151120
+// Node.prototype.visibilityInfo = function() {
+//     return {
+//         visibilityBlocks: this.visibilityBlocks,
+//         nodeVisible: this.nodeVisible
+//     };
+// };
+
+  ///
+  void copyVisibilityInfo(VisibilityInfo info) {
+    if (info == null)
+        return;
+    visibilityBlocks = info.visibilityBlocks;
+    nodeVisible = info.nodeVisible;
+
+//2.5.3 20151120
+// Node.prototype.copyVisibilityInfo = function(info) {
+//     if (!info) {
+//         return;
+//     }
+//     this.visibilityBlocks = info.visibilityBlocks;
+//     this.nodeVisible = info.nodeVisible;
+// };
+  }
+
+  ///
+  /// debug print the node tree
   ///
   StringBuffer toTree(LessOptions options) {
     final Contexts  env = new Contexts.eval(options);
@@ -345,21 +465,9 @@ abstract class CompareNode {
 }
 
 ///
-abstract class GetIsReferencedNode {
-  ///
-  bool getIsReferenced();
-}
-
-///
 abstract class MakeImportantNode {
   ///
   Node makeImportant();
-}
-
-///
-abstract class MarkReferencedNode {
-  ///
-  void markReferenced();
 }
 
 ///
@@ -377,4 +485,21 @@ abstract class OperateNode<T> {
   //Node operate(Contexts context, String op, Node other);
   ///
   T operate(Contexts context, String op, T other);
+}
+
+///
+abstract class SilentNode {
+  ///
+  bool isSilent(Contexts context);
+}
+
+///
+class VisibilityInfo {
+  ///
+  int   visibilityBlocks;
+  ///
+  bool nodeVisible;
+
+  ///
+  VisibilityInfo({this.visibilityBlocks, this.nodeVisible});
 }

@@ -1,9 +1,9 @@
-//source: less/tree/comment.js 2.5.0
+//source: less/tree/comment.js 2.5.3 20151120
 
 part of tree.less;
 
 ///
-class Comment extends Node implements MarkReferencedNode {
+class Comment extends Node implements SilentNode {
   @override final String      name = null;
   @override final String      type = "Comment";
   @override covariant String  value;
@@ -12,8 +12,6 @@ class Comment extends Node implements MarkReferencedNode {
   int   index;
   ///
   bool  isLineComment;
-  ///
-  bool  isReferenced = false;
 
   ///
   Comment(String this.value,
@@ -49,27 +47,17 @@ class Comment extends Node implements MarkReferencedNode {
   bool get isImportant => (value.length > 2) && (value.startsWith('/*!'));
 
   ///
+  @override
   bool isSilent(Contexts context) {
-    final bool isReference =
-        (currentFileInfo?.reference ?? false) && !isReferenced;
     final bool isCompressed =
         context.compress && (value.length > 2) && (value[2] != '!');
-    return isLineComment || isReference || isCompressed;
+    return isLineComment || isCompressed;
 
-//2.2.0
-//    Comment.prototype.isSilent = function(context) {
-//        var isReference = (this.currentFileInfo && this.currentFileInfo.reference && !this.isReferenced),
-//            isCompressed = context.compress && this.value[2] !== "!";
-//        return this.isLineComment || isReference || isCompressed;
-//    };
-  }
-
-  //--- MarkReferencedNode
-
-  ///
-  @override
-  void markReferenced() {
-    isReferenced = true;
+//2.5.3 20151120
+// Comment.prototype.isSilent = function(context) {
+//     var isCompressed = context.compress && this.value[2] !== "!";
+//     return this.isLineComment || isCompressed;
+// };
   }
 
   @override

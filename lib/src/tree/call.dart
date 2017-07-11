@@ -26,7 +26,7 @@ class Call extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     if (args != null)
         args = visitor.visitArray(args);
 

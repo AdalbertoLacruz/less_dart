@@ -1,8 +1,7 @@
-//source: less/tree/media.js 2.5.0
+//source: less/tree/media.js 2.5.3 20151120
 
 part of tree.less;
 
-//2.3.1 extends from Directive
 ///
 class Media extends DirectiveBase {
   @override final String type = 'Media';
@@ -12,11 +11,12 @@ class Media extends DirectiveBase {
 
   ///
   Media(List<Node> value, List<Node> features,
-      [int index, FileInfo currentFileInfo])
+      [int index, FileInfo currentFileInfo, VisibilityInfo visibilityInfo])
       : super(
           index: index,
           currentFileInfo: currentFileInfo,
-          isReferenced: false) {
+          visibilityInfo: visibilityInfo
+        ) {
 
     final List<Node> selectors = new Selector(<Element>[],
         index: this.index,
@@ -26,17 +26,18 @@ class Media extends DirectiveBase {
     this.features = new Value(features);
     rules = <Ruleset>[new Ruleset(selectors, value)..allowImports = true];
 
-//2.4.0+1
-//  var Media = function (value, features, index, currentFileInfo) {
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo;
+//2.5.3 20151120
+// var Media = function (value, features, index, currentFileInfo, visibilityInfo) {
+//     this.index = index;
+//     this.currentFileInfo = currentFileInfo;
 //
-//      var selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
+//     var selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
 //
-//      this.features = new Value(features);
-//      this.rules = [new Ruleset(selectors, value)];
-//      this.rules[0].allowImports = true;
-//  };
+//     this.features = new Value(features);
+//     this.rules = [new Ruleset(selectors, value)];
+//     this.rules[0].allowImports = true;
+//     this.copyVisibilityInfo(visibilityInfo);
+// };
   }
 
   /// Fields to show with genTree
@@ -47,7 +48,7 @@ class Media extends DirectiveBase {
 
   ///
   @override
-  void accept(Visitor visitor) {
+  void accept(VisitorBase visitor) {
     if (features != null)
         features = visitor.visit(features);
     if (rules != null)
@@ -88,7 +89,7 @@ class Media extends DirectiveBase {
           ..mediaPath = <Media>[];
     }
 
-    final Media media = new Media(null, <Node>[], index, currentFileInfo);
+    final Media media = new Media(null, <Node>[], index, currentFileInfo, visibilityInfo());
     if (debugInfo != null) {
       rules[0].debugInfo = debugInfo;
       media.debugInfo = debugInfo;
@@ -121,45 +122,45 @@ class Media extends DirectiveBase {
         ? media.evalTop(context)
         : media.evalNested(context);
 
-//2.4.0 20150320
-//  Media.prototype.eval = function (context) {
-//      if (!context.mediaBlocks) {
-//          context.mediaBlocks = [];
-//          context.mediaPath = [];
-//      }
+//2.5.3 20151120
+// Media.prototype.eval = function (context) {
+//     if (!context.mediaBlocks) {
+//         context.mediaBlocks = [];
+//         context.mediaPath = [];
+//     }
 //
-//      var media = new Media(null, [], this.index, this.currentFileInfo);
-//      if (this.debugInfo) {
-//          this.rules[0].debugInfo = this.debugInfo;
-//          media.debugInfo = this.debugInfo;
-//      }
-//      var strictMathBypass = false;
-//      if (!context.strictMath) {
-//          strictMathBypass = true;
-//          context.strictMath = true;
-//      }
-//      try {
-//          media.features = this.features.eval(context);
-//      }
-//      finally {
-//          if (strictMathBypass) {
-//              context.strictMath = false;
-//          }
-//      }
+//     var media = new Media(null, [], this.index, this.currentFileInfo, this.visibilityInfo());
+//     if (this.debugInfo) {
+//         this.rules[0].debugInfo = this.debugInfo;
+//         media.debugInfo = this.debugInfo;
+//     }
+//     var strictMathBypass = false;
+//     if (!context.strictMath) {
+//         strictMathBypass = true;
+//         context.strictMath = true;
+//     }
+//     try {
+//         media.features = this.features.eval(context);
+//     }
+//     finally {
+//         if (strictMathBypass) {
+//             context.strictMath = false;
+//         }
+//     }
 //
-//      context.mediaPath.push(media);
-//      context.mediaBlocks.push(media);
+//     context.mediaPath.push(media);
+//     context.mediaBlocks.push(media);
 //
-//      this.rules[0].functionRegistry = context.frames[0].functionRegistry.inherit();
-//      context.frames.unshift(this.rules[0]);
-//      media.rules = [this.rules[0].eval(context)];
-//      context.frames.shift();
+//     this.rules[0].functionRegistry = context.frames[0].functionRegistry.inherit();
+//     context.frames.unshift(this.rules[0]);
+//     media.rules = [this.rules[0].eval(context)];
+//     context.frames.shift();
 //
-//      context.mediaPath.pop();
+//     context.mediaPath.pop();
 //
-//      return context.mediaPath.length === 0 ? media.evalTop(context) :
-//                  media.evalNested(context);
-//  };
+//     return context.mediaPath.length === 0 ? media.evalTop(context) :
+//                 media.evalNested(context);
+// };
   }
 
   ///
@@ -175,7 +176,8 @@ class Media extends DirectiveBase {
           currentFileInfo: currentFileInfo)
           .createEmptySelectors();
       result = new Ruleset(selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
-          ..multiMedia = true;
+          ..multiMedia = true
+          ..copyVisibilityInfo(visibilityInfo());
     }
 
     context
@@ -184,22 +186,23 @@ class Media extends DirectiveBase {
 
     return result;
 
-//2.4.0+1
-//  Media.prototype.evalTop = function (context) {
-//      var result = this;
+//2.5.3 20151120
+// Media.prototype.evalTop = function (context) {
+//     var result = this;
 //
-//      // Render all dependent Media blocks.
-//      if (context.mediaBlocks.length > 1) {
-//          var selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
-//          result = new Ruleset(selectors, context.mediaBlocks);
-//          result.multiMedia = true;
-//      }
+//     // Render all dependent Media blocks.
+//     if (context.mediaBlocks.length > 1) {
+//         var selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
+//         result = new Ruleset(selectors, context.mediaBlocks);
+//         result.multiMedia = true;
+//         result.copyVisibilityInfo(this.visibilityInfo());
+//     }
 //
-//      delete context.mediaBlocks;
-//      delete context.mediaPath;
+//     delete context.mediaBlocks;
+//     delete context.mediaPath;
 //
-//      return result;
-//  };
+//     return result;
+// };
   }
 
   ///
@@ -236,7 +239,7 @@ class Media extends DirectiveBase {
       }
 
       return new Expression(path);
-    }).toList());
+      }).toList());
 
     // Fake a tree-node that doesn't output anything.
     return new Ruleset(<Selector>[], <Node>[]);

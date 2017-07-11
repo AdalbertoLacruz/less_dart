@@ -59,10 +59,8 @@ class Mixin {
       if (e == null)
           break;
 
-      elements ??= <Element>[];
-      // TODO
-      // ignore: cascade_invocations
-      elements.add(new Element(c, e, elemIndex, fileInfo));
+      (elements ??= <Element>[])
+        ..add(new Element(c, e, elemIndex, fileInfo));
       c = parserInput.$char('>');
     }
 

@@ -1,4 +1,4 @@
-//source: less/tree/rule.js 2.5.0
+//source: less/tree/rule.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -9,7 +9,7 @@ part of tree.less;
 ///   @a: 2;
 ///   *zoom: 1;
 ///
-class Rule extends Node implements MakeImportantNode, MarkReferencedNode {
+class Rule extends Node implements MakeImportantNode {
   ///
   /// rule left side:
   ///
@@ -272,47 +272,6 @@ class Rule extends Node implements MakeImportantNode, MarkReferencedNode {
 //                            this.merge,
 //                            this.index, this.currentFileInfo, this.inline);
 //  };
-
-  ///
-  /// Recursive marking for rules
-  ///
-  void mark(dynamic value) {
-    if (value is! List) {
-      if (value is MarkReferencedNode)
-          value.markReferenced();
-    } else {
-      value.forEach((dynamic ar) {
-        mark(ar);
-      });
-    }
-
-//2.5.1 20150831
-// Recursive marking for rules
-// var mark = function(value) {
-//     if (!Array.isArray(value)) {
-//         if (value.markReferenced) {
-//             value.markReferenced();
-//         }
-//     } else {
-//         value.forEach(function (ar) {
-//             mark(ar);
-//         });
-//     }
-// };
-  }
-
-  @override
-  void markReferenced() {
-    if (value is MarkReferencedNode)
-        mark(value);
-
-//2.5.1 20150831
-// Rule.prototype.markReferenced = function () {
-//     if (this.value) {
-//         mark(this.value);
-//     }
-// };
-  }
 
   @override
   void genTree(Contexts env, Output output, [String prefix = '']) {

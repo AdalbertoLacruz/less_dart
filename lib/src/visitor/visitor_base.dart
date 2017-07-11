@@ -11,12 +11,14 @@ import '../logger.dart';
 import '../plugins/plugins.dart';
 import '../tree/tree.dart';
 
+part 'css_visitor_utils.dart';
 part 'extend_finder_visitor.dart';
 part 'ignition_visitor.dart';
 part 'join_selector_visitor.dart';
 part 'import_detector.dart';
 part 'import_visitor.dart';
 part 'process_extends_visitor.dart';
+part 'set_tree_visibility_visitor.dart';
 part 'to_css_visitor.dart';
 part 'visitor.dart';
 
@@ -31,8 +33,6 @@ abstract class VisitorBase {
 
   ///
   Ruleset run(Ruleset root) => null;
-
-  //static Node noop(node) => node; //TODO delete not used
 
   /// func visitor.visit distribuitor
   Function visitFtn(Node node) => null;
@@ -52,6 +52,9 @@ abstract class VisitorBase {
   ///
   @virtual
   dynamic visit(dynamic node) => node;
+
+  ///
+  List<T> visitArray<T>(List<T> nodes, {bool nonReplacing = false}) => nodes;
 }
 
 ///

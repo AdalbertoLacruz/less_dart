@@ -34,7 +34,7 @@ class Operation extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     operands = visitor.visit(operands);
 
 //2.3.1

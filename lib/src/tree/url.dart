@@ -24,7 +24,7 @@ class URL extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     value = visitor.visit(value);
 
 //2.3.1

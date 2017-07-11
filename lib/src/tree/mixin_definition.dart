@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 2.5.1 20150722
+//source: tree/mixin-definition.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -6,6 +6,7 @@ part of tree.less;
 class MixinDefinition extends Node
     with VariableMixin
     implements MakeImportantNode, MatchConditionNode {
+  //
   @override String        name; //Same as Selector
   @override final String  type = 'MixinDefinition';
 
@@ -48,7 +49,8 @@ class MixinDefinition extends Node
       {bool this.variadic,
       int this.index,
       FileInfo currentFileInfo,
-      this.frames}) {
+      this.frames,
+      VisibilityInfo visibilityInfo}) {
 
     evalFirst = true;
     isRuleset = true;
@@ -58,9 +60,11 @@ class MixinDefinition extends Node
     selectors = <Selector>[
       new Selector(<Element>[new Element(null, name, index, currentFileInfo)])
     ];
+
     arity = params.length;
 
     optionalParameters = <String>[];
+
     required = params.fold(0, (int count, MixinArgs p) {
       if (p.name == null || (p.name != null && p.value == null)) {
         return count + 1;
@@ -70,10 +74,12 @@ class MixinDefinition extends Node
       }
     });
 
+    copyVisibilityInfo(visibilityInfo);
+
     //this._lookups = {}; //inside VariableMixin
 
-//2.5.1 20150722
-// var Definition = function (name, params, rules, condition, variadic, frames) {
+//2.5.3 20151120
+// var Definition = function (name, params, rules, condition, variadic, frames, visibilityInfo) {
 //     this.name = name;
 //     this.selectors = [new Selector([new Element(null, name, this.index, this.currentFileInfo)])];
 //     this.params = params;
@@ -94,6 +100,7 @@ class MixinDefinition extends Node
 //     }, 0);
 //     this.optionalParameters = optionalParameters;
 //     this.frames = frames;
+//     this.copyVisibilityInfo(visibilityInfo);
 // };
   }
 
@@ -107,7 +114,7 @@ class MixinDefinition extends Node
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     if (params?.isNotEmpty ?? false)
         params = visitor.visitArray(params);
     rules = visitor.visitArray(rules);

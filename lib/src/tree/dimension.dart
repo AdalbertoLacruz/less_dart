@@ -41,7 +41,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     unit = visitor.visit(unit);
 
 //2.3.1

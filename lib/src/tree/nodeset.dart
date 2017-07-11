@@ -11,6 +11,18 @@ class Nodeset extends Node {
   Nodeset(List<Node> rules) : super.init(rules: rules);
 
   ///
+  /// add VisibilityBlock to each rule
+  ///
+  @override
+  void addVisibilityBlock() {
+    if (rules != null) {
+      rules.forEach((Node node){
+        node.addVisibilityBlock();
+      });
+    }
+  }
+
+  ///
   /// Control test. Nodeset must be destroyed before this point
   ///
   @override

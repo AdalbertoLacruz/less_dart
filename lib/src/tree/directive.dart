@@ -1,4 +1,4 @@
-//source: less/tree/directive.js 2.5.0
+//source: less/tree/directive.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -10,14 +10,14 @@ class Directive extends DirectiveBase {
   ///
   Directive(String name, Node this.value, dynamic rules, int index,
       FileInfo currentFileInfo, DebugInfo debugInfo,
-      {bool isReferenced = false, bool isRooted = false})
+      {VisibilityInfo visibilityInfo, bool isRooted = false})
       : super(
             name: name,
             index: index,
             currentFileInfo: currentFileInfo,
             debugInfo: debugInfo,
-            isReferenced: isReferenced,
-            isRooted: isRooted) {
+            isRooted: isRooted,
+            visibilityInfo: visibilityInfo) {
 
     if (rules != null) {
       if (rules is List<Ruleset>) {
@@ -34,29 +34,29 @@ class Directive extends DirectiveBase {
       });
     }
 
-//2.4.0 20150319
-//  var Directive = function (name, value, rules, index, currentFileInfo, debugInfo, isReferenced, isRooted) {
-//      var i;
+//2.5.3 20151120
+// var Directive = function (name, value, rules, index, currentFileInfo, debugInfo, isRooted, visibilityInfo) {
+//     var i;
 //
-//      this.name  = name;
-//      this.value = value;
-//      if (rules) {
-//          if (Array.isArray(rules)) {
-//              this.rules = rules;
-//          } else {
-//              this.rules = [rules];
-//              this.rules[0].selectors = (new Selector([], null, null, this.index, currentFileInfo)).createEmptySelectors();
-//          }
-//          for (i = 0; i < this.rules.length; i++) {
-//              this.rules[i].allowImports = true;
-//          }
-//      }
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo;
-//      this.debugInfo = debugInfo;
-//      this.isReferenced = isReferenced;
-//      this.isRooted = isRooted || false;
-//  };
+//     this.name  = name;
+//     this.value = value;
+//     if (rules) {
+//         if (Array.isArray(rules)) {
+//             this.rules = rules;
+//         } else {
+//             this.rules = [rules];
+//             this.rules[0].selectors = (new Selector([], null, null, this.index, currentFileInfo)).createEmptySelectors();
+//         }
+//         for (i = 0; i < this.rules.length; i++) {
+//             this.rules[i].allowImports = true;
+//         }
+//     }
+//     this.index = index;
+//     this.currentFileInfo = currentFileInfo;
+//     this.debugInfo = debugInfo;
+//     this.isRooted = isRooted || false;
+//     this.copyVisibilityInfo(visibilityInfo);
+// };
   }
 
   @override
@@ -67,8 +67,7 @@ class Directive extends DirectiveBase {
 /// Base class for Directive and Media
 ///
 class DirectiveBase extends Node
-      with OutputRulesetMixin, VariableMixin
-      implements GetIsReferencedNode, MarkReferencedNode {
+      with OutputRulesetMixin, VariableMixin {
   //
   @override FileInfo                currentFileInfo;
   @override DebugInfo               debugInfo;
@@ -79,8 +78,6 @@ class DirectiveBase extends Node
   ///
   int   index;
   ///
-  bool  isReferenced = false;
-  ///
   bool  isRooted = false;
 
   ///
@@ -88,9 +85,11 @@ class DirectiveBase extends Node
       {this.currentFileInfo,
       this.debugInfo,
       this.index,
-      this.isReferenced,
       this.isRooted,
-      this.name});
+      this.name,
+      VisibilityInfo visibilityInfo}) {
+        copyVisibilityInfo(visibilityInfo);
+      }
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{
@@ -101,7 +100,7 @@ class DirectiveBase extends Node
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     if (rules != null)
         rules = visitor.visitArray(rules);
     if (value != null)
@@ -193,36 +192,37 @@ class DirectiveBase extends Node
         ..mediaBlocks = mediaBlocksBackup;
 
     return new Directive(name, value, rules, index, currentFileInfo, debugInfo,
-        isReferenced: isReferenced,
+        visibilityInfo: visibilityInfo(),
+        //isReferenced: isReferenced,
         isRooted: isRooted);
 
-//2.4.0 20150319
-//  Directive.prototype.eval = function (context) {
-//      var mediaPathBackup, mediaBlocksBackup, value = this.value, rules = this.rules;
+//2.5.3 20151120
+// Directive.prototype.eval = function (context) {
+//     var mediaPathBackup, mediaBlocksBackup, value = this.value, rules = this.rules;
 //
-//      //media stored inside other directive should not bubble over it
-//      //backpup media bubbling information
-//      mediaPathBackup = context.mediaPath;
-//      mediaBlocksBackup = context.mediaBlocks;
-//      //deleted media bubbling information
-//      context.mediaPath = [];
-//      context.mediaBlocks = [];
+//     //media stored inside other directive should not bubble over it
+//     //backpup media bubbling information
+//     mediaPathBackup = context.mediaPath;
+//     mediaBlocksBackup = context.mediaBlocks;
+//     //deleted media bubbling information
+//     context.mediaPath = [];
+//     context.mediaBlocks = [];
 //
-//      if (value) {
-//          value = value.eval(context);
-//      }
-//      if (rules) {
-//          // assuming that there is only one rule at this point - that is how parser constructs the rule
-//          rules = [rules[0].eval(context)];
-//          rules[0].root = true;
-//      }
-//      //restore media bubbling information
-//      context.mediaPath = mediaPathBackup;
-//      context.mediaBlocks = mediaBlocksBackup;
+//     if (value) {
+//         value = value.eval(context);
+//     }
+//     if (rules) {
+//         // assuming that there is only one rule at this point - that is how parser constructs the rule
+//         rules = [rules[0].eval(context)];
+//         rules[0].root = true;
+//     }
+//     //restore media bubbling information
+//     context.mediaPath = mediaPathBackup;
+//     context.mediaBlocks = mediaBlocksBackup;
 //
-//      return new Directive(this.name, value, rules,
-//          this.index, this.currentFileInfo, this.debugInfo, this.isReferenced, this.isRooted);
-//  };
+//     return new Directive(this.name, value, rules,
+//         this.index, this.currentFileInfo, this.debugInfo, this.isRooted, this.visibilityInfo());
+// };
   }
 
 // in VariableMixin - override
@@ -280,45 +280,4 @@ class DirectiveBase extends Node
 //      }
 //  };
   }
-
-  //--- MarkReferencedNode
-
-  ///
-  @override
-  void markReferenced() {
-    List<Node> rules;
-    isReferenced = true;
-
-    if (this.rules != null) {
-      rules = this.rules;
-      for (int i = 0; i < rules.length; i++) {
-        if (rules[i] is MarkReferencedNode)
-            (rules[i] as MarkReferencedNode).markReferenced();
-      }
-    }
-
-// 2.4.0+
-//  Directive.prototype.markReferenced = function () {
-//      var i, rules;
-//      this.isReferenced = true;
-//      if (this.rules) {
-//          rules = this.rules;
-//          for (i = 0; i < rules.length; i++) {
-//              if (rules[i].markReferenced) {
-//                  rules[i].markReferenced();
-//              }
-//          }
-//      }
-//  };
-  }
-
-  ///
-  @override
-  bool getIsReferenced() =>
-      (currentFileInfo == null) || !currentFileInfo.reference || isReferenced;
-
-//2.3.1
-//  Directive.prototype.getIsReferenced = function () {
-//      return !this.currentFileInfo || !this.currentFileInfo.reference || this.isReferenced;
-//  };
 }

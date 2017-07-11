@@ -1,4 +1,4 @@
-//source: less/tree/extend.js 2.5.0
+//source: less/tree/extend.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -33,9 +33,13 @@ class Extend extends Node {
   List<Selector>  selfSelectors;
 
   ///
-  Extend(Node this.selector, String this.option, int this.index) {
+  Extend(Node this.selector, String this.option, int this.index,
+      FileInfo currentFileInfo, [VisibilityInfo visibilityInfo]) {
+    //
     objectId = nextId++;
     parentIds = <int>[objectId];
+    this.currentFileInfo = currentFileInfo ?? new FileInfo();
+    copyVisibilityInfo(visibilityInfo);
 
     switch (option) {
       case 'all':
@@ -48,25 +52,27 @@ class Extend extends Node {
         break;
     }
 
-//2.3.1
-//  var Extend = function Extend(selector, option, index) {
-//      this.selector = selector;
-//      this.option = option;
-//      this.index = index;
-//      this.object_id = Extend.next_id++;
-//      this.parent_ids = [this.object_id];
+//2.5.3 20151120
+// var Extend = function Extend(selector, option, index, currentFileInfo, visibilityInfo) {
+//     this.selector = selector;
+//     this.option = option;
+//     this.index = index;
+//     this.object_id = Extend.next_id++;
+//     this.parent_ids = [this.object_id];
+//     this.currentFileInfo = currentFileInfo || {};
+//     this.copyVisibilityInfo(visibilityInfo);
 //
-//      switch(option) {
-//          case "all":
-//              this.allowBefore = true;
-//              this.allowAfter = true;
-//          break;
-//          default:
-//              this.allowBefore = false;
-//              this.allowAfter = false;
-//          break;
-//      }
-//  };
+//     switch(option) {
+//         case "all":
+//             this.allowBefore = true;
+//             this.allowAfter = true;
+//             break;
+//         default:
+//             this.allowBefore = false;
+//             this.allowAfter = false;
+//             break;
+//     }
+// };
   }
 
   /// Fields to show with genTree
@@ -77,7 +83,7 @@ class Extend extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     selector = visitor.visit(selector);
 
 //2.3.1
@@ -89,22 +95,25 @@ class Extend extends Node {
   ///
   @override
   Extend eval(Contexts context) =>
-      new Extend(selector.eval(context), option, index);
+      new Extend(selector.eval(context), option, index, currentFileInfo, visibilityInfo());
 
-//2.3.1
-//  Extend.prototype.eval = function (context) {
-//      return new Extend(this.selector.eval(context), this.option, this.index);
-//  };
+//2.5.3 20151120
+// Extend.prototype.eval = function (context) {
+//     return new Extend(this.selector.eval(context), this.option, this.index, this.currentFileInfo, this.visibilityInfo());
+// };
 
   ///
   //removed clone(context)
-  Node clone() => new Extend(selector, option, index);
+  Node clone() =>
+      new Extend(selector, option, index, currentFileInfo, visibilityInfo());
 
-//2.3.1
-//  Extend.prototype.clone = function (context) {
-//      return new Extend(this.selector, this.option, this.index);
-//  };
+//2.5.3 20151120
+// Extend.prototype.clone = function (context) {
+//     return new Extend(this.selector, this.option, this.index, this.currentFileInfo, this.visibilityInfo());
+// };
 
+  ///
+  /// It concatenates (joins) all selectors in selector array
   ///
   void findSelfSelectors(List<Selector> selectors) {
     List<Element>       selectorElements;
@@ -124,8 +133,10 @@ class Extend extends Node {
     }
 
     selfSelectors = <Selector>[new Selector(selfElements)];
+    selfSelectors[0].copyVisibilityInfo(visibilityInfo());
 
-//2.3.1
+//2.5.3 20151120
+//it concatenates (joins) all selectors in selector array
 //  Extend.prototype.findSelfSelectors = function (selectors) {
 //      var selfElements = [],
 //          i,
@@ -141,7 +152,8 @@ class Extend extends Node {
 //          selfElements = selfElements.concat(selectors[i].elements);
 //      }
 //
-//      this.selfSelectors = [{ elements: selfElements }];
+//      this.selfSelectors = [new Selector(selfElements)];
+//      this.selfSelectors[0].copyVisibilityInfo(this.visibilityInfo());
 //  };
   }
 

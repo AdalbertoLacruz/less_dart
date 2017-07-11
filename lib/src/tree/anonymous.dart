@@ -1,18 +1,16 @@
-//source: less/tree/anonymous.js 2.5.1 20150725
+//source: less/tree/anonymous.js 2.5.3 20151120
 
 part of tree.less;
 
 ///
 class Anonymous
     extends Node
-    implements CompareNode, GetIsReferencedNode, MarkReferencedNode {
+    implements CompareNode {
   @override final String name = null;
   @override String       type = 'Anonymous';
 
   ///
   int   index;
-  ///
-  bool  isReferenced;
   ///
   bool  mapLines;
   ///
@@ -24,18 +22,22 @@ class Anonymous
       FileInfo currentFileInfo,
       bool this.mapLines = false,
       bool this.rulesetLike = false,
-      bool this.isReferenced = false})
-      : super.init(currentFileInfo: currentFileInfo, value: value);
+      //bool this.isReferenced = false
+      VisibilityInfo visibilityInfo})
+      : super.init(currentFileInfo: currentFileInfo, value: value) {
+        copyVisibilityInfo(visibilityInfo);
+      }
 
-//2.5.1 20150725
-//var Anonymous = function (value, index, currentFileInfo, mapLines, rulesetLike, referenced) {
+//2.5.3 20151120
+// var Anonymous = function (value, index, currentFileInfo, mapLines, rulesetLike, visibilityInfo) {
 //     this.value = value;
 //     this.index = index;
 //     this.mapLines = mapLines;
 //     this.currentFileInfo = currentFileInfo;
 //     this.rulesetLike = (typeof rulesetLike === 'undefined') ? false : rulesetLike;
-//     this.isReferenced = referenced || false;
-//};
+//
+//     this.copyVisibilityInfo(visibilityInfo);
+// };
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{
@@ -49,11 +51,11 @@ class Anonymous
       currentFileInfo: currentFileInfo,
       mapLines: mapLines,
       rulesetLike: rulesetLike,
-      isReferenced: isReferenced);
+      visibilityInfo: visibilityInfo());
 
-//2.5.1 20150725
+//2.5.3 20151120
 // Anonymous.prototype.eval = function () {
-//     return new Anonymous(this.value, this.index, this.currentFileInfo, this.mapLines, this.rulesetLike, this.isReferenced);
+//     return new Anonymous(this.value, this.index, this.currentFileInfo, this.mapLines, this.rulesetLike, this.visibilityInfo());
 // };
 
 //--- CompareNode
@@ -81,26 +83,6 @@ class Anonymous
 //      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
 //  };
   }
-
-  ///
-  @override
-  void markReferenced() {
-    isReferenced = true;
-
-//2.5.1 20150725
-// Anonymous.prototype.markReferenced = function () {
-//   this.isReferenced = true;
-// };
-  }
-
-  ///
-  @override
-  bool getIsReferenced() => !(currentFileInfo?.reference ?? false) || isReferenced;
-
-//2.5.1 20150725
-// Anonymous.prototype.getIsReferenced = function () {
-//     return !this.currentFileInfo || !this.currentFileInfo.reference || this.isReferenced;
-// };
 
   @override
   String toString() {

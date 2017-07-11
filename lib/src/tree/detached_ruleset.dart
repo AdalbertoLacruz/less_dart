@@ -24,7 +24,7 @@ class DetachedRuleset extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     ruleset = visitor.visit(ruleset);
 
 //2.3.1

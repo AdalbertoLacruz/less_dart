@@ -1,4 +1,4 @@
-//source: less/tree/element.js 2.5.0
+//source: less/tree/element.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -23,7 +23,8 @@ class Element extends Node {
   int         index;
 
   ///
-  Element(dynamic combinator, dynamic value, this.index, FileInfo currentFileInfo)
+  Element(dynamic combinator, dynamic value, this.index,
+      FileInfo currentFileInfo, {VisibilityInfo visibilityInfo})
       : super.init(currentFileInfo: currentFileInfo) {
 
     this.combinator =
@@ -37,21 +38,24 @@ class Element extends Node {
       this.value = '';
     }
 
-//2.3.1
-//  var Element = function (combinator, value, index, currentFileInfo) {
-//      this.combinator = combinator instanceof Combinator ?
-//                        combinator : new Combinator(combinator);
+    copyVisibilityInfo(visibilityInfo);
+
+//2.5.3 20151120
+// var Element = function (combinator, value, index, currentFileInfo, info) {
+//     this.combinator = combinator instanceof Combinator ?
+//                       combinator : new Combinator(combinator);
 //
-//      if (typeof(value) === 'string') {
-//          this.value = value.trim();
-//      } else if (value) {
-//          this.value = value;
-//      } else {
-//          this.value = "";
-//      }
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo;
-//  };
+//     if (typeof value === 'string') {
+//         this.value = value.trim();
+//     } else if (value) {
+//         this.value = value;
+//     } else {
+//         this.value = "";
+//     }
+//     this.index = index;
+//     this.currentFileInfo = currentFileInfo;
+//     this.copyVisibilityInfo(info);
+// };
   }
 
   /// Fields to show with genTree
@@ -64,7 +68,7 @@ class Element extends Node {
   /// Tree navegation for visitors
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     combinator = visitor.visit(combinator);
     if (value is Node)
         value = visitor.visit(value);
@@ -83,16 +87,33 @@ class Element extends Node {
   /// Replace variables by value
   ///
   @override
-  Element eval(Contexts context) => new Element(combinator,
-      (value is Node) ? value.eval(context) : value, index, currentFileInfo);
+  Element eval(Contexts context) => new Element(
+      combinator,
+      (value is Node) ? value.eval(context) : value,
+      index,
+      currentFileInfo,
+      visibilityInfo: visibilityInfo());
 
-  //2.3.1
-//  Element.prototype.eval = function (context) {
-//      return new Element(this.combinator,
-//                               this.value.eval ? this.value.eval(context) : this.value,
-//                               this.index,
-//                               this.currentFileInfo);
-//  };
+//2.5.3 20151120
+// Element.prototype.eval = function (context) {
+//     return new Element(this.combinator,
+//                              this.value.eval ? this.value.eval(context) : this.value,
+//                              this.index,
+//                              this.currentFileInfo, this.visibilityInfo());
+// };
+
+  ///
+  Element clone() =>
+      new Element(combinator, value, index, currentFileInfo,
+        visibilityInfo: visibilityInfo());
+
+//2.5.3 20151120
+// Element.prototype.clone = function () {
+//     return new Element(this.combinator,
+//         this.value,
+//         this.index,
+//         this.currentFileInfo, this.visibilityInfo());
+// };
 
   ///
   /// Writes the css code

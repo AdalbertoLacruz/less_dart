@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.5.0 lines 91-451
+// source: less/extend-visitor.js 2.5.3 20151120 lines 91-451
 
 part of visitor.less;
 
@@ -144,13 +144,18 @@ class ProcessExtendsVisitor extends VisitorBase {
 
           //we found a match, so for each self selector.
           extend.selfSelectors.forEach((Selector selfSelector) {
+            final VisibilityInfo info = targetExtend.visibilityInfo();
+
+
             //process the extend as usual
             final List<Selector> newSelector =
-                extendVisitor.extendSelector(matches, selectorPath, selfSelector);
+            //extendVisitor.extendSelector(matches, selectorPath, selfSelector);
+                extendVisitor.extendSelector(matches, selectorPath, selfSelector,
+                    isVisible: extend.isVisible());
 
             // but now we create a new extend from it
             final Extend newExtend =
-                new Extend(targetExtend.selector, targetExtend.option, 0)
+                new Extend(targetExtend.selector, targetExtend.option, 0, targetExtend.currentFileInfo, info)
                   ..selfSelectors = newSelector;
 
             // add the extend onto the list of extends for that selector
@@ -196,106 +201,105 @@ class ProcessExtendsVisitor extends VisitorBase {
       // now process the new extends on the existing rules so that we can handle
       // a extending b extending c ectending d extending e...
       return extendsToAdd
-          ..addAll(extendVisitor.doExtendChaining(extendsToAdd, extendsListTarget, iterationCount+1));
+          ..addAll(extendVisitor.doExtendChaining(extendsToAdd, extendsListTarget, iterationCount + 1));
     } else {
       return extendsToAdd;
     }
 
-//2.3.1
-//  doExtendChaining: function (extendsList, extendsListTarget, iterationCount) {
-//      //
-//      // chaining is different from normal extension.. if we extend an extend then we are not just copying, altering
-//      // and pasting the selector we would do normally, but we are also adding an extend with the same target selector
-//      // this means this new extend can then go and alter other extends
-//      //
-//      // this method deals with all the chaining work - without it, extend is flat and doesn't work on other extend selectors
-//      // this is also the most expensive.. and a match on one selector can cause an extension of a selector we had already
-//      // processed if we look at each selector at a time, as is done in visitRuleset
+//2.5.3 20151120
+// doExtendChaining: function (extendsList, extendsListTarget, iterationCount) {
+//     //
+//     // chaining is different from normal extension.. if we extend an extend then we are not just copying, altering
+//     // and pasting the selector we would do normally, but we are also adding an extend with the same target selector
+//     // this means this new extend can then go and alter other extends
+//     //
+//     // this method deals with all the chaining work - without it, extend is flat and doesn't work on other extend selectors
+//     // this is also the most expensive.. and a match on one selector can cause an extension of a selector we had already
+//     // processed if we look at each selector at a time, as is done in visitRuleset
 //
-//      var extendIndex, targetExtendIndex, matches, extendsToAdd = [], newSelector, extendVisitor = this, selectorPath,
-//          extend, targetExtend, newExtend;
+//     var extendIndex, targetExtendIndex, matches, extendsToAdd = [], newSelector, extendVisitor = this, selectorPath,
+//         extend, targetExtend, newExtend;
 //
-//      iterationCount = iterationCount || 0;
+//     iterationCount = iterationCount || 0;
 //
-//      //loop through comparing every extend with every target extend.
-//      // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
-//      // e.g.  .a:extend(.b) {}  and .b:extend(.c) {} then the first extend extends the second one
-//      // and the second is the target.
-//      // the seperation into two lists allows us to process a subset of chains with a bigger set, as is the
-//      // case when processing media queries
-//      for(extendIndex = 0; extendIndex < extendsList.length; extendIndex++){
-//          for(targetExtendIndex = 0; targetExtendIndex < extendsListTarget.length; targetExtendIndex++){
+//     //loop through comparing every extend with every target extend.
+//     // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
+//     // e.g.  .a:extend(.b) {}  and .b:extend(.c) {} then the first extend extends the second one
+//     // and the second is the target.
+//     // the seperation into two lists allows us to process a subset of chains with a bigger set, as is the
+//     // case when processing media queries
+//     for (extendIndex = 0; extendIndex < extendsList.length; extendIndex++) {
+//         for (targetExtendIndex = 0; targetExtendIndex < extendsListTarget.length; targetExtendIndex++) {
 //
-//              extend = extendsList[extendIndex];
-//              targetExtend = extendsListTarget[targetExtendIndex];
+//             extend = extendsList[extendIndex];
+//             targetExtend = extendsListTarget[targetExtendIndex];
 //
-//              // look for circular references
-//              if( extend.parent_ids.indexOf( targetExtend.object_id ) >= 0 ){ continue; }
+//             // look for circular references
+//             if ( extend.parent_ids.indexOf( targetExtend.object_id ) >= 0 ) { continue; }
 //
-//              // find a match in the target extends self selector (the bit before :extend)
-//              selectorPath = [targetExtend.selfSelectors[0]];
-//              matches = extendVisitor.findMatch(extend, selectorPath);
+//             // find a match in the target extends self selector (the bit before :extend)
+//             selectorPath = [targetExtend.selfSelectors[0]];
+//             matches = extendVisitor.findMatch(extend, selectorPath);
 //
-//              if (matches.length) {
+//             if (matches.length) {
+//                 extend.hasFoundMatches = true;
 //
-//                  extend.hasFoundMatches = true;
+//                 // we found a match, so for each self selector..
+//                 extend.selfSelectors.forEach(function(selfSelector) {
+//                     var info = targetExtend.visibilityInfo();
 //
-//                  // we found a match, so for each self selector..
-//                  extend.selfSelectors.forEach(function(selfSelector) {
+//                     // process the extend as usual
+//                     newSelector = extendVisitor.extendSelector(matches, selectorPath, selfSelector, extend.isVisible());
 //
-//                      // process the extend as usual
-//                      newSelector = extendVisitor.extendSelector(matches, selectorPath, selfSelector);
+//                     // but now we create a new extend from it
+//                     newExtend = new(tree.Extend)(targetExtend.selector, targetExtend.option, 0, targetExtend.currentFileInfo, info);
+//                     newExtend.selfSelectors = newSelector;
 //
-//                      // but now we create a new extend from it
-//                      newExtend = new(tree.Extend)(targetExtend.selector, targetExtend.option, 0);
-//                      newExtend.selfSelectors = newSelector;
+//                     // add the extend onto the list of extends for that selector
+//                     newSelector[newSelector.length - 1].extendList = [newExtend];
 //
-//                      // add the extend onto the list of extends for that selector
-//                      newSelector[newSelector.length - 1].extendList = [newExtend];
+//                     // record that we need to add it.
+//                     extendsToAdd.push(newExtend);
+//                     newExtend.ruleset = targetExtend.ruleset;
 //
-//                      // record that we need to add it.
-//                      extendsToAdd.push(newExtend);
-//                      newExtend.ruleset = targetExtend.ruleset;
+//                     //remember its parents for circular references
+//                     newExtend.parent_ids = newExtend.parent_ids.concat(targetExtend.parent_ids, extend.parent_ids);
 //
-//                      //remember its parents for circular references
-//                      newExtend.parent_ids = newExtend.parent_ids.concat(targetExtend.parent_ids, extend.parent_ids);
+//                     // only process the selector once.. if we have :extend(.a,.b) then multiple
+//                     // extends will look at the same selector path, so when extending
+//                     // we know that any others will be duplicates in terms of what is added to the css
+//                     if (targetExtend.firstExtendOnThisSelectorPath) {
+//                         newExtend.firstExtendOnThisSelectorPath = true;
+//                         targetExtend.ruleset.paths.push(newSelector);
+//                     }
+//                 });
+//             }
+//         }
+//     }
 //
-//                      // only process the selector once.. if we have :extend(.a,.b) then multiple
-//                      // extends will look at the same selector path, so when extending
-//                      // we know that any others will be duplicates in terms of what is added to the css
-//                      if (targetExtend.firstExtendOnThisSelectorPath) {
-//                          newExtend.firstExtendOnThisSelectorPath = true;
-//                          targetExtend.ruleset.paths.push(newSelector);
-//                      }
-//                  });
-//              }
-//          }
-//      }
+//     if (extendsToAdd.length) {
+//         // try to detect circular references to stop a stack overflow.
+//         // may no longer be needed.
+//         this.extendChainCount++;
+//         if (iterationCount > 100) {
+//             var selectorOne = "{unable to calculate}";
+//             var selectorTwo = "{unable to calculate}";
+//             try {
+//                 selectorOne = extendsToAdd[0].selfSelectors[0].toCSS();
+//                 selectorTwo = extendsToAdd[0].selector.toCSS();
+//             }
+//             catch(e) {}
+//             throw { message: "extend circular reference detected. One of the circular extends is currently:" +
+//                 selectorOne + ":extend(" + selectorTwo + ")"};
+//         }
 //
-//      if (extendsToAdd.length) {
-//          // try to detect circular references to stop a stack overflow.
-//          // may no longer be needed.
-//          this.extendChainCount++;
-//          if (iterationCount > 100) {
-//              var selectorOne = "{unable to calculate}";
-//              var selectorTwo = "{unable to calculate}";
-//              try
-//              {
-//                  selectorOne = extendsToAdd[0].selfSelectors[0].toCSS();
-//                  selectorTwo = extendsToAdd[0].selector.toCSS();
-//              }
-//              catch(e) {}
-//              throw { message: "extend circular reference detected. One of the circular extends is currently:" +
-//                  selectorOne + ":extend(" + selectorTwo + ")"};
-//          }
-//
-//          // now process the new extends on the existing rules so that we can handle a extending b extending c extending
-//          // d extending e...
-//          return extendsToAdd.concat(extendVisitor.doExtendChaining(extendsToAdd, extendsListTarget, iterationCount + 1));
-//      } else {
-//          return extendsToAdd;
-//      }
-//  },
+//         // now process the new extends on the existing rules so that we can handle a extending b extending c extending
+//         // d extending e...
+//         return extendsToAdd.concat(extendVisitor.doExtendChaining(extendsToAdd, extendsListTarget, iterationCount + 1));
+//     } else {
+//         return extendsToAdd;
+//     }
+// },
   }
 
   ///
@@ -354,49 +358,53 @@ class ProcessExtendsVisitor extends VisitorBase {
 
         if (matches.isNotEmpty) {
           allExtends[extendIndex].hasFoundMatches = true;
-
           allExtends[extendIndex]
               .selfSelectors
               .forEach((Selector selfSelector) {
-                selectorsToAdd.add(extendVisitor.extendSelector(matches, selectorPath, selfSelector));
-          });
+                final List<Selector> extendedSelectors = extendVisitor.extendSelector(
+                  matches, selectorPath, selfSelector,
+                  isVisible: allExtends[extendIndex].isVisible());
+                selectorsToAdd.add(extendedSelectors);
+              });
         }
       }
     }
     rulesetNode.paths.addAll(selectorsToAdd);
 
-//2.3.1
-//  visitRuleset: function (rulesetNode, visitArgs) {
-//      if (rulesetNode.root) {
-//          return;
-//      }
-//      var matches, pathIndex, extendIndex, allExtends = this.allExtendsStack[this.allExtendsStack.length - 1],
-//          selectorsToAdd = [], extendVisitor = this, selectorPath;
+//2.5.3 20151120
+// visitRuleset: function (rulesetNode, visitArgs) {
+//         if (rulesetNode.root) {
+//             return;
+//         }
+//         var matches, pathIndex, extendIndex, allExtends = this.allExtendsStack[this.allExtendsStack.length - 1],
+//             selectorsToAdd = [], extendVisitor = this, selectorPath;
 //
-//      // look at each selector path in the ruleset, find any extend matches and then copy, find and replace
+//         // look at each selector path in the ruleset, find any extend matches and then copy, find and replace
 //
-//      for(extendIndex = 0; extendIndex < allExtends.length; extendIndex++) {
-//          for(pathIndex = 0; pathIndex < rulesetNode.paths.length; pathIndex++) {
-//              selectorPath = rulesetNode.paths[pathIndex];
+//         for (extendIndex = 0; extendIndex < allExtends.length; extendIndex++) {
+//             for (pathIndex = 0; pathIndex < rulesetNode.paths.length; pathIndex++) {
+//                 selectorPath = rulesetNode.paths[pathIndex];
 //
-//              // extending extends happens initially, before the main pass
-//              if (rulesetNode.extendOnEveryPath) { continue; }
-//              var extendList = selectorPath[selectorPath.length - 1].extendList;
-//              if (extendList && extendList.length) { continue; }
+//                 // extending extends happens initially, before the main pass
+//                 if (rulesetNode.extendOnEveryPath) { continue; }
+//                 var extendList = selectorPath[selectorPath.length - 1].extendList;
+//                 if (extendList && extendList.length) { continue; }
 //
-//              matches = this.findMatch(allExtends[extendIndex], selectorPath);
+//                 matches = this.findMatch(allExtends[extendIndex], selectorPath);
 //
-//              if (matches.length) {
-//                  allExtends[extendIndex].hasFoundMatches = true; **
+//                 if (matches.length) {
+//                     allExtends[extendIndex].hasFoundMatches = true;
 //
-//                  allExtends[extendIndex].selfSelectors.forEach(function(selfSelector) {
-//                      selectorsToAdd.push(extendVisitor.extendSelector(matches, selectorPath, selfSelector));
-//                  });
-//              }
-//          }
-//      }
-//      rulesetNode.paths = rulesetNode.paths.concat(selectorsToAdd);
-//  },
+//                     allExtends[extendIndex].selfSelectors.forEach(function(selfSelector) {
+//                         var extendedSelectors;
+//                         extendedSelectors = extendVisitor.extendSelector(matches, selectorPath, selfSelector, allExtends[extendIndex].isVisible());
+//                         selectorsToAdd.push(extendedSelectors);
+//                     });
+//                 }
+//             }
+//         }
+//         rulesetNode.paths = rulesetNode.paths.concat(selectorsToAdd);
+//     },
   }
 
   ///
@@ -652,7 +660,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   /// For a set of matches, replace each match with the replacement selector
   ///
   List<Selector> extendSelector(List<MatchSelector> matches,
-      List<Selector> selectorPath, Selector replacementSelector) {
+      List<Selector> selectorPath, Selector replacementSelector, {bool isVisible: false}) {
 
     int                   currentSelectorPathElementIndex = 0;
     int                   currentSelectorPathIndex = 0;
@@ -702,81 +710,97 @@ class ProcessExtendsVisitor extends VisitorBase {
           .addAll(selectorPath[currentSelectorPathIndex].elements.sublist(currentSelectorPathElementIndex));
       currentSelectorPathIndex++;
     }
-    path.addAll(selectorPath.sublist(currentSelectorPathIndex, selectorPath.length));
-    return path;
 
-//2.3.1
-//  extendSelector:function (matches, selectorPath, replacementSelector) {
+    path
+      .addAll(selectorPath.sublist(currentSelectorPathIndex, selectorPath.length));
+
+    return path.map((Selector currentValue) {
+        // we can re-use elements here, because the visibility property
+        // matters only for selectors
+        final Selector derived = currentValue.createDerived(currentValue.elements);
+        if (isVisible ?? false) {
+          derived.ensureVisibility();
+        } else {
+          derived.ensureInvisibility();
+        }
+        return derived;
+      })
+      .toList();
+
+//2.5.3 20151120
+// extendSelector:function (matches, selectorPath, replacementSelector, isVisible) {
 //
-//      //for a set of matches, replace each match with the replacement selector
+//     //for a set of matches, replace each match with the replacement selector
 //
-//      var currentSelectorPathIndex = 0,
-//          currentSelectorPathElementIndex = 0,
-//          path = [],
-//          matchIndex,
-//          selector,
-//          firstElement,
-//          match,
-//          newElements;
+//     var currentSelectorPathIndex = 0,
+//         currentSelectorPathElementIndex = 0,
+//         path = [],
+//         matchIndex,
+//         selector,
+//         firstElement,
+//         match,
+//         newElements;
 //
-//      for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
-//          match = matches[matchIndex];
-//          selector = selectorPath[match.pathIndex];
-//          firstElement = new tree.Element(
-//              match.initialCombinator,
-//              replacementSelector.elements[0].value,
-//              replacementSelector.elements[0].index,
-//              replacementSelector.elements[0].currentFileInfo
-//          );
+//     for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
+//         match = matches[matchIndex];
+//         selector = selectorPath[match.pathIndex];
+//         firstElement = new tree.Element(
+//             match.initialCombinator,
+//             replacementSelector.elements[0].value,
+//             replacementSelector.elements[0].index,
+//             replacementSelector.elements[0].currentFileInfo
+//         );
 //
-//          if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
-//              path[path.length - 1].elements = path[path.length - 1]
-//                  .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
-//              currentSelectorPathElementIndex = 0;
-//              currentSelectorPathIndex++;
-//          }
+//         if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
+//             path[path.length - 1].elements = path[path.length - 1]
+//                 .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
+//             currentSelectorPathElementIndex = 0;
+//             currentSelectorPathIndex++;
+//         }
 //
-//          newElements = selector.elements
-//              .slice(currentSelectorPathElementIndex, match.index)
-//              .concat([firstElement])
-//              .concat(replacementSelector.elements.slice(1));
+//         newElements = selector.elements
+//             .slice(currentSelectorPathElementIndex, match.index)
+//             .concat([firstElement])
+//             .concat(replacementSelector.elements.slice(1));
 //
-//          if (currentSelectorPathIndex === match.pathIndex && matchIndex > 0) {
-//              path[path.length - 1].elements =
-//                  path[path.length - 1].elements.concat(newElements);
-//          } else {
-//              path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
+//         if (currentSelectorPathIndex === match.pathIndex && matchIndex > 0) {
+//             path[path.length - 1].elements =
+//                 path[path.length - 1].elements.concat(newElements);
+//         } else {
+//             path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
 //
-//              path.push(new tree.Selector(
-//                  newElements
-//              ));
-//          }
-//          currentSelectorPathIndex = match.endPathIndex;
-//          currentSelectorPathElementIndex = match.endPathElementIndex;
-//          if (currentSelectorPathElementIndex >= selectorPath[currentSelectorPathIndex].elements.length) {
-//              currentSelectorPathElementIndex = 0;
-//              currentSelectorPathIndex++;
-//          }
-//      }
+//             path.push(new tree.Selector(
+//                 newElements
+//             ));
+//         }
+//         currentSelectorPathIndex = match.endPathIndex;
+//         currentSelectorPathElementIndex = match.endPathElementIndex;
+//         if (currentSelectorPathElementIndex >= selectorPath[currentSelectorPathIndex].elements.length) {
+//             currentSelectorPathElementIndex = 0;
+//             currentSelectorPathIndex++;
+//         }
+//     }
 //
-//      if (currentSelectorPathIndex < selectorPath.length && currentSelectorPathElementIndex > 0) {
-//          path[path.length - 1].elements = path[path.length - 1]
-//              .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
-//          currentSelectorPathIndex++;
-//      }
+//     if (currentSelectorPathIndex < selectorPath.length && currentSelectorPathElementIndex > 0) {
+//         path[path.length - 1].elements = path[path.length - 1]
+//             .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
+//         currentSelectorPathIndex++;
+//     }
 //
-//      path = path.concat(selectorPath.slice(currentSelectorPathIndex, selectorPath.length));
-//
-//      return path;
-//  },
+//     path = path.concat(selectorPath.slice(currentSelectorPathIndex, selectorPath.length));
+//     path = path.map(function (currentValue) {
+//         // we can re-use elements here, because the visibility property matters only for selectors
+//         var derived = currentValue.createDerived(currentValue.elements);
+//         if (isVisible) {
+//             derived.ensureVisibility();
+//         } else {
+//             derived.ensureInvisibility();
+//         }
+//         return derived;
+//     });
+//     return path;
+// },
   }
-
-  ///
-  void visitRulesetOut(Ruleset rulesetNode) {}
-
-//2.3.1
-//  visitRulesetOut: function (rulesetNode) {
-//  },
 
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
@@ -856,8 +880,6 @@ class ProcessExtendsVisitor extends VisitorBase {
         return visitMediaOut;
     if (node is Directive)
         return visitDirectiveOut;
-    if (node is Ruleset)
-        return visitRulesetOut;
     return null;
   }
 }

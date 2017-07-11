@@ -1,4 +1,4 @@
-//Less 2.5.1
+//Less 2.5.3 20160115
 // use:
 // cmd> pub run test test/batch_test.dart
 //
@@ -98,6 +98,7 @@ Map<int, Config> configFill() => <int, Config>{
     23: def('import-interpolation'),
     24: def('import-once'),
     25: def('import-reference', options: <String>['--log-level=1']),
+    26: def('import-reference-issues'),
     //26: def('javascript'),
     27: def('lazy-eval'),
     28: def('media'),
@@ -132,7 +133,7 @@ Map<int, Config> configFill() => <int, Config>{
     53: def('variables-in-at-rules'),
     54: def('whitespace'),
     55: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
-
+    56: def('no-strict-math/no-sm-operations'),
     // compression
     60: def('compression/compression', options: <String>['-x']),
 

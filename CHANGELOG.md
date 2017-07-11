@@ -1,5 +1,6 @@
 ## v.1.0.1 (2017-xx-xx)
 
+- Less x.x.x code.
 - Linter suggested changes
 - Custom Functions annotation changed to @DefineMethod(...)
 - options.definePlugin requires named parameters in load and options. See batch_test.

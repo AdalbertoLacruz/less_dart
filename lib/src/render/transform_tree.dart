@@ -1,4 +1,4 @@
-//source: less/transform.tree.js 2.5.0
+//source: less/transform.tree.js 2.5.3 20151120
 
 part of render.less;
 
@@ -44,6 +44,7 @@ class TransformTree {
     final List<VisitorBase> preEvalVisitors = <VisitorBase>[];
     final List<VisitorBase> visitors = <VisitorBase>[
         new JoinSelectorVisitor(),
+        new SetTreeVisibilityVisitor(visible: true), //MarkVisibleSelectorsVisitor(true),
         new ProcessExtendsVisitor(),
         new ToCSSVisitor(new Contexts()
             ..compress = _options.compress

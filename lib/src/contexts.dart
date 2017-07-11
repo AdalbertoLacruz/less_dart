@@ -1,4 +1,4 @@
-// source: less/contexts.js 2.5.0  TODO pending full revision
+// source: less/contexts.js 2.5.3 20151120
 
 library contexts.less;
 

@@ -32,7 +32,7 @@ class Condition extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     lvalue = visitor.visit(lvalue);
     rvalue = visitor.visit(rvalue);
 

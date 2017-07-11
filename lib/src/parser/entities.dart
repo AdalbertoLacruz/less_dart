@@ -1,4 +1,4 @@
-//source: less/parser.js 2.5.1 20150719
+//source: less/parser.js 2.5.3 20160114
 
 part of parser.less;
 
@@ -87,6 +87,54 @@ class Entities {
 //          return tree.Color.fromKeyword(k) || new(tree.Keyword)(k);
 //      }
 //  },
+  }
+
+  static final RegExp _namedColorRegExp =
+      new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
+
+  ///
+  Color namedColor() {
+    parserInput.save();
+
+    final bool autoCommentAbsorb = parserInput.autoCommentAbsorb;
+    parserInput.autoCommentAbsorb = false;
+    final String k = parserInput.$re(_namedColorRegExp);
+    parserInput.autoCommentAbsorb = autoCommentAbsorb;
+
+    if (k == null) {
+      parserInput.forget();
+      return null;
+    }
+
+    final Color result = new Color.fromKeyword(k);
+    if (result == null) {
+      parserInput.restore();
+    } else {
+      parserInput.forget();
+      return result;
+    }
+    return null;
+
+//2.5.3 20160114
+// namedColor: function () {
+//     parserInput.save();
+//     var autoCommentAbsorb = parserInput.autoCommentAbsorb;
+//     parserInput.autoCommentAbsorb = false;
+//     var k = parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]*/);
+//     parserInput.autoCommentAbsorb = autoCommentAbsorb;
+//     if (!k) {
+//         parserInput.forget();
+//         return ;
+//     }
+//     var result = tree.Color.fromKeyword(k);
+//     if (!result) {
+//         parserInput.restore();
+//     } else {
+//         parserInput.forget();
+//         return result;
+//     }
+//
+// },
   }
 
   static final RegExp _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
@@ -460,9 +508,9 @@ class Entities {
 
       return new Color(rgb[1], null, '#$colorCandidateString');
     }
-    return null;
+    return namedColor();
 
-//2.5.1 20150719
+//2.5.3 20160114
 //
 // A Hexadecimal color
 //
@@ -483,10 +531,12 @@ class Entities {
 //         }
 //         return new(tree.Color)(rgb[1], undefined, '#' + colorCandidateString);
 //     }
+//
+//     return this.namedColor();
 // },
   }
 
-  static final RegExp _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z]+)?', caseSensitive: false);
+  static final RegExp _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z_]+)?', caseSensitive: false);
 
   ///
   /// A Dimension, that is, a number and a unit
@@ -503,13 +553,13 @@ class Entities {
 
     return null;
 
-//2.2.0
+//2.5.3 20151207
 //  dimension: function () {
 //      if (parserInput.peekNotNumeric()) {
 //          return;
 //      }
 //
-//      var value = parserInput.$re(/^([+-]?\d*\.?\d+)(%|[a-z]+)?/i);
+//      var value = parserInput.$re(/^([+-]?\d*\.?\d+)(%|[a-z_]+)?/i);
 //      if (value) {
 //          return new(tree.Dimension)(value[1], value[2]);
 //      }

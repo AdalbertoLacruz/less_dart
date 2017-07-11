@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.5.1 20150725
+//source: less/tree/import.js 2.5.3 20151120
 
 part of tree.less;
 
@@ -50,7 +50,7 @@ class Import extends Node {
 
   ///
   Import(this.path, this.features, this.options, this.index,
-      [FileInfo currentFileInfo])
+      [FileInfo currentFileInfo, VisibilityInfo visibilityInfo])
       : super.init(currentFileInfo: currentFileInfo) {
 
     final RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
@@ -63,23 +63,26 @@ class Import extends Node {
           css = true;
     }
 
-//2.3.1
-//  var Import = function (path, features, options, index, currentFileInfo) {
-//      this.options = options;
-//      this.index = index;
-//      this.path = path;
-//      this.features = features;
-//      this.currentFileInfo = currentFileInfo;
+    copyVisibilityInfo(visibilityInfo);
+
+//2.5.3 20151120
+// var Import = function (path, features, options, index, currentFileInfo, visibilityInfo) {
+//     this.options = options;
+//     this.index = index;
+//     this.path = path;
+//     this.features = features;
+//     this.currentFileInfo = currentFileInfo;
 //
-//      if (this.options.less !== undefined || this.options.inline) {
-//          this.css = !this.options.less || this.options.inline;
-//      } else {
-//          var pathValue = this.getPath();
-//          if (pathValue && /[#\.\&\?\/]css([\?;].*)?$/.test(pathValue)) {
-//              this.css = true;
-//          }
-//      }
-//  };
+//     if (this.options.less !== undefined || this.options.inline) {
+//         this.css = !this.options.less || this.options.inline;
+//     } else {
+//         var pathValue = this.getPath();
+//         if (pathValue && /[#\.\&\?\/]css([\?;].*)?$/.test(pathValue)) {
+//             this.css = true;
+//         }
+//     }
+//     this.copyVisibilityInfo(visibilityInfo);
+// };
   }
 
   /// Fields to show with genTree
@@ -90,7 +93,7 @@ class Import extends Node {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     if (features != null)
         features = visitor.visit(features);
 
@@ -176,19 +179,23 @@ class Import extends Node {
   /// Resolves @var in the path
   ///
   Import evalForImport(Contexts context) {
-    Node path = this.path;
+    Node path = this.path; //TODO ??
     if (path is URL)
         path = path.value;
-    return new Import(path.eval(context), features, options, index, currentFileInfo);
 
-//2.3.1
-//  Import.prototype.evalForImport = function (context) {
-//      var path = this.path;
-//      if (path instanceof URL) {
-//          path = path.value;
-//      }
-//      return new Import(path.eval(context), this.features, this.options, this.index, this.currentFileInfo);
-//  };
+    return new Import(path.eval(context), features, options, index,
+        currentFileInfo, visibilityInfo());
+
+//2.5.3 20151120
+// Import.prototype.evalForImport = function (context) {
+//     var path = this.path;
+//
+//     if (path instanceof URL) {
+//         path = path.value;
+//     }
+//
+//     return new Import(path.eval(context), this.features, this.options, this.index, this.currentFileInfo, this.visibilityInfo());
+// };
   }
 
   ///
@@ -228,6 +235,7 @@ class Import extends Node {
 //  };
   }
 
+
   ///
   /// Replaces the @import rule with the imported ruleset
   /// Returns Node (or List<Node> as Nodeset)
@@ -235,6 +243,31 @@ class Import extends Node {
   // In js returns Node or List<Node>
   @override
   Node eval(Contexts context) {
+    final Node result = doEval(context);
+    if ((options.reference ?? false) || blocksVisibility())
+        result.addVisibilityBlock();
+    return result;
+
+//2.5.3 20151120
+// Import.prototype.eval = function (context) {
+//   var result = this.doEval(context);
+//   if (this.options.reference || this.blocksVisibility()) {
+//       if (result.length || result.length === 0) {
+//           result.forEach(function (node) {
+//                   node.addVisibilityBlock();
+//               }
+//           );
+//       } else {
+//           result.addVisibilityBlock();
+//       }
+//   }
+//   return result;
+// };
+  }
+
+  ///
+  // In js returns Node or List<Node>
+  Node doEval(Contexts context) {
     final Node features = this.features?.eval(context);
 
     if (skip != null) {
@@ -250,10 +283,10 @@ class Import extends Node {
           index: 0,
           currentFileInfo: new FileInfo()
               ..filename = importedFilename
-              ..reference = path.currentFileInfo.reference,
+              ..reference = path.currentFileInfo?.reference ?? false,
           mapLines: true,
-          rulesetLike: true,
-          isReferenced: false);
+          rulesetLike: true);
+
       return (this.features != null)
           ? new Media(<Node>[contents], this.features.value)
           : new Nodeset(<Node>[contents]);
@@ -271,8 +304,8 @@ class Import extends Node {
           : new Nodeset(ruleset.rules);
     }
 
-//2.5.1 20150725
-// Import.prototype.eval = function (context) {
+//2.5.3 20151120
+// Import.prototype.doEval = function (context) {
 //     var ruleset, registry,
 //         features = this.features && this.features.eval(context);
 //
@@ -292,9 +325,13 @@ class Import extends Node {
 //             return [];
 //         }
 //     }
-//
 //     if (this.options.inline) {
-//         var contents = new Anonymous(this.root, 0, {filename: this.importedFilename, reference: this.path.currentFileInfo.reference}, true, true, false);
+//         var contents = new Anonymous(this.root, 0,
+//           {
+//               filename: this.importedFilename,
+//               reference: this.path.currentFileInfo && this.path.currentFileInfo.reference
+//           }, true, true);
+//
 //         return this.features ? new Media([contents], this.features.value) : [contents];
 //     } else if (this.css) {
 //         var newImport = new Import(this.evalPath(context), features, this.options, this.index);
@@ -304,7 +341,6 @@ class Import extends Node {
 //         return newImport;
 //     } else {
 //         ruleset = new Ruleset(null, this.root.rules.slice(0));
-//
 //         ruleset.evalImports(context);
 //
 //         return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;

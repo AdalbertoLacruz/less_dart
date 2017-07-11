@@ -27,10 +27,10 @@ class Value extends Node {
   @override Map<String, dynamic> get treeField => <String, dynamic>{
     'value': value
   };
-  
+
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     if (value != null)
         value = visitor.visitArray(value);
 

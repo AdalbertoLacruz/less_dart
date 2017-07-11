@@ -1,4 +1,4 @@
-//source: less/parser.js 2.5.0 lines 195-end
+//source: less/parser.js 2.5.3 lines 195-end 20160117
 
 part of parser.less;
 
@@ -261,20 +261,16 @@ class Parsers {
         if (e == null)
             break;
 
-        elements ??= <Element>[];
-        //TODO
-        // ignore: cascade_invocations
-        elements.add(e);
+        (elements ??= <Element>[])
+            ..add(e);
       }
 
       if (elements == null) {
         parserInput.error('Missing target selector for :extend().');
       }
 
-      extendedList ??= <Extend>[];
-      //TODO
-      // ignore: cascade_invocations
-      extendedList.add(new Extend(new Selector(elements), option, index));
+      (extendedList ??= <Extend>[])
+          ..add(new Extend(new Selector(elements), option, index, fileInfo));
     } while (parserInput.$char(',') != null);
 
     parserInput.expectChar(')');
@@ -283,49 +279,52 @@ class Parsers {
 
     return extendedList;
 
-//2.4.0 20150315
-//  extend: function(isRule) {
-//      var elements, e, index = parserInput.i, option, extendList, extend;
+//2.5.3 20151120
 //
-//      if (!parserInput.$str(isRule ? "&:extend(" : ":extend(")) {
-//          return;
-//      }
+// // extend syntax - used to extend selectors
+// //
+// extend: function(isRule) {
+//     var elements, e, index = parserInput.i, option, extendList, extend;
 //
-//      do {
-//          option = null;
-//          elements = null;
-//          while (! (option = parserInput.$re(/^(all)(?=\s*(\)|,))/))) {
-//              e = this.element();
-//              if (!e) {
-//                  break;
-//              }
-//              if (elements) {
-//                  elements.push(e);
-//              } else {
-//                  elements = [ e ];
-//              }
-//          }
+//     if (!parserInput.$str(isRule ? "&:extend(" : ":extend(")) {
+//         return;
+//     }
 //
-//          option = option && option[1];
-//          if (!elements) {
-//              error("Missing target selector for :extend().");
-//          }
-//          extend = new(tree.Extend)(new(tree.Selector)(elements), option, index);
-//          if (extendList) {
-//              extendList.push(extend);
-//          } else {
-//              extendList = [ extend ];
-//          }
-//      } while (parserInput.$char(","));
+//     do {
+//         option = null;
+//         elements = null;
+//         while (! (option = parserInput.$re(/^(all)(?=\s*(\)|,))/))) {
+//             e = this.element();
+//             if (!e) {
+//                 break;
+//             }
+//             if (elements) {
+//                 elements.push(e);
+//             } else {
+//                 elements = [ e ];
+//             }
+//         }
 //
-//      expect(/^\)/);
+//         option = option && option[1];
+//         if (!elements) {
+//             error("Missing target selector for :extend().");
+//         }
+//         extend = new(tree.Extend)(new(tree.Selector)(elements), option, index);
+//         if (extendList) {
+//             extendList.push(extend);
+//         } else {
+//             extendList = [ extend ];
+//         }
+//     } while (parserInput.$char(","));
 //
-//      if (isRule) {
-//          expect(/^;/);
-//      }
+//     expect(/^\)/);
 //
-//      return extendList;
-//  },
+//     if (isRule) {
+//         expect(/^;/);
+//     }
+//
+//     return extendList;
+// },
   }
 
   /// extendRule - used in a rule to extend all the parent selectors
@@ -563,10 +562,8 @@ class Parsers {
         if (allExtends != null)
             parserInput.error('Extend can only be used at the end of selector');
         c = parserInput.currentChar();
-        elements ??= <Element>[];
-        //TODO
-        // ignore: cascade_invocations
-        elements.add(e);
+        (elements ??= <Element>[])
+            ..add(e);
         e = null;
       }
       if (c == '{' || c == '}' || c == ';' || c == ',' || c == ')' )
@@ -751,10 +748,8 @@ class Parsers {
       }
       // end no standard
 
-      selectors ??= <Selector>[];
-      //TODO
-      // ignore: cascade_invocations
-      selectors.add(s);
+      (selectors ??= <Selector>[])
+          ..add(s);
 
       parserInput.commentStore.length = 0;
       if (s.condition != null && selectors.length > 1) {
@@ -957,64 +952,6 @@ class Parsers {
 //          parserInput.forget();
 //      }
 //  },
-//2.2.0
-//  rule: function (tryAnonymous) {
-//      var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
-//
-//      if (c === '.' || c === '#' || c === '&') { return; }
-//
-//      parserInput.save();
-//
-//      name = this.variable() || this.ruleProperty();
-//      if (name) {
-//          isVariable = typeof name === "string";
-//
-//          if (isVariable) {
-//              value = this.detachedRuleset();
-//          }
-//
-//          parserInput.commentStore.length = 0;
-//          if (!value) {
-//              // a name returned by this.ruleProperty() is always an array of the form:
-//              // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
-//              // where each item is a tree.Keyword or tree.Variable
-//              merge = !isVariable && name.pop().value;
-//
-//              // prefer to try to parse first if its a variable or we are compressing
-//              // but always fallback on the other one
-//              var tryValueFirst = !tryAnonymous && (context.compress || isVariable);
-//
-//              if (tryValueFirst) {
-//                  value = this.value();
-//              }
-//              if (!value) {
-//                  value = this.anonymousValue();
-//                  if (value) {
-//                      parserInput.forget();
-//                      // anonymous values absorb the end ';' which is reequired for them to work
-//                      return new (tree.Rule)(name, value, false, merge, startOfRule, fileInfo);
-//                  }
-//              }
-//              if (!tryValueFirst && !value) {
-//                  value = this.value();
-//              }
-//
-//              important = this.important();
-//          }
-//
-//          if (value && this.end()) {
-//              parserInput.forget();
-//              return new (tree.Rule)(name, value, important, merge, startOfRule, fileInfo);
-//          } else {
-//              parserInput.restore();
-//              if (value && !tryAnonymous) {
-//                  return this.rule(true);
-//              }
-//          }
-//      } else {
-//          parserInput.forget();
-//      }
-//  }
   }
 
   static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@+\/'"*`(;{}-]*);''', caseSensitive: false);
@@ -1214,12 +1151,10 @@ class Parsers {
           } else if (e != null) {
             nodes.add(new Paren(e));
           } else {
-            parserInput.restore('badly formed media feature definition');
-            return null;
+            parserInput.error('badly formed media feature definition');
           }
         } else {
-          parserInput.restore("Missing closing ')'");
-          return null;
+          parserInput.error("Missing closing ')'", 'Parse');
         }
       }
     } while (e != null);
@@ -1229,38 +1164,36 @@ class Parsers {
         return new Expression(nodes);
     return null;
 
-//2.2.0
-//  mediaFeature: function () {
-//      var entities = this.entities, nodes = [], e, p;
-//      parserInput.save();
-//      do {
-//          e = entities.keyword() || entities.variable();
-//          if (e) {
-//              nodes.push(e);
-//          } else if (parserInput.$char('(')) {
-//              p = this.property();
-//              e = this.value();
-//              if (parserInput.$char(')')) {
-//                  if (p && e) {
-//                      nodes.push(new(tree.Paren)(new(tree.Rule)(p, e, null, null, parserInput.i, fileInfo, true)));
-//                  } else if (e) {
-//                      nodes.push(new(tree.Paren)(e));
-//                  } else {
-//                      parserInput.restore("badly formed media feature definition");
-//                      return null;
-//                  }
-//              } else {
-//                  parserInput.restore("Missing closing ')'");
-//                  return null;
-//              }
-//          }
-//      } while (e);
+//2.5.3 20160126
+// mediaFeature: function () {
+//     var entities = this.entities, nodes = [], e, p;
+//     parserInput.save();
+//     do {
+//         e = entities.keyword() || entities.variable();
+//         if (e) {
+//             nodes.push(e);
+//         } else if (parserInput.$char('(')) {
+//             p = this.property();
+//             e = this.value();
+//             if (parserInput.$char(')')) {
+//                 if (p && e) {
+//                     nodes.push(new(tree.Paren)(new(tree.Rule)(p, e, null, null, parserInput.i, fileInfo, true)));
+//                 } else if (e) {
+//                     nodes.push(new(tree.Paren)(e));
+//                 } else {
+//                     error("badly formed media feature definition");
+//                 }
+//             } else {
+//                 error("Missing closing ')'", "Parse");
+//             }
+//         }
+//     } while (e);
 //
-//      parserInput.forget();
-//      if (nodes.length > 0) {
-//          return new(tree.Expression)(nodes);
-//      }
-//  }
+//     parserInput.forget();
+//     if (nodes.length > 0) {
+//         return new(tree.Expression)(nodes);
+//     }
+// },
   }
 
   ///
@@ -1325,8 +1258,7 @@ class Parsers {
       rules = block();
 
       if (rules == null) {
-        parserInput.restore('media definitions require block statements after any features');
-        return null;
+        parserInput.error('media definitions require block statements after any features');
       }
 
       parserInput.forget();
@@ -1340,38 +1272,37 @@ class Parsers {
     parserInput.restore();
     return null;
 
-//2.4.0 20150320
-//  media: function () {
-//      var features, rules, media, debugInfo;
+//2.5.3 20160126
+// media: function () {
+//     var features, rules, media, debugInfo;
 //
-//      if (context.dumpLineNumbers) {
-//          debugInfo = getDebugInfo(parserInput.i);
-//      }
+//     if (context.dumpLineNumbers) {
+//         debugInfo = getDebugInfo(parserInput.i);
+//     }
 //
-//      parserInput.save();
+//     parserInput.save();
 //
-//      if (parserInput.$str("@media")) {
-//          features = this.mediaFeatures();
+//     if (parserInput.$str("@media")) {
+//         features = this.mediaFeatures();
 //
-//          rules = this.block();
+//         rules = this.block();
 //
-//          if (!rules) {
-//              parserInput.restore("media definitions require block statements after any features");
-//              return;
-//          }
+//         if (!rules) {
+//             error("media definitions require block statements after any features");
+//         }
 //
-//          parserInput.forget();
+//         parserInput.forget();
 //
-//          media = new(tree.Media)(rules, features, parserInput.i, fileInfo);
-//          if (context.dumpLineNumbers) {
-//              media.debugInfo = debugInfo;
-//          }
+//         media = new(tree.Media)(rules, features, parserInput.i, fileInfo);
+//         if (context.dumpLineNumbers) {
+//             media.debugInfo = debugInfo;
+//         }
 //
-//          return media;
-//      }
+//         return media;
+//     }
 //
-//      parserInput.restore();
-//  },
+//     parserInput.restore();
+// },
   }
 
   static final RegExp _applyRegExp1 = new RegExp(r'@apply?\s*', caseSensitive: true);
@@ -1536,34 +1467,6 @@ class Parsers {
         nonVendorSpecificName = '@${name.substring(name.indexOf("-", 2) + 1)}';
 
     switch (nonVendorSpecificName) {
-      /*
-      case "@font-face":
-      case "@viewport":
-      case "@top-left":
-      case "@top-left-corner":
-      case "@top-center":
-      case "@top-right":
-      case "@top-right-corner":
-      case "@bottom-left":
-      case "@bottom-left-corner":
-      case "@bottom-center":
-      case "@bottom-right":
-      case "@bottom-right-corner":
-      case "@left-top":
-      case "@left-middle":
-      case "@left-bottom":
-      case "@right-top":
-      case "@right-middle":
-      case "@right-bottom":
-        hasBlock = true;
-        isRooted = true;
-        break;
-      */
-
-      case '@counter-style':
-        hasIdentifier = true;
-        hasBlock = true;
-        break;
       case '@charset':
         hasIdentifier = true;
         hasBlock = false;
@@ -1573,16 +1476,16 @@ class Parsers {
         hasBlock = false;
         break;
       case '@keyframes':
+      case '@counter-style':
         hasIdentifier = true;
-        break;
-      case '@host':
-      case '@page':
-        hasUnknown = true;
         break;
       case '@document':
       case '@supports':
         hasUnknown = true;
         isRooted = false;
+        break;
+      default:
+        hasUnknown = true;
         break;
     }
 
@@ -1598,7 +1501,8 @@ class Parsers {
           parserInput.error('expected $name expression');
     } else if (hasUnknown) {
       final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
-      if (isNotEmpty(unknown))
+      hasBlock = (parserInput.currentChar() == '{');
+      if (unknown?.isNotEmpty ?? false)
           value = new Anonymous(unknown);
     }
 
@@ -1609,120 +1513,92 @@ class Parsers {
       parserInput.forget();
       return new Directive(name, value, rules, index, fileInfo,
           isNotEmpty(context.dumpLineNumbers) ? getDebugInfo(index) : null,
-          isReferenced: false,
           isRooted: isRooted);
     }
 
     parserInput.restore('directive options not recognised');
     return null;
 
-//2.4.0 20150319
-//  directive: function () {
-//      var index = parserInput.i, name, value, rules, nonVendorSpecificName,
-//          hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
+//2.5.3 20160126
+// directive: function () {
+//     var index = parserInput.i, name, value, rules, nonVendorSpecificName,
+//         hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
 //
-//      if (parserInput.currentChar() !== '@') { return; }
+//     if (parserInput.currentChar() !== '@') { return; }
 //
-//      value = this['import']() || this.plugin() || this.media();
-//      if (value) {
-//          return value;
-//      }
+//     value = this['import']() || this.plugin() || this.media();
+//     if (value) {
+//         return value;
+//     }
 //
-//      parserInput.save();
+//     parserInput.save();
 //
-//      name = parserInput.$re(/^@[a-z-]+/);
+//     name = parserInput.$re(/^@[a-z-]+/);
 //
-//      if (!name) { return; }
+//     if (!name) { return; }
 //
-//      nonVendorSpecificName = name;
-//      if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
-//          nonVendorSpecificName = "@" + name.slice(name.indexOf('-', 2) + 1);
-//      }
+//     nonVendorSpecificName = name;
+//     if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
+//         nonVendorSpecificName = "@" + name.slice(name.indexOf('-', 2) + 1);
+//     }
 //
-//      switch(nonVendorSpecificName) {
-//          /*
-//          case "@font-face":
-//          case "@viewport":
-//          case "@top-left":
-//          case "@top-left-corner":
-//          case "@top-center":
-//          case "@top-right":
-//          case "@top-right-corner":
-//          case "@bottom-left":
-//          case "@bottom-left-corner":
-//          case "@bottom-center":
-//          case "@bottom-right":
-//          case "@bottom-right-corner":
-//          case "@left-top":
-//          case "@left-middle":
-//          case "@left-bottom":
-//          case "@right-top":
-//          case "@right-middle":
-//          case "@right-bottom":
-//              hasBlock = true;
-//              isRooted = true;
-//              break;
-//          */
-//          case "@counter-style":
-//              hasIdentifier = true;
-//              hasBlock = true;
-//              break;
-//          case "@charset":
-//              hasIdentifier = true;
-//              hasBlock = false;
-//              break;
-//          case "@namespace":
-//              hasExpression = true;
-//              hasBlock = false;
-//              break;
-//          case "@keyframes":
-//              hasIdentifier = true;
-//              break;
-//          case "@host":
-//          case "@page":
-//              hasUnknown = true;
-//              break;
-//          case "@document":
-//          case "@supports":
-//              hasUnknown = true;
-//              isRooted = false;
-//              break;
-//      }
+//     switch(nonVendorSpecificName) {
+//         case "@charset":
+//             hasIdentifier = true;
+//             hasBlock = false;
+//             break;
+//         case "@namespace":
+//             hasExpression = true;
+//             hasBlock = false;
+//             break;
+//         case "@keyframes":
+//         case "@counter-style":
+//             hasIdentifier = true;
+//             break;
+//         case "@document":
+//         case "@supports":
+//             hasUnknown = true;
+//             isRooted = false;
+//             break;
+//         default:
+//             hasUnknown = true;
+//             break;
+//     }
 //
-//      parserInput.commentStore.length = 0;
+//     parserInput.commentStore.length = 0;
 //
-//      if (hasIdentifier) {
-//          value = this.entity();
-//          if (!value) {
-//              error("expected " + name + " identifier");
-//          }
-//      } else if (hasExpression) {
-//          value = this.expression();
-//          if (!value) {
-//              error("expected " + name + " expression");
-//          }
-//      } else if (hasUnknown) {
-//          value = (parserInput.$re(/^[^{;]+/) || '').trim();
-//          if (value) {
-//              value = new(tree.Anonymous)(value);
-//          }
-//      }
+//     if (hasIdentifier) {
+//         value = this.entity();
+//         if (!value) {
+//             error("expected " + name + " identifier");
+//         }
+//     } else if (hasExpression) {
+//         value = this.expression();
+//         if (!value) {
+//             error("expected " + name + " expression");
+//         }
+//     } else if (hasUnknown) {
+//         value = (parserInput.$re(/^[^{;]+/) || '').trim();
+//         hasBlock = (parserInput.currentChar() == '{');
+//         if (value) {
+//             value = new(tree.Anonymous)(value);
+//         }
+//     }
 //
-//      if (hasBlock) {
-//          rules = this.blockRuleset();
-//      }
+//     if (hasBlock) {
+//         rules = this.blockRuleset();
+//     }
 //
-//      if (rules || (!hasBlock && value && parserInput.$char(';'))) {
-//          parserInput.forget();
-//          return new (tree.Directive)(name, value, rules, index, fileInfo,
-//              context.dumpLineNumbers ? getDebugInfo(index) : null,
-//              false,
-//              isRooted
-//          );
-//      }
+//     if (rules || (!hasBlock && value && parserInput.$char(';'))) {
+//         parserInput.forget();
+//         return new (tree.Directive)(name, value, rules, index, fileInfo,
+//             context.dumpLineNumbers ? getDebugInfo(index) : null,
+//             isRooted
+//         );
+//     }
 //
-//      parserInput.restore("directive options not recognised");
-//  },
+//     parserInput.restore("directive options not recognised");
+// },
   }
 
   ///
@@ -2011,17 +1887,144 @@ class Parsers {
   }
 
   ///
-  Node condition() {
+  Condition condition() {
+    String or() => parserInput.$str("or");
+
+    Condition result = conditionAnd();
+    if (result == null)
+        return null;
+
+    final String logical = or();
+    if (logical != null) {
+      final Condition next = condition();
+      if (next != null) {
+        result = new Condition(logical, result, next);
+      } else {
+        return null;
+      }
+    }
+    return result;
+
+//2.5.3 20160117
+// condition: function () {
+//     var result, logical, next;
+//     function or() {
+//         return parserInput.$str("or");
+//     }
+//
+//     result = this.conditionAnd(this);
+//     if (!result) {
+//         return ;
+//     }
+//     logical = or();
+//     if (logical) {
+//         next = this.condition();
+//         if (next) {
+//             result = new(tree.Condition)(logical, result, next);
+//         } else {
+//             return ;
+//         }
+//     }
+//     return result;
+// },
+  }
+
+  ///
+  Condition conditionAnd() {
+    Condition insideCondition() => negatedCondition() ?? parenthesisCondition();
+    String and() => parserInput.$str("and");
+
+    Condition result = insideCondition();
+    if (result == null)
+        return null;
+
+    final String logical = and();
+    if (logical != null) {
+      final Condition next = conditionAnd();
+      if (next != null) {
+        result = new Condition(logical, result, next);
+      } else {
+        return null;
+      }
+    }
+    return result;
+
+//2.5.3 20160117
+// conditionAnd: function () {
+//     var result, logical, next;
+//     function insideCondition(me) {
+//         return me.negatedCondition() || me.parenthesisCondition();
+//     }
+//     function and() {
+//         return parserInput.$str("and");
+//     }
+//
+//     result = insideCondition(this);
+//     if (!result) {
+//         return ;
+//     }
+//     logical = and();
+//     if (logical) {
+//         next = this.conditionAnd();
+//         if (next) {
+//             result = new(tree.Condition)(logical, result, next);
+//         } else {
+//             return ;
+//         }
+//     }
+//     return result;
+// },
+  }
+
+  ///
+  Condition negatedCondition() {
+    if (parserInput.$str("not") != null) {
+      final Condition result = parenthesisCondition();
+      if (result != null)
+          result.negate = !result.negate;
+      return result;
+    }
+    return null;
+
+//2.5.3 20160114
+// negatedCondition: function () {
+//     if (parserInput.$str("not")) {
+//         var result = this.parenthesisCondition();
+//         if (result) {
+//             result.negate = !result.negate;
+//         }
+//         return result;
+//     }
+// },
+  }
+
+  ///
+  Condition parenthesisCondition() {
+    if (parserInput.$str("(") == null)
+        return null;
+    final Condition body = condition() ?? atomicCondition();
+    parserInput.expectChar(')');
+    return body;
+
+//2.5.3 20160114
+// parenthesisCondition: function () {
+//     var body;
+//     if (!parserInput.$str("(")) {
+//         return ;
+//     }
+//     body = this.condition() || this.atomicCondition();
+//     expectChar(')');
+//     return body;
+// },
+  }
+
+  ///
+  Condition atomicCondition() {
     Node      a;
     Node      b;
     Condition c;
     final int index = parserInput.i;
-    bool      negate = false;
     String    op;
-
-    if (parserInput.$str('not') != null)
-        negate = true;
-    parserInput.expectChar('(');
 
     a = addition();
     a ??= entities.keyword();
@@ -2054,67 +2057,59 @@ class Parsers {
         b ??= entities.keyword();
         b ??= entities.quoted();
         if (b != null) {
-          c = new Condition(op, a, b, index: index, negate: negate);
+          c = new Condition(op, a, b, index: index);
         } else {
           parserInput.error('expected expression');
         }
       } else {
-        c = new Condition('=', a, new Keyword.True(),
-            index: index, negate: negate);
+        c = new Condition('=', a, new Keyword.True(), index: index);
       }
-      parserInput.expectChar(')');
-      return parserInput.$str('and') != null
-          ? new Condition('and', c, condition())
-          : c;
+      return c;
     }
     return null;
 
-//2.4.0 20150321-1640
-//  condition: function () {
-//      var entities = this.entities, index = parserInput.i, negate = false,
-//          a, b, c, op;
+//2.5.3 20160114
+// atomicCondition: function () {
+//     var entities = this.entities, index = parserInput.i, a, b, c, op;
 //
-//      if (parserInput.$str("not")) { negate = true; }
-//      expectChar('(');
-//      a = this.addition() || entities.keyword() || entities.quoted();
-//      if (a) {
-//          if (parserInput.$char('>')) {
-//              if (parserInput.$char('=')) {
-//                  op = ">=";
-//              } else {
-//                  op = '>';
-//              }
-//          } else
-//          if (parserInput.$char('<')) {
-//              if (parserInput.$char('=')) {
-//                  op = "<=";
-//              } else {
-//                  op = '<';
-//              }
-//          } else
-//          if (parserInput.$char('=')) {
-//              if (parserInput.$char('>')) {
-//                  op = "=>";
-//              } else if (parserInput.$char('<')) {
-//                  op = '=<';
-//              } else {
-//                  op = '=';
-//              }
-//          }
-//          if (op) {
-//              b = this.addition() || entities.keyword() || entities.quoted();
-//              if (b) {
-//                  c = new(tree.Condition)(op, a, b, index, negate);
-//              } else {
-//                  error('expected expression');
-//              }
-//          } else {
-//              c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, negate);
-//          }
-//          expectChar(')');
-//          return parserInput.$str("and") ? new(tree.Condition)('and', c, this.condition()) : c;
-//      }
-//  },
+//     a = this.addition() || entities.keyword() || entities.quoted();
+//     if (a) {
+//         if (parserInput.$char('>')) {
+//             if (parserInput.$char('=')) {
+//                 op = ">=";
+//             } else {
+//                 op = '>';
+//             }
+//         } else
+//         if (parserInput.$char('<')) {
+//             if (parserInput.$char('=')) {
+//                 op = "<=";
+//             } else {
+//                 op = '<';
+//             }
+//         } else
+//         if (parserInput.$char('=')) {
+//             if (parserInput.$char('>')) {
+//                 op = "=>";
+//             } else if (parserInput.$char('<')) {
+//                 op = '=<';
+//             } else {
+//                 op = '=';
+//             }
+//         }
+//         if (op) {
+//             b = this.addition() || entities.keyword() || entities.quoted();
+//             if (b) {
+//                 c = new(tree.Condition)(op, a, b, index, false);
+//             } else {
+//                 error('expected expression');
+//             }
+//         } else {
+//             c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, false);
+//         }
+//         return c;
+//     }
+// },
   }
 
   static final RegExp _reOperand = new RegExp(r'-[@\(]');
@@ -2130,11 +2125,11 @@ class Parsers {
     if (parserInput.peek(_reOperand))
         negate = parserInput.$char('-');
 
-    o = sub();
-    o ??= entities.dimension();
-    o ??= entities.color();
-    o ??= entities.variable();
-    o ??= entities.call();
+    o = sub()
+        ?? entities.dimension()
+        ?? entities.variable()
+        ?? entities.call()
+        ?? entities.color();
 
     if (negate != null) {
       o.parensInOp = true;
@@ -2143,26 +2138,29 @@ class Parsers {
 
     return o;
 
-//2.2.0
-//  operand: function () {
-//      var entities = this.entities, negate;
+//2.5.3 20160115
 //
-//      if (parserInput.peek(/^-[@\(]/)) {
-//          negate = parserInput.$char('-');
-//      }
+// An operand is anything that can be part of an operation,
+// such as a Color, or a Variable
 //
+// operand: function () {
+//     var entities = this.entities, negate;
 //
-//      var o = this.sub() || entities.dimension() ||
-//              entities.color() || entities.variable() ||
-//              entities.call();
+//     if (parserInput.peek(/^-[@\(]/)) {
+//         negate = parserInput.$char('-');
+//     }
 //
-//      if (negate) {
-//          o.parensInOp = true;
-//          o = new(tree.Negative)(o);
-//      }
+//     var o = this.sub() || entities.dimension() ||
+//             entities.variable() ||
+//             entities.call() || entities.color();
 //
-//      return o;
-//  }
+//     if (negate) {
+//         o.parensInOp = true;
+//         o = new(tree.Negative)(o);
+//     }
+//
+//     return o;
+// },
   }
 
   static final RegExp _reExpression = new RegExp(r'\/[\/*]');

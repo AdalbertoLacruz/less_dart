@@ -91,6 +91,7 @@ class Visitor extends VisitorBase {
   ///
   /// [nodes] List<Node> | List<List<>> | List<MixinArgs> ...
   ///
+  @override
   List<T> visitArray<T>(List<T> nodes, {bool nonReplacing = false}) {
     if (nodes == null)
         return nodes;

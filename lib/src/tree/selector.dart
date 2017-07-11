@@ -1,9 +1,10 @@
-//source: less/tree/selector.js 2.5.0
+//source: less/tree/selector.js 2.5.3 20151120
 
 part of tree.less;
 
 /// Selectors such as body, h1, ...
-class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
+//class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
+class Selector extends Node {
   @override final String type = 'Selector';
 
   ///
@@ -19,8 +20,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
   ///
   int             index;
   ///
-  bool            isReferenced = false;
-  ///
   bool            mediaEmpty = false;
 
   /// Changed List<Node> to List<Element>
@@ -29,24 +28,25 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
       Node this.condition,
       int this.index,
       FileInfo currentFileInfo,
-      bool this.isReferenced}) {
+      VisibilityInfo visibilityInfo}) {
 
     this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
     this.currentFileInfo = currentFileInfo ?? new FileInfo();
     if (condition == null)
         evaldCondition = true;
+    copyVisibilityInfo(visibilityInfo);
 
-//2.3.1
-//  var Selector = function (elements, extendList, condition, index, currentFileInfo, isReferenced) {
-//      this.elements = elements;
-//      this.extendList = extendList;
-//      this.condition = condition;
-//      this.currentFileInfo = currentFileInfo || {};
-//      this.isReferenced = isReferenced;
-//      if (!condition) {
-//          this.evaldCondition = true;
-//      }
-//  };
+//2.5.3 20151120
+// var Selector = function (elements, extendList, condition, index, currentFileInfo, visibilityInfo) {
+//     this.elements = elements;
+//     this.extendList = extendList;
+//     this.condition = condition;
+//     this.currentFileInfo = currentFileInfo || {};
+//     if (!condition) {
+//         this.evaldCondition = true;
+//     }
+//     this.copyVisibilityInfo(visibilityInfo);
+// };
   }
 
   /// Fields to show with genTree
@@ -65,7 +65,7 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   @override
-  void accept(covariant Visitor visitor) {
+  void accept(covariant VisitorBase visitor) {
     if (elements != null)
         elements = visitor.visitArray(elements);
     if (extendList != null)
@@ -89,23 +89,26 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 
   ///
   Selector createDerived(List<Element> elements,
-      {List<Extend> extendList, bool evaldCondition}) => new Selector(elements,
+      {List<Extend> extendList,
+      bool evaldCondition}) => new Selector(elements,
           extendList: extendList ?? this.extendList,
           condition: null,
           index: index,
           currentFileInfo: currentFileInfo,
-          isReferenced: isReferenced)
+          //isReferenced: isReferenced TODO remove
+          visibilityInfo: visibilityInfo())
           ..evaldCondition = evaldCondition ?? this.evaldCondition
           ..mediaEmpty = mediaEmpty;
 
-//2.3.1
-//  Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
-//      evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
-//      var newSelector = new Selector(elements, extendList || this.extendList, null, this.index, this.currentFileInfo, this.isReferenced);
-//      newSelector.evaldCondition = evaldCondition;
-//      newSelector.mediaEmpty = this.mediaEmpty;
-//      return newSelector;
-//  };
+//2.5.3 20151120
+// Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
+//     var info = this.visibilityInfo();
+//     evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
+//     var newSelector = new Selector(elements, extendList || this.extendList, null, this.index, this.currentFileInfo, info);
+//     newSelector.evaldCondition = evaldCondition;
+//     newSelector.mediaEmpty = this.mediaEmpty;
+//     return newSelector;
+// };
 
   ///
   List<Selector> createEmptySelectors() {
@@ -311,29 +314,6 @@ class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
 //      }
 //  };
   }
-
-  //--- MarkReferencedNode -------------
-
-  ///
-  @override
-  void markReferenced() {
-    isReferenced = true;
-
-//2.3.1
-//  Selector.prototype.markReferenced = function () {
-//      this.isReferenced = true;
-//  };
-  }
-
-  ///
-  @override
-  bool getIsReferenced() =>
-      !currentFileInfo.reference || (isReferenced ?? false);
-
-//2.3.1
-//  Selector.prototype.getIsReferenced = function() {
-//      return !this.currentFileInfo.reference || this.isReferenced;
-//  };
 
   ///
   bool getIsOutput() => evaldCondition;

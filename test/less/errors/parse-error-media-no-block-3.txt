@@ -1,4 +1,4 @@
-ParseError: media definitions require block statements after any features in {path}parse-error-media-no-block-3.less on line 4, column 3:
+SyntaxError: media definitions require block statements after any features in {path}parse-error-media-no-block-3.less on line 4, column 3:
 3     font-size: 5000px;
 4   }
 ....^

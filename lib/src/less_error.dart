@@ -106,11 +106,7 @@ class LessError {
     LessError error;
     if (e is LessExceptionError)
         error = e.error;
-    error ??= (e is LessError) ? e : new LessError();
-
-    // to avoid the linter error - TODO
-    // ignore: cascade_invocations
-    error
+    (error ??= (e is LessError) ? e : new LessError())
         ..index ??= index
         ..filename ??= filename
         ..message ??= (e != null && e is! LessError) ? e.toString() : message
