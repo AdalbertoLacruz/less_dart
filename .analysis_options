@@ -40,17 +40,17 @@ linter:
     - avoid_init_to_null
     ### - avoid_null_checks_in_equality_operators
     - avoid_positional_boolean_parameters
-    - avoid_return_types_on_setters
+    # - avoid_return_types_on_setters
     ### - avoid_returning_null
     ### - avoid_returning_this
     ### - avoid_setters_without_getters
     ### - avoid_slow_async_io
     ### - avoid_types_on_closure_parameters
-    - await_only_futures
+    # - await_only_futures
     - camel_case_types
-    - cancel_subscriptions
+    # - cancel_subscriptions
     - cascade_invocations
-    - close_sinks
+    # - close_sinks
     - comment_references
     ###    - constant_identifier_names
     ### - control_flow_in_finally
@@ -114,6 +114,6 @@ linter:
     - unrelated_type_equality_checks
     ### - use_rethrow_when_possible
     ### - use_setters_to_change_properties
-    - use_string_buffers
-    - use_to_and_as_if_applicable
+    #- use_string_buffers
+    #- use_to_and_as_if_applicable
     - valid_regexps

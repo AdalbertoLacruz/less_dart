@@ -1,4 +1,4 @@
-//source: less/parser.js 2.5.3 20160114
+//source: less/parser.js 2.6.0 20160206
 
 part of parser.less;
 
@@ -89,54 +89,6 @@ class Entities {
 //  },
   }
 
-  static final RegExp _namedColorRegExp =
-      new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
-
-  ///
-  Color namedColor() {
-    parserInput.save();
-
-    final bool autoCommentAbsorb = parserInput.autoCommentAbsorb;
-    parserInput.autoCommentAbsorb = false;
-    final String k = parserInput.$re(_namedColorRegExp);
-    parserInput.autoCommentAbsorb = autoCommentAbsorb;
-
-    if (k == null) {
-      parserInput.forget();
-      return null;
-    }
-
-    final Color result = new Color.fromKeyword(k);
-    if (result == null) {
-      parserInput.restore();
-    } else {
-      parserInput.forget();
-      return result;
-    }
-    return null;
-
-//2.5.3 20160114
-// namedColor: function () {
-//     parserInput.save();
-//     var autoCommentAbsorb = parserInput.autoCommentAbsorb;
-//     parserInput.autoCommentAbsorb = false;
-//     var k = parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]*/);
-//     parserInput.autoCommentAbsorb = autoCommentAbsorb;
-//     if (!k) {
-//         parserInput.forget();
-//         return ;
-//     }
-//     var result = tree.Color.fromKeyword(k);
-//     if (!result) {
-//         parserInput.restore();
-//     } else {
-//         parserInput.forget();
-//         return result;
-//     }
-//
-// },
-  }
-
   static final RegExp _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
   static final RegExp _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
 
@@ -157,7 +109,6 @@ class Entities {
     String      name;
     String      nameLC;
 
-    // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.peek(_reCallUrl))
         return null;
 
@@ -236,7 +187,6 @@ class Entities {
   /// return Alpha<Variable | String>
   //Original in parsers.dart
   Alpha alpha() {
-    // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
     if (parserInput.$re(_alphaRegExp1) == null)
         return null; // i
 
@@ -465,7 +415,8 @@ class Entities {
     String    curly;
     final int index = parserInput.i;
 
-    if (parserInput.currentChar() == '@' && (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
+    if (parserInput.currentChar() == '@' &&
+        (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
       return new Variable('@$curly', index, fileInfo);
     }
     return null;
@@ -480,7 +431,8 @@ class Entities {
 //  }
   }
 
-  static final RegExp _colorRegExp1 = new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
+  static final RegExp _colorRegExp1 =
+      new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
   static final RegExp _colorRegExp2 = new RegExp(r'#([\w]+).*');
   static final RegExp _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
 
@@ -508,9 +460,9 @@ class Entities {
 
       return new Color(rgb[1], null, '#$colorCandidateString');
     }
-    return namedColor();
+    return null;
 
-//2.5.3 20160114
+//2.6.0 20160206
 //
 // A Hexadecimal color
 //
@@ -531,8 +483,52 @@ class Entities {
 //         }
 //         return new(tree.Color)(rgb[1], undefined, '#' + colorCandidateString);
 //     }
-//
-//     return this.namedColor();
+// },
+  }
+
+  static final RegExp _colorKeywordRegExp =
+      new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
+
+  ///
+  Color colorKeyword() {
+    parserInput.save();
+
+    final bool autoCommentAbsorb = parserInput.autoCommentAbsorb;
+    parserInput.autoCommentAbsorb = false;
+    final String k = parserInput.$re(_colorKeywordRegExp);
+    parserInput.autoCommentAbsorb = autoCommentAbsorb;
+
+    if (k == null) {
+      parserInput.forget();
+      return null;
+    }
+
+    parserInput.restore();
+    final Color color = new Color.fromKeyword(k);
+
+    if (color != null) {
+      parserInput.$str(k);
+      return color;
+    }
+    return null;
+
+//2.6.0 20160206
+// colorKeyword: function () {
+//     parserInput.save();
+//     var autoCommentAbsorb = parserInput.autoCommentAbsorb;
+//     parserInput.autoCommentAbsorb = false;
+//     var k = parserInput.$re(/^[A-Za-z]+/);
+//     parserInput.autoCommentAbsorb = autoCommentAbsorb;
+//     if (!k) {
+//         parserInput.forget();
+//         return;
+//     }
+//     parserInput.restore();
+//     var color = tree.Color.fromKeyword(k);
+//     if (color) {
+//         parserInput.$str(k);
+//         return color;
+//     }
 // },
   }
 

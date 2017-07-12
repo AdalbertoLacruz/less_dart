@@ -1,4 +1,4 @@
-//source: less/parser.js 2.5.3 lines 195-end 20160117
+//source: less/parser.js ines 195-end 2.6.0 20160224
 
 part of parser.less;
 
@@ -210,7 +210,7 @@ class Parsers {
 //  }
   }
 
-  static final RegExp _rulesetCallRegExp = new RegExp(r'(@[\w-]+)\s*\(\s*\)\s*;', caseSensitive: true);
+  static final RegExp _rulesetCallRegExp = new RegExp(r'(@[\w-]+)\(\s*\)\s*;', caseSensitive: true);
 
   ///
   /// The variable part of a variable definition. Used in the `rule` parser
@@ -228,14 +228,19 @@ class Parsers {
 
     return null;
 
-//2.2.0
-//  rulesetCall: function () {
-//      var name;
+//2.6.0 20160224
 //
-//      if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^(@[\w-]+)\s*\(\s*\)\s*;/))) {
-//          return new tree.RulesetCall(name[1]);
-//      }
-//  }
+// The variable part of a variable definition. Used in the `rule` parser
+//
+//     @fink();
+//
+// rulesetCall: function () {
+//     var name;
+//
+//     if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^(@[\w-]+)\(\s*\)\s*;/))) {
+//         return new tree.RulesetCall(name[1]);
+//     }
+// },
   }
 
   static final RegExp _extendRegExp = new RegExp(r'(all)(?=\s*(\)|,))', caseSensitive: true);
@@ -2000,20 +2005,86 @@ class Parsers {
 
   ///
   Condition parenthesisCondition() {
-    if (parserInput.$str("(") == null)
+    //
+    Condition tryConditionFollowedByParenthesis() {
+      parserInput.save();
+      final Condition body = condition();
+      if (body == null) {
+        parserInput.restore();
         return null;
-    final Condition body = condition() ?? atomicCondition();
-    parserInput.expectChar(')');
+      }
+      if (parserInput.$char(')') == null) {
+        parserInput.restore();
+        return null;
+      }
+      parserInput.forget();
+      return body;
+    }
+
+    parserInput.save();
+    if (parserInput.$str("(") == null) {
+      parserInput.restore();
+      return null;
+    }
+
+    Condition body = tryConditionFollowedByParenthesis();
+    if (body != null) {
+      parserInput.forget();
+      return body;
+    }
+
+    body = atomicCondition();
+    if (body == null) {
+      parserInput.restore();
+      return null;
+    }
+    if (parserInput.$char(')') == null) {
+      parserInput.restore("expected ')' got '${parserInput.currentChar()}'");
+      return null;
+    }
+    parserInput.forget();
     return body;
 
-//2.5.3 20160114
+//2.6.0 20160217
 // parenthesisCondition: function () {
+//     function tryConditionFollowedByParenthesis(me) {
+//         var body;
+//         parserInput.save();
+//         body = me.condition();
+//         if (!body) {
+//             parserInput.restore();
+//             return ;
+//         }
+//         if (!parserInput.$char(')')) {
+//             parserInput.restore();
+//             return ;
+//         }
+//         parserInput.forget();
+//         return body;
+//     }
+//
 //     var body;
+//     parserInput.save();
 //     if (!parserInput.$str("(")) {
+//         parserInput.restore();
 //         return ;
 //     }
-//     body = this.condition() || this.atomicCondition();
-//     expectChar(')');
+//     body = tryConditionFollowedByParenthesis(this);
+//     if (body) {
+//         parserInput.forget();
+//         return body;
+//     }
+//
+//     body = this.atomicCondition();
+//     if (!body) {
+//         parserInput.restore();
+//         return ;
+//     }
+//     if (!parserInput.$char(')')) {
+//         parserInput.restore("expected ')' got '" + parserInput.currentChar() + "'");
+//         return ;
+//     }
+//     parserInput.forget();
 //     return body;
 // },
   }
@@ -2127,9 +2198,10 @@ class Parsers {
 
     o = sub()
         ?? entities.dimension()
+        ?? entities.color()
         ?? entities.variable()
         ?? entities.call()
-        ?? entities.color();
+        ?? entities.colorKeyword();
 
     if (negate != null) {
       o.parensInOp = true;
@@ -2137,6 +2209,30 @@ class Parsers {
     }
 
     return o;
+
+//2.6.0 20160206
+//
+// An operand is anything that can be part of an operation,
+// such as a Color, or a Variable
+//
+// operand: function () {
+//     var entities = this.entities, negate;
+//
+//     if (parserInput.peek(/^-[@\(]/)) {
+//         negate = parserInput.$char('-');
+//     }
+//
+//     var o = this.sub() || entities.dimension() ||
+//             entities.color() || entities.variable() ||
+//             entities.call() || entities.colorKeyword();
+//
+//     if (negate) {
+//         o.parensInOp = true;
+//         o = new(tree.Negative)(o);
+//     }
+//
+//     return o;
+// },
 
 //2.5.3 20160115
 //

@@ -134,6 +134,7 @@ Map<int, Config> configFill() => <int, Config>{
     54: def('whitespace'),
     55: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
     56: def('no-strict-math/no-sm-operations'),
+    57: def('no-strict-math/mixins-guards'),
     // compression
     60: def('compression/compression', options: <String>['-x']),
 

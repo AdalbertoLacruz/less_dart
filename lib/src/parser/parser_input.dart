@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 2.5.0
+// source: parser/parser-input.js 2.6.0 20160217
 
 part of parser.less;
 
@@ -265,35 +265,6 @@ class ParserInput {
   }
 
   ///
-  /// [arg] Function (?), RegExp or String
-  /// [index] ????
-  /// return String or List<String>
-  ///
-  // parser.js 2.4.0 40-52
-  dynamic expect(dynamic arg, [String msg, int index]) {
-    final dynamic result = (arg is Function) ? arg() : $re(arg);
-    if (result != null)
-        return result;
-
-    final String message = msg ?? (arg is String)
-        ? "expected '$arg' got '${currentChar()}'"
-        : 'unexpected token';
-    return error(message);
-  }
-
-  ///
-  /// Specialization of expect()
-  ///
-  //parser.js 2.2.0 56-62
-  String expectChar(String arg, [String msg]) {
-    if ($char(arg) != null)
-        return arg;
-
-    final String message = msg ?? "expected '$arg' got '${currentChar()}'";
-    return error(message);
-  }
-
-  ///
   //parser.js 2.2.0 lines 64-74
   Null error(String msg, [String type]) {
     throw new LessExceptionError(new LessError(
@@ -318,13 +289,52 @@ class ParserInput {
   }
 
   ///
+  /// [arg] Function (?), RegExp or String
+  /// [index] ????
+  /// return String or List<String>
+  ///
+  dynamic expect(dynamic arg, [String msg, int index]) {
+    final dynamic result = (arg is Function) ? arg() : $re(arg);
+    if (result != null)
+        return result;
+
+    final String message = msg ?? (arg is String)
+        ? "expected '$arg' got '${currentChar()}'"
+        : 'unexpected token';
+    return error(message);
+
+// inside parser.js
+//2.6.0 20160217
+// function expect(arg, msg, index) {
+//     // some older browsers return typeof 'function' for RegExp
+//     var result = (arg instanceof Function) ? arg.call(parsers) : parserInput.$re(arg);
+//     if (result) {
+//         return result;
+//     }
+//     error(msg || (typeof arg === 'string' ? "expected '" + arg + "' got '" + parserInput.currentChar() + "'"
+//                                            : "unexpected token"));
+// }
+  }
+
+  ///
+  /// Specialization of expect()
+  ///
+  //parser.js 2.2.0 56-62
+  String expectChar(String arg, [String msg]) {
+    if ($char(arg) != null)
+        return arg;
+
+    final String message = msg ?? "expected '$arg' got '${currentChar()}'";
+    return error(message);
+  }
+
+  ///
   /// Same as $(), but don't change the state of the parser,
   /// just return the match.
   /// [tok] = String | RegExp
   ///
   bool peek(dynamic tok) {
     if (tok is String) {
-      // https://jsperf.com/string-startswith/21
       return input.startsWith(tok, i);
     } else {
       final RegExp r = tok;
