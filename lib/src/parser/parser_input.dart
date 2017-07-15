@@ -37,6 +37,8 @@ class ParserInput {
   ///
   //Not used in 2.2.0
   bool get notEmpty => i < input.length;
+  ///
+  bool get empty => i >= input.length;
 
   ///
   String charAt(int pos) {
@@ -235,6 +237,7 @@ class ParserInput {
           if (nextNewLine < 0)
               nextNewLine = endIndex;
           i = nextNewLine;
+
           comment.text = input.substring(comment.index, i);
           commentStore.add(comment);
           continue;
@@ -262,6 +265,66 @@ class ParserInput {
     if (i == endIndex) {
       finished = true;
     }
+    
+//2.6.1 20160401
+// function skipWhitespace(length) {
+//     var oldi = parserInput.i, oldj = j,
+//         curr = parserInput.i - currentPos,
+//         endIndex = parserInput.i + current.length - curr,
+//         mem = (parserInput.i += length),
+//         inp = input,
+//         c, nextChar, comment;
+//
+//     for (; parserInput.i < endIndex; parserInput.i++) {
+//         c = inp.charCodeAt(parserInput.i);
+//
+//         if (parserInput.autoCommentAbsorb && c === CHARCODE_FORWARD_SLASH) {
+//             nextChar = inp.charAt(parserInput.i + 1);
+//             if (nextChar === '/') {
+//                 comment = {index: parserInput.i, isLineComment: true};
+//                 var nextNewLine = inp.indexOf("\n", parserInput.i + 2);
+//                 if (nextNewLine < 0) {
+//                     nextNewLine = endIndex;
+//                 }
+//                 parserInput.i = nextNewLine;
+//                 comment.text = inp.substr(comment.index, parserInput.i - comment.index);
+//                 parserInput.commentStore.push(comment);
+//                 continue;
+//             } else if (nextChar === '*') {
+//                 var nextStarSlash = inp.indexOf("*/", parserInput.i + 2);
+//                 if (nextStarSlash >= 0) {
+//                     comment = {
+//                         index: parserInput.i,
+//                         text: inp.substr(parserInput.i, nextStarSlash + 2 - parserInput.i),
+//                         isLineComment: false
+//                     };
+//                     parserInput.i += comment.text.length - 1;
+//                     parserInput.commentStore.push(comment);
+//                     continue;
+//                 }
+//             }
+//             break;
+//         }
+//
+//         if ((c !== CHARCODE_SPACE) && (c !== CHARCODE_LF) && (c !== CHARCODE_TAB) && (c !== CHARCODE_CR)) {
+//             break;
+//         }
+//     }
+//
+//     current = current.slice(length + parserInput.i - mem + curr);
+//     currentPos = parserInput.i;
+//
+//     if (!current.length) {
+//         if (j < chunks.length - 1) {
+//             current = chunks[++j];
+//             skipWhitespace(0); // skip space at the beginning of a chunk
+//             return true; // things changed
+//         }
+//         parserInput.finished = true;
+//     }
+//
+//     return oldi !== parserInput.i || oldj !== j;
+// }
   }
 
   ///
@@ -334,6 +397,8 @@ class ParserInput {
   /// [tok] = String | RegExp
   ///
   bool peek(dynamic tok) {
+    if (i >= input.length)
+        return false;
     if (tok is String) {
       return input.startsWith(tok, i);
     } else {

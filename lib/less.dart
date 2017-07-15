@@ -180,6 +180,8 @@ class Less {
 
   /// Writes css file, map file and dependencies
   void writeOutput(String output, RenderResult result, LessOptions options) {
+    //if (option.depends) return //??
+    
     //css
     if (output.isNotEmpty) {
       writeFile(output, result.css);
@@ -194,6 +196,33 @@ class Less {
     //dependencies
     if (options.depends)
         logger.log('${options.outputBase}: ${result.imports.join(' ')}');
+
+//2.6.1 20160412
+// var writeOutput = function(output, result, onSuccess) {
+//     if (options.depends) {
+//         onSuccess();
+//     } else if (output) {
+//         ensureDirectory(output);
+//         fs.writeFile(output, result.css, {encoding: 'utf8'}, function (err) {
+//             if (err) {
+//                 var description = "Error: ";
+//                 if (errno && errno.errno[err.errno]) {
+//                     description += errno.errno[err.errno].description;
+//                 } else {
+//                     description += err.code + " " + err.message;
+//                 }
+//                 console.error('lessc: failed to create file ' + output);
+//                 console.error(description);
+//             } else {
+//                 less.logger.info('lessc: wrote ' + output);
+//                 onSuccess();
+//             }
+//         });
+//     } else if (!options.depends) {
+//         process.stdout.write(result.css);
+//         onSuccess();
+//     }
+// };
   }
 
   /// Creates the file [filename] with [content]

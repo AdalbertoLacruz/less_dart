@@ -739,7 +739,7 @@ class ColorFunctions extends FunctionBase {
   ///     #800080
   ///     rgba(75, 25, 0, 0.75)
   ///
-  // Copyright (c) 2006-2009 Hampton Catlin, Nathan Weizenbaum, and Chris Eppstein
+  // Copyright (c) 2006-2009 Hampton Catlin, Natalie Weizenbaum, and Chris Eppstein
   // http://sass-lang.com
   Color mix(Color color1, Color color2, [Dimension weight]) {
     weight ??= new Dimension(50);

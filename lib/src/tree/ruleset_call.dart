@@ -1,4 +1,4 @@
-//source: less/tree/ruleset-call.js 2.5.0
+//source: less/tree/ruleset-call.js 2.6.1 20160202
 
 part of tree.less;
 
@@ -11,7 +11,15 @@ class RulesetCall extends Node {
   String variable;
 
   ///
-  RulesetCall(String this.variable);
+  RulesetCall(String this.variable) {
+    allowRoot = true;
+  }
+
+//2.6.1 20160202
+// var RulesetCall = function (variable) {
+//     this.variable = variable;
+//     this.allowRoot = true;
+// };
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

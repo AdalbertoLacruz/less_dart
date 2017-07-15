@@ -7,8 +7,6 @@ class Condition extends Node {
   @override final String type = 'Condition';
 
   ///
-  int     index;
-  ///
   Node    lvalue;
   ///
   bool    negate;
@@ -19,7 +17,8 @@ class Condition extends Node {
 
   ///
   Condition(String op, Node this.lvalue, Node this.rvalue,
-      {int this.index, bool this.negate = false}) {
+      {int index, bool this.negate = false})
+      : super.init(index: index) {
     this.op = op.trim();
   }
 

@@ -1,4 +1,4 @@
-//source: less/parser.js ines 195-end 2.6.0 20160224
+//source: less/parser.js ines 195-end 2.7.0 20160508
 
 part of parser.less;
 
@@ -83,7 +83,7 @@ class Parsers {
       }
 
       // always process comments before deciding if finished
-      if (parserInput.finished)
+      if (parserInput.finished || parserInput.empty)
           break;
       if (parserInput.peekChar('}'))
           break;
@@ -94,12 +94,13 @@ class Parsers {
         continue;
       }
 
-      node = mixin.definition();
-      node ??= rule();
-      node ??= ruleset();
-      node ??= mixin.call();
-      node ??= rulesetCall();
-      node ??= directive();
+      node = mixin.definition()
+          ?? rule()
+          ?? ruleset()
+          ?? mixin.call()
+          ?? rulesetCall()
+          ?? entities.call()
+          ?? directive();
 
       if (node != null) {
         root.add(node);
@@ -115,48 +116,47 @@ class Parsers {
 
     return root;
 
-//2.4.0 20150321
-//  primary: function () {
-//      var mixin = this.mixin, root = [], node;
+//2.6.1 20160304
+// primary: function () {
+//     var mixin = this.mixin, root = [], node;
 //
-//      while (true)
-//      {
-//          while (true) {
-//              node = this.comment();
-//              if (!node) { break; }
-//              root.push(node);
-//          }
-//          // always process comments before deciding if finished
-//          if (parserInput.finished) {
-//              break;
-//          }
-//          if (parserInput.peek('}')) {
-//              break;
-//          }
+//     while (true) {
+//         while (true) {
+//             node = this.comment();
+//             if (!node) { break; }
+//             root.push(node);
+//         }
+//         // always process comments before deciding if finished
+//         if (parserInput.finished) {
+//             break;
+//         }
+//         if (parserInput.peek('}')) {
+//             break;
+//         }
 //
-//          node = this.extendRule();
-//          if (node) {
-//              root = root.concat(node);
-//              continue;
-//          }
+//         node = this.extendRule();
+//         if (node) {
+//             root = root.concat(node);
+//             continue;
+//         }
 //
-//          node = mixin.definition() || this.rule() || this.ruleset() ||
-//              mixin.call() || this.rulesetCall() || this.directive();
-//          if (node) {
-//              root.push(node);
-//          } else {
-//              var foundSemiColon = false;
-//              while (parserInput.$char(";")) {
-//                  foundSemiColon = true;
-//              }
-//              if (!foundSemiColon) {
-//                  break;
-//              }
-//          }
-//      }
+//         node = mixin.definition() || this.rule() || this.ruleset() ||
+//             mixin.call() || this.rulesetCall() || this.entities.call() || this.directive();
+//         if (node) {
+//             root.push(node);
+//         } else {
+//             var foundSemiColon = false;
+//             while (parserInput.$char(";")) {
+//                 foundSemiColon = true;
+//             }
+//             if (!foundSemiColon) {
+//                 break;
+//             }
+//         }
+//     }
 //
-//      return root;
-//  },
+//     return root;
+// },
   }
 
   /// Check if input is empty. Else throw error.
@@ -340,13 +340,13 @@ class Parsers {
   /// and can be found inside a rule's value.
   ///
   Node entity() {
-    Node result = comment();
-    result ??= entities.literal();
-    result ??= entities.variable();
-    result ??= entities.url();
-    result ??= entities.call();
-    result ??= entities.keyword();
-    result ??= entities.javascript();
+    final Node result = comment()
+        ?? entities.literal()
+        ?? entities.variable()
+        ?? entities.url()
+        ?? entities.call()
+        ?? entities.keyword()
+        ?? entities.javascript();
     return result;
 
 //2.2.0
@@ -361,7 +361,7 @@ class Parsers {
   ///
   /// A Rule terminator. Note that we use `peek()` to check for '}',
   /// because the `block` rule will be expecting it, but we still need to make sure
-  /// it's there, if ';' was ommitted.
+  /// it's there, if ';' was omitted.
   ///
   bool end() => (parserInput.$char(';') != null) || parserInput.peekChar('}');
 
@@ -399,14 +399,14 @@ class Parsers {
 
     c = combinator();
 
-    e = parserInput.$re(_elementRegExp1);
-    e ??= parserInput.$re(_elementRegExp2);
-    e ??= parserInput.$char('*');
-    e ??= parserInput.$char('&');
-    e ??= attribute();
-    e ??= parserInput.$re(_elementRegExp3);
-    e ??= parserInput.$re(_elementRegExp4);
-    e ??= entities.variableCurly();
+    e =    parserInput.$re(_elementRegExp1)
+        ?? parserInput.$re(_elementRegExp2)
+        ?? parserInput.$char('*')
+        ?? parserInput.$char('&')
+        ?? attribute()
+        ?? parserInput.$re(_elementRegExp3)
+        ?? parserInput.$re(_elementRegExp4)
+        ?? entities.variableCurly();
 
     if (e == null) {
       parserInput.save();
@@ -634,15 +634,15 @@ class Parsers {
     String  op;
     dynamic val; //String or Node
 
-    if ((key = entities.variableCurly()) == null)
-        key = parserInput.expect(_attributeRegExp4);
+    key = entities.variableCurly()
+        ?? parserInput.expect(_attributeRegExp4);
 
     op = parserInput.$re(_attributeRegExp1);
     if (op != null) {
-      val = entities.quoted();
-      val ??= parserInput.$re(_attributeRegExp2);
-      val ??= parserInput.$re(_attributeRegExp3);
-      val ??= entities.variableCurly();
+      val = entities.quoted()
+          ?? parserInput.$re(_attributeRegExp2)
+          ?? parserInput.$re(_attributeRegExp3)
+          ?? entities.variableCurly();
     }
 
     parserInput.expectChar(']');
@@ -839,8 +839,8 @@ class Parsers {
 
     parserInput.save();
 
-    name = variable();
-    name ??= ruleProperty();
+    name = variable()
+        ?? ruleProperty();
 
     if (name != null) {
       isVariable = name is String;
@@ -999,11 +999,12 @@ class Parsers {
     final String dir = parserInput.$re(_importRegExp1);
 
     if (dir != null) {
-      options = importOptions();
-      options ??= new ImportOptions();
+      options = importOptions()
+          ?? new ImportOptions();
 
-      path = entities.quoted();
-      path ??= entities.url();
+      path = entities.quoted()
+          ?? entities.url();
+
       if (path != null) {
         features = mediaFeatures();
 
@@ -1139,8 +1140,8 @@ class Parsers {
 
     parserInput.save();
     do {
-      e = entities.keyword();
-      e ??= entities.variable();
+      e = entities.keyword()
+          ?? entities.variable();
 
       if (e != null) {
         nodes.add(e);
@@ -1252,8 +1253,10 @@ class Parsers {
     Media       media;
     List<Node>  rules;
 
-    if (isNotEmpty(context.dumpLineNumbers))
-        debugInfo = getDebugInfo(parserInput.i);
+    final int index = parserInput.i;
+
+    if (context.dumpLineNumbers?.isNotEmpty ?? false)
+        debugInfo = getDebugInfo(index);
 
     parserInput.save();
 
@@ -1268,21 +1271,20 @@ class Parsers {
 
       parserInput.forget();
 
-      media = new Media(rules, features, parserInput.i, fileInfo);
-      if (isNotEmpty(context.dumpLineNumbers))
+      media = new Media(rules, features, index, fileInfo);
+      if (context.dumpLineNumbers?.isNotEmpty ?? false)
           media.debugInfo = debugInfo;
       return media;
-
     }
     parserInput.restore();
     return null;
 
-//2.5.3 20160126
+//2.7.0 20160508
 // media: function () {
-//     var features, rules, media, debugInfo;
+//     var features, rules, media, debugInfo, index = parserInput.i;
 //
 //     if (context.dumpLineNumbers) {
-//         debugInfo = getDebugInfo(parserInput.i);
+//         debugInfo = getDebugInfo(index);
 //     }
 //
 //     parserInput.save();
@@ -1298,7 +1300,7 @@ class Parsers {
 //
 //         parserInput.forget();
 //
-//         media = new(tree.Media)(rules, features, parserInput.i, fileInfo);
+//         media = new(tree.Media)(rules, features, index, fileInfo);
 //         if (context.dumpLineNumbers) {
 //             media.debugInfo = debugInfo;
 //         }
@@ -1453,11 +1455,11 @@ class Parsers {
     if (parserInput.currentChar() != '@')
         return null;
 
-    value = import();
-    value ??= options();
-    value ??= plugin();
-    value ??= apply();
-    value ??= media();
+    value = import()
+        ?? options()
+        ?? plugin()
+        ?? apply()
+        ?? media();
     if (value != null)
         return value;
 
@@ -1668,7 +1670,7 @@ class Parsers {
 
   ///
   Expression sub() {
-    Node        a;
+    Node a;
 
     parserInput.save();
     if (parserInput.$char('(') != null) {
@@ -1723,8 +1725,8 @@ class Parsers {
 
         parserInput.save();
 
-        op = parserInput.$char('/');
-        op ??= parserInput.$char('*');
+        op = parserInput.$char('/')
+            ?? parserInput.$char('*');
         if (op == null) {
           parserInput.forget();
           break;
@@ -2097,9 +2099,10 @@ class Parsers {
     final int index = parserInput.i;
     String    op;
 
-    a = addition();
-    a ??= entities.keyword();
-    a ??= entities.quoted();
+    a = addition()
+        ?? entities.keyword()
+        ?? entities.quoted();
+
     if (a != null) {
       if (parserInput.$char('>') != null) {
         if (parserInput.$char('=') != null) {
@@ -2124,9 +2127,10 @@ class Parsers {
       }
 
       if (op != null) {
-        b = addition();
-        b ??= entities.keyword();
-        b ??= entities.quoted();
+        b = addition()
+            ?? entities.keyword()
+            ?? entities.quoted();
+
         if (b != null) {
           c = new Condition(op, a, b, index: index);
         } else {
@@ -2280,8 +2284,9 @@ class Parsers {
         continue;
       }
 
-      e = addition();
-      e ??= entity();
+      e = addition()
+          ?? entity();
+
       if (e != null) {
         entities.add(e);
         // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here

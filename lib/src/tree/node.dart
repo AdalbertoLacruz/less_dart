@@ -7,6 +7,8 @@ abstract class Node {
   ///
   List<Extend>        allExtends; //Ruleset
   ///
+  bool                allowRoot = false;
+  ///
   CleanCssContext     cleanCss; // Info to optimize the node with cleanCss
   ///
   FileInfo            currentFileInfo;
@@ -20,6 +22,8 @@ abstract class Node {
   bool                evaluated; //result from bool eval, used in condition
   ///
   int                 id; // hashCode own or inherited for object compare
+  ///
+  int                 index;
   ///
   bool                isRuleset = false; //true in MixinDefinition & Ruleset
   ///
@@ -49,7 +53,13 @@ abstract class Node {
   }
 
   ///
-  Node.init({this.currentFileInfo, this.operands, this.rules, this.value}) {
+  Node.init(
+    {this.currentFileInfo,
+    this.index,
+    this.operands,
+    this.rules,
+    this.value}) {
+
     id = hashCode;
   }
 

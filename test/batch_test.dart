@@ -1,14 +1,22 @@
-//Less 2.5.3 20160115
+//Less 2.6.1 20160315
 // use:
 // cmd> pub run test test/batch_test.dart
 //
+
+library batch.test.less;
 
 import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-
 import '../lib/less.dart';
+
+part 'plugins/filemanager.dart';
+part 'plugins/functions.dart';
+part 'plugins/plugin_tree_node.dart';
+part 'plugins/postprocess.dart';
+part 'plugins/preprocess.dart';
+part 'plugins/visitor.dart';
 
 ///
 Map<int, Config> config;
@@ -30,7 +38,7 @@ Stopwatch timeInProcess;
 String dirPath = 'test/';
 
 /// runOlny = null; runs all test.
-/// runOnly = [1, 2]; only run test 1 and 2
+/// runOnly = <int>[1, 2]; only run test 1 and 2
 List<int> runOnly;
 
 /// Write to resultDart.css, resultNode.css and .txt the config[testNumResults].
@@ -121,7 +129,8 @@ Map<int, Config> configFill() => <int, Config>{
           options
               ..definePlugin('plugin-global', new PluginGlobal())
               ..definePlugin('plugin-local', new PluginLocal())
-              ..definePlugin('plugin-transitive', new PluginTransitive());
+              ..definePlugin('plugin-transitive', new PluginTransitive())
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
     46: def('property-name-interp'),
     47: def('rulesets'),
@@ -311,6 +320,94 @@ Map<int, Config> configFill() => <int, Config>{
     161: def('errors/svg-gradient5', isErrorTest: true),
     162: def('errors/svg-gradient6', isErrorTest: true),
     163: def('errors/unit-function', isErrorTest: true),
+    //
+    170: def('errors/functions-1', isErrorTest: true,
+          modifyOptions: (LessOptions options) {
+            options
+                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          }),
+    171: def('errors/functions-2-alpha', isErrorTest: true,
+          modifyOptions: (LessOptions options) {
+            options
+                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          }),
+    172: def('errors/functions-3-assignment', isErrorTest: true,
+          modifyOptions: (LessOptions options) {
+            options
+                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          }),
+    173: def('errors/functions-4-call', isErrorTest: true,
+          modifyOptions: (LessOptions options) {
+            options
+                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          }),
+    174: def('errors/functions-5-color', isErrorTest: true,
+          modifyOptions: (LessOptions options) {
+            options
+                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          }),
+    175: def('errors/functions-5-color-2', isErrorTest: true),
+    176: def('errors/functions-6-condition', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    177: def('errors/functions-7-dimension', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    178: def('errors/functions-8-element', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    179: def('errors/functions-9-expression', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    180: def('errors/functions-10-keyword', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    181: def('errors/functions-11-operation', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    182: def('errors/functions-12-quoted', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    183: def('errors/functions-13-selector', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    184: def('errors/functions-14-url', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    185: def('errors/functions-15-value', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    186: def('errors/root-func-undefined-1', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+    187: def('errors/root-func-undefined-2', isErrorTest: true,
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+        }),
+
     //
     200: def('extendedTest/svg', isExtendedTest: true),
     201: def('extendedTest/url', isExtendedTest: true),
@@ -568,210 +665,4 @@ class Config {
 
   ///
   Config(this.name);
-}
-
-// ---------------------------------------------- TestFunctionsPlugin plugin
-///
-class TestFileManager extends FileManager {
-  ///
-  TestFileManager(Environment environment) : super(environment);
-
-  @override
-  bool supports(String filename, String currentDirectory, Contexts options,
-      Environment environment) => true;
-
-  @override
-  Future<FileLoaded> loadFile(String filename, String currentDirectory,
-      Contexts options, Environment environment) {
-    final RegExp testRe = new RegExp(r'.*\.test$');
-    if (testRe.hasMatch(filename))
-        return environment.fileManagers[0]
-            .loadFile('colors.test', currentDirectory, options, environment);
-    return environment.fileManagers[0]
-        .loadFile(filename, currentDirectory, options, environment);
-  }
-}
-
-///
-class TestFileManagerPlugin extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  @override
-  void install(PluginManager pluginManager) {
-    final FileManager fileManager = new TestFileManager(environment);
-    pluginManager.addFileManager(fileManager);
-  }
-}
-
-// ---------------------------------------------- FunctionsPlugin plugin
-
-///
-class PluginGlobalFunctions extends FunctionBase {
-  ///
-  @DefineMethod(name: 'test-shadow')
-  Anonymous testShadow() => new Anonymous('global');
-
-  ///
-  @DefineMethod(name: 'test-global')
-  Anonymous testGlobal() => new Anonymous('global');
-}
-
-///
-class PluginLocalFunctions extends FunctionBase {
-  ///
-  @DefineMethod(name: 'test-shadow')
-  Anonymous testShadow() => new Anonymous('local');
-
-  ///
-  @DefineMethod(name: 'test-local')
-  Anonymous testLocal() => new Anonymous('local');
-}
-
-///
-class PluginTransitiveFunctions extends FunctionBase {
-  ///
-  @DefineMethod(name: 'test-transitive')
-  Anonymous testTransitive() => new Anonymous('transitive');
-}
-
-///
-class PluginGlobal extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  @override
-  void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginGlobalFunctions();
-    pluginManager.addCustomFunctions(fun);
-  }
-}
-
-///
-class PluginLocal extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  @override
-  void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginLocalFunctions();
-    pluginManager.addCustomFunctions(fun);
-  }
-}
-
-///
-class PluginTransitive extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  @override
-  void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginTransitiveFunctions();
-    pluginManager.addCustomFunctions(fun);
-  }
-}
-
-// ---------------------------------------------- TestPostProcessorPlugin plugin
-
-///
-class TestPostProcessor extends Processor {
-  ///
-  TestPostProcessor(PluginOptions options) : super(options);
-
-  @override
-  String process(String css, Map<String, dynamic> options) =>
-      'hr {height:50px;}\n$css';
-}
-
-///
-class TestPostProcessorPlugin extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  ///
-  TestPostProcessorPlugin() : super();
-
-  @override
-  void install(PluginManager pluginManager) {
-    final Processor processor = new TestPostProcessor(null);
-    pluginManager.addPostProcessor(processor);
-  }
-}
-
-// ---------------------------------------------- TestPreProcessorPlugin plugin
-
-///
-class TestPreProcessor extends Processor {
-  ///
-  TestPreProcessor(PluginOptions options) : super(options);
-
-  @override
-  String process(String src, Map<String, dynamic> options) {
-    final String injected = '@color: red;\n';
-    final Map<String, int> ignored = options['imports'].contentsIgnoredChars;
-    final FileInfo fileInfo = options['fileInfo'];
-    if (ignored[fileInfo.filename] == null)
-        ignored[fileInfo.filename] = 0;
-    ignored[fileInfo.filename] += injected.length;
-
-    return '$injected$src';
-  }
-}
-
-///
-class TestPreProcessorPlugin extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  ///
-  TestPreProcessorPlugin() : super();
-
-  @override
-  void install(PluginManager pluginManager) {
-    final Processor processor = new TestPreProcessor(null);
-    pluginManager.addPreProcessor(processor);
-  }
-}
-
-// ---------------------------------------------- TestVisitorPlugin plugin
-
-///
-class RemoveProperty extends VisitorBase {
-  Visitor _visitor;
-
-  ///
-  RemoveProperty() {
-    isReplacing = true;
-    _visitor = new Visitor(this);
-  }
-
-  @override
-  Ruleset run(Ruleset root) => _visitor.visit(root);
-
-  ///returns Node | List<Node>
-  dynamic visitRule(Rule ruleNode, VisitArgs visitArgs) {
-    if (ruleNode.name != '-some-aribitrary-property') {
-      return ruleNode;
-    } else {
-      return <Node>[];
-    }
-  }
-
-  @override
-  Function visitFtn(Node node) {
-    if (node is Rule)
-        return visitRule;
-    return null;
-  }
-
-  @override
-  Function visitFtnOut(Node node) => null;
-}
-
-///
-class TestVisitorPlugin extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
-
-  ///
-  TestVisitorPlugin() : super();
-
-  @override
-  void install(PluginManager pluginManager) {
-    final VisitorBase visitor = new RemoveProperty();
-    pluginManager.addVisitor(visitor);
-  }
 }

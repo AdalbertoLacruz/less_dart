@@ -1,4 +1,4 @@
-//source: less/tree/comment.js 2.5.3 20151120
+//source: less/tree/comment.js 2.6.1 20160202
 
 part of tree.less;
 
@@ -9,16 +9,24 @@ class Comment extends Node implements SilentNode {
   @override covariant String  value;
 
   ///
-  int   index;
-  ///
   bool  isLineComment;
 
   ///
   Comment(String this.value,
       {bool this.isLineComment = false,
-      int this.index,
+      int index,
       FileInfo currentFileInfo})
-      : super.init(currentFileInfo: currentFileInfo);
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
+        allowRoot = true;
+      }
+
+//2.6.1 20160202
+// var Comment = function (value, isLineComment, index, currentFileInfo) {
+//     this.value = value;
+//     this.isLineComment = isLineComment;
+//     this.currentFileInfo = currentFileInfo;
+//     this.allowRoot = true;
+// };
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

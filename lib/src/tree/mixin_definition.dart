@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 2.5.3 20151120
+//source: tree/mixin-definition.js 2.6.1 20160304
 
 part of tree.less;
 
@@ -15,9 +15,6 @@ class MixinDefinition extends Node
 
   /// when (condition) {}
   Node                  condition;
-
-  ///
-  int                   index; //not in js original
 
   ///
   List<Node>            frames;
@@ -47,7 +44,7 @@ class MixinDefinition extends Node
       List<Node> this.rules,
       Node this.condition,
       {bool this.variadic,
-      int this.index,
+      int index,
       FileInfo currentFileInfo,
       this.frames,
       VisibilityInfo visibilityInfo}) {
@@ -56,6 +53,7 @@ class MixinDefinition extends Node
     isRuleset = true;
     // ignore: prefer_initializing_formals
     this.currentFileInfo = currentFileInfo;
+    this.index = index;
 
     selectors = <Selector>[
       new Selector(<Element>[new Element(null, name, index, currentFileInfo)])
@@ -75,10 +73,11 @@ class MixinDefinition extends Node
     });
 
     copyVisibilityInfo(visibilityInfo);
+    allowRoot = true;
 
     //this._lookups = {}; //inside VariableMixin
 
-//2.5.3 20151120
+//2.6.1 20160304
 // var Definition = function (name, params, rules, condition, variadic, frames, visibilityInfo) {
 //     this.name = name;
 //     this.selectors = [new Selector([new Element(null, name, this.index, this.currentFileInfo)])];
@@ -101,6 +100,7 @@ class MixinDefinition extends Node
 //     this.optionalParameters = optionalParameters;
 //     this.frames = frames;
 //     this.copyVisibilityInfo(visibilityInfo);
+//     this.allowRoot = true;
 // };
   }
 

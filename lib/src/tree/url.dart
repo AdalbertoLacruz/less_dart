@@ -8,14 +8,12 @@ class URL extends Node {
   @override covariant Node  value;
 
   ///
-  int   index;
-  ///
   bool  isEvald;
 
   ///
   URL(Node this.value,
-      {int this.index, FileInfo currentFileInfo, bool this.isEvald = false})
-      : super.init(currentFileInfo: currentFileInfo);
+      {int index, FileInfo currentFileInfo, bool this.isEvald = false})
+      : super.init(currentFileInfo: currentFileInfo, index: index);
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

@@ -1,16 +1,12 @@
-//source: less/tree/anonymous.js 2.5.3 20151120
+//source: less/tree/anonymous.js 2.6.1 20160305
 
 part of tree.less;
 
 ///
-class Anonymous
-    extends Node
-    implements CompareNode {
+class Anonymous extends Node implements CompareNode {
   @override final String name = null;
   @override String       type = 'Anonymous';
 
-  ///
-  int   index;
   ///
   bool  mapLines;
   ///
@@ -18,24 +14,24 @@ class Anonymous
 
   ///
   Anonymous(dynamic value,
-      {int this.index,
+      {int index,
       FileInfo currentFileInfo,
       bool this.mapLines = false,
       bool this.rulesetLike = false,
-      //bool this.isReferenced = false
       VisibilityInfo visibilityInfo})
-      : super.init(currentFileInfo: currentFileInfo, value: value) {
+      : super.init(currentFileInfo: currentFileInfo, index: index,  value: value) {
+        allowRoot = true;
         copyVisibilityInfo(visibilityInfo);
       }
 
-//2.5.3 20151120
+//2.6.1 20160305
 // var Anonymous = function (value, index, currentFileInfo, mapLines, rulesetLike, visibilityInfo) {
 //     this.value = value;
 //     this.index = index;
 //     this.mapLines = mapLines;
 //     this.currentFileInfo = currentFileInfo;
 //     this.rulesetLike = (typeof rulesetLike === 'undefined') ? false : rulesetLike;
-//
+//     this.allowRoot = true;
 //     this.copyVisibilityInfo(visibilityInfo);
 // };
 

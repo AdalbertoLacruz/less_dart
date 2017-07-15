@@ -1,4 +1,4 @@
-//source: tree/mixin-call.js 2.5.3 20151120
+//source: tree/mixin-call.js 2.6.0 20160202
 
 part of tree.less;
 
@@ -11,25 +11,25 @@ class MixinCall extends Node {
   ///
   bool            important;
   ///
-  int             index;
-  ///
   Selector        selector;
 
   ///
   MixinCall(List<Node> elements, List<MixinArgs> args,
-      {int this.index, FileInfo currentFileInfo, bool this.important})
-      : super.init(currentFileInfo: currentFileInfo) {
+      {int index, FileInfo currentFileInfo, bool this.important})
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     selector = new Selector(elements);
     arguments = args ?? <MixinArgs>[];
+    allowRoot = true;
 
-//2.5.1 20150625
+//2.6.1 20160202
 // var MixinCall = function (elements, args, index, currentFileInfo, important) {
 //     this.selector = new Selector(elements);
 //     this.arguments = args || [];
 //     this.index = index;
 //     this.currentFileInfo = currentFileInfo;
 //     this.important = important;
+//     this.allowRoot = true;
 // };
   }
 

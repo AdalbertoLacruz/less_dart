@@ -2,8 +2,9 @@
 
 part of tree.less;
 
+///
 /// Selectors such as body, h1, ...
-//class Selector extends Node implements GetIsReferencedNode, MarkReferencedNode {
+/// 
 class Selector extends Node {
   @override final String type = 'Selector';
 
@@ -18,17 +19,16 @@ class Selector extends Node {
   ///
   bool            evaldCondition = false;
   ///
-  int             index;
-  ///
   bool            mediaEmpty = false;
 
   /// Changed List<Node> to List<Element>
   Selector(List<Element> elements,
       {List<Extend> this.extendList,
       Node this.condition,
-      int this.index,
+      int index,
       FileInfo currentFileInfo,
-      VisibilityInfo visibilityInfo}) {
+      VisibilityInfo visibilityInfo})
+      : super.init(index: index) {
 
     this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
     this.currentFileInfo = currentFileInfo ?? new FileInfo();

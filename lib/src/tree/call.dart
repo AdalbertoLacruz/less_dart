@@ -1,4 +1,4 @@
-//source: less/tree/call.js 2.5.0
+//source: less/tree/call.js 2.6.1 20160129
 
 part of tree.less;
 
@@ -11,12 +11,10 @@ class Call extends Node {
 
   ///
   List<Node>  args; // Expression | Dimension | Assignment
-  ///
-  int         index;
 
   ///
-  Call(this.name, this.args, this.index, FileInfo currentFileInfo)
-      : super.init(currentFileInfo: currentFileInfo);
+  Call(this.name, this.args, int index, FileInfo currentFileInfo)
+      : super.init(currentFileInfo: currentFileInfo, index: index);
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{
@@ -55,12 +53,11 @@ class Call extends Node {
   Node eval(Contexts context) {
     final List<Expression> args = this.args.map((Node a) => a.eval(context)).toList();
     final FunctionCaller   funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
+    Node result;
 
     if (funcCaller.isValid()) {
       try {
-        final Node result = funcCaller.call(args);
-        if (result != null)
-            return result;
+        result = funcCaller.call(args);
       } catch (e) {
         String message = LessError.getMessage(e);
         message = (message.isEmpty) ? '' : ': $message';
@@ -73,31 +70,39 @@ class Call extends Node {
 
         throw new LessExceptionError(error);
       }
+      if (result != null) {
+        return result
+            ..index = index
+            ..currentFileInfo = currentFileInfo;
+      }
     }
 
     return new Call(name, args, index, currentFileInfo);
 
-//2.3.1
-//    Call.prototype.eval = function (context) {
-//        var args = this.args.map(function (a) { return a.eval(context); }),
-//            result, funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
+//2.6.1 20160129
+// Call.prototype.eval = function (context) {
+//     var args = this.args.map(function (a) { return a.eval(context); }),
+//         result, funcCaller = new FunctionCaller(this.name, context, this.index, this.currentFileInfo);
 //
-//        if (funcCaller.isValid()) { // 1.
-//            try {
-//                result = funcCaller.call(args);
-//                if (result != null) {
-//                    return result;
-//                }
-//            } catch (e) {
-//                throw { type: e.type || "Runtime",
-//                        message: "error evaluating function `" + this.name + "`" +
-//                                 (e.message ? ': ' + e.message : ''),
-//                        index: this.index, filename: this.currentFileInfo.filename };
-//            }
-//        }
+//     if (funcCaller.isValid()) {
+//         try {
+//             result = funcCaller.call(args);
+//         } catch (e) {
+//             throw { type: e.type || "Runtime",
+//                     message: "error evaluating function `" + this.name + "`" +
+//                              (e.message ? ': ' + e.message : ''),
+//                     index: this.index, filename: this.currentFileInfo.filename };
+//         }
 //
-//        return new Call(this.name, args, this.index, this.currentFileInfo);
-//    };
+//         if (result != null) {
+//             result.index = this.index;
+//             result.currentFileInfo = this.currentFileInfo;
+//             return result;
+//         }
+//     }
+//
+//     return new Call(this.name, args, this.index, this.currentFileInfo);
+// };
   }
 
   ///

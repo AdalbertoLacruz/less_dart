@@ -1,4 +1,4 @@
-//source: less/tree/directive.js 2.5.3 20151120
+//source: less/tree/directive.js 2.6.1 20160202
 
 part of tree.less;
 
@@ -34,7 +34,9 @@ class Directive extends DirectiveBase {
       });
     }
 
-//2.5.3 20151120
+    allowRoot = true;
+
+//2.6.1 20160202
 // var Directive = function (name, value, rules, index, currentFileInfo, debugInfo, isRooted, visibilityInfo) {
 //     var i;
 //
@@ -56,6 +58,7 @@ class Directive extends DirectiveBase {
 //     this.debugInfo = debugInfo;
 //     this.isRooted = isRooted || false;
 //     this.copyVisibilityInfo(visibilityInfo);
+//     this.allowRoot = true;
 // };
   }
 
@@ -76,18 +79,17 @@ class DirectiveBase extends Node
   @override final String            type = 'DirectiveBase';
 
   ///
-  int   index;
-  ///
   bool  isRooted = false;
 
   ///
   DirectiveBase(
       {this.currentFileInfo,
       this.debugInfo,
-      this.index,
+      int index,
       this.isRooted,
       this.name,
       VisibilityInfo visibilityInfo}) {
+        this.index = index;
         copyVisibilityInfo(visibilityInfo);
       }
 

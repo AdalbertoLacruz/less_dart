@@ -1,4 +1,4 @@
-//source: less/tree/rule.js 2.5.3 20151120
+//source: less/tree/rule.js 2.6.1 20160202
 
 part of tree.less;
 
@@ -27,8 +27,6 @@ class Rule extends Node implements MakeImportantNode {
   ///
   String  important = '';
   ///
-  int     index;
-  ///
   bool    inline;
   ///
   String  merge;
@@ -39,11 +37,11 @@ class Rule extends Node implements MakeImportantNode {
   Rule(dynamic this.name, Node this.value,
       {String important,
       String this.merge,
-      int this.index,
+      int index,
       FileInfo currentFileInfo,
       bool this.inline = false,
       bool variable})
-      : super.init(currentFileInfo: currentFileInfo) {
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
     //
     //this.value = (value is Node) ? value : new Value(<Node>[value]);  // value is Node always
 
@@ -51,19 +49,21 @@ class Rule extends Node implements MakeImportantNode {
         this.important = ' ${important.trim()}';
 
     this.variable = variable ?? (name is String && name.startsWith('@'));
+    allowRoot = true;
 
-//2.3.1
-//  var Rule = function (name, value, important, merge, index, currentFileInfo, inline, variable) {
-//      this.name = name;
-//      this.value = (value instanceof Node) ? value : new Value([value]); //value instanceof tree.Value || value instanceof tree.Ruleset ??
-//      this.important = important ? ' ' + important.trim() : '';
-//      this.merge = merge;
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo;
-//      this.inline = inline || false;
-//      this.variable = (variable !== undefined) ? variable
-//          : (name.charAt && (name.charAt(0) === '@'));
-//  };
+//2.6.1 20160202
+// var Rule = function (name, value, important, merge, index, currentFileInfo, inline, variable) {
+//     this.name = name;
+//     this.value = (value instanceof Node) ? value : new Value([value]); //value instanceof tree.Value || value instanceof tree.Ruleset ??
+//     this.important = important ? ' ' + important.trim() : '';
+//     this.merge = merge;
+//     this.index = index;
+//     this.currentFileInfo = currentFileInfo;
+//     this.inline = inline || false;
+//     this.variable = (variable !== undefined) ? variable
+//         : (name.charAt && (name.charAt(0) === '@'));
+//     this.allowRoot = true;
+// };
   }
 
   /// Fields to show with genTree

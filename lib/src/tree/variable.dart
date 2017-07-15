@@ -9,11 +9,10 @@ class Variable extends Node {
 
   ///
   bool  evaluating = false; // Recursivity control
-  ///
-  int   index;
 
   ///
-  Variable(String this.name, [int this.index, FileInfo currentFileInfo]) {
+  Variable(String this.name, [int index, FileInfo currentFileInfo])
+    : super.init(index: index) {
     this.currentFileInfo = currentFileInfo ?? new FileInfo();
 
 //2.3.1

@@ -11,11 +11,10 @@ class Apply extends Node {
   @override covariant Anonymous value;
 
   ///
-  int index;
-
-  ///
-  Apply(Anonymous this.value, this.index, FileInfo currentFileInfo)
-      : super.init(currentFileInfo: currentFileInfo);
+  Apply(Anonymous this.value,int index, FileInfo currentFileInfo)
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
+        allowRoot = true;
+      }
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

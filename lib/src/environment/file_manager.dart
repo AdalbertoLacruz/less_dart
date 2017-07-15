@@ -1,4 +1,4 @@
-//source: lib/less/environment/abstract-file-manager.js 2.5.0
+//source: lib/less/environment/abstract-file-manager.js 2.6.1 20160504
 
 part of environment.less;
 
@@ -203,13 +203,13 @@ class FileManager {
 
   ///
   UrlParts extractUrlParts(String url, [String baseUrl]) {
-    // urlParts[1] = protocol&hostname || /
+    // urlParts[1] = protocol://hostname/ OR /
     // urlParts[2] = / if path relative to host base
     // urlParts[3] = directories
     // urlParts[4] = filename
     // urlParts[5] = parameters
 
-    final RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
+    final RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
     final List<String> urlParts = <String>[];
 
     Match match = urlPartsRegex.firstMatch(url);
@@ -277,61 +277,61 @@ class FileManager {
         ..url = '${returner.fileUrl}${urlParts[5]}';
     return returner;
 
-//2.3.1
-//// helper function, not part of API
-//abstractFileManager.prototype.extractUrlParts = function extractUrlParts(url, baseUrl) {
-//    // urlParts[1] = protocol&hostname || /
-//    // urlParts[2] = / if path relative to host base
-//    // urlParts[3] = directories
-//    // urlParts[4] = filename
-//    // urlParts[5] = parameters
+//2.6.1 20160504
+// // helper function, not part of API
+// abstractFileManager.prototype.extractUrlParts = function extractUrlParts(url, baseUrl) {
+//     // urlParts[1] = protocol://hostname/ OR /
+//     // urlParts[2] = / if path relative to host base
+//     // urlParts[3] = directories
+//     // urlParts[4] = filename
+//     // urlParts[5] = parameters
 //
-//    var urlPartsRegex = /^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
-//        urlParts = url.match(urlPartsRegex),
-//        returner = {}, directories = [], i, baseUrlParts;
+//     var urlPartsRegex = /^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
+//         urlParts = url.match(urlPartsRegex),
+//         returner = {}, directories = [], i, baseUrlParts;
 //
-//    if (!urlParts) {
-//        throw new Error("Could not parse sheet href - '" + url + "'");
-//    }
+//     if (!urlParts) {
+//         throw new Error("Could not parse sheet href - '" + url + "'");
+//     }
 //
-//    // Stylesheets in IE don't always return the full path
-//    if (baseUrl && (!urlParts[1] || urlParts[2])) {
-//        baseUrlParts = baseUrl.match(urlPartsRegex);
-//        if (!baseUrlParts) {
-//            throw new Error("Could not parse page url - '" + baseUrl + "'");
-//        }
-//        urlParts[1] = urlParts[1] || baseUrlParts[1] || "";
-//        if (!urlParts[2]) {
-//            urlParts[3] = baseUrlParts[3] + urlParts[3];
-//        }
-//    }
+//     // Stylesheets in IE don't always return the full path
+//     if (baseUrl && (!urlParts[1] || urlParts[2])) {
+//         baseUrlParts = baseUrl.match(urlPartsRegex);
+//         if (!baseUrlParts) {
+//             throw new Error("Could not parse page url - '" + baseUrl + "'");
+//         }
+//         urlParts[1] = urlParts[1] || baseUrlParts[1] || "";
+//         if (!urlParts[2]) {
+//             urlParts[3] = baseUrlParts[3] + urlParts[3];
+//         }
+//     }
 //
-//    if (urlParts[3]) {
-//        directories = urlParts[3].replace(/\\/g, "/").split("/");
+//     if (urlParts[3]) {
+//         directories = urlParts[3].replace(/\\/g, "/").split("/");
 //
-//        // extract out . before .. so .. doesn't absorb a non-directory
-//        for(i = 0; i < directories.length; i++) {
-//            if (directories[i] === ".") {
-//                directories.splice(i, 1);
-//                i -= 1;
-//            }
-//        }
+//         // extract out . before .. so .. doesn't absorb a non-directory
+//         for (i = 0; i < directories.length; i++) {
+//             if (directories[i] === ".") {
+//                 directories.splice(i, 1);
+//                 i -= 1;
+//             }
+//         }
 //
-//        for(i = 0; i < directories.length; i++) {
-//            if (directories[i] === ".." && i > 0) {
-//                directories.splice(i - 1, 2);
-//                i -= 2;
-//            }
-//        }
-//    }
+//         for (i = 0; i < directories.length; i++) {
+//             if (directories[i] === ".." && i > 0) {
+//                 directories.splice(i - 1, 2);
+//                 i -= 2;
+//             }
+//         }
+//     }
 //
-//    returner.hostPart = urlParts[1];
-//    returner.directories = directories;
-//    returner.path = (urlParts[1] || "") + directories.join("/");
-//    returner.fileUrl = returner.path + (urlParts[4] || "");
-//    returner.url = returner.fileUrl + (urlParts[5] || "");
-//    return returner;
-//};
+//     returner.hostPart = urlParts[1];
+//     returner.directories = directories;
+//     returner.path = (urlParts[1] || "") + directories.join("/");
+//     returner.fileUrl = returner.path + (urlParts[4] || "");
+//     returner.url = returner.fileUrl + (urlParts[5] || "");
+//     return returner;
+// };
   }
 }
 

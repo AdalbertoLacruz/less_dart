@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.5.3 20151120
+//source: less/to-css-visitor.js 2.6.1 20160402
 
 part of visitor.less;
 
@@ -256,31 +256,53 @@ class ToCSSVisitor extends VisitorBase {
   }
 
   ///
-  /// Check for errors in Rules with variables (for firstRoot).
+  /// Check for errors in root
   ///
-  void checkPropertiesInRoot(List<Node> rules) {
+  void checkValidNodes(List<Node> rules, {bool isRoot}) {
+    if (rules == null)
+      return;
+
     for (int i = 0; i < rules.length; i++) {
       final Node ruleNode = rules[i];
-      if (ruleNode is Rule && !ruleNode.variable) {
-        error(message: 'properties must be inside selector blocks, they cannot be in the root.',
+      if (isRoot && ruleNode is Rule && !ruleNode.variable) {
+        error(message: 'Properties must be inside selector blocks. They cannot be in the root',
             index: ruleNode.index,
-            filename: ruleNode.currentFileInfo != null
-                ? ruleNode.currentFileInfo.filename
-                : null);
+            filename: ruleNode.currentFileInfo?.filename);
+      }
+      if (ruleNode is Call) {
+        error(message: "Function '${ruleNode.name}' is undefined",
+            index: ruleNode.index,
+            filename: ruleNode.currentFileInfo?.filename);
+      }
+      if ((ruleNode.type != null) && !ruleNode.allowRoot) {
+        error(message: '${ruleNode.type} node returned by a function is not valid here',
+            index: ruleNode.index,
+            filename: ruleNode.currentFileInfo?.filename);
       }
     }
 
-//2.3.1
-//  checkPropertiesInRoot: function(rules) {
-//      var ruleNode;
-//      for(var i = 0; i < rules.length; i++) {
-//          ruleNode = rules[i];
-//          if (ruleNode instanceof tree.Rule && !ruleNode.variable) {
-//              throw { message: "properties must be inside selector blocks, they cannot be in the root.",
-//                  index: ruleNode.index, filename: ruleNode.currentFileInfo ? ruleNode.currentFileInfo.filename : null};
-//          }
-//      }
-//  },
+//2.6.1 20160402
+// checkValidNodes: function(rules, isRoot) {
+//     if (!rules) {
+//         return;
+//     }
+//
+//     for (var i = 0; i < rules.length; i++) {
+//         var ruleNode = rules[i];
+//         if (isRoot && ruleNode instanceof tree.Rule && !ruleNode.variable) {
+//             throw { message: "Properties must be inside selector blocks. They cannot be in the root",
+//                 index: ruleNode.index, filename: ruleNode.currentFileInfo && ruleNode.currentFileInfo.filename};
+//         }
+//         if (ruleNode instanceof tree.Call) {
+//             throw { message: "Function '" + ruleNode.name + "' is undefined",
+//                 index: ruleNode.index, filename: ruleNode.currentFileInfo && ruleNode.currentFileInfo.filename};
+//         }
+//         if (ruleNode.type && !ruleNode.allowRoot) {
+//             throw { message: ruleNode.type + " node returned by a function is not valid here",
+//                 index: ruleNode.index, filename: ruleNode.currentFileInfo && ruleNode.currentFileInfo.filename};
+//         }
+//     }
+// },
   }
 
   /// return Node | List<Node>
@@ -288,9 +310,9 @@ class ToCSSVisitor extends VisitorBase {
     //at this point rulesets are nested into each other
     final List<dynamic> rulesets = <dynamic>[]; //Node || List<Node>
 
-    // error test for rules at first level, not inside a ruleset
+    // error test for rules at first level, not inside a ruleset ??
     if (rulesetNode.firstRoot)
-        checkPropertiesInRoot(rulesetNode.rules);
+        checkValidNodes(rulesetNode.rules, isRoot: rulesetNode.firstRoot);
 
     if (!rulesetNode.root) {
       //remove invisible paths
@@ -341,13 +363,13 @@ class ToCSSVisitor extends VisitorBase {
         return rulesets.first;
     return rulesets;
 
-//2.5.3 20151120
+//2.6.1 20160305
 // visitRuleset: function (rulesetNode, visitArgs) {
 //     //at this point rulesets are nested into each other
 //     var rule, rulesets = [];
-//     if (rulesetNode.firstRoot) {
-//         this.checkPropertiesInRoot(rulesetNode.rules);
-//     }
+//
+//     this.checkValidNodes(rulesetNode.rules, rulesetNode.firstRoot);
+//
 //     if (! rulesetNode.root) {
 //         //remove invisible paths
 //         this._compileRulesetPaths(rulesetNode);
@@ -504,7 +526,7 @@ class ToCSSVisitor extends VisitorBase {
     for (int i = 0; i < rules.length; i++) {
       final Node rule = rules[i];
 
-      if (rule is Rule && rule.merge.isNotEmpty) {
+      if (rule is Rule && (rule.merge?.isNotEmpty ?? false)) {
         final String key = <String>[
           rule.name,
           isNotEmpty(rule.important) ? '!' : ''

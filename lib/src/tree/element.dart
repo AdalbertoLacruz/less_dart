@@ -19,13 +19,11 @@ class Element extends Node {
 
   ///
   Combinator  combinator;
-  ///
-  int         index;
 
   ///
-  Element(dynamic combinator, dynamic value, this.index,
+  Element(dynamic combinator, dynamic value, int index,
       FileInfo currentFileInfo, {VisibilityInfo visibilityInfo})
-      : super.init(currentFileInfo: currentFileInfo) {
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     this.combinator =
         (combinator is Combinator) ? combinator : new Combinator(combinator);

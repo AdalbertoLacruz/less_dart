@@ -5,9 +5,6 @@ part of tree.less;
 ///
 abstract class JsEvalNodeMixin implements Node {
   ///
-  int index;
-
-  ///
   /// JavaScript evaluation - not supported
   ///
   String evaluateJavaScript(String expression, Contexts context) {

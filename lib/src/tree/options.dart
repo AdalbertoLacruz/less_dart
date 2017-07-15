@@ -4,6 +4,7 @@ part of tree.less;
 
 ///
 /// @options "--flags" directive
+/// @plugin "plugin-name"
 ///
 class Options extends Node {
   @override final String      name = null;
@@ -13,14 +14,14 @@ class Options extends Node {
   ///
   List<FunctionBase>  functions;
   ///
-  int                 index;
-  ///
   bool                isPlugin;
 
   ///
-  Options(Quoted this.value, this.index, FileInfo currentFileInfo,
+  Options(Quoted this.value, int index, FileInfo currentFileInfo,
       {bool this.isPlugin: false})
-      : super.init(currentFileInfo: currentFileInfo);
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
+        allowRoot = true;
+      }
 
   ///
   /// Load the options and plugins

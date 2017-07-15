@@ -1,4 +1,4 @@
-//source: less/tree/extend.js 2.5.3 20151120
+//source: less/tree/extend.js 2.6.1 20160304
 
 part of tree.less;
 
@@ -16,8 +16,6 @@ class Extend extends Node {
   ///
   bool            hasFoundMatches = false; // ProcessExtendsVisitor
   ///
-  int             index;
-  ///
   static int      nextId = 0;
   ///
   int             objectId;
@@ -33,13 +31,15 @@ class Extend extends Node {
   List<Selector>  selfSelectors;
 
   ///
-  Extend(Node this.selector, String this.option, int this.index,
-      FileInfo currentFileInfo, [VisibilityInfo visibilityInfo]) {
+  Extend(Node this.selector, String this.option, int index,
+      FileInfo currentFileInfo, [VisibilityInfo visibilityInfo])
+      : super.init(index: index) {
     //
     objectId = nextId++;
     parentIds = <int>[objectId];
     this.currentFileInfo = currentFileInfo ?? new FileInfo();
     copyVisibilityInfo(visibilityInfo);
+    allowRoot = true;
 
     switch (option) {
       case 'all':
@@ -52,7 +52,7 @@ class Extend extends Node {
         break;
     }
 
-//2.5.3 20151120
+//2.6.1 20160304
 // var Extend = function Extend(selector, option, index, currentFileInfo, visibilityInfo) {
 //     this.selector = selector;
 //     this.option = option;
@@ -61,6 +61,7 @@ class Extend extends Node {
 //     this.parent_ids = [this.object_id];
 //     this.currentFileInfo = currentFileInfo || {};
 //     this.copyVisibilityInfo(visibilityInfo);
+//     this.allowRoot = true;
 //
 //     switch(option) {
 //         case "all":

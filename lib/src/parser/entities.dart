@@ -1,4 +1,4 @@
-//source: less/parser.js 2.6.0 20160206
+//source: less/parser.js 2.6.1 20160423
 
 part of parser.less;
 
@@ -103,7 +103,7 @@ class Entities {
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
   Node call() {
-    Node        alpha;
+    Node        _alpha;
     List<Node>  args;
     final int   index = parserInput.i;
     String      name;
@@ -123,10 +123,10 @@ class Entities {
     nameLC = name.toLowerCase();
 
     if (nameLC == 'alpha') {
-      alpha = this.alpha();
-      if (alpha != null) {
+      _alpha = alpha();
+      if (_alpha != null) {
         parserInput.forget();
-        return alpha;
+        return _alpha;
       }
     }
 
@@ -211,41 +211,99 @@ class Entities {
   }
 
   ///
-  /// returns List<Assignment | Expression>
+  /// returns List<DetachedRuleset | Assignment | Expression>
+  /// separated by `,` or `;`
   ///
   List<Node> arguments() {
     Node              arg;
-    final List<Node>  args = <Node>[];
+    final List<Node>  argsComma = <Node>[];
+    final List<Node>  argsSemiColon = <Node>[];
+    List<Node>        expressions = <Node>[];
+    bool              isSemiColonSeparated = false;
+    Node              value;
+
+    parserInput.save();
 
     while (true) {
-      arg = assignment();
-      arg ??= parsers.expression();
+      arg = parsers.detachedRuleset()
+          ?? assignment()
+          ?? parsers.expression();
       if (arg == null)
           break;
 
-      args.add(arg);
-      if (parserInput.$char(',') == null)
-          break;
+      value = arg;
+      if ((arg.value is List) && (arg.value?.length == 1 ?? false))
+          value = arg.value[0];
+
+      if (value != null)
+          expressions.add(value);
+
+      argsComma.add(value);
+
+      if (parserInput.$char(',') != null)
+          continue;
+
+      if (parserInput.$char(';') != null || isSemiColonSeparated) {
+        isSemiColonSeparated = true;
+
+        if (expressions.isNotEmpty)
+            value = new Value(expressions);
+
+        argsSemiColon.add(value);
+        expressions = <Node>[];
+      }
     }
+    parserInput.forget();
+    return isSemiColonSeparated ? argsSemiColon : argsComma;
 
-    return args;
-
-//2.2.0
-//  arguments: function () {
-//      var args = [], arg;
+//2.6.1 20160304
+// arguments: function () {
+//     var argsSemiColon = [], argsComma = [],
+//         expressions = [],
+//         isSemiColonSeparated, value, arg;
 //
-//      while (true) {
-//          arg = this.assignment() || parsers.expression();
-//          if (!arg) {
-//              break;
-//          }
-//          args.push(arg);
-//          if (! parserInput.$char(',')) {
-//              break;
-//          }
-//      }
-//      return args;
-//  }
+//     parserInput.save();
+//
+//     while (true) {
+//
+//         arg = parsers.detachedRuleset() || this.assignment() || parsers.expression();
+//
+//         if (!arg) {
+//             break;
+//         }
+//
+//         value = arg;
+//
+//         if (arg.value && arg.value.length == 1) {
+//             value = arg.value[0];
+//         }
+//
+//         if (value) {
+//             expressions.push(value);
+//         }
+//
+//         argsComma.push(value);
+//
+//         if (parserInput.$char(',')) {
+//             continue;
+//         }
+//
+//         if (parserInput.$char(';') || isSemiColonSeparated) {
+//
+//             isSemiColonSeparated = true;
+//
+//             if (expressions.length > 1) {
+//                 value = new(tree.Value)(expressions);
+//             }
+//             argsSemiColon.push(value);
+//
+//             expressions = [];
+//         }
+//     }
+//
+//     parserInput.forget();
+//     return isSemiColonSeparated ? argsSemiColon : argsComma;
+// },
   }
 
   ///
@@ -342,9 +400,9 @@ class Entities {
       return null;
     }
 
-    value = quoted();
-    value ??= variable();
-    value ??= new Anonymous(parserInput.$re(_urlRegExp) ?? '');
+    value = quoted()
+        ?? variable()
+        ?? new Anonymous(parserInput.$re(_urlRegExp) ?? '');
 
     parserInput
         ..autoCommentAbsorb = true
@@ -487,7 +545,7 @@ class Entities {
   }
 
   static final RegExp _colorKeywordRegExp =
-      new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
+      new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]+', caseSensitive: true);
 
   ///
   Color colorKeyword() {
@@ -512,12 +570,12 @@ class Entities {
     }
     return null;
 
-//2.6.0 20160206
+//2.6.1 20160423
 // colorKeyword: function () {
 //     parserInput.save();
 //     var autoCommentAbsorb = parserInput.autoCommentAbsorb;
 //     parserInput.autoCommentAbsorb = false;
-//     var k = parserInput.$re(/^[A-Za-z]+/);
+//     var k = parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]+/);
 //     parserInput.autoCommentAbsorb = autoCommentAbsorb;
 //     if (!k) {
 //         parserInput.forget();
@@ -532,7 +590,8 @@ class Entities {
 // },
   }
 
-  static final RegExp _dimensionRegExp = new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z_]+)?', caseSensitive: false);
+  static final RegExp _dimensionRegExp =
+      new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z_]+)?', caseSensitive: false);
 
   ///
   /// A Dimension, that is, a number and a unit

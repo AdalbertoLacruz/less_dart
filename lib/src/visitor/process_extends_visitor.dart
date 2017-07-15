@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.5.3 20151120 lines 91-451
+// source: less/extend-visitor.js 2.6.1 20160401 lines 91-451
 
 part of visitor.less;
 
@@ -9,7 +9,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   int                 extendChainCount = 0;
   ///
-  Map<String, bool>   extendIndicies;
+  Map<String, bool>   extendIndices;
 
   Visitor             _visitor;
 
@@ -29,7 +29,7 @@ class ProcessExtendsVisitor extends VisitorBase {
     final ExtendFinderVisitor extendFinder = new ExtendFinderVisitor();
     Ruleset                   newRoot;
 
-    extendIndicies = <String, bool>{};
+    extendIndices = <String, bool>{};
     extendFinder.run(root);
     if (!extendFinder.foundExtends)
         return root;
@@ -42,23 +42,23 @@ class ProcessExtendsVisitor extends VisitorBase {
 
     return newRoot;
 
-//2.3.1
-//  run: function(root) {
-//      var extendFinder = new ExtendFinderVisitor();
-//      this.extendIndicies = {};
-//      extendFinder.run(root);
-//      if (!extendFinder.foundExtends) { return root; }
-//      root.allExtends = root.allExtends.concat(this.doExtendChaining(root.allExtends, root.allExtends));
-//      this.allExtendsStack = [root.allExtends];
-//      var newRoot = this._visitor.visit(root);
-//      this.checkExtendsForNonMatched(root.allExtends);
-//      return newRoot;
-//  },
+//2.6.1 20160401
+// run: function(root) {
+//     var extendFinder = new ExtendFinderVisitor();
+//     this.extendIndices = {};
+//     extendFinder.run(root);
+//     if (!extendFinder.foundExtends) { return root; }
+//     root.allExtends = root.allExtends.concat(this.doExtendChaining(root.allExtends, root.allExtends));
+//     this.allExtendsStack = [root.allExtends];
+//     var newRoot = this._visitor.visit(root);
+//     this.checkExtendsForNonMatched(root.allExtends);
+//     return newRoot;
+// },
   }
 
   ///
   void checkExtendsForNonMatched(List<Extend> extendList) {
-    final Map<String, bool> indicies = extendIndicies;
+    final Map<String, bool> indices = extendIndices;
     final Logger            logger = new Logger();
 
     extendList
@@ -72,29 +72,30 @@ class ProcessExtendsVisitor extends VisitorBase {
           } catch(_) {}
 
           final String key = '${extend.index.toString()} $selector';
-          if (!indicies.containsKey(key)) {
-            indicies[key] = true;
+          if (!indices.containsKey(key)) {
+            indices[key] = true;
             logger.warn("extend '$selector' has no matches");
           }
         });
 
-//2.3.1
-//  checkExtendsForNonMatched: function(extendList) {
-//      var indicies = this.extendIndicies;
-//      extendList.filter(function(extend) {
-//          return !extend.hasFoundMatches && extend.parent_ids.length == 1;
-//      }).forEach(function(extend) {
-//              var selector = "_unknown_";
-//              try {
-//                  selector = extend.selector.toCSS({});
-//              }catch(_){}
+//2.6.1 20160401
+// checkExtendsForNonMatched: function(extendList) {
+//     var indices = this.extendIndices;
+//     extendList.filter(function(extend) {
+//         return !extend.hasFoundMatches && extend.parent_ids.length == 1;
+//     }).forEach(function(extend) {
+//             var selector = "_unknown_";
+//             try {
+//                 selector = extend.selector.toCSS({});
+//             }
+//             catch(_) {}
 //
-//              if(!indicies[extend.index + ' ' + selector]) {
-//                  indicies[extend.index + ' ' + selector] = true;
-//                  logger.warn("extend '" + selector + "' has no matches");
-//              }
-//          });
-//  },
+//             if (!indices[extend.index + ' ' + selector]) {
+//                 indices[extend.index + ' ' + selector] = true;
+//                 logger.warn("extend '" + selector + "' has no matches");
+//             }
+//         });
+// },
   }
 
   ///
@@ -119,7 +120,7 @@ class ProcessExtendsVisitor extends VisitorBase {
     // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
     // e.g.  .a:extend(.b) {}  and .b:extend(.c) {} then the first extend extends the second one
     // and the second is the target.
-    // the seperation into two lists allows us to process a subset of chains with a bigger set, as is the
+    // the separation into two lists allows us to process a subset of chains with a bigger set, as is the
     // case when processing media queries
     for (int extendIndex = 0; extendIndex < extendsList.length; extendIndex++) {
       for (int targetExtendIndex = 0;

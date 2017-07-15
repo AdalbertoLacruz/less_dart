@@ -1,0 +1,5 @@
+SyntaxError: Value node returned by a function is not valid here in {path}functions-15-value.less on line 2, column 1:
+1 @plugin "plugin-tree-nodes";
+2 test-value();
+..^
+3

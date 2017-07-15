@@ -1,4 +1,4 @@
-//source: less/tree/media.js 2.5.3 20151120
+//source: less/tree/media.js 2.6.1 20160202
 
 part of tree.less;
 
@@ -25,6 +25,21 @@ class Media extends DirectiveBase {
 
     this.features = new Value(features);
     rules = <Ruleset>[new Ruleset(selectors, value)..allowImports = true];
+    allowRoot = true;
+
+//2.6.1 20160202
+// var Media = function (value, features, index, currentFileInfo, visibilityInfo) {
+//     this.index = index;
+//     this.currentFileInfo = currentFileInfo;
+//
+//     var selectors = (new Selector([], null, null, this.index, this.currentFileInfo)).createEmptySelectors();
+//
+//     this.features = new Value(features);
+//     this.rules = [new Ruleset(selectors, value)];
+//     this.rules[0].allowImports = true;
+//     this.copyVisibilityInfo(visibilityInfo);
+//     this.allowRoot = true;
+// };
 
 //2.5.3 20151120
 // var Media = function (value, features, index, currentFileInfo, visibilityInfo) {

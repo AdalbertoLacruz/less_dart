@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.5.3 20151120
+//source: less/tree/import.js 2.6.1 20160202
 
 part of tree.less;
 
@@ -38,8 +38,6 @@ class Import extends Node {
   ///
   String        importedFilename;
   ///
-  int           index;
-  ///
   ImportOptions options;
   ///
   dynamic       root; // Ruleset or String
@@ -49,10 +47,11 @@ class Import extends Node {
   Node          path;
 
   ///
-  Import(this.path, this.features, this.options, this.index,
+  Import(this.path, this.features, this.options, int index,
       [FileInfo currentFileInfo, VisibilityInfo visibilityInfo])
-      : super.init(currentFileInfo: currentFileInfo) {
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
 
+    allowRoot = true;
     final RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
 
     if (options.less != null || (options.inline ?? false)) {
@@ -65,13 +64,14 @@ class Import extends Node {
 
     copyVisibilityInfo(visibilityInfo);
 
-//2.5.3 20151120
+//2.6.1 20160202
 // var Import = function (path, features, options, index, currentFileInfo, visibilityInfo) {
 //     this.options = options;
 //     this.index = index;
 //     this.path = path;
 //     this.features = features;
 //     this.currentFileInfo = currentFileInfo;
+//     this.allowRoot = true;
 //
 //     if (this.options.less !== undefined || this.options.inline) {
 //         this.css = !this.options.less || this.options.inline;
