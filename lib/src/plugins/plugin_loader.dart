@@ -1,4 +1,5 @@
 //source: lib/less-node/plugin-loader.js 2.5.0
+//source: lib/less/environment/abstract-plugin-loader.js 3.0.0 20160713
 
 part of plugins.less;
 
@@ -99,6 +100,10 @@ class PluginLoader {
   }
 
   ///
+  /// Compares the less version required by the plugin
+  /// Returns -1, 0, +1
+  ///
+  // String (as js version) not supported in aVersion for simplicity
   int compareVersion(List<int> aVersion, List<int> bVersion) {
     for (int i = 0; i < aVersion.length; i++) {
       if (aVersion[i] != bVersion[i])
@@ -106,15 +111,19 @@ class PluginLoader {
     }
     return 0;
 
-//2.4.0
-//  PluginLoader.prototype.compareVersion = function(aVersion, bVersion) {
-//      for (var i = 0; i < aVersion.length; i++) {
-//          if (aVersion[i] !== bVersion[i]) {
-//              return parseInt(aVersion[i]) > parseInt(bVersion[i]) ? -1 : 1;
-//          }
-//      }
-//      return 0;
-//  };
+//3.0.0 20160713
+// AbstractPluginLoader.prototype.compareVersion = function(aVersion, bVersion) {
+//     if (typeof aVersion === "string") {
+//         aVersion = aVersion.match(/^(\d+)\.?(\d+)?\.?(\d+)?/);
+//         aVersion.shift();
+//     }
+//     for (var i = 0; i < aVersion.length; i++) {
+//         if (aVersion[i] !== bVersion[i]) {
+//             return parseInt(aVersion[i]) > parseInt(bVersion[i]) ? -1 : 1;
+//         }
+//     }
+//     return 0;
+// };
   }
 
   ///

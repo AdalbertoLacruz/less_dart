@@ -1,4 +1,4 @@
-// source: less/contexts.js 2.5.3 20151120
+// source: less/contexts.js 2.8.0 20160712
 
 library contexts.less;
 
@@ -15,7 +15,9 @@ class Contexts {
   ///
   bool avoidDartOptimization; //Dart prune some code apparently not used
 
-  /// options.chunkInput
+  ///
+  /// option - whether to chunk input. more performant (?) but causes parse issues.
+  ///
   bool chunkInput;
 
   /// options.cleancss
@@ -24,7 +26,9 @@ class Contexts {
   /// options.color
   bool color = false;
 
-  /// options.compress
+  ///
+  /// option - whether to compress
+  ///
   bool compress = false;
 
   /// Map - filename to contents of all the files
@@ -40,7 +44,9 @@ class Contexts {
   /// for default() function evaluation
   FunctionBase defaultFunc;
 
-  /// options.dumpLineNumbers
+  ///
+  /// option - whether to dump line numbers
+  ///
   String dumpLineNumbers;
 
   ///
@@ -55,22 +61,33 @@ class Contexts {
   ///Ruleset/MixinDefinition/Directive = VariableMixin
   List<Node> frames = <Node>[];
 
-  /// options.javascriptEnabled
+  ///
+  /// option - whether Inline JavaScript is enabled.
+  /// if undefined, defaults to false
+  ///
   bool javascriptEnabled = true;
 
-  /// options.ieCompat
+  ///
+  /// whether to enforce IE compatibility (IE8 data-uri)
+  ///
   bool ieCompat = true;
 
+  ///
   /// used to bubble up !important statements
+  /// 
   List<ImportantRule> importantScope = <ImportantRule>[];
 
-  /// options.importMultiple
+  ///
+  /// whether we are currently importing multiple copies
+  ///
   bool importMultiple = false;
 
   /// for LessError
   ImportManager imports;
 
-  /// options.insecure
+  ///
+  /// option - whether to allow imports from insecure ssl hosts
+  ///
   bool insecure = false;
 
   /// Ruleset
@@ -82,8 +99,10 @@ class Contexts {
   ///
   List<Media> mediaPath;
 
-  /// options.mime
-  String mime; // browser only
+  ///
+  /// browser only - mime type for sheet import
+  ///
+  String mime;
 
   /// options.numPrecision
   int numPrecision; //functions frunt
@@ -91,19 +110,30 @@ class Contexts {
   /// Stack for evaluating expression in parenthesis flag
   List<bool> parensStack;
 
-  /// options.paths
+  ///
+  /// option - unmodified - paths to search for imports on (additional include paths)
+  ///
   List<String> paths;
 
-  /// options.pluginManager
+  ///
+  /// Used as the plugin manager for the session
+  ///
   PluginManager pluginManager;
 
-  /// options.processImports
+  ///
+  /// option & context - whether to process imports. if false then imports will not be imported.
+  /// Used by the import manager to stop multiple import visitors being created.
+  ///
   bool processImports;
 
-  /// options.relativeUrls
+  ///
+  /// option - whether to adjust URL's to be relative
+  ///
   bool relativeUrls = false;
 
-  /// option.rootpath
+  ///
+  /// option - rootpath to append to URL's
+  ///
   String rootpath;
 
   /// used in Ruleset
@@ -112,29 +142,43 @@ class Contexts {
   // options.silent
   //bool silent;
 
-  /// options.sourceMap
+  ///
+  /// whether to output a source map
+  ///
   bool sourceMap;
 
   /// options.strictImports
   bool strictImports = false;
 
-  /// options.strictMath
+  ///
+  /// whether math has to be within parenthesis
+  ///
   bool strictMath = false;
 
-  /// options.strictUnits
+  ///
+  /// whether units need to evaluate correctly
+  ///
   bool strictUnits = false;
 
-  /// option.syncImport
+  ///
+  /// option - whether to import synchronously
+  ///
   bool syncImport = false;
 
-  /// Ruleset
+  ///
+  /// for identation in Ruleset CSS generation
+  ///
   int tabLevel = 0;
 
-  /// options.urlArgs
+  ///
+  /// whether to add args into url tokens
+  ///
   String urlArgs;
 
-  /// options.useFileCache
-  bool useFileCache; // browser only
+  ///
+  /// browser only - whether to use the per file session cache
+  ///
+  bool useFileCache;
 
   /// options.verbose
   //bool verbose;

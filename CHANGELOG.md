@@ -3,6 +3,7 @@
 - Less x.x.x code.
 - Linter suggested changes
 - Custom Functions annotation changed to @DefineMethod(...)
+- Internal node name Directive changed to AtRule, and Rule to Declaration. Could affect some plugins
 - options.definePlugin requires named parameters in load and options. See batch_test.
 
 ## v.1.0.0 (2017-02-27)

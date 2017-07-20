@@ -1,4 +1,4 @@
-//source: less/tree/color.js 2.5.1 20150719
+//source: less/tree/color.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -289,15 +289,15 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     }
     return new Color(rgb, alpha);
 
-//2.3.1
-//  Color.prototype.operate = function (context, op, other) {
-//      var rgb = [];
-//      var alpha = this.alpha * (1 - other.alpha) + other.alpha;
-//      for (var c = 0; c < 3; c++) {
-//          rgb[c] = this._operate(context, op, this.rgb[c], other.rgb[c]);
-//      }
-//      return new Color(rgb, alpha);
-//  };
+//3.0.0 20160714
+// Color.prototype.operate = function (context, op, other) {
+//     var rgb = new Array(3);
+//     var alpha = this.alpha * (1 - other.alpha) + other.alpha;
+//     for (var c = 0; c < 3; c++) {
+//         rgb[c] = this._operate(context, op, this.rgb[c], other.rgb[c]);
+//     }
+//     return new Color(rgb, alpha);
+// };
   }
 
   ///

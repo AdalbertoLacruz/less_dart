@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.6.1 20160402
+//source: less/to-css-visitor.js 3.0.0 20160714
 
 part of visitor.less;
 
@@ -41,17 +41,17 @@ class ToCSSVisitor extends VisitorBase {
   ///
   /// Eliminates for output: @variable && no visible nodes
   ///
-  Rule visitRule(Rule ruleNode, VisitArgs visitArgs) {
-    if (ruleNode.blocksVisibility() || ruleNode.variable)
+  Declaration visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
+    if (declNode.blocksVisibility() || declNode.variable)
         return null;
-    return ruleNode;
+    return declNode;
 
-//2.5.3 20151120
-// visitRule: function (ruleNode, visitArgs) {
-//     if (ruleNode.blocksVisibility() || ruleNode.variable) {
+//2.8.0 20160702
+// visitDeclaration: function (declNode, visitArgs) {
+//     if (declNode.blocksVisibility() || declNode.variable) {
 //         return;
 //     }
-//     return ruleNode;
+//     return declNode;
 // },
   }
 
@@ -130,35 +130,34 @@ class ToCSSVisitor extends VisitorBase {
   Options visitOptions(Options optionsNode, VisitArgs visitArgs) => null;
 
     ///
-  Node visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    if (directiveNode.rules?.isNotEmpty ?? false) {
-      return visitDirectiveWithBody(directiveNode, visitArgs);
+  Node visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
+    if (atRuleNode.rules?.isNotEmpty ?? false) {
+      return visitAtRuleWithBody(atRuleNode, visitArgs);
     } else {
-      return visitDirectiveWithoutBody(directiveNode, visitArgs);
+      return visitAtRuleWithoutBody(atRuleNode, visitArgs);
     }
 
-//2.5.3 20151120
-// visitDirective: function(directiveNode, visitArgs) {
-//   if (directiveNode.rules && directiveNode.rules.length) {
-//       return this.visitDirectiveWithBody(directiveNode, visitArgs);
-//   } else {
-//       return this.visitDirectiveWithoutBody(directiveNode, visitArgs);
-//   }
-//   return directiveNode;
+//2.8.0 20160702
+// visitAtRule: function(atRuleNode, visitArgs) {
+//     if (atRuleNode.rules && atRuleNode.rules.length) {
+//         return this.visitAtRuleWithBody(atRuleNode, visitArgs);
+//     } else {
+//         return this.visitAtRuleWithoutBody(atRuleNode, visitArgs);
+//     }
 // },
 }
 
   ///
-  Node visitDirectiveWithBody(Directive directiveNode, VisitArgs visitArgs) {
+  Node visitAtRuleWithBody(AtRule atRuleNode, VisitArgs visitArgs) {
     // if there is only one nested ruleset and that one has no path, then it is
     // just fake ruleset
-    bool hasFakeRuleset(Directive directiveNode) {
+    bool hasFakeRuleset(AtRule directiveNode) {
       final List<Ruleset> bodyRules = directiveNode.rules;
       return (bodyRules.length == 1)
           && (bodyRules.first.paths?.isEmpty ?? true);
     }
 
-    List<Node> getBodyRules(Directive directiveNode) {
+    List<Node> getBodyRules(AtRule directiveNode) {
       final List<Ruleset> nodeRules = directiveNode.rules;
       if (hasFakeRuleset(directiveNode))
           return nodeRules[0].rules;
@@ -168,25 +167,25 @@ class ToCSSVisitor extends VisitorBase {
     // it is still true that it is only one ruleset in array
     // this is last such moment
     // process childs
-    final List<Node> originalRules = getBodyRules(directiveNode);
-    directiveNode.accept(_visitor);
+    final List<Node> originalRules = getBodyRules(atRuleNode);
+    atRuleNode.accept(_visitor);
     visitArgs.visitDeeper = false;
 
-    if (!utils.isEmpty(directiveNode))
-        _mergeRules(directiveNode.rules[0].rules);
-    return utils.resolveVisibility(directiveNode, originalRules);
+    if (!utils.isEmpty(atRuleNode))
+        _mergeRules(atRuleNode.rules[0].rules);
+    return utils.resolveVisibility(atRuleNode, originalRules);
 
-//2.5.3 20151120
-// visitDirectiveWithBody: function(directiveNode, visitArgs) {
+//2.8.0 20160702
+// visitAtRuleWithBody: function(atRuleNode, visitArgs) {
 //     //if there is only one nested ruleset and that one has no path, then it is
 //     //just fake ruleset
-//     function hasFakeRuleset(directiveNode) {
-//         var bodyRules = directiveNode.rules;
+//     function hasFakeRuleset(atRuleNode) {
+//         var bodyRules = atRuleNode.rules;
 //         return bodyRules.length === 1 && (!bodyRules[0].paths || bodyRules[0].paths.length === 0);
 //     }
-//     function getBodyRules(directiveNode) {
-//         var nodeRules = directiveNode.rules;
-//         if (hasFakeRuleset(directiveNode)) {
+//     function getBodyRules(atRuleNode) {
+//         var nodeRules = atRuleNode.rules;
+//         if (hasFakeRuleset(atRuleNode)) {
 //             return nodeRules[0].rules;
 //         }
 //
@@ -195,55 +194,55 @@ class ToCSSVisitor extends VisitorBase {
 //     //it is still true that it is only one ruleset in array
 //     //this is last such moment
 //     //process childs
-//     var originalRules = getBodyRules(directiveNode);
-//     directiveNode.accept(this._visitor);
+//     var originalRules = getBodyRules(atRuleNode);
+//     atRuleNode.accept(this._visitor);
 //     visitArgs.visitDeeper = false;
 //
-//     if (!this.utils.isEmpty(directiveNode)) {
-//         this._mergeRules(directiveNode.rules[0].rules);
+//     if (!this.utils.isEmpty(atRuleNode)) {
+//         this._mergeRules(atRuleNode.rules[0].rules);
 //     }
 //
-//     return this.utils.resolveVisibility(directiveNode, originalRules);
+//     return this.utils.resolveVisibility(atRuleNode, originalRules);
 // },
   }
 
   ///
-  Node visitDirectiveWithoutBody(Directive directiveNode, VisitArgs visitArgs) {
-    if (directiveNode.blocksVisibility())
+  Node visitAtRuleWithoutBody(AtRule atRuleNode, VisitArgs visitArgs) {
+    if (atRuleNode.blocksVisibility())
         return null;
 
-    if (directiveNode.name == "@charset") {
+    if (atRuleNode.name == "@charset") {
       // Only output the debug info together with subsequent @charset definitions
-      // a comment (or @media statement) before the actual @charset directive would
+      // a comment (or @media statement) before the actual @charset atRule would
       // be considered illegal css as it has to be on the first line
       if (charset) {
-        if (directiveNode.debugInfo != null) {
+        if (atRuleNode.debugInfo != null) {
           final String directive =
-              directiveNode.toCSS(_context).replaceAll(r'\n', '');
+              atRuleNode.toCSS(_context).replaceAll(r'\n', '');
           final Comment comment = new Comment('/* $directive */\n')
-              ..debugInfo = directiveNode.debugInfo;
+              ..debugInfo = atRuleNode.debugInfo;
           return _visitor.visit(comment);
         }
         return null;
       }
       charset = true;
     }
-    return directiveNode;
+    return atRuleNode;
 
-//2.5.3 20151120
-// visitDirectiveWithoutBody: function(directiveNode, visitArgs) {
-//     if (directiveNode.blocksVisibility()) {
+//2.8.0 20160702
+// visitAtRuleWithoutBody: function(atRuleNode, visitArgs) {
+//     if (atRuleNode.blocksVisibility()) {
 //         return;
 //     }
 //
-//     if (directiveNode.name === "@charset") {
+//     if (atRuleNode.name === "@charset") {
 //         // Only output the debug info together with subsequent @charset definitions
-//         // a comment (or @media statement) before the actual @charset directive would
+//         // a comment (or @media statement) before the actual @charset atrule would
 //         // be considered illegal css as it has to be on the first line
 //         if (this.charset) {
-//             if (directiveNode.debugInfo) {
-//                 var comment = new tree.Comment("/* " + directiveNode.toCSS(this._context).replace(/\n/g, "") + " */\n");
-//                 comment.debugInfo = directiveNode.debugInfo;
+//             if (atRuleNode.debugInfo) {
+//                 var comment = new tree.Comment("/* " + atRuleNode.toCSS(this._context).replace(/\n/g, "") + " */\n");
+//                 comment.debugInfo = atRuleNode.debugInfo;
 //                 return this._visitor.visit(comment);
 //             }
 //             return;
@@ -251,7 +250,7 @@ class ToCSSVisitor extends VisitorBase {
 //         this.charset = true;
 //     }
 //
-//     return directiveNode;
+//     return atRuleNode;
 // },
   }
 
@@ -264,7 +263,7 @@ class ToCSSVisitor extends VisitorBase {
 
     for (int i = 0; i < rules.length; i++) {
       final Node ruleNode = rules[i];
-      if (isRoot && ruleNode is Rule && !ruleNode.variable) {
+      if (isRoot && ruleNode is Declaration && !ruleNode.variable) {
         error(message: 'Properties must be inside selector blocks. They cannot be in the root',
             index: ruleNode.index,
             filename: ruleNode.currentFileInfo?.filename);
@@ -281,7 +280,7 @@ class ToCSSVisitor extends VisitorBase {
       }
     }
 
-//2.6.1 20160402
+//3.0.0 20160714
 // checkValidNodes: function(rules, isRoot) {
 //     if (!rules) {
 //         return;
@@ -289,17 +288,17 @@ class ToCSSVisitor extends VisitorBase {
 //
 //     for (var i = 0; i < rules.length; i++) {
 //         var ruleNode = rules[i];
-//         if (isRoot && ruleNode instanceof tree.Rule && !ruleNode.variable) {
+//         if (isRoot && ruleNode instanceof tree.Declaration && !ruleNode.variable) {
 //             throw { message: "Properties must be inside selector blocks. They cannot be in the root",
-//                 index: ruleNode.index, filename: ruleNode.currentFileInfo && ruleNode.currentFileInfo.filename};
+//                 index: ruleNode.getIndex(), filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename};
 //         }
 //         if (ruleNode instanceof tree.Call) {
 //             throw { message: "Function '" + ruleNode.name + "' is undefined",
-//                 index: ruleNode.index, filename: ruleNode.currentFileInfo && ruleNode.currentFileInfo.filename};
+//                 index: ruleNode.getIndex(), filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename};
 //         }
 //         if (ruleNode.type && !ruleNode.allowRoot) {
 //             throw { message: ruleNode.type + " node returned by a function is not valid here",
-//                 index: ruleNode.index, filename: ruleNode.currentFileInfo && ruleNode.currentFileInfo.filename};
+//                 index: ruleNode.getIndex(), filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename};
 //         }
 //     }
 // },
@@ -462,16 +461,16 @@ class ToCSSVisitor extends VisitorBase {
 
     // If !Key Map[Rule1.name] = Rule1
     // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
-    final Map<String, dynamic>  ruleCache = <String, dynamic>{}; //<String, Rule || List<String>>
+    final Map<String, dynamic>  ruleCache = <String, dynamic>{}; //<String, Declaration || List<String>>
 
     for (int i = rules.length - 1; i >= 0; i--) {
       final Node rule = rules[i];
-      if (rule is Rule) {
+      if (rule is Declaration) {
         if (!ruleCache.containsKey(rule.name)) {
           ruleCache[rule.name] = rule;
         } else {
           final List<String> ruleList = ruleCache[rule.name] =
-              (ruleCache[rule.name] is Rule)
+              (ruleCache[rule.name] is Declaration)
                   ? <String>[ruleCache[rule.name].toCSS(_context)]
                   : ruleCache[rule.name];
 
@@ -486,34 +485,34 @@ class ToCSSVisitor extends VisitorBase {
       }
     }
 
-//2.3.1
-//  _removeDuplicateRules: function(rules) {
-//      if (!rules) { return; }
+//2.8.0 20160702
+// _removeDuplicateRules: function(rules) {
+//     if (!rules) { return; }
 //
-//      // remove duplicates
-//      var ruleCache = {},
-//          ruleList, rule, i;
+//     // remove duplicates
+//     var ruleCache = {},
+//         ruleList, rule, i;
 //
-//      for(i = rules.length - 1; i >= 0 ; i--) {
-//          rule = rules[i];
-//          if (rule instanceof tree.Rule) {
-//              if (!ruleCache[rule.name]) {
-//                  ruleCache[rule.name] = rule;
-//              } else {
-//                  ruleList = ruleCache[rule.name];
-//                  if (ruleList instanceof tree.Rule) {
-//                      ruleList = ruleCache[rule.name] = [ruleCache[rule.name].toCSS(this._context)];
-//                  }
-//                  var ruleCSS = rule.toCSS(this._context);
-//                  if (ruleList.indexOf(ruleCSS) !== -1) {
-//                      rules.splice(i, 1);
-//                  } else {
-//                      ruleList.push(ruleCSS);
-//                  }
-//              }
-//          }
-//      }
-//  },
+//     for (i = rules.length - 1; i >= 0 ; i--) {
+//         rule = rules[i];
+//         if (rule instanceof tree.Declaration) {
+//             if (!ruleCache[rule.name]) {
+//                 ruleCache[rule.name] = rule;
+//             } else {
+//                 ruleList = ruleCache[rule.name];
+//                 if (ruleList instanceof tree.Declaration) {
+//                     ruleList = ruleCache[rule.name] = [ruleCache[rule.name].toCSS(this._context)];
+//                 }
+//                 var ruleCSS = rule.toCSS(this._context);
+//                 if (ruleList.indexOf(ruleCSS) !== -1) {
+//                     rules.splice(i, 1);
+//                 } else {
+//                     ruleList.push(ruleCSS);
+//                 }
+//             }
+//         }
+//     }
+// },
   }
 
   ///
@@ -521,19 +520,19 @@ class ToCSSVisitor extends VisitorBase {
     if (rules == null)
         return;
 
-    final Map<String, List<Rule>> groups = <String, List<Rule>>{};
+    final Map<String, List<Declaration>> groups = <String, List<Declaration>>{};
 
     for (int i = 0; i < rules.length; i++) {
       final Node rule = rules[i];
 
-      if (rule is Rule && (rule.merge?.isNotEmpty ?? false)) {
+      if (rule is Declaration && (rule.merge?.isNotEmpty ?? false)) {
         final String key = <String>[
           rule.name,
           isNotEmpty(rule.important) ? '!' : ''
         ].join(','); //important == '!' or ''
 
         if (!groups.containsKey(key)) {
-          groups[key] = <Rule>[];
+          groups[key] = <Declaration>[];
         } else {
           rules.removeAt(i--); // ??
         }
@@ -541,23 +540,23 @@ class ToCSSVisitor extends VisitorBase {
       }
     }
 
-    groups.forEach((String k, List<Rule> parts) {
-      Expression toExpression(List<Rule> values) =>
-          new Expression(values.map((Rule p) => p.value).toList());
+    groups.forEach((String k, List<Declaration> parts) {
+      Expression toExpression(List<Declaration> values) =>
+          new Expression(values.map((Declaration p) => p.value).toList());
 
       Value toValue(List<Expression> values) =>
           new Value(values.map((Expression p) => p).toList());
 
       if (parts.length > 1) {
-        List<Rule> lastSpacedGroup = <Rule>[];
-        final Rule rule = parts[0];
+        List<Declaration> lastSpacedGroup = <Declaration>[];
+        final Declaration rule = parts[0];
         final List<Expression> spacedGroups = <Expression>[];
 
-        parts.forEach((Rule p) {
+        parts.forEach((Declaration p) {
           if (p.merge == '+') {
             if (lastSpacedGroup.isNotEmpty)
                 spacedGroups.add(toExpression(lastSpacedGroup));
-            lastSpacedGroup = <Rule>[];
+            lastSpacedGroup = <Declaration>[];
           }
           lastSpacedGroup.add(p);
         });
@@ -566,66 +565,66 @@ class ToCSSVisitor extends VisitorBase {
       }
     });
 
-//2.3.1
-//  _mergeRules: function (rules) {
-//      if (!rules) { return; }
+//2.8.0 20160702
+// _mergeRules: function (rules) {
+//     if (!rules) { return; }
 //
-//      var groups = {},
-//          parts,
-//          rule,
-//          key;
+//     var groups = {},
+//         parts,
+//         rule,
+//         key;
 //
-//      for (var i = 0; i < rules.length; i++) {
-//          rule = rules[i];
+//     for (var i = 0; i < rules.length; i++) {
+//         rule = rules[i];
 //
-//          if ((rule instanceof tree.Rule) && rule.merge) {
-//              key = [rule.name,
-//                  rule.important ? "!" : ""].join(",");
+//         if ((rule instanceof tree.Declaration) && rule.merge) {
+//             key = [rule.name,
+//                 rule.important ? "!" : ""].join(",");
 //
-//              if (!groups[key]) {
-//                  groups[key] = [];
-//              } else {
-//                  rules.splice(i--, 1);
-//              }
+//             if (!groups[key]) {
+//                 groups[key] = [];
+//             } else {
+//                 rules.splice(i--, 1);
+//             }
 //
-//              groups[key].push(rule);
-//          }
-//      }
+//             groups[key].push(rule);
+//         }
+//     }
 //
-//      Object.keys(groups).map(function (k) {
+//     Object.keys(groups).map(function (k) {
 //
-//          function toExpression(values) {
-//              return new (tree.Expression)(values.map(function (p) {
-//                  return p.value;
-//              }));
-//          }
+//         function toExpression(values) {
+//             return new (tree.Expression)(values.map(function (p) {
+//                 return p.value;
+//             }));
+//         }
 //
-//          function toValue(values) {
-//              return new (tree.Value)(values.map(function (p) {
-//                  return p;
-//              }));
-//          }
+//         function toValue(values) {
+//             return new (tree.Value)(values.map(function (p) {
+//                 return p;
+//             }));
+//         }
 //
-//          parts = groups[k];
+//         parts = groups[k];
 //
-//          if (parts.length > 1) {
-//              rule = parts[0];
-//              var spacedGroups = [];
-//              var lastSpacedGroup = [];
-//              parts.map(function (p) {
-//              if (p.merge === "+") {
-//                  if (lastSpacedGroup.length > 0) {
-//                          spacedGroups.push(toExpression(lastSpacedGroup));
-//                      }
-//                      lastSpacedGroup = [];
-//                  }
-//                  lastSpacedGroup.push(p);
-//              });
-//              spacedGroups.push(toExpression(lastSpacedGroup));
-//              rule.value = toValue(spacedGroups);
-//          }
-//      });
-//  }
+//         if (parts.length > 1) {
+//             rule = parts[0];
+//             var spacedGroups = [];
+//             var lastSpacedGroup = [];
+//             parts.map(function (p) {
+//                 if (p.merge === "+") {
+//                     if (lastSpacedGroup.length > 0) {
+//                         spacedGroups.push(toExpression(lastSpacedGroup));
+//                     }
+//                     lastSpacedGroup = [];
+//                 }
+//                 lastSpacedGroup.push(p);
+//             });
+//             spacedGroups.push(toExpression(lastSpacedGroup));
+//             rule.value = toValue(spacedGroups);
+//         }
+//     });
+// },
   }
 
   ///
@@ -655,8 +654,10 @@ class ToCSSVisitor extends VisitorBase {
         return visitComment;
     if (node is Media)
         return visitMedia;
-    if (node is Directive)
-        return visitDirective;
+    if (node is AtRule)
+        return visitAtRule;
+    if (node is Directive) //compatibility old node type
+        return visitAtRule;
     if (node is Extend)
         return visitExtend;
     if (node is Import)
@@ -665,8 +666,10 @@ class ToCSSVisitor extends VisitorBase {
         return visitMixinDefinition;
     if (node is Options)
         return visitOptions;
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
+    if (node is Rule) //compatibility old node type
+        return visitDeclaration;
     if (node is Ruleset)
         return visitRuleset;
     return null;

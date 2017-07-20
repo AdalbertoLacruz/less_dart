@@ -1,4 +1,4 @@
-//source: less/join-selector-visitor.js 2.5.0
+//source: less/join-selector-visitor.js 2.8.0 20160702
 
 part of visitor.less;
 
@@ -31,13 +31,13 @@ class JoinSelectorVisitor extends VisitorBase{
 //  },
 
   ///
-  void visitRule(Rule ruleNode, VisitArgs visitArgs) {
+  void visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
-//2.3.1
-//  visitRule: function (ruleNode, visitArgs) {
-//      visitArgs.visitDeeper = false;
-//  },
+//2.8.0 20160702
+// visitDeclaration: function (declNode, visitArgs) {
+//     visitArgs.visitDeeper = false;
+// },
   }
 
   ///
@@ -116,18 +116,18 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
+  void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
     final List<List<Selector>> context = contexts.last;
-    if (directiveNode.rules != null && directiveNode.rules.isNotEmpty)
-        directiveNode.rules[0].root = (directiveNode.isRooted || context.isEmpty);
+    if (atRuleNode.rules != null && atRuleNode.rules.isNotEmpty)
+        atRuleNode.rules[0].root = (atRuleNode.isRooted || context.isEmpty);
 
-//2.4.0 20150319
-//  visitDirective: function (directiveNode, visitArgs) {
-//      var context = this.contexts[this.contexts.length - 1];
-//      if (directiveNode.rules && directiveNode.rules.length) {
-//          directiveNode.rules[0].root = (directiveNode.isRooted || context.length === 0 || null);
-//      }
-//  }
+//2.8.0 20160702
+// visitAtRule: function (atRuleNode, visitArgs) {
+//     var context = this.contexts[this.contexts.length - 1];
+//     if (atRuleNode.rules && atRuleNode.rules.length) {
+//         atRuleNode.rules[0].root = (atRuleNode.isRooted || context.length === 0 || null);
+//     }
+// }
   }
 
   /// func visitor.visit distribuitor
@@ -135,12 +135,16 @@ class JoinSelectorVisitor extends VisitorBase{
   Function visitFtn(Node node) {
     if (node is Media)
         return visitMedia;
-    if (node is Directive)
-        return visitDirective;
+    if (node is AtRule)
+        return visitAtRule;
+    if (node is Directive) //compatibility old node type
+        return visitAtRule;
     if (node is MixinDefinition)
         return visitMixinDefinition;
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
+    if (node is Rule) //compatibility old node type
+        return visitDeclaration;
     if (node is Ruleset)
         return visitRuleset;
     return null;

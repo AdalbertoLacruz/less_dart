@@ -100,6 +100,8 @@ class LessError {
       String filename,
       String message,
       String type,
+      int line,  //TODO
+      int column, //TODO
       StackTrace stackTrace,
       Contexts context}) {
 
@@ -126,6 +128,24 @@ class LessError {
     if (e is LessError)
         return e.message;
     return '';
+  }
+
+  ///
+  static int getErrorColumn(Object e) => e is LessError ? e.column : null;
+
+  ///
+  static int getErrorLine(Object e) => e is LessError ? e.line : null;
+
+  ///
+  /// For a [e] error get the type, with default ''
+  ///
+  static String getType(Object e) {
+    if (e is LessExceptionError)
+        return e.error.type;
+    if (e is LessError)
+        return e.type;
+    return '';
+
   }
 
   ///

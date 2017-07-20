@@ -1,4 +1,4 @@
-// source: less/import-visitor.js 2.5.1 20150613
+// source: less/import-visitor.js 3.0.0 20160714
 
 part of visitor.less;
 
@@ -128,24 +128,24 @@ class ImportVisitor extends VisitorBase {
 
     visitArgs.visitDeeper = false;
 
-//2.3.1
-//  visitImport: function (importNode, visitArgs) {
-//      var inlineCSS = importNode.options.inline;
+//3.0.0 20160714
+// visitImport: function (importNode, visitArgs) {
+//     var inlineCSS = importNode.options.inline;
 //
-//      if (!importNode.css || inlineCSS) {
+//     if (!importNode.css || inlineCSS) {
 //
-//          var context = new contexts.Eval(this.context, this.context.frames.slice(0));
-//          var importParent = context.frames[0];
+//         var context = new contexts.Eval(this.context, utils.copyArray(this.context.frames));
+//         var importParent = context.frames[0];
 //
-//          this.importCount++;
-//          if (importNode.isVariableImport()) {
-//              this._sequencer.addVariableImport(this.processImportNode.bind(this, importNode, context, importParent));
-//          } else {
-//              this.processImportNode(importNode, context, importParent);
-//          }
-//      }
-//      visitArgs.visitDeeper = false;
-//  },
+//         this.importCount++;
+//         if (importNode.isVariableImport()) {
+//             this._sequencer.addVariableImport(this.processImportNode.bind(this, importNode, context, importParent));
+//         } else {
+//             this.processImportNode(importNode, context, importParent);
+//         }
+//     }
+//     visitArgs.visitDeeper = false;
+// },
   }
 
   ///
@@ -206,49 +206,49 @@ class ImportVisitor extends VisitorBase {
       completer.complete();
     }
 
-//2.3.1
-//  processImportNode: function(importNode, context, importParent) {
-//      var evaldImportNode,
-//          inlineCSS = importNode.options.inline;
+//3.0.0 20160714
+// processImportNode: function(importNode, context, importParent) {
+//     var evaldImportNode,
+//         inlineCSS = importNode.options.inline;
 //
-//      try {
-//          evaldImportNode = importNode.evalForImport(context);
-//      } catch(e){
-//          if (!e.filename) { e.index = importNode.index; e.filename = importNode.currentFileInfo.filename; }
-//          // attempt to eval properly and treat as css
-//          importNode.css = true;
-//          // if that fails, this error will be thrown
-//          importNode.error = e;
-//      }
+//     try {
+//         evaldImportNode = importNode.evalForImport(context);
+//     } catch(e) {
+//         if (!e.filename) { e.index = importNode.getIndex(); e.filename = importNode.fileInfo().filename; }
+//         // attempt to eval properly and treat as css
+//         importNode.css = true;
+//         // if that fails, this error will be thrown
+//         importNode.error = e;
+//     }
 //
-//      if (evaldImportNode && (!evaldImportNode.css || inlineCSS)) {
+//     if (evaldImportNode && (!evaldImportNode.css || inlineCSS)) {
 //
-//          if (evaldImportNode.options.multiple) {
-//              context.importMultiple = true;
-//          }
+//         if (evaldImportNode.options.multiple) {
+//             context.importMultiple = true;
+//         }
 //
-//          // try appending if we haven't determined if it is css or not
-//          var tryAppendLessExtension = evaldImportNode.css === undefined;
+//         // try appending if we haven't determined if it is css or not
+//         var tryAppendLessExtension = evaldImportNode.css === undefined;
 //
-//          for(var i = 0; i < importParent.rules.length; i++) {
-//              if (importParent.rules[i] === importNode) {
-//                  importParent.rules[i] = evaldImportNode;
-//                  break;
-//              }
-//          }
+//         for (var i = 0; i < importParent.rules.length; i++) {
+//             if (importParent.rules[i] === importNode) {
+//                 importParent.rules[i] = evaldImportNode;
+//                 break;
+//             }
+//         }
 //
-//          var onImported = this.onImported.bind(this, evaldImportNode, context),
-//              sequencedOnImported = this._sequencer.addImport(onImported);
+//         var onImported = this.onImported.bind(this, evaldImportNode, context),
+//             sequencedOnImported = this._sequencer.addImport(onImported);
 //
-//          this._importer.push(evaldImportNode.getPath(), tryAppendLessExtension, evaldImportNode.currentFileInfo,
-//              evaldImportNode.options, sequencedOnImported);
-//      } else {
-//          this.importCount--;
-//          if (this.isFinished) {
-//              this._sequencer.tryRun();
-//          }
-//      }
-//  },
+//         this._importer.push(evaldImportNode.getPath(), tryAppendLessExtension, evaldImportNode.fileInfo(),
+//             evaldImportNode.options, sequencedOnImported);
+//     } else {
+//         this.importCount--;
+//         if (this.isFinished) {
+//             this._sequencer.tryRun();
+//         }
+//     }
+// },
   }
 
   ///
@@ -305,18 +305,18 @@ class ImportVisitor extends VisitorBase {
 
     return completer.future;
 
-//2.5.1 20150613
+//3.0.0 20160714
 // onImported: function (importNode, context, e, root, importedAtRoot, fullPath) {
 //     if (e) {
 //         if (!e.filename) {
-//             e.index = importNode.index; e.filename = importNode.currentFileInfo.filename;
+//             e.index = importNode.getIndex(); e.filename = importNode.fileInfo().filename;
 //         }
 //         this.error = e;
 //     }
 //
 //     var importVisitor = this,
 //         inlineCSS = importNode.options.inline,
-//         isPlugin = importNode.options.plugin,
+//         isPlugin = importNode.options.isPlugin,
 //         isOptional = importNode.options.optional,
 //         duplicateImport = importedAtRoot || fullPath in importVisitor.recursionDetector;
 //
@@ -365,54 +365,54 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  void visitRule(Rule ruleNode, VisitArgs visitArgs) {
-    if (ruleNode is DetachedRuleset) {
-      context.frames.insert(0, ruleNode);
+  void visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
+    if (declNode is DetachedRuleset) {
+      context.frames.insert(0, declNode);
     } else {
       visitArgs.visitDeeper = false;
     }
 
-//2.4.0 20150320
-//  visitRule: function (ruleNode, visitArgs) {
-//      if (ruleNode.value.type === "DetachedRuleset") { ??@plugin??
-//          this.context.frames.unshift(ruleNode);
-//      } else {
-//          visitArgs.visitDeeper = false;
-//      }
-//  },
+//2.8.0 20160702
+// visitDeclaration: function (declNode, visitArgs) {
+//     if (declNode.value.type === "DetachedRuleset") {
+//         this.context.frames.unshift(declNode);
+//     } else {
+//         visitArgs.visitDeeper = false;
+//     }
+// },
   }
 
   ///
-  void visitRuleOut(Rule ruleNode) {
-    if (ruleNode is DetachedRuleset)
+  void visitDeclarationOut(Declaration declNode) {
+    if (declNode is DetachedRuleset)
         context.frames.removeAt(0);
 
-//2.4.0 20150320
-//  visitRuleOut : function(ruleNode) {
-//      if (ruleNode.value.type === "DetachedRuleset") {
-//          this.context.frames.shift();
-//      }
-//  },
+//2.8.0 20160702
+// visitDeclarationOut: function(declNode) {
+//     if (declNode.value.type === "DetachedRuleset") {
+//         this.context.frames.shift();
+//     }
+// },
   }
 
   ///
-  void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    context.frames.insert(0, directiveNode);
+  void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
+    context.frames.insert(0, atRuleNode);
 
-//2.3.1
-//  visitDirective: function (directiveNode, visitArgs) {
-//      this.context.frames.unshift(directiveNode);
-//  },
+//2.8.0 20160702
+// visitAtRule: function (atRuleNode, visitArgs) {
+//     this.context.frames.unshift(atRuleNode);
+// },
   }
 
   ///
-  void visitDirectiveOut(Directive directiveNode) {
+  void visitAtRuleOut(AtRule atRuleNode) {
     context.frames.removeAt(0);
 
-//2.3.1
-//  visitDirectiveOut: function (directiveNode) {
-//      this.context.frames.shift();
-//  },
+//2.8.0 20160702
+// visitAtRuleOut: function (atRuleNode) {
+//     this.context.frames.shift();
+// },
   }
 
   ///
@@ -480,14 +480,18 @@ class ImportVisitor extends VisitorBase {
   Function visitFtn(Node node) {
     if (node is Media)
         return visitMedia;
-    if (node is Directive)
-        return visitDirective;
+    if (node is AtRule)
+        return visitAtRule;
+    if (node is Directive) //compatibility old node type
+        return visitAtRule;
     if (node is Import)
         return visitImport;
     if (node is MixinDefinition)
         return visitMixinDefinition;
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
+    if (node is Rule) //compatibility old node type
+        return visitDeclaration;
     if (node is Ruleset)
         return visitRuleset;
     return null;
@@ -498,12 +502,16 @@ class ImportVisitor extends VisitorBase {
   Function visitFtnOut(Node node) {
     if (node is Media)
         return visitMediaOut;
-    if (node is Directive)
-        return visitDirectiveOut;
+    if (node is AtRule)
+        return visitAtRuleOut;
+    if (node is Directive) //compatibility old node type
+        return visitAtRuleOut;
     if (node is MixinDefinition)
         return visitMixinDefinitionOut;
-    if (node is Rule)
-        return visitRuleOut;
+    if (node is Declaration)
+        return visitDeclarationOut;
+    if (node is Rule) //compatibility old node type
+        return visitDeclarationOut;
     if (node is Ruleset)
         return visitRulesetOut;
     return null;

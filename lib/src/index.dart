@@ -3,5 +3,5 @@ library index.less;
 ///
 class LessIndex {
   ///
-  static List<int> version = <int>[2, 7, 1];
+  static List<int> version = <int>[3, 0, 0];
 }

@@ -1,4 +1,4 @@
-//source: less/tree/quoted.js 2.5.0
+//source: less/tree/quoted.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -21,21 +21,20 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     // ignore: prefer_initializing_formals
     this.currentFileInfo = currentFileInfo;
 
-    //if (escaped == null) escaped = true;
     escaped ??= true;
     value = content ?? '';
     quote = str.isNotEmpty ? str[0] : '';
     if (!(quote == '"' || quote == "'" || quote == ''))
         quote = '';
 
-//2.3.1
-//  var Quoted = function (str, content, escaped, index, currentFileInfo) {
-//      this.escaped = (escaped == null) ? true : escaped;
-//      this.value = content || '';
-//      this.quote = str.charAt(0);
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo;
-//  };
+//3.0.0 20160714
+// var Quoted = function (str, content, escaped, index, currentFileInfo) {
+//     this.escaped = (escaped == null) ? true : escaped;
+//     this.value = content || '';
+//     this.quote = str.charAt(0);
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
+// };
   }
 
   /// Fields to show with genTree
@@ -52,16 +51,16 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     if (!escaped)
         output.add(quote);
 
-//2.3.1
-//  Quoted.prototype.genCSS = function (context, output) {
-//      if (!this.escaped) {
-//          output.add(this.quote, this.currentFileInfo, this.index);
-//      }
-//      output.add(this.value);
-//      if (!this.escaped) {
-//          output.add(this.quote);
-//      }
-//  };
+//3.0.0 20160714
+// Quoted.prototype.genCSS = function (context, output) {
+//     if (!this.escaped) {
+//         output.add(this.quote, this.fileInfo(), this.getIndex());
+//     }
+//     output.add(this.value);
+//     if (!this.escaped) {
+//         output.add(this.quote);
+//     }
+// };
   }
 
   ///
@@ -115,28 +114,28 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
         index: index,
         currentFileInfo: currentFileInfo);
 
-//2.3.1
-//  Quoted.prototype.eval = function (context) {
-//      var that = this, value = this.value;
-//      var javascriptReplacement = function (_, exp) {
-//          return String(that.evaluateJavaScript(exp, context));
-//      };
-//      var interpolationReplacement = function (_, name) {
-//          var v = new Variable('@' + name, that.index, that.currentFileInfo).eval(context, true);
-//          return (v instanceof Quoted) ? v.value : v.toCSS();
-//      };
-//      function iterativeReplace(value, regexp, replacementFnc) {
-//          var evaluatedValue = value;
-//          do {
-//            value = evaluatedValue;
-//            evaluatedValue = value.replace(regexp, replacementFnc);
-//          } while  (value !== evaluatedValue);
-//          return evaluatedValue;
-//      }
-//      value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement);
-//      value = iterativeReplace(value, /@\{([\w-]+)\}/g, interpolationReplacement);
-//      return new Quoted(this.quote + value + this.quote, value, this.escaped, this.index, this.currentFileInfo);
-//  };
+//3.0.0 20160714
+// Quoted.prototype.eval = function (context) {
+//     var that = this, value = this.value;
+//     var javascriptReplacement = function (_, exp) {
+//         return String(that.evaluateJavaScript(exp, context));
+//     };
+//     var interpolationReplacement = function (_, name) {
+//         var v = new Variable('@' + name, that.getIndex(), that.fileInfo()).eval(context, true);
+//         return (v instanceof Quoted) ? v.value : v.toCSS();
+//     };
+//     function iterativeReplace(value, regexp, replacementFnc) {
+//         var evaluatedValue = value;
+//         do {
+//             value = evaluatedValue;
+//             evaluatedValue = value.replace(regexp, replacementFnc);
+//         } while (value !== evaluatedValue);
+//         return evaluatedValue;
+//     }
+//     value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement);
+//     value = iterativeReplace(value, /@\{([\w-]+)\}/g, interpolationReplacement);
+//     return new Quoted(this.quote + value + this.quote, value, this.escaped, this.getIndex(), this.fileInfo());
+// };
   }
 
 //--- CompareNode

@@ -1,4 +1,4 @@
-//source: less/tree/import.js 2.6.1 20160202
+//source: less/tree/import.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -63,14 +63,16 @@ class Import extends Node {
     }
 
     copyVisibilityInfo(visibilityInfo);
+    setParent(features, this);
+    setParent(path, this);
 
-//2.6.1 20160202
+//3.0.0 20160714
 // var Import = function (path, features, options, index, currentFileInfo, visibilityInfo) {
 //     this.options = options;
-//     this.index = index;
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
 //     this.path = path;
 //     this.features = features;
-//     this.currentFileInfo = currentFileInfo;
 //     this.allowRoot = true;
 //
 //     if (this.options.less !== undefined || this.options.inline) {
@@ -82,6 +84,8 @@ class Import extends Node {
 //         }
 //     }
 //     this.copyVisibilityInfo(visibilityInfo);
+//     this.setParent(this.features, this);
+//     this.setParent(this.path, this);
 // };
   }
 
@@ -117,8 +121,8 @@ class Import extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (css && !path.currentFileInfo.reference) {
-      output.add('@import ', fileInfo: currentFileInfo, index: index);
+    if (css && !path._fileInfo.reference) {
+      output.add('@import ', fileInfo: _fileInfo, index: _index);
       path.genCSS(context, output);
       if (features != null) {
         output.add(' ');
@@ -127,18 +131,18 @@ class Import extends Node {
       output.add(';');
     }
 
-//2.4.0 20150310
-//  Import.prototype.genCSS = function (context, output) {
-//      if (this.css && this.path.currentFileInfo.reference === undefined) {
-//          output.add("@import ", this.currentFileInfo, this.index);
-//          this.path.genCSS(context, output);
-//          if (this.features) {
-//              output.add(" ");
-//              this.features.genCSS(context, output);
-//          }
-//          output.add(';');
-//      }
-//  };
+//3.0.0 20160714
+// Import.prototype.genCSS = function (context, output) {
+//     if (this.css && this.path._fileInfo.reference === undefined) {
+//         output.add("@import ", this._fileInfo, this._index);
+//         this.path.genCSS(context, output);
+//         if (this.features) {
+//             output.add(" ");
+//             this.features.genCSS(context, output);
+//         }
+//         output.add(';');
+//     }
+// };
   }
 
   ///
@@ -183,10 +187,10 @@ class Import extends Node {
     if (path is URL)
         path = path.value;
 
-    return new Import(path.eval(context), features, options, index,
-        currentFileInfo, visibilityInfo());
+    return new Import(path.eval(context), features, options, _index,
+        _fileInfo, visibilityInfo());
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Import.prototype.evalForImport = function (context) {
 //     var path = this.path;
 //
@@ -194,14 +198,14 @@ class Import extends Node {
 //         path = path.value;
 //     }
 //
-//     return new Import(path.eval(context), this.features, this.options, this.index, this.currentFileInfo, this.visibilityInfo());
+//     return new Import(path.eval(context), this.features, this.options, this._index, this._fileInfo, this.visibilityInfo());
 // };
   }
 
   ///
   Node evalPath(Contexts context) {
     final Node    path = this.path.eval(context);
-    final String  rootpath = currentFileInfo?.rootpath;
+    final String  rootpath = _fileInfo?.rootpath;
 
     if (path is! URL) {
       if (rootpath != null) {
@@ -215,24 +219,24 @@ class Import extends Node {
     }
     return path;
 
-//2.3.1
-//  Import.prototype.evalPath = function (context) {
-//      var path = this.path.eval(context);
-//      var rootpath = this.currentFileInfo && this.currentFileInfo.rootpath;
+//3.0.0 20160714
+// Import.prototype.evalPath = function (context) {
+//     var path = this.path.eval(context);
+//     var rootpath = this._fileInfo && this._fileInfo.rootpath;
 //
-//      if (!(path instanceof URL)) {
-//          if (rootpath) {
-//              var pathValue = path.value;
-//              // Add the base path if the import is relative
-//              if (pathValue && context.isPathRelative(pathValue)) {
-//                  path.value = rootpath + pathValue;
-//              }
-//          }
-//          path.value = context.normalizePath(path.value);
-//      }
+//     if (!(path instanceof URL)) {
+//         if (rootpath) {
+//             var pathValue = path.value;
+//             // Add the base path if the import is relative
+//             if (pathValue && context.isPathRelative(pathValue)) {
+//                 path.value = rootpath + pathValue;
+//             }
+//         }
+//         path.value = context.normalizePath(path.value);
+//     }
 //
-//      return path;
-//  };
+//     return path;
+// };
   }
 
 
@@ -283,7 +287,7 @@ class Import extends Node {
           index: 0,
           currentFileInfo: new FileInfo()
               ..filename = importedFilename
-              ..reference = path.currentFileInfo?.reference ?? false,
+              ..reference = path._fileInfo?.reference ?? false,
           mapLines: true,
           rulesetLike: true);
 
@@ -291,7 +295,7 @@ class Import extends Node {
           ? new Media(<Node>[contents], this.features.value)
           : new Nodeset(<Node>[contents]);
     } else if (css ?? false) {
-      final Import newImport = new Import(evalPath(context), features, options, index);
+      final Import newImport = new Import(evalPath(context), features, options, _index);
       if (!(newImport.css ?? false) && errorImport != null)
           throw new LessExceptionError(errorImport);
       return newImport;
@@ -304,12 +308,15 @@ class Import extends Node {
           : new Nodeset(ruleset.rules);
     }
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Import.prototype.doEval = function (context) {
 //     var ruleset, registry,
 //         features = this.features && this.features.eval(context);
 //
-//     if (this.options.plugin) {
+//     if (this.options.isPlugin) {
+//         if (this.root && this.root.eval) {
+//             this.root.eval(context);
+//         }
 //         registry = context.frames[0] && context.frames[0].functionRegistry;
 //         if ( registry && this.root && this.root.functions ) {
 //             registry.addMultiple( this.root.functions );
@@ -329,18 +336,18 @@ class Import extends Node {
 //         var contents = new Anonymous(this.root, 0,
 //           {
 //               filename: this.importedFilename,
-//               reference: this.path.currentFileInfo && this.path.currentFileInfo.reference
+//               reference: this.path._fileInfo && this.path._fileInfo.reference
 //           }, true, true);
 //
 //         return this.features ? new Media([contents], this.features.value) : [contents];
 //     } else if (this.css) {
-//         var newImport = new Import(this.evalPath(context), features, this.options, this.index);
+//         var newImport = new Import(this.evalPath(context), features, this.options, this._index);
 //         if (!newImport.css && this.error) {
 //             throw this.error;
 //         }
 //         return newImport;
 //     } else {
-//         ruleset = new Ruleset(null, this.root.rules.slice(0));
+//         ruleset = new Ruleset(null, utils.copyArray(this.root.rules));
 //         ruleset.evalImports(context);
 //
 //         return this.features ? new Media(ruleset.rules, this.features.value) : ruleset.rules;

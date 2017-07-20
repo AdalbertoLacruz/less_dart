@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 2.5.0
+//source: less/tree/dimension.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -25,12 +25,15 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       this.unit = new Unit();
     }
 
-//2.3.1
-//  var Dimension = function (value, unit) {
-//      this.value = parseFloat(value);
-//      this.unit = (unit && unit instanceof Unit) ? unit :
-//        new Unit(unit ? [unit] : undefined);
-//  };
+    setParent(this.unit, this);
+
+//3.0.0 20160714
+// var Dimension = function (value, unit) {
+//     this.value = parseFloat(value);
+//     this.unit = (unit && unit instanceof Unit) ? unit :
+//       new Unit(unit ? [unit] : undefined);
+//     this.setParent(this.unit, this);
+// };
   }
 
   /// Fields to show with genTree

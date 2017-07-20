@@ -85,16 +85,16 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove empty block
   /// Remove value spaces. @supports ( box-shadow: 2px 2px 2px black ) or ( -moz-box-shadow: 2px 2px 2px black )
   ///
-  Directive visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    if (directiveNode.rules != null && directiveNode.rules.isEmpty)
+  AtRule visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
+    if (atRuleNode.rules != null && atRuleNode.rules.isEmpty)
         return null;
 
-    if (directiveNode.value is Anonymous) {
-      final Anonymous anonymous = directiveNode.value;
+    if (atRuleNode.value is Anonymous) {
+      final Anonymous anonymous = atRuleNode.value;
       if (anonymous.value is String)
           anonymous.value = removeSpaces(anonymous.value);
     }
-    return directiveNode;
+    return atRuleNode;
   }
 
   ///
@@ -113,31 +113,31 @@ class CleanCssVisitor extends VisitorBase {
   /// Change font-weight: bold -> font-weight: 700
   /// Change outline: none -> outline: 0; (0px)
   ///
-  Rule visitRule(Rule ruleNode, VisitArgs visitArgs) {
+  Declaration visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
     Keyword keyword;
     Color color;
 
-    ruleNode.cleanCss = cleancsscontext;
+    declNode.cleanCss = cleancsscontext;
 
     // ' ! important'
-    if (ruleNode.important.isNotEmpty)
-        ruleNode.important = ruleNode.important.replaceAll(' ', '');
+    if (declNode.important.isNotEmpty)
+        declNode.important = declNode.important.replaceAll(' ', '');
 
-    if (ruleNode.name == 'background') {
-      if (ruleNode.value is Keyword) {
-        keyword = ruleNode.value;
+    if (declNode.name == 'background') {
+      if (declNode.value is Keyword) {
+        keyword = declNode.value;
         if (keyword.value == 'none')
             keyword.value = '0 0';
       }
-      if (ruleNode.value is Color) {
-        color = ruleNode.value;
+      if (declNode.value is Color) {
+        color = declNode.value;
         if (color.value != null && color.value == 'transparent')
-            ruleNode.value = new Keyword('0 0');
+            declNode.value = new Keyword('0 0');
       }
     }
 
-    if (ruleNode.name == 'font') {
-      if ((keyword = getFirstKeyword(ruleNode)) != null) {
+    if (declNode.name == 'font') {
+      if ((keyword = getFirstKeyword(declNode)) != null) {
         if (keyword.value == 'normal')
             keyword.value = '400';
         if (keyword.value == 'bold')
@@ -145,24 +145,24 @@ class CleanCssVisitor extends VisitorBase {
       }
     }
 
-    if (ruleNode.name == 'font-weight') {
-      if (ruleNode.value is Keyword) {
-        if (ruleNode.value.value == 'normal')
-            ruleNode.value = new Dimension(400);
-        if (ruleNode.value.value == 'bold')
-            ruleNode.value = new Dimension(700);
+    if (declNode.name == 'font-weight') {
+      if (declNode.value is Keyword) {
+        if (declNode.value.value == 'normal')
+            declNode.value = new Dimension(400);
+        if (declNode.value.value == 'bold')
+            declNode.value = new Dimension(700);
       }
     }
 
-    if (ruleNode.name == 'outline') {
-      if (ruleNode.value is Keyword) {
-        keyword = ruleNode.value;
+    if (declNode.name == 'outline') {
+      if (declNode.value is Keyword) {
+        keyword = declNode.value;
         if (keyword.value == 'none')
             keyword.value = '0';
       }
     }
 
-    return ruleNode;
+    return declNode;
   }
 
   ///
@@ -295,12 +295,16 @@ class CleanCssVisitor extends VisitorBase {
         return visitComment;
     if (node is Dimension)
         return visitDimension;
-    if (node is Directive)
-        return visitDirective;
+    if (node is AtRule)
+        return visitAtRule;
+    if (node is Directive) // compatibility old node type
+        return visitAtRule;
     if (node is Expression)
         return visitExpression;
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
+    if (node is Rule)  //Compatibility old node type
+        return visitDeclaration;
     if (node is Ruleset)
         return visitRuleset;
     if (node is URL)

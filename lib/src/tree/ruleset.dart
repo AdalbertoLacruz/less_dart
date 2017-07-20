@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 2.6.1 20160304
+// source: less/tree/ruleset.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -38,8 +38,10 @@ class Ruleset extends Node
 
     copyVisibilityInfo(visibilityInfo);
     allowRoot = true;
+    setParent(this.selectors, this);
+    setParent(this.rules, this);
 
-//2.6.1 20160304
+//3.0.0 20160714
 // var Ruleset = function (selectors, rules, strictImports, visibilityInfo) {
 //     this.selectors = selectors;
 //     this.rules = rules;
@@ -47,6 +49,9 @@ class Ruleset extends Node
 //     this.strictImports = strictImports;
 //     this.copyVisibilityInfo(visibilityInfo);
 //     this.allowRoot = true;
+//     this.setParent(this.selectors, this);
+//     this.setParent(this.rules, this);
+//
 // };
   }
 
@@ -169,7 +174,7 @@ class Ruleset extends Node
       if (rsRules[i] is MixinCall) {
         //rules = (rsRules[i] as MixinCall).eval(context)..retainWhere((r){
         rules = (rsRules[i] as MixinCall).eval(context).rules..retainWhere((Node r){
-          if (r is Rule && r.variable)
+          if (r is Declaration && r.variable)
               // do not pollute the scope if the variable is
               // already there. consider returning false here
               // but we need a way to "return" variable from mixins
@@ -183,7 +188,7 @@ class Ruleset extends Node
       } else if (rsRules[i] is RulesetCall) {
         rules = (rsRules[i] as RulesetCall).eval(context).rules
             ..retainWhere((Node r) {
-                if (r is Rule && r.variable)
+                if (r is Declaration && r.variable)
                     // do not pollute the scope at all
                     return false;
                 return true;
@@ -222,7 +227,7 @@ class Ruleset extends Node
 
           rule.rules.forEach((Node subRule) {
             subRule.copyVisibilityInfo(rule.visibilityInfo());
-            if (!(subRule is Rule) || !(subRule as Rule).variable)
+            if (!(subRule is Declaration) || !(subRule as Declaration).variable)
                 rsRules.insert(++i, subRule);
           });
         }
@@ -241,20 +246,20 @@ class Ruleset extends Node
 
     return ruleset;
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Ruleset.prototype.eval = function (context) {
 //     var thisSelectors = this.selectors, selectors,
 //         selCnt, selector, i, hasOnePassingSelector = false;
 //
 //     if (thisSelectors && (selCnt = thisSelectors.length)) {
-//         selectors = [];
+//         selectors = new Array(selCnt);
 //         defaultFunc.error({
 //             type: "Syntax",
 //             message: "it is currently only allowed in parametric mixin guards,"
 //         });
 //         for (i = 0; i < selCnt; i++) {
 //             selector = thisSelectors[i].eval(context);
-//             selectors.push(selector);
+//             selectors[i] = selector;
 //             if (selector.evaldCondition) {
 //                 hasOnePassingSelector = true;
 //             }
@@ -264,7 +269,7 @@ class Ruleset extends Node
 //         hasOnePassingSelector = true;
 //     }
 //
-//     var rules = this.rules ? this.rules.slice(0) : null,
+//     var rules = this.rules ? utils.copyArray(this.rules) : null,
 //         ruleset = new Ruleset(selectors, rules, this.strictImports, this.visibilityInfo()),
 //         rule, subRule;
 //
@@ -326,7 +331,7 @@ class Ruleset extends Node
 //         if (rsRules[i].type === "MixinCall") {
 //             /*jshint loopfunc:true */
 //             rules = rsRules[i].eval(context).filter(function(r) {
-//                 if ((r instanceof Rule) && r.variable) {
+//                 if ((r instanceof Declaration) && r.variable) {
 //                     // do not pollute the scope if the variable is
 //                     // already there. consider returning false here
 //                     // but we need a way to "return" variable from mixins
@@ -341,7 +346,7 @@ class Ruleset extends Node
 //         } else if (rsRules[i].type === "RulesetCall") {
 //             /*jshint loopfunc:true */
 //             rules = rsRules[i].eval(context).rules.filter(function(r) {
-//                 if ((r instanceof Rule) && r.variable) {
+//                 if ((r instanceof Declaration) && r.variable) {
 //                     // do not pollute the scope at all
 //                     return false;
 //                 }
@@ -373,9 +378,11 @@ class Ruleset extends Node
 //
 //                 for (var j = 0; j < rule.rules.length; j++) {
 //                     subRule = rule.rules[j];
-//                     subRule.copyVisibilityInfo(rule.visibilityInfo());
-//                     if (!(subRule instanceof Rule) || !subRule.variable) {
-//                         rsRules.splice(++i, 0, subRule);
+//                     if (subRule instanceof Node) {
+//                         subRule.copyVisibilityInfo(rule.visibilityInfo());
+//                         if (!(subRule instanceof Declaration) || !subRule.variable) {
+//                             rsRules.splice(++i, 0, subRule);
+//                         }
 //                     }
 //                 }
 //             }
@@ -510,18 +517,23 @@ class Ruleset extends Node
   /// Inserts the [rule] as the first elements of this.rules
   ///
   void prependRule(Node rule) {
-    final List<Node> rules = this.rules;
     if (rules != null) {
       rules.insert(0, rule);
     } else {
-      this.rules = <Node>[rule];
+      rules = <Node>[rule];
     }
+    setParent(rule, this);
 
-//2.3.1
-//  Ruleset.prototype.prependRule = function (rule) {
-//      var rules = this.rules;
-//      if (rules) { rules.unshift(rule); } else { this.rules = [ rule ]; }
-//  };
+//3.0.0 20160714
+// Ruleset.prototype.prependRule = function (rule) {
+//     var rules = this.rules;
+//     if (rules) {
+//         rules.unshift(rule);
+//     } else {
+//         this.rules = [ rule ];
+//     }
+//     this.setParent(rule, this);
+// };
   }
 
   ///
@@ -547,13 +559,14 @@ class Ruleset extends Node
 
     // if it has nested rules, then it should be treated like a ruleset
     // medias and comments do not have nested rules, but should be treated like rulesets anyway
-    // some directives and anonymous nodes are ruleset like, others are not
+    // some atrules and anonymous nodes are ruleset like, others are not
     bool isRulesetLikeNode(Node rule) => rule.isRulesetLike();
 
     int charsetNodeIndex = 0;
     int importNodeIndex = 0;
     for (int i = 0; i < rules.length; i++) {
       rule = rules[i];
+      // Plugins may return something other than Nodes (?)
       if (rule is Comment) {
         if (importNodeIndex == i)
             importNodeIndex++;
@@ -646,130 +659,133 @@ class Ruleset extends Node
     if (!output.isEmpty && !isCompress(context) && firstRoot)
         output.add('\n');
 
-//2.4.0 20150321
-//  Ruleset.prototype.genCSS = function (context, output) {
-//      var i, j,
-//          charsetRuleNodes = [],
-//          ruleNodes = [],
-//          debugInfo,     // Line number debugging
-//          rule,
-//          path;
+//2.8.0 20160702
+// Ruleset.prototype.genCSS = function (context, output) {
+//     var i, j,
+//         charsetRuleNodes = [],
+//         ruleNodes = [],
+//         debugInfo,     // Line number debugging
+//         rule,
+//         path;
 //
-//      context.tabLevel = (context.tabLevel || 0);
+//     context.tabLevel = (context.tabLevel || 0);
 //
-//      if (!this.root) {
-//          context.tabLevel++;
-//      }
+//     if (!this.root) {
+//         context.tabLevel++;
+//     }
 //
-//      var tabRuleStr = context.compress ? '' : Array(context.tabLevel + 1).join("  "),
-//          tabSetStr = context.compress ? '' : Array(context.tabLevel).join("  "),
-//          sep;
+//     var tabRuleStr = context.compress ? '' : Array(context.tabLevel + 1).join("  "),
+//         tabSetStr = context.compress ? '' : Array(context.tabLevel).join("  "),
+//         sep;
 //
-//      function isRulesetLikeNode(rule) {
-//          // if it has nested rules, then it should be treated like a ruleset
-//          // medias and comments do not have nested rules, but should be treated like rulesets anyway
-//          // some directives and anonymous nodes are ruleset like, others are not
-//          if (typeof rule.isRulesetLike === "boolean") {
-//              return rule.isRulesetLike;
-//          } else if (typeof rule.isRulesetLike === "function") {
-//              return rule.isRulesetLike();
-//          }
+//     function isRulesetLikeNode(rule) {
+//         // if it has nested rules, then it should be treated like a ruleset
+//         // medias and comments do not have nested rules, but should be treated like rulesets anyway
+//         // some atrules and anonymous nodes are ruleset like, others are not
+//         if (typeof rule.isRulesetLike === "boolean") {
+//             return rule.isRulesetLike;
+//         } else if (typeof rule.isRulesetLike === "function") {
+//             return rule.isRulesetLike();
+//         }
 //
-//          //anything else is assumed to be a rule
-//          return false;
-//      }
+//         //anything else is assumed to be a rule
+//         return false;
+//     }
 //
-//      var charsetNodeIndex = 0;
-//      var importNodeIndex = 0;
-//      for (i = 0; i < this.rules.length; i++) {
-//          rule = this.rules[i];
-//          if (rule.type === "Comment") {
-//              if (importNodeIndex === i) {
-//                  importNodeIndex++;
-//              }
-//              ruleNodes.push(rule);
-//          } else if (rule.isCharset && rule.isCharset()) {
-//              ruleNodes.splice(charsetNodeIndex, 0, rule);
-//              charsetNodeIndex++;
-//              importNodeIndex++;
-//          } else if (rule.type === "Import") {
-//              ruleNodes.splice(importNodeIndex, 0, rule);
-//              importNodeIndex++;
-//          } else {
-//              ruleNodes.push(rule);
-//          }
-//      }
-//      ruleNodes = charsetRuleNodes.concat(ruleNodes);
+//     var charsetNodeIndex = 0;
+//     var importNodeIndex = 0;
+//     for (i = 0; i < this.rules.length; i++) {
+//         rule = this.rules[i];
+//         // Plugins may return something other than Nodes
+//         if (rule instanceof Node) {
+//             if (rule.type === "Comment") {
+//                 if (importNodeIndex === i) {
+//                     importNodeIndex++;
+//                 }
+//                 ruleNodes.push(rule);
+//             } else if (rule.isCharset && rule.isCharset()) {
+//                 ruleNodes.splice(charsetNodeIndex, 0, rule);
+//                 charsetNodeIndex++;
+//                 importNodeIndex++;
+//             } else if (rule.type === "Import") {
+//                 ruleNodes.splice(importNodeIndex, 0, rule);
+//                 importNodeIndex++;
+//             } else {
+//                 ruleNodes.push(rule);
+//             }
+//         }
+//     }
+//     ruleNodes = charsetRuleNodes.concat(ruleNodes);
 //
-//      // If this is the root node, we don't render
-//      // a selector, or {}.
-//      if (!this.root) {
-//          debugInfo = getDebugInfo(context, this, tabSetStr);
+//     // If this is the root node, we don't render
+//     // a selector, or {}.
+//     if (!this.root) {
+//         debugInfo = getDebugInfo(context, this, tabSetStr);
 //
-//          if (debugInfo) {
-//              output.add(debugInfo);
-//              output.add(tabSetStr);
-//          }
+//         if (debugInfo) {
+//             output.add(debugInfo);
+//             output.add(tabSetStr);
+//         }
 //
-//          var paths = this.paths, pathCnt = paths.length,
-//              pathSubCnt;
+//         var paths = this.paths, pathCnt = paths.length,
+//             pathSubCnt;
 //
-//          sep = context.compress ? ',' : (',\n' + tabSetStr);
+//         sep = context.compress ? ',' : (',\n' + tabSetStr);
 //
-//          for (i = 0; i < pathCnt; i++) {
-//              path = paths[i];
-//              if (!(pathSubCnt = path.length)) { continue; }
-//              if (i > 0) { output.add(sep); }
+//         for (i = 0; i < pathCnt; i++) {
+//             path = paths[i];
+//             if (!(pathSubCnt = path.length)) { continue; }
+//             if (i > 0) { output.add(sep); }
 //
-//              context.firstSelector = true;
-//              path[0].genCSS(context, output);
+//             context.firstSelector = true;
+//             path[0].genCSS(context, output);
 //
-//              context.firstSelector = false;
-//              for (j = 1; j < pathSubCnt; j++) {
-//                  path[j].genCSS(context, output);
-//              }
-//          }
+//             context.firstSelector = false;
+//             for (j = 1; j < pathSubCnt; j++) {
+//                 path[j].genCSS(context, output);
+//             }
+//         }
 //
-//          output.add((context.compress ? '{' : ' {\n') + tabRuleStr);
-//      }
+//         output.add((context.compress ? '{' : ' {\n') + tabRuleStr);
+//     }
 //
-//      // Compile rules and rulesets
-//      for (i = 0; i < ruleNodes.length; i++) {
-//          rule = ruleNodes[i];
+//     // Compile rules and rulesets
+//     for (i = 0; i < ruleNodes.length; i++) {
+//         rule = ruleNodes[i];
 //
-//          if (i + 1 === ruleNodes.length) {
-//              context.lastRule = true;
-//          }
+//         if (i + 1 === ruleNodes.length) {
+//             context.lastRule = true;
+//         }
 //
-//          var currentLastRule = context.lastRule;
-//          if (isRulesetLikeNode(rule)) {
-//              context.lastRule = false;
-//          }
+//         var currentLastRule = context.lastRule;
+//         if (isRulesetLikeNode(rule)) {
+//             context.lastRule = false;
+//         }
 //
-//          if (rule.genCSS) {
-//              rule.genCSS(context, output);
-//          } else if (rule.value) {
-//              output.add(rule.value.toString());
-//          }
+//         if (rule.genCSS) {
+//             rule.genCSS(context, output);
+//         } else if (rule.value) {
+//             output.add(rule.value.toString());
+//         }
 //
-//          context.lastRule = currentLastRule;
+//         context.lastRule = currentLastRule;
 //
-//          if (!context.lastRule) {
-//              output.add(context.compress ? '' : ('\n' + tabRuleStr));
-//          } else {
-//              context.lastRule = false;
-//          }
-//      }
+//         if (!context.lastRule) {
+//             output.add(context.compress ? '' : ('\n' + tabRuleStr));
+//         } else {
+//             context.lastRule = false;
+//         }
+//     }
 //
-//      if (!this.root) {
-//          output.add((context.compress ? '}' : '\n' + tabSetStr + '}'));
-//          context.tabLevel--;
-//      }
+//     if (!this.root) {
+//         output.add((context.compress ? '}' : '\n' + tabSetStr + '}'));
+//         context.tabLevel--;
+//     }
 //
-//      if (!output.isEmpty() && !context.compress && this.firstRoot) {
-//          output.add('\n');
-//      }
-//  };
+//     if (!output.isEmpty() && !context.compress && this.firstRoot) {
+//         output.add('\n');
+//     }
+// };
   }
 
   ///
@@ -816,32 +832,34 @@ class Ruleset extends Node
       paths.add(newPaths[i]);
     }
 
-//2.3.1
+//3.0.0 20160714
 //  Ruleset.prototype.joinSelector = function (paths, context, selector) {
+//   //joinSelector code follows
+//   var i, newPaths, hadParentSelector;
 //
-//      // joinSelector code follows
-//      var i, newPaths, hadParentSelector;
+//   newPaths = [];
+//   hadParentSelector = replaceParentSelector(newPaths, context, selector);
 //
-//      newPaths = [];
-//      hadParentSelector = replaceParentSelector(newPaths, context, selector);
+//   if (!hadParentSelector) {
+//       if (context.length > 0) {
+//           newPaths = [];
+//           for (i = 0; i < context.length; i++) {
 //
-//      if (!hadParentSelector) {
-//          if (context.length > 0) {
-//              newPaths = [];
-//              for (i = 0; i < context.length; i++) {
-//                  newPaths.push(context[i].concat(selector));
-//              }
-//          }
-//          else {
-//              newPaths = [[selector]];
-//          }
-//      }
+//               var concatenated = context[i].map(deriveSelector.bind(this, selector.visibilityInfo()));
 //
-//      for (i = 0; i < newPaths.length; i++) {
-//          paths.push(newPaths[i]);
-//      }
+//               concatenated.push(selector);
+//               newPaths.push(concatenated);
+//           }
+//       }
+//       else {
+//           newPaths = [[selector]];
+//       }
+//   }
 //
-//  };
+//   for (i = 0; i < newPaths.length; i++) {
+//       paths.push(newPaths[i]);
+//   }
+// };
   }
 
   ///
@@ -851,44 +869,46 @@ class Ruleset extends Node
     if (elementsToPak.isEmpty) {
       replacementParen = new Paren(null);
     } else {
-      final List<Element> insideParent = <Element>[];
+      final List<Element> insideParent = <Element>[]; // TODO map?
       for (int j = 0; j < elementsToPak.length; j++) {
         insideParent.add(new Element(null, elementsToPak[j],
-            originalElement.index, originalElement.currentFileInfo));
+            originalElement._index, originalElement._fileInfo));
       }
       replacementParen = new Paren(new Selector(insideParent));
     }
     return replacementParen;
 
-//2.3.1 inside joinSelector
-//      function createParenthesis(elementsToPak, originalElement) {
-//          var replacementParen, j;
-//          if (elementsToPak.length === 0) {
-//              replacementParen = new Paren(elementsToPak[0]);
-//          } else {
-//              var insideParent = [];
-//              for (j = 0; j < elementsToPak.length; j++) {
-//                  insideParent.push(new Element(null, elementsToPak[j], originalElement.index, originalElement.currentFileInfo));
-//              }
-//              replacementParen = new Paren(new Selector(insideParent));
-//          }
-//          return replacementParen;
-//      }
+//inside joinSelector
+//3.0.0 20160714
+// function createParenthesis(elementsToPak, originalElement) {
+//     var replacementParen, j;
+//     if (elementsToPak.length === 0) {
+//         replacementParen = new Paren(elementsToPak[0]);
+//     } else {
+//         var insideParent = new Array(elementsToPak.length);
+//         for (j = 0; j < elementsToPak.length; j++) {
+//             insideParent[j] = new Element(null, elementsToPak[j], originalElement._index, originalElement._fileInfo);
+//         }
+//         replacementParen = new Paren(new Selector(insideParent));
+//     }
+//     return replacementParen;
+// }
   }
 
   ///
   Selector createSelector(Node containedElement, Element originalElement) {
     final Element element = new Element(null, containedElement,
-        originalElement.index, originalElement.currentFileInfo);
+        originalElement._index, originalElement._fileInfo);
     return new Selector(<Element>[element]);
 
-//2.3.1 inside joinSelector
-//      function createSelector(containedElement, originalElement) {
-//          var element, selector;
-//          element = new Element(null, containedElement, originalElement.index, originalElement.currentFileInfo);
-//          selector = new Selector([element]);
-//          return selector;
-//      }
+// inside joinSelector
+//3.0.0 20160714
+// function createSelector(containedElement, originalElement) {
+//     var element, selector;
+//     element = new Element(null, containedElement, originalElement._index, originalElement._fileInfo);
+//     selector = new Selector([element]);
+//     return selector;
+// }
   }
 
   ///
@@ -984,7 +1004,7 @@ class Ruleset extends Node
             // the combinator used on el should now be applied to the next element instead so that
             // it is not lost
             if (sel.isNotEmpty)
-                sel.first.elements.add(new Element(el.combinator, '', el.index, el.currentFileInfo));
+                sel.first.elements.add(new Element(el.combinator, '', el._index, el._fileInfo));
             selectorsMultiplied.add(sel);
           } else {
             // and the parent selectors
@@ -1018,13 +1038,12 @@ class Ruleset extends Node
         newSelectors[i][length - 1] = lastSelector.createDerived(
             lastSelector.elements,
             extendList: inSelector.extendList);
-        //newSelectors[i][length - 1].copyVisibilityInfo(inSelector.visibilityInfo()); //js
       }
     }
 
     return hadParentSelector;
 
-//2.5.3 20151120
+//3.0.0 20160714
 // function replaceParentSelector(paths, context, inSelector) {
 //     // The paths are [[Selector]]
 //     // The first list is a list of comma separated selectors
@@ -1103,7 +1122,7 @@ class Ruleset extends Node
 //                     // the combinator used on el should now be applied to the next element instead so that
 //                     // it is not lost
 //                     if (sel.length > 0) {
-//                         sel[0].elements.push(new Element(el.combinator, '', el.index, el.currentFileInfo));
+//                         sel[0].elements.push(new Element(el.combinator, '', el._index, el._fileInfo));
 //                     }
 //                     selectorsMultiplied.push(sel);
 //                 }
@@ -1135,7 +1154,6 @@ class Ruleset extends Node
 //             paths.push(newSelectors[i]);
 //             lastSelector = newSelectors[i][length - 1];
 //             newSelectors[i][length - 1] = lastSelector.createDerived(lastSelector.elements, inSelector.extendList);
-//             //newSelectors[i][length - 1].copyVisibilityInfo(inSelector.visibilityInfo());
 //         }
 //     }
 //
@@ -1182,8 +1200,8 @@ class Ruleset extends Node
 
       // join the elements so far with the first part of the parent
       newJoinedSelector.elements
-          ..add(new Element(combinator, parentEl.value, replacedElement.index,
-              replacedElement.currentFileInfo))
+          ..add(new Element(combinator, parentEl.value, replacedElement._index,
+              replacedElement._fileInfo))
           ..addAll(addPath.first.elements.sublist(1));
     }
 
@@ -1202,10 +1220,7 @@ class Ruleset extends Node
 
     return newSelectorPath;
 
-//2.5.3 20151213
-// joins selector path from `beginningPath` with selector path in `addPath`
-// `replacedElement` contains element that is being replaced by `addPath`
-// returns concatenated path
+//3.0.0 20160714
 // function addReplacementIntoPath(beginningPath, addPath, replacedElement, originalSelector) {
 //     var newSelectorPath, lastSelector, newJoinedSelector;
 //     // our new selector path
@@ -1214,9 +1229,9 @@ class Ruleset extends Node
 //     //construct the joined selector - if & is the first thing this will be empty,
 //     // if not newJoinedSelector will be the last set of elements in the selector
 //     if (beginningPath.length > 0) {
-//         newSelectorPath = beginningPath.slice(0);
+//         newSelectorPath = utils.copyArray(beginningPath);
 //         lastSelector = newSelectorPath.pop();
-//         newJoinedSelector = originalSelector.createDerived(lastSelector.elements.slice(0));
+//         newJoinedSelector = originalSelector.createDerived(utils.copyArray(lastSelector.elements));
 //     }
 //     else {
 //         newJoinedSelector = originalSelector.createDerived([]);
@@ -1232,7 +1247,7 @@ class Ruleset extends Node
 //             combinator = parentEl.combinator;
 //         }
 //         // join the elements so far with the first part of the parent
-//         newJoinedSelector.elements.push(new Element(combinator, parentEl.value, replacedElement.index, replacedElement.currentFileInfo));
+//         newJoinedSelector.elements.push(new Element(combinator, parentEl.value, replacedElement._index, replacedElement._fileInfo));
 //         newJoinedSelector.elements = newJoinedSelector.elements.concat(addPath[0].elements.slice(1));
 //     }
 //
@@ -1251,6 +1266,7 @@ class Ruleset extends Node
 //     }
 //     return newSelectorPath;
 // }
+
   }
 
   ///
@@ -1408,7 +1424,7 @@ abstract class VariableMixin implements Node {
   Map<String, Node> variables() => _variables ??= (rules == null)
       ? <String, Node>{}
       : rules.fold(<String, Node>{}, (Map<String, Node> hash, Node r) {
-          if (r is Rule && r.variable)
+          if (r is Declaration && r.variable)
               hash[r.name] = r;
 
           // when evaluating variables in an import statement, imports have not been eval'd

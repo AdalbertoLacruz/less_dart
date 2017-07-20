@@ -1,4 +1,4 @@
-//source: less/tree/variable.js 2.5.0
+//source: less/tree/variable.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -12,16 +12,14 @@ class Variable extends Node {
 
   ///
   Variable(String this.name, [int index, FileInfo currentFileInfo])
-    : super.init(index: index) {
-    this.currentFileInfo = currentFileInfo ?? new FileInfo();
+    : super.init(currentFileInfo: currentFileInfo, index: index);
 
-//2.3.1
-//  var Variable = function (name, index, currentFileInfo) {
-//      this.name = name;
-//      this.index = index;
-//      this.currentFileInfo = currentFileInfo || {};
-//  };
-  }
+//3.0.0 20160714
+// var Variable = function (name, index, currentFileInfo) {
+//     this.name = name;
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
+// };
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{
@@ -50,7 +48,7 @@ class Variable extends Node {
     evaluating = true;
 
     final Node variable = find(context.frames, (VariableMixin frame) {
-      final Rule v = frame.variable(name);
+      final Declaration v = frame.variable(name);
       if (v != null) {
         if (v.important.isNotEmpty)
             context.importantScope.last.important = v.important;
@@ -70,43 +68,43 @@ class Variable extends Node {
           context: context));
     }
 
-//2.3.1
-//  Variable.prototype.eval = function (context) {
-//      var variable, name = this.name;
+//3.0.0 20160714
+// Variable.prototype.eval = function (context) {
+//     var variable, name = this.name;
 //
-//      if (name.indexOf('@@') === 0) {
-//          name = '@' + new Variable(name.slice(1), this.index, this.currentFileInfo).eval(context).value;
-//      }
+//     if (name.indexOf('@@') === 0) {
+//         name = '@' + new Variable(name.slice(1), this.getIndex(), this.fileInfo()).eval(context).value;
+//     }
 //
-//      if (this.evaluating) {
-//          throw { type: 'Name',
-//                  message: "Recursive variable definition for " + name,
-//                  filename: this.currentFileInfo.filename,
-//                  index: this.index };
-//      }
+//     if (this.evaluating) {
+//         throw { type: 'Name',
+//                 message: "Recursive variable definition for " + name,
+//                 filename: this.fileInfo().filename,
+//                 index: this.getIndex() };
+//     }
 //
-//      this.evaluating = true;
+//     this.evaluating = true;
 //
-//      variable = this.find(context.frames, function (frame) {
-//          var v = frame.variable(name);
-//          if (v) {
-//              if (v.important) {
-//                  var importantScope = context.importantScope[context.importantScope.length - 1];
-//                  importantScope.important = v.important;
-//              }
-//              return v.value.eval(context);
-//          }
-//      });
-//      if (variable) {
-//          this.evaluating = false;
-//          return variable;
-//      } else {
-//          throw { type: 'Name',
-//                  message: "variable " + name + " is undefined",
-//                  filename: this.currentFileInfo.filename,
-//                  index: this.index };
-//      }
-//  };
+//     variable = this.find(context.frames, function (frame) {
+//         var v = frame.variable(name);
+//         if (v) {
+//             if (v.important) {
+//                 var importantScope = context.importantScope[context.importantScope.length - 1];
+//                 importantScope.important = v.important;
+//             }
+//             return v.value.eval(context);
+//         }
+//     });
+//     if (variable) {
+//         this.evaluating = false;
+//         return variable;
+//     } else {
+//         throw { type: 'Name',
+//                 message: "variable " + name + " is undefined",
+//                 filename: this.fileInfo().filename,
+//                 index: this.getIndex() };
+//     }
+// };
   }
 
   ///

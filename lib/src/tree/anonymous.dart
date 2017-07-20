@@ -1,4 +1,4 @@
-//source: less/tree/anonymous.js 2.6.1 20160305
+//source: less/tree/anonymous.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -24,12 +24,12 @@ class Anonymous extends Node implements CompareNode {
         copyVisibilityInfo(visibilityInfo);
       }
 
-//2.6.1 20160305
+//3.0.0 20160714
 // var Anonymous = function (value, index, currentFileInfo, mapLines, rulesetLike, visibilityInfo) {
 //     this.value = value;
-//     this.index = index;
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
 //     this.mapLines = mapLines;
-//     this.currentFileInfo = currentFileInfo;
 //     this.rulesetLike = (typeof rulesetLike === 'undefined') ? false : rulesetLike;
 //     this.allowRoot = true;
 //     this.copyVisibilityInfo(visibilityInfo);
@@ -43,15 +43,15 @@ class Anonymous extends Node implements CompareNode {
   ///
   @override
   Node eval(Contexts context) => new Anonymous(value,
-      index: index,
-      currentFileInfo: currentFileInfo,
+      index: _index,
+      currentFileInfo: _fileInfo,
       mapLines: mapLines,
       rulesetLike: rulesetLike,
       visibilityInfo: visibilityInfo());
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Anonymous.prototype.eval = function () {
-//     return new Anonymous(this.value, this.index, this.currentFileInfo, this.mapLines, this.rulesetLike, this.visibilityInfo());
+//     return new Anonymous(this.value, this._index, this._fileInfo, this.mapLines, this.rulesetLike, this.visibilityInfo());
 // };
 
 //--- CompareNode
@@ -72,12 +72,12 @@ class Anonymous extends Node implements CompareNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add(value, fileInfo: currentFileInfo, index: index, mapLines: mapLines);
+    output.add(value, fileInfo: _fileInfo, index: _index, mapLines: mapLines);
 
-//2.3.1
-//  Anonymous.prototype.genCSS = function (context, output) {
-//      output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
-//  };
+//3.0.0 20160714
+// Anonymous.prototype.genCSS = function (context, output) {
+//     output.add(this.value, this._fileInfo, this._index, this.mapLines);
+// };
   }
 
   @override

@@ -1,4 +1,4 @@
-//source: less/tree/node.js 2.5.3 20151120
+//source: less/tree/node.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -11,8 +11,6 @@ abstract class Node {
   ///
   CleanCssContext     cleanCss; // Info to optimize the node with cleanCss
   ///
-  FileInfo            currentFileInfo;
-  ///
   DebugInfo           debugInfo;
   ///
   List<Element>       elements;
@@ -23,8 +21,6 @@ abstract class Node {
   ///
   int                 id; // hashCode own or inherited for object compare
   ///
-  int                 index;
-  ///
   bool                isRuleset = false; //true in MixinDefinition & Ruleset
   ///
   bool                nodeVisible;
@@ -32,6 +28,8 @@ abstract class Node {
   List<Node>          operands;
   ///
   Node                originalRuleset; //see mixin_call
+  /// parent Node, used by index and fileInfo.
+  Node                parent;
   ///
   bool                parens = false; //Expression
   ///
@@ -54,12 +52,13 @@ abstract class Node {
 
   ///
   Node.init(
-    {this.currentFileInfo,
-    this.index,
+    {FileInfo currentFileInfo,
+    int index,
     this.operands,
     this.rules,
     this.value}) {
-
+    _fileInfo = currentFileInfo;
+    _index = index;
     id = hashCode;
   }
 
@@ -70,11 +69,89 @@ abstract class Node {
   ///
   String get          type;
 
+  // ---------------------- index
+  int _index;
+  /// returns index from this node or their parent
+  int getIndex() => _index
+      ?? parent?._index;
+      //?? 0;  //return must be null to avoid error detached-ruleset-5
+  ///
+  int get index => getIndex();
+  ///
+  set index(int value) {
+    _index = value;
+  }
+
+//3.0.0 20160714
+// var self = this;
+// Object.defineProperty(this, "index", {
+//   get: function() { return self.getIndex(); }
+// });
+// Node.prototype.getIndex = function() {
+//     return this._index || (this.parent && this.parent.getIndex()) || 0;
+// };
+// ---------------------- index
+
+  // ---------------------- fileInfo
+  FileInfo _fileInfo;
+
+  /// returns fileInfo from this node or their parent
+  FileInfo fileInfo() => _fileInfo
+      ?? parent?._fileInfo
+      ?? new FileInfo();
+  ///
+  FileInfo get currentFileInfo => fileInfo();
+  ///
+  set currentFileInfo(FileInfo value) {
+    _fileInfo = value;
+  }
+
+//3.0.0 20160714
+// Object.defineProperty(this, "currentFileInfo", {
+//     get: function() { return self.fileInfo(); }
+// });
+// Node.prototype.fileInfo = function() {
+//     return this._fileInfo || (this.parent && this.parent.fileInfo()) || {};
+// };
+// ---------------------- fileInfo
+
   /// Directive overrides it
   bool isCharset() => false;
 
   ///
   bool isRulesetLike() => false;
+
+  ///
+  /// Update [parent] property in [nodes]
+  /// [nodes] is Node | List<Node>
+  ///
+  void setParent(dynamic nodes, Node parent) {
+    void set(Node node) {
+      if (node == null)
+          return;
+      node.parent = parent;
+    }
+    if (nodes is List<Node>) {
+      nodes.forEach(set);
+    } else {
+      set(nodes);
+    }
+
+//3.0.0 20160714
+// Node.prototype.setParent = function(nodes, parent) {
+//     function set(node) {
+//         if (node && node instanceof Node) {
+//             node.parent = parent;
+//         }
+//     }
+//     if (Array.isArray(nodes)) {
+//         nodes.forEach(set);
+//     }
+//     else {
+//         set(nodes);
+//     }
+// };
+}
 
   ///
   void throwAwayComments() {}

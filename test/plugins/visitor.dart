@@ -14,9 +14,9 @@ class RemoveProperty extends VisitorBase {
   Ruleset run(Ruleset root) => _visitor.visit(root);
 
   ///returns Node | List<Node>
-  dynamic visitRule(Rule ruleNode, VisitArgs visitArgs) {
-    if (ruleNode.name != '-some-aribitrary-property') {
-      return ruleNode;
+  dynamic visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
+    if (declNode.name != '-some-aribitrary-property') {
+      return declNode;
     } else {
       return <Node>[];
     }
@@ -24,8 +24,8 @@ class RemoveProperty extends VisitorBase {
 
   @override
   Function visitFtn(Node node) {
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
     return null;
   }
 

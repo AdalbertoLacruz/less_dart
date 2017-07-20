@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 2.5.0
+//source: less/tree/dimension.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -24,10 +24,10 @@ class Unit extends Node implements CompareNode {
     if (backupUnit == null && this.numerator.isNotEmpty)
         backupUnit = this.numerator[0];
 
-//2.3.1
+//3.0.0 20160714
 // var Unit = function (numerator, denominator, backupUnit) {
-//     this.numerator = numerator ? numerator.slice(0).sort() : [];
-//     this.denominator = denominator ? denominator.slice(0).sort() : [];
+//     this.numerator = numerator ? utils.copyArray(numerator).sort() : [];
+//     this.denominator = denominator ? utils.copyArray(denominator).sort() : [];
 //     if (backupUnit) {
 //         this.backupUnit = backupUnit;
 //     } else if (numerator && numerator.length) {
@@ -46,10 +46,10 @@ class Unit extends Node implements CompareNode {
   Unit clone() =>
       new Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);
 
-//2.3.1
-//  Unit.prototype.clone = function () {
-//      return new Unit(this.numerator.slice(0), this.denominator.slice(0), this.backupUnit);
-//  };
+//3.0.0 20160714
+// Unit.prototype.clone = function () {
+//     return new Unit(utils.copyArray(this.numerator), utils.copyArray(this.denominator), this.backupUnit);
+// };
 
   ///
   @override

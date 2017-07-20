@@ -1,4 +1,4 @@
-//source: less/tree/condition.js 2.5.0
+//source: less/tree/condition.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -20,6 +20,15 @@ class Condition extends Node {
       {int index, bool this.negate = false})
       : super.init(index: index) {
     this.op = op.trim();
+
+//3.0.0 20160714
+// var Condition = function (op, l, r, i, negate) {
+//   this.op = op.trim();
+//   this.lvalue = l;
+//   this.rvalue = r;
+//   this._index = i;
+//   this.negate = negate;
+// };
   }
 
   /// Fields to show with genTree

@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.5.3 20151120
+//source: less/to-css-visitor.js 2.8.0 20160702
 
 part of visitor.less;
 
@@ -28,14 +28,14 @@ class CSSVisitorUtils extends VisitorBase {
     for (int r = 0; r < bodyRules.length; r++) {
       final Node rule = bodyRules[r];
       if ((rule is SilentNode) && (rule as SilentNode).isSilent(_context) && !rule.blocksVisibility())
-          //the directive contains something that was referenced (likely by extend)
+          //the atRule contains something that was referenced (likely by extend)
           //therefore it needs to be shown in output too
           return true;
     }
 
     return false;
 
-//2.5.3 20151120
+//2.8.0 20160702
 // containsSilentNonBlockedChild: function(bodyRules) {
 //     var rule;
 //     if (bodyRules == null) {
@@ -44,7 +44,7 @@ class CSSVisitorUtils extends VisitorBase {
 //     for (var r = 0; r < bodyRules.length; r++) {
 //         rule = bodyRules[r];
 //         if (rule.isSilent && rule.isSilent(this._context) && !rule.blocksVisibility()) {
-//             //the directive contains something that was referenced (likely by extend)
+//             //the atrule contains something that was referenced (likely by extend)
 //             //therefore it needs to be shown in output too
 //             return true;
 //         }

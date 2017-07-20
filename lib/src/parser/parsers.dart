@@ -1,4 +1,4 @@
-//source: less/parser.js ines 195-end 2.7.0 20160508
+//source: less/parser.js ines 195-end 2.8.0 20160713
 
 part of parser.less;
 
@@ -7,7 +7,7 @@ part of parser.less;
 ///
 /// The basic structure of the syntax tree generated is as follows:
 ///
-///   Ruleset ->  Rule -> Value -> Expression -> Entity
+///   Ruleset ->  Declaration -> Value -> Expression -> Entity
 ///
 /// Here's some Less code:
 ///
@@ -21,9 +21,9 @@ part of parser.less;
 /// And here's what the parse tree might look like:
 ///
 ///     Ruleset (Selector '.class', [
-///         Rule ("color",  Value ([Expression [Color #fff]]))
-///         Rule ("border", Value ([Expression [Dimension 1px][Keyword "solid"][Color #000]]))
-///         Rule ("width",  Value ([Expression [Operation "+" [Variable "@w"][Dimension 4px]]]))
+///         Declaration ("color",  Value ([Expression [Color #fff]]))
+///         Declaration ("border", Value ([Expression [Dimension 1px][Keyword "solid"][Color #000]]))
+///         Declaration ("width",  Value ([Expression [Operation "+" [Variable "@w"][Dimension 4px]]]))
 ///         Ruleset (Selector [Element '>', '.child'], [...])
 ///     ])
 ///
@@ -62,7 +62,7 @@ class Parsers {
   /// rule, which represents `{ ... }`, the `ruleset` rule, and this `primary` rule,
   /// as represented by this simplified grammar:
   ///
-  ///     primary  →  (ruleset | rule)+
+  ///     primary  →  (ruleset | declaration)+
   ///     ruleset  →  selector+ block
   ///     block    →  '{' primary '}'
   ///
@@ -95,12 +95,12 @@ class Parsers {
       }
 
       node = mixin.definition()
-          ?? rule()
+          ?? declaration()
           ?? ruleset()
           ?? mixin.call()
           ?? rulesetCall()
           ?? entities.call()
-          ?? directive();
+          ?? atrule();
 
       if (node != null) {
         root.add(node);
@@ -116,7 +116,7 @@ class Parsers {
 
     return root;
 
-//2.6.1 20160304
+//2.8.0 20160702
 // primary: function () {
 //     var mixin = this.mixin, root = [], node;
 //
@@ -140,8 +140,8 @@ class Parsers {
 //             continue;
 //         }
 //
-//         node = mixin.definition() || this.rule() || this.ruleset() ||
-//             mixin.call() || this.rulesetCall() || this.entities.call() || this.directive();
+//         node = mixin.definition() || this.declaration() || this.ruleset() ||
+//             mixin.call() || this.rulesetCall() || this.entities.call() || this.atrule();
 //         if (node) {
 //             root.push(node);
 //         } else {
@@ -359,7 +359,7 @@ class Parsers {
   }
 
   ///
-  /// A Rule terminator. Note that we use `peek()` to check for '}',
+  /// A Declaration terminator. Note that we use `peek()` to check for '}',
   /// because the `block` rule will be expecting it, but we still need to make sure
   /// it's there, if ';' was omitted.
   ///
@@ -825,7 +825,7 @@ class Parsers {
   }
 
   ///
-  Rule rule({bool tryAnonymous = false}) {
+  Declaration declaration({bool tryAnonymous = false}) {
     final String  c = parserInput.currentChar();
     String        important;
     bool          isVariable;
@@ -867,7 +867,7 @@ class Parsers {
           if (value != null) {
             parserInput.forget();
             // anonymous values absorb the end ';' which is required for them to work
-            return new Rule(name, value,
+            return new Declaration(name, value,
                 important: '',
                 merge: merge,
                 index: startOfRule,
@@ -883,7 +883,7 @@ class Parsers {
 
       if (value != null && end()) {
         parserInput.forget();
-        return new Rule(name, value,
+        return new Declaration(name, value,
             important: important,
             merge: merge,
             index: startOfRule,
@@ -891,7 +891,7 @@ class Parsers {
       } else {
         parserInput.restore();
         if (value != null && !tryAnonymous)
-            return rule(tryAnonymous: true);
+            return declaration(tryAnonymous: true);
       }
     } else {
       parserInput.forget();
@@ -899,64 +899,64 @@ class Parsers {
 
     return null;
 
-//2.4.0 20150315 1739
-//  rule: function (tryAnonymous) {
-//      var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
+//2.8.0 20160702
+// declaration: function (tryAnonymous) {
+//     var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
 //
-//      if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
+//     if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
 //
-//      parserInput.save();
+//     parserInput.save();
 //
-//      name = this.variable() || this.ruleProperty();
-//      if (name) {
-//          isVariable = typeof name === "string";
+//     name = this.variable() || this.ruleProperty();
+//     if (name) {
+//         isVariable = typeof name === "string";
 //
-//          if (isVariable) {
-//              value = this.detachedRuleset();
-//          }
+//         if (isVariable) {
+//             value = this.detachedRuleset();
+//         }
 //
-//          parserInput.commentStore.length = 0;
-//          if (!value) {
-//              // a name returned by this.ruleProperty() is always an array of the form:
-//              // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
-//              // where each item is a tree.Keyword or tree.Variable
-//              merge = !isVariable && name.length > 1 && name.pop().value;
+//         parserInput.commentStore.length = 0;
+//         if (!value) {
+//             // a name returned by this.ruleProperty() is always an array of the form:
+//             // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
+//             // where each item is a tree.Keyword or tree.Variable
+//             merge = !isVariable && name.length > 1 && name.pop().value;
 //
-//              // prefer to try to parse first if its a variable or we are compressing
-//              // but always fallback on the other one
-//              var tryValueFirst = !tryAnonymous && (context.compress || isVariable);
+//             // prefer to try to parse first if its a variable or we are compressing
+//             // but always fallback on the other one
+//             var tryValueFirst = !tryAnonymous && (context.compress || isVariable);
 //
-//              if (tryValueFirst) {
-//                  value = this.value();
-//              }
-//              if (!value) {
-//                  value = this.anonymousValue();
-//                  if (value) {
-//                      parserInput.forget();
-//                      // anonymous values absorb the end ';' which is reequired for them to work
-//                      return new (tree.Rule)(name, value, false, merge, startOfRule, fileInfo);
-//                  }
-//              }
-//              if (!tryValueFirst && !value) {
-//                  value = this.value();
-//              }
+//             if (tryValueFirst) {
+//                 value = this.value();
+//             }
+//             if (!value) {
+//                 value = this.anonymousValue();
+//                 if (value) {
+//                     parserInput.forget();
+//                     // anonymous values absorb the end ';' which is required for them to work
+//                     return new (tree.Declaration)(name, value, false, merge, startOfRule, fileInfo);
+//                 }
+//             }
+//             if (!tryValueFirst && !value) {
+//                 value = this.value();
+//             }
 //
-//              important = this.important();
-//          }
+//             important = this.important();
+//         }
 //
-//          if (value && this.end()) {
-//              parserInput.forget();
-//              return new (tree.Rule)(name, value, important, merge, startOfRule, fileInfo);
-//          } else {
-//              parserInput.restore();
-//              if (value && !tryAnonymous) {
-//                  return this.rule(true);
-//              }
-//          }
-//      } else {
-//          parserInput.forget();
-//      }
-//  },
+//         if (value && this.end()) {
+//             parserInput.forget();
+//             return new (tree.Declaration)(name, value, important, merge, startOfRule, fileInfo);
+//         } else {
+//             parserInput.restore();
+//             if (value && !tryAnonymous) {
+//                 return this.declaration(true);
+//             }
+//         }
+//     } else {
+//         parserInput.forget();
+//     }
+// },
   }
 
   static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@+\/'"*`(;{}-]*);''', caseSensitive: false);
@@ -980,7 +980,7 @@ class Parsers {
   static final RegExp _importRegExp1 = new RegExp(r'@import?\s+', caseSensitive: true);
 
   ///
-  /// An @import directive
+  /// An @import atrule
   ///
   ///     @import "lib";
   ///
@@ -1025,32 +1025,31 @@ class Parsers {
 
     return null;
 
-//2.4.0 20150315
-//  "import": function () {
-//      var path, features, index = parserInput.i;
+//2.8.0 20160702
+// "import": function () {
+//     var path, features, index = parserInput.i;
 //
-//      var dir = parserInput.$re(/^@import?\s+/);
+//     var dir = parserInput.$re(/^@import?\s+/);
 //
-//      if (dir) {
-//          var options = (dir ? this.importOptions() : null) || {};
+//     if (dir) {
+//         var options = (dir ? this.importOptions() : null) || {};
 //
-//          if ((path = this.entities.quoted() || this.entities.url())) {
-//              features = this.mediaFeatures();
+//         if ((path = this.entities.quoted() || this.entities.url())) {
+//             features = this.mediaFeatures();
 //
-//              if (!parserInput.$char(';')) {
-//                  parserInput.i = index;
-//                  error("missing semi-colon or unrecognised media features on import");
-//              }
-//              features = features && new(tree.Value)(features);
-//              return new(tree.Import)(path, features, options, index, fileInfo);
-//          }
-//          else
-//          {
-//              parserInput.i = index;
-//              error("malformed import statement");
-//          }
-//      }
-//  },
+//             if (!parserInput.$char(';')) {
+//                 parserInput.i = index;
+//                 error("missing semi-colon or unrecognised media features on import");
+//             }
+//             features = features && new(tree.Value)(features);
+//             return new(tree.Import)(path, features, options, index, fileInfo);
+//         }
+//         else {
+//             parserInput.i = index;
+//             error("malformed import statement");
+//         }
+//     }
+// },
   }
 
   ///
@@ -1150,7 +1149,7 @@ class Parsers {
         e = value();
         if (parserInput.$char(')') != null) {
           if (p != null && e != null) {
-            nodes.add(new Paren(new Rule(p, e,
+            nodes.add(new Paren(new Declaration(p, e,
               index: parserInput.i,
               currentFileInfo: fileInfo,
               inline: true)));
@@ -1170,7 +1169,7 @@ class Parsers {
         return new Expression(nodes);
     return null;
 
-//2.5.3 20160126
+//2.8.0 20160702
 // mediaFeature: function () {
 //     var entities = this.entities, nodes = [], e, p;
 //     parserInput.save();
@@ -1183,7 +1182,7 @@ class Parsers {
 //             e = this.value();
 //             if (parserInput.$char(')')) {
 //                 if (p && e) {
-//                     nodes.push(new(tree.Paren)(new(tree.Rule)(p, e, null, null, parserInput.i, fileInfo, true)));
+//                     nodes.push(new(tree.Paren)(new(tree.Declaration)(p, e, null, null, parserInput.i, fileInfo, true)));
 //                 } else if (e) {
 //                     nodes.push(new(tree.Paren)(e));
 //                 } else {
@@ -1378,7 +1377,9 @@ class Parsers {
   static final RegExp _pluginRegExp1 = new RegExp(r'@plugin?\s+', caseSensitive: true);
 
   ///
-  /// @plugin "lib";
+  /// A @plugin directive, used to import plugins dynamically.
+  ///     @plugin (args) "lib";
+  ///
   /// Differs implementation. Here is Options and no import
   ///
   Options plugin() {
@@ -1387,48 +1388,100 @@ class Parsers {
 
     final String dir = parserInput.$re(_pluginRegExp1);
     if (dir != null) {
+      final String args = pluginArgs();
       if ((value = entities.quoted()) != null) {
         if (parserInput.$char(';') == null) {
             parserInput
                 ..i = index
-                ..error('missing semi-colon on plugin');
+                ..error('missing semi-colon on @plugin');
         }
         if (value.value.contains('clean-css'))
             context.cleanCss = true; //parser needs this
-        return new Options(value, index, fileInfo, isPlugin: true);
+        return new Options(value, index, fileInfo,
+            isPlugin: true,
+            pluginArgs: args);
       } else {
         parserInput
             ..i = index
-            ..error('malformed plugin statement');
+            ..error('malformed @plugin statement');
       }
     }
     return null;
 
-//2.4.0 20150315
-//  plugin: function () {
-//      var path,
-//          index = parserInput.i,
-//          dir   = parserInput.$re(/^@plugin?\s+/);
+//2.8.0 20160713
+// plugin: function () {
+//     var path, args, options,
+//         index = parserInput.i,
+//         dir   = parserInput.$re(/^@plugin?\s+/);
 //
-//      if (dir) {
-//          var options = { plugin : true };
+//     if (dir) {
+//         args = this.pluginArgs();
 //
-//          if ((path = this.entities.quoted() || this.entities.url())) {
+//         if (args) {
+//             options = {
+//                 pluginArgs: args,
+//                 isPlugin: true
+//             };
+//         }
+//         else {
+//             options = { isPlugin: true };
+//         }
 //
-//              if (!parserInput.$char(';')) {
-//                  parserInput.i = index;
-//                  error("missing semi-colon on plugin");
-//              }
+//         if ((path = this.entities.quoted() || this.entities.url())) {
 //
-//              return new(tree.Import)(path, null, options, index, fileInfo);
-//          }
-//          else
-//          {
-//              parserInput.i = index;
-//              error("malformed plugin statement");
-//          }
-//      }
-//  },
+//             if (!parserInput.$char(';')) {
+//                 parserInput.i = index;
+//                 error("missing semi-colon on @plugin");
+//             }
+//             return new(tree.Import)(path, null, options, index, fileInfo);
+//         }
+//         else {
+//             parserInput.i = index;
+//             error("malformed @plugin statement");
+//         }
+//     }
+// },
+  }
+
+  static final RegExp _pluginArgsRegExp = new RegExp(r'\s*([^\);]+)\)\s*', caseSensitive: true);
+
+  ///
+  /// list of options, surrounded by parens
+  ///      @plugin (args) "lib";
+  ///
+  String pluginArgs() {
+    parserInput.save();
+    if (parserInput.$char('(') == null) {
+      parserInput.restore();
+      return null;
+    }
+    final String args = parserInput.$re(_pluginArgsRegExp);
+    if (args != null) {
+      parserInput.forget();
+      return args.trim();
+    } else {
+      parserInput.restore();
+      return null;
+    }
+
+//2.8.0 20160713
+// pluginArgs: function() {
+//     // list of options, surrounded by parens
+//     parserInput.save();
+//     if (! parserInput.$char('(')) {
+//         parserInput.restore();
+//         return null;
+//     }
+//     var args = parserInput.$re(/^\s*([^\);]+)\)\s*/);
+//     if (args[1]) {
+//         parserInput.forget();
+//         return args[1].trim();
+//     }
+//     else {
+//         parserInput.restore();
+//         return null;
+//     }
+// },
   }
 
   static final RegExp _directiveRegExp1 = new RegExp(r'@[a-z-]+', caseSensitive: true);
@@ -1436,11 +1489,11 @@ class Parsers {
 
 
   ///
-  /// A CSS Directive
+  /// A CSS AtRule
   ///
   ///     @charset "utf-8";
   ///
-  Node directive() {
+  Node atrule() {
     bool      hasBlock = true;
     bool      hasExpression = false;
     bool      hasIdentifier = false;
@@ -1518,16 +1571,16 @@ class Parsers {
 
     if (rules != null || (!hasBlock && value != null && parserInput.$char(';') != null)) {
       parserInput.forget();
-      return new Directive(name, value, rules, index, fileInfo,
+      return new AtRule(name, value, rules, index, fileInfo,
           isNotEmpty(context.dumpLineNumbers) ? getDebugInfo(index) : null,
           isRooted: isRooted);
     }
 
-    parserInput.restore('directive options not recognised');
+    parserInput.restore('at-rule options not recognised');
     return null;
 
-//2.5.3 20160126
-// directive: function () {
+//2.8.0 20160713
+// atrule: function () {
 //     var index = parserInput.i, name, value, rules, nonVendorSpecificName,
 //         hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
 //
@@ -1598,13 +1651,13 @@ class Parsers {
 //
 //     if (rules || (!hasBlock && value && parserInput.$char(';'))) {
 //         parserInput.forget();
-//         return new (tree.Directive)(name, value, rules, index, fileInfo,
+//         return new (tree.AtRule)(name, value, rules, index, fileInfo,
 //             context.dumpLineNumbers ? getDebugInfo(index) : null,
 //             isRooted
 //         );
 //     }
 //
-//     parserInput.restore("directive options not recognised");
+//     parserInput.restore("at-rule options not recognised");
 // },
   }
 

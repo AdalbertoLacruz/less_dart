@@ -1,4 +1,4 @@
-//source: less/tree/comment.js 2.6.1 20160202
+//source: less/tree/comment.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -20,11 +20,12 @@ class Comment extends Node implements SilentNode {
         allowRoot = true;
       }
 
-//2.6.1 20160202
+//3.0.0 20160714
 // var Comment = function (value, isLineComment, index, currentFileInfo) {
 //     this.value = value;
 //     this.isLineComment = isLineComment;
-//     this.currentFileInfo = currentFileInfo;
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
 //     this.allowRoot = true;
 // };
 
@@ -42,13 +43,13 @@ class Comment extends Node implements SilentNode {
         output.add(debugInfo.toOutput(context), fileInfo: currentFileInfo, index: index);
     output.add(value);
 
-//2.2.0
-//    Comment.prototype.genCSS = function (context, output) {
-//        if (this.debugInfo) {
-//            output.add(getDebugInfo(context, this), this.currentFileInfo, this.index);
-//        }
-//        output.add(this.value);
-//    };
+//3.0.0 20160714
+// Comment.prototype.genCSS = function (context, output) {
+//     if (this.debugInfo) {
+//         output.add(getDebugInfo(context, this), this.fileInfo(), this.getIndex());
+//     }
+//     output.add(this.value);
+// };
   }
 
   ///

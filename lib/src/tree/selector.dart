@@ -1,10 +1,10 @@
-//source: less/tree/selector.js 2.5.3 20151120
+//source: less/tree/selector.js 3.0.0 20160714
 
 part of tree.less;
 
 ///
 /// Selectors such as body, h1, ...
-/// 
+///
 class Selector extends Node {
   @override final String type = 'Selector';
 
@@ -28,24 +28,27 @@ class Selector extends Node {
       int index,
       FileInfo currentFileInfo,
       VisibilityInfo visibilityInfo})
-      : super.init(index: index) {
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
-    this.currentFileInfo = currentFileInfo ?? new FileInfo();
+    //this.currentFileInfo = currentFileInfo ?? new FileInfo();
     if (condition == null)
         evaldCondition = true;
     copyVisibilityInfo(visibilityInfo);
+    setParent(this.elements, this);
 
-//2.5.3 20151120
+//3.0.0 20160714
 // var Selector = function (elements, extendList, condition, index, currentFileInfo, visibilityInfo) {
 //     this.elements = elements;
 //     this.extendList = extendList;
 //     this.condition = condition;
-//     this.currentFileInfo = currentFileInfo || {};
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
 //     if (!condition) {
 //         this.evaldCondition = true;
 //     }
 //     this.copyVisibilityInfo(visibilityInfo);
+//     this.setParent(this.elements, this);
 // };
   }
 
@@ -100,11 +103,11 @@ class Selector extends Node {
           ..evaldCondition = evaldCondition ?? this.evaldCondition
           ..mediaEmpty = mediaEmpty;
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
 //     var info = this.visibilityInfo();
 //     evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
-//     var newSelector = new Selector(elements, extendList || this.extendList, null, this.index, this.currentFileInfo, info);
+//     var newSelector = new Selector(elements, extendList || this.extendList, null, this.getIndex(), this.fileInfo(), info);
 //     newSelector.evaldCondition = evaldCondition;
 //     newSelector.mediaEmpty = this.mediaEmpty;
 //     return newSelector;
@@ -112,22 +115,22 @@ class Selector extends Node {
 
   ///
   List<Selector> createEmptySelectors() {
-    final Element el = new Element('', '&', index, currentFileInfo);
+    final Element el = new Element('', '&', _index, _fileInfo);
     final List<Selector> sels = <Selector>[
       new Selector(<Element>[el],
-        index: index,
-        currentFileInfo: currentFileInfo)
+        index: _index,
+        currentFileInfo: _fileInfo)
     ];
     sels[0].mediaEmpty = true;
     return sels;
 
-//2.4.0+
-//  Selector.prototype.createEmptySelectors = function() {
-//      var el = new Element('', '&', this.index, this.currentFileInfo),
-//          sels = [new Selector([el], null, null, this.index, this.currentFileInfo)];
-//      sels[0].mediaEmpty = true;
-//      return sels;
-//  };
+//3.0.0 20160714
+// Selector.prototype.createEmptySelectors = function() {
+//     var el = new Element('', '&', this._index, this._fileInfo),
+//         sels = [new Selector([el], null, null, this._index, this._fileInfo)];
+//     sels[0].mediaEmpty = true;
+//     return sels;
+// };
   }
 
   ///
@@ -299,20 +302,20 @@ class Selector extends Node {
       }
     }
 
-//2.3.1
-//  Selector.prototype.genCSS = function (context, output) {
-//      var i, element;
-//      if ((!context || !context.firstSelector) && this.elements[0].combinator.value === "") {
-//          output.add(' ', this.currentFileInfo, this.index);
-//      }
-//      if (!this._css) {
-//          //todo caching? speed comparison?
-//          for(i = 0; i < this.elements.length; i++) {
-//              element = this.elements[i];
-//              element.genCSS(context, output);
-//          }
-//      }
-//  };
+//3.0.0 20160714
+// Selector.prototype.genCSS = function (context, output) {
+//     var i, element;
+//     if ((!context || !context.firstSelector) && this.elements[0].combinator.value === "") {
+//         output.add(' ', this.fileInfo(), this.getIndex());
+//     }
+//     if (!this._css) {
+//         //TODO caching? speed comparison?
+//         for (i = 0; i < this.elements.length; i++) {
+//             element = this.elements[i];
+//             element.genCSS(context, output);
+//         }
+//     }
+// };
   }
 
   ///

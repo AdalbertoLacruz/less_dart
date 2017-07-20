@@ -28,8 +28,8 @@ class Less {
   ///
   bool          continueProcessing = true;
 
-  ///
-  int           currentErrorCode = 0;
+  /// process.exitCode to console
+  int           exitCode = 0;
 
   /// return list of imported files
   List<String>  imports = <String>[];
@@ -74,12 +74,12 @@ class Less {
   ///
   Future<int> transform(List<String> args, {Function modifyOptions}) {
     if (!argsFilter(args)) {
-      currentErrorCode = _options.parseError ? 1 : 0;
-      return new Future<int>.value(currentErrorCode);
+      exitCode = _options.parseError ? 1 : 0;
+      return new Future<int>.value(exitCode);
     }
     if (!_options.validate()) {
-      currentErrorCode = _options.parseError ? 1 : 0;
-      return new Future<int>.value(currentErrorCode);
+      exitCode = _options.parseError ? 1 : 0;
+      return new Future<int>.value(exitCode);
     }
 
     if (modifyOptions != null)
@@ -95,8 +95,8 @@ class Less {
       final File file = new File(filename);
       if (!file.existsSync()) {
         logger.error('Error cannot open file ${_options.input}');
-        currentErrorCode = 3;
-        return new Future<int>.value(currentErrorCode);
+        exitCode = 3;
+        return new Future<int>.value(exitCode);
       }
 
       return file
@@ -104,8 +104,8 @@ class Less {
           .then((String content) => parseLessFile(content))
           .catchError((dynamic e) {
             logger.error('Error reading ${_options.input}');
-            currentErrorCode = 3;
-            return new Future<int>.value(currentErrorCode);
+            exitCode = 3;
+            return new Future<int>.value(exitCode);
           });
     } else {
       return parseLessFile(stdin.toString());
@@ -128,7 +128,7 @@ class Less {
       }
       if ((match = regOption.firstMatch(arg)) != null) {
         if (continueProcessing)
-            continueProcessing =   _options.parse(match);
+            continueProcessing = _options.parse(match);
         return;
       }
       if (_options.input == '') {
@@ -148,13 +148,13 @@ class Less {
       RenderResult result;
 
       if (tree == null)
-          return new Future<int>.value(currentErrorCode);
+          return new Future<int>.value(exitCode);
 
       //debug
       if (_options.showTreeLevel == 0) {
         final String css = tree.toTree(_options).toString();
         stdout.write(css);
-        return new Future<int>.value(currentErrorCode);
+        return new Future<int>.value(exitCode);
       }
 
       try {
@@ -166,22 +166,22 @@ class Less {
 
       } on LessExceptionError catch (e) {
         logger.error(e.toString());
-        currentErrorCode = 2;
-        return new Future<int>.value(currentErrorCode);
+        exitCode = 2;
+        return new Future<int>.value(exitCode);
       }
 
-      return new Future<int>.value(currentErrorCode);
+      return new Future<int>.value(exitCode);
     }).catchError((dynamic e) {
       logger.error(e.toString());
-      currentErrorCode = 1;
-      return new Future<int>.value(currentErrorCode);
+      exitCode = 1;
+      return new Future<int>.value(exitCode);
     });
   }
 
   /// Writes css file, map file and dependencies
   void writeOutput(String output, RenderResult result, LessOptions options) {
     //if (option.depends) return //??
-    
+
     //css
     if (output.isNotEmpty) {
       writeFile(output, result.css);
@@ -197,7 +197,7 @@ class Less {
     if (options.depends)
         logger.log('${options.outputBase}: ${result.imports.join(' ')}');
 
-//2.6.1 20160412
+//2.7.1 20160503
 // var writeOutput = function(output, result, onSuccess) {
 //     if (options.depends) {
 //         onSuccess();
@@ -213,6 +213,7 @@ class Less {
 //                 }
 //                 console.error('lessc: failed to create file ' + output);
 //                 console.error(description);
+//                 process.exitCode = 1;
 //             } else {
 //                 less.logger.info('lessc: wrote ' + output);
 //                 onSuccess();

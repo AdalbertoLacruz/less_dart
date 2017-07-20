@@ -1,4 +1,4 @@
-//source: less/transform.tree.js 2.5.3 20151120
+//source: less/transform.tree.js 2.8.0 20160702
 
 part of render.less;
 
@@ -18,7 +18,7 @@ class TransformTree {
     //
     // variables = {'my-color': new Color('ff0000')}; will become:
     //
-    //   new Rule('@my-color',
+    //   new Declaration('@my-color',
     //     new Value([
     //       new Expression)([
     //         new Color('ff0000')
@@ -34,8 +34,8 @@ class TransformTree {
               value = new Expression(<Node>[value]);
           value = new Value(<Node>[value]);
         }
-        //vars.add(new Rule('@' + k, value, null, null, 0));
-        vars.add(new Rule('@$k', value,
+        //vars.add(new Declaration('@' + k, value, null, null, 0));
+        vars.add(new Declaration('@$k', value,
             index: 0));
       });
       evalEnv.frames = <Node>[new Ruleset(null, vars)];

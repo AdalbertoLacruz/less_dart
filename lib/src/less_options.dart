@@ -387,8 +387,7 @@ class LessOptions {
           plugins.add(plugin);
         } else {
           logger.error('Unable to load plugin $name please make sure that it is installed\n');
-          //printUsage();
-          parseError = true;
+          parseError = true; // exitCode = 1
           return false;
         }
         break;
@@ -397,9 +396,8 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to interpret argument $command\nif it is a plugin (less-plugin-$command), make sure that it is installed under or at the same level as less\n');
-          //printUsage();
-          parseError = true;
+          logger.error('Unable to interpret argument $command\nif it is a plugin (less-plugin-$command), make sure that it is installed\n');
+          parseError = true; // exitCode = 1
           return false;
         }
     }
@@ -410,7 +408,7 @@ class LessOptions {
   bool setParseError([String option]) {
     if (option != null)
         logger.error('unrecognised less option $option');
-    parseError = true;
+    parseError = true; // exitCode = 1
     return false;
   }
 
@@ -507,8 +505,9 @@ class LessOptions {
       if (sourceMapOptions.sourceMapFullFilename.isEmpty) {
         if (output.isEmpty && !sourceMapOptions.sourceMapFileInline) {
           logger
-              ..log('the sourcemap option only has an optional filename if the css filename is given')
-              ..log('consider adding --source-map-map-inline which embeds the sourcemap into the css');
+              ..error('the sourcemap option only has an optional filename if the css filename is given')
+              ..error('consider adding --source-map-map-inline which embeds the sourcemap into the css');
+          parseError = true;
           return false;
         }
 

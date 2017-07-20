@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.5.0 lines 13-89
+// source: less/extend-visitor.js lines 13-89 3.0.0 20160714
 
 part of visitor.less;
 
@@ -43,13 +43,13 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  void visitRule(Rule ruleNode, VisitArgs visitArgs) {
+  void visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
-//2.3.1
-//  visitRule: function (ruleNode, visitArgs) {
-//      visitArgs.visitDeeper = false;
-//  },
+//2.8.0 20160702
+// visitDeclaration: function (declNode, visitArgs) {
+//     visitArgs.visitDeeper = false;
+// },
   }
 
   ///
@@ -111,52 +111,52 @@ class ExtendFinderVisitor extends VisitorBase {
 
     contexts.add(rulesetNode.selectors);
 
-//2.3.1
-//  visitRuleset: function (rulesetNode, visitArgs) {
-//      if (rulesetNode.root) {
-//          return;
-//      }
+//3.0.0 20150714
+// visitRuleset: function (rulesetNode, visitArgs) {
+//     if (rulesetNode.root) {
+//         return;
+//     }
 //
-//      var i, j, extend, allSelectorsExtendList = [], extendList;
+//     var i, j, extend, allSelectorsExtendList = [], extendList;
 //
-//      // get &:extend(.a); rules which apply to all selectors in this ruleset
-//      var rules = rulesetNode.rules, ruleCnt = rules ? rules.length : 0;
-//      for(i = 0; i < ruleCnt; i++) {
-//          if (rulesetNode.rules[i] instanceof tree.Extend) {
-//              allSelectorsExtendList.push(rules[i]);
-//              rulesetNode.extendOnEveryPath = true;
-//          }
-//      }
+//     // get &:extend(.a); rules which apply to all selectors in this ruleset
+//     var rules = rulesetNode.rules, ruleCnt = rules ? rules.length : 0;
+//     for (i = 0; i < ruleCnt; i++) {
+//         if (rulesetNode.rules[i] instanceof tree.Extend) {
+//             allSelectorsExtendList.push(rules[i]);
+//             rulesetNode.extendOnEveryPath = true;
+//         }
+//     }
 //
-//      // now find every selector and apply the extends that apply to all extends
-//      // and the ones which apply to an individual extend
-//      var paths = rulesetNode.paths;
-//      for(i = 0; i < paths.length; i++) {
-//          var selectorPath = paths[i],
-//              selector = selectorPath[selectorPath.length - 1],
-//              selExtendList = selector.extendList;
+//     // now find every selector and apply the extends that apply to all extends
+//     // and the ones which apply to an individual extend
+//     var paths = rulesetNode.paths;
+//     for (i = 0; i < paths.length; i++) {
+//         var selectorPath = paths[i],
+//             selector = selectorPath[selectorPath.length - 1],
+//             selExtendList = selector.extendList;
 //
-//          extendList = selExtendList ? selExtendList.slice(0).concat(allSelectorsExtendList)
-//                                     : allSelectorsExtendList;
+//         extendList = selExtendList ? utils.copyArray(selExtendList).concat(allSelectorsExtendList)
+//                                    : allSelectorsExtendList;
 //
-//          if (extendList) {
-//              extendList = extendList.map(function(allSelectorsExtend) {
-//                  return allSelectorsExtend.clone();
-//              });
-//          }
+//         if (extendList) {
+//             extendList = extendList.map(function(allSelectorsExtend) {
+//                 return allSelectorsExtend.clone();
+//             });
+//         }
 //
-//          for(j = 0; j < extendList.length; j++) {
-//              this.foundExtends = true;
-//              extend = extendList[j];
-//              extend.findSelfSelectors(selectorPath);
-//              extend.ruleset = rulesetNode;
-//              if (j === 0) { extend.firstExtendOnThisSelectorPath = true; }
-//              this.allExtendsStack[this.allExtendsStack.length - 1].push(extend);
-//          }
-//      }
+//         for (j = 0; j < extendList.length; j++) {
+//             this.foundExtends = true;
+//             extend = extendList[j];
+//             extend.findSelfSelectors(selectorPath);
+//             extend.ruleset = rulesetNode;
+//             if (j === 0) { extend.firstExtendOnThisSelectorPath = true; }
+//             this.allExtendsStack[this.allExtendsStack.length - 1].push(extend);
+//         }
+//     }
 //
-//      this.contexts.push(rulesetNode.selectors);
-//  },
+//     this.contexts.push(rulesetNode.selectors);
+// },
   }
 
   ///
@@ -195,38 +195,42 @@ class ExtendFinderVisitor extends VisitorBase {
   }
 
   ///
-  void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    directiveNode.allExtends = <Extend>[];
-    allExtendsStack.add(directiveNode.allExtends);
+  void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
+    atRuleNode.allExtends = <Extend>[];
+    allExtendsStack.add(atRuleNode.allExtends);
 
-//2.3.1
-//  visitDirective: function (directiveNode, visitArgs) {
-//      directiveNode.allExtends = [];
-//      this.allExtendsStack.push(directiveNode.allExtends);
-//  },
+//2.8.0 20160702
+// visitAtRule: function (atRuleNode, visitArgs) {
+//     atRuleNode.allExtends = [];
+//     this.allExtendsStack.push(atRuleNode.allExtends);
+// },
   }
 
   ///
-  void visitDirectiveOut(Directive directiveNode) {
+  void visitAtRuleOut(AtRule atRuleNode) {
     allExtendsStack.removeLast();
 
-//2.3.1
-//  visitDirectiveOut: function (directiveNode) {
-//      this.allExtendsStack.length = this.allExtendsStack.length - 1;
-//  }
+//2.8.0 20160702
+// visitAtRuleOut: function (atRuleNode) {
+//     this.allExtendsStack.length = this.allExtendsStack.length - 1;
+// }
   }
 
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media)
-        return visitMedia; //before Directive
-    if (node is Directive)
-        return visitDirective;
+    if (node is Media) //before AtRule
+        return visitMedia;
+    if (node is AtRule)
+        return visitAtRule;
+    if (node is Directive) //compatibility old node type
+        return visitAtRule;
     if (node is MixinDefinition)
         return visitMixinDefinition;
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
+    if (node is Rule)  //compatibility old node type
+        return visitDeclaration;
     if (node is Ruleset)
         return visitRuleset;
 
@@ -236,10 +240,12 @@ class ExtendFinderVisitor extends VisitorBase {
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Media)
-        return visitMediaOut; //before Directive
-    if (node is Directive)
-        return visitDirectiveOut;
+    if (node is Media) //before Directive
+        return visitMediaOut;
+    if (node is AtRule)
+        return visitAtRuleOut;
+    if (node is Directive) //compatibility old node type
+        return visitAtRuleOut;
     if (node is Ruleset)
         return visitRulesetOut;
 

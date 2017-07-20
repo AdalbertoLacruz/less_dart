@@ -1,4 +1,4 @@
-//source: tree/mixin-call.js 2.6.0 20160202
+//source: tree/mixin-call.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -21,15 +21,17 @@ class MixinCall extends Node {
     selector = new Selector(elements);
     arguments = args ?? <MixinArgs>[];
     allowRoot = true;
+    setParent(selector, this);
 
-//2.6.1 20160202
+//3.0.0 20160714
 // var MixinCall = function (elements, args, index, currentFileInfo, important) {
 //     this.selector = new Selector(elements);
 //     this.arguments = args || [];
-//     this.index = index;
-//     this.currentFileInfo = currentFileInfo;
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
 //     this.important = important;
 //     this.allowRoot = true;
+//     this.setParent(this.selector, this);
 // };
   }
 
@@ -236,7 +238,7 @@ class MixinCall extends Node {
       ));
     }
 
-//2.5.3 20151120
+//3.0.0 20160714
 // MixinCall.prototype.eval = function (context) {
 //     var mixins, mixin, mixinPath, args = [], arg, argValue,
 //         rules = [], match = false, i, m, f, isRecursive, isOneFound,
@@ -333,7 +335,7 @@ class MixinCall extends Node {
 //                 if ((count[defTrue] + count[defFalse]) > 1) {
 //                     throw { type: 'Runtime',
 //                         message: 'Ambiguous use of `default()` found when matching for `' + this.format(args) + '`',
-//                         index: this.index, filename: this.currentFileInfo.filename };
+//                         index: this.getIndex(), filename: this.fileInfo().filename };
 //                 }
 //             }
 //
@@ -351,7 +353,7 @@ class MixinCall extends Node {
 //                         this._setVisibilityToReplacement(newRules);
 //                         Array.prototype.push.apply(rules, newRules);
 //                     } catch (e) {
-//                         throw { message: e.message, index: this.index, filename: this.currentFileInfo.filename, stack: e.stack };
+//                         throw { message: e.message, index: this.getIndex(), filename: this.fileInfo().filename, stack: e.stack };
 //                     }
 //                 }
 //             }
@@ -364,11 +366,11 @@ class MixinCall extends Node {
 //     if (isOneFound) {
 //         throw { type:    'Runtime',
 //             message: 'No matching definition was found for `' + this.format(args) + '`',
-//             index:   this.index, filename: this.currentFileInfo.filename };
+//             index:   this.getIndex(), filename: this.fileInfo().filename };
 //     } else {
 //         throw { type:    'Name',
 //             message: this.selector.toCSS().trim() + " is undefined",
-//             index:   this.index, filename: this.currentFileInfo.filename };
+//             index:   this.getIndex(), filename: this.fileInfo().filename };
 //     }
 // };
   }

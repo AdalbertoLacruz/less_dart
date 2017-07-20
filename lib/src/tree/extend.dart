@@ -1,4 +1,4 @@
-//source: less/tree/extend.js 2.6.1 20160304
+//source: less/tree/extend.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -51,15 +51,16 @@ class Extend extends Node {
         allowAfter = false;
         break;
     }
+    setParent(selector, this);
 
-//2.6.1 20160304
+//3.0.0 20160714
 // var Extend = function Extend(selector, option, index, currentFileInfo, visibilityInfo) {
 //     this.selector = selector;
 //     this.option = option;
-//     this.index = index;
 //     this.object_id = Extend.next_id++;
 //     this.parent_ids = [this.object_id];
-//     this.currentFileInfo = currentFileInfo || {};
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
 //     this.copyVisibilityInfo(visibilityInfo);
 //     this.allowRoot = true;
 //
@@ -73,6 +74,7 @@ class Extend extends Node {
 //             this.allowAfter = false;
 //             break;
 //     }
+//     this.setParent(this.selector, this);
 // };
   }
 
@@ -98,9 +100,9 @@ class Extend extends Node {
   Extend eval(Contexts context) =>
       new Extend(selector.eval(context), option, index, currentFileInfo, visibilityInfo());
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Extend.prototype.eval = function (context) {
-//     return new Extend(this.selector.eval(context), this.option, this.index, this.currentFileInfo, this.visibilityInfo());
+//     return new Extend(this.selector.eval(context), this.option, this.getIndex(), this.fileInfo(), this.visibilityInfo());
 // };
 
   ///
@@ -108,9 +110,9 @@ class Extend extends Node {
   Node clone() =>
       new Extend(selector, option, index, currentFileInfo, visibilityInfo());
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Extend.prototype.clone = function (context) {
-//     return new Extend(this.selector, this.option, this.index, this.currentFileInfo, this.visibilityInfo());
+//     return new Extend(this.selector, this.option, this.getIndex(), this.fileInfo(), this.visibilityInfo());
 // };
 
   ///

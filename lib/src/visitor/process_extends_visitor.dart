@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js 2.6.1 20160401 lines 91-451
+// source: less/extend-visitor.js lines 91-451 3.0.0 20160714
 
 part of visitor.less;
 
@@ -207,7 +207,7 @@ class ProcessExtendsVisitor extends VisitorBase {
       return extendsToAdd;
     }
 
-//2.5.3 20151120
+//3.0.0 20160714
 // doExtendChaining: function (extendsList, extendsListTarget, iterationCount) {
 //     //
 //     // chaining is different from normal extension.. if we extend an extend then we are not just copying, altering
@@ -227,7 +227,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 //     // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
 //     // e.g.  .a:extend(.b) {}  and .b:extend(.c) {} then the first extend extends the second one
 //     // and the second is the target.
-//     // the seperation into two lists allows us to process a subset of chains with a bigger set, as is the
+//     // the separation into two lists allows us to process a subset of chains with a bigger set, as is the
 //     // case when processing media queries
 //     for (extendIndex = 0; extendIndex < extendsList.length; extendIndex++) {
 //         for (targetExtendIndex = 0; targetExtendIndex < extendsListTarget.length; targetExtendIndex++) {
@@ -253,7 +253,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 //                     newSelector = extendVisitor.extendSelector(matches, selectorPath, selfSelector, extend.isVisible());
 //
 //                     // but now we create a new extend from it
-//                     newExtend = new(tree.Extend)(targetExtend.selector, targetExtend.option, 0, targetExtend.currentFileInfo, info);
+//                     newExtend = new(tree.Extend)(targetExtend.selector, targetExtend.option, 0, targetExtend.fileInfo(), info);
 //                     newExtend.selfSelectors = newSelector;
 //
 //                     // add the extend onto the list of extends for that selector
@@ -304,13 +304,13 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  void visitRule(Rule ruleNode, VisitArgs visitArgs) {
+  void visitDeclaration(Declaration declarationNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
-//2.3.1
-//  visitRule: function (ruleNode, visitArgs) {
-//      visitArgs.visitDeeper = false;
-//  },
+//2.8.0 20160702
+// visitDeclaration: function (ruleNode, visitArgs) {
+//     visitArgs.visitDeeper = false;
+// },
   }
 
   ///
@@ -728,7 +728,7 @@ class ProcessExtendsVisitor extends VisitorBase {
       })
       .toList();
 
-//2.5.3 20151120
+//3.0.0 20160714
 // extendSelector:function (matches, selectorPath, replacementSelector, isVisible) {
 //
 //     //for a set of matches, replace each match with the replacement selector
@@ -748,8 +748,8 @@ class ProcessExtendsVisitor extends VisitorBase {
 //         firstElement = new tree.Element(
 //             match.initialCombinator,
 //             replacementSelector.elements[0].value,
-//             replacementSelector.elements[0].index,
-//             replacementSelector.elements[0].currentFileInfo
+//             replacementSelector.elements[0].getIndex(),
+//             replacementSelector.elements[0].fileInfo()
 //         );
 //
 //         if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
@@ -830,30 +830,30 @@ class ProcessExtendsVisitor extends VisitorBase {
   }
 
   ///
-  void visitDirective(Directive directiveNode, VisitArgs visitArgs) {
-    final List<Extend> newAllExtends = directiveNode.allExtends.sublist(0)
+  void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
+    final List<Extend> newAllExtends = atRuleNode.allExtends.sublist(0)
         ..addAll(allExtendsStack.last);
     newAllExtends
-        .addAll(doExtendChaining(newAllExtends, directiveNode.allExtends));
+        .addAll(doExtendChaining(newAllExtends, atRuleNode.allExtends));
     allExtendsStack.add(newAllExtends);
 
-//2.3.1
-//  visitDirective: function (directiveNode, visitArgs) {
-//      var newAllExtends = directiveNode.allExtends.concat(this.allExtendsStack[this.allExtendsStack.length - 1]);
-//      newAllExtends = newAllExtends.concat(this.doExtendChaining(newAllExtends, directiveNode.allExtends));
-//      this.allExtendsStack.push(newAllExtends);
-//  },
+//2.8.0 20160702
+// visitAtRule: function (atRuleNode, visitArgs) {
+//     var newAllExtends = atRuleNode.allExtends.concat(this.allExtendsStack[this.allExtendsStack.length - 1]);
+//     newAllExtends = newAllExtends.concat(this.doExtendChaining(newAllExtends, atRuleNode.allExtends));
+//     this.allExtendsStack.push(newAllExtends);
+// },
   }
 
   ///
-  void visitDirectiveOut(Directive directiveNode) {
+  void visitAtRuleOut(AtRule atRuleNode) {
     allExtendsStack.removeLast();
 
-//2.4.0+4
-//  visitDirectiveOut: function (directiveNode) {
-//      var lastIndex = this.allExtendsStack.length - 1;
-//      this.allExtendsStack.length = lastIndex;
-//  }
+//2.8.0 20160702
+// visitAtRuleOut: function (atRuleNode) {
+//     var lastIndex = this.allExtendsStack.length - 1;
+//     this.allExtendsStack.length = lastIndex;
+// }
   }
 
   /// func visitor.visit distribuitor
@@ -861,12 +861,16 @@ class ProcessExtendsVisitor extends VisitorBase {
   Function visitFtn(Node node) {
     if (node is Media)
         return visitMedia;
-    if (node is Directive)
-        return visitDirective;
+    if (node is AtRule)
+        return visitAtRule;
+    if (node is Directive) //compatibility old node type
+        return visitAtRule;
     if (node is MixinDefinition)
         return visitMixinDefinition;
-    if (node is Rule)
-        return visitRule;
+    if (node is Declaration)
+        return visitDeclaration;
+    if (node is Rule) //compatibility old node type
+        return visitDeclaration;
     if (node is Ruleset)
         return visitRuleset;
     if (node is Selector)
@@ -879,8 +883,10 @@ class ProcessExtendsVisitor extends VisitorBase {
   Function visitFtnOut(Node node) {
     if (node is Media)
         return visitMediaOut;
-    if (node is Directive)
-        return visitDirectiveOut;
+    if (node is AtRule)
+        return visitAtRuleOut;
+    if (node is Directive) //compatibility old node type
+        return visitAtRuleOut;
     return null;
   }
 }

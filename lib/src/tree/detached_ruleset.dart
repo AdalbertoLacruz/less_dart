@@ -1,4 +1,4 @@
-//source: less/tree/detached-ruleset.js 2.4.0
+//source: less/tree/detached-ruleset.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -14,6 +14,14 @@ class DetachedRuleset extends Node {
   ///
   DetachedRuleset(this.ruleset, [this.frames]) {
     evalFirst = true;
+    setParent(ruleset, this);
+
+//3.0.0 20160714
+// var DetachedRuleset = function (ruleset, frames) {
+//     this.ruleset = ruleset;
+//     this.frames = frames;
+//     this.setParent(this.ruleset, this);
+// };
   }
 
   /// Fields to show with genTree
@@ -38,11 +46,11 @@ class DetachedRuleset extends Node {
   DetachedRuleset eval(Contexts context) =>
       new DetachedRuleset(ruleset, frames ?? context.frames.sublist(0));
 
-//2.3.1
-//  DetachedRuleset.prototype.eval = function (context) {
-//      var frames = this.frames || context.frames.slice(0);
-//      return new DetachedRuleset(this.ruleset, frames);
-//  };
+//3.0.0 20160714
+// DetachedRuleset.prototype.eval = function (context) {
+//     var frames = this.frames || utils.copyArray(context.frames);
+//     return new DetachedRuleset(this.ruleset, frames);
+// };
 
   ///
   Ruleset callEval(Contexts context) {

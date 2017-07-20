@@ -4,13 +4,15 @@ part of tree.less;
 
 ///
 /// @options "--flags" directive
-/// @plugin "plugin-name"
+/// @plugin (args) "plugin-name"
 ///
 class Options extends Node {
   @override final String      name = null;
   @override final String      type = 'Options';
   @override covariant Quoted  value;
 
+  /// args in  `@plugin (args) "lib"`;
+  String              pluginArgs;
   ///
   List<FunctionBase>  functions;
   ///
@@ -18,7 +20,7 @@ class Options extends Node {
 
   ///
   Options(Quoted this.value, int index, FileInfo currentFileInfo,
-      {bool this.isPlugin: false})
+      {bool this.isPlugin: false, String this.pluginArgs})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
         allowRoot = true;
       }
@@ -30,8 +32,12 @@ class Options extends Node {
     final LessOptions lessOptions = environment.options;
     final Logger logger = environment.logger;
     String line = value.value;
-    if (isPlugin)
-        line = '--plugin=$line';
+    if (isPlugin) {
+      line = '--plugin=$line';
+      if (pluginArgs != null)
+          line = '$line=$pluginArgs';
+    }
+
 
     logger.captureStart();
     final bool result = lessOptions.fromCommandLine(line);
@@ -56,7 +62,9 @@ class Options extends Node {
     }
   }
 
-  /// load the plugin functions
+  ///
+  /// Load the plugin functions
+  ///
   @override
   Options eval(Contexts context) {
     if (context.frames.isNotEmpty) {

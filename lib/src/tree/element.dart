@@ -1,4 +1,4 @@
-//source: less/tree/element.js 2.5.3 20151120
+//source: less/tree/element.js 3.0.0 20160714
 
 part of tree.less;
 
@@ -37,9 +37,10 @@ class Element extends Node {
     }
 
     copyVisibilityInfo(visibilityInfo);
+    setParent(this.combinator, this);
 
-//2.5.3 20151120
-// var Element = function (combinator, value, index, currentFileInfo, info) {
+//3.0.0 20160714
+// var Element = function (combinator, value, index, currentFileInfo, visibilityInfo) {
 //     this.combinator = combinator instanceof Combinator ?
 //                       combinator : new Combinator(combinator);
 //
@@ -50,9 +51,10 @@ class Element extends Node {
 //     } else {
 //         this.value = "";
 //     }
-//     this.index = index;
-//     this.currentFileInfo = currentFileInfo;
-//     this.copyVisibilityInfo(info);
+//     this._index = index;
+//     this._fileInfo = currentFileInfo;
+//     this.copyVisibilityInfo(visibilityInfo);
+//     this.setParent(this.combinator, this);
 // };
   }
 
@@ -92,12 +94,12 @@ class Element extends Node {
       currentFileInfo,
       visibilityInfo: visibilityInfo());
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Element.prototype.eval = function (context) {
 //     return new Element(this.combinator,
 //                              this.value.eval ? this.value.eval(context) : this.value,
-//                              this.index,
-//                              this.currentFileInfo, this.visibilityInfo());
+//                              this.getIndex(),
+//                              this.fileInfo(), this.visibilityInfo());
 // };
 
   ///
@@ -105,12 +107,12 @@ class Element extends Node {
       new Element(combinator, value, index, currentFileInfo,
         visibilityInfo: visibilityInfo());
 
-//2.5.3 20151120
+//3.0.0 20160714
 // Element.prototype.clone = function () {
 //     return new Element(this.combinator,
 //         this.value,
-//         this.index,
-//         this.currentFileInfo, this.visibilityInfo());
+//         this.getIndex(),
+//         this.fileInfo(), this.visibilityInfo());
 // };
 
   ///
@@ -120,10 +122,10 @@ class Element extends Node {
   void genCSS(Contexts context, Output output) {
     output.add(toCSS(context), fileInfo: currentFileInfo, index: index);
 
-//2.3.1
-//  Element.prototype.genCSS = function (context, output) {
-//      output.add(this.toCSS(context), this.currentFileInfo, this.index);
-//  };
+//3.0.0 20160714
+// Element.prototype.genCSS = function (context, output) {
+//     output.add(this.toCSS(context), this.fileInfo(), this.getIndex());
+// };
   }
 
   ///
