@@ -115,7 +115,7 @@ class CleanCssVisitor extends VisitorBase {
   ///
   Declaration visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
     Keyword keyword;
-    Color color;
+    //Color color;
 
     declNode.cleanCss = cleancsscontext;
 
@@ -124,16 +124,21 @@ class CleanCssVisitor extends VisitorBase {
         declNode.important = declNode.important.replaceAll(' ', '');
 
     if (declNode.name == 'background') {
-      if (declNode.value is Keyword) {
-        keyword = declNode.value;
-        if (keyword.value == 'none')
-            keyword.value = '0 0';
-      }
-      if (declNode.value is Color) {
-        color = declNode.value;
-        if (color.value != null && color.value == 'transparent')
-            declNode.value = new Keyword('0 0');
-      }
+      final String value = declNode.value.toString();
+      if (value == 'none' || value == 'transparent')
+          declNode.value = new Keyword('0 0');
+
+      // if (declNode.value is Keyword) {
+      //   keyword = declNode.value;
+      //   if (keyword.value == 'none')
+      //       keyword.value = '0 0';
+      // }
+
+      // if (declNode.value is Color) {
+      //   color = declNode.value;
+      //   if (color.value != null && color.value == 'transparent')
+      //       declNode.value = new Keyword('0 0');
+      // }
     }
 
     if (declNode.name == 'font') {
@@ -146,20 +151,29 @@ class CleanCssVisitor extends VisitorBase {
     }
 
     if (declNode.name == 'font-weight') {
-      if (declNode.value is Keyword) {
-        if (declNode.value.value == 'normal')
-            declNode.value = new Dimension(400);
-        if (declNode.value.value == 'bold')
-            declNode.value = new Dimension(700);
-      }
+      final String value = declNode.value.toString();
+      if (value == 'normal')
+          declNode.value = new Dimension(400);
+      if (value == 'bold')
+          declNode.value = new Dimension(700);
+      // if (declNode.value is Keyword) {
+      //   if (declNode.value.value == 'normal')
+      //       declNode.value = new Dimension(400);
+      //   if (declNode.value.value == 'bold')
+      //       declNode.value = new Dimension(700);
+      // }
     }
 
     if (declNode.name == 'outline') {
-      if (declNode.value is Keyword) {
-        keyword = declNode.value;
-        if (keyword.value == 'none')
-            keyword.value = '0';
-      }
+      final String value = declNode.value.toString();
+      if (value == 'none')
+          declNode.value = new Dimension(0);
+
+      // if (declNode.value is Keyword) {
+      //   keyword = declNode.value;
+      //   if (keyword.value == 'none')
+      //       keyword.value = '0';
+      // }
     }
 
     return declNode;
@@ -177,6 +191,9 @@ class CleanCssVisitor extends VisitorBase {
     Quoted          quoted;
     List<Selector>  selectors;
     String          valueStr;
+
+    //for compress analysis we need the full parsed node. Ex. Color
+    rulesetNode.parseDeclaration();
 
     //RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
     final RegExp attrRe = new RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]',caseSensitive: false);

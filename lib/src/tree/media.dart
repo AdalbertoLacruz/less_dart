@@ -1,4 +1,4 @@
-//source: less/tree/media.js 3.0.0 20160714
+//source: less/tree/media.js 3.0.0 20160716
 
 part of tree.less;
 
@@ -295,6 +295,9 @@ class Media extends DirectiveBase {
   ///
   @override
   bool isRulesetLike() => true;
+
+//3.0.0 20160716
+// Media.prototype.isRulesetLike = function() { return true; };
 
   ///
   /// Converts

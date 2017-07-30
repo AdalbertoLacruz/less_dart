@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.0.0 20160714
+// source: less/tree/ruleset.js 3.0.0 20160718
 
 part of tree.less;
 
@@ -119,23 +119,16 @@ class Ruleset extends Node
       hasOnePassingSelector = true;
     }
 
-    List<Node> rules = this.rules?.sublist(0); //clone
-    final Ruleset ruleset = new Ruleset(selectors, rules,
+    final Ruleset ruleset = new Ruleset(selectors,
+        hasOnePassingSelector ? rules?.sublist(0) : <Node>[],  //rules
         strictImports: strictImports,
-        visibilityInfo: visibilityInfo());
-    Node rule;
-
-    ruleset
+        visibilityInfo: visibilityInfo())
         ..originalRuleset = this
         ..id = id
         ..root = root
         ..firstRoot = firstRoot
-        ..allowImports = allowImports;
-
-    if (debugInfo != null)
-        ruleset.debugInfo = debugInfo;
-    if (!hasOnePassingSelector)
-        rules.length = 0;
+        ..allowImports = allowImports
+        ..debugInfo = debugInfo;
 
     // inherit a function registry from the frames stack when possible; (in js from the top)
     final FunctionRegistry parentFR = FunctionRegistry.foundInherit(context.frames);
@@ -146,10 +139,8 @@ class Ruleset extends Node
         ..insert(0, ruleset);
 
     // currrent selectors
-    List<List<Selector>> ctxSelectors = context.selectors;
-    if (ctxSelectors == null)
-        context.selectors = ctxSelectors = <List<Selector>>[];
-    ctxSelectors.insert(0, this.selectors);
+    final List<List<Selector>> ctxSelectors = (context.selectors ??= <List<Selector>>[])
+        ..insert(0, this.selectors);
 
     // Evaluate imports
     if (ruleset.root ||
@@ -159,41 +150,38 @@ class Ruleset extends Node
 
     // Store the frames around mixin definitions,
     // so they can be evaluated like closures when the time comes.
-    final List<Node> rsRules = ruleset.rules;
-    //int rsRuleCnt = rsRules != null ? rsRules.length : 0;
-    int rsRuleCnt = rsRules?.length ?? 0;
-    for (int i = 0; i < rsRuleCnt; i++) {
-      if (rsRules[i].evalFirst)
-          rsRules[i] = rsRules[i].eval(context);
-    }
+    ruleset.rules = ruleset.rules?.map((Node rule) =>
+      (rule.evalFirst) ? rule.eval(context) : rule
+    )?.toList();
 
     final int mediaBlockCount = context.mediaBlocks?.length ?? 0;
 
     // Evaluate mixin calls.
+    int rsRuleCnt = ruleset.rules?.length ?? 0;
     for (int i = 0; i < rsRuleCnt; i++) {
-      if (rsRules[i] is MixinCall) {
-        //rules = (rsRules[i] as MixinCall).eval(context)..retainWhere((r){
-        rules = (rsRules[i] as MixinCall).eval(context).rules..retainWhere((Node r){
+      final Node rule = ruleset.rules[i];
+      if (rule is MixinCall) {
+        final List<Node> rules = rule.eval(context).rules..retainWhere((Node r){
           if (r is Declaration && r.variable)
               // do not pollute the scope if the variable is
               // already there. consider returning false here
               // but we need a way to "return" variable from mixins
+              // Collateral effect. Variable() needs access to ruleset.rules updated
               return (ruleset.variable(r.name) == null);
           return true;
         });
-        rsRules.replaceRange(i, i + 1, rules);
+        ruleset.rules.replaceRange(i, i + 1, rules);
         rsRuleCnt += rules.length - 1;
         i += rules.length - 1;
         ruleset.resetCache();
-      } else if (rsRules[i] is RulesetCall) {
-        rules = (rsRules[i] as RulesetCall).eval(context).rules
-            ..retainWhere((Node r) {
-                if (r is Declaration && r.variable)
-                    // do not pollute the scope at all
-                    return false;
-                return true;
-              });
-        rsRules.replaceRange(i, i+1, rules);
+      } else if (rule is RulesetCall) {
+        final List<Node> rules = rule.eval(context).rules..retainWhere((Node r) {
+          if (r is Declaration && r.variable)
+              // do not pollute the scope at all
+              return false;
+          return true;
+        });
+        ruleset.rules.replaceRange(i, i+1, rules);
         rsRuleCnt += rules.length - 1;
         i += rules.length - 1;
         ruleset.resetCache();
@@ -201,35 +189,30 @@ class Ruleset extends Node
     }
 
     // Evaluate everything else
-
-    Node ruleEval;
-    List<Node> ruleEvaluated;
-    for (int i = 0; i < rsRules.length; i++) {
-      rule = rsRules[i];
+    for (int i = 0; i < (ruleset.rules?.length ?? 0); i++) {
+      final Node rule = ruleset.rules[i];
       if (!rule.evalFirst) {
-        ruleEval = rule.eval(context);
-        ruleEvaluated = (ruleEval is Nodeset) ?  ruleEval.rules : <Node>[ruleEval];
-        rsRules.replaceRange(i, i + 1, ruleEvaluated);
+        final Node ruleEval = rule.eval(context);
+        final List<Node> ruleEvaluated = (ruleEval is Nodeset) ? ruleEval.rules : <Node>[ruleEval];
+        ruleset.rules.replaceRange(i, i + 1, ruleEvaluated);
         i += ruleEvaluated.length - 1;
       }
     }
 
     // Evaluate everything else
-    for (int i = 0; i < rsRules.length; i++) {
-      rule = rsRules[i];
+    for (int i = 0; i < (ruleset.rules?.length ?? 0); i++) {
+      final Node rule = ruleset.rules[i];
       // for rulesets, check if it is a css guard and can be removed
-      if (rule is Ruleset &&
-          rule.selectors != null &&
-          rule.selectors.length == 1) {
+      if (rule is Ruleset && (rule.selectors?.length == 1 ?? false)) {
         // check if it can be folded in (e.g. & where)
-        if (rule.selectors[0].isJustParentSelector()) {
-          rsRules.removeAt(i--);
-
-          rule.rules.forEach((Node subRule) {
-            subRule.copyVisibilityInfo(rule.visibilityInfo());
-            if (!(subRule is Declaration) || !(subRule as Declaration).variable)
-                rsRules.insert(++i, subRule);
-          });
+        if (rule.selectors.first.isJustParentSelector()) {
+          ruleset
+            .rules.removeAt(i--)
+            .rules.forEach((Node subRule) {
+              subRule.copyVisibilityInfo(rule.visibilityInfo());
+              if (!(subRule is Declaration) || !(subRule as Declaration).variable)
+                  ruleset.rules.insert(++i, subRule);
+            });
         }
       }
     }
@@ -238,15 +221,14 @@ class Ruleset extends Node
     ctxFrames.removeAt(0);
     ctxSelectors.removeAt(0);
 
-    if (context.mediaBlocks != null) {
-      for (int i = mediaBlockCount; i < context.mediaBlocks.length; i++) {
-        context.mediaBlocks[i].bubbleSelectors(selectors);
-      }
+    //for the new mediaBlocks that appears in the process
+    for (int i = mediaBlockCount; i < (context.mediaBlocks?.length ?? 0); i++) {
+      context.mediaBlocks[i].bubbleSelectors(selectors);
     }
 
     return ruleset;
 
-//3.0.0 20160714
+//3.0.0 20160716
 // Ruleset.prototype.eval = function (context) {
 //     var thisSelectors = this.selectors, selectors,
 //         selCnt, selector, i, hasOnePassingSelector = false;
@@ -317,20 +299,20 @@ class Ruleset extends Node
 //
 //     // Store the frames around mixin definitions,
 //     // so they can be evaluated like closures when the time comes.
-//     var rsRules = ruleset.rules, rsRuleCnt = rsRules ? rsRules.length : 0;
-//     for (i = 0; i < rsRuleCnt; i++) {
-//         if (rsRules[i].evalFirst) {
-//             rsRules[i] = rsRules[i].eval(context);
+//     var rsRules = ruleset.rules;
+//     for (i = 0; (rule = rsRules[i]); i++) {
+//         if (rule.evalFirst) {
+//             rsRules[i] = rule.eval(context);
 //         }
 //     }
 //
 //     var mediaBlockCount = (context.mediaBlocks && context.mediaBlocks.length) || 0;
 //
 //     // Evaluate mixin calls.
-//     for (i = 0; i < rsRuleCnt; i++) {
-//         if (rsRules[i].type === "MixinCall") {
+//     for (i = 0; (rule = rsRules[i]); i++) {
+//         if (rule.type === "MixinCall") {
 //             /*jshint loopfunc:true */
-//             rules = rsRules[i].eval(context).filter(function(r) {
+//             rules = rule.eval(context).filter(function(r) {
 //                 if ((r instanceof Declaration) && r.variable) {
 //                     // do not pollute the scope if the variable is
 //                     // already there. consider returning false here
@@ -340,12 +322,11 @@ class Ruleset extends Node
 //                 return true;
 //             });
 //             rsRules.splice.apply(rsRules, [i, 1].concat(rules));
-//             rsRuleCnt += rules.length - 1;
 //             i += rules.length - 1;
 //             ruleset.resetCache();
-//         } else if (rsRules[i].type === "RulesetCall") {
+//         } else if (rule.type ===  "RulesetCall") {
 //             /*jshint loopfunc:true */
-//             rules = rsRules[i].eval(context).rules.filter(function(r) {
+//             rules = rule.eval(context).rules.filter(function(r) {
 //                 if ((r instanceof Declaration) && r.variable) {
 //                     // do not pollute the scope at all
 //                     return false;
@@ -353,31 +334,27 @@ class Ruleset extends Node
 //                 return true;
 //             });
 //             rsRules.splice.apply(rsRules, [i, 1].concat(rules));
-//             rsRuleCnt += rules.length - 1;
 //             i += rules.length - 1;
 //             ruleset.resetCache();
 //         }
 //     }
 //
 //     // Evaluate everything else
-//     for (i = 0; i < rsRules.length; i++) {
-//         rule = rsRules[i];
+//     for (i = 0; (rule = rsRules[i]); i++) {
 //         if (!rule.evalFirst) {
 //             rsRules[i] = rule = rule.eval ? rule.eval(context) : rule;
 //         }
 //     }
 //
 //     // Evaluate everything else
-//     for (i = 0; i < rsRules.length; i++) {
-//         rule = rsRules[i];
+//     for (i = 0; (rule = rsRules[i]); i++) {
 //         // for rulesets, check if it is a css guard and can be removed
 //         if (rule instanceof Ruleset && rule.selectors && rule.selectors.length === 1) {
 //             // check if it can be folded in (e.g. & where)
 //             if (rule.selectors[0].isJustParentSelector()) {
 //                 rsRules.splice(i--, 1);
 //
-//                 for (var j = 0; j < rule.rules.length; j++) {
-//                     subRule = rule.rules[j];
+//                 for (var j = 0; (subRule = rule.rules[j]); j++) {
 //                     if (subRule instanceof Node) {
 //                         subRule.copyVisibilityInfo(rule.visibilityInfo());
 //                         if (!(subRule instanceof Declaration) || !subRule.variable) {
@@ -447,6 +424,9 @@ class Ruleset extends Node
   ///
   @override
   bool isRulesetLike() => true;
+
+//3.0.0 20160716
+// Ruleset.prototype.isRulesetLike = function() { return true; };
 
   ///
   @override
@@ -557,16 +537,10 @@ class Ruleset extends Node
         isCompress(context) ? '' : '  ' * (context.tabLevel - 1);
     String sep;
 
-    // if it has nested rules, then it should be treated like a ruleset
-    // medias and comments do not have nested rules, but should be treated like rulesets anyway
-    // some atrules and anonymous nodes are ruleset like, others are not
-    bool isRulesetLikeNode(Node rule) => rule.isRulesetLike();
-
     int charsetNodeIndex = 0;
     int importNodeIndex = 0;
     for (int i = 0; i < rules.length; i++) {
       rule = rules[i];
-      // Plugins may return something other than Nodes (?)
       if (rule is Comment) {
         if (importNodeIndex == i)
             importNodeIndex++;
@@ -623,7 +597,7 @@ class Ruleset extends Node
           context.lastRule = true;
 
       final bool currentLastRule = context.lastRule;
-      if (isRulesetLikeNode(rule))
+      if (rule.isRulesetLike())
           context.lastRule = false;
 
       if (rule is Node) {
@@ -633,11 +607,8 @@ class Ruleset extends Node
       }
 
       context.lastRule = currentLastRule;
-      if (!context.lastRule) {
-        if (firstRoot &&
-            cleanCss != null &&
-            cleanCss.keepBreaks &&
-            output.last != '\n') {
+      if (!context.lastRule && (rule.isVisible() ?? true)) { //isVisible() null affect debug tests
+        if (firstRoot && (cleanCss?.keepBreaks ?? false) && output.last != '\n') {
           output.add('\n');
         } else {
           output.add(isCompress(context) ? '' : '\n$tabRuleStr');
@@ -659,7 +630,7 @@ class Ruleset extends Node
     if (!output.isEmpty && !isCompress(context) && firstRoot)
         output.add('\n');
 
-//2.8.0 20160702
+//3.0.0 20160716
 // Ruleset.prototype.genCSS = function (context, output) {
 //     var i, j,
 //         charsetRuleNodes = [],
@@ -678,41 +649,23 @@ class Ruleset extends Node
 //         tabSetStr = context.compress ? '' : Array(context.tabLevel).join("  "),
 //         sep;
 //
-//     function isRulesetLikeNode(rule) {
-//         // if it has nested rules, then it should be treated like a ruleset
-//         // medias and comments do not have nested rules, but should be treated like rulesets anyway
-//         // some atrules and anonymous nodes are ruleset like, others are not
-//         if (typeof rule.isRulesetLike === "boolean") {
-//             return rule.isRulesetLike;
-//         } else if (typeof rule.isRulesetLike === "function") {
-//             return rule.isRulesetLike();
-//         }
-//
-//         //anything else is assumed to be a rule
-//         return false;
-//     }
-//
 //     var charsetNodeIndex = 0;
 //     var importNodeIndex = 0;
-//     for (i = 0; i < this.rules.length; i++) {
-//         rule = this.rules[i];
-//         // Plugins may return something other than Nodes
-//         if (rule instanceof Node) {
-//             if (rule.type === "Comment") {
-//                 if (importNodeIndex === i) {
-//                     importNodeIndex++;
-//                 }
-//                 ruleNodes.push(rule);
-//             } else if (rule.isCharset && rule.isCharset()) {
-//                 ruleNodes.splice(charsetNodeIndex, 0, rule);
-//                 charsetNodeIndex++;
+//     for (i = 0; (rule = this.rules[i]); i++) {
+//         if (rule instanceof Comment) {
+//             if (importNodeIndex === i) {
 //                 importNodeIndex++;
-//             } else if (rule.type === "Import") {
-//                 ruleNodes.splice(importNodeIndex, 0, rule);
-//                 importNodeIndex++;
-//             } else {
-//                 ruleNodes.push(rule);
 //             }
+//             ruleNodes.push(rule);
+//         } else if (rule.isCharset && rule.isCharset()) {
+//             ruleNodes.splice(charsetNodeIndex, 0, rule);
+//             charsetNodeIndex++;
+//             importNodeIndex++;
+//         } else if (rule.type === "Import") {
+//             ruleNodes.splice(importNodeIndex, 0, rule);
+//             importNodeIndex++;
+//         } else {
+//             ruleNodes.push(rule);
 //         }
 //     }
 //     ruleNodes = charsetRuleNodes.concat(ruleNodes);
@@ -750,15 +703,14 @@ class Ruleset extends Node
 //     }
 //
 //     // Compile rules and rulesets
-//     for (i = 0; i < ruleNodes.length; i++) {
-//         rule = ruleNodes[i];
+//     for (i = 0; (rule = ruleNodes[i]); i++) {
 //
 //         if (i + 1 === ruleNodes.length) {
 //             context.lastRule = true;
 //         }
 //
 //         var currentLastRule = context.lastRule;
-//         if (isRulesetLikeNode(rule)) {
+//         if (rule.isRulesetLike(rule)) {
 //             context.lastRule = false;
 //         }
 //
@@ -770,7 +722,7 @@ class Ruleset extends Node
 //
 //         context.lastRule = currentLastRule;
 //
-//         if (!context.lastRule) {
+//         if (!context.lastRule && rule.isVisible()) {
 //             output.add(context.compress ? '' : ('\n' + tabRuleStr));
 //         } else {
 //             context.lastRule = false;
@@ -916,21 +868,21 @@ class Ruleset extends Node
   /// resulting selectors are returned inside `paths` array
   /// returns true if `inSelector` contained at least one parent selector
   ///
+  ///
+  /// The paths are [[Selector]]
+  /// The first list is a list of comma separated selectors
+  /// The inner list is a list of inheritance separated selectors
+  /// e.g.
+  /// .a, .b {
+  ///   .c {
+  ///   }
+  /// }
+  /// == [[.a] [.c]] [[.b] [.c]]
+  ///
   bool replaceParentSelector(List<List<Selector>> paths,
       List<List<Selector>> context, Selector inSelector) {
     //
-    // The paths are [[Selector]]
-    // The first list is a list of comma separated selectors
-    // The inner list is a list of inheritance separated selectors
-    // e.g.
-    // .a, .b {
-    //   .c {
-    //   }
-    // }
-    // == [[.a] [.c]] [[.b] [.c]]
-    //
-
-    bool                  hadParentSelector = false;
+    bool hadParentSelector = false;
 
     Selector findNestedSelector(Element element) {
       if (element.value is String)
@@ -1043,7 +995,7 @@ class Ruleset extends Node
 
     return hadParentSelector;
 
-//3.0.0 20160714
+//3.0.0 20160716
 // function replaceParentSelector(paths, context, inSelector) {
 //     // The paths are [[Selector]]
 //     // The first list is a list of comma separated selectors
@@ -1058,12 +1010,12 @@ class Ruleset extends Node
 //     var i, j, k, currentElements, newSelectors, selectorsMultiplied, sel, el, hadParentSelector = false, length, lastSelector;
 //     function findNestedSelector(element) {
 //         var maybeSelector;
-//         if (element.value.type !== 'Paren') {
+//         if (!(element.value instanceof Paren)) {
 //             return null;
 //         }
 //
 //         maybeSelector = element.value.value;
-//         if (maybeSelector.type !== 'Selector') {
+//         if (!(maybeSelector instanceof Selector)) {
 //             return null;
 //         }
 //
@@ -1079,8 +1031,7 @@ class Ruleset extends Node
 //         []
 //     ];
 //
-//     for (i = 0; i < inSelector.elements.length; i++) {
-//         el = inSelector.elements[i];
+//     for (i = 0; (el = inSelector.elements[i]); i++) {
 //         // non parent reference elements just get added
 //         if (el.value !== "&") {
 //             var nestedSelector = findNestedSelector(el);
@@ -1303,8 +1254,7 @@ class Ruleset extends Node
   }
 
   ///
-  void mergeElementsOnToSelectors(
-      List<Element> elements, List<List<Selector>> selectors) {
+  void mergeElementsOnToSelectors(List<Element> elements, List<List<Selector>> selectors) {
     if (elements.isEmpty)
         return;
 
@@ -1313,42 +1263,38 @@ class Ruleset extends Node
       return;
     }
 
-    for (int i = 0; i < selectors.length; i++) {
-      final List<Selector> sel = selectors[i];
-
+    selectors.forEach((List<Selector> sel) {
       // if the previous thing in sel is a parent this needs to join on to it
       if (sel.isNotEmpty) {
-        sel[sel.length - 1] = sel.last
+        sel[sel.length - 1] = sel[sel.length - 1] //last
             .createDerived(sel.last.elements.sublist(0)..addAll(elements));
       } else {
         sel.add(new Selector(elements));
       }
-    }
+    });
 
-//2.3.1 inside joinSelector
-//      function mergeElementsOnToSelectors(elements, selectors) {
-//          var i, sel;
+//3.0.0 20160716
+// function mergeElementsOnToSelectors(elements, selectors) {
+//     var i, sel;
 //
-//          if (elements.length === 0) {
-//              return ;
-//          }
-//          if (selectors.length === 0) {
-//              selectors.push([ new Selector(elements) ]);
-//              return;
-//          }
+//     if (elements.length === 0) {
+//         return ;
+//     }
+//     if (selectors.length === 0) {
+//         selectors.push([ new Selector(elements) ]);
+//         return;
+//     }
 //
-//          for (i = 0; i < selectors.length; i++) {
-//              sel = selectors[i];
-//
-//              // if the previous thing in sel is a parent this needs to join on to it
-//              if (sel.length > 0) {
-//                  sel[sel.length - 1] = sel[sel.length - 1].createDerived(sel[sel.length - 1].elements.concat(elements));
-//              }
-//              else {
-//                  sel.push(new Selector(elements));
-//              }
-//          }
-//      }
+//     for (i = 0; (sel = selectors[i]); i++) {
+//         // if the previous thing in sel is a parent this needs to join on to it
+//         if (sel.length > 0) {
+//             sel[sel.length - 1] = sel[sel.length - 1].createDerived(sel[sel.length - 1].elements.concat(elements));
+//         }
+//         else {
+//             sel.push(new Selector(elements));
+//         }
+//     }
+// }
   }
 
   ///
@@ -1395,7 +1341,9 @@ abstract class VariableMixin implements Node {
   ///
   Map<String, List<MixinFound>> _lookups = <String, List<MixinFound>>{};
   ///
-  Node paren;
+  Node                          paren;
+  ///
+  Map<String, List<Declaration>>       _properties; // $properties
 
   //var                         _rulesets;
 
@@ -1408,14 +1356,16 @@ abstract class VariableMixin implements Node {
         functionRegistry.resetCache();
     //_rulesets = null;
     _variables = null;
+    _properties = null;
     _lookups = <String, List<MixinFound>>{};
 
-//2.4.0 20150306
-//  Ruleset.prototype.resetCache = function () {
-//      this._rulesets = null;
-//      this._variables = null;
-//      this._lookups = {};
-//  };
+//3.0.0 20160718
+// Ruleset.prototype.resetCache = function () {
+//     this._rulesets = null;
+//     this._variables = null;
+//     this._properties = null;
+//     this._lookups = {};
+// };
   }
 
   ///
@@ -1437,7 +1387,6 @@ abstract class VariableMixin implements Node {
                   hash[name] = vars[name];
             }
           }
-
           return hash;
         });
 
@@ -1465,10 +1414,61 @@ abstract class VariableMixin implements Node {
 //    return this._variables;
 //};
 
+///
+Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
+    ? <String, List<Declaration>>{}
+    : rules.fold(<String, List<Declaration>>{}, (Map<String, List<Declaration>> hash, Node r) {
+        if (r is Declaration && !r.variable) {
+          final String name = (r.name is String) ? r.name : r.name.first.value; // :keyword
+          // Properties don't overwrite as they can merge
+          if (!hash.containsKey('\$$name')) {
+            hash['\$$name'] = <Declaration>[r];
+          } else {
+            hash['\$$name'].add(r);
+          }
+        }
+        return hash;
+      });
+
+//3.0.0 20160718
+// Ruleset.prototype.properties = function () {
+//     if (!this._properties) {
+//         this._properties = !this.rules ? {} : this.rules.reduce(function (hash, r) {
+//             if (r instanceof Declaration && r.variable !== true) {
+//                 var name = (r.name.length === 1) && (r.name[0] instanceof Keyword) ?
+//                     r.name[0].value : r.name;
+//                 // Properties don't overwrite as they can merge
+//                 if (!hash['$' + name]) {
+//                     hash['$' + name] = [ r ];
+//                 }
+//                 else {
+//                     hash['$' + name].push(r);
+//                 }
+//             }
+//             return hash;
+//         }, {});
+//     }
+//     return this._properties;
+// };
+//
+
   ///
   /// Returns the Variable Node (@variable = value).
   ///
-  Node variable(String name) => variables()[name];
+  Node variable(String name) {
+    final Node decl = variables()[name];
+    if (decl != null)
+        return parseValue(decl);
+    return null;
+
+//3.0.0 20160718
+// Ruleset.prototype.variable = function (name) {
+//     var decl = this.variables()[name];
+//     if (decl) {
+//         return this.parseValue(decl);
+//     }
+// };
+}
 
 //2.3.1
 //  Ruleset.prototype.variable = function (name) {
@@ -1476,39 +1476,155 @@ abstract class VariableMixin implements Node {
 //  };
 
   ///
+  List<Declaration> property(String name) {
+    final List<Declaration> decl = properties()[name];
+    if (decl != null)
+        return parseValue(decl);
+    return null;
+
+//3.0.0 20160718
+// Ruleset.prototype.property = function (name) {
+//     var decl = this.properties()[name];
+//     if (decl) {
+//         return this.parseValue(decl);
+//     }
+// };
+  }
+
+  ///
+  /// toParse = Declaration | List<Declaration>
+  ///
+  T parseValue<T>(T toParse) {
+    if (toParse is Declaration) {
+      return transformDeclaration(toParse) as T;
+    }
+
+    if (toParse is List<Declaration>) {
+      final List<Declaration> nodes = <Declaration>[];
+      toParse.forEach((Declaration n) {
+        nodes.add(transformDeclaration(n));
+      });
+      return nodes as T;
+    }
+
+    return null;
+
+//3.0.0 20160718
+// Ruleset.prototype.parseValue = function(toParse) {
+//     var self = this;
+//     if (!Array.isArray(toParse)) {
+//         return transformDeclaration.call(self, toParse);
+//     }
+//     else {
+//         var nodes = [];
+//         toParse.forEach(function(n) {
+//             nodes.push(transformDeclaration.call(self, n));
+//         });
+//         return nodes;
+//     }
+// };
+  }
+
+  ///
+  /// Parse all Declaration nodes (used for compression)
+  ///
+  void parseDeclaration() {
+    for (int i = 0; i < (rules?.length ?? 0); i++) {
+      if (rules[i] is Declaration)
+          rules[i] = transformDeclaration(rules[i], bestTry: true);
+    }
+  }
+
+  ///
+  /// Parse declaration.value
+  ///
+  /// if bestTry = true, error result do not propagate
+  ///
+  Declaration transformDeclaration(Declaration decl, {bool bestTry: false}) {
+    if (decl.value is Anonymous && !decl.parsed && !decl.value.parsed) {
+      try {
+        final Parsers parsers = new Parsers(decl.value.value, new Contexts());
+        final Value result = parsers.value();
+        final String important = parsers.important();
+        parsers.isFinished();
+        decl
+            ..value = result
+            ..important = important ?? ''
+            ..parsed = true;
+      } catch (e) {
+          if (bestTry) //keep that we have
+              return decl;
+          if (e is LessExceptionError)
+              e.error.index += decl.value.index;
+          throw new LessExceptionError(LessError.transform(e));
+      }
+
+      return decl;
+    }
+
+    return decl;
+
+//inside parseValue
+//3.0.0 20160718
+//     function transformDeclaration(decl) {
+//         if (decl.value instanceof Anonymous && !decl.parsed) {
+//             try {
+//                 this.parse.parserInput.start(decl.value.value, false, function fail(msg, index) {
+//                     decl.parsed = true;
+//                     return decl;
+//                 });
+//                 var result = this.parse.parsers.value();
+//                 var important = this.parse.parsers.important();
+//
+//                 var endInfo = this.parse.parserInput.end();
+//                 if (endInfo.isFinished) {
+//                     decl.value = result;
+//                     decl.imporant = important;
+//                     decl.parsed = true;
+//                 }
+//             } catch (e) {
+//                 throw new LessError({
+//                     index: e.index + decl.value.getIndex(),
+//                     message: e.message
+//                 }, this.parse.imports, decl.fileInfo().filename);
+//             }
+//
+//             return decl;
+//         }
+//         else {
+//             return decl;
+//         }
+//     }
+  }
+
+  ///
   /// Returns a List of MixinDefinition or Ruleset contained in this.rules
   ///
   List<Node> rulesets() {
-    if (this.rules == null)
+    if (rules == null)
         return <Node>[];
 
-    final List<Node> filtRules = <Node>[];
-    final List<Node> rules = this.rules;
-
-    for (int i = 0; i < rules.length; i++) {
-      final Node rule = rules[i];
+    return rules.fold(<Node>[], (List<Node> filtRules, Node rule) {
       if (rule.isRuleset)
           filtRules.add(rule);
-    }
+      return filtRules;
+    });
 
-    return filtRules;
-
-//2.5.0 20150426
-//  Ruleset.prototype.rulesets = function () {
-//      if (!this.rules) { return []; }
+//3.0.0 20160716
+// Ruleset.prototype.rulesets = function () {
+//     if (!this.rules) { return []; }
 //
-//      var filtRules = [], rules = this.rules, cnt = rules.length,
-//          i, rule;
+//     var filtRules = [], rules = this.rules,
+//         i, rule;
 //
-//      for (i = 0; i < cnt; i++) {
-//          rule = rules[i];
-//          if (rule.isRuleset) {
-//              filtRules.push(rule);
-//          }
-//      }
+//     for (i = 0; (rule = rules[i]); i++) {
+//         if (rule.isRuleset) {
+//             filtRules.push(rule);
+//         }
+//     }
 //
-//      return filtRules;
-//  };
+//     return filtRules;
+// };
   }
 
   ///

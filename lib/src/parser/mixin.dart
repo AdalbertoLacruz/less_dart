@@ -1,4 +1,4 @@
-//source: less/parser.js 2.5.1 20150625
+//source: less/parser/parser.js 3.0.0 20160718
 
 part of parser.less;
 
@@ -160,9 +160,10 @@ class Mixin {
           }
           break;
         }
-        arg = entities.variable();
-        arg ??= entities.literal();
-        arg ??= entities.keyword();
+        arg = entities.variable()
+            ?? entities.property()
+            ?? entities.literal()
+            ?? entities.keyword();
       }
 
       if (arg == null)
@@ -181,7 +182,7 @@ class Mixin {
         val = arg;
       }
 
-      if (val != null && val is Variable) {
+      if (val != null && (val is Variable || val is Property)) {
         if (parserInput.$char(':') != null) {
           if (expressions.isNotEmpty) {
             if (isSemiColonSeperated)
@@ -189,8 +190,8 @@ class Mixin {
             expressionContainsNamed = true;
           }
 
-          value = parsers.detachedRuleset();
-          value ??= parsers.expression();
+          value = parsers.detachedRuleset()
+              ?? parsers.expression();
 
           if (value == null) {
             if (isCall) {
@@ -251,8 +252,9 @@ class Mixin {
     returner.args = isSemiColonSeperated ? argsSemiColon : argsComma;
     return returner;
 
-//2.5.1 20150625
-//args: function (isCall) {
+
+//3.0.0 20160718
+// args: function (isCall) {
 //     var entities = parsers.entities,
 //         returner = { args:null, variadic: false },
 //         expressions = [], argsSemiColon = [], argsComma = [],
@@ -275,7 +277,7 @@ class Mixin {
 //                     .push({ variadic: true });
 //                 break;
 //             }
-//             arg = entities.variable() || entities.literal() || entities.keyword();
+//             arg = entities.variable() || entities.property() || entities.literal() || entities.keyword();
 //         }
 //
 //         if (!arg) {
@@ -298,7 +300,7 @@ class Mixin {
 //             val = arg;
 //         }
 //
-//         if (val && val instanceof tree.Variable) {
+//         if (val && (val instanceof tree.Variable || val instanceof tree.Property)) {
 //             if (parserInput.$char(':')) {
 //                 if (expressions.length > 0) {
 //                     if (isSemiColonSeparated) {

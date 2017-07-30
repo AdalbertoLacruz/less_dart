@@ -865,7 +865,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: argb(rgba(90, 23, 148, 0.5));
   ///   Output: #805a1794
   ///
-  Anonymous argb(Color color) => new Anonymous(color.toARGB());
+  Anonymous argb(Color color) => new Anonymous(color.toARGB())..parsed = true;
 
   ///
   /// Parses a color, so a string representing a color becomes a color.

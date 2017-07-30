@@ -1,9 +1,13 @@
+library benchmark.test.less;
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as Math;
 import 'package:less_dart/less.dart';
 import 'package:path/path.dart' as path;
 import 'vm_common.dart';
+
+part 'full_benchmark.dart';
 
 ///
 int totalruns;
@@ -24,7 +28,7 @@ Future<Null> main(List<String> args) async {
       break;
     case 'full':
     case 'f':
-      return mainFull();
+      return new FullBenchmark(totalruns: 30, ignoreruns: 5).run();
     default:
       return help();
   }
@@ -102,96 +106,4 @@ Future<Null> mainParser() async {
           data.length / 1024} KB\/s)");
   print("+/- $variationperc%");
   print('${less.stderr.toString()}');
-}
-
-///
-/// full benchmark, calculating the times in
-/// parsing, tree transforming and css generation
-///
-Future<Null> mainFull() async {
-    totalruns = 30;
-    ignoreruns = 5;
-
-    final List<int> parserBenchmark = <int>[];
-    final List<int> evalBenchmark = <int>[];
-    final List<int> cssBenchmark = <int>[];
-    final List<int> totalBenchmark = <int>[];
-
-    DateTime start;
-    DateTime parserEnd;
-    DateTime evalEnd;
-    DateTime totalEnd;
-
-    bool isError = false;
-    less = new Less(); //initialize options in cache and other environment
-
-    final String file =  'benchmark/benchmark.less';
-
-    final String data = readSampleFile(file);
-    print('Benchmarking Full...\n${path.basename(file)} (${data.length / 1024} KB)');
-
-    for (int i = 0; i < totalruns; i++) {
-      stdout.write('*');
-      start = new DateTime.now();
-      final LessOptions options = Environment.cache[-1].options;
-      final Contexts toCSSOptions = new Contexts()
-                        ..dumpLineNumbers = ''
-                        ..numPrecision = 8;
-      final RenderResult result = new RenderResult();
-      final Parser parser = new Parser(options);
-
-      try {
-        await parser.parse(data).then((Ruleset root) {
-          parserEnd = new DateTime.now();
-          final Ruleset evaldRoot = new TransformTree().call(root, options);
-          evalEnd = new DateTime.now();
-          result.css = evaldRoot.toCSS(toCSSOptions).toString();
-          totalEnd = new DateTime.now();
-
-          totalBenchmark.add(totalEnd.difference(start).inMilliseconds);
-          parserBenchmark.add(parserEnd.difference(start).inMilliseconds);
-          evalBenchmark.add(evalEnd.difference(parserEnd).inMilliseconds);
-          cssBenchmark.add(totalEnd.difference(evalEnd).inMilliseconds);
-        });
-      } catch (e) {
-        print('\n${e.toString()}');
-        isError = true;
-        break;
-      }
-    }
-
-    if (!isError) {
-      print('');
-      analyze('Parsing', parserBenchmark, data.length);
-      analyze('Tree Transforming', evalBenchmark, data.length);
-      analyze('CSS Generation', cssBenchmark, data.length);
-      analyze('Total Time', totalBenchmark, data.length);
-    }
-}
-
-///
-/// Calculate and print the results
-///
-void analyze(String benchmark, List<int> benchMarkData, int dataLength) {
-  num totalTime = 0;
-  num mintime = 9999999;
-  num maxtime = 0;
-
-  print('----------------------');
-  print(benchmark);
-  print('----------------------');
-
-  for (int i = ignoreruns; i < totalruns; i++) {
-      totalTime += benchMarkData[i];
-      mintime = Math.min(mintime, benchMarkData[i]);
-      maxtime = Math.max(maxtime, benchMarkData[i]);
-  }
-  final double avgtime = totalTime / (totalruns - ignoreruns);
-  final num variation = maxtime - mintime;
-  final double variationperc = (variation / avgtime) * 100;
-
-  print("Min. Time: $mintime ms");
-  print("Max. Time: $maxtime ms");
-  print("Total Average Time: $avgtime ms (${1000 / avgtime * dataLength / 1024} KB\/s)");
-  print("+/- $variationperc%");
 }

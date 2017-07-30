@@ -1,6 +1,6 @@
 ## v.1.0.1 (2017-xx-xx)
 
-- Less x.x.x code.
+- Less 3.0.0 code.
 - Linter suggested changes
 - Custom Functions annotation changed to @DefineMethod(...)
 - Internal node name Directive changed to AtRule, and Rule to Declaration. Could affect some plugins

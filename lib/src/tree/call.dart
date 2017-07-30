@@ -1,4 +1,4 @@
-//source: less/tree/call.js 3.0.0 20160714
+//source: less/tree/call.js 3.0.0 20160716
 
 part of tree.less;
 
@@ -64,11 +64,12 @@ class Call extends Node {
         .toList();
     final FunctionCaller funcCaller =
         new FunctionCaller(name, context, index, currentFileInfo);
+    dynamic _result;
     Node result;
 
     if (funcCaller.isValid()) {
       try {
-        result = funcCaller.call(args);
+        _result = funcCaller.call(args);
       } catch (e) {
         String message = LessError.getMessage(e);
         message = (message.isEmpty) ? '' : ': $message';
@@ -84,7 +85,11 @@ class Call extends Node {
 
         throw new LessExceptionError(error);
       }
-      if (result != null) {
+
+      if (_result != null) {
+        // All returned results must be Nodes,
+        // so anything other than a Node is a null Node
+        result = _result is Node ? _result : new Anonymous(null);
         return result
             ..index = _index
             ..currentFileInfo = _fileInfo;
@@ -93,7 +98,7 @@ class Call extends Node {
 
     return new Call(name, args, index, currentFileInfo);
 
-//3.0.0 20160714
+//3.0.0 20160716
 // Call.prototype.eval = function (context) {
 //     var args = this.args.map(function (a) { return a.eval(context); }),
 //         result, funcCaller = new FunctionCaller(this.name, context, this.getIndex(), this.fileInfo());
@@ -113,11 +118,17 @@ class Call extends Node {
 //             };
 //         }
 //
-//         if (result != null) {
+//         if (result !== null && result !== undefined) {
+//             // All returned results must be Nodes,
+//             // so anything other than a Node is a null Node
+//             if (!(result instanceof Node)) {
+//                 result = new Anonymous(null);
+//             }
 //             result._index = this._index;
 //             result._fileInfo = this._fileInfo;
 //             return result;
 //         }
+//
 //     }
 //
 //     return new Call(this.name, args, this.getIndex(), this.fileInfo());

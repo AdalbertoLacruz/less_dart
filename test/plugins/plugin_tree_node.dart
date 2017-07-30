@@ -1,4 +1,4 @@
-// source: test/less/plugin/plugin-tree-node.js 2.6.1 20160305
+// source: test/less/plugin/plugin-tree-node.js 3.0.0 20160716
 
 part of batch.test.less;
 
@@ -37,10 +37,14 @@ class AddMultipleFunctions extends FunctionBase {
   @DefineMethod(name: 'test-ruleset-call')
   Combinator testRulesetCall() => new Combinator(' ');
 
-  // Functions must return something. Must 'return true' if they produce no output.
+  // Functions must return something, even if it's false/true
   ///
   @DefineMethod(name: 'test-undefined')
   Node testUndefined() => null;
+
+  ///
+  @DefineMethod(name: 'test-collapse')
+  bool testCollapse() => true;
 
   // These cause root errors
 
@@ -74,8 +78,8 @@ class AddMultipleFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'test-detached-ruleset')
   DetachedRuleset testDetachedRuleset() {
-    final Rule rule = new Rule('prop', new Anonymous('value'));
-    return new DetachedRuleset(new Ruleset(null, <Node>[rule]));
+    final Declaration decl = new Declaration('prop', new Anonymous('value'));
+    return new DetachedRuleset(new Ruleset(null, <Node>[decl]));
   }
 
   ///

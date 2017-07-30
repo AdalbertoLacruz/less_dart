@@ -4,6 +4,7 @@ part of tree.less;
 
 ///
 /// RGB Colors - #ff0014, #eee
+/// also #rgba #rrggbbaa  - not a standard yet
 ///
 class Color extends Node implements CompareNode, OperateNode<Color> {
   @override final String      name = null;
@@ -39,17 +40,28 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
         alpha = 0; // convert to int
     if (alpha == 1)
         alpha = 1;
-    alpha ??= 1;
 
     final RegExp hex6 = new RegExp('.{2}');
 
     if (rgb is List<num>) {           // [0, 0 , 0]
       this.rgb = rgb;
-    } else if (rgb.length == 6 ) {    // # 'deb887'
+    } else if (rgb.length == 8) {     // # 'rrggbbaa'
+      this.rgb = hex6
+        .allMatches(rgb)
+        .map((Match c) => int.parse(c[0], radix: 16))
+        .toList();
+      alpha = this.rgb.removeAt(3) / 256;
+    } else if (rgb.length == 6) {    // # 'deb887'
       this.rgb = hex6
           .allMatches(rgb)
           .map((Match c) => int.parse(c[0], radix: 16))
           .toList();
+    } else if (rgb.length == 4) {    // # 'rgba'
+      this.rgb = rgb
+          .split('')
+          .map((String c) => int.parse('$c$c', radix: 16))
+          .toList();
+      alpha = this.rgb.removeAt(3) / 256;
     } else {                          // # 'f01'
       this.rgb = rgb
           .split('')
@@ -59,6 +71,8 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
     if (originalForm != null)
         value = originalForm;
+
+    alpha ??= 1;
 
 //2.5.1 20150719
 // var Color = function (rgb, a, originalForm) {

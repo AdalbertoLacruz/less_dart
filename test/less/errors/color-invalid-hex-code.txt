@@ -2,4 +2,4 @@ SyntaxError: Invalid HEX color code in {path}color-invalid-hex-code.less on line
 1 .a {
 2     @wrongHEXColorCode: #DCALLB;
 ..............................^
-3 }
+3     color: @wrongHEXColorCode;

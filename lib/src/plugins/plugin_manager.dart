@@ -1,4 +1,4 @@
-//source: less/plugin-manager.js 2.8.0 201060713
+//source: less/plugin-manager.js 3.0.0 201060716
 
 part of plugins.less;
 
@@ -53,14 +53,14 @@ class PluginManager {
         ..isLoaded = true;
     isLoaded = false;
 
-//2.8.0 20160713
-// PluginManager.prototype.addPlugin = function(plugin, filename) {
+//3.0.0 20160716
+// PluginManager.prototype.addPlugin = function(plugin, filename, functionRegistry) {
 //     this.installedPlugins.push(plugin);
 //     if (filename) {
 //         this.pluginCache[filename] = plugin;
 //     }
 //     if (plugin.install) {
-//         plugin.install(this.less, this);
+//         plugin.install(this.less, this, functionRegistry || this.less.functions.functionRegistry);
 //     }
 // };
   }

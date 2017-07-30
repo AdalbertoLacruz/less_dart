@@ -1,4 +1,4 @@
-//source: less/parser.js 2.6.1 20160423
+//source: less/parser/parser.js 3.0.0 20160718
 
 part of parser.less;
 
@@ -402,35 +402,42 @@ class Entities {
 
     value = quoted()
         ?? variable()
+        ?? property()
         ?? new Anonymous(parserInput.$re(_urlRegExp) ?? '');
 
     parserInput
         ..autoCommentAbsorb = true
         ..expectChar(')');
+    return new URL(
+        (value.value != null) || (value is Variable) || (value is Property)
+            ? value
+            : new Anonymous(value, index: index),
+        index: index,
+        currentFileInfo: fileInfo);
 
-    return new URL(value, index: index, currentFileInfo: fileInfo);
-
-//2.4.0 20150315
-//  url: function () {
-//      var value, index = parserInput.i;
+//3.0.0 20160718
+// url: function () {
+//     var value, index = parserInput.i;
 //
-//      parserInput.autoCommentAbsorb = false;
+//     parserInput.autoCommentAbsorb = false;
 //
-//      if (!parserInput.$str("url(")) {
-//          parserInput.autoCommentAbsorb = true;
-//          return;
-//      }
+//     if (!parserInput.$str("url(")) {
+//         parserInput.autoCommentAbsorb = true;
+//         return;
+//     }
 //
-//      value = this.quoted() || this.variable() ||
-//              parserInput.$re(/^(?:(?:\\[\(\)'"])|[^\(\)'"])+/) || "";
+//     value = this.quoted() || this.variable() || this.property() ||
+//             parserInput.$re(/^(?:(?:\\[\(\)'"])|[^\(\)'"])+/) || "";
 //
-//      parserInput.autoCommentAbsorb = true;
+//     parserInput.autoCommentAbsorb = true;
 //
-//      expectChar(')');
+//     expectChar(')');
 //
-//      return new(tree.URL)((value.value != null || value instanceof tree.Variable) ?
-//                          value : new(tree.Anonymous)(value), index, fileInfo);
-//  },
+//     return new(tree.URL)((value.value != null ||
+//         value instanceof tree.Variable ||
+//         value instanceof tree.Property) ?
+//         value : new(tree.Anonymous)(value, index), index, fileInfo);
+// },
   }
 
   static final RegExp _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
@@ -489,8 +496,64 @@ class Entities {
 //  }
   }
 
+
+  static final RegExp _propertyRegExp = new RegExp(r'\$[\w-]+', caseSensitive: true);
+
+  ///
+  /// A Property accessor, such as `$color`, in
+  ///
+  ///     background-color: $color
+  ///
+  Property property() {
+    String    name;
+    final int index = parserInput.i;
+
+    if (parserInput.currentChar() == r'$' &&
+        (name = parserInput.$re(_propertyRegExp, 1)) != null)
+        return new Property(name, index, fileInfo);
+    return null;
+
+//3.0.0 20160718
+// property: function () {
+//     var name, index = parserInput.i;
+//
+//     if (parserInput.currentChar() === '$' && (name = parserInput.$re(/^\$[\w-]+/))) {
+//         return new(tree.Property)(name, index, fileInfo);
+//     }
+// },
+  }
+
+
+  static final RegExp _propertyCurlyRegExp = new RegExp(r'\$\{([\w-]+)\}', caseSensitive: true);
+
+  ///
+  /// A property entity useing the protective {} e.g. @{prop}
+  ///
+  Property propertyCurly() {
+    String    curly;
+    final int index = parserInput.i;
+
+    if (parserInput.currentChar() == r'$' &&
+        (curly = parserInput.$re(_propertyCurlyRegExp, 1)) != null) {
+      return new Property('\$$curly', index, fileInfo);
+    }
+    return null;
+
+//3.0.0 20160718
+// propertyCurly: function () {
+//     var curly, index = parserInput.i;
+//
+//     if (parserInput.currentChar() === '$' && (curly = parserInput.$re(/^\$\{([\w-]+)\}/))) {
+//         return new(tree.Property)("$" + curly[1], index, fileInfo);
+//     }
+// },
+  }
+
+
+
   static final RegExp _colorRegExp1 =
-      new RegExp(r'#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', caseSensitive: true);
+      new RegExp(r'#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})',
+      caseSensitive: true);
   static final RegExp _colorRegExp2 = new RegExp(r'#([\w]+).*');
   static final RegExp _colorRegExp3 = new RegExp(r'^[A-Fa-f0-9]+$');
 
@@ -500,6 +563,9 @@ class Entities {
   ///     #4F3C2F
   ///
   /// `rgb` and `hsl` colors are parsed through the `entities.call` parser.
+  ///
+  /// Formats:
+  ///     #rgb, #rgba, #rrggbb, #rrggbbaa
   ///
   Color color() {
     Match rgb;

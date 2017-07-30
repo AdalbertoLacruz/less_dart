@@ -76,6 +76,17 @@ class Declaration extends Node implements MakeImportantNode {
   };
 
   ///
+  ///  clone this Declaration
+  ///  
+  Declaration clone() => new Declaration(name, value,
+      important: important,
+      merge: merge,
+      index:  index,
+      currentFileInfo: currentFileInfo,
+      inline: inline,
+      variable: variable);
+
+  ///
   //function external to class. static?
   String evalName(Contexts context, List<Node> name) {
     final Output output = new Output();

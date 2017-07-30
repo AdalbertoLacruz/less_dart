@@ -1,4 +1,4 @@
-//source: less/parser.js ines 195-end 2.8.0 20160713
+//source: less/parser/parser.js ines 195-end 3.0.0 20160718
 
 part of parser.less;
 
@@ -83,7 +83,7 @@ class Parsers {
       }
 
       // always process comments before deciding if finished
-      if (parserInput.finished || parserInput.empty)
+      if (parserInput.finished || parserInput.isEmpty)
           break;
       if (parserInput.peekChar('}'))
           break;
@@ -229,11 +229,6 @@ class Parsers {
     return null;
 
 //2.6.0 20160224
-//
-// The variable part of a variable definition. Used in the `rule` parser
-//
-//     @fink();
-//
 // rulesetCall: function () {
 //     var name;
 //
@@ -339,24 +334,22 @@ class Parsers {
   /// Entities are the smallest recognized token,
   /// and can be found inside a rule's value.
   ///
-  Node entity() {
-    final Node result = comment()
+  Node entity() => comment()
         ?? entities.literal()
         ?? entities.variable()
         ?? entities.url()
+        ?? entities.property()
         ?? entities.call()
         ?? entities.keyword()
         ?? entities.javascript();
-    return result;
 
-//2.2.0
-//  entity: function () {
-//      var entities = this.entities;
+//3.0.0 20160718
+// entity: function () {
+//     var entities = this.entities;
 //
-//      return this.comment() || entities.literal() || entities.variable() || entities.url() ||
-//             entities.call()    || entities.keyword()  || entities.javascript();
-//  }
-  }
+//     return this.comment() || entities.literal() || entities.variable() || entities.url() ||
+//            entities.property() || entities.call() || entities.keyword()  || entities.javascript();
+// },
 
   ///
   /// A Declaration terminator. Note that we use `peek()` to check for '}',
@@ -677,9 +670,9 @@ class Parsers {
   List<Node> block() {
     List<Node> content;
 
-    if (parserInput.$char('{') != null &&
-        (content = primary()) != null &&
-        parserInput.$char('}') != null)
+    if (parserInput.$char('{') != null
+        && (content = primary()) != null
+        && parserInput.$char('}') != null)
         return content;
     return null;
 
@@ -825,7 +818,7 @@ class Parsers {
   }
 
   ///
-  Declaration declaration({bool tryAnonymous = false}) {
+  Declaration declaration() {
     final String  c = parserInput.currentChar();
     String        important;
     bool          isVariable;
@@ -856,28 +849,20 @@ class Parsers {
             ? (name as List<Node>).removeLast().value
             : '';
 
-        // prefer to try to parse first if its a variable or we are compressing
-        // but always fallback on the other one
-        final bool tryValueFirst = !tryAnonymous && (context.compress || isVariable || context.cleanCss);
-        if (tryValueFirst)
-            value = this.value();
-
-        if (value == null) {
-          value = anonymousValue();
-          if (value != null) {
-            parserInput.forget();
-            // anonymous values absorb the end ';' which is required for them to work
-            return new Declaration(name, value,
-                important: '',
-                merge: merge,
-                index: startOfRule,
-                currentFileInfo: fileInfo);
-          }
+        // Try to store values as anonymous
+        // If we need the value later we'll re-parse it in ruleset.parseValue
+        value = anonymousValue();
+        if (value != null) {
+          parserInput.forget();
+          // anonymous values absorb the end ';' which is required for them to work
+          return new Declaration(name, value,
+                  important: '',
+                  merge: merge,
+                  index: startOfRule,
+                  currentFileInfo: fileInfo);
         }
 
-        if (!tryValueFirst && value == null)
-            value = this.value();
-
+        value ??= this.value();
         important = this.important();
       }
 
@@ -890,17 +875,15 @@ class Parsers {
             currentFileInfo: fileInfo);
       } else {
         parserInput.restore();
-        if (value != null && !tryAnonymous)
-            return declaration(tryAnonymous: true);
       }
     } else {
-      parserInput.forget();
+      parserInput.restore();
     }
 
     return null;
 
-//2.8.0 20160702
-// declaration: function (tryAnonymous) {
+//3.0.0 20160718
+// declaration: function () {
 //     var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
 //
 //     if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
@@ -922,22 +905,16 @@ class Parsers {
 //             // where each item is a tree.Keyword or tree.Variable
 //             merge = !isVariable && name.length > 1 && name.pop().value;
 //
-//             // prefer to try to parse first if its a variable or we are compressing
-//             // but always fallback on the other one
-//             var tryValueFirst = !tryAnonymous && (context.compress || isVariable);
+//             // Try to store values as anonymous
+//             // If we need the value later we'll re-parse it in ruleset.parseValue
+//             value = this.anonymousValue();
+//             if (value) {
+//                 parserInput.forget();
+//                 // anonymous values absorb the end ';' which is required for them to work
+//                 return new (tree.Declaration)(name, value, false, merge, startOfRule, fileInfo);
+//             }
 //
-//             if (tryValueFirst) {
-//                 value = this.value();
-//             }
 //             if (!value) {
-//                 value = this.anonymousValue();
-//                 if (value) {
-//                     parserInput.forget();
-//                     // anonymous values absorb the end ';' which is required for them to work
-//                     return new (tree.Declaration)(name, value, false, merge, startOfRule, fileInfo);
-//                 }
-//             }
-//             if (!tryValueFirst && !value) {
 //                 value = this.value();
 //             }
 //
@@ -947,34 +924,34 @@ class Parsers {
 //         if (value && this.end()) {
 //             parserInput.forget();
 //             return new (tree.Declaration)(name, value, important, merge, startOfRule, fileInfo);
-//         } else {
+//         }
+//         else {
 //             parserInput.restore();
-//             if (value && !tryAnonymous) {
-//                 return this.declaration(true);
-//             }
 //         }
 //     } else {
-//         parserInput.forget();
+//         parserInput.restore();
 //     }
 // },
   }
 
-  static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@+\/'"*`(;{}-]*);''', caseSensitive: false);
+  static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@\$+\/'"*`(;{}-]*);''', caseSensitive: false);
 
   ///
   Anonymous anonymousValue() {
+    final int index = parserInput.i;
     final String match = parserInput.$re(_anonymousValueRegExp1, 1);
     if (match != null)
-        return new Anonymous(match);
+        return new Anonymous(match, index: index);
     return null;
 
-//2.2.0
-//  anonymousValue: function () {
-//      var match = parserInput.$re(/^([^@+\/'"*`(;{}-]*);/);
-//      if (match) {
-//          return new(tree.Anonymous)(match[1]);
-//      }
-//  }
+//3.0.0 20160718
+// anonymousValue: function () {
+//     var index = parserInput.i;
+//     var match = parserInput.$re(/^([^@\$+\/'"*`(;{}-]*);/);
+//     if (match) {
+//         return new(tree.Anonymous)(match[1], index);
+//     }
+// },
   }
 
   static final RegExp _importRegExp1 = new RegExp(r'@import?\s+', caseSensitive: true);
@@ -1579,7 +1556,7 @@ class Parsers {
     parserInput.restore('at-rule options not recognised');
     return null;
 
-//2.8.0 20160713
+//3.0.0 20160718
 // atrule: function () {
 //     var index = parserInput.i, name, value, rules, nonVendorSpecificName,
 //         hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
@@ -1672,6 +1649,7 @@ class Parsers {
   Value value() {
     Expression              e;
     final List<Expression>  expressions = <Expression>[];
+    final int               index = parserInput.i;
 
     do {
       e = expression();
@@ -1683,25 +1661,25 @@ class Parsers {
     } while (e != null);
 
     if (expressions.isNotEmpty)
-        return new Value(expressions);
+        return new Value(expressions, index: index);
     return null;
 
-//2.2.0
-//  value: function () {
-//      var e, expressions = [];
+//3.0.0 20160718
+// value: function () {
+//     var e, expressions = [], index = parserInput.i;
 //
-//      do {
-//          e = this.expression();
-//          if (e) {
-//              expressions.push(e);
-//              if (! parserInput.$char(',')) { break; }
-//          }
-//      } while(e);
+//     do {
+//         e = this.expression();
+//         if (e) {
+//             expressions.push(e);
+//             if (! parserInput.$char(',')) { break; }
+//         }
+//     } while (e);
 //
-//      if (expressions.length > 0) {
-//          return new(tree.Value)(expressions);
-//      }
-//  }
+//     if (expressions.length > 0) {
+//         return new(tree.Value)(expressions, index);
+//     }
+// },
   }
 
   static final RegExp _importantRegExp1 = new RegExp(r'! *important', caseSensitive: true);
@@ -2240,7 +2218,7 @@ class Parsers {
 // },
   }
 
-  static final RegExp _reOperand = new RegExp(r'-[@\(]');
+  static final RegExp _reOperand = new RegExp(r'-[@\$\(]');
 
   ///
   /// An operand is anything that can be part of an operation,
@@ -2257,6 +2235,7 @@ class Parsers {
         ?? entities.dimension()
         ?? entities.color()
         ?? entities.variable()
+        ?? entities.property()
         ?? entities.call()
         ?? entities.colorKeyword();
 
@@ -2267,45 +2246,18 @@ class Parsers {
 
     return o;
 
-//2.6.0 20160206
-//
-// An operand is anything that can be part of an operation,
-// such as a Color, or a Variable
-//
+//3.0.0 20160718
 // operand: function () {
 //     var entities = this.entities, negate;
 //
-//     if (parserInput.peek(/^-[@\(]/)) {
+//     if (parserInput.peek(/^-[@\$\(]/)) {
 //         negate = parserInput.$char('-');
 //     }
 //
 //     var o = this.sub() || entities.dimension() ||
 //             entities.color() || entities.variable() ||
-//             entities.call() || entities.colorKeyword();
-//
-//     if (negate) {
-//         o.parensInOp = true;
-//         o = new(tree.Negative)(o);
-//     }
-//
-//     return o;
-// },
-
-//2.5.3 20160115
-//
-// An operand is anything that can be part of an operation,
-// such as a Color, or a Variable
-//
-// operand: function () {
-//     var entities = this.entities, negate;
-//
-//     if (parserInput.peek(/^-[@\(]/)) {
-//         negate = parserInput.$char('-');
-//     }
-//
-//     var o = this.sub() || entities.dimension() ||
-//             entities.variable() ||
-//             entities.call() || entities.color();
+//             entities.property() || entities.call() ||
+//             entities.colorKeyword();
 //
 //     if (negate) {
 //         o.parensInOp = true;
@@ -2329,6 +2281,7 @@ class Parsers {
     String            delim;
     Node              e;
     final List<Node>  entities = <Node>[];
+    final int         index = parserInput.i;
 
     do {
       e = comment();
@@ -2346,7 +2299,7 @@ class Parsers {
         if (!parserInput.peek(_reExpression)) {
           delim = parserInput.$char('/');
           if (delim != null)
-              entities.add(new Anonymous(delim));
+              entities.add(new Anonymous(delim, index: index));
         }
       }
     } while (e != null);
@@ -2355,32 +2308,32 @@ class Parsers {
 
     return null;
 
-//2.2.0
-//  expression: function () {
-//      var entities = [], e, delim;
+//3.0.0 20160718
+// expression: function () {
+//     var entities = [], e, delim, index = parserInput.i;
 //
-//      do {
-//          e = this.comment();
-//          if (e) {
-//              entities.push(e);
-//              continue;
-//          }
-//          e = this.addition() || this.entity();
-//          if (e) {
-//              entities.push(e);
-//              // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
-//              if (!parserInput.peek(/^\/[\/*]/)) {
-//                  delim = parserInput.$char('/');
-//                  if (delim) {
-//                      entities.push(new(tree.Anonymous)(delim));
-//                  }
-//              }
-//          }
-//      } while (e);
-//      if (entities.length > 0) {
-//          return new(tree.Expression)(entities);
-//      }
-//  }
+//     do {
+//         e = this.comment();
+//         if (e) {
+//             entities.push(e);
+//             continue;
+//         }
+//         e = this.addition() || this.entity();
+//         if (e) {
+//             entities.push(e);
+//             // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
+//             if (!parserInput.peek(/^\/[\/*]/)) {
+//                 delim = parserInput.$char('/');
+//                 if (delim) {
+//                     entities.push(new(tree.Anonymous)(delim, index));
+//                 }
+//             }
+//         }
+//     } while (e);
+//     if (entities.length > 0) {
+//         return new(tree.Expression)(entities);
+//     }
+// },
   }
 
   static final RegExp _propertyRegExp1 = new RegExp(r'(\*?-?[_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
@@ -2398,7 +2351,7 @@ class Parsers {
 
   static final RegExp _rulePropertyRegExp1 = new RegExp(r'([_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
   static final RegExp _rulePropertyRegExp2 = new RegExp(r'(\*?)', caseSensitive: true);
-  static final RegExp _rulePropertyRegExp3 = new RegExp(r'((?:[\w-]+)|(?:@\{[\w-]+\}))', caseSensitive: true);
+  static final RegExp _rulePropertyRegExp3 = new RegExp(r'((?:[\w-]+)|(?:[@\$]\{[\w-]+\}))', caseSensitive: true);
   static final RegExp _rulePropertyRegExp4 = new RegExp(r'((?:\+_|\+)?)\s*:', caseSensitive: true);
 
   ///
@@ -2444,11 +2397,14 @@ class Parsers {
         name.removeAt(0);
         index.removeAt(0);
       }
+
       for (int k = 0; k < name.length; k++) {
         s = name[k];
-        result.add((!s.startsWith('@'))
+        result.add((!s.startsWith('@') && !s.startsWith(r'$'))
             ? new Keyword(s)
-            : new Variable('@${s.substring(2, (s.length - 1))}', index[k], fileInfo)
+            : (s.startsWith('@'))
+                ? new Variable('@${s.substring(2, (s.length - 1))}', index[k], fileInfo)
+                : new Property('\$${s.substring(2, (s.length - 1))}', index[k], fileInfo)
         );
       }
       return result;
@@ -2456,56 +2412,56 @@ class Parsers {
     parserInput.restore();
     return null;
 
-//2.4.0 20150315 1739
-//  ruleProperty: function () {
-//      var name = [], index = [], s, k;
+//3.0.0 20160718
+// ruleProperty: function () {
+//     var name = [], index = [], s, k;
 //
-//      parserInput.save();
+//     parserInput.save();
 //
-//      var simpleProperty = parserInput.$re(/^([_a-zA-Z0-9-]+)\s*:/);
-//      if (simpleProperty) {
-//          name = [new(tree.Keyword)(simpleProperty[1])];
-//          parserInput.forget();
-//          return name;
-//      }
+//     var simpleProperty = parserInput.$re(/^([_a-zA-Z0-9-]+)\s*:/);
+//     if (simpleProperty) {
+//         name = [new(tree.Keyword)(simpleProperty[1])];
+//         parserInput.forget();
+//         return name;
+//     }
 //
-//      function match(re) {
-//          var i = parserInput.i,
-//              chunk = parserInput.$re(re);
-//          if (chunk) {
-//              index.push(i);
-//              return name.push(chunk[1]);
-//          }
-//      }
+//     function match(re) {
+//         var i = parserInput.i,
+//             chunk = parserInput.$re(re);
+//         if (chunk) {
+//             index.push(i);
+//             return name.push(chunk[1]);
+//         }
+//     }
 //
-//      match(/^(\*?)/);
-//      while (true) {
-//          if (!match(/^((?:[\w-]+)|(?:@\{[\w-]+\}))/)) {
-//              break;
-//          }
-//      }
+//     match(/^(\*?)/);
+//     while (true) {
+//         if (!match(/^((?:[\w-]+)|(?:[@\$]\{[\w-]+\}))/)) {
+//             break;
+//         }
+//     }
 //
-//      if ((name.length > 1) && match(/^((?:\+_|\+)?)\s*:/)) {
-//          parserInput.forget();
+//     if ((name.length > 1) && match(/^((?:\+_|\+)?)\s*:/)) {
+//         parserInput.forget();
 //
-//          // at last, we have the complete match now. move forward,
-//          // convert name particles to tree objects and return:
-//          if (name[0] === '') {
-//              name.shift();
-//              index.shift();
-//          }
-//          for (k = 0; k < name.length; k++) {
-//              s = name[k];
-//              name[k] = (s.charAt(0) !== '@') ?
-//                  new(tree.Keyword)(s) :
-//                  new(tree.Variable)('@' + s.slice(2, -1),
-//                        index[k], fileInfo);
-//            }
-//            return name;
-//        }
-//        parserInput.restore();
-//    }
-//}
+//         // at last, we have the complete match now. move forward,
+//         // convert name particles to tree objects and return:
+//         if (name[0] === '') {
+//             name.shift();
+//             index.shift();
+//         }
+//         for (k = 0; k < name.length; k++) {
+//             s = name[k];
+//             name[k] = (s.charAt(0) !== '@' && s.charAt(0) !== '$') ?
+//                 new(tree.Keyword)(s) :
+//                 (s.charAt(0) === '@' ?
+//                     new(tree.Variable)('@' + s.slice(2, -1), index[k], fileInfo) :
+//                     new(tree.Property)('$' + s.slice(2, -1), index[k], fileInfo));
+//         }
+//         return name;
+//     }
+//     parserInput.restore();
+// }
   }
 
   ///

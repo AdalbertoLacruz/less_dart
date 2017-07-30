@@ -35,10 +35,9 @@ class ParserInput {
   }
 
   ///
-  //Not used in 2.2.0
-  bool get notEmpty => i < input.length;
+  bool get isNotEmpty => i < input.length;
   ///
-  bool get empty => i >= input.length;
+  bool get isEmpty => i >= input.length;
 
   ///
   String charAt(int pos) {
@@ -128,7 +127,7 @@ class ParserInput {
   /// [index] if match returns m[index]
   ///
   dynamic $re(RegExp reg, [int index]) {
-    if (i >= input.length)
+    if (isEmpty)
         return null;
 
     final Match m = reg.matchAsPrefix(input, i);
@@ -179,7 +178,7 @@ class ParserInput {
   /// Returns tok if found at current position
   ///
   String $str(String tok) {
-    if (i >= input.length || !input.startsWith(tok, i))
+    if (isEmpty || !input.startsWith(tok, i))
         return null;
 
     skipWhitespace(i + tok.length);
@@ -265,7 +264,7 @@ class ParserInput {
     if (i == endIndex) {
       finished = true;
     }
-    
+
 //2.6.1 20160401
 // function skipWhitespace(length) {
 //     var oldi = parserInput.i, oldj = j,
@@ -397,7 +396,7 @@ class ParserInput {
   /// [tok] = String | RegExp
   ///
   bool peek(dynamic tok) {
-    if (i >= input.length)
+    if (isEmpty)
         return false;
     if (tok is String) {
       return input.startsWith(tok, i);
@@ -411,7 +410,7 @@ class ParserInput {
   /// Specialization of peek()
   ///
   bool peekChar(String tok) {
-    if (i >= input.length)
+    if (isEmpty)
         return false;
     return input[i] == tok;
   }
@@ -421,11 +420,14 @@ class ParserInput {
 
   ///
   bool peekNotNumeric() {
+    if (isEmpty)
+        return false;
+
     final int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
-    return (c > Charcode.$9_57 || c < Charcode.PLUS_43) ||
-        c == Charcode.SLASH_47 ||
-        c == Charcode.COMMA_44;
+    return (c > Charcode.$9_57 || c < Charcode.PLUS_43) 
+        || c == Charcode.SLASH_47
+        || c == Charcode.COMMA_44;
 
 //    parserInput.peekNotNumeric = function() {
 //        var c = input.charCodeAt(parserInput.i);
@@ -504,7 +506,7 @@ class ParserInput {
         type: 'Parse',
         message: message,
         index: endInfo.furthest,
-        filename: context.currentFileInfo.filename,
+        filename: context.currentFileInfo?.filename,
         context: context)
       );
     }

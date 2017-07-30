@@ -9,7 +9,8 @@ class Value extends Node {
   @override covariant List<Node>  value;
 
   ///
-  Value(List<Node> this.value) {
+  Value(List<Node> this.value, {int index})
+      : super.init(index: index) {
     if (value == null)
         throw new LessExceptionError(new LessError(
             message: 'Value requires an array argument'));

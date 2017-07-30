@@ -1,4 +1,4 @@
-//source: lib/less/environment/abstract-file-manager.js 2.6.1 20160504
+//source: lib/less/environment/abstract-file-manager.js 3.0.0 20160717
 
 part of environment.less;
 
@@ -273,12 +273,13 @@ class FileManager {
         ..hostPart = urlParts[1]
         ..directories = directories
         ..path = '${urlParts[1]}${directories.join('/')}'
+        ..filename = urlParts[4]
         ..fileUrl = '${returner.path}${urlParts[4]}'
         ..url = '${returner.fileUrl}${urlParts[5]}';
     return returner;
 
-//2.6.1 20160504
-// // helper function, not part of API
+//3.0.0 20160717
+// helper function, not part of API
 // abstractFileManager.prototype.extractUrlParts = function extractUrlParts(url, baseUrl) {
 //     // urlParts[1] = protocol://hostname/ OR /
 //     // urlParts[2] = / if path relative to host base
@@ -328,6 +329,7 @@ class FileManager {
 //     returner.hostPart = urlParts[1];
 //     returner.directories = directories;
 //     returner.path = (urlParts[1] || "") + directories.join("/");
+//     returner.filename = urlParts[4];
 //     returner.fileUrl = returner.path + (urlParts[4] || "");
 //     returner.url = returner.fileUrl + (urlParts[5] || "");
 //     return returner;
@@ -358,6 +360,8 @@ class UrlParts {
   List<String>  directories;
   ///
   String        hostPart;
+  ///
+  String        filename;
   ///
   String        fileUrl;
   ///

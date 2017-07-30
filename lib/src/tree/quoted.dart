@@ -1,4 +1,4 @@
-//source: less/tree/quoted.js 3.0.0 20160714
+//source: less/tree/quoted.js 3.0.0 20160718
 
 part of tree.less;
 
@@ -76,7 +76,8 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
   @override
   Node eval(Contexts context) {
     //RegExp reJS = new RegExp(r'`([^`]+)`'); //javascript expresion
-    final RegExp reVar = new RegExp(r'@\{([\w-]+)\}');
+    final RegExp variableRegExp = new RegExp(r'@\{([\w-]+)\}');
+    final RegExp propertyRegExp = new RegExp(r'\$\{([\w-]+)\}');
     final Quoted that = this;
     String       value = this.value;
 
@@ -87,10 +88,16 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     //@f: 'ables';
     //@import 'vari@{f}.less';
     //result = @import 'variables.less';
-    String interpolationReplacement(Match m) {
+    String variableReplacement(Match m) {
       final String  name = m[1];
       final Node    v = new Variable('@$name', that.index, that.currentFileInfo).eval(context);
 
+      return (v is Quoted) ? v.value : v.toCSS(null);
+    }
+
+    String propertyReplacement(Match m) {
+      final String  name = m[1];
+      final Node v = new Property('\$$name', index, currentFileInfo).eval(context);
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
@@ -106,22 +113,27 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
       return evaluatedValue;
     }
 
-//      value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement); // JS Not supported
-    value = iterativeReplace(value, reVar, interpolationReplacement);
+    // value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement); // JS Not supported
+    value = iterativeReplace(value, variableRegExp, variableReplacement);
+    value = iterativeReplace(value, propertyRegExp, propertyReplacement);
 
     return new Quoted('$quote$value$quote', value,
         escaped: escaped,
         index: index,
         currentFileInfo: currentFileInfo);
 
-//3.0.0 20160714
+//3.0.0 20160718
 // Quoted.prototype.eval = function (context) {
 //     var that = this, value = this.value;
 //     var javascriptReplacement = function (_, exp) {
 //         return String(that.evaluateJavaScript(exp, context));
 //     };
-//     var interpolationReplacement = function (_, name) {
+//     var variableReplacement = function (_, name) {
 //         var v = new Variable('@' + name, that.getIndex(), that.fileInfo()).eval(context, true);
+//         return (v instanceof Quoted) ? v.value : v.toCSS();
+//     };
+//     var propertyReplacement = function (_, name) {
+//         var v = new Property('$' + name, that.getIndex(), that.fileInfo()).eval(context, true);
 //         return (v instanceof Quoted) ? v.value : v.toCSS();
 //     };
 //     function iterativeReplace(value, regexp, replacementFnc) {
@@ -133,7 +145,8 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //         return evaluatedValue;
 //     }
 //     value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement);
-//     value = iterativeReplace(value, /@\{([\w-]+)\}/g, interpolationReplacement);
+//     value = iterativeReplace(value, /@\{([\w-]+)\}/g, variableReplacement);
+//     value = iterativeReplace(value, /\$\{([\w-]+)\}/g, propertyReplacement);
 //     return new Quoted(this.quote + value + this.quote, value, this.escaped, this.getIndex(), this.fileInfo());
 // };
   }

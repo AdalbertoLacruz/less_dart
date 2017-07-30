@@ -1,4 +1,4 @@
-//source: less/tree/node.js 3.0.0 20160714
+//source: less/tree/node.js 3.0.0 20160718
 
 part of tree.less;
 
@@ -34,6 +34,10 @@ abstract class Node {
   bool                parens = false; //Expression
   ///
   bool                parensInOp = false; //See parsers.operand & Expression
+  ///
+  bool                parsed = false;
+  ///
+  bool                rootNode;
   ///
   @virtual List<Node> rules; //Ruleset
   ///
@@ -120,6 +124,9 @@ abstract class Node {
 
   ///
   bool isRulesetLike() => false;
+
+//3.0.0 20160716
+// Node.prototype.isRulesetLike = function() { return false; };
 
   ///
   /// Update [parent] property in [nodes]

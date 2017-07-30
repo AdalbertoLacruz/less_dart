@@ -1,4 +1,4 @@
-//source: less/tree/anonymous.js 3.0.0 20160714
+//source: less/tree/anonymous.js 3.0.0 20160716
 
 part of tree.less;
 
@@ -72,11 +72,16 @@ class Anonymous extends Node implements CompareNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    output.add(value, fileInfo: _fileInfo, index: _index, mapLines: mapLines);
+    nodeVisible = (value != null);
+    if (nodeVisible)
+        output.add(value, fileInfo: _fileInfo, index: _index, mapLines: mapLines);
 
-//3.0.0 20160714
+//3.0.0 20160716
 // Anonymous.prototype.genCSS = function (context, output) {
-//     output.add(this.value, this._fileInfo, this._index, this.mapLines);
+//     this.nodeVisible = Boolean(this.value);
+//     if (this.nodeVisible) {
+//         output.add(this.value, this._fileInfo, this._index, this.mapLines);
+//     }
 // };
   }
 
