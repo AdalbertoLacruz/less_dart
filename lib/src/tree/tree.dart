@@ -62,6 +62,7 @@ part 'ruleset.dart';
 part 'quoted.dart';
 part 'ruleset_call.dart';
 part 'selector.dart';
+part 'tree_api.dart';
 part 'unicode_descriptor.dart';
 part 'unit.dart';
 part 'url.dart';

@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.0.0 20160718
+// source: less/tree/ruleset.js 3.0.0 20160719
 
 part of tree.less;
 
@@ -824,7 +824,7 @@ class Ruleset extends Node
       final List<Element> insideParent = <Element>[]; // TODO map?
       for (int j = 0; j < elementsToPak.length; j++) {
         insideParent.add(new Element(null, elementsToPak[j],
-            originalElement._index, originalElement._fileInfo));
+            index: originalElement._index, currentFileInfo: originalElement._fileInfo));
       }
       replacementParen = new Paren(new Selector(insideParent));
     }
@@ -850,7 +850,7 @@ class Ruleset extends Node
   ///
   Selector createSelector(Node containedElement, Element originalElement) {
     final Element element = new Element(null, containedElement,
-        originalElement._index, originalElement._fileInfo);
+        index: originalElement._index, currentFileInfo: originalElement._fileInfo);
     return new Selector(<Element>[element]);
 
 // inside joinSelector
@@ -956,7 +956,7 @@ class Ruleset extends Node
             // the combinator used on el should now be applied to the next element instead so that
             // it is not lost
             if (sel.isNotEmpty)
-                sel.first.elements.add(new Element(el.combinator, '', el._index, el._fileInfo));
+                sel.first.elements.add(new Element(el.combinator, '', index: el._index, currentFileInfo: el._fileInfo));
             selectorsMultiplied.add(sel);
           } else {
             // and the parent selectors
@@ -1151,8 +1151,8 @@ class Ruleset extends Node
 
       // join the elements so far with the first part of the parent
       newJoinedSelector.elements
-          ..add(new Element(combinator, parentEl.value, replacedElement._index,
-              replacedElement._fileInfo))
+          ..add(new Element(combinator, parentEl.value,
+              index: replacedElement._index, currentFileInfo: replacedElement._fileInfo))
           ..addAll(addPath.first.elements.sublist(1));
     }
 
@@ -1343,7 +1343,7 @@ abstract class VariableMixin implements Node {
   ///
   Node                          paren;
   ///
-  Map<String, List<Declaration>>       _properties; // $properties
+  Map<String, List<Declaration>> _properties; // $properties
 
   //var                         _rulesets;
 
@@ -1528,10 +1528,10 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   /// Parse all Declaration nodes (used for compression)
   ///
-  void parseDeclaration() {
+  void parseForCompression() {
     for (int i = 0; i < (rules?.length ?? 0); i++) {
-      if (rules[i] is Declaration)
-          rules[i] = transformDeclaration(rules[i], bestTry: true);
+      if (rules[i] is Declaration )
+          rules[i] = transformDeclaration(rules[i], ignoreErrors: true);
     }
   }
 
@@ -1540,61 +1540,48 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   /// if bestTry = true, error result do not propagate
   ///
-  Declaration transformDeclaration(Declaration decl, {bool bestTry: false}) {
+  Declaration transformDeclaration(Declaration decl, {bool ignoreErrors: false}) {
     if (decl.value is Anonymous && !decl.parsed && !decl.value.parsed) {
-      try {
-        final Parsers parsers = new Parsers(decl.value.value, new Contexts());
-        final Value result = parsers.value();
-        final String important = parsers.important();
-        parsers.isFinished();
+      final List<dynamic> result = new ParseNode(decl.value.value,
+            decl.value.index, decl.currentFileInfo, ignoreErrors: ignoreErrors)
+            .value();
+      if (result != null) {
         decl
-            ..value = result
-            ..important = important ?? ''
+            ..value = result[0]
+            ..important = result[1] ?? ''
             ..parsed = true;
-      } catch (e) {
-          if (bestTry) //keep that we have
-              return decl;
-          if (e is LessExceptionError)
-              e.error.index += decl.value.index;
-          throw new LessExceptionError(LessError.transform(e));
       }
-
       return decl;
     }
-
     return decl;
 
 //inside parseValue
-//3.0.0 20160718
-//     function transformDeclaration(decl) {
-//         if (decl.value instanceof Anonymous && !decl.parsed) {
-//             try {
-//                 this.parse.parserInput.start(decl.value.value, false, function fail(msg, index) {
-//                     decl.parsed = true;
-//                     return decl;
-//                 });
-//                 var result = this.parse.parsers.value();
-//                 var important = this.parse.parsers.important();
-//
-//                 var endInfo = this.parse.parserInput.end();
-//                 if (endInfo.isFinished) {
-//                     decl.value = result;
-//                     decl.imporant = important;
+//3.0.0 20160719
+// function transformDeclaration(decl) {
+//     if (decl.value instanceof Anonymous && !decl.parsed) {
+//         this.parse.parseNode(
+//             decl.value.value,
+//             ["value", "important"],
+//             decl.value.getIndex(),
+//             decl.fileInfo(),
+//             function(err, result) {
+//                 if (err) {
 //                     decl.parsed = true;
 //                 }
-//             } catch (e) {
-//                 throw new LessError({
-//                     index: e.index + decl.value.getIndex(),
-//                     message: e.message
-//                 }, this.parse.imports, decl.fileInfo().filename);
-//             }
+//                 if (result) {
+//                     decl.value = result[0];
+//                     decl.important = result[1] || '';
+//                     decl.parsed = true;
+//                 }
+//             });
 //
-//             return decl;
-//         }
-//         else {
-//             return decl;
-//         }
+//         return decl;
 //     }
+//     else {
+//         return decl;
+//     }
+// }
+
   }
 
   ///

@@ -193,7 +193,7 @@ class CleanCssVisitor extends VisitorBase {
     String          valueStr;
 
     //for compress analysis we need the full parsed node. Ex. Color
-    rulesetNode.parseDeclaration();
+    rulesetNode.parseForCompression();
 
     //RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
     final RegExp attrRe = new RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]',caseSensitive: false);

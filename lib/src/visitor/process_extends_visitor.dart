@@ -673,8 +673,8 @@ class ProcessExtendsVisitor extends VisitorBase {
       final Element firstElement = new Element(
           match.initialCombinator,
           replacementSelector.elements[0].value,
-          replacementSelector.elements[0].index,
-          replacementSelector.elements[0].currentFileInfo);
+          index: replacementSelector.elements[0].index,
+          currentFileInfo: replacementSelector.elements[0].currentFileInfo);
 
       if (match.pathIndex > currentSelectorPathIndex &&
           currentSelectorPathElementIndex > 0) {

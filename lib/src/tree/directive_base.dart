@@ -134,9 +134,12 @@ class DirectiveBase extends Node
         ..mediaPath = mediaPathBackup
         ..mediaBlocks = mediaBlocksBackup;
 
-    return new AtRule(name, value, rules, index, currentFileInfo, debugInfo,
+    return new AtRule(name, value,
+        rules: rules,
+        index: index,
+        currentFileInfo: currentFileInfo,
+        debugInfo: debugInfo,
         visibilityInfo: visibilityInfo(),
-        //isReferenced: isReferenced,
         isRooted: isRooted);
 
 //3.0.0 20160714

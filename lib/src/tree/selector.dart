@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 3.0.0 20160714
+//source: less/tree/selector.js 3.0.0 20160719
 
 part of tree.less;
 
@@ -21,29 +21,31 @@ class Selector extends Node {
   ///
   bool            mediaEmpty = false;
 
-  /// Changed List<Node> to List<Element>
-  Selector(List<Element> elements,
+  ///
+  /// elements is List<Element> | String (to be parsed)
+  ///
+  Selector(dynamic elements,
       {List<Extend> this.extendList,
       Node this.condition,
       int index,
       FileInfo currentFileInfo,
       VisibilityInfo visibilityInfo})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
+    //clone if List.clear is used, because collateral effects
+    this.elements = getElements(elements);
 
-    this.elements = elements?.sublist(0); //clone to avoid List.clear collateral effects
-    //this.currentFileInfo = currentFileInfo ?? new FileInfo();
     if (condition == null)
         evaldCondition = true;
     copyVisibilityInfo(visibilityInfo);
     setParent(this.elements, this);
 
-//3.0.0 20160714
+//3.0.0 20160719
 // var Selector = function (elements, extendList, condition, index, currentFileInfo, visibilityInfo) {
-//     this.elements = elements;
 //     this.extendList = extendList;
 //     this.condition = condition;
 //     this._index = index;
 //     this._fileInfo = currentFileInfo;
+//     this.elements = this.getElements(elements);
 //     if (!condition) {
 //         this.evaldCondition = true;
 //     }
@@ -91,20 +93,24 @@ class Selector extends Node {
   }
 
   ///
-  Selector createDerived(List<Element> elements,
-      {List<Extend> extendList,
-      bool evaldCondition}) => new Selector(elements,
+  /// elements is List<Element> | String (to be parsed)
+  ///
+  Selector createDerived(dynamic elements,
+      {List<Extend> extendList, bool evaldCondition}) =>
+        new Selector(
+          getElements(elements),
           extendList: extendList ?? this.extendList,
           condition: null,
           index: index,
           currentFileInfo: currentFileInfo,
-          //isReferenced: isReferenced TODO remove
           visibilityInfo: visibilityInfo())
-          ..evaldCondition = evaldCondition ?? this.evaldCondition
-          ..mediaEmpty = mediaEmpty;
+            ..evaldCondition = evaldCondition ?? this.evaldCondition
+            ..mediaEmpty = mediaEmpty;
 
-//3.0.0 20160714
+
+//3.0.0 20160719
 // Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
+//     elements = this.getElements(elements);
 //     var info = this.visibilityInfo();
 //     evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
 //     var newSelector = new Selector(elements, extendList || this.extendList, null, this.getIndex(), this.fileInfo(), info);
@@ -114,8 +120,42 @@ class Selector extends Node {
 // };
 
   ///
+  /// delayed parser for String elements, used in plugin api
+  /// [els] is List<Element> | String
+  ///
+  List<Element> getElements(dynamic els) {
+    if (els is String) {
+      final Node result = new ParseNode(els, _index, _fileInfo).selector();
+      if (result != null)
+        return result.elements;
+    }
+    return els;
+
+//3.0.0 20160719
+// Selector.prototype.getElements = function(els) {
+//     if (typeof els === "string") {
+//         this.parse.parseNode(
+//             els,
+//             ["selector"],
+//             this._index,
+//             this._fileInfo,
+//             function(err, result) {
+//                 if (err) {
+//                     throw new LessError({
+//                         index: e.index + currentIndex,
+//                         message: e.message
+//                     }, this.parse.imports, this._fileInfo.filename);
+//                 }
+//                 els = result[0].elements;
+//             });
+//     }
+//     return els;
+// };
+  }
+
+  ///
   List<Selector> createEmptySelectors() {
-    final Element el = new Element('', '&', _index, _fileInfo);
+    final Element el = new Element('', '&', index: _index, currentFileInfo: _fileInfo);
     final List<Selector> sels = <Selector>[
       new Selector(<Element>[el],
         index: _index,
@@ -168,27 +208,27 @@ class Selector extends Node {
 //
 //    return olen;
 
-//2.3.1
-//  Selector.prototype.match = function (other) {
-//      var elements = this.elements,
-//          len = elements.length,
-//          olen, i;
+//3.0.0 20160719
+// Selector.prototype.match = function (other) {
+//     var elements = this.elements,
+//         len = elements.length,
+//         olen, i;
 //
-//      other.CacheElements();
+//     other.cacheElements();
 //
-//      olen = other._elements.length;
-//      if (olen === 0 || len < olen) {
-//          return 0;
-//      } else {
-//          for (i = 0; i < olen; i++) {
-//              if (elements[i].value !== other._elements[i]) {
-//                  return 0;
-//              }
-//          }
-//      }
+//     olen = other._elements.length;
+//     if (olen === 0 || len < olen) {
+//         return 0;
+//     } else {
+//         for (i = 0; i < olen; i++) {
+//             if (elements[i].value !== other._elements[i]) {
+//                 return 0;
+//             }
+//         }
+//     }
 //
-//      return olen; // return number of matched elements
-//  };
+//     return olen; // return number of matched elements
+// };
   }
 
   ///
@@ -220,26 +260,26 @@ class Selector extends Node {
       _elements = <String>[];
     }
 
-//2.3.1
-//  Selector.prototype.CacheElements = function() {
-//      if (this._elements) {
-//          return;
-//      }
+//3.0.0 20160719
+// Selector.prototype.cacheElements = function() {
+//     if (this._elements) {
+//         return;
+//     }
 //
-//      var elements = this.elements.map( function(v) {
-//          return v.combinator.value + (v.value.value || v.value);
-//      }).join("").match(/[,&#\*\.\w-]([\w-]|(\\.))*/g);
+//     var elements = this.elements.map( function(v) {
+//         return v.combinator.value + (v.value.value || v.value);
+//     }).join("").match(/[,&#\*\.\w-]([\w-]|(\\.))*/g);
 //
-//      if (elements) {
-//          if (elements[0] === "&") {
-//              elements.shift();
-//          }
-//      } else {
-//          elements = [];
-//      }
+//     if (elements) {
+//         if (elements[0] === "&") {
+//             elements.shift();
+//         }
+//     } else {
+//         elements = [];
+//     }
 //
-//      this._elements = elements;
-//  };
+//     this._elements = elements;
+// };
   }
 
   ///

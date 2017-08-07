@@ -17,7 +17,7 @@ class Unit extends Node implements CompareNode {
   Unit(
       [List<String> numerator = const <String>[],
       List<String> denominator = const <String>[],
-      this.backupUnit = null]) {
+      this.backupUnit]) {
 
     this.numerator = numerator.sublist(0)..sort(); //clone
     this.denominator = denominator.sublist(0)..sort();

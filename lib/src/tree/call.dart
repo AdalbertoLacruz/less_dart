@@ -13,7 +13,7 @@ class Call extends Node {
   List<Node>  args; // Expression | Dimension | Assignment
 
   ///
-  Call(this.name, this.args, int index, FileInfo currentFileInfo)
+  Call(this.name, this.args, {int index, FileInfo currentFileInfo})
       : super.init(currentFileInfo: currentFileInfo, index: index);
 
 //3.0.0 20160714
@@ -96,7 +96,7 @@ class Call extends Node {
       }
     }
 
-    return new Call(name, args, index, currentFileInfo);
+    return new Call(name, args, index: index, currentFileInfo: currentFileInfo);
 
 //3.0.0 20160716
 // Call.prototype.eval = function (context) {

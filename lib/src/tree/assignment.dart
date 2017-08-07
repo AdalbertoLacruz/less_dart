@@ -3,16 +3,21 @@
 part of tree.less;
 
 ///
+/// Assignments are argument entities for calls.
+/// They are present in ie filter properties as shown below.
+///
+///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
+///
 class Assignment extends Node {
   @override final String    name = null;
   @override final String    type = 'Assignment';
-  @override covariant Node  value;
 
   ///
   String key;
 
-  ///
-  Assignment(String this.key, Node this.value);
+  /// value == Node | String
+  Assignment(String this.key, dynamic value)
+      : super.init(value: value);
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

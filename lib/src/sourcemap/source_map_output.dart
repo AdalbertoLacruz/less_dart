@@ -1,4 +1,4 @@
-// source: less/source-map-output.js 2.5.0
+// source: less/source-map-output.js 3.0.0 20160804
 
 part of sourcemap.less;
 
@@ -96,34 +96,46 @@ class SourceMapOutput extends Output {
   }
 
   ///
+  String removeBasePath(String path) {
+    String _path = path;
+    if (sourceMapBasepath != null && path.startsWith(sourceMapBasepath)) {
+      _path = _path.substring(sourceMapBasepath.length);
+      if (_path.startsWith('\\') || _path.startsWith('/'))
+          _path = _path.substring(1);
+    }
+    return _path;
+
+//3.0.0 20160804
+// SourceMapOutput.prototype.removeBasepath = function(path) {
+//     if (this._sourceMapBasepath && path.indexOf(this._sourceMapBasepath) === 0) {
+//         path = path.substring(this._sourceMapBasepath.length);
+//         if (path.charAt(0) === '\\' || path.charAt(0) === '/') {
+//             path = path.substring(1);
+//         }
+//     }
+//
+//     return path;
+// };
+  }
+
+  ///
   String normalizeFilename (String file) {
     if (normalizeCache.containsKey(file))
         return normalizeCache[file];
 
     String filename = file.replaceAll('\\', '/');
-
-    if (sourceMapBasepath != null && filename.startsWith(sourceMapBasepath)) {
-      filename = filename.substring(sourceMapBasepath.length);
-      if (filename.startsWith('\\') || filename.startsWith('/'))
-          filename = filename.substring(1);
-    }
+    filename = removeBasePath(filename);
 
     final String result = path.normalize('${sourceMapRootpath ?? ''}$filename');
     normalizeCache[file] = result;
     return result;
 
-//2.4.0
-//  SourceMapOutput.prototype.normalizeFilename = function(filename) {
-//      filename = filename.replace(/\\/g, '/');
-//
-//      if (this._sourceMapBasepath && filename.indexOf(this._sourceMapBasepath) === 0) {
-//          filename = filename.substring(this._sourceMapBasepath.length);
-//          if (filename.charAt(0) === '\\' || filename.charAt(0) === '/') {
-//              filename = filename.substring(1);
-//          }
-//      }
-//      return (this._sourceMapRootpath || "") + filename;
-//  };
+//3.0.0 20160804
+// SourceMapOutput.prototype.normalizeFilename = function(filename) {
+//     filename = filename.replace(/\\/g, '/');
+//     filename = this.removeBasepath(filename);
+//     return (this._sourceMapRootpath || "") + filename;
+// };
   }
 
   ///

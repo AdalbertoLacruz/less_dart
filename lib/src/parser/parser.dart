@@ -21,6 +21,7 @@ part 'chunker.dart';
 part 'parser_input.dart';
 part 'entities.dart';
 part 'mixin.dart';
+part 'parse_node.dart';
 part 'parsers.dart';
 
 /*

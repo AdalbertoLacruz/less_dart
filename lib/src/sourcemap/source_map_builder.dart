@@ -1,4 +1,4 @@
-//source: lib/less/source-map-builder.js 2.5.0
+//source: lib/less/source-map-builder.js 3.0.0 20160804
 
 part of sourcemap.less;
 
@@ -39,33 +39,40 @@ class LessSourceMapBuilder {
     sourceMapURL = sourceMapOutput.sourceMapURL;
     if (options.sourceMapInputFilename.isNotEmpty)
         sourceMapInputFilename = sourceMapOutput.normalizeFilename(options.sourceMapInputFilename);
+        
+    if (options.sourceMapBasepath.isNotEmpty && (sourceMapURL?.isNotEmpty ?? false))
+        sourceMapURL = sourceMapOutput.removeBasePath(sourceMapURL);
+
     return '$css${getCSSAppendage()}';
 
-//2.4.0
-//  SourceMapBuilder.prototype.toCSS = function(rootNode, options, imports) {
-//          var sourceMapOutput = new SourceMapOutput(
-//              {
-//                  contentsIgnoredCharsMap: imports.contentsIgnoredChars, *
-//                  rootNode: rootNode, *
-//                  contentsMap: imports.contents, *
-//                  sourceMapFilename: this.options.sourceMapFilename, *
-//                  sourceMapURL: this.options.sourceMapURL, *
-//                  outputFilename: this.options.sourceMapOutputFilename, *
-//                  sourceMapBasepath: this.options.sourceMapBasepath, *
-//                  sourceMapRootpath: this.options.sourceMapRootpath, *
-//                  outputSourceFiles: this.options.outputSourceFiles, *
-//                  sourceMapGenerator: this.options.sourceMapGenerator, *
-//                  sourceMapFileInline: this.options.sourceMapFileInline *
-//              });
+//3.0.0 20160804
+// SourceMapBuilder.prototype.toCSS = function(rootNode, options, imports) {
+//     var sourceMapOutput = new SourceMapOutput(
+//         {
+//             contentsIgnoredCharsMap: imports.contentsIgnoredChars,
+//             rootNode: rootNode,
+//             contentsMap: imports.contents,
+//             sourceMapFilename: this.options.sourceMapFilename,
+//             sourceMapURL: this.options.sourceMapURL,
+//             outputFilename: this.options.sourceMapOutputFilename,
+//             sourceMapBasepath: this.options.sourceMapBasepath,
+//             sourceMapRootpath: this.options.sourceMapRootpath,
+//             outputSourceFiles: this.options.outputSourceFiles,
+//             sourceMapGenerator: this.options.sourceMapGenerator,
+//             sourceMapFileInline: this.options.sourceMapFileInline
+//         });
 //
-//          var css = sourceMapOutput.toCSS(options);
-//          this.sourceMap = sourceMapOutput.sourceMap;
-//          this.sourceMapURL = sourceMapOutput.sourceMapURL;
-//          if (this.options.sourceMapInputFilename) {
-//              this.sourceMapInputFilename = sourceMapOutput.normalizeFilename(this.options.sourceMapInputFilename);
-//          }
-//          return css + this.getCSSAppendage();
-//      };
+//     var css = sourceMapOutput.toCSS(options);
+//     this.sourceMap = sourceMapOutput.sourceMap;
+//     this.sourceMapURL = sourceMapOutput.sourceMapURL;
+//     if (this.options.sourceMapInputFilename) {
+//         this.sourceMapInputFilename = sourceMapOutput.normalizeFilename(this.options.sourceMapInputFilename);
+//     }
+//     if (this.options.sourceMapBasepath !== undefined && this.sourceMapURL !== undefined) {
+//         this.sourceMapURL = sourceMapOutput.removeBasepath(this.sourceMapURL);
+//     }
+//     return css + this.getCSSAppendage();
+// };
   }
 
   ///

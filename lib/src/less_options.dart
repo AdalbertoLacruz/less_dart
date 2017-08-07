@@ -1,3 +1,5 @@
+// source: bin/lessc.js 3.0.0 20161022
+
 library lessOptions.less;
 
 import 'dart:io';
@@ -77,7 +79,7 @@ class LessOptions {
   bool                      insecure = false;
 
   /// whether JavaScript is enabled. Dart version don't evaluate JavaScript
-  bool                      javascriptEnabled = true;
+  bool                      javascriptEnabled = false;
 
   ///
   bool                      lint = false;
@@ -230,6 +232,10 @@ class LessOptions {
       case 'insecure':
         insecure = true;
         break;
+      case 'js':
+        // js is not supported
+        javascriptEnabled = true;
+        break;
       case 'M':
       case 'depends':
         depends = true;
@@ -251,7 +257,7 @@ class LessOptions {
         ieCompat = false;
         break;
       case 'no-js':
-        javascriptEnabled = false;
+        return setParseError('The "--no-js" argument is deprecated, as inline JavaScript is disabled by default and not supported.');
         break;
       case 'include-path':
         if (checkArgFunc(command, arg[2])) {

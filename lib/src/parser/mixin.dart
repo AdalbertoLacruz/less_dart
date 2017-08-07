@@ -60,7 +60,7 @@ class Mixin {
           break;
 
       (elements ??= <Element>[])
-        ..add(new Element(c, e, elemIndex, fileInfo));
+        ..add(new Element(c, e, index: elemIndex, currentFileInfo: fileInfo));
       c = parserInput.$char('>');
     }
 

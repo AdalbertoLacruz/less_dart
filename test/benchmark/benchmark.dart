@@ -23,11 +23,11 @@ Future<Null> main(List<String> args) async {
   final String arg = args[0];
   switch (arg) {
     case 'parser':
-    case 'p':
+    case '-p':
       return mainParser();
       break;
     case 'full':
-    case 'f':
+    case '-f':
       return new FullBenchmark(totalruns: 30, ignoreruns: 5).run();
     default:
       return help();
@@ -37,8 +37,8 @@ Future<Null> main(List<String> args) async {
 ///
 Null help() {
   print ('benchmark                   : Parse big file');
-  print ('benchmark parser (p)        : Parse file several times and show max and min times');
-  print ('benchmark full (f)          : Parser + Render the file several times and show max and min times');
+  print ('benchmark parser (-p)        : Parse file several times and show max and min times');
+  print ('benchmark full (-f)          : Parser + Render the file several times and show max and min times');
   return null;
 }
 

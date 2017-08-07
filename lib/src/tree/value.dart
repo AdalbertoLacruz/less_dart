@@ -1,4 +1,4 @@
-//source: less/tree/value.js 2.5.0
+//source: less/tree/value.js 3.0.0 20160719
 
 part of tree.less;
 
@@ -9,20 +9,33 @@ class Value extends Node {
   @override covariant List<Node>  value;
 
   ///
-  Value(List<Node> this.value, {int index})
+  /// value is List<Node> | Node => [value]
+  ///
+  Value(dynamic value, {int index})
       : super.init(index: index) {
+    //
     if (value == null)
         throw new LessExceptionError(new LessError(
             message: 'Value requires an array argument'));
-  }
+    if (value is! List<Node>) {
+      this.value = <Node>[value];
+    } else {
+      this.value = value;
+    }
 
-//2.3.1
-//  var Value = function (value) {
-//      this.value = value;
-//      if (!value) {
-//          throw new Error("Value requires an array argument");
-//      }
-//  };
+//3.0.0 20160719
+// var Value = function (value) {
+//     if (!value) {
+//         throw new Error("Value requires an array argument");
+//     }
+//     if (!Array.isArray(value)) {
+//         this.value = [ value ];
+//     }
+//     else {
+//         this.value = value;
+//     }
+// };
+  }
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

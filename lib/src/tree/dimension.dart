@@ -16,7 +16,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// [value] is double or String
   /// [unit] is Unit or String
   ///
-  Dimension(dynamic value, [dynamic unit = null]) {
+  Dimension(dynamic value, [dynamic unit]) {
     this.value = (value is String) ? double.parse(value) : value.toDouble();
 
     if (unit != null) {

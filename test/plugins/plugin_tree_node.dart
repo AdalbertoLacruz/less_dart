@@ -1,4 +1,4 @@
-// source: test/less/plugin/plugin-tree-node.js 3.0.0 20160716
+// source: test/less/plugin/plugin-tree-node.js 3.0.0 20160719
 
 part of batch.test.less;
 
@@ -6,12 +6,11 @@ part of batch.test.less;
 class AddMultipleFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'test-comment')
-  Combinator testComment() => new Combinator(' ');
+  Combinator testComment() => less.combinator(' ');
 
   ///
-  @DefineMethod(name: 'test-directive')
-  Directive testDirective(Node arg1, Node arg2) =>
-      new Directive(arg1.value, new Anonymous(arg2.value), null, null, null, null);
+  @DefineMethod(name: 'test-atrule')
+  AtRule testAtrule(Node arg1, Node arg2) => less.atRule(arg1.value, arg2.value);
 
   ///
   @DefineMethod(name: 'test-extend')
@@ -35,7 +34,7 @@ class AddMultipleFunctions extends FunctionBase {
 
   ///
   @DefineMethod(name: 'test-ruleset-call')
-  Combinator testRulesetCall() => new Combinator(' ');
+  Combinator testRulesetCall() => less.combinator(' ');
 
   // Functions must return something, even if it's false/true
   ///
@@ -50,82 +49,70 @@ class AddMultipleFunctions extends FunctionBase {
 
   ///
   @DefineMethod(name: 'test-alpha')
-  Alpha testAlpha() => new Alpha(30);
+  Alpha testAlpha() => less.alpha(30);
 
   ///
   @DefineMethod(name: 'test-assignment')
-  Assignment testAssignment() => new Assignment('bird', new Keyword('robin'));
+  Assignment testAssignment() => less.assignment('bird', 'robin');
 
   ///
   @DefineMethod(name: 'test-attribute')
-  Attribute testAttribute() => new Attribute('foo', '=', 'bar');
+  Attribute testAttribute() => less.attribute('foo', '=', 'bar');
 
   ///
   @DefineMethod(name: 'test-call')
-  Call testCall() => new Call('foo', <Node>[], null, null);
+  Call testCall() => less.call('foo');
 
   ///
   @DefineMethod(name: 'test-color')
-  Color testColor() => new Color(<int>[50, 50, 50]);
+  Color testColor() => less.color(<int>[50, 50, 50]);
 
   ///
   @DefineMethod(name: 'test-condition')
-  Condition testCondition() => new Condition(
-      '<',
-      new Value(<Node>[new Quoted('', '0')]),
-      new Value(<Node>[new Quoted('', '1')]));
+  Condition testCondition() => less.condition('<', less.value(0), less.value(1));
 
   ///
   @DefineMethod(name: 'test-detached-ruleset')
   DetachedRuleset testDetachedRuleset() {
-    final Declaration decl = new Declaration('prop', new Anonymous('value'));
-    return new DetachedRuleset(new Ruleset(null, <Node>[decl]));
+    final Declaration decl = less.declaration('prop', 'value');
+    return less.detachedRuleset(less.ruleset(null, <Node>[decl]));
   }
 
   ///
   @DefineMethod(name: 'test-dimension')
-  Dimension testDimension() => new Dimension(1, 'px');
+  Dimension testDimension() => less.dimension(1, 'px');
 
   ///
   @DefineMethod(name: 'test-element')
-  Element testElement() => new Element('+', 'a', null, null);
+  Element testElement() => less.element('+', 'a');
 
   ///
   @DefineMethod(name: 'test-expression')
-  Expression testExpression() => new Expression(<Node>[
-      new Anonymous(1),
-      new Anonymous(2),
-      new Anonymous(3)
-    ]);
+  Expression testExpression() => less.expression(<num>[1, 2, 3]);
 
   ///
   @DefineMethod(name: 'test-keyword')
-  Keyword testKeyword() => new Keyword('foo');
+  Keyword testKeyword() => less.keyword('foo');
 
   ///
   @DefineMethod(name: 'test-operation')
-  Operation testOperation() => new Operation('+', <Node>[
-      new Dimension(1),
-      new Dimension(2)
-    ]);
+  Operation testOperation() => less.operation('+', <num>[1, 2]);
 
   ///
   @DefineMethod(name: 'test-quoted')
-  Quoted testQuoted() => new Quoted('"', 'foo');
+  Quoted testQuoted() => less.quoted('"', 'foo');
 
   ///
   @DefineMethod(name: 'test-selector')
-  Selector testSelector() => new Selector(<Element>[
-      new Element('', 'a', null, null)
-    ]);
+  Selector testSelector() => less.selector('.a.b');
 
   ///
   @DefineMethod(name: 'test-url')
-  URL testUrl() => new URL(new Quoted("'", 'http://google.com'));
+  URL testUrl() => less.url('http://google.com');
 
   ///
   @DefineMethod(name: 'test-value')
-  Value testValue() => new Value(<Node>[new Dimension(1)]);
+  Value testValue() => less.value(1);
 }
 
 ///

@@ -21,8 +21,10 @@ class Element extends Node {
   Combinator  combinator;
 
   ///
-  Element(dynamic combinator, dynamic value, int index,
-      FileInfo currentFileInfo, {VisibilityInfo visibilityInfo})
+  Element(dynamic combinator, dynamic value,
+      {int index,
+      FileInfo currentFileInfo,
+      VisibilityInfo visibilityInfo})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     this.combinator =
@@ -90,8 +92,8 @@ class Element extends Node {
   Element eval(Contexts context) => new Element(
       combinator,
       (value is Node) ? value.eval(context) : value,
-      index,
-      currentFileInfo,
+      index: index,
+      currentFileInfo: currentFileInfo,
       visibilityInfo: visibilityInfo());
 
 //3.0.0 20160714
@@ -104,7 +106,9 @@ class Element extends Node {
 
   ///
   Element clone() =>
-      new Element(combinator, value, index, currentFileInfo,
+      new Element(combinator, value, 
+        index: index,
+        currentFileInfo: currentFileInfo,
         visibilityInfo: visibilityInfo());
 
 //3.0.0 20160714

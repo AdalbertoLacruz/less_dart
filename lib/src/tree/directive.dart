@@ -12,9 +12,13 @@ class Directive extends AtRule {
     Directive(String name, Node value, dynamic rules, int index,
         FileInfo currentFileInfo, DebugInfo debugInfo,
         {VisibilityInfo visibilityInfo, bool isRooted})
-        : super(name, value, rules, index, currentFileInfo, debugInfo,
-        visibilityInfo: visibilityInfo,
-        isRooted : isRooted);
+        : super(name, value,
+          rules: rules,
+          index: index,
+          currentFileInfo: currentFileInfo,
+          debugInfo: debugInfo,
+          visibilityInfo: visibilityInfo,
+          isRooted : isRooted);
 }
 
 //2.8.0 20160702

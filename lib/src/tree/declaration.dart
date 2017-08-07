@@ -1,4 +1,4 @@
-//source: less/tree/declaration.js 3.0.0 20160714
+//source: less/tree/declaration.js 3.0.0 20160719
 
 part of tree.less;
 
@@ -34,7 +34,7 @@ class Declaration extends Node implements MakeImportantNode {
   bool    variable = false;
 
   ///
-  Declaration(dynamic this.name, Node this.value,
+  Declaration(dynamic this.name, dynamic value,
       {String important,
       String this.merge,
       int index,
@@ -42,21 +42,22 @@ class Declaration extends Node implements MakeImportantNode {
       bool this.inline = false,
       bool variable})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-
-    //value instanceof tree.Value || value instanceof tree.Ruleset ??
-    //this.value = (value is Node) ? value : new Value(<Node>[value]);  // value is Node always
+    //
+    this.value = (value is Node)
+        ? value
+        : new Value(<Node>[value != null ? new Anonymous(value) : null]);
 
     if (important?.isNotEmpty ?? false)
         this.important = ' ${important.trim()}';
 
     this.variable = variable ?? (name is String && name.startsWith('@'));
     allowRoot = true;
-    setParent(value, this);
+    setParent(this.value, this);
 
-//3.0.0 20160714
+//3.0.0 20160719
 // var Declaration = function (name, value, important, merge, index, currentFileInfo, inline, variable) {
 //     this.name = name;
-//     this.value = (value instanceof Node) ? value : new Value([value]); //value instanceof tree.Value || value instanceof tree.Ruleset ??
+//     this.value = (value instanceof Node) ? value : new Value([value ? new Anonymous(value) : null]);
 //     this.important = important ? ' ' + important.trim() : '';
 //     this.merge = merge;
 //     this._index = index;
@@ -77,7 +78,7 @@ class Declaration extends Node implements MakeImportantNode {
 
   ///
   ///  clone this Declaration
-  ///  
+  ///
   Declaration clone() => new Declaration(name, value,
       important: important,
       merge: merge,

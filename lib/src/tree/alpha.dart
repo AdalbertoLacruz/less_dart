@@ -7,7 +7,7 @@ class Alpha extends Node {
   @override final String type = 'Alpha';
 
   ///
-  Alpha(dynamic value) : super.init(value: value); //value = Varaible | Dimension?
+  Alpha(dynamic value) : super.init(value: value); //value = Variable | Dimension?
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

@@ -11,11 +11,13 @@ class Keyword extends Node {
   Keyword(String this.value);
 
   ///
+  // ignore: non_constant_identifier_names
   Keyword.True() {
     value = 'true';
   }
 
   ///
+  // ignore: non_constant_identifier_names
   Keyword.False() {
     value = 'false';
   }

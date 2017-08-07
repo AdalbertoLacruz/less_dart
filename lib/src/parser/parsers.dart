@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 195-end 3.0.0 20160718
+//source: less/parser/parser.js ines 195-end 3.0.0 20160719
 
 part of parser.less;
 
@@ -404,7 +404,7 @@ class Parsers {
     if (e == null) {
       parserInput.save();
       if (parserInput.$char('(') != null) {
-        if ((v = selector()) != null && parserInput.$char(')') != null) {
+        if ((v = selector(isLess: false)) != null && parserInput.$char(')') != null) {
           e = new Paren(v);
           parserInput.forget();
         } else {
@@ -416,37 +416,37 @@ class Parsers {
     }
 
     if (e != null)
-        return new Element(c, e, index, fileInfo);
+        return new Element(c, e, index: index, currentFileInfo: fileInfo);
     return null;
 
-//2.4.0
-//  element: function () {
-//      var e, c, v, index = parserInput.i;
+//3.0.0 20160719
+// element: function () {
+//     var e, c, v, index = parserInput.i;
 //
-//      c = this.combinator();
+//     c = this.combinator();
 //
-//      e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) ||
-//          parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
-//          parserInput.$char('*') || parserInput.$char('&') || this.attribute() ||
-//          parserInput.$re(/^\([^&()@]+\)/) ||  parserInput.$re(/^[\.#:](?=@)/) ||
-//          this.entities.variableCurly();
+//     e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) ||
+//         parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
+//         parserInput.$char('*') || parserInput.$char('&') || this.attribute() ||
+//         parserInput.$re(/^\([^&()@]+\)/) ||  parserInput.$re(/^[\.#:](?=@)/) ||
+//         this.entities.variableCurly();
 //
-//      if (! e) {
-//          parserInput.save();
-//          if (parserInput.$char('(')) {
-//              if ((v = this.selector()) && parserInput.$char(')')) {
-//                  e = new(tree.Paren)(v);
-//                  parserInput.forget();
-//              } else {
-//                  parserInput.restore("Missing closing ')'");
-//              }
-//          } else {
-//              parserInput.forget();
-//          }
-//      }
+//     if (! e) {
+//         parserInput.save();
+//         if (parserInput.$char('(')) {
+//             if ((v = this.selector(false)) && parserInput.$char(')')) {
+//                 e = new(tree.Paren)(v);
+//                 parserInput.forget();
+//             } else {
+//                 parserInput.restore("Missing closing ')'");
+//             }
+//         } else {
+//             parserInput.forget();
+//         }
+//     }
 //
-//      if (e) { return new(tree.Element)(c, e, index, fileInfo); }
-//  },
+//     if (e) { return new(tree.Element)(c, e, index, fileInfo); }
+// },
   }
 
   static final RegExp _combinatorRegExp1 = new RegExp(r'\/[a-z]+\/', caseSensitive: false);
@@ -520,20 +520,15 @@ class Parsers {
   }
 
   ///
-  /// A CSS selector (see selector below)
-  /// with less extensions e.g. the ability to extend and guard
-  ///
-  Selector lessSelector() => selector(isLess: true);
-
-  ///
   /// A CSS Selector
+  /// with less extensions e.g. the ability to extend and guard
   ///
   ///     .class > div + h1
   ///     li a:hover
   ///
   /// Selectors are made out of one or more Elements, see above.
   ///
-  Selector selector({bool isLess = false}) {
+  Selector selector({bool isLess = true}) {
     List<Extend>  allExtends;
     String        c;
     Condition     condition;
@@ -579,39 +574,39 @@ class Parsers {
 
     return null;
 
-//2.4.0 20150315
-//  selector: function (isLess) {
-//      var index = parserInput.i, elements, extendList, c, e, allExtends, when, condition;
+//3.0.0 20160719
+// selector: function (isLess) {
+//     var index = parserInput.i, elements, extendList, c, e, allExtends, when, condition;
+//     isLess = isLess !== false;
+//     while ((isLess && (extendList = this.extend())) || (isLess && (when = parserInput.$str("when"))) || (e = this.element())) {
+//         if (when) {
+//             condition = expect(this.conditions, 'expected condition');
+//         } else if (condition) {
+//             error("CSS guard can only be used at the end of selector");
+//         } else if (extendList) {
+//             if (allExtends) {
+//                 allExtends = allExtends.concat(extendList);
+//             } else {
+//                 allExtends = extendList;
+//             }
+//         } else {
+//             if (allExtends) { error("Extend can only be used at the end of selector"); }
+//             c = parserInput.currentChar();
+//             if (elements) {
+//                 elements.push(e);
+//             } else {
+//                 elements = [ e ];
+//             }
+//             e = null;
+//         }
+//         if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') {
+//             break;
+//         }
+//     }
 //
-//      while ((isLess && (extendList = this.extend())) || (isLess && (when = parserInput.$str("when"))) || (e = this.element())) {
-//          if (when) {
-//              condition = expect(this.conditions, 'expected condition');
-//          } else if (condition) {
-//              error("CSS guard can only be used at the end of selector");
-//          } else if (extendList) {
-//              if (allExtends) {
-//                  allExtends = allExtends.concat(extendList);
-//              } else {
-//                  allExtends = extendList;
-//              }
-//          } else {
-//              if (allExtends) { error("Extend can only be used at the end of selector"); }
-//              c = parserInput.currentChar();
-//              if (elements) {
-//                  elements.push(e);
-//              } else {
-//                  elements = [ e ];
-//              }
-//              e = null;
-//          }
-//          if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') {
-//              break;
-//          }
-//      }
-//
-//      if (elements) { return new(tree.Selector)(elements, allExtends, condition, index, fileInfo); }
-//      if (allExtends) { error("Extend must be used to extend a selector, it cannot be used on its own"); }
-//  },
+//     if (elements) { return new(tree.Selector)(elements, allExtends, condition, index, fileInfo); }
+//     if (allExtends) { error("Extend must be used to extend a selector, it cannot be used on its own"); }
+// },
   }
   static final RegExp _attributeRegExp1 = new RegExp(r'[|~*$^]?=', caseSensitive: true);
   static final RegExp _attributeRegExp2 = new RegExp(r'[0-9]+%', caseSensitive: true);
@@ -732,7 +727,7 @@ class Parsers {
     }
 
     while (true) {
-      s = lessSelector();
+      s = selector();
       if (s == null)
           break;
 
@@ -773,48 +768,48 @@ class Parsers {
     }
     return null;
 
-//2.4.0
-//  ruleset: function () {
-//      var selectors, s, rules, debugInfo;
+//3.0.0 20160719
+// ruleset: function () {
+//     var selectors, s, rules, debugInfo;
 //
-//      parserInput.save();
+//     parserInput.save();
 //
-//      if (context.dumpLineNumbers) {
-//          debugInfo = getDebugInfo(parserInput.i);
-//      }
+//     if (context.dumpLineNumbers) {
+//         debugInfo = getDebugInfo(parserInput.i);
+//     }
 //
-//      while (true) {
-//          s = this.lessSelector();
-//          if (!s) {
-//              break;
-//          }
-//          if (selectors) {
-//              selectors.push(s);
-//          } else {
-//              selectors = [ s ];
-//          }
-//          parserInput.commentStore.length = 0;
-//          if (s.condition && selectors.length > 1) {
-//              error("Guards are only currently allowed on a single selector.");
-//          }
-//          if (! parserInput.$char(',')) { break; }
-//          if (s.condition) {
-//              error("Guards are only currently allowed on a single selector.");
-//          }
-//          parserInput.commentStore.length = 0;
-//      }
+//     while (true) {
+//         s = this.selector();
+//         if (!s) {
+//             break;
+//         }
+//         if (selectors) {
+//             selectors.push(s);
+//         } else {
+//             selectors = [ s ];
+//         }
+//         parserInput.commentStore.length = 0;
+//         if (s.condition && selectors.length > 1) {
+//             error("Guards are only currently allowed on a single selector.");
+//         }
+//         if (! parserInput.$char(',')) { break; }
+//         if (s.condition) {
+//             error("Guards are only currently allowed on a single selector.");
+//         }
+//         parserInput.commentStore.length = 0;
+//     }
 //
-//      if (selectors && (rules = this.block())) {
-//          parserInput.forget();
-//          var ruleset = new(tree.Ruleset)(selectors, rules, context.strictImports);
-//          if (context.dumpLineNumbers) {
-//              ruleset.debugInfo = debugInfo;
-//          }
-//          return ruleset;
-//      } else {
-//          parserInput.restore();
-//      }
-//  },
+//     if (selectors && (rules = this.block())) {
+//         parserInput.forget();
+//         var ruleset = new(tree.Ruleset)(selectors, rules, context.strictImports);
+//         if (context.dumpLineNumbers) {
+//             ruleset.debugInfo = debugInfo;
+//         }
+//         return ruleset;
+//     } else {
+//         parserInput.restore();
+//     }
+// },
   }
 
   ///
@@ -1548,8 +1543,11 @@ class Parsers {
 
     if (rules != null || (!hasBlock && value != null && parserInput.$char(';') != null)) {
       parserInput.forget();
-      return new AtRule(name, value, rules, index, fileInfo,
-          isNotEmpty(context.dumpLineNumbers) ? getDebugInfo(index) : null,
+      return new AtRule(name, value,
+          rules: rules,
+          index: index,
+          currentFileInfo: fileInfo,
+          debugInfo: isNotEmpty(context.dumpLineNumbers) ? getDebugInfo(index) : null,
           isRooted: isRooted);
     }
 

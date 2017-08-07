@@ -12,6 +12,8 @@ class FunctionBase {
   ///
   int       index;
   ///
+  TreeApi   less;
+  ///
   String    name;
 
   ///
@@ -42,6 +44,7 @@ class FunctionBase {
       if (method is MethodMirror && !method.isConstructor)
           registry[externalName] = item;
     }
+    less = new TreeApi();
   }
 
   ///

@@ -1,4 +1,4 @@
-//source: less/tree/atrule.js 3.0.0 20160714
+//source: less/tree/atrule.js 3.0.0 20160719
 
 part of tree.less;
 
@@ -12,9 +12,16 @@ class AtRule extends DirectiveBase {
   @override covariant Node  value;
 
   ///
-  AtRule(String name, Node this.value, dynamic rules, int index,
-      FileInfo currentFileInfo, DebugInfo debugInfo,
-      {VisibilityInfo visibilityInfo, bool isRooted = false})
+  /// value is Node | String
+  /// ex.: AtRule('@charset', 'utf-8')
+  ///
+  AtRule(String name, dynamic value,
+      {dynamic rules,
+      int index,
+      FileInfo currentFileInfo,
+      DebugInfo debugInfo,
+      VisibilityInfo visibilityInfo,
+      bool isRooted = false})
       : super(
             name: name,
             index: index,
@@ -22,6 +29,10 @@ class AtRule extends DirectiveBase {
             debugInfo: debugInfo,
             isRooted: isRooted,
             visibilityInfo: visibilityInfo) {
+    //
+    this.value = (value is Node)
+        ? value
+        : (value != null) ? new Anonymous(value) : value;
 
     if (rules != null) {
       if (rules is List<Ruleset>) {
@@ -41,12 +52,12 @@ class AtRule extends DirectiveBase {
 
     allowRoot = true;
 
-//3.0.0 20160714
+//3.0.0 20160719
 // var AtRule = function (name, value, rules, index, currentFileInfo, debugInfo, isRooted, visibilityInfo) {
 //     var i;
 //
 //     this.name  = name;
-//     this.value = value;
+//     this.value = (value instanceof Node) ? value : (value ? new Anonymous(value) : value);
 //     if (rules) {
 //         if (Array.isArray(rules)) {
 //             this.rules = rules;

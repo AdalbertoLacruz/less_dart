@@ -56,7 +56,7 @@ class MixinDefinition extends Node
     this.index = index;
 
     selectors = <Selector>[
-      new Selector(<Element>[new Element(null, name, _index, _fileInfo)])
+      new Selector(<Element>[new Element(null, name, index: _index, currentFileInfo: _fileInfo)])
     ];
 
     arity = params.length;

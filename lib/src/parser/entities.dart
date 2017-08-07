@@ -138,7 +138,7 @@ class Entities {
     }
 
     parserInput.forget();
-    return new Call(name, args, index, fileInfo);
+    return new Call(name, args, index: index, currentFileInfo: fileInfo);
 
 //2.4.0 20150315
 //  call: function () {
