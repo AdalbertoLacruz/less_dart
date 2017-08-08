@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 3.0.0 20160714
+//source: less/tree/dimension.js 3.0.0 20170111
 
 part of tree.less;
 
@@ -17,7 +17,13 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// [unit] is Unit or String
   ///
   Dimension(dynamic value, [dynamic unit]) {
-    this.value = (value is String) ? double.parse(value) : value.toDouble();
+    try {
+      this.value = (value is String) ? double.parse(value) : value.toDouble();
+    } catch (e) {
+      throw new LessExceptionError(new LessError(
+        message: 'Dimension is not a number.')
+      );
+    }
 
     if (unit != null) {
       this.unit = (unit is Unit) ? unit : new Unit(<String>[unit]);
@@ -27,9 +33,12 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
     setParent(this.unit, this);
 
-//3.0.0 20160714
+//3.0.0 20170111
 // var Dimension = function (value, unit) {
 //     this.value = parseFloat(value);
+//     if (isNaN(this.value)) {
+//         throw new Error("Dimension is not a number.");
+//     }
 //     this.unit = (unit && unit instanceof Unit) ? unit :
 //       new Unit(unit ? [unit] : undefined);
 //     this.setParent(this.unit, this);

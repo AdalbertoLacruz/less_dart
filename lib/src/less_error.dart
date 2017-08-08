@@ -1,10 +1,14 @@
-// source: less/parser.js less/index.js less/lessc_helper.js
+// source: less/less-error.js less/lessc-helper.js less/index.js  less/parser.js 3.0.0 20170101
 
 library error.less;
 
 import 'contexts.dart';
 import 'utils.dart';
 
+///
+/// This is a centralized class of any error that could be thrown internally (mostly by the parser).
+/// Besides standard message it keeps some additional data like a path to the file where the error
+/// occurred along with line and column numbers.
 ///
 class LessError {
   ///

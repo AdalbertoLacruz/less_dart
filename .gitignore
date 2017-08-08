@@ -7,7 +7,9 @@ pubspec.lock
 .settings
 .tags
 .tags1
+*.iml
 /doc
 node_modules/
 /.atom
+/.idea
 /.project

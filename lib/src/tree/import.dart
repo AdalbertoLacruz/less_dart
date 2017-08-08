@@ -1,4 +1,4 @@
-//source: less/tree/import.js 3.0.0 20160714
+//source: less/tree/import.js 3.0.0 20161222
 
 part of tree.less;
 
@@ -52,7 +52,7 @@ class Import extends Node {
       : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     allowRoot = true;
-    final RegExp rPathValue = new RegExp(r'[#\.\&\?\/]css([\?;].*)?$');
+    final RegExp rPathValue = new RegExp(r'[#\.\&\?]css([\?;].*)?$');
 
     if (options.less != null || (options.inline ?? false)) {
       css = !(options.less ?? false) || (options.inline ?? false);
@@ -66,7 +66,7 @@ class Import extends Node {
     setParent(features, this);
     setParent(path, this);
 
-//3.0.0 20160714
+//3.0.0 20161222
 // var Import = function (path, features, options, index, currentFileInfo, visibilityInfo) {
 //     this.options = options;
 //     this._index = index;
@@ -79,7 +79,7 @@ class Import extends Node {
 //         this.css = !this.options.less || this.options.inline;
 //     } else {
 //         var pathValue = this.getPath();
-//         if (pathValue && /[#\.\&\?\/]css([\?;].*)?$/.test(pathValue)) {
+//         if (pathValue && /[#\.\&\?]css([\?;].*)?$/.test(pathValue)) {
 //             this.css = true;
 //         }
 //     }

@@ -1,4 +1,4 @@
-//source: less/tree/call.js 3.0.0 20160716
+//source: less/tree/call.js 3.0.0 20170107
 
 part of tree.less;
 
@@ -76,7 +76,7 @@ class Call extends Node {
         final String type = LessError.getType(e);
 
         final LessError error = LessError.transform(e,
-            type: type.isNotEmpty ? type : 'Runtime',
+            type: (type?.isNotEmpty ?? false) ? type : 'Runtime',
             index: index,
             filename: currentFileInfo.filename,
             line: LessError.getErrorLine(e),
@@ -87,9 +87,13 @@ class Call extends Node {
       }
 
       if (_result != null) {
-        // All returned results must be Nodes,
-        // so anything other than a Node is a null Node
-        result = _result is Node ? _result : new Anonymous(null);
+        // Results that that are not nodes are cast as Anonymous nodes
+        // Falsy values or booleans are returned as empty nodes
+        result = _result is Node
+            ? _result
+            : (_result is bool)
+                ? new Anonymous(null)
+                : new Anonymous(_result.toString());
         return result
             ..index = _index
             ..currentFileInfo = _fileInfo;
@@ -98,7 +102,7 @@ class Call extends Node {
 
     return new Call(name, args, index: index, currentFileInfo: currentFileInfo);
 
-//3.0.0 20160716
+//3.0.0 20170107
 // Call.prototype.eval = function (context) {
 //     var args = this.args.map(function (a) { return a.eval(context); }),
 //         result, funcCaller = new FunctionCaller(this.name, context, this.getIndex(), this.fileInfo());
@@ -119,10 +123,16 @@ class Call extends Node {
 //         }
 //
 //         if (result !== null && result !== undefined) {
-//             // All returned results must be Nodes,
-//             // so anything other than a Node is a null Node
+//             // Results that that are not nodes are cast as Anonymous nodes
+//             // Falsy values or booleans are returned as empty nodes
 //             if (!(result instanceof Node)) {
-//                 result = new Anonymous(null);
+//                 if (!result || result === true) {
+//                     result = new Anonymous(null);
+//                 }
+//                 else {
+//                     result = new Anonymous(result.toString());
+//                 }
+//
 //             }
 //             result._index = this._index;
 //             result._fileInfo = this._fileInfo;

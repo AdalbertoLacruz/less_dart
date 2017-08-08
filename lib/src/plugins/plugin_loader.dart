@@ -143,38 +143,6 @@ class PluginLoader {
 //  };
 
   ///
-  //tryRequirePlugin(name) {
-//  PluginLoader.prototype.tryRequirePlugin = function(name) {
-//      // is at the same level as the less.js module
-//      try {
-//          return require("../../../" + name);
-//      }
-//      catch(e) {
-//      }
-//      // is installed as a sub dependency of the current folder
-//      try {
-//          return require(path.join(process.cwd(), "node_modules", name));
-//      }
-//      catch(e) {
-//      }
-//      // is referenced relative to the current directory
-//      try {
-//          return require(path.join(process.cwd(), name));
-//      }
-//      catch(e) {
-//      }
-//      // unlikely - would have to be a dependency of where this code was running (less.js)...
-//      if (name[0] !== '.') {
-//          try {
-//              return require(name);
-//          }
-//          catch(e) {
-//          }
-//      }
-//  };
-  //}
-
-  ///
   void printUsage(List<Plugin> plugins) {
     plugins.forEach((Plugin plugin) {
       plugin.printUsage();

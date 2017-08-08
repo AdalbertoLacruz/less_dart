@@ -1,4 +1,4 @@
-// source: bin/lessc.js 3.0.0 20161022
+// source: bin/lessc.js less/default-options.js 3.0.0 20170111
 
 library lessOptions.less;
 
@@ -51,13 +51,17 @@ class LessOptions {
   /// Filename for the banner text - Not official option
   String                    banner = '';
 
-  /// Whether to compress with clean-css
+  // Whether to compress with clean-css
   //bool cleancss = false;
 
-  /// Color in error messages
+  /// color output in the terminal, for error messages
   bool                      color = true;
 
-  /// Whether to compress
+  ///
+  /// Compress using less built-in compression.
+  /// This does an okay job but does not utilise all the tricks of
+  /// dedicated css compression.
+  ///
   bool                      compress = false;
 
   /// Outputs a makefile import dependency list to stdout
@@ -66,22 +70,27 @@ class LessOptions {
   /// Whether to dump line numbers: 'comments', 'mediaquery' or 'all'
   String                    dumpLineNumbers = '';
 
+  ///
+  /// Effectively the declaration is put at the top of your base Less file,
+  /// meaning it can be used but it also can be overridden if this variable
+  /// is defined in the file.
   /// Defines a variable list that can be referenced by the file
+  ///
   List<VariableDefinition>  globalVariables = <VariableDefinition>[];
 
-  /// Whether to enforce IE compatibility (IE8 data-uri)
-  bool                      ieCompat = true;
+  /// Compatibility with IE8. Used for limiting data-uri length
+  bool                      ieCompat = false; // true until 3.0
 
   /// Input filename or '-' for stdin
   String                    input = '';
 
-  /// Whether to allow imports from insecure ssl hosts
+  /// Allow Imports from Insecure HTTPS Hosts
   bool                      insecure = false;
 
   /// whether JavaScript is enabled. Dart version don't evaluate JavaScript
   bool                      javascriptEnabled = false;
 
-  ///
+  /// Runs the less parser and just reports errors without any output.
   bool                      lint = false;
 
   ///
@@ -95,19 +104,37 @@ class LessOptions {
   }
   int                       _maxLineLen = -1;  //original max_line_len
 
-  /// Modifies a variable (list) already declared in the file
+  ///
+  /// As opposed to the global variable option, this puts the declaration at the
+  /// end of your base file, meaning it will override anything defined in your Less file.
+  ///
   List<VariableDefinition>  modifyVariables = <VariableDefinition>[];
 
   /// Output filename
   String                    output = '';
 
-  /// Paths to search for imports on
+  ///
+  /// Sets available include paths.
+  /// If the file in an @import rule does not exist at that exact location,
+  /// less will look for it at the location(s) passed to this option.
+  /// You might use this for instance to specify a path to a library which
+  /// you want to be referenced simply and relatively in the less files.
+  ///
   List<String>              paths = <String>[];
 
-  /// Whether to adjust URL's to be relative
+  ///
+  /// By default URLs are kept as-is, so if you import a file in a sub-directory
+  /// that references an image, exactly the same URL will be output in the css.
+  /// This option allows you to re-write URL's in imported files so that the
+  /// URL is always relative to the base imported file
+  ///
   bool                      relativeUrls = false;
 
-  /// Rootpath to append to URL's
+  ///
+  /// Allows you to add a path to every generated import and url in your css.
+  /// This does not affect less import statements that are processed, just ones
+  /// that are left in the output css.
+  ///
   String                    rootpath = '';
 
   ///
@@ -122,24 +149,29 @@ class LessOptions {
   /// All necessary information for source map
   SourceMapOptions          sourceMapOptions = new SourceMapOptions();
 
+  ///
+  /// The strictImports controls whether the compiler will allow an @import inside of either
+  /// @media blocks or (a later addition) other selector blocks.
+  /// See: https://github.com/less/less.js/issues/656
   /// Forces evaluation of imports
+  ///
   bool                      strictImports = false;
 
-  /// Whether math has to be within parenthesis
+  /// Without this option on, Less will try and process all math in your css
   bool get strictMath => _strictMath;
   set strictMath(bool value){
     _strictMath = (value == null) ? false : value;
   }
   bool                      _strictMath = false;
 
-  /// Whether units need to evaluate correctly
+  /// Without this option, less attempts to guess at the output unit when it does maths.
   bool get strictUnits => _strictUnits;
   set strictUnits(bool value){
     _strictUnits = (value == null) ? false : value;
   }
   bool                      _strictUnits = false;
 
-  /// Whether to add args into url tokens
+  /// This option allows you to specify a argument to go on to every URL.
   String                    urlArgs = '';
 
   /// Whether to log more activity
@@ -253,8 +285,8 @@ class LessOptions {
       case 'no-color':
         color = false;
         break;
-      case 'no-ie-compat':
-        ieCompat = false;
+      case 'ie-compat':
+        ieCompat = true;
         break;
       case 'no-js':
         return setParseError('The "--no-js" argument is deprecated, as inline JavaScript is disabled by default and not supported.');
@@ -298,10 +330,12 @@ class LessOptions {
         } else
             return setParseError(command);
         break;
+      case 'source-map-inline':
       case 'source-map-map-inline':
         sourceMapOptions.sourceMapFileInline = true;
         sourceMap = true;
         break;
+      case 'source-map-include-source':
       case 'source-map-less-inline':
         sourceMapOptions.outputSourceFiles = true;
         break;

@@ -7,6 +7,7 @@ library batch.test.less;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import '../lib/less.dart';
@@ -37,7 +38,7 @@ Stopwatch timeInProcess;
 /// test directory
 String dirPath = 'test/';
 
-/// runOlny = null; runs all test.
+/// runOnly = null; runs all test.
 /// runOnly = <int>[1, 2]; only run test 1 and 2
 List<int> runOnly;
 
@@ -130,7 +131,11 @@ Map<int, Config> configFill() => <int, Config>{
               ..definePlugin('plugin-global', new PluginGlobal())
               ..definePlugin('plugin-local', new PluginLocal())
               ..definePlugin('plugin-transitive', new PluginTransitive())
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+              ..definePlugin('plugin-tree-nodes', new PluginTreeNode())
+              ..definePlugin('plugin-simple', new PluginSimple())
+              ..definePlugin('plugin-scope1', new PluginScope1())
+              ..definePlugin('plugin-scope2', new PluginScope2())
+              ..definePlugin('plugin-collection', new PluginCollection());
         }),
     46: def('property-name-interp'),
     47: def('property-accessors'),
@@ -138,7 +143,7 @@ Map<int, Config> configFill() => <int, Config>{
     49: def('scope'),
     50: def('selectors'),
     51: def('strings'),
-    52: def('urls', options: <String>['--relative-urls', '--silent']),
+    52: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
     53: def('variables'),
     54: def('variables-in-at-rules'),
     55: def('whitespace'),
@@ -474,7 +479,7 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
   List<Map<String, String>> _replace = replace;
 
   String baseLess = '${dirPath}less'; //base directory for less sources
-  String baseCss  = '${dirPath}css';  //base directory for css comparation
+  String baseCss  = '${dirPath}css';  //base directory for css comparison
 
   if (isSourcemapTest) {
     baseLess = '${dirPath}webSourceMap';
