@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.0.0 20160719
+// source: less/tree/ruleset.js 3.0.0 20170601
 
 part of tree.less;
 
@@ -174,7 +174,7 @@ class Ruleset extends Node
         rsRuleCnt += rules.length - 1;
         i += rules.length - 1;
         ruleset.resetCache();
-      } else if (rule is RulesetCall) {
+      } else if (rule is VariableCall) {
         final List<Node> rules = rule.eval(context).rules..retainWhere((Node r) {
           if (r is Declaration && r.variable)
               // do not pollute the scope at all
@@ -228,7 +228,7 @@ class Ruleset extends Node
 
     return ruleset;
 
-//3.0.0 20160716
+//3.0.0 20170601
 // Ruleset.prototype.eval = function (context) {
 //     var thisSelectors = this.selectors, selectors,
 //         selCnt, selector, i, hasOnePassingSelector = false;
@@ -311,7 +311,7 @@ class Ruleset extends Node
 //     // Evaluate mixin calls.
 //     for (i = 0; (rule = rsRules[i]); i++) {
 //         if (rule.type === "MixinCall") {
-//             /*jshint loopfunc:true */
+//             /* jshint loopfunc:true */
 //             rules = rule.eval(context).filter(function(r) {
 //                 if ((r instanceof Declaration) && r.variable) {
 //                     // do not pollute the scope if the variable is
@@ -324,8 +324,8 @@ class Ruleset extends Node
 //             rsRules.splice.apply(rsRules, [i, 1].concat(rules));
 //             i += rules.length - 1;
 //             ruleset.resetCache();
-//         } else if (rule.type ===  "RulesetCall") {
-//             /*jshint loopfunc:true */
+//         } else if (rule.type ===  "VariableCall") {
+//             /* jshint loopfunc:true */
 //             rules = rule.eval(context).rules.filter(function(r) {
 //                 if ((r instanceof Declaration) && r.variable) {
 //                     // do not pollute the scope at all

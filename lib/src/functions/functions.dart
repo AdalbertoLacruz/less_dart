@@ -10,6 +10,7 @@ import '../less_error.dart';
 import '../logger.dart';
 import '../tree/tree.dart';
 
+part 'boolean_functions.dart';
 part 'color_blend.dart';
 part 'color_functions.dart';
 part 'data_uri_functions.dart';

@@ -203,7 +203,7 @@ class Declaration extends Node implements MakeImportantNode {
       if (important.isEmpty && importantResult.important.isNotEmpty)
           important = importantResult.important;
 
-      return new Declaration(name, evaldValue,
+      return new Declaration(name, evaldValue, //TODO clone()
           important: important,
           merge: merge,
           index: index,

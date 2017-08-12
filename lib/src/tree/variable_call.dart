@@ -1,22 +1,22 @@
-//source: less/tree/ruleset-call.js 2.6.1 20160202
+//source: less/tree/variable-call.js 3.0.0 20170601
 
 part of tree.less;
 
 ///
-class RulesetCall extends Node {
+class VariableCall extends Node {
   @override final String  name = null;
-  @override final String  type = 'RulesetCall';
+  @override final String  type = 'VariableCall';
 
   ///
   String variable;
 
   ///
-  RulesetCall(String this.variable) {
+  VariableCall(String this.variable) {
     allowRoot = true;
   }
 
-//2.6.1 20160202
-// var RulesetCall = function (variable) {
+//3.0.0 20170601
+// var VariableCall = function (variable) {
 //     this.variable = variable;
 //     this.allowRoot = true;
 // };
@@ -32,11 +32,11 @@ class RulesetCall extends Node {
     final DetachedRuleset detachedRuleset = new Variable(variable).eval(context);
     return detachedRuleset.callEval(context);
 
-//2.3.1
-//  RulesetCall.prototype.eval = function (context) {
-//      var detachedRuleset = new Variable(this.variable).eval(context);
-//      return detachedRuleset.callEval(context);
-//  };
+//3.0.0 20170601
+// VariableCall.prototype.eval = function (context) {
+//     var detachedRuleset = new Variable(this.variable).eval(context);
+//     return detachedRuleset.callEval(context);
+// };
   }
 
   @override

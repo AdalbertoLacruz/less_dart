@@ -1,4 +1,4 @@
-// source: lib/less/functions/function-caller.js 2.5.0
+// source: lib/less/functions/function-caller.js 3.0.0 20170607
 
 part of functions.less;
 
@@ -45,6 +45,7 @@ class FunctionCaller {
   ///
   FunctionCaller._(Contexts context) {
     innerCache = <FunctionBase>[
+      new BooleanFunctions(),
       new ColorBlend(),
       new ColorFunctions(),
       new DataUriFunctions(),

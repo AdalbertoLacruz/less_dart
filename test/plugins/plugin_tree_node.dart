@@ -48,10 +48,6 @@ class AddMultipleFunctions extends FunctionBase {
   // These cause root errors
 
   ///
-  @DefineMethod(name: 'test-alpha')
-  Alpha testAlpha() => less.alpha(30);
-
-  ///
   @DefineMethod(name: 'test-assignment')
   Assignment testAssignment() => less.assignment('bird', 'robin');
 

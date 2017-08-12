@@ -1,4 +1,4 @@
-//source: less/tree/media.js 3.0.0 20160716
+//source: less/tree/media.js 3.0.0 20170608
 
 part of tree.less;
 
@@ -102,18 +102,8 @@ class Media extends DirectiveBase {
       rules[0].debugInfo = debugInfo;
       media.debugInfo = debugInfo;
     }
-    bool strictMathBypass = false;
-    if (!context.strictMath) {
-      strictMathBypass = true;
-      context.strictMath = true;
-    }
 
-    try {
-      media.features = features.eval(context);
-    } finally {
-      if (strictMathBypass)
-          context.strictMath = false;
-    }
+    media.features = features.eval(context);
 
     context.mediaPath.add(media);
     context.mediaBlocks.add(media);
@@ -130,7 +120,7 @@ class Media extends DirectiveBase {
         ? media.evalTop(context)
         : media.evalNested(context);
 
-//3.0.0 20160714
+//3.0.0 20170608
 // Media.prototype.eval = function (context) {
 //     if (!context.mediaBlocks) {
 //         context.mediaBlocks = [];
@@ -142,19 +132,8 @@ class Media extends DirectiveBase {
 //         this.rules[0].debugInfo = this.debugInfo;
 //         media.debugInfo = this.debugInfo;
 //     }
-//     var strictMathBypass = false;
-//     if (!context.strictMath) {
-//         strictMathBypass = true;
-//         context.strictMath = true;
-//     }
-//     try {
-//         media.features = this.features.eval(context);
-//     }
-//     finally {
-//         if (strictMathBypass) {
-//             context.strictMath = false;
-//         }
-//     }
+//
+//     media.features = this.features.eval(context);
 //
 //     context.mediaPath.push(media);
 //     context.mediaBlocks.push(media);
@@ -168,7 +147,7 @@ class Media extends DirectiveBase {
 //
 //     return context.mediaPath.length === 0 ? media.evalTop(context) :
 //                 media.evalNested(context);
-// };
+// }
   }
 
   ///

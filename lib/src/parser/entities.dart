@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.0.0 20160718
+//source: less/parser/parser.js 3.0.0 20170607
 
 part of parser.less;
 
@@ -97,17 +97,13 @@ class Entities {
   ///
   ///     rgb(255, 0, 255)
   ///
-  /// We also try to catch IE's `alpha()`, but let the `alpha` parser
-  /// deal with the details.
-  ///
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
   Node call() {
-    Node        _alpha;
-    List<Node>  args;
+    List<Node>  args = <Node>[];
+    bool     func;
     final int   index = parserInput.i;
     String      name;
-    String      nameLC;
 
     if (parserInput.peek(_reCallUrl))
         return null;
@@ -120,17 +116,15 @@ class Entities {
       return null;
     }
 
-    nameLC = name.toLowerCase();
-
-    if (nameLC == 'alpha') {
-      _alpha = alpha();
-      if (_alpha != null) {
+    func = customFuncCall(name, args); // Different from js
+    if (func != null) { // name found
+      if (args.isNotEmpty && func) { //stop
         parserInput.forget();
-        return _alpha;
+        return args.first; //must return Node
       }
     }
 
-    args = arguments();
+    args = arguments(args);
 
     if (parserInput.$char(')') == null) {
       parserInput.restore("Could not parse call arguments or missing ')'");
@@ -140,40 +134,43 @@ class Entities {
     parserInput.forget();
     return new Call(name, args, index: index, currentFileInfo: fileInfo);
 
-//2.4.0 20150315
-//  call: function () {
-//      var name, nameLC, args, alpha, index = parserInput.i;
+//3.0.0 20170607
+// call: function () {
+//     var name, args, func, index = parserInput.i;
 //
-//      if (parserInput.peek(/^url\(/i)) {
-//          return;
-//      }
+//     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
+//     if (parserInput.peek(/^url\(/i)) {
+//         return;
+//     }
 //
-//      parserInput.save();
+//     parserInput.save();
 //
-//      name = parserInput.$re(/^([\w-]+|%|progid:[\w\.]+)\(/);
-//      if (!name) { parserInput.forget(); return; }
+//     name = parserInput.$re(/^([\w-]+|%|progid:[\w\.]+)\(/);
+//     if (!name) {
+//         parserInput.forget();
+//         return;
+//     }
 //
-//      name = name[1];
-//      nameLC = name.toLowerCase();
+//     name = name[1];
+//     func = this.customFuncCall(name);
+//     if (func) {
+//         args = func.parse();
+//         if (args && func.stop) {
+//             parserInput.forget();
+//             return args;
+//         }
+//     }
 //
-//      if (nameLC === 'alpha') {
-//          alpha = parsers.alpha();
-//          if (alpha) {
-//              parserInput.forget();
-//              return alpha;
-//          }
-//      }
+//     args = this.arguments(args);
 //
-//      args = this.arguments();
+//     if (!parserInput.$char(')')) {
+//         parserInput.restore("Could not parse call arguments or missing ')'");
+//         return;
+//     }
 //
-//      if (! parserInput.$char(')')) {
-//          parserInput.restore("Could not parse call arguments or missing ')'");
-//          return;
-//      }
-//
-//      parserInput.forget();
-//      return new(tree.Call)(name, args, index, fileInfo);
-//  },
+//     parserInput.forget();
+//     return new(tree.Call)(name, args, index, fileInfo);
+// },
   }
 
   static final RegExp _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
@@ -184,120 +181,171 @@ class Entities {
   ///
   ///     alpha(opacity=88)
   ///
-  /// return Alpha<Variable | String>
+  /// Search for String | Variable
+  ///
   //Original in parsers.dart
-  Alpha alpha() {
+  Quoted ieAlpha() {
     if (parserInput.$re(_alphaRegExp1) == null)
         return null; // i
 
-    final dynamic value = parserInput.$re(_alphaRegExp2) //String
-        ?? parserInput.expect(variable, 'Could not parse alpha'); //Variable
+    String value = parserInput.$re(_alphaRegExp2);
+    if (value == null) {
+      final Variable _value = parserInput.expect(variable, 'Could not parse alpha');
+      value = '@{${_value.name.substring(1)}}';
+    }
     parserInput.expectChar(')');
 
-    return new Alpha(value);
+    return new Quoted('', 'alpha(opacity=$value)');
 
-//2.2.0
-//  alpha: function () {
-//      var value;
+//3.0.0 20170607
+// ieAlpha: function () {
+//     var value;
 //
-//      if (! parserInput.$re(/^opacity=/i)) { return; }
-//      value = parserInput.$re(/^\d+/);
-//      if (!value) {
-//          value = expect(this.entities.variable, "Could not parse alpha");
-//      }
-//      expectChar(')');
-//      return new(tree.Alpha)(value);
-//  }
+//     // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
+//     if (!parserInput.$re(/^opacity=/i)) { return; }
+//     value = parserInput.$re(/^\d+/);
+//     if (!value) {
+//         value = expect(parsers.entities.variable, "Could not parse alpha");
+//         value = '@{' + value.name.slice(1) + '}';
+//     }
+//     expectChar(')');
+//     return new tree.Quoted('', 'alpha(opacity=' + value + ')');
+// },
+  }
+
+  ///
+  /// Parsing rules for functions with non-standard args, e.g.:
+  ///
+  ///     boolean(not(2 > 1))
+  ///
+  /// This is a quick prototype, to be modified/improved when
+  /// more custom-parsed funcs come (e.g. `selector(...)`)
+  ///
+  /// [name] custom function name
+  /// [args] return args
+  ///
+  /// returns null if not custom function found
+  /// or true/false if is needed to search more arguments
+  ///
+  // Differs from js implementation and interface
+  bool customFuncCall(String name, List<Node> args) {
+    Node result;
+    switch (name) {
+      case 'alpha':
+        result = ieAlpha();
+        if (result != null)
+            args.add(result);
+        return true; // stop = true
+        break;
+      case 'boolean':
+      case 'if':
+        result = parserInput.expect(parsers.condition, 'expected condition');
+        if (result != null)
+            args.add(result);
+        return false;  //look for more arguments
+        break;
+    }
+    return null; //function not defined
+
+//3.0.0 20170607
+// customFuncCall: function (name) {
+//     /* Ideally the table is to be moved out of here for faster perf.,
+//        but it's quite tricky since it relies on all these `parsers`
+//        and `expect` available only here */
+//     return {
+//         alpha:   f(parsers.ieAlpha, true),
+//         boolean: f(condition),
+//         'if':    f(condition)
+//     }[name.toLowerCase()];
+//
+//     function f(parse, stop) {
+//         return {
+//             parse: parse, // parsing function
+//             stop:  stop   // when true - stop after parse() and return its result,
+//                           // otherwise continue for plain args
+//         };
+//     }
+//
+//     function condition() {
+//         return [expect(parsers.condition, 'expected condition')];
+//     }
+// },
   }
 
   ///
   /// returns List<DetachedRuleset | Assignment | Expression>
   /// separated by `,` or `;`
   ///
-  List<Node> arguments() {
-    Node              arg;
-    final List<Node>  argsComma = <Node>[];
+  List<Node> arguments(List<Node> prevArgs) {
+    List<Node>        argsComma = prevArgs ?? <Node>[];
     final List<Node>  argsSemiColon = <Node>[];
-    List<Node>        expressions = <Node>[];
+    bool              isPrevArgs = prevArgs?.isNotEmpty ?? false;
     bool              isSemiColonSeparated = false;
     Node              value;
 
     parserInput.save();
 
     while (true) {
-      arg = parsers.detachedRuleset()
-          ?? assignment()
-          ?? parsers.expression();
-      if (arg == null)
-          break;
-
-      value = arg;
-      if ((arg.value is List) && (arg.value?.length == 1 ?? false))
-          value = arg.value[0];
-
-      if (value != null)
-          expressions.add(value);
-
-      argsComma.add(value);
+      if (isPrevArgs) {
+        isPrevArgs = false;
+      } else {
+        value = parsers.detachedRuleset()
+            ?? assignment()
+            ?? parsers.expression();
+        if (value == null)
+            break;
+        if ((value.value is List) && (value.value?.length == 1 ?? false))
+            value = value.value.first;
+        argsComma.add(value);
+      }
 
       if (parserInput.$char(',') != null)
           continue;
 
       if (parserInput.$char(';') != null || isSemiColonSeparated) {
         isSemiColonSeparated = true;
-
-        if (expressions.isNotEmpty)
-            value = new Value(expressions);
-
+        value = (argsComma.length == 1) ? argsComma.first : new Value(argsComma);
         argsSemiColon.add(value);
-        expressions = <Node>[];
+        argsComma = <Node>[];
       }
     }
     parserInput.forget();
     return isSemiColonSeparated ? argsSemiColon : argsComma;
 
-//2.6.1 20160304
-// arguments: function () {
-//     var argsSemiColon = [], argsComma = [],
-//         expressions = [],
-//         isSemiColonSeparated, value, arg;
+//3.0.0 20170607
+// arguments: function (prevArgs) {
+//     var argsComma = prevArgs || [],
+//         argsSemiColon = [],
+//         isSemiColonSeparated, value;
 //
 //     parserInput.save();
 //
 //     while (true) {
+//         if (prevArgs) {
+//             prevArgs = false;
+//         } else {
+//             value = parsers.detachedRuleset() || this.assignment() || parsers.expression();
+//             if (!value) {
+//                 break;
+//             }
 //
-//         arg = parsers.detachedRuleset() || this.assignment() || parsers.expression();
+//             if (value.value && value.value.length == 1) {
+//                 value = value.value[0];
+//             }
 //
-//         if (!arg) {
-//             break;
+//             argsComma.push(value);
 //         }
-//
-//         value = arg;
-//
-//         if (arg.value && arg.value.length == 1) {
-//             value = arg.value[0];
-//         }
-//
-//         if (value) {
-//             expressions.push(value);
-//         }
-//
-//         argsComma.push(value);
 //
 //         if (parserInput.$char(',')) {
 //             continue;
 //         }
 //
 //         if (parserInput.$char(';') || isSemiColonSeparated) {
-//
 //             isSemiColonSeparated = true;
-//
-//             if (expressions.length > 1) {
-//                 value = new(tree.Value)(expressions);
-//             }
+//             value = (argsComma.length < 1) ? argsComma[0]
+//                 : new tree.Value(argsComma);
 //             argsSemiColon.push(value);
-//
-//             expressions = [];
+//             argsComma = [];
 //         }
 //     }
 //

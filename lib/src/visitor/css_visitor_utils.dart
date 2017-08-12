@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 2.8.0 20160702
+//source: less/to-css-visitor.js 2.8.0 20170601
 
 part of visitor.less;
 
@@ -55,56 +55,42 @@ class CSSVisitorUtils extends VisitorBase {
 
   ///
   void keepOnlyVisibleChilds(Node owner) {
-    if (owner?.rules == null )
-        return;
-    owner.rules.retainWhere((Node thing) => thing.isVisible());
+    if (owner?.rules != null )
+        owner.rules.retainWhere((Node thing) => thing.isVisible());
 
-//2.5.3 20151120
+//3.0.0 20170601
 // keepOnlyVisibleChilds: function(owner) {
-//     if (owner == null || owner.rules == null) {
-//         return ;
-//     }
-//
+//   if (owner && owner.rules) {
 //     owner.rules = owner.rules.filter(function(thing) {
-//             return thing.isVisible();
-//         }
-//     );
+//     return thing.isVisible();
+//     });
+//   }
 // },
   }
 
   ///
   /// if [owner] rules is empty returns true
   ///
-  bool isEmpty(Node owner) {
-    if (owner?.rules == null)
-        return true;
-    return owner.rules.isEmpty;
+  bool isEmpty(Node owner) => (owner?.rules != null) ? owner.rules.isEmpty : true;
 
-//2.5.3 20151120
+//3.0.0 20170601
 // isEmpty: function(owner) {
-//     if (owner == null || owner.rules == null) {
-//         return true;
-//     }
-//     return owner.rules.length === 0;
+//   return (owner && owner.rules)
+//       ? (owner.rules.length === 0) : true;
 // },
-  }
+
 
   ///
   /// true if [rulesetNode] has paths
   ///
-  bool hasVisibleSelector(Ruleset rulesetNode) {
-    if (rulesetNode?.paths == null)
-        return false;
-    return rulesetNode.paths.isNotEmpty;
+  bool hasVisibleSelector(Ruleset rulesetNode) =>
+     (rulesetNode?.paths != null) ? rulesetNode.paths.isNotEmpty : false;
 
-//2.5.3 20151120
+//3.0.0 20170601
 // hasVisibleSelector: function(rulesetNode) {
-//     if (rulesetNode == null || rulesetNode.paths == null) {
-//         return false;
-//     }
-//     return rulesetNode.paths.length > 0;
+//   return (rulesetNode && rulesetNode.paths)
+//       ? (rulesetNode.paths.length > 0) : false;
 // },
-  }
 
   ///
   Node resolveVisibility(Node node, List<Node> originalRules) {

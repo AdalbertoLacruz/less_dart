@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 195-end 3.0.0 20160719
+//source: less/parser/parser.js ines 195-end 3.0.0 20170607
 
 part of parser.less;
 
@@ -98,7 +98,7 @@ class Parsers {
           ?? declaration()
           ?? ruleset()
           ?? mixin.call()
-          ?? rulesetCall()
+          ?? variableCall()
           ?? entities.call()
           ?? atrule();
 
@@ -116,7 +116,7 @@ class Parsers {
 
     return root;
 
-//2.8.0 20160702
+//3.0.0 20170601
 // primary: function () {
 //     var mixin = this.mixin, root = [], node;
 //
@@ -141,7 +141,7 @@ class Parsers {
 //         }
 //
 //         node = mixin.definition() || this.declaration() || this.ruleset() ||
-//             mixin.call() || this.rulesetCall() || this.entities.call() || this.atrule();
+//             mixin.call() || this.variableCall() || this.entities.call() || this.atrule();
 //         if (node) {
 //             root.push(node);
 //         } else {
@@ -210,30 +210,33 @@ class Parsers {
 //  }
   }
 
-  static final RegExp _rulesetCallRegExp = new RegExp(r'(@[\w-]+)\(\s*\)\s*;', caseSensitive: true);
+  static final RegExp _variableCallRegExp = new RegExp(r'(@[\w-]+)\(\s*\)', caseSensitive: true);
 
   ///
-  /// The variable part of a variable definition. Used in the `rule` parser
+  /// Call a variable value
   ///
-  ///       @fink();
+  ///       @fink()
   ///
-  RulesetCall rulesetCall() {
+  VariableCall variableCall() {
     String name;
 
     if (parserInput.currentChar() == '@') {
-      name = parserInput.$re(_rulesetCallRegExp);
-      if (name != null)
-          return new RulesetCall(name);
+      name = parserInput.$re(_variableCallRegExp);
+      if (name != null && end())
+          return new VariableCall(name);
     }
 
     return null;
 
-//2.6.0 20160224
-// rulesetCall: function () {
+//3.0.0 20170601b
+// variableCall: function () {
 //     var name;
 //
-//     if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^(@[\w-]+)\(\s*\)\s*;/))) {
-//         return new tree.RulesetCall(name[1]);
+//     if (parserInput.currentChar() === '@'
+//         && (name = parserInput.$re(/^(@[\w-]+)\(\s*\)/))
+//                    parserInput.$re(/^(@[\w-]+)\(\s*\)\s*;/)))
+//         && parsers.end()) {
+//         return new tree.VariableCall(name[1]);
 //     }
 // },
   }
@@ -364,7 +367,7 @@ class Parsers {
 //  }
 
 //
-//alpha: see entities.alpha()
+//alphaIe: see entities.alphaIe()
 //
 
   static final RegExp _elementRegExp1 = new RegExp(r'(?:\d+\.\d+|\d+)%', caseSensitive: true);

@@ -1,9 +1,9 @@
-//source: less/tree/quoted.js 3.0.0 20160718
+//source: less/tree/quoted.js 3.0.0 20170608
 
 part of tree.less;
 
 ///
-class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
+class Quoted extends Node implements CompareNode {
   @override final String      name = null;
   @override final String      type = 'Quoted';
   @override covariant String  value;
@@ -65,12 +65,12 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 
   ///
   bool containsVariables() =>
-      new RegExp(r'(`([^`]+)`)|@\{([\w-]+)\}').hasMatch(value);
+      new RegExp(r'@\{([\w-]+)\}').hasMatch(value);
 
-//2.3.1
-//  Quoted.prototype.containsVariables = function() {
-//      return this.value.match(/(`([^`]+)`)|@\{([\w-]+)\}/);
-//  };
+//3.0.0 20170608
+// Quoted.prototype.containsVariables = function() {
+//     return this.value.match(/@\{([\w-]+)\}/);
+// };
 
   ///
   @override
@@ -80,10 +80,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
     final RegExp propertyRegExp = new RegExp(r'\$\{([\w-]+)\}');
     final Quoted that = this;
     String       value = this.value;
-
-//      var javascriptReplacement = function (_, exp) {
-//          return String(that.evaluateJavaScript(exp, context));
-//      };
 
     //@f: 'ables';
     //@import 'vari@{f}.less';
@@ -113,7 +109,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
       return evaluatedValue;
     }
 
-    // value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement); // JS Not supported
     value = iterativeReplace(value, variableRegExp, variableReplacement);
     value = iterativeReplace(value, propertyRegExp, propertyReplacement);
 
@@ -122,12 +117,9 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
         index: index,
         currentFileInfo: currentFileInfo);
 
-//3.0.0 20160718
+//3.0.0 20170608
 // Quoted.prototype.eval = function (context) {
 //     var that = this, value = this.value;
-//     var javascriptReplacement = function (_, exp) {
-//         return String(that.evaluateJavaScript(exp, context));
-//     };
 //     var variableReplacement = function (_, name) {
 //         var v = new Variable('@' + name, that.getIndex(), that.fileInfo()).eval(context, true);
 //         return (v instanceof Quoted) ? v.value : v.toCSS();
@@ -144,7 +136,6 @@ class Quoted extends Node with JsEvalNodeMixin implements CompareNode {
 //         } while (value !== evaluatedValue);
 //         return evaluatedValue;
 //     }
-//     value = iterativeReplace(value, /`([^`]+)`/g, javascriptReplacement);
 //     value = iterativeReplace(value, /@\{([\w-]+)\}/g, variableReplacement);
 //     value = iterativeReplace(value, /\$\{([\w-]+)\}/g, propertyReplacement);
 //     return new Quoted(this.quote + value + this.quote, value, this.escaped, this.getIndex(), this.fileInfo());

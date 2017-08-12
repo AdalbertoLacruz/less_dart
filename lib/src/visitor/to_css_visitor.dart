@@ -1,4 +1,4 @@
-//source: less/to-css-visitor.js 3.0.0 20160718
+//source: less/to-css-visitor.js 3.0.0 20170531
 
 part of visitor.less;
 
@@ -310,7 +310,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     final List<dynamic> rulesets = <dynamic>[]; //Node || List<Node>
 
     // error test for rules at first level, not inside a ruleset ??
-    if (rulesetNode.firstRoot)
+    if (rulesetNode.firstRoot) // TODO if?
         checkValidNodes(rulesetNode.rules, isRoot: rulesetNode.firstRoot);
 
     if (!rulesetNode.root) {

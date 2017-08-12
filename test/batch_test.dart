@@ -110,7 +110,7 @@ Map<int, Config> configFill() => <int, Config>{
     26: def('import-reference-issues'),
     //26: def('javascript'),
     27: def('lazy-eval'),
-    28: def('media'),
+    28: def('media', options: <String>['--strict-math=on']),
     29: def('merge'),
     30: def('mixins'),
     31: def('mixins-args', options: <String>['--strict-math=on']),
@@ -328,11 +328,6 @@ Map<int, Config> configFill() => <int, Config>{
     163: def('errors/unit-function', isErrorTest: true),
     //
     170: def('errors/functions-1', isErrorTest: true,
-          modifyOptions: (LessOptions options) {
-            options
-                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
-          }),
-    171: def('errors/functions-2-alpha', isErrorTest: true,
           modifyOptions: (LessOptions options) {
             options
                 ..definePlugin('plugin-tree-nodes', new PluginTreeNode());

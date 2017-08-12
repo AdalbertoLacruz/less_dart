@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 3.0.0 20160719
+//source: less/tree/selector.js 3.0.0 20170528
 
 part of tree.less;
 
@@ -10,16 +10,14 @@ class Selector extends Node {
 
   ///
   Node            condition;
-  ///
-  String          _css;
-  /// Cached string elements List, such as ['#selector1', .., '.selectorN']
-  List<String>    _elements;
   ///  List<Element> elements; //body, ...
   List<Extend>    extendList;
   ///
   bool            evaldCondition = false;
   ///
   bool            mediaEmpty = false;
+  /// Cached string elements List, such as ['#selector1', .., '.selectorN']
+  List<String>    _mixinElements;
 
   ///
   /// elements is List<Element> | String (to be parsed)
@@ -33,25 +31,22 @@ class Selector extends Node {
       : super.init(currentFileInfo: currentFileInfo, index: index) {
     //clone if List.clear is used, because collateral effects
     this.elements = getElements(elements);
-
-    if (condition == null)
-        evaldCondition = true;
+    evaldCondition = (condition == null);
     copyVisibilityInfo(visibilityInfo);
     setParent(this.elements, this);
 
-//3.0.0 20160719
-// var Selector = function (elements, extendList, condition, index, currentFileInfo, visibilityInfo) {
-//     this.extendList = extendList;
-//     this.condition = condition;
-//     this._index = index;
-//     this._fileInfo = currentFileInfo;
-//     this.elements = this.getElements(elements);
-//     if (!condition) {
-//         this.evaldCondition = true;
-//     }
-//     this.copyVisibilityInfo(visibilityInfo);
-//     this.setParent(this.elements, this);
-// };
+//3.0.0 20170528
+//  var Selector = function (elements, extendList, condition, index, currentFileInfo, visibilityInfo) {
+//    this.extendList = extendList;
+//    this.condition = condition;
+//    this.evaldCondition = !condition;
+//    this._index = index;
+//    this._fileInfo = currentFileInfo;
+//    this.elements = this.getElements(elements);
+//    this.mixinElements_ = undefined;
+//    this.copyVisibilityInfo(visibilityInfo);
+//    this.setParent(this.elements, this);
+//  };
   }
 
   /// Fields to show with genTree
@@ -60,13 +55,6 @@ class Selector extends Node {
     'elements': elements,
     'extendList': extendList
   };
-
-  /// String Elements List
-  List<String> get strElements {
-    if (_elements == null)
-        cacheElements();
-    return _elements;
-  }
 
   ///
   @override
@@ -107,17 +95,15 @@ class Selector extends Node {
             ..evaldCondition = evaldCondition ?? this.evaldCondition
             ..mediaEmpty = mediaEmpty;
 
-
-//3.0.0 20160719
-// Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
-//     elements = this.getElements(elements);
-//     var info = this.visibilityInfo();
-//     evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
-//     var newSelector = new Selector(elements, extendList || this.extendList, null, this.getIndex(), this.fileInfo(), info);
-//     newSelector.evaldCondition = evaldCondition;
-//     newSelector.mediaEmpty = this.mediaEmpty;
-//     return newSelector;
-// };
+//3.0.0 20170528
+//  Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
+//    elements = this.getElements(elements);
+//    var newSelector = new Selector(elements, extendList || this.extendList,
+//        null, this.getIndex(), this.fileInfo(), this.visibilityInfo());
+//    newSelector.evaldCondition = (evaldCondition != null) ? evaldCondition : this.evaldCondition;
+//    newSelector.mediaEmpty = this.mediaEmpty;
+//    return newSelector;
+//  };
 
   ///
   /// delayed parser for String elements, used in plugin api
@@ -131,25 +117,25 @@ class Selector extends Node {
     }
     return els;
 
-//3.0.0 20160719
+//3.0.0 20170528
 // Selector.prototype.getElements = function(els) {
-//     if (typeof els === "string") {
-//         this.parse.parseNode(
-//             els,
-//             ["selector"],
-//             this._index,
-//             this._fileInfo,
-//             function(err, result) {
-//                 if (err) {
-//                     throw new LessError({
-//                         index: e.index + currentIndex,
-//                         message: e.message
-//                     }, this.parse.imports, this._fileInfo.filename);
-//                 }
-//                 els = result[0].elements;
-//             });
-//     }
-//     return els;
+//   if (typeof els === "string") {
+//       this.parse.parseNode(
+//           els,
+//           ["selector"],
+//           this._index,
+//           this._fileInfo,
+//           function(err, result) {
+//               if (err) {
+//                   throw new LessError({
+//                       index: err.index,
+//                       message: err.message
+//                   }, this.parse.imports, this._fileInfo.filename);
+//               }
+//               els = result[0].elements;
+//           });
+//   }
+//   return els;
 // };
   }
 
@@ -179,49 +165,32 @@ class Selector extends Node {
   /// Returns number of matched Selector elements if match. 0 means not match.
   ///
   int match(Selector other) {
-    if (other.strElements.isEmpty ||
-        strElements.length < other.strElements.length) {
-      return 0;
+    final List<String> otherElements = other.mixinElements();
+
+    if (otherElements.isEmpty
+        || elements.length < otherElements.length) {
+          return 0;
     } else {
-      for (int i = 0; i < other.strElements.length; i++) {
-        if (strElements[i] != other.strElements[i])
+      for (int i = 0; i < otherElements.length; i++) {
+        if (elements[i].value != otherElements[i])
             return 0;
       }
     }
-    return other.strElements.length;
+    return otherElements.length; // return number of matched elements
 
-// -- VALID IMPLEMENTATION --
-//    List<Element> elements = this.elements;
-//    int len = elements.length;
-//    int olen; //other elements.length
-//
-//    other.cacheElements(); //Create if not, other._elements
-//
-//    olen = other._elements.length;
-//    if (olen == 0 || len < olen) {
-//      return 0;
-//    } else {
-//      for (int i = 0; i < olen; i++) {
-//        if (elements[i].value != other._elements[i]) return 0;
-//      }
-//    }
-//
-//    return olen;
-
-//3.0.0 20160719
+//3.0.0 20170528
 // Selector.prototype.match = function (other) {
 //     var elements = this.elements,
 //         len = elements.length,
 //         olen, i;
 //
-//     other.cacheElements();
-//
-//     olen = other._elements.length;
+//     other = other.mixinElements();
+//     olen = other.length;
 //     if (olen === 0 || len < olen) {
 //         return 0;
 //     } else {
 //         for (i = 0; i < olen; i++) {
-//             if (elements[i].value !== other._elements[i]) {
+//             if (elements[i].value !== other[i]) {
 //                 return 0;
 //             }
 //         }
@@ -232,15 +201,15 @@ class Selector extends Node {
   }
 
   ///
-  /// Creates this._elements as a String List of selector names
+  /// Creates _mixinElements as a String List of selector names
   ///
   /// Example: ['#sel1', '.sel2', ...]
   ///
-  void cacheElements() {
+  List<String> mixinElements() {
     final RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
-    if (_elements != null)
-        return; // cache exist
+    if (_mixinElements != null)
+        return _mixinElements; // cache exist
 
     final String css = elements
         .fold(new StringBuffer(), (StringBuffer prev, Element v) =>
@@ -253,17 +222,19 @@ class Selector extends Node {
 
     final Iterable<Match> matchs = re.allMatches(css);
     if (matchs != null) {
-      _elements = matchs.map((Match m) => m[0]).toList();
-      if (_elements.isNotEmpty && _elements[0] == '&')
-          _elements.removeAt(0);
+      _mixinElements = matchs.map((Match m) => m[0]).toList();
+      if (_mixinElements.isNotEmpty && _mixinElements[0] == '&')
+          _mixinElements.removeAt(0);
     } else {
-      _elements = <String>[];
+      _mixinElements = <String>[];
     }
 
-//3.0.0 20160719
-// Selector.prototype.cacheElements = function() {
-//     if (this._elements) {
-//         return;
+    return _mixinElements;
+
+//3.0.0 20170528
+// Selector.prototype.mixinElements = function() {
+//     if (this.mixinElements_) {
+//         return this.mixinElements_;
 //     }
 //
 //     var elements = this.elements.map( function(v) {
@@ -278,7 +249,7 @@ class Selector extends Node {
 //         elements = [];
 //     }
 //
-//     this._elements = elements;
+//     return (this.mixinElements_ = elements);
 // };
   }
 
@@ -335,25 +306,19 @@ class Selector extends Node {
     if ((context == null || !context.firstSelector) &&
         elements[0].combinator.value == '')
         output.add(' ', fileInfo: currentFileInfo, index: index);
-    if (!isNotEmpty(_css)) {
-      // todo caching? speed comparison?
-      for (int i = 0; i < elements.length; i++) {
-        elements[i].genCSS(context, output);
-      }
+    for (int i = 0; i < elements.length; i++) {
+      elements[i].genCSS(context, output);
     }
 
-//3.0.0 20160714
+//3.0.0 20170528
 // Selector.prototype.genCSS = function (context, output) {
 //     var i, element;
 //     if ((!context || !context.firstSelector) && this.elements[0].combinator.value === "") {
 //         output.add(' ', this.fileInfo(), this.getIndex());
 //     }
-//     if (!this._css) {
-//         //TODO caching? speed comparison?
-//         for (i = 0; i < this.elements.length; i++) {
-//             element = this.elements[i];
-//             element.genCSS(context, output);
-//         }
+//     for (i = 0; i < this.elements.length; i++) {
+//         element = this.elements[i];
+//         element.genCSS(context, output);
 //     }
 // };
   }

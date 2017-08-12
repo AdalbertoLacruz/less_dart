@@ -3,9 +3,6 @@ part of tree.less;
 ///
 class TreeApi {
   ///
-  Alpha alpha(num value) => new Alpha(value);
-
-  ///
   /// Assignments are argument entities for calls.
   /// They are present in ie filter properties as shown below.
   ///
