@@ -76,7 +76,7 @@ class Chunker {
 
         case Charcode.CLOSE_PARENTHESIS_41: // )
           if (--parenLevel < 0)
-              return fail("missing opening `(`", chunkerCurrentIndex);
+              return fail('missing opening `(`', chunkerCurrentIndex);
           continue;
 
         case Charcode.SEMICOLON_59:         // ;
@@ -91,7 +91,7 @@ class Chunker {
 
         case Charcode.CLOSE_BRACE_125:      // }
           if (--level < 0)
-              return fail("missing opening `{`", chunkerCurrentIndex);
+              return fail('missing opening `{`', chunkerCurrentIndex);
           if (level == 0 && parenLevel == 0)
               emitChunk();
           continue;
@@ -101,7 +101,7 @@ class Chunker {
             chunkerCurrentIndex++;
             continue;
           }
-          return fail("unescaped `\\`", chunkerCurrentIndex);
+          return fail('unescaped `\\`', chunkerCurrentIndex);
 
         case Charcode.DOUBLE_QUOTE_34:
         case Charcode.QUOTE_39:
@@ -120,7 +120,7 @@ class Chunker {
             }
             if (cc2 == Charcode.BACK_SLASH_92) { // \
               if (chunkerCurrentIndex == len - 1)
-                  return fail("unescaped `\\`", chunkerCurrentIndex);
+                  return fail('unescaped `\\`', chunkerCurrentIndex);
               chunkerCurrentIndex++;
             }
           }
@@ -159,7 +159,7 @@ class Chunker {
               }
             }
             if (chunkerCurrentIndex == len - 1) {
-              return fail("missing closing `*/`", currentChunkStartIndex);
+              return fail('missing closing `*/`', currentChunkStartIndex);
             }
             chunkerCurrentIndex++;
           }
@@ -168,7 +168,7 @@ class Chunker {
         case Charcode.ASTERISK_42:           // *, check for unmatched */
           if ((chunkerCurrentIndex < len - 1) &&
               (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47))
-              return fail("unmatched `/*`", chunkerCurrentIndex);
+              return fail('unmatched `/*`', chunkerCurrentIndex);
           continue;
       }
     }
@@ -177,12 +177,12 @@ class Chunker {
     if (level != 0) {
       if ((lastMultiComment > lastOpening)
           && (lastMultiCommentEndBrace > lastMultiComment)) {
-        return fail("missing closing `}` or `*/`", lastOpening);
+        return fail('missing closing `}` or `*/`', lastOpening);
       } else {
-        return fail("missing closing `}`", lastOpening);
+        return fail('missing closing `}`', lastOpening);
       }
     } else if (parenLevel != 0){
-        return fail("missing closing `)`", lastOpeningParen);
+        return fail('missing closing `)`', lastOpeningParen);
     }
 
     emitChunk(force: true);

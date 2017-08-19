@@ -187,10 +187,10 @@ class FullBenchmark {
       final num variation = maxtime - mintime;
       final double variationperc = (variation / avgtime) * 100;
 
-      print("Min. Time: $mintime ms");
-      print("Max. Time: $maxtime ms");
-      print("Total Average Time: ${avgtime.round()} ms (${1000 / avgtime * dataLength / 1024} KB\/s)");
-      print("+/- ${variationperc.round()}%");
+      print('Min. Time: $mintime ms');
+      print('Max. Time: $maxtime ms');
+      print('Total Average Time: ${avgtime.round()} ms (${1000 / avgtime * dataLength / 1024} KB\/s)');
+      print('+/- ${variationperc.round()}%');
 
 //3.0.0 20160714
 // function analyze(benchmark, benchMarkData) {

@@ -95,10 +95,10 @@ class Environment {
     FileManager fileManager;
 
     if (filename == null)
-        logger.warn("getFileManager called with no filename.. Please report this issue. continuing.");
+        logger.warn('getFileManager called with no filename.. Please report this issue. continuing.');
 
     if (currentDirectory == null)
-        logger.warn("getFileManager called with null directory.. Please report this issue. continuing.");
+        logger.warn('getFileManager called with null directory.. Please report this issue. continuing.');
 
     if (fileManagers == null) {
       fileManagers = <FileManager>[

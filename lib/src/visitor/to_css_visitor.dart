@@ -211,7 +211,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     if (atRuleNode.blocksVisibility())
         return null;
 
-    if (atRuleNode.name == "@charset") {
+    if (atRuleNode.name == '@charset') {
       // Only output the debug info together with subsequent @charset definitions
       // a comment (or @media statement) before the actual @charset atRule would
       // be considered illegal css as it has to be on the first line

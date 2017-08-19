@@ -4,6 +4,7 @@ library parser.less;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import '../contexts.dart';
 import '../environment/environment.dart';
@@ -129,7 +130,7 @@ class Parser {
 
     // Remove potential UTF Byte Order Mark
     _str = _str.replaceAll('\r\n', '\n').replaceAll(new RegExp(r'^\uFEFF'), '');
-    _str = "$preText$_str$modifyVars";
+    _str = '$preText$_str$modifyVars';
 
     imports.contents[fileInfo.filename] = _str;
 

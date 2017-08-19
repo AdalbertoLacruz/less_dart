@@ -425,7 +425,7 @@ class ParserInput {
 
     final int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
-    return (c > Charcode.$9_57 || c < Charcode.PLUS_43) 
+    return (c > Charcode.$9_57 || c < Charcode.PLUS_43)
         || c == Charcode.SLASH_47
         || c == Charcode.COMMA_44;
 
@@ -498,7 +498,7 @@ class ParserInput {
           message += ". Possibly missing opening '('";
         } else if (endInfo.furthestReachedEnd) {
           // ignore: prefer_interpolation_to_compose_strings
-          message += ". Possibly missing something";
+          message += '. Possibly missing something';
         }
       }
 
@@ -535,6 +535,15 @@ class ParserInput {
 //          filename: fileInfo.filename
 //      }, imports);
 //  }
+  }
+
+  ///
+  /// For debug, show the input around the currentChar +- gap
+  ///
+  String showAround([int gap = 20]) {
+    final int start = math.max(i - gap, 0);
+    final int stop = math.min(i + gap, input.length - 1);
+    return input.substring(start, stop);
   }
 }
 

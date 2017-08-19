@@ -73,7 +73,7 @@ class Entities {
   /// returns Color | Keyword
   ///
   Node keyword() {
-    final String k = parserInput.$char("%") ?? parserInput.$re(_keywordRegEx);
+    final String k = parserInput.$char('%') ?? parserInput.$re(_keywordRegEx);
 
     if (k != null)
         return new Color.fromKeyword(k) ?? new Keyword(k);

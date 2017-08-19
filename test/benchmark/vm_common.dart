@@ -6,13 +6,13 @@ import 'dart:io';
 import 'package:logging/logging.dart' show Logger, Level, LogRecord;
 import 'package:path/path.dart' as path;
 
-export "package:test/test.dart";
+export 'package:test/test.dart';
 
 ///
 final  String inputPath = _getInputPath();
 
 String _getInputPath() {
-  String testRootPath = Platform.environment["TEST_ROOT_PATH"];
+  String testRootPath = Platform.environment['TEST_ROOT_PATH'];
   if (testRootPath== null) {
     //testRootPath = path.dirname(Platform.script.path);
     testRootPath = path.dirname(Platform.script.toFilePath());

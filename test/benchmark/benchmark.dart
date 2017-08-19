@@ -47,17 +47,17 @@ Null help() {
 ///
 Future<Null> mainParserBig() async {
   final Less less = new Less();
-  final String sampleFile1 = "benchmark/big1.less";
+  final String sampleFile1 = 'benchmark/big1.less';
   final String content = readSampleFile(sampleFile1);
 
   const int N = 1;
   for (int i = 0; i < N; i++) {
     final Stopwatch stopwatch = new Stopwatch()..start();
     await less.parseLessFile(content);
-    print("Time (Parser big1.less): ${stopwatch.elapsedMilliseconds}");
+    print('Time (Parser big1.less): ${stopwatch.elapsedMilliseconds}');
     if (less.stderr.isNotEmpty) {
-      print("error: ${less.stderr}");
-      print("----------------------");
+      print('error: ${less.stderr}');
+      print('----------------------');
     }
   }
 }
@@ -67,10 +67,10 @@ Future<Null> mainParserBig() async {
 /// Benchmark only for parser
 ///
 Future<Null> mainParser() async {
-  final String file =  "benchmark/benchmark.less";
+  final String file =  'benchmark/benchmark.less';
   final Less less = new Less();
   final String data = readSampleFile(file);
-  print("Benchmarking Parser...\n${path.basename(file)} (${data.length / 1024} KB)");
+  print('Benchmarking Parser...\n${path.basename(file)} (${data.length / 1024} KB)');
 
   final List<int> benchMarkData = <int>[];
 
@@ -100,10 +100,10 @@ Future<Null> mainParser() async {
   final num variation = maxtime - mintime;
   final double variationperc = (variation / avgtime) * 100;
 
-  print("Min. Time: $mintime ms");
-  print("Max. Time: $maxtime ms");
-  print("Total Average Time: $avgtime ms (${1000 / avgtime *
-          data.length / 1024} KB\/s)");
-  print("+/- $variationperc%");
+  print('Min. Time: $mintime ms');
+  print('Max. Time: $maxtime ms');
+  print('Total Average Time: $avgtime ms (${1000 / avgtime *
+          data.length / 1024} KB\/s)');
+  print('+/- $variationperc%');
   print('${less.stderr.toString()}');
 }

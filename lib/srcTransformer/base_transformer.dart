@@ -123,7 +123,7 @@ class BaseTransformer {
   ///
   //from barback - Copyright (c) 2013, the Dart project authors
   String niceDuration(Duration duration) {
-    final String result = duration.inMinutes > 0 ? "${duration.inMinutes}:" : "";
+    final String result = duration.inMinutes > 0 ? '${duration.inMinutes}:' : '';
 
     final int s = duration.inSeconds % 59;
     final int ms = (duration.inMilliseconds % 1000) ~/ 100;

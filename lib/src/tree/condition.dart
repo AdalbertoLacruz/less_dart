@@ -16,6 +16,11 @@ class Condition extends Node {
   Node    rvalue;
 
   ///
+  /// Conditions are < = > <= >= and or
+  ///
+  ///     lvalue op rvalue
+  ///     @a1 = true
+  ///
   Condition(String op, Node this.lvalue, Node this.rvalue,
       {int index, bool this.negate = false})
       : super.init(index: index) {
@@ -105,5 +110,5 @@ class Condition extends Node {
   }
 
   @override
-  String toString() => 'when';
+  String toString() => '${lvalue.toString()} $op ${rvalue.toString()}';
 }

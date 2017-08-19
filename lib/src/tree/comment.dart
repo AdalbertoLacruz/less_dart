@@ -5,7 +5,7 @@ part of tree.less;
 ///
 class Comment extends Node implements SilentNode {
   @override final String      name = null;
-  @override final String      type = "Comment";
+  @override final String      type = 'Comment';
   @override covariant String  value;
 
   ///

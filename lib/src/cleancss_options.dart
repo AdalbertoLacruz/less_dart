@@ -29,29 +29,29 @@ class CleancssOptions {
   bool parse(String command) {
     if (command == null)
         return setParseError('empty');
-    final List<String> cleanOptionArgs = command.split(":");
+    final List<String> cleanOptionArgs = command.split(':');
 
     switch (cleanOptionArgs[0]) {
-      case "--keep-line-breaks":
-      case "-b":
+      case '--keep-line-breaks':
+      case '-b':
         keepBreaks = true;
         break;
-      case "--s0":
+      case '--s0':
         // Remove all special comments, i.e. /*! comment */
         keepSpecialComments = 0;
         break;
-      case "--s1":
+      case '--s1':
         // Remove all special comments but the first one
         keepSpecialComments = 1;
         break;
-      case "--skip-advanced":
+      case '--skip-advanced':
         //Disable advanced optimizations - selector & property merging, reduction, etc.
         noAdvanced = true;
         break;
-      case "--advanced":
+      case '--advanced':
         noAdvanced = false;
         break;
-      case "--compatibility":
+      case '--compatibility':
         // Force compatibility mode [ie7|ie8]
         if (cleanOptionArgs.length < 2)
             return setParseError(cleanOptionArgs[0]);
@@ -59,7 +59,7 @@ class CleancssOptions {
             return setParseError(cleanOptionArgs[0]);
         compatibility = cleanOptionArgs[1];
         break;
-      case "--rounding-precision":
+      case '--rounding-precision':
         // Rounds pixel values to `N` decimal places, defaults to 2
         if (cleanOptionArgs.length < 2)
             return setParseError(cleanOptionArgs[0]);

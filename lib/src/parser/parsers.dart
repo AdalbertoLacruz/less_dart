@@ -7,16 +7,16 @@ part of parser.less;
 ///
 /// The basic structure of the syntax tree generated is as follows:
 ///
-///   Ruleset ->  Declaration -> Value -> Expression -> Entity
+///   `Ruleset ->  Declaration -> Value -> Expression -> Entity`
 ///
 /// Here's some Less code:
 ///
-///    .class {
-///      color: #fff;
-///      border: 1px solid #000;
-///      width: @w + 4px;
-///      > .child {...}
-///    }
+///     .class {
+///       color: #fff;
+///       border: 1px solid #000;
+///       width: @w + 4px;
+///       > .child {...}
+///     }
 ///
 /// And here's what the parse tree might look like:
 ///
@@ -106,7 +106,7 @@ class Parsers {
         root.add(node);
       } else {
         bool foundSemiColon = false;
-        while (parserInput.$char(";") != null) {
+        while (parserInput.$char(';') != null) {
           foundSemiColon = true;
         }
         if (!foundSemiColon)
@@ -1304,7 +1304,7 @@ class Parsers {
       if (parserInput.$char('(') != null) {
         name = parserInput.$re(_applyRegExp2);
         if (name == null) {
-          parserInput.restore("Bad argument");
+          parserInput.restore('Bad argument');
           return null;
         }
         if (parserInput.$char(')') != null) {
@@ -1741,6 +1741,18 @@ class Parsers {
   static final RegExp _reMultiplication = new RegExp(r'\/[*\/]');
 
   ///
+  /// Search for:
+  ///
+  ///     operand operator operandN
+  ///     operator is * | /
+  ///     operandN is 0 | more operands
+  ///
+  /// Example:
+  ///
+  ///     @a
+  ///     @a * 2
+  ///     @a * @b / 2
+  ///
   Node multiplication() {
     Node      a;
     bool      isSpaced;
@@ -1752,7 +1764,7 @@ class Parsers {
     if (m != null) {
       isSpaced = parserInput.isWhitespacePrevPos();
       while (true) {
-        if (parserInput.peek(_reMultiplication))
+        if (parserInput.peek(_reMultiplication)) //comments found
             break;
 
         parserInput.save();
@@ -1817,6 +1829,17 @@ class Parsers {
   static final RegExp _additionRegExp1 = new RegExp(r'[-+]\s+', caseSensitive: true);
 
   ///
+  /// Search for:
+  ///
+  ///     multiplication operator multiplicationN
+  ///     operator is + | -
+  ///     multiplicationN is 0 | more multiplication
+  ///
+  /// Example:
+  ///     @a
+  ///     @a + @b
+  ///     @a + @b - 2
+  ///
   Node addition() {
     Node      a;
     Node      m;
@@ -1843,8 +1866,7 @@ class Parsers {
         m.parensInOp = true;
         a.parensInOp = true;
         operation = new Operation(op,
-            <Node>[operation != null ? operation : m, a],
-            isSpaced: isSpaced);
+            <Node>[operation != null ? operation : m, a], isSpaced: isSpaced);
         isSpaced = parserInput.isWhitespacePrevPos();
       }
       return operation ?? m;
@@ -1926,8 +1948,17 @@ class Parsers {
   }
 
   ///
+  /// Inside a MixinDefinition, conditions such as
+  ///     when, and, or, not, ...
+  ///
+  /// Example:
+  ///
+  ///     .light (@a) when (lightness(@a) > 50%) {
+  ///       color: white;
+  ///     }
+  ///
   Condition condition() {
-    String or() => parserInput.$str("or");
+    String or() => parserInput.$str('or');
 
     Condition result = conditionAnd();
     if (result == null)
@@ -1971,7 +2002,7 @@ class Parsers {
   ///
   Condition conditionAnd() {
     Condition insideCondition() => negatedCondition() ?? parenthesisCondition();
-    String and() => parserInput.$str("and");
+    String and() => parserInput.$str('and');
 
     Condition result = insideCondition();
     if (result == null)
@@ -2016,8 +2047,12 @@ class Parsers {
   }
 
   ///
+  /// Search for conditions such as:
+  ///
+  ///     not(@a = 0)
+  ///
   Condition negatedCondition() {
-    if (parserInput.$str("not") != null) {
+    if (parserInput.$str('not') != null) {
       final Condition result = parenthesisCondition();
       if (result != null)
           result.negate = !result.negate;
@@ -2038,6 +2073,14 @@ class Parsers {
   }
 
   ///
+  /// Search for a condition inside a parenthesis:
+  ///
+  ///     ( condition)
+  ///
+  /// Example:
+  ///
+  ///     (@a = 0)
+  ///
   Condition parenthesisCondition() {
     //
     Condition tryConditionFollowedByParenthesis() {
@@ -2056,7 +2099,7 @@ class Parsers {
     }
 
     parserInput.save();
-    if (parserInput.$str("(") == null) {
+    if (parserInput.$str('(') == null) {
       parserInput.restore();
       return null;
     }
@@ -2123,6 +2166,22 @@ class Parsers {
 // },
   }
 
+  ///
+  /// The simplest condition, such as
+  ///
+  ///     @a > @b
+  ///
+  /// More complex conditions have atomic conditions inside:
+  ///
+  ///   ((@a = true) and (@b = true))
+  ///
+  /// Syntax:
+  ///     LeftValue operator RightValue
+  ///     Value is addition | keyword | quoted
+  ///     operator is  >= | <= | => |  =< | > | < | =
+  /// also:
+  ///     Value (Example: @a  is the same as @a = true)
+  ///
   ///
   Condition atomicCondition() {
     Node      a;
@@ -2222,8 +2281,9 @@ class Parsers {
   static final RegExp _reOperand = new RegExp(r'-[@\$\(]');
 
   ///
-  /// An operand is anything that can be part of an operation,
-  /// such as a Color, or a Variable
+  /// An operand is anything that can be part of an operation
+  ///
+  /// operand is (-) dimension | color |variable | property | call
   ///
   Node operand() {
     String  negate;

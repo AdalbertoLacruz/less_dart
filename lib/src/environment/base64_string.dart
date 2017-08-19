@@ -37,7 +37,7 @@ class Base64String {
         index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
-      characters.add("=");
+      characters.add('=');
     } else if (i + 1 == data.length) {
       int value = 0;
       value |= data[i] << 16;
@@ -46,8 +46,8 @@ class Base64String {
         characters.add(_encodingTable[index]);
       }
       characters
-          ..add("=")
-          ..add("=");
+          ..add('=')
+          ..add('=');
     }
 
     final StringBuffer output = new StringBuffer();

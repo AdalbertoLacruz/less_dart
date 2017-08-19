@@ -105,8 +105,8 @@ class SvgFunctions extends FunctionBase {
       }
 
       positionValue = position != null
-          ? position.toCSS(renderEnv) : i == 0 ? "0%"
-          : "100%";
+          ? position.toCSS(renderEnv) : i == 0 ? '0%'
+          : '100%';
       final Color col = color;
       alpha = col.alpha;
       final String stopOpacity = (alpha < 1)
