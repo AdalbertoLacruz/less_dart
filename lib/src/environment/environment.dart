@@ -7,7 +7,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:barback/barback.dart';
+import 'package:less_dart/src/environment/package_resolver_provider.dart';
 import 'package:mime/mime.dart' as mime;
+import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as pathLib;
 
 import '../contexts.dart';
@@ -103,7 +106,7 @@ class Environment {
     if (fileManagers == null) {
       fileManagers = <FileManager>[
           //order is important
-          new FileFileManager(environment),
+          new FileFileManager(environment, new PackageResolverProvider()),
           new UrlFileManager(environment)
       ];
       if (options.pluginManager != null)

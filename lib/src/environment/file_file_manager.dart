@@ -4,11 +4,17 @@ part of environment.less;
 
 /// File loader
 class FileFileManager extends FileManager {
+
+  /// packages prefix
+  static const String PACKAGES_PREFIX = "packages";
+
   /// full path list of filenames used to find the file
   List<String> filenamesTried = <String>[];
 
+  final PackageResolverProvider _packageResolverProvider;
+
   ///
-  FileFileManager(Environment environment) : super(environment);
+  FileFileManager(Environment environment, this._packageResolverProvider) : super(environment);
 
   ///
   @override
@@ -89,36 +95,30 @@ class FileFileManager extends FileManager {
 
   /// Load Async the file
   @override
-  Future<FileLoaded> loadFile(String filename, String currentDirectory,
-      Contexts options, Environment environment) {
-
-    final Contexts              _options = options ?? new Contexts();
-    final Completer<FileLoaded> task = new Completer<FileLoaded>();
-    
+  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) async {
+    final Contexts _options = options ?? new Contexts();
     if (_options.syncImport ?? false) {
       final FileLoaded fileLoaded = loadFileSync(filename, currentDirectory, _options, environment);
-      fileLoaded.error == null
-          ? task.complete(fileLoaded)
-          : task.completeError(fileLoaded.error);
-      return task.future;
-    }
-
-    final List<String> paths = createListPaths(filename, currentDirectory, _options);
-    findFile(filename, paths).then((String fullFilename) {
-      if (fullFilename != null) {
-        new File(fullFilename).readAsString().then((String data) {
-          task.complete(new FileLoaded(filename: fullFilename, contents: data));
-        });
-      } else {
-        final LessError error = new LessError(
-            type: 'File',
-            message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
-         );
-        task.completeError(error);
+      if (fileLoaded.error == null) {
+        return fileLoaded;
       }
-    });
+      else {
+        throw(fileLoaded.error);
+      }
+    }
+    final String normalizedFilename = await _normalizeFilePath(filename);
+    final List<String> paths = await _normalizePaths(createListPaths(filename, currentDirectory, _options));
+    final String fullFilename = await findFile(normalizedFilename, paths);
+    if (fullFilename != null) {
+      return getLoadedFile(fullFilename);
+    } else {
+      throw new LessError(
+          type: 'File',
+          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
+      );
+    }
+  }
 
-    return task.future;
 
 //2.3.1
 //FileManager.prototype.loadFile = function(filename, currentDirectory, options, environment, callback) {
@@ -167,7 +167,6 @@ class FileFileManager extends FileManager {
 //        }(0));
 //    });
 //};
-  }
 
   /// Load sync the file
   @override
@@ -285,5 +284,34 @@ class FileFileManager extends FileManager {
     }
 
     return fileLoaded;
+  }
+
+  ///
+  /// Loads file by its [fullPath]
+  ///
+
+  Future<FileLoaded> getLoadedFile(String fullPath) async {
+    final String data = await new File(fullPath).readAsString();
+    return new FileLoaded(filename: fullPath, contents: data);
+  }
+
+  Future<String> _normalizeFilePath(String filename) async {
+    final List<String> pathData = pathLib.split(pathLib.normalize(filename));
+    if (pathData.length > 1 && pathData.first == PACKAGES_PREFIX) {
+      final String packageName = pathData[1];
+      final String pathInPackage = pathLib.joinAll(pathData.getRange(2, pathData.length));
+      final  AssetId asset = new AssetId(packageName, pathInPackage);
+      final PackageResolver _resolver = await _packageResolverProvider.getPackageResolver();
+      return (await _resolver.urlFor(asset.package, asset.path)).toFilePath();
+    }
+    return filename;
+  }
+
+  Future <List<String>> _normalizePaths(List<String> paths) async {
+    final List<String> normalizedPaths = <String>[];
+    for (String path in paths) {
+      normalizedPaths.add(await _normalizeFilePath(path));
+    }
+    return normalizedPaths;
   }
 }
