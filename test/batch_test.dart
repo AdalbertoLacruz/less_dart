@@ -414,6 +414,10 @@ Map<int, Config> configFill() => <int, Config>{
     201: def('extendedTest/url', isExtendedTest: true),
     202: def('extendedTest/image-size', isExtendedTest: true),
     203: def('extendedTest/function-rem', isExtendedTest: true),
+    204: def('extendedTest/import-package', isExtendedTest: true),
+    205: def('extendedTest/import-package-lib', isExtendedTest: true,
+        options: <String>['--include-path=package_test://less_dart/less/import']),
+
     //absolute path
     210: def('import-absolute-path',
         isExtendedTest: true,

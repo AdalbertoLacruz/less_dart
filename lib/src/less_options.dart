@@ -295,7 +295,11 @@ class LessOptions {
         if (checkArgFunc(command, arg[2])) {
           // ; supported on windows.
           // : supported on windows and linux, excluding a drive letter like C:\ so C:\file:D:\file parses to 2
-          paths = arg[2].split(Platform.isWindows ? new RegExp(r':(?!\\)|;') : ':');
+          if (arg[2].startsWith('package')) {
+            paths = <String>[arg[2]];
+          } else {
+            paths = arg[2].split(Platform.isWindows ? new RegExp(r':(?!\\)|;') : ':');
+          }
 
 //            options.paths = match[2]
 //                .split(os.type().match(/Windows/) ? /:(?!\\)|;/ : ':')

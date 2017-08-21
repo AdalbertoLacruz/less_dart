@@ -183,9 +183,16 @@ Other way, is to inherit the transformer in your application. Create a file
 - Basic support for Custom CSS mixins as used by Polymer 1.0.
   - `--mixin-name: {...}`
   - `@apply(--mixin-name);`
-- function rem to convert from px, pt or em to rem, defined as rem(fontSize, [baseFont]):
+- Function rem to convert from px, pt or em to rem, defined as rem(fontSize, [baseFont]):
   - `rem(16), rem(16px), rem(12pt), rem(1em), rem(20, 20)`
   - `1rem, 1rem, 1rem, 1rem, 1rem`
+- @import supports packages as source:
+  - `@import "packages/package-name/path/starting-in-lib";`
+  - `@import "package://package-name/path/starting-in-lib";`
+
+  Also, option `--include-path` supports package, for easy use of shared mixins libraries:
+  - `--include-path=packages/package-name/path/starting-in-lib`
+  - `--include-path=package://package-name/path/starting-in-lib`
 
 
 ## Known issues

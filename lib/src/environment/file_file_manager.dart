@@ -5,8 +5,14 @@ part of environment.less;
 /// File loader
 class FileFileManager extends FileManager {
 
-  /// packages prefix
-  static const String PACKAGES_PREFIX = "packages";
+  /// packages prefix:
+  ///     @import "packages/less_dart/test/import-charset-test";
+  ///     @import "package://less_dart/test/import-charset-test";
+  static const String PACKAGES_PREFIX = 'package';
+
+  /// packages test:
+  ///     @import "package_test://less_dart/less/import/import-charset-test";
+  static const String PACKAGES_TEST = 'test';
 
   /// full path list of filenames used to find the file
   List<String> filenamesTried = <String>[];
@@ -297,10 +303,13 @@ class FileFileManager extends FileManager {
 
   Future<String> _normalizeFilePath(String filename) async {
     final List<String> pathData = pathLib.split(pathLib.normalize(filename));
-    if (pathData.length > 1 && pathData.first == PACKAGES_PREFIX) {
+    if (pathData.length > 1 && pathData.first.startsWith(PACKAGES_PREFIX)) {
       final String packageName = pathData[1];
-      final String pathInPackage = pathLib.joinAll(pathData.getRange(2, pathData.length));
-      final  AssetId asset = new AssetId(packageName, pathInPackage);
+      String pathInPackage = pathLib.joinAll(pathData.getRange(2, pathData.length));
+      if (pathData.first.contains(PACKAGES_TEST)) {
+        pathInPackage = '../test/$pathInPackage'; //change from lib/path to test/path
+      }
+      final AssetId asset = new AssetId(packageName, pathInPackage);
       final PackageResolver _resolver = await _packageResolverProvider.getPackageResolver();
       return (await _resolver.urlFor(asset.package, asset.path)).toFilePath();
     }

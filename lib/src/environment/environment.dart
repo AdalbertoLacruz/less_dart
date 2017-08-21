@@ -8,15 +8,16 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:barback/barback.dart';
-import 'package:less_dart/src/environment/package_resolver_provider.dart';
 import 'package:mime/mime.dart' as mime;
-import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as pathLib;
 
 import '../contexts.dart';
 import '../less_error.dart';
 import '../less_options.dart';
 import '../logger.dart';
+import 'package_resolver_provider.dart';
+
+export 'package_resolver_provider.dart';
 
 part 'base64_string.dart';
 part 'bi_map.dart';
