@@ -1,14 +1,14 @@
-//source: lib/less/environment/abstract-file-manager.js 3.0.0 20160717
+//source: lib/less/environment/abstract-file-manager.js 3.0.0 20171009
 
 part of environment.less;
 
 ///
-class FileManager {
+class AbstractFileManager {
   ///
   Environment environment;
 
   ///
-  FileManager(this.environment);
+  AbstractFileManager(this.environment);
 
   ///
   /// This FileManager can load async the filename
@@ -36,17 +36,10 @@ class FileManager {
   /// Loads a file synchronously. Expects an immediate return with an object containing
   ///   { error: - error object if an error occurs
   ///     filename: - full resolved path to file
-  ///     contents: - the contents of the file, as a string }
+  ///     contents: - the contents of the file, as a string or
+  ///     codeunits: - the contents of the file, asBytes }
   ///
   FileLoaded loadFileSync(String filename, String currentDirectory,
-      Contexts options, Environment environment) => null;
-
-  ///
-  /// Load a file syncrhonously with readAsBytesSync
-  ///
-  /// result in FileLoaded.codeUnits
-  ///
-  FileLoaded loadFileAsBytesSync(String filename, String currentDirectory,
       Contexts options, Environment environment) => null;
 
   ///
@@ -59,17 +52,6 @@ class FileManager {
   /// Given the full path to a file [filename], return the path component
   ///
   String getPath(String filename) => pathLib.dirname(filename);
-
-// valid dart implementation
-//    int j = filename.lastIndexOf('?');
-//    if (j > 0) filename = filename.substring(0, j);
-//
-//    j = filename.lastIndexOf('/');
-//    if (j < 0) j = filename.lastIndexOf('\\');
-//
-//    if (j < 0) return '';
-//
-//    return filename.substring(0, j + 1);
 
 //2.3.1
 //abstractFileManager.prototype.getPath = function (filename) {
@@ -122,10 +104,6 @@ class FileManager {
   ///
   bool isPathAbsolute(String path) => pathLib.isAbsolute(path);
 
-// valid dart implementation
-//    RegExp re = new RegExp(r'^(?:[a-z-]+:|\/|\\|#)', caseSensitive: false);
-//    return re.hasMatch(path);
-
 //2.4.0
 //  abstractFileManager.prototype.isPathAbsolute = function(filename) {
 //      return (/^(?:[a-z-]+:|\/|\\|#)/i).test(filename);
@@ -135,10 +113,6 @@ class FileManager {
   /// Joins together 2 paths
   ///
   String join(String basePath, String laterPath) => pathLib.join(basePath, laterPath);
-
-//valid dart implementation
-//    if (basePath == null) return laterPath;
-//    return basePath + laterPath;
 
 //2.3.1
 //abstractFileManager.prototype.join = function(basePath, laterPath) {
@@ -219,14 +193,15 @@ class FileManager {
         }
 
     final UrlParts returner = new UrlParts();
-    List<String> directories;
-    //String baseUrlParts;
 
     if (urlParts.isEmpty) {
       final LessError error = new LessError(
           message: "Could not parse sheet href - '$url'");
       throw new LessExceptionError(error);
     }
+
+    List<String> directories = <String>[];
+    String rawPath = '';
 
     // Stylesheets in IE don't always return the full path
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
@@ -248,16 +223,9 @@ class FileManager {
     }
 
     if (urlParts[3] != null) {
-      directories = urlParts[3].replaceAll('\\', '/').split('/')
-          // extract out . before .. so .. doesn't absorb a non-directory
-          ..remove('.');
-
-      for (int i = 0; i < directories.length; i++) {
-        if (directories[i] == '..' && i > 0) {
-          directories.removeRange(i - 1, i + 1);
-          i -= 2;
-        }
-      }
+      rawPath = urlParts[3].replaceAll('\\', '/');
+      // collapse '..' and skip '.'
+      directories = pathLib.split(pathLib.normalize(rawPath))..add('');
     }
 
     for (int i = 0; i < urlParts.length; i ++) {
@@ -272,68 +240,67 @@ class FileManager {
     returner
         ..hostPart = urlParts[1]
         ..directories = directories
+        ..rawPath = '${urlParts[1]}$rawPath'
         ..path = '${urlParts[1]}${directories.join('/')}'
         ..filename = urlParts[4]
         ..fileUrl = '${returner.path}${urlParts[4]}'
         ..url = '${returner.fileUrl}${urlParts[5]}';
     return returner;
 
-//3.0.0 20160717
+//3.0.0 20171009
 // helper function, not part of API
-// abstractFileManager.prototype.extractUrlParts = function extractUrlParts(url, baseUrl) {
-//     // urlParts[1] = protocol://hostname/ OR /
-//     // urlParts[2] = / if path relative to host base
-//     // urlParts[3] = directories
-//     // urlParts[4] = filename
-//     // urlParts[5] = parameters
+//abstractFileManager.prototype.extractUrlParts = function extractUrlParts(url, baseUrl) {
+//    // urlParts[1] = protocol://hostname/ OR /
+//    // urlParts[2] = / if path relative to host base
+//    // urlParts[3] = directories
+//    // urlParts[4] = filename
+//    // urlParts[5] = parameters
 //
-//     var urlPartsRegex = /^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
-//         urlParts = url.match(urlPartsRegex),
-//         returner = {}, directories = [], i, baseUrlParts;
+//    var urlPartsRegex = /^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
+//        urlParts = url.match(urlPartsRegex),
+//        returner = {}, rawDirectories = [], directories = [], i, baseUrlParts;
 //
-//     if (!urlParts) {
-//         throw new Error("Could not parse sheet href - '" + url + "'");
-//     }
+//    if (!urlParts) {
+//        throw new Error("Could not parse sheet href - '" + url + "'");
+//    }
 //
-//     // Stylesheets in IE don't always return the full path
-//     if (baseUrl && (!urlParts[1] || urlParts[2])) {
-//         baseUrlParts = baseUrl.match(urlPartsRegex);
-//         if (!baseUrlParts) {
-//             throw new Error("Could not parse page url - '" + baseUrl + "'");
-//         }
-//         urlParts[1] = urlParts[1] || baseUrlParts[1] || "";
-//         if (!urlParts[2]) {
-//             urlParts[3] = baseUrlParts[3] + urlParts[3];
-//         }
-//     }
+//    // Stylesheets in IE don't always return the full path
+//    if (baseUrl && (!urlParts[1] || urlParts[2])) {
+//        baseUrlParts = baseUrl.match(urlPartsRegex);
+//        if (!baseUrlParts) {
+//            throw new Error("Could not parse page url - '" + baseUrl + "'");
+//        }
+//        urlParts[1] = urlParts[1] || baseUrlParts[1] || "";
+//        if (!urlParts[2]) {
+//            urlParts[3] = baseUrlParts[3] + urlParts[3];
+//        }
+//    }
 //
-//     if (urlParts[3]) {
-//         directories = urlParts[3].replace(/\\/g, "/").split("/");
+//    if (urlParts[3]) {
+//        rawDirectories = urlParts[3].replace(/\\/g, "/").split("/");
 //
-//         // extract out . before .. so .. doesn't absorb a non-directory
-//         for (i = 0; i < directories.length; i++) {
-//             if (directories[i] === ".") {
-//                 directories.splice(i, 1);
-//                 i -= 1;
-//             }
-//         }
+//        // collapse '..' and skip '.'
+//        for (i = 0; i < rawDirectories.length; i++) {
 //
-//         for (i = 0; i < directories.length; i++) {
-//             if (directories[i] === ".." && i > 0) {
-//                 directories.splice(i - 1, 2);
-//                 i -= 2;
-//             }
-//         }
-//     }
+//            if (rawDirectories[i] === "..") {
+//                directories.pop();
+//            }
+//            else if (rawDirectories[i] !== ".") {
+//                directories.push(rawDirectories[i]);
+//            }
 //
-//     returner.hostPart = urlParts[1];
-//     returner.directories = directories;
-//     returner.path = (urlParts[1] || "") + directories.join("/");
-//     returner.filename = urlParts[4];
-//     returner.fileUrl = returner.path + (urlParts[4] || "");
-//     returner.url = returner.fileUrl + (urlParts[5] || "");
-//     return returner;
-// };
+//        }
+//    }
+//
+//    returner.hostPart = urlParts[1];
+//    returner.directories = directories;
+//    returner.rawPath = (urlParts[1] || "") + rawDirectories.join("/");
+//    returner.path = (urlParts[1] || "") + directories.join("/");
+//    returner.filename = urlParts[4];
+//    returner.fileUrl = returner.path + (urlParts[4] || "");
+//    returner.url = returner.fileUrl + (urlParts[5] || "");
+//    return returner;
+//};
   }
 }
 
@@ -366,6 +333,8 @@ class UrlParts {
   String        fileUrl;
   ///
   String        path;
+  ///
+  String        rawPath;
   ///
   String        url;
 }

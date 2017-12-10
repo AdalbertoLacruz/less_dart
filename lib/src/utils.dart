@@ -1,6 +1,9 @@
-// source: less/utils.js 2.5.0
+// source: less/utils.js 3.0.0 20171009
 
 library utils.less;
+
+import 'dart:mirrors';
+
 
 ///
 class Utils {
@@ -46,6 +49,93 @@ class Utils {
 //    };
 //}
   }
+
+  ///
+  /// Non deep clone for same class instances. [to] must be a new instance.
+  /// Example, clone a Contexts: result = Utils.clone(context, new Contexts());
+  ///
+  static dynamic clone(dynamic from, dynamic to) {
+    final InstanceMirror fromInstanceMirror = reflect(from);
+    final InstanceMirror toInstanceMirror = reflect(to);
+
+    fromInstanceMirror.type.declarations.forEach((Symbol variableName, DeclarationMirror declaration) {
+      if (declaration is VariableMirror) {
+        final dynamic variableValue = fromInstanceMirror.getField(variableName).reflectee;
+        toInstanceMirror.setField(variableName, variableValue);
+      }
+    });
+
+    return to;
+
+//3.0.0 20171009
+//clone: function (obj) {
+//    var cloned = {};
+//    for (var prop in obj) {
+//        if (obj.hasOwnProperty(prop)) {
+//            cloned[prop] = obj[prop];
+//        }
+//    }
+//    return cloned;
+//},
+  }
+
+  ///
+  /// Non deep copy from two instances that could be from different classes.
+  /// [properties] contains the variable names to copy if possible. If null, copy all possible.
+  ///
+  static dynamic copyFrom(dynamic from, dynamic to, [List<String> properties]) {
+    final InstanceMirror fromInstanceMirror = reflect(from);
+    final InstanceMirror toInstanceMirror = reflect(to);
+
+    bool tryCopy(String name) => (properties == null) ? true : properties.contains(name);
+
+    final Map<Symbol, DeclarationMirror> fromDeclarations = fromInstanceMirror.type.declarations;
+
+    toInstanceMirror.type.declarations.forEach((Symbol variableName, DeclarationMirror declaration) {
+      final String name = MirrorSystem.getName(variableName);
+      if (declaration is VariableMirror && tryCopy(name) && fromDeclarations.containsKey(variableName)) {
+        final dynamic variableValue = fromInstanceMirror.getField(variableName).reflectee;
+        toInstanceMirror.setField(variableName, variableValue);
+      }
+    });
+
+    return to;
+  }
+
+//3.0.0 20171009
+//defaults: function(obj1, obj2) {
+//    if (!obj2._defaults || obj2._defaults !== obj1) {
+//        for (var prop in obj1) {
+//            if (obj1.hasOwnProperty(prop)) {
+//                if (!obj2.hasOwnProperty(prop)) {
+//                    obj2[prop] = obj1[prop];
+//                }
+//                else if (Array.isArray(obj1[prop])
+//                    && Array.isArray(obj2[prop])) {
+//
+//                    obj1[prop].forEach(function(p) {
+//                        if (obj2[prop].indexOf(p) === -1) {
+//                            obj2[prop].push(p);
+//                        }
+//                    });
+//                }
+//            }
+//        }
+//    }
+//    obj2._defaults = obj1;
+//    return obj2;
+//},
+
+// 3.0.0 20171009
+//merge: function(obj1, obj2) {
+//    for (var prop in obj2) {
+//        if (obj2.hasOwnProperty(prop)) {
+//            obj1[prop] = obj2[prop];
+//        }
+//    }
+//    return obj1;
+//},
+
 }
 
 ///

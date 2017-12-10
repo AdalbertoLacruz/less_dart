@@ -1,4 +1,4 @@
-//source: less/import-manager.js 2.5.0
+//source: less/import-manager.js 3.0.0 20171009
 
 library importmanager.less;
 
@@ -23,14 +23,14 @@ import 'tree/tree.dart';
 
 ///
 class ImportManager {
-  ///
-  Contexts context;
-
   /// Map - filename to contents of all the imported files
   Map<String, String> contents = <String, String>{};
 
   /// Map - filename to lines at the beginning of each file to ignore
   Map<String, int> contentsIgnoredChars = <String, int>{};
+
+  ///
+  Contexts context;
 
   ///
   Environment environment;
@@ -39,14 +39,13 @@ class ImportManager {
   LessError error;
 
   /// Holds the imported parse trees
-  //Map<String, Node> files = {};
-  Map<String, dynamic> files = <String, dynamic>{}; // Deprecated?. value = Node | String
+  Map<String, ImportedFile> files = <String, ImportedFile>{};
 
   /// MIME type of .less files
   String mime;
 
   /// Directories where to search the file when importing
-  List<String> paths = <String>[];
+  List<String> paths;
 
   ///
   String rootFilename;
@@ -57,58 +56,67 @@ class ImportManager {
   ///
   ImportManager(this.context, FileInfo rootFileInfo) {
     rootFilename = rootFileInfo.filename;
-    if (context.paths != null)
-        paths = context.paths;
+    paths = context.paths ?? <String>[];
     mime = context.mime;
     environment = new Environment();
 
-//2.3.1
-//  var ImportManager = function(context, rootFileInfo) {
-//      this.rootFilename = rootFileInfo.filename;
-//      this.paths = context.paths || [];  // Search paths, when importing
-//      this.contents = {};             // map - filename to contents of all the files
-//      this.contentsIgnoredChars = {}; // map - filename to lines at the beginning of each file to ignore
-//      this.mime = context.mime;
-//      this.error = null;
-//      this.context = context;
-//      // Deprecated? Unused outside of here, could be useful.
-//      this.queue = [];        // Files which haven't been imported yet
-//      this.files = {};        // Holds the imported parse trees.
+//3.0.0 20170608
+//  var ImportManager = function(less, context, rootFileInfo) {
+//    this.less = less;
+//    this.rootFilename = rootFileInfo.filename;
+//    this.paths = context.paths || [];  // Search paths, when importing
+//    this.contents = {};             // map - filename to contents of all the files
+//    this.contentsIgnoredChars = {}; // map - filename to lines at the beginning of each file to ignore
+//    this.mime = context.mime;
+//    this.error = null;
+//    this.context = context;
+//    // Deprecated? Unused outside of here, could be useful.
+//    this.queue = [];        // Files which haven't been imported yet
+//    this.files = {};        // Holds the imported parse trees.
 //  };
   }
 
   ///
-  /// Build the return content
+  /// Build the return content and save in files cache
   /// [root] = Node | String
   ///
-  ImportedFile fileParsedFunc(String path, dynamic root, String fullPath) {
+  ImportedFile fileParsedFunc(String path, dynamic root, String fullPath,
+      ImportOptions importOptions, {bool useCache = false}) {
+    //
     queue.remove(path);
 
-    final bool importedEqualsRoot = (fullPath == rootFilename);
+    if (useCache)
+        return files[fullPath];
 
-    if (fullPath != null)
-        files[fullPath] = root; // Store the root
-
-    return new ImportedFile(
+    final ImportedFile importedFile = new ImportedFile(
         root: root,
-        importedPreviously: importedEqualsRoot,
-        fullPath: fullPath);
+        importedPreviously: (fullPath == rootFilename), // importedEqualsRoot
+        fullPath: fullPath,
+        options: importOptions);
+
+    // in js only if (!files.containsKey[fullPath]). But if we are here, don't like the cache
+    if (fullPath != null)
+        files[fullPath] = importedFile;
+
+    return importedFile;
   }
 
-//2.3.1
-//      var fileParsedFunc = function (e, root, fullPath) {
-//          importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue *
+//3.0.0 20170608
+//  var fileParsedFunc = function (e, root, fullPath) {
+//      importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue
 //
-//          var importedEqualsRoot = fullPath === importManager.rootFilename; *
-//          if (importOptions.optional && e) {
-//            callback(null, {rules:[]}, false, null);
+//      var importedEqualsRoot = fullPath === importManager.rootFilename;
+//      if (importOptions.optional && e) {
+//          callback(null, {rules:[]}, false, null);
+//      }
+//      else {
+//          if (!importManager.files[fullPath]) {
+//              importManager.files[fullPath] = { root: root, options: importOptions };
 //          }
-//          else {
-//            importManager.files[fullPath] = root; *
-//            if (e && !importManager.error) { importManager.error = e; }
-//            callback(e, root, importedEqualsRoot, fullPath); *
-//          }
-//      };
+//          if (e && !importManager.error) { importManager.error = e; }
+//          callback(e, root, importedEqualsRoot, fullPath);
+//      }
+//  };
 
   ///
   /// Add an import to be imported
@@ -125,27 +133,28 @@ class ImportManager {
       ImportOptions importOptions,
       {bool tryAppendLessExtension = false}) {
 
-    String                         _path = path;
+    final Contexts                  _context = context.clone();
     final Completer<ImportedFile>   task = new Completer<ImportedFile>();
 
-    queue.add(_path);
+    queue.add(path);
+
     final FileInfo newFileInfo = new FileInfo
-        .cloneForLoader(currentFileInfo, context);
-    final FileManager fileManager = environment.getFileManager(
-        _path, currentFileInfo.currentDirectory, context, environment);
+        .cloneForLoader(currentFileInfo, _context);
+
+    final AbstractFileManager fileManager = environment.getFileManager(
+        path, currentFileInfo.currentDirectory, _context, environment);
 
     if (fileManager == null) {
       task.completeError(new LessError(
-          message: 'Could not find a file-manager for $_path'));
+          message: 'Could not find a file-manager for $path'));
       return task.future;
     }
 
-//(js)if (tryAppendLessExtension) path = fileManager.tryAppendExtension(path, importOptions.plugin ? ".js" : ".less");
     if (tryAppendLessExtension)
-        _path = fileManager.tryAppendLessExtension(_path);
+        _context.ext = '.less';
 
     fileManager
-        .loadFile(_path, currentFileInfo.currentDirectory, context, environment)
+        .loadFile(path, currentFileInfo.currentDirectory, _context, environment)
         .then((FileLoaded loadedFile) {
           final String resolvedFilename = loadedFile.filename;
           final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
@@ -167,7 +176,7 @@ class ImportManager {
                 currentDirectory += pathLib.separator;
 
             final String pathdiff = fileManager.pathDiff(currentDirectory, newFileInfo.entryPath);
-            newFileInfo.rootpath = fileManager.join((context.rootpath ?? ''), pathdiff);
+            newFileInfo.rootpath = fileManager.join((_context.rootpath ?? ''), pathdiff);
 
             if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
               newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
@@ -175,7 +184,7 @@ class ImportManager {
           }
           newFileInfo.filename = resolvedFilename;
 
-          final Contexts newEnv = new Contexts.parse(context)
+          final Contexts newEnv = new Contexts.parse(_context)
               ..processImports = false
               ..currentFileInfo = newFileInfo; // Not in original
 
@@ -184,19 +193,21 @@ class ImportManager {
           if (currentFileInfo.reference || (importOptions?.reference ?? false))
               newFileInfo.reference = true;
 
-          //(js)  if (importOptions.plugin) {
-          //          new FunctionImporter(newEnv, newFileInfo).eval(contents, function (e, root) {
-          //              fileParsedFunc(e, root, resolvedFilename);
-          //          });
-          //      } else if (importOptions.inline) {
-
+          // if (importOptions.isPlugin) ...
           if (importOptions?.inline ?? false) {
-            task.complete(fileParsedFunc(_path, contents, resolvedFilename));
+            task.complete(fileParsedFunc(path, contents, resolvedFilename, importOptions));
+
+          // import (multiple) parse trees apparently get altered and can't be cached.
+          // TODO: investigate why this is (js)
+          } else if (files.containsKey(resolvedFilename)
+            && !(files[resolvedFilename].options?.multiple ?? false)
+            && !(importOptions?.multiple ?? false)) {
+            task.complete(fileParsedFunc(path, null, resolvedFilename, importOptions, useCache: true));
           } else {
             new Parser.fromImporter(newEnv, this, newFileInfo)
                 .parse(contents)
                 .then((Ruleset root) {
-                  task.complete(fileParsedFunc(_path, root, resolvedFilename));
+                  task.complete(fileParsedFunc(path, root, resolvedFilename, importOptions));
                 }).catchError((Object e) {
                   task.completeError(e);
                 });
@@ -204,7 +215,7 @@ class ImportManager {
         }).catchError((Object e) {
           //importOptions.optional: continue compiling when file is not found
           if (importOptions?.optional ?? false) {
-            task.complete(fileParsedFunc(_path, new Ruleset(<Selector>[], <Node>[]), null));
+            task.complete(fileParsedFunc(path, new Ruleset(<Selector>[], <Node>[]), null, importOptions));
           } else {
             task.completeError(e);
           }
@@ -212,9 +223,11 @@ class ImportManager {
 
     return task.future;
 
-//2.4.0 20150305
-//  ImportManager.prototype.push = function (path, tryAppendLessExtension, currentFileInfo, importOptions, callback) {
-//      var importManager = this;
+//3.0.0 20171009
+//  ImportManager.prototype.push = function (path, tryAppendExtension, currentFileInfo, importOptions, callback) {
+//      var importManager = this,
+//          pluginLoader = this.context.pluginManager.Loader;
+//
 //      this.queue.push(path);
 //
 //      var fileParsedFunc = function (e, root, fullPath) {
@@ -225,7 +238,9 @@ class ImportManager {
 //              callback(null, {rules:[]}, false, null);
 //          }
 //          else {
-//              importManager.files[fullPath] = root;
+//              if (!importManager.files[fullPath]) {
+//                  importManager.files[fullPath] = { root: root, options: importOptions };
+//              }
 //              if (e && !importManager.error) { importManager.error = e; }
 //              callback(e, root, importedEqualsRoot, fullPath);
 //          }
@@ -245,12 +260,9 @@ class ImportManager {
 //          return;
 //      }
 //
-//      if (tryAppendLessExtension) {
-//          path = fileManager.tryAppendExtension(path, importOptions.plugin ? ".js" : ".less");
-//      }
-//
 //      var loadFileCallback = function(loadedFile) {
-//          var resolvedFilename = loadedFile.filename,
+//          var plugin,
+//              resolvedFilename = loadedFile.filename,
 //              contents = loadedFile.contents.replace(/^\uFEFF/, '');
 //
 //          // Pass on an updated rootpath if path of imported file is relative and file
@@ -282,30 +294,56 @@ class ImportManager {
 //              newFileInfo.reference = true;
 //          }
 //
-//          if (importOptions.plugin) {
-//              new FunctionImporter(newEnv, newFileInfo).eval(contents, function (e, root) {
-//                  fileParsedFunc(e, root, resolvedFilename);
-//              });
+//          if (importOptions.isPlugin) {
+//              plugin = pluginLoader.evalPlugin(contents, newEnv, importManager, importOptions.pluginArgs, newFileInfo);
+//              if (plugin instanceof LessError) {
+//                  fileParsedFunc(plugin, null, resolvedFilename);
+//              }
+//              else {
+//                  fileParsedFunc(null, plugin, resolvedFilename);
+//              }
 //          } else if (importOptions.inline) {
 //              fileParsedFunc(null, contents, resolvedFilename);
 //          } else {
-//              new Parser(newEnv, importManager, newFileInfo).parse(contents, function (e, root) {
-//                  fileParsedFunc(e, root, resolvedFilename);
-//              });
+//
+//              // import (multiple) parse trees apparently get altered and can't be cached.
+//              // TODO: investigate why this is
+//              if (importManager.files[resolvedFilename]
+//                  && !importManager.files[resolvedFilename].options.multiple
+//                  && !importOptions.multiple) {
+//
+//                  fileParsedFunc(null, importManager.files[resolvedFilename].root, resolvedFilename);
+//              }
+//              else {
+//                  new Parser(newEnv, importManager, newFileInfo).parse(contents, function (e, root) {
+//                      fileParsedFunc(e, root, resolvedFilename);
+//                  });
+//              }
 //          }
 //      };
+//      var promise, context = utils.clone(this.context);
 //
-//      var promise = fileManager.loadFile(path, currentFileInfo.currentDirectory, this.context, environment,
-//          function(err, loadedFile) {
-//          if (err) {
-//              fileParsedFunc(err);
-//          } else {
-//              loadFileCallback(loadedFile);
-//          }
-//      });
+//      if (tryAppendExtension) {
+//          context.ext = importOptions.isPlugin ? ".js" : ".less";
+//      }
+//
+//      if (importOptions.isPlugin) {
+//          promise = pluginLoader.loadPlugin(path, currentFileInfo.currentDirectory, context, environment, fileManager);
+//      }
+//      else {
+//          promise = fileManager.loadFile(path, currentFileInfo.currentDirectory, context, environment,
+//              function(err, loadedFile) {
+//                  if (err) {
+//                      fileParsedFunc(err);
+//                  } else {
+//                      loadFileCallback(loadedFile);
+//                  }
+//              });
+//      }
 //      if (promise) {
 //          promise.then(loadFileCallback, fileParsedFunc);
 //      }
+//
 //  };
   }
 }
@@ -318,7 +356,9 @@ class ImportedFile {
   bool    importedPreviously;
   ///
   String  fullPath;
+  ///
+  ImportOptions options;
 
   ///
-  ImportedFile({this.root, this.importedPreviously, this.fullPath});
+  ImportedFile({this.root, this.importedPreviously, this.fullPath, this.options});
 }

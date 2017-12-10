@@ -21,7 +21,7 @@ class ImageSizeFunctions extends FunctionBase {
     if (fragmentStart != -1)
         filePath = filePath.substring(0, fragmentStart);
 
-    final FileManager fileManager = environment.getFileManager(
+    final AbstractFileManager fileManager = environment.getFileManager(
         filePath, currentDirectory, context, environment, isSync: true);
     final FileLoaded fileSync = fileManager.existSync(
         filePath, currentDirectory, context, environment);

@@ -32,19 +32,28 @@ part of parser.less;
 ///  first, before parsing, that's when we use `peek()`.
 ///
 class Parsers {
-  ///
+  /// Environment variables
   Contexts    context;
-  ///
+
+  /// Reference to Entities class with additional parser functions
   Entities    entities;
-  ///
+
+  /// Data about the file being parsed
   FileInfo    fileInfo;
-  ///
+
+  /// String to be parsed
   String      input;
-  ///
+
+  /// Mixin class reference with additional parser functions
   Mixin       mixin;
-  ///
+
+  /// Input management
   ParserInput parserInput;
 
+  ///
+  /// The Parsers class constructor.
+  ///
+  /// [input] is the String to be parsed
   ///
   Parsers(String this.input, Contexts this.context) {
     context.input = input;
@@ -159,14 +168,22 @@ class Parsers {
 // },
   }
 
+  ///
   /// Check if input is empty. Else throw error.
+  ///
   void isFinished() => parserInput.isFinished();
 
   ///
   /// Comments are collected by the main parsing mechanism and then assigned to nodes
   /// where the current structure allows it
   ///
-  /// CSS comments `/* */`, LeSS comments `//`
+  /// CSS comments:
+  ///
+  ///     /* */
+  ///
+  /// LeSS comments:
+  ///
+  ///     //
   ///
   Comment comment() {
     if (parserInput.commentStore.isNotEmpty) {
@@ -244,7 +261,9 @@ class Parsers {
   static final RegExp _extendRegExp = new RegExp(r'(all)(?=\s*(\)|,))', caseSensitive: true);
 
   ///
-  /// extend syntax - used to extend selectors
+  /// extend syntax - used to extend selectors:
+  ///
+  ///     :extend( )
   ///
   List<Extend> extend({bool isRule = false}) {
     Element       e;
@@ -330,7 +349,9 @@ class Parsers {
 // },
   }
 
+  ///
   /// extendRule - used in a rule to extend all the parent selectors
+  ///
   List<Extend> extendRule() => extend(isRule: true);
 
   ///
@@ -355,9 +376,11 @@ class Parsers {
 // },
 
   ///
-  /// A Declaration terminator. Note that we use `peek()` to check for '}',
+  /// A Declaration terminator.
+  ///
+  /// Note that the `peek()` use to check for `}`,
   /// because the `block` rule will be expecting it, but we still need to make sure
-  /// it's there, if ';' was omitted.
+  /// it's there, if `;` was omitted.
   ///
   bool end() => (parserInput.$char(';') != null) || parserInput.peekChar('}');
 
@@ -457,11 +480,11 @@ class Parsers {
   ///
   /// Combinators combine elements together, in a Selector.
   ///
-  /// Because our parser isn't white-space sensitive, special care
+  /// Because the parser isn't white-space sensitive, special care
   /// has to be taken, when parsing the descendant combinator, ` `,
   /// as it's an empty space. We have to check the previous character
   /// in the input, to see if it's a ` ` character. More info on how
-  /// we deal with this in *combinator.js*.
+  /// we deal with this in *combinator.dart*.
   ///
   Combinator combinator() {
     String c = parserInput.currentChar();
@@ -524,6 +547,7 @@ class Parsers {
 
   ///
   /// A CSS Selector
+  ///
   /// with less extensions e.g. the ability to extend and guard
   ///
   ///     .class > div + h1
@@ -617,6 +641,14 @@ class Parsers {
   static final RegExp _attributeRegExp4 = new RegExp(r'(?:[_A-Za-z0-9-\*]*\|)?(?:[_A-Za-z0-9-]|\\.)+');
 
   ///
+  /// Attribute is a operation inside `[]`:
+  ///
+  ///     [key operator value]
+  ///
+  /// Example:
+  ///
+  ///     [type = "text"]
+  ///
   Attribute attribute() {
     if (parserInput.$char('[') == null)
         return null;
@@ -663,6 +695,7 @@ class Parsers {
 
   ///
   /// The `block` rule is used by `ruleset` and `mixin.definition`.
+  ///
   /// It's a wrapper around the `primary` rule, with added `{}`.
   ///
   List<Node> block() {
@@ -684,6 +717,10 @@ class Parsers {
   }
 
   ///
+  /// The rules inside the:
+  ///
+  ///     { rules }
+  ///
   Ruleset blockRuleset() {
     final List<Node> block = this.block();
 
@@ -701,6 +738,10 @@ class Parsers {
   }
 
   ///
+  /// Search for
+  ///
+  ///     { rules }
+  ///
   DetachedRuleset detachedRuleset() {
     final Ruleset blockRuleset = this.blockRuleset();
     return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
@@ -715,7 +756,13 @@ class Parsers {
   }
 
   ///
-  /// div, .class, body > p {...}
+  /// A Ruleset is something like:
+  ///
+  ///     div, .class, body > p {...}
+  ///
+  /// It has selectors and rules:
+  ///
+  ///     selectors { rules }
   ///
   Ruleset ruleset() {
     DebugInfo       debugInfo;
@@ -742,7 +789,7 @@ class Parsers {
           parserInput.$char(':'); //move pointer
         }
       }
-      // end no standard
+      // End no standard
 
       (selectors ??= <Selector>[])
           ..add(s);
@@ -815,6 +862,15 @@ class Parsers {
 // },
   }
 
+  ///
+  /// Declaration is
+  ///
+  ///     property: value;
+  ///     @variable: value;
+  ///
+  /// Example:
+  ///
+  ///     color: red;
   ///
   Declaration declaration() {
     final String  c = parserInput.currentChar();
@@ -935,6 +991,14 @@ class Parsers {
   static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@\$+\/'"*`(;{}-]*);''', caseSensitive: false);
 
   ///
+  /// Anonymous is almost anything. Example:
+  ///
+  ///     border: 2px solid superred
+  ///
+  /// returns as Anonymous
+  ///
+  ///     2px solid superred
+  ///
   Anonymous anonymousValue() {
     final int index = parserInput.i;
     final String match = parserInput.$re(_anonymousValueRegExp1, 1);
@@ -959,10 +1023,7 @@ class Parsers {
   ///
   ///     @import "lib";
   ///
-  /// Depending on our environment, importing is done differently:
-  /// In the browser, it's an XHR request, in Node, it would be a
-  /// file-system operation. The function used for importing is
-  /// stored in `import`, which we pass to the Import constructor.
+  /// The importing is a file-system operation, ruled by the Import node.
   ///
   Import import() {
     final int     index = parserInput.i;
@@ -1028,8 +1089,11 @@ class Parsers {
   }
 
   ///
-  /// ex. @import (less, multiple) "file.css";
-  /// return {less: true, multiple: true}
+  /// For @import(options) returns the activated options. Example:
+  ///
+  ///     @import (less, multiple) "file.css";
+  ///
+  ///     returns {less: true, multiple: true}
   ///
   ImportOptions importOptions() {
     String              o;
@@ -1096,6 +1160,14 @@ class Parsers {
   static final RegExp _importOptionRegExp1 = new RegExp(r'(less|css|multiple|once|inline|reference|optional)', caseSensitive: true);
 
   ///
+  /// The option in @import(option). Example:
+  ///
+  ///     @import(optional)  returns optional
+  ///
+  /// Valid values are:
+  ///
+  ///     less | css | multiple | once | inline | reference | optional
+  ///
   String importOption() => parserInput.$re(_importOptionRegExp1);
 
 //2.4.0
@@ -1106,6 +1178,10 @@ class Parsers {
 //      }
 //  },
 
+  ///
+  /// Search for something like:
+  ///
+  ///     @media all and (max-width: 1024px)
   ///
   Expression mediaFeature() {
     Node              e;
@@ -1177,6 +1253,11 @@ class Parsers {
   }
 
   ///
+  /// Search for a list of mediaFeature, such as:
+  ///
+  ///     @media all and (max-width: 1024px)
+  ///     @media handheld and (min-width: @var), scrreen and (min-width: 20em)
+  ///
   List<Node> mediaFeatures() {
     Node              e;
     final List<Node>  features = <Node>[];
@@ -1220,6 +1301,11 @@ class Parsers {
 //  }
   }
 
+  ///
+  /// Search for something like:
+  ///
+  ///     @media all and (max-width: 1024px) { }
+  ///     @media print { }
   ///
   Media media() {
     DebugInfo   debugInfo;
@@ -1291,7 +1377,10 @@ class Parsers {
 
 
   ///
-  /// @apply(--mixin-name);
+  /// Search for something like:
+  ///
+  ///     @apply(--mixin-name);
+  ///
   /// No standard less implementation
   /// Pass-throught to css to let polymer work
   ///
@@ -1322,9 +1411,12 @@ class Parsers {
   static final RegExp _optionsRegExp1 = new RegExp(r'@options?\s+', caseSensitive: true);
 
   ///
-  /// @options "--flags";
-  /// No standard less implementation
-  /// To load a plugin use @plugin, this don't work for that
+  /// Search for something like:
+  ///
+  ///     @options "--flags";
+  ///
+  /// No standard less implementation.
+  /// To load a plugin use @plugin.
   ///
   Options options() {
     final int index = parserInput.i;
@@ -1353,9 +1445,10 @@ class Parsers {
 
   ///
   /// A @plugin directive, used to import plugins dynamically.
+  ///
   ///     @plugin (args) "lib";
   ///
-  /// Differs implementation. Here is Options and no import
+  /// Differs from standard implementation. Here is Options and not import.
   ///
   Options plugin() {
     final int index = parserInput.i;
@@ -1421,7 +1514,8 @@ class Parsers {
   static final RegExp _pluginArgsRegExp = new RegExp(r'\s*([^\);]+)\)\s*', caseSensitive: true);
 
   ///
-  /// list of options, surrounded by parens
+  /// list of options, surrounded by parens, to be processed by the plugin.
+  ///
   ///      @plugin (args) "lib";
   ///
   String pluginArgs() {
@@ -1464,7 +1558,7 @@ class Parsers {
 
 
   ///
-  /// A CSS AtRule
+  /// A CSS AtRule, such as:
   ///
   ///     @charset "utf-8";
   ///
@@ -1686,6 +1780,10 @@ class Parsers {
   static final RegExp _importantRegExp1 = new RegExp(r'! *important', caseSensitive: true);
 
   ///
+  /// Search for:
+  ///
+  ///     !important
+  ///
   String important() {
     if (parserInput.currentChar() == '!') {
       return parserInput.$re(_importantRegExp1);
@@ -1700,6 +1798,12 @@ class Parsers {
 //  }
   }
 
+  ///
+  /// Search for parens subexpressions like:
+  ///
+  ///     (#111111 - #444444) in color: (#111111 - #444444)
+  ///     (2px + 4) in inner-radius: (2px + 4)
+  ///     (@r / 3) in round(@r / 3), 2)
   ///
   Expression sub() {
     Node a;
@@ -1836,6 +1940,7 @@ class Parsers {
   ///     multiplicationN is 0 | more multiplication
   ///
   /// Example:
+  ///
   ///     @a
   ///     @a + @b
   ///     @a + @b - 2
@@ -1902,7 +2007,13 @@ class Parsers {
   static final RegExp _reConditions = new RegExp(r',\s*(not\s*)?\(', caseSensitive: true);
 
   ///
-  //to be passed to currentChunk.expect
+  /// Function to be passed to ParserInput.expect().
+  ///
+  /// Search for conditions like:
+  ///
+  ///     (@a = white) in when (@a = white) { } or
+  ///     when (@b = 1), (@c = 2) ... { }
+  ///
   Node conditions() {
     Node      a;
     Node      b;
@@ -1953,6 +2064,8 @@ class Parsers {
   ///
   /// Example:
   ///
+  ///     when ((@1) and (@2) or (@3))
+  ///
   ///     .light (@a) when (lightness(@a) > 50%) {
   ///       color: white;
   ///     }
@@ -1999,6 +2112,11 @@ class Parsers {
 // },
   }
 
+  ///
+  /// Search for conditions such as:
+  ///
+  ///     (@a = white)
+  ///     (@a = white) and (@b = black) and ...
   ///
   Condition conditionAnd() {
     Condition insideCondition() => negatedCondition() ?? parenthesisCondition();
@@ -2075,7 +2193,7 @@ class Parsers {
   ///
   /// Search for a condition inside a parenthesis:
   ///
-  ///     ( condition)
+  ///     ( condition )
   ///
   /// Example:
   ///
@@ -2173,14 +2291,18 @@ class Parsers {
   ///
   /// More complex conditions have atomic conditions inside:
   ///
-  ///   ((@a = true) and (@b = true))
+  ///     ((@a = true) and (@b = true))
   ///
   /// Syntax:
+  ///
   ///     LeftValue operator RightValue
   ///     Value is addition | keyword | quoted
   ///     operator is  >= | <= | => |  =< | > | < | =
+  ///
   /// also:
-  ///     Value (Example: @a  is the same as @a = true)
+  ///
+  ///     Value
+  ///     Example: @a  is the same as @a = true
   ///
   ///
   Condition atomicCondition() {
@@ -2281,9 +2403,11 @@ class Parsers {
   static final RegExp _reOperand = new RegExp(r'-[@\$\(]');
 
   ///
-  /// An operand is anything that can be part of an operation
+  /// An operand is anything that can be part of an operation.
   ///
-  /// operand is (-) dimension | color |variable | property | call
+  /// operand is:
+  ///
+  ///     (-) dimension | color | variable | property | call
   ///
   Node operand() {
     String  negate;
@@ -2400,6 +2524,10 @@ class Parsers {
   static final RegExp _propertyRegExp1 = new RegExp(r'(\*?-?[_a-zA-Z0-9-]+)\s*:', caseSensitive: true);
 
   ///
+  /// Something like:
+  ///
+  ///     max-width:
+  ///
   String property() => parserInput.$re(_propertyRegExp1);
 
 //2.2.0
@@ -2415,6 +2543,11 @@ class Parsers {
   static final RegExp _rulePropertyRegExp3 = new RegExp(r'((?:[\w-]+)|(?:[@\$]\{[\w-]+\}))', caseSensitive: true);
   static final RegExp _rulePropertyRegExp4 = new RegExp(r'((?:\+_|\+)?)\s*:', caseSensitive: true);
 
+  ///
+  /// Search for something like:
+  ///
+  ///     color: or  border: or background-color:
+  ///     transform+: or *zoom: or @(prefix)width:
   ///
   List<Node> ruleProperty() {
     final List<int>     index = <int>[];

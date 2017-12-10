@@ -3,42 +3,56 @@
 part of parser.less;
 
 ///
+/// Input Management
+///
 class ParserInput {
-  ///
+  /// If true, skipWhiteSpace store the comments for further
+  /// conversion to Comment node
   bool                  autoCommentAbsorb = true;
-  ///
+
+  /// Store for comments found with skipWhiteSpace,
+  /// waiting to be converted to Comment node if possible
   List<CommentPointer>  commentStore = <CommentPointer>[];
-  ///
+
+  /// Environment variables
   Contexts              context;
-  ///
+
+  /// End of input reached in processing
   bool                  finished = false;
 
-  /// furthest index the parser has gone to
+  /// Furthest index the parser has gone to
   int                   furthest = 0;
 
-  /// if this is furthest we got to, this is the probably cause
+  /// If this is furthest we got to, this is the probably cause
   String                furthestPossibleErrorMessage;
 
-  /// current index in `input`
+  /// Current index in `input`
   int                   i = 0;
 
-  /// Less input string
+  /// Input string with Less code
   final String          input;
 
-  /// holds state for backtracking
+  /// Holds state for backtracking
   List<int>             saveStack = <int>[];
 
+  ///
+  /// Receives the `input` string and the environment information and reset pointers.
   ///
   ParserInput(String this.input, Contexts this.context) {
     i = furthest = 0;
     skipWhitespace(0);
   }
 
-  ///
+  /// The input pointer is not at end
   bool get isNotEmpty => i < input.length;
-  ///
+
+  /// The input pointer is at end
   bool get isEmpty => i >= input.length;
 
+  ///
+  /// Get the character in [pos]
+  ///
+  /// If we get null, the end of input has been reached
   ///
   String charAt(int pos) {
     if (pos >= input.length)
@@ -47,11 +61,17 @@ class ParserInput {
   }
 
   ///
+  /// Get the character in the actual position
+  ///
   String currentChar() => charAt(i);
 
   ///
+  /// Get the next character, from the actual position
+  ///
   String nextChar() => charAt(i + 1);
 
+  ///
+  /// Get the character code in the [pos]
   ///
   int charCodeAt(int pos) {
     if (pos >= input.length)
@@ -59,6 +79,8 @@ class ParserInput {
     return input.codeUnitAt(pos);
   }
 
+  ///
+  /// Get the character code in the actual position
   ///
   int charCodeAtPos() => charCodeAt(i);
 
@@ -112,19 +134,22 @@ class ParserInput {
 //    };
   }
 
+  ///
   /// is White Space Previous Position
+  ///
   bool isWhitespacePrevPos() => isWhitespace(-1);
 
-  /// is White Space in Position
+  ///
+  /// is white space in the actual position
+  ///
   bool isWhitespacePos() => isWhitespace();
 
   ///
   /// Specialization of $(tok).
-  /// Parse from a RegExp and returns String or List<String> with the match.
   ///
-  /// tok is String to search. Could be RegExp
-  /// caseSensitive true by default. false correspond to 'i'.
-  /// [index] if match returns m[index]
+  /// Parse from a [reg] RegExp and returns String or List<String> with the match.
+  ///
+  /// if [index] is supplied, if match returns `m[index]`
   ///
   dynamic $re(RegExp reg, [int index]) {
     if (isEmpty)
@@ -151,6 +176,8 @@ class ParserInput {
   }
 
   ///
+  /// Returns the raw match for [reg] Regular Expression
+  ///
   Match $reMatch(RegExp reg) {
     final Match m = reg.matchAsPrefix(input, i);
     if (m == null)
@@ -162,7 +189,7 @@ class ParserInput {
   }
 
   ///
-  /// return a String if [tok] character is found.
+  /// Returns a String if [tok] character is found.
   ///
   /// [tok] is a String.
   ///
@@ -186,7 +213,7 @@ class ParserInput {
   }
 
   ///
-  /// Returns a "..." or '...' string if found, else null
+  /// Returns a quoted `"..."` or `'...'` string if found, else null.
   ///
   String $quoted() {
     final String startChar = currentChar();
@@ -219,6 +246,8 @@ class ParserInput {
     return null;
   }
 
+  ///
+  /// Assure the input pointer is not a white space. Move forward if one is found.
   ///
   void skipWhitespace(int newi) {
     final int endIndex = input.length;
@@ -327,6 +356,8 @@ class ParserInput {
   }
 
   ///
+  /// Thow a error message
+  ///
   //parser.js 2.2.0 lines 64-74
   Null error(String msg, [String type]) {
     throw new LessExceptionError(new LessError(
@@ -351,7 +382,10 @@ class ParserInput {
   }
 
   ///
-  /// [arg] Function (?), RegExp or String
+  /// Search for something and throw error if not found
+  ///
+  ///
+  /// [arg] Function, RegExp or String
   /// [index] ????
   /// return String or List<String>
   ///
@@ -379,7 +413,7 @@ class ParserInput {
   }
 
   ///
-  /// Specialization of expect()
+  /// Search for [arg] and returns it if found. Else throw error with the [msg]
   ///
   //parser.js 2.2.0 56-62
   String expectChar(String arg, [String msg]) {
@@ -407,7 +441,7 @@ class ParserInput {
   }
 
   ///
-  /// Specialization of peek()
+  /// Specialization of peek(), searching for String [tok]
   ///
   bool peekChar(String tok) {
     if (isEmpty)
@@ -416,8 +450,12 @@ class ParserInput {
   }
 
   ///
+  /// Returns the [input] String
+  ///
   String getInput() => input;
 
+  ///
+  /// Test if current char is not a number
   ///
   bool peekNotNumeric() {
     if (isEmpty)
@@ -436,6 +474,8 @@ class ParserInput {
 //    };
   }
 
+  ///
+  /// Check if we are at the end of input. Returns the status.
   ///
   ParserStatus end() {
     String message;
@@ -538,7 +578,7 @@ class ParserInput {
   }
 
   ///
-  /// For debug, show the input around the currentChar +- gap
+  /// For debug, show the input around the currentChar +- [gap]
   ///
   String showAround([int gap = 20]) {
     final int start = math.max(i - gap, 0);
@@ -550,12 +590,16 @@ class ParserInput {
 // **********************************************
 
 ///
+/// Data about the Comment found
+///
 class CommentPointer {
-  ///
+  /// Position in input
   int     index;
-  ///
+
+  /// false if the comment is inside a line
   bool    isLineComment;
-  ///
+
+  /// The comment itself
   String  text;
 
   ///
@@ -563,16 +607,22 @@ class CommentPointer {
 }
 
 ///
+/// What happend in the parser?
+///
 class ParserStatus {
-  ///
+  /// End reached
   bool    isFinished;
-  ///
+
+  /// Most advanced  input pointer
   int     furthest;
-  ///
+
+  /// If is error, why?
   String  furthestPossibleErrorMessage;
-  ///
+
+  /// We are at end of input?
   bool    furthestReachedEnd;
-  ///
+
+  /// Most advanced character
   String  furthestChar;
 
   ///

@@ -6,30 +6,37 @@ part of parser.less;
 /// Used after initial parsing to create nodes on the fly
 ///
 class ParseNode {
-  ///
+  //
   //static Map<int, ParseNode> cache = <int, ParseNode>{};
 
-  ///
+  /// Parser errors are ignored, so we could return null
   bool ignoreErrors;
-  ///
+
+  /// We parse a input string, that start at [index] in the original file
   int index;
-  ///
+
+  /// Parser result
   bool isError = false;
-  ///
+
+  /// Original input string file information
   FileInfo fileInfo;
-  ///
+
+  /// The parser
   Parsers parsers;
-  ///
+
+  /// Output
   List<dynamic> result = <dynamic>[];
 
   ///
-  /// [input] string to parse
-  /// [index] start number to begin indexing
-  /// [fileInfo] fileInfo to attach to created nodes
+  /// Constructor to partial parse, where [input] is the string to parse,
+  /// [index] start number to begin indexing and [fileInfo] the file Info
+  /// to attach to created nodes. We could [ignoreErrors].
   ///
-  /// Use:
+  /// Usage example:
+  ///
   ///     new ParseNode(input, index, fileInfo).value();
-  /// result[0] has the result if isError == false
+  ///
+  /// `result[0]` has the result if isError == false
   ///
   ParseNode(String input, int this.index, FileInfo this.fileInfo,
       {bool this.ignoreErrors: false}) {
@@ -38,6 +45,8 @@ class ParseNode {
     parsers = new Parsers(input, new Contexts());
 }
 
+  ///
+  /// Wrapper function, called with the specialized [parseFunction]
   ///
   void parse(Function parseFunction) {
     try {
@@ -101,7 +110,7 @@ class ParseNode {
 // }
 
   ///
-  /// search for Selector Nodes
+  /// search for a Selector Node
   ///
   Node selector() {
     parse((){
@@ -111,6 +120,8 @@ class ParseNode {
     return isError ? null : result.first;
   }
 
+  ///
+  /// search for a Ruleset Node
   ///
   Ruleset ruleset() {
     parse((){

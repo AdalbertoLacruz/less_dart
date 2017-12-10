@@ -1,5 +1,8 @@
 // source: tree.js
 
+///
+/// Library to build the Nodes tree representing a less file
+///
 library tree.less;
 
 import 'dart:math' as math;

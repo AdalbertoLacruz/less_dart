@@ -1,4 +1,4 @@
-// source: less/contexts.js 2.8.0 20160712
+// source: less/contexts.js 3.0.0 20171009
 
 library contexts.less;
 
@@ -8,6 +8,7 @@ import 'import_manager.dart';
 import 'less_options.dart';
 import 'plugins/plugins.dart';
 import 'tree/tree.dart';
+import 'utils.dart';
 
 ///
 class Contexts {
@@ -49,17 +50,20 @@ class Contexts {
   ///
   String dumpLineNumbers;
 
-  ///
-  String input; // for LessError
+  /// What extension try append to import file ('.less')
+  String ext;
 
   /// List of files that have been imported, used for import-once
   Map<String, Node> files = <String, Node>{};
 
-  ///Ruleset
+  /// Ruleset
   bool firstSelector = false;
 
-  ///Ruleset/MixinDefinition/Directive = VariableMixin
+  /// Ruleset/MixinDefinition/Directive = VariableMixin
   List<Node> frames = <Node>[];
+
+  ///
+  String input; // for LessError
 
   ///
   /// option - whether Inline JavaScript is enabled.
@@ -125,6 +129,12 @@ class Contexts {
   /// Used by the import manager to stop multiple import visitors being created.
   ///
   bool processImports;
+
+  ///
+  /// Used in FileManager.loadFileSync to read the file asBytes.
+  /// Return the contents in FileLoaded.codeUnits
+  ///
+  bool rawBuffer = false;
 
   ///
   /// option - whether to adjust URL's to be relative
@@ -253,40 +263,45 @@ class Contexts {
 //  };
   }
 
+
+  ///
+  /// clone this, non deep
+  ///
+  Contexts clone() => Utils.clone(this, new Contexts());
+
   ///
   /// Copy properties for parse
   ///
   /// Some are common to options and contexts
   ///
   void parseCopyProperties(dynamic options) {
-    if(options is! LessOptions && options is! Contexts)
+    if (options is! LessOptions && options is! Contexts)
         return;
 
-    paths               = options.paths;
-    relativeUrls        = options.relativeUrls;
-    rootpath            = options.rootpath;
-    strictImports       = options.strictImports;
-    insecure            = options.insecure;
-    dumpLineNumbers     = options.dumpLineNumbers;
-    compress            = options.compress;
-    syncImport          = options.syncImport;
-    chunkInput          = options.chunkInput;
-    mime                = options.mime;
-    useFileCache        = options.useFileCache;
-    processImports      = options.processImports;
-    numPrecision        = options.numPrecision;
-    color               = options.color;
-    pluginManager       = options.pluginManager;
-    cleanCss            = options.cleanCss;
+    final List<String> properties = <String>[
+      'paths',          // from options
+      'relativeUrls',
+      'rootpath',
+      'strictImports',
+      'insecure',
+      'dumpLineNumbers',
+      'compress',
+      'syncImport',
+      'chunkInput',
+      'mime',
+      'useFileCache',
+      'processImports',
+      'numPrecision',
+      'color',
+      'pluginManager',
+      'cleanCss',
+      'files',          // from contexts
+      'contents',
+      'contentsIgnoredChars',
+      'currentFileInfo'
+    ];
 
-    if (options is Contexts) {
-      final Contexts context = options;
-
-      files                 = context.files;
-      contents              = context.contents;
-      contentsIgnoredChars  = context.contentsIgnoredChars;
-      currentFileInfo       = context.currentFileInfo;
-    }
+    Utils.copyFrom(options, this, properties); // from -> to (this)
   }
 
   ///
@@ -297,29 +312,25 @@ class Contexts {
     if (options == null)
         return;
 
-    newctx
-        ..compress           = options.compress
-        ..ieCompat           = options.ieCompat
-        ..strictMath         = options.strictMath
-        ..strictUnits        = options.strictUnits
-        ..numPrecision       = options.numPrecision
-        ..sourceMap          = options.sourceMap
-        ..importMultiple     = options.importMultiple
-        ..urlArgs            = options.urlArgs
-        ..javascriptEnabled  = options.javascriptEnabled
-        ..dumpLineNumbers    = options.dumpLineNumbers //removed 2.2.0
-        ..pluginManager      = options.pluginManager
-//      ..importantScope     = options.importantScope // Used to bubble up !important statements. TODO 2.2.0
-        ..paths              = options.paths
-        ..cleanCss           = options.cleanCss;
+    final List<String> properties = <String>[
+      'compress',       // from options
+      'ieCompat',
+      'strictMath',
+      'strictUnits',
+      'numPrecision',
+      'sourceMap',
+      'importMultiple',
+      'urlArgs',
+      'javascriptEnabled',
+      'dumpLineNumbers',
+      'pluginManager',
+      'paths',
+      'cleanCss',
+      'defaultFunc',     // from Contexts
+      'importantScope'
+    ];
 
-    if (options is Contexts) {
-      final Contexts context  = options;
-
-      newctx
-          ..defaultFunc    = context.defaultFunc
-          ..importantScope = context.importantScope;
-    }
+    Utils.copyFrom(options, newctx, properties);
   }
 
   ///

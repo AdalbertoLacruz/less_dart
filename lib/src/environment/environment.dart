@@ -19,11 +19,11 @@ import 'package_resolver_provider.dart';
 
 export 'package_resolver_provider.dart';
 
+part 'abstract_file_manager.dart';
 part 'base64_string.dart';
 part 'bi_map.dart';
 part 'debug_functions.dart';
 part 'file_file_manager.dart';
-part 'file_manager.dart';
 part 'global_functions.dart';
 part 'image_size.dart';
 part 'more_list.dart';
@@ -35,7 +35,7 @@ class Environment {
   ///
   static Map<int, Environment>  cache = <int, Environment>{};
   ///
-  List<FileManager>             fileManagers;
+  List<AbstractFileManager>             fileManagers;
   ///
   Logger                        logger = new Logger();
   ///
@@ -92,11 +92,11 @@ class Environment {
   ///
   /// Returns the UrlFileManager or FileFileManager to load the [filename]
   ///
-  FileManager getFileManager(String filename, String currentDirectory,
+  AbstractFileManager getFileManager(String filename, String currentDirectory,
         Contexts options, Environment environment,
         {bool isSync = false}) {
 
-    FileManager fileManager;
+    AbstractFileManager fileManager;
 
     if (filename == null)
         logger.warn('getFileManager called with no filename.. Please report this issue. continuing.');
@@ -105,7 +105,7 @@ class Environment {
         logger.warn('getFileManager called with null directory.. Please report this issue. continuing.');
 
     if (fileManagers == null) {
-      fileManagers = <FileManager>[
+      fileManagers = <AbstractFileManager>[
           //order is important
           new FileFileManager(environment, new PackageResolverProvider()),
           new UrlFileManager(environment)

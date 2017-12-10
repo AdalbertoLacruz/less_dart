@@ -3,57 +3,81 @@
 part of tree.less;
 
 ///
+/// Base class for all tree nodes
+///
 abstract class Node {
-  ///
-  List<Extend>        allExtends; //Ruleset
-  ///
+  /// For extends visitor process
+  List<Extend>        allExtends;
+
+  /// The Node type could be used in the root ruleset
   bool                allowRoot = false;
-  ///
-  CleanCssContext     cleanCss; // Info to optimize the node with cleanCss
-  ///
+
+  /// Info to optimize the node with cleanCss
+  CleanCssContext     cleanCss;
+
+  /// Filename and line coordinates for error debug
   DebugInfo           debugInfo;
-  ///
+
+  /// Selector elements
   List<Element>       elements;
-  ///
-  bool                evalFirst = false; //see Ruleset.eval
-  ///
-  bool                evaluated; //result from bool eval, used in condition
-  ///
-  int                 id; // hashCode own or inherited for object compare
-  ///
-  bool                isRuleset = false; //true in MixinDefinition & Ruleset
-  ///
+
+  /// DetachedRuleset and MixinDefinition must be evaluated before other nodes
+  /// in the Ruleset.eval() funciton
+  bool                evalFirst = false;
+
+  /// result from bool eval, used in condition
+  bool                evaluated;
+
+  /// hashCode own or inherited for object comparation
+  int                 id;
+
+  /// True if is a Ruleset or MixinDefinition
+  bool                isRuleset = false;
+
+  /// Only output css code for nodeVisible = true
   bool                nodeVisible;
-  ///
+
+  /// For operation node
   List<Node>          operands;
-  ///
-  Node                originalRuleset; //see mixin_call
+
+  /// for Rulesets and mixins process
+  Node                originalRuleset;
+
   /// parent Node, used by index and fileInfo.
   Node                parent;
-  ///
+
+  /// The node has been parsed inside parenthesis `()`
   bool                parens = false; //Expression
-  ///
+
+  /// for expression evaluation
   bool                parensInOp = false; //See parsers.operand & Expression
-  ///
+
+  /// Some anonymous nodes are lazy parsed
   bool                parsed = false;
+
   ///
   bool                rootNode;
-  ///
-  @virtual List<Node> rules; //Ruleset
-  ///
+
+  /// The ruleset rules
+  @virtual List<Node> rules;
+
+  /// The ruleset selectors
   List<Selector>      selectors;
 
-  ///
+  /// the node value
   @virtual dynamic    value;
 
-  ///
+  /// Node visibility control
   int                 visibilityBlocks;
 
   ///
+  /// Standard Node constructor
   Node() {
     id = hashCode;
   }
 
+  ///
+  /// Constructor for super call in derived class
   ///
   Node.init(
     {FileInfo currentFileInfo,
@@ -68,20 +92,25 @@ abstract class Node {
 
   /// Fields to show with genTree
   Map<String, dynamic> get treeField => null;
-  ///
+
+  /// Node name
   dynamic get         name => null; //String | List<Node>
-  ///
+
+  /// Node generic name == class name
   String get          type;
 
   // ---------------------- index
   int _index;
+
   /// returns index from this node or their parent
   int getIndex() => _index
       ?? parent?._index;
       //?? 0;  //return must be null to avoid error detached-ruleset-5
-  ///
+
+  /// index from this node or their parent, position in the less file
   int get index => getIndex();
-  ///
+
+  /// Save the index position
   set index(int value) {
     _index = value;
   }
@@ -103,9 +132,11 @@ abstract class Node {
   FileInfo fileInfo() => _fileInfo
       ?? parent?._fileInfo
       ?? new FileInfo();
-  ///
+
+  /// get fileInfo from this node or their parent
   FileInfo get currentFileInfo => fileInfo();
-  ///
+
+  /// Save fileInfo from this node
   set currentFileInfo(FileInfo value) {
     _fileInfo = value;
   }
@@ -129,7 +160,8 @@ abstract class Node {
 // Node.prototype.isRulesetLike = function() { return false; };
 
   ///
-  /// Update [parent] property in [nodes]
+  /// Update [parent] property in [nodes].
+  ///
   /// [nodes] is Node | List<Node>
   ///
   void setParent(dynamic nodes, Node parent) {
@@ -210,7 +242,7 @@ abstract class Node {
   }
 
   ///
-  /// Default eval - returns the node
+  /// Default evaluation - returns the node
   ///
   @virtual
   Node eval(Contexts context) => this;
@@ -218,6 +250,8 @@ abstract class Node {
 //2.3.1
 //  Node.prototype.eval = function () { return this; };
 
+  ///
+  /// Math [op] operation (+, - , *, /) with 2 numbers [a] and [b]
   ///
   num _operate(Contexts context, String op, num a, num b) {
     switch (op) {
@@ -242,7 +276,8 @@ abstract class Node {
   ///
   /// Adjust the precision of [value] according to [context].numPrecision.
   /// 8 By default.
-  /// [precision] to forze
+  ///
+  /// [precision] to force
   ///
   num fround(Contexts context, num value, [int precision]) {
     if (value is int)
@@ -270,10 +305,11 @@ abstract class Node {
   /// Compares two nodes [a] and [b]
   ///
   /// Returns:
-  ///   -1: a < b
-  ///   0: a = b
-  ///   1: a > b
-  ///   and null  for other value for a != b
+  ///
+  ///     -1: a < b
+  ///     0: a = b
+  ///     1: a > b
+  ///     and null  for other value for a != b
   ///
   static int compareNodes(Node a, Node b) {
     //new Logger().log('${a.type}: ${a.value} - ${b.type}: ${b.value}');
@@ -340,6 +376,10 @@ abstract class Node {
   }
 
   ///
+  /// numeric comparision between two number [a] and [b]
+  ///
+  /// Returns: -1 , 0 or +1
+  ///
   static int numericCompare(num a, num b) => a.compareTo(b);
 
 //    return (a < b)
@@ -356,7 +396,7 @@ abstract class Node {
 //  };
 
 ///
-/// Returns true if this node represents root of ast imported by reference
+/// Returns true if this node represents root of was imported by reference
 ///
   bool blocksVisibility() {
     visibilityBlocks ??= 0;
@@ -400,8 +440,8 @@ abstract class Node {
   }
 
   ///
-  /// Turns on node visibility - if called node will be shown in output regardless
-  /// of whether it comes from import by reference or not
+  /// Turns on node visibility, that is, if called node will be shown in output
+  /// regardless of whether it comes from import by reference or not
   ///
   void ensureVisibility() {
     nodeVisible = true;
@@ -453,6 +493,8 @@ abstract class Node {
 // };
 
   ///
+  /// This node get the visibility from [info]
+  ///
   void copyVisibilityInfo(VisibilityInfo info) {
     if (info == null)
         return;
@@ -481,6 +523,8 @@ abstract class Node {
   }
 
   ///
+  /// Writes in [output] the tree, for debug
+  ///
   void genTree(Contexts env, Output output, [String prefix = '']) {
       genTreeTitle(env, output, prefix, type, toString());
 
@@ -499,11 +543,15 @@ abstract class Node {
   }
 
   ///
+  /// Build the node tree title
+  ///
   void genTreeTitle(Contexts env, Output output, String prefix, String type, String value) {
     final String tabStr = '  ' * env.tabLevel;
     output.add('$tabStr$prefix$type ($value)\n');
   }
 
+  ///
+  /// Build the subtree for a [fieldName], [fieldValue]
   ///
   void genTreeField(Contexts env, Output output, String fieldName, dynamic fieldValue) {
     final String tabStr = '  ' * env.tabLevel;

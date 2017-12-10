@@ -1,5 +1,8 @@
 // source: less/parser.js 2.5.0 index.js
 
+///
+/// The Parser Library
+///
 library parser.less;
 
 import 'dart:async';
@@ -25,56 +28,63 @@ part 'mixin.dart';
 part 'parse_node.dart';
 part 'parsers.dart';
 
-/*
- *  A relatively straight-forward predictive parser.
- *  There is no tokenization/lexing stage, the input is parsed
- *  in one sweep.
- *
- *  To make the parser fast enough to run in the browser, several
- *  optimization had to be made:
- *
- *  - Matching and slicing on a huge input is often cause of slowdowns.
- *    The solution is to chunkify the input into smaller strings.
- *    The chunks are stored in the `chunks` var,
- *    `j` holds the current chunk index, and `currentPos` holds
- *    the index of the current chunk in relation to `input`.
- *    This gives us an almost 4x speed-up.
- *
- *  - In many cases, we don't need to match individual tokens;
- *    for example, if a value doesn't hold any variables, operations
- *    or dynamic references, the parser can effectively 'skip' it,
- *    treating it as a literal.
- *    An example would be '1px solid #000' - which evaluates to itself,
- *    we don't need to know what the individual components are.
- *    The drawback, of course is that you don't get the benefits of
- *    syntax-checking on the CSS. This gives us a 50% speed-up in the parser,
- *    and a smaller speed-up in the code-gen.
- *
- *
- *  Token matching is done with the `$` function, which either takes
- *  a terminal string or regexp, or a non-terminal function to call.
- *  It also takes care of moving all the indices forwards.
- *
- */
+///
+///  A relatively straight-forward predictive parser.
+///  There is no tokenization/lexing stage, the input is parsed
+///  in one sweep.
+///
+///  To make the parser fast enough to run in the browser, several
+///  optimization had to be made:
+///
+///  - Matching and slicing on a huge input is often cause of slowdowns.
+///    The solution is to chunkify the input into smaller strings.
+///    The chunks are stored in the `chunks` var,
+///    `j` holds the current chunk index, and `currentPos` holds
+///    the index of the current chunk in relation to `input`.
+///    This gives us an almost 4x speed-up.
+///
+///  - In many cases, we don't need to match individual tokens;
+///    for example, if a value doesn't hold any variables, operations
+///    or dynamic references, the parser can effectively 'skip' it,
+///    treating it as a literal.
+///    An example would be '1px solid #000' - which evaluates to itself,
+///    we don't need to know what the individual components are.
+///    The drawback, of course is that you don't get the benefits of
+///    syntax-checking on the CSS. This gives us a 50% speed-up in the parser,
+///    and a smaller speed-up in the code-gen.
+///
+///
+///  Token matching is done with the `$` function, which either takes
+///  a terminal string or regexp, or a non-terminal function to call.
+///  It also takes care of moving all the indices forwards.
 ///
 class Parser {
-  ///
+  /// Text to insert as header
   String        banner = '';
-  ///
+
+  /// Environment variables
   Contexts      context;
-  ///
+
+  /// Data about the file being parsed
   FileInfo      fileInfo;
-  ///
+
+  /// Less variables to define at the file start
   String        globalVars = '';
-  ///
+
+  /// Data to process @import directives
   ImportManager imports;
-  ///
+
+  /// Less variables to define at the end of file
   String        modifyVars = '';
-  ///
+
+  /// To reference other Parsers functions
   Parsers       parsers;
-  ///
+
+  /// Banner and glovalVars mix
   String        preText = '';
 
+  ///
+  /// Normal Parser constructor, with less [options]
   ///
   Parser(LessOptions options) {
     context = new Contexts.parse(options);
@@ -94,14 +104,14 @@ class Parser {
   }
 
   ///
+  /// Parser constructor used in @import process
+  ///
   Parser.fromImporter(Contexts this.context, ImportManager this.imports, FileInfo this.fileInfo);
 
   ///
   /// Parse an input string into an abstract syntax tree.
   ///
-  /// [str] A string containing 'less' markup
-  ///
-  /// NO @param additionalData. An optional map which can contains vars - a map (key, value) of variables to apply
+  /// [str] is a string containing 'less' markup
   ///
   Future<Ruleset> parse(String str) {
     Ruleset root;
@@ -169,6 +179,11 @@ class Parser {
     return new Future<Ruleset>.value(root);
   }
 
+  ///
+  /// Transform the [vars] list to a string format to be included in the less file.
+  /// Such as:
+  ///
+  ///     @color: red;
   ///
   String serializeVars(List<VariableDefinition> vars) =>
       vars.fold(new StringBuffer(), (StringBuffer prev, VariableDefinition vardef) =>

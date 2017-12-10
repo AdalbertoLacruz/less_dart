@@ -1,9 +1,9 @@
-//source: lib/less-node/file-manager.js 2.5.0
+//source: lib/less-node/file-manager.js 3.0.0 20171016
 
 part of environment.less;
 
 /// File loader
-class FileFileManager extends FileManager {
+class FileFileManager extends AbstractFileManager {
 
   /// packages prefix:
   ///     @import "packages/less_dart/test/import-charset-test";
@@ -16,6 +16,9 @@ class FileFileManager extends FileManager {
 
   /// full path list of filenames used to find the file
   List<String> filenamesTried = <String>[];
+
+  /// content cache for files yet loaded
+  Map<String, String> files = <String, String>{};
 
   final PackageResolverProvider _packageResolverProvider;
 
@@ -81,7 +84,7 @@ class FileFileManager extends FileManager {
   }
 
   ///
-  /// Search the [filename] in the [paths] directorys
+  /// Search the [filename] in the [paths] directories
   ///
   /// Returns the full path found or null
   ///
@@ -103,8 +106,10 @@ class FileFileManager extends FileManager {
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) async {
     final Contexts _options = options ?? new Contexts();
+    final String _filename = (_options.ext != null) ? tryAppendExtension(filename, _options.ext) : filename;
+
     if (_options.syncImport ?? false) {
-      final FileLoaded fileLoaded = loadFileSync(filename, currentDirectory, _options, environment);
+      final FileLoaded fileLoaded = loadFileSync(_filename, currentDirectory, _options, environment);
       if (fileLoaded.error == null) {
         return fileLoaded;
       }
@@ -112,8 +117,8 @@ class FileFileManager extends FileManager {
         throw(fileLoaded.error);
       }
     }
-    final String normalizedFilename = await _normalizeFilePath(filename);
-    final List<String> paths = await _normalizePaths(createListPaths(filename, currentDirectory, _options));
+    final String normalizedFilename = await _normalizeFilePath(_filename);
+    final List<String> paths = await _normalizePaths(createListPaths(_filename, currentDirectory, _options));
     final String fullFilename = await findFile(normalizedFilename, paths);
     if (fullFilename != null) {
       return getLoadedFile(fullFilename);
@@ -125,56 +130,128 @@ class FileFileManager extends FileManager {
     }
   }
 
-
-//2.3.1
+//3.0.0 20171016
 //FileManager.prototype.loadFile = function(filename, currentDirectory, options, environment, callback) {
+//
 //    var fullFilename,
-//        data,
 //        isAbsoluteFilename = this.isPathAbsolute(filename),
-//        filenamesTried = [];
+//        filenamesTried = [],
+//        self = this,
+//        prefix = filename.slice(0, 1),
+//        explicit = prefix === "." || prefix === "/",
+//        result = null;
 //
 //    options = options || {};
 //
-//    if (options.syncImport) {
-//        data = this.loadFileSync(filename, currentDirectory, options, environment, 'utf-8');
-//        callback(data.error, data);
-//        return;
-//    }
+//    var paths = isAbsoluteFilename ? [''] : [currentDirectory];
 //
-//    var paths = isAbsoluteFilename ? [""] : [currentDirectory];
 //    if (options.paths) { paths.push.apply(paths, options.paths); }
+//
+//    // Search node_modules
+//    if (!explicit) { paths.push.apply(paths, this.modulePaths); }
+//
 //    if (!isAbsoluteFilename && paths.indexOf('.') === -1) { paths.push('.'); }
 //
-//    // promise is guarenteed to be asyncronous
-//    // which helps as it allows the file handle
-//    // to be closed before it continues with the next file
-//    return new PromiseConstructor(function(fulfill, reject) {
+//    var prefixes = options.prefixes || [''];
+//    var fileParts = this.extractUrlParts(filename);
+//
+//    if (options.syncImport) {
+//        getFileData(returnData, returnData);
+//        if (callback) {
+//            callback(result.error, result);
+//        }
+//        else {
+//            return result;
+//        }
+//    }
+//    else {
+//        // promise is guaranteed to be asyncronous
+//        // which helps as it allows the file handle
+//        // to be closed before it continues with the next file
+//        return new PromiseConstructor(getFileData);
+//    }
+//
+//    function returnData(data) {
+//        if (!data.filename) {
+//            result = { error: data };
+//        }
+//        else {
+//            result = data;
+//        }
+//    }
+//
+//    function getFileData(fulfill, reject) {
 //        (function tryPathIndex(i) {
 //            if (i < paths.length) {
-//                fullFilename = filename;
-//                if (paths[i]) {
-//                    fullFilename = path.join(paths[i], fullFilename);
-//                }
-//                fs.stat(fullFilename, function (err) {
-//                    if (err) {
-//                        filenamesTried.push(fullFilename);
-//                        tryPathIndex(i + 1);
-//                    } else {
-//                        fs.readFile(fullFilename, 'utf-8', function(e, data) {
-//                            if (e) { reject(e); return; }
+//                (function tryPrefix(j) {
+//                    if (j < prefixes.length) {
+//                        fullFilename = fileParts.rawPath + prefixes[j] + fileParts.filename;
 //
-//                            fulfill({ contents: data, filename: fullFilename});
-//                        });
+//                        if (paths[i]) {
+//                            fullFilename = path.join(paths[i], fullFilename);
+//                        }
+//
+//                        if (paths[i].indexOf('node_modules') > -1) {
+//                            try {
+//                                fullFilename = require.resolve(fullFilename);
+//                            }
+//                            catch (e) {}
+//                        }
+//
+//                        fullFilename = options.ext ? self.tryAppendExtension(fullFilename, options.ext) : fullFilename;
+//
+//                        if (self.files[fullFilename]) {
+//                            fulfill({ contents: self.files[fullFilename], filename: fullFilename});
+//                        }
+//                        else {
+//                            var readFileArgs = [fullFilename];
+//                            if (!options.rawBuffer) {
+//                                readFileArgs.push('utf-8');
+//                            }
+//                            if (options.syncImport) {
+//                                try {
+//                                    var data = fs.readFileSync.apply(this, readFileArgs);
+//                                    self.files[fullFilename] = data;
+//                                    fulfill({ contents: data, filename: fullFilename});
+//                                }
+//                                catch (e) {
+//                                    filenamesTried.push(fullFilename);
+//                                    return tryPrefix(j + 1);
+//                                }
+//                            }
+//                            else {
+//                                readFileArgs.push(function(e, data) {
+//                                    if (e) {
+//                                        filenamesTried.push(fullFilename);
+//                                        return tryPrefix(j + 1);
+//                                    }
+//                                    self.files[fullFilename] = data;
+//                                    fulfill({ contents: data, filename: fullFilename});
+//                                });
+//                                fs.readFile.apply(this, readFileArgs);
+//                            }
+//
+//                        }
+//
 //                    }
-//                });
+//                    else {
+//                        tryPathIndex(i + 1);
+//                    }
+//                })(0);
 //            } else {
 //                reject({ type: 'File', message: "'" + filename + "' wasn't found. Tried - " + filenamesTried.join(",") });
 //            }
 //        }(0));
-//    });
+//    }
 //};
 
+  ///
   /// Load sync the file
+  ///
+  /// The content could be in:
+  ///   FileLoaded.contents (cached) or
+  ///   FileLoaded.codeUnits (if options.rawBuffer). Readed asBytes
+  ///
   @override
   FileLoaded loadFileSync(String filename, String currentDirectory,
         Contexts options, Environment environment) {
@@ -186,9 +263,16 @@ class FileFileManager extends FileManager {
     final String fullFilename = findFileSync(filename, paths);
 
     if (fullFilename != null) {
-      fileLoaded
-          ..filename = fullFilename
-          ..contents = new File(fullFilename).readAsStringSync();
+      fileLoaded.filename = fullFilename;
+
+      if (options.rawBuffer) {
+        fileLoaded.codeUnits = new File(fullFilename).readAsBytesSync();
+      } else {
+        if (!files.containsKey(fullFilename)) {
+          files[fullFilename] = new File(fullFilename).readAsStringSync();
+        }
+        fileLoaded.contents = files[fullFilename];
+      }
     } else {
       fileLoaded.error = new LessError(
           type: 'File',
@@ -198,73 +282,11 @@ class FileFileManager extends FileManager {
 
     return fileLoaded;
 
-//2.3.1
-//FileManager.prototype.loadFileSync = function(filename, currentDirectory, options, environment, encoding) {
-//    var fullFilename, paths, filenamesTried = [], isAbsoluteFilename = this.isPathAbsolute(filename) , data;
-//    options = options || {};
-//
-//    paths = isAbsoluteFilename ? [""] : [currentDirectory];
-//    if (options.paths) {
-//        paths.push.apply(paths, options.paths);
-//    }
-//    if (!isAbsoluteFilename && paths.indexOf('.') === -1) {
-//        paths.push('.');
-//    }
-//
-//    var err, result;
-//    for (var i = 0; i < paths.length; i++) {
-//        try {
-//            fullFilename = filename;
-//            if (paths[i]) {
-//              fullFilename = path.join(paths[i], fullFilename);
-//            }
-//            filenamesTried.push(fullFilename);
-//            fs.statSync(fullFilename);
-//            break;
-//        } catch (e) {
-//            fullFilename = null;
-//        }
-//    }
-//
-//    if (!fullFilename) {
-//        err = { type: 'File', message: "'" + filename + "' wasn't found. Tried - " + filenamesTried.join(",") };
-//        result = { error: err };
-//    } else {
-//        data = fs.readFileSync(fullFilename, encoding);
-//        result = { contents: data, filename: fullFilename};
-//     }
-//
-//    return result;
+//3.0.0 20171009
+//FileManager.prototype.loadFileSync = function(filename, currentDirectory, options, environment) {
+//    options.syncImport = true;
+//    return this.loadFile(filename, currentDirectory, options, environment);
 //};
-  }
-
-  ///
-  /// Load a file syncrhonously with readAsBytesSync
-  ///
-  /// result in FileLoaded.codeUnits
-  ///
-  @override
-  FileLoaded loadFileAsBytesSync(String filename, String currentDirectory,
-        Contexts options, Environment environment) {
-
-    final FileLoaded  fileLoaded = new FileLoaded();
-    final Contexts    _options = options ?? new Contexts();
-
-    final List<String> paths = createListPaths(filename, currentDirectory, _options);
-    final String fullFilename = findFileSync(filename, paths);
-
-    if (fullFilename != null) {
-      fileLoaded
-          ..filename = fullFilename
-          ..codeUnits = new File(fullFilename).readAsBytesSync();
-    } else {
-      fileLoaded.error = new LessError(
-          type: 'File',
-          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
-      );
-    }
-
-    return fileLoaded;
   }
 
   ///
@@ -295,12 +317,16 @@ class FileFileManager extends FileManager {
   ///
   /// Loads file by its [fullPath]
   ///
-
   Future<FileLoaded> getLoadedFile(String fullPath) async {
+    if (files.containsKey(fullPath)) {
+      return new FileLoaded(filename: fullPath, contents: files[fullPath]);
+    }
     final String data = await new File(fullPath).readAsString();
+    files[fullPath] = data;
     return new FileLoaded(filename: fullPath, contents: data);
   }
 
+  ///
   Future<String> _normalizeFilePath(String filename) async {
     final List<String> pathData = pathLib.split(pathLib.normalize(filename));
     if (pathData.length > 1 && pathData.first.startsWith(PACKAGES_PREFIX)) {
@@ -316,6 +342,7 @@ class FileFileManager extends FileManager {
     return filename;
   }
 
+  ///
   Future <List<String>> _normalizePaths(List<String> paths) async {
     final List<String> normalizedPaths = <String>[];
     for (String path in paths) {

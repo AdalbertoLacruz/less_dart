@@ -2,22 +2,27 @@
 
 part of parser.less;
 
-/*
- * Mixins
- */
+///
+/// Process Mixins
 ///
 class Mixin {
-  ///
+  /// Environment variables
   Contexts    context;
-  ///
+
+  /// Reference to Entities class with additional parser functions
   Entities    entities;
-  ///
+
+  /// Data about the file being parsed
   FileInfo    fileInfo;
-  ///
+
+  /// Input management
   ParserInput parserInput;
-  ///
+
+  /// To reference other Parsers functions
   Parsers     parsers;
 
+  ///
+  /// Auxiliary class for Parsers
   ///
   Mixin(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
     fileInfo = context.currentFileInfo;
@@ -41,7 +46,6 @@ class Mixin {
     List<MixinArgs> args;
     String          c;
     String          e;
-    //Element         elem;
     int             elemIndex;
     List<Element>   elements;
     bool            important = false;
@@ -127,6 +131,16 @@ class Mixin {
 //  },
   }
 
+  ///
+  /// Search for arguments in a Mixin Definition. So, in:
+  ///
+  ///     def-font(@name) {
+  ///       font-family: @name;
+  ///      }
+  ///
+  ///     @name is the args we are looking for.
+  ///
+  /// Supports `,` or `;` as arguments separator.
   ///
   MixinReturner args({bool isCall = false}) {
     Node                  arg;
@@ -404,8 +418,8 @@ class Mixin {
     List<Node>      ruleset;
     bool            variadic = false;
 
-    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#') ||
-        parserInput.peek(_reDefinition))
+    if ((parserInput.currentChar() != '.' && parserInput.currentChar() != '#')
+        || parserInput.peek(_reDefinition))
         return null;
 
     parserInput.save();
@@ -500,12 +514,17 @@ class Mixin {
 /* ************************************************ */
 
 ///
+/// Arguments definition for a mixin
+///
 class MixinReturner {
-  ///
+  /// arguments
   List<MixinArgs> args;
-  ///
+
+  /// true, the mixin accepts a variable number of arguments
   bool            variadic;
 
+  ///
+  /// Constructor
   ///
   MixinReturner({this.args, this.variadic = false});
 }

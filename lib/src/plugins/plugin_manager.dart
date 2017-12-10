@@ -7,7 +7,7 @@ class PluginManager {
   ///
   List<FunctionBase>  customFunctions = <FunctionBase>[];
   ///
-  List<FileManager>   fileManagers = <FileManager>[];
+  List<AbstractFileManager>   fileManagers = <AbstractFileManager>[];
   ///
   bool                isLoaded = false; //true if plugin has been loaded previously
   ///
@@ -150,7 +150,7 @@ class PluginManager {
   }
 
   ///
-  void addFileManager(FileManager manager) {
+  void addFileManager(AbstractFileManager manager) {
     if (isLoaded)
         return;
     fileManagers.add(manager);
@@ -213,7 +213,7 @@ class PluginManager {
 //  };
 
   ///
-  List<FileManager> getFileManagers() => fileManagers;
+  List<AbstractFileManager> getFileManagers() => fileManagers;
 
 //2.4.0
 //  PluginManager.prototype.getFileManagers = function() {

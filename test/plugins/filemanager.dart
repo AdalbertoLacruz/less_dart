@@ -1,7 +1,7 @@
 part of batch.test.less;
 
 ///
-class TestFileManager extends FileManager {
+class TestFileManager extends AbstractFileManager {
   ///
   TestFileManager(Environment environment) : super(environment);
 
@@ -27,7 +27,7 @@ class TestFileManagerPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FileManager fileManager = new TestFileManager(environment);
+    final AbstractFileManager fileManager = new TestFileManager(environment);
     pluginManager.addFileManager(fileManager);
   }
 }

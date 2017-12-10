@@ -6,22 +6,27 @@ part of parser.less;
 /// Entities are tokens which can be found inside an Expression
 ///
 class Entities {
-  ///
+  /// Environment variables
   Contexts    context;
-  ///
-  FileInfo    fileInfo;
-  ///
-  ParserInput parserInput;
-  ///
-  Parsers     parsers; //To reference parsers.expression() and parsers.entity()
 
+  /// Data about the file being parsed
+  FileInfo    fileInfo;
+
+  /// Input management
+  ParserInput parserInput;
+
+  /// For internal use, to reference parsers.expression() and parsers.entity()
+  Parsers     parsers;
+
+  ///
+  /// Constructor. It's an auxiliary class for parsers.
   ///
   Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
     fileInfo = context.currentFileInfo;
   }
 
   ///
-  /// A string, which supports escaping " and '
+  /// A string, which supports escaping `~`, `"` and `'`
   ///
   ///     "milky way" 'he\'s the one!'
   ///
@@ -218,15 +223,13 @@ class Entities {
   ///
   ///     boolean(not(2 > 1))
   ///
-  /// This is a quick prototype, to be modified/improved when
-  /// more custom-parsed funcs come (e.g. `selector(...)`)
+  /// Receives the custom function [name] and returns the result in [args].
+  /// The bool result is null if not custom function is found
+  /// or true/false if it is needed to search for more arguments.
   ///
-  /// [name] custom function name
-  /// [args] return args
-  ///
-  /// returns null if not custom function found
-  /// or true/false if is needed to search more arguments
-  ///
+  // This is a quick prototype, to be modified/improved when
+  // more custom-parsed funcs come (e.g. `selector(...)`)
+  //
   // Differs from js implementation and interface
   bool customFuncCall(String name, List<Node> args) {
     Node result;
@@ -273,7 +276,11 @@ class Entities {
   }
 
   ///
-  /// returns List<DetachedRuleset | Assignment | Expression>
+  /// The arguments in a call function. Example:
+  ///
+  ///     color: rgba(255, 238, 170, 0.1);
+  ///
+  /// Returns a List of `DetachedRuleset | Assignment | Expression`
   /// separated by `,` or `;`
   ///
   List<Node> arguments(List<Node> prevArgs) {
@@ -354,6 +361,10 @@ class Entities {
 // },
   }
 
+  ///
+  /// Search for
+  ///
+  ///     Dimension | Color | Quoted | UnicodeDescriptor (U+A5)
   ///
   Node literal() {
     Node result = dimension();
@@ -493,7 +504,7 @@ class Entities {
   ///
   /// A Variable entity, such as `@fink`, in
   ///
-  ///     width: @fink + 2px
+  ///     width: @fink + 2px;
   ///
   /// We use a different parser for variable definitions,
   /// see `parsers.variable`.
@@ -522,7 +533,9 @@ class Entities {
   static final RegExp _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
 
   ///
-  /// A variable entity using the protective {} e.g. @{var}
+  /// A variable entity using the protective `{}`. Example:
+  ///
+  ///     @{var}
   ///
   Variable variableCurly() {
     String    curly;
@@ -550,7 +563,12 @@ class Entities {
   ///
   /// A Property accessor, such as `$color`, in
   ///
+  ///     color: black;
   ///     background-color: $color
+  ///
+  /// That results in:
+  ///
+  ///     background-color: black;
   ///
   Property property() {
     String    name;
@@ -575,7 +593,9 @@ class Entities {
   static final RegExp _propertyCurlyRegExp = new RegExp(r'\$\{([\w-]+)\}', caseSensitive: true);
 
   ///
-  /// A property entity useing the protective {} e.g. @{prop}
+  /// A property entity using the protective `{}`. Example:
+  ///
+  ///     @{prop}
   ///
   Property propertyCurly() {
     String    curly;
@@ -613,7 +633,10 @@ class Entities {
   /// `rgb` and `hsl` colors are parsed through the `entities.call` parser.
   ///
   /// Formats:
-  ///     #rgb, #rgba, #rrggbb, #rrggbbaa
+  ///
+  ///     #rgb, #rgba, #rrggbb, #rgba,
+  ///
+  /// #rgba, #rgba are not standard.
   ///
   Color color() {
     Match rgb;
@@ -661,6 +684,10 @@ class Entities {
   static final RegExp _colorKeywordRegExp =
       new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]+', caseSensitive: true);
 
+  ///
+  /// Search for a named color, such as `blue`.
+  ///
+  /// The colors list is in `src/data/colors.dart`
   ///
   Color colorKeyword() {
     parserInput.save();
@@ -710,7 +737,8 @@ class Entities {
   ///
   /// A Dimension, that is, a number and a unit
   ///
-  ///     0.5em 95%
+  ///     0.5em
+  ///     95%
   ///
   Dimension dimension() {
     if (parserInput.peekNotNumeric())
@@ -738,9 +766,9 @@ class Entities {
   static final RegExp _unicodeDescriptorRegExp = new RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
 
   ///
-  /// A unicode descriptor, as is used in unicode-range
+  /// A unicode descriptor, as is used in unicode-range, such as:
   ///
-  /// U+0??  or U+00A1-00A9
+  ///     U+0??  or U+00A1-00A9
   ///
   UnicodeDescriptor unicodeDescriptor() {
     final String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
@@ -765,7 +793,9 @@ class Entities {
   ///
   /// JavaScript code to be evaluated
   ///
-  ///     `window.location.href`
+  ///     window.location.href
+  ///
+  /// JavaScript evaluation is not supported.
   ///
   JavaScript javascript() {
     final int index = parserInput.i;

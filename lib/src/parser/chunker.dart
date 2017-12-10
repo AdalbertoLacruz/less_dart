@@ -3,6 +3,8 @@
 part of parser.less;
 
 ///
+/// Split the [input] to easy the parser process. In this version is not used.
+///
 class Chunker {
   ///
   String    input;

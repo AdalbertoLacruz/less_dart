@@ -1,6 +1,8 @@
 part of parser.less;
 
 ///
+/// Special character definition
+///
 class Charcode {
   ///
   static const int TAB_9 = 9;
