@@ -117,7 +117,7 @@ class FileFileManager extends AbstractFileManager {
         throw(fileLoaded.error);
       }
     }
-    final String normalizedFilename = await _normalizeFilePath(_filename);
+    final String normalizedFilename = await normalizeFilePath(_filename);
     final List<String> paths = await _normalizePaths(createListPaths(_filename, currentDirectory, _options));
     final String fullFilename = await findFile(normalizedFilename, paths);
     if (fullFilename != null) {
@@ -327,7 +327,11 @@ class FileFileManager extends AbstractFileManager {
   }
 
   ///
-  Future<String> _normalizeFilePath(String filename) async {
+  /// Normalizes file path (replaces package/ prefix to the absolute path)
+  ///
+
+  @override
+  Future<String> normalizeFilePath(String filename) async {
     final List<String> pathData = pathLib.split(pathLib.normalize(filename));
     if (pathData.length > 1 && pathData.first.startsWith(PACKAGES_PREFIX)) {
       final String packageName = pathData[1];
@@ -346,7 +350,7 @@ class FileFileManager extends AbstractFileManager {
   Future <List<String>> _normalizePaths(List<String> paths) async {
     final List<String> normalizedPaths = <String>[];
     for (String path in paths) {
-      normalizedPaths.add(await _normalizeFilePath(path));
+      normalizedPaths.add(await normalizeFilePath(path));
     }
     return normalizedPaths;
   }

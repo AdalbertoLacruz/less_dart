@@ -53,7 +53,12 @@ class AbstractFileManager {
   ///
   String getPath(String filename) => pathLib.dirname(filename);
 
-//2.3.1
+  ///
+  /// Normalizes file path (replaces package/ prefix to the absolute path)
+  ///
+  Future<String> normalizeFilePath(String filename) async => filename;
+
+  //2.3.1
 //abstractFileManager.prototype.getPath = function (filename) {
 //    var j = filename.lastIndexOf('?');
 //    if (j > 0) {
@@ -151,7 +156,7 @@ class AbstractFileManager {
     }
 
     urlDirectories[urlDirectories.length - 1] = ''; //join must end with '/'
-    return '${"../" * (baseUrlDirectories.length - 1)}${urlDirectories.join("/")}';
+    return '${"../" * (baseUrlDirectories.length)}${urlDirectories.join("/")}';
 
 //2.3.1
 //abstractFileManager.prototype.pathDiff = function pathDiff(url, baseUrl) {
