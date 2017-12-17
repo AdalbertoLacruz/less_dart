@@ -343,7 +343,7 @@ class FileFileManager extends AbstractFileManager {
       final PackageResolver _resolver = await _packageResolverProvider.getPackageResolver();
       String result = (await _resolver.urlFor(asset.package, asset.path)).toFilePath();
 
-      //urlFor.toFilePath() ignores trailing slash if path is a folder, but it is mandatory to ensure
+      //urlFor.toFilePath() ignores trailing slash if path is a folder, but this slash is mandatory to ensure
       //that pathDiff in AbstractFileManager returns correct result
       if (filename.endsWith('/')) {
         result = '$result/';

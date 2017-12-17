@@ -54,7 +54,7 @@ class AbstractFileManager {
   String getPath(String filename) => pathLib.dirname(filename);
 
   ///
-  /// Normalizes file path (replaces package/ prefix to the absolute path)
+  /// Normalizes file path. Basically does nothing, to be overridden in child managers
   ///
   Future<String> normalizeFilePath(String filename) async => filename;
 
