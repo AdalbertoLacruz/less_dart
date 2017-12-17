@@ -156,7 +156,7 @@ class AbstractFileManager {
     }
 
     urlDirectories[urlDirectories.length - 1] = ''; //join must end with '/'
-    return '${"../" * (baseUrlDirectories.length)}${urlDirectories.join("/")}';
+    return '${"../" * (baseUrlDirectories.length - 1)}${urlDirectories.join("/")}';
 
 //2.3.1
 //abstractFileManager.prototype.pathDiff = function pathDiff(url, baseUrl) {
