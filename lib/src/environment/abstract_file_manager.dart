@@ -146,6 +146,10 @@ class AbstractFileManager {
     final List<String> baseUrlDirectories = baseUrlParts.directories.sublist(i);
     final List<String> urlDirectories = urlParts.directories.sublist(i);
 
+    if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) {  //both directories are the same
+      return './';
+    }
+
     urlDirectories[urlDirectories.length - 1] = ''; //join must end with '/'
     return '${"../" * (baseUrlDirectories.length - 1)}${urlDirectories.join("/")}';
 
