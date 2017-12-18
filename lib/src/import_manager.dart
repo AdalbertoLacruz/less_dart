@@ -133,7 +133,7 @@ class ImportManager {
       ImportOptions importOptions,
       {bool tryAppendLessExtension = false}) async {
 
-    final Contexts                  _context = context.clone();
+    final Contexts _context = context.clone();
 
     queue.add(path);
 
@@ -143,9 +143,8 @@ class ImportManager {
     final AbstractFileManager fileManager = environment.getFileManager(
         path, currentFileInfo.currentDirectory, _context, environment);
 
-    if (fileManager == null) {
-      throw new LessError(message: 'Could not find a file-manager for $path');
-    }
+    if (fileManager == null)
+        throw new LessError(message: 'Could not find a file-manager for $path');
 
     if (tryAppendLessExtension)
         _context.ext = '.less';
@@ -193,7 +192,7 @@ class ImportManager {
 
         // if (importOptions.isPlugin) ...
         if (importOptions?.inline ?? false) {
-          return fileParsedFunc(path, contents, resolvedFilename, importOptions);
+            return fileParsedFunc(path, contents, resolvedFilename, importOptions);
 
         // import (multiple) parse trees apparently get altered and can't be cached.
         // TODO: investigate why this is (js)

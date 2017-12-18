@@ -1,4 +1,4 @@
-## v.1.1.1 (2017-xx-xx)
+## v.1.1.1 (2017-12-18)
 
 - Fix a crash that occurred in transformer mode in case if the less file imports another one from the same folder
 - Fix incorrect paths in relative imports
