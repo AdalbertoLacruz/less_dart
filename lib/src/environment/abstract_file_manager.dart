@@ -53,7 +53,12 @@ class AbstractFileManager {
   ///
   String getPath(String filename) => pathLib.dirname(filename);
 
-//2.3.1
+  ///
+  /// Normalizes file path. Basically does nothing, to be overridden in child managers
+  ///
+  Future<String> normalizeFilePath(String filename) async => filename;
+
+  //2.3.1
 //abstractFileManager.prototype.getPath = function (filename) {
 //    var j = filename.lastIndexOf('?');
 //    if (j > 0) {
@@ -145,6 +150,10 @@ class AbstractFileManager {
     }
     final List<String> baseUrlDirectories = baseUrlParts.directories.sublist(i);
     final List<String> urlDirectories = urlParts.directories.sublist(i);
+
+    if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) {  //both directories are the same
+      return './';
+    }
 
     urlDirectories[urlDirectories.length - 1] = ''; //join must end with '/'
     return '${"../" * (baseUrlDirectories.length - 1)}${urlDirectories.join("/")}';
