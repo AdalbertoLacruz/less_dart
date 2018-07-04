@@ -127,10 +127,10 @@ void lessOptionsTest() {
       expect(options.color, false);
     });
 
-    test('-no-ie-compat', () {
-      result = options.parse(getArgument('-no-ie-compat'));
+    test('-ie-compat', () {
+      result = options.parse(getArgument('-ie-compat'));
       expect(result, true);
-      expect(options.ieCompat, false);
+      expect(options.ieCompat, true);
     });
 
     test('-no-js', () {
