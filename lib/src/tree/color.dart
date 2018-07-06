@@ -66,7 +66,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       this.rgb = rgb
           .split('')
           .map((String c) => int.parse('$c$c', radix: 16))
-          .toList();
+          .toList().cast<num>();
     }
 
     if (originalForm != null)
