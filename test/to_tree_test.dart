@@ -3,7 +3,7 @@ import 'package:less_dart/less.dart';
 
 // Test toTree, to show a less tree
 // use: pub run test/to_tree_test.dart output.txt
-void main(List<String> args) {
+void main([List<String> args = const <String>['output.txt']]) {
     final Less less = new Less();
     less.transform(<String>[
       '-no-color',

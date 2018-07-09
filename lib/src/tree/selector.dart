@@ -282,7 +282,7 @@ class Selector extends Node {
         extendList = extendList.map((Node extend) => extend.eval(context)).toList();
 
     return createDerived(elements,
-        extendList: extendList,
+        extendList: extendList?.cast<Extend>(),
         evaldCondition: evaldCondition);
 
 //2.3.1

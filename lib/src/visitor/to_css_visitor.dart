@@ -172,7 +172,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     visitArgs.visitDeeper = false;
 
     if (!utils.isEmpty(atRuleNode))
-        mergeRules(atRuleNode.rules[0].rules);
+        mergeRules(atRuleNode.rules?.cast<Node>()[0].rules);
     return utils.resolveVisibility(atRuleNode, originalRules);
 
 //2.8.0 20160702

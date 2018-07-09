@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:barback/barback.dart';
+import 'package:path/path.dart' as pathos;
 import 'package:mime/mime.dart' as mime;
 import 'package:path/path.dart' as pathLib;
 

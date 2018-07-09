@@ -120,7 +120,7 @@ class Ruleset extends Node
     }
 
     final Ruleset ruleset = new Ruleset(selectors,
-        hasOnePassingSelector ? rules?.sublist(0) : <Node>[],  //rules
+        hasOnePassingSelector ? rules?.sublist(0)?.cast<Node>() : <Node>[],  //rules
         strictImports: strictImports,
         visibilityInfo: visibilityInfo())
         ..originalRuleset = this
@@ -151,8 +151,9 @@ class Ruleset extends Node
     // Store the frames around mixin definitions,
     // so they can be evaluated like closures when the time comes.
     ruleset.rules = ruleset.rules?.map((Node rule) =>
-      (rule.evalFirst) ? rule.eval(context) : rule
-    )?.toList();
+    (rule.evalFirst)
+        ? rule.eval(context)
+        : rule)?.toList();
 
     final int mediaBlockCount = context.mediaBlocks?.length ?? 0;
 
@@ -1542,9 +1543,10 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   Declaration transformDeclaration(Declaration decl, {bool ignoreErrors: false}) {
     if (decl.value is Anonymous && !decl.parsed && !decl.value.parsed) {
-      final List<dynamic> result = new ParseNode(decl.value.value,
+      final List<dynamic> result =
+        new ParseNode(decl.value.value,
             decl.value.index, decl.currentFileInfo, ignoreErrors: ignoreErrors)
-            .value();
+            .value()?.cast<dynamic>();
       if (result != null) {
         decl
             ..value = result[0]

@@ -59,9 +59,9 @@ class Call extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    final List<Expression> args = this.args
+    final List<Node> args = this.args
         .map((Node a) => a.eval(context))
-        .toList();
+        .toList().cast<Node>();
     final FunctionCaller funcCaller =
         new FunctionCaller(name, context, index, currentFileInfo);
     dynamic _result;

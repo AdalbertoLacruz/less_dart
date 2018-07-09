@@ -141,6 +141,6 @@ class ParseNode {
         ..add(parsers.important());
       parsers.isFinished();
     });
-    return isError ? null : result;
+    return isError ? null : result?.cast<Node>();
   }
 }

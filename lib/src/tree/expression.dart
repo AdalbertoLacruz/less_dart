@@ -52,7 +52,7 @@ class Expression extends Node {
     if (inParenthesis)
         context.inParenthesis();
     if (value.length > 1) {
-      returnValue = new Expression(value.map((Node e) => e?.eval(context)).toList());
+      returnValue = new Expression(value.map<Node>((Node e) => e?.eval(context)).toList());
     } else if (value.length == 1) {
       if (value.first.parens && !value.first.parensInOp)
           doubleParen = true;

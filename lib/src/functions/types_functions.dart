@@ -277,7 +277,8 @@ class TypesFunctions extends FunctionBase {
     //return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
     try {
       return getItemsFromNode(values).elementAt(iIndex);
-    } catch (e) {
+
+    } on RangeError catch(_) {
       return null;
     }
 

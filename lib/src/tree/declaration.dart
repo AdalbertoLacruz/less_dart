@@ -177,7 +177,7 @@ class Declaration extends Node implements MakeImportantNode {
     if (name is! String) {
       // expand 'primitive' name directly to get
       // things faster (~10% for benchmark.less):
-      name = ((name as List<Node>).length == 1) && (name[0] is Keyword)
+      name = (((name as List<dynamic>).cast<Node>()).length == 1) && (name[0] is Keyword)
           ? (name[0] as Keyword).value
           : evalName(context, name);
       variable = false; // never treat expanded interpolation as new variable name

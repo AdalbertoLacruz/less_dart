@@ -1,7 +1,4 @@
 analyzer:
-  strong-mode: true
-#    implicit-casts: false
-#    implicit-dynamic: false
   errors:
 # see https://github.com/dart-lang/sdk/blob/stable/pkg/analyzer/lib/src/generated/error.dart
 # error | warning | ignore

@@ -39,10 +39,10 @@ class PluginTransitiveFunctions extends FunctionBase {
 class PluginSimpleFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'pi-anon')
-  double piAnon() => math.PI;
+  double piAnon() => math.pi;
   ///
   @DefineMethod(name: 'pif')
-  Dimension pif() => new Dimension(math.PI);
+  Dimension pif() => new Dimension(math.pi);
 }
 
 ///

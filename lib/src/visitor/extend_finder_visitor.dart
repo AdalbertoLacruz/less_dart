@@ -94,7 +94,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
       if (extendList != null) {
         extendList = extendList
-            .map((Extend allSelectorsExtend) => allSelectorsExtend.clone())
+            .map((Extend allSelectorsExtend) => allSelectorsExtend.clone() as Extend)
             .toList();
       }
 
