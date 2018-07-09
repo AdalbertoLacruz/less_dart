@@ -900,7 +900,7 @@ class Parsers {
         // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
         // where each item is a tree.Keyword or tree.Variable
         merge = (!isVariable && name.length > 1)
-            ? ((name as List).cast<Node>()).removeLast().value
+            ? (name.cast<Node>()).removeLast().value
             : '';
 
         // Try to store values as anonymous

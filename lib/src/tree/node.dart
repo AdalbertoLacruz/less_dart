@@ -571,21 +571,21 @@ abstract class Node {
       output.add('$tabStr.$fieldName: \n');
       env.tabLevel++;
       if (fieldValue.first is Node) {
-        (fieldValue as Iterable).cast<Node>().forEach((Node e) {
+        fieldValue.cast<Node>().forEach((Node e) {
           e.genTree(env, output, '- ');
         });
       } else if (fieldValue.first is MixinArgs) {
-        (fieldValue as Iterable).cast<MixinArgs>().forEach((MixinArgs a) {
+        fieldValue.cast<MixinArgs>().forEach((MixinArgs a) {
           a.genTree(env, output, '- ');
         });
       } else if (fieldValue.first is String) {
         final String tabStr = '  ' * env.tabLevel;
-        (fieldValue as Iterable).cast<String>().forEach((String s) {
+        fieldValue.cast<String>().forEach((String s) {
           output.add('$tabStr- String ($s)\n');
         });
       } else if (fieldValue.first is num) {
         final String tabStr = '  ' * env.tabLevel;
-        (fieldValue as Iterable).cast<num>().forEach((num n) {
+        fieldValue.cast<num>().forEach((num n) {
           output.add('$tabStr- num (${n.toString()})\n');
         });
       } else {

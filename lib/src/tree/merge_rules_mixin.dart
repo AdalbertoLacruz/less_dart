@@ -23,7 +23,7 @@ class MergeRulesMixin {
     final List<List<Declaration>>          groupsArr = <List<Declaration>>[];
 
     for (int i = 0; i < rules.length; i++) {
-      final Node rule = rules[i];
+      final Node rule = rules.cast<Node>()[i];
 
       // group rules and remove these to be merged
       // rule is not only Declaration

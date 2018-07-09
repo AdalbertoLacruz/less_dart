@@ -303,7 +303,7 @@ class SourceMapOutput extends Output {
           sourcesContent.add(contents[filename]);
         }
         json['sourcesContent'] = sourcesContent;
-        sourceMapContent = JSON.encode(json);
+        sourceMapContent = jsonEncode(json);
       } else {
         sourceMapContent = sourceMapGenerator.toJson(normalizeFilename(outputFilename));
       }

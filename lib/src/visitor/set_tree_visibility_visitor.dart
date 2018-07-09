@@ -34,7 +34,7 @@ class SetTreeVisibilityVisitor extends VisitorBase {
     if (nodes == null)
         return nodes;
 
-    nodes.forEach((T node) {
+    nodes.cast<T>().forEach((T node) {
       visit(node);
     });
     return nodes;

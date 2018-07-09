@@ -33,10 +33,10 @@ class OutputRulesetMixin {
       output.add(' {$tabSetStr}');
     } else {
       output.add(' {$tabRuleStr');
-      rules[0].genCSS(context, output);
+      rules.cast<Node>()[0].genCSS(context, output);
       for (int i = 1; i < ruleCnt; i++) {
         output.add(tabRuleStr);
-        rules[i].genCSS(context, output);
+        rules.cast<Node>()[i].genCSS(context, output);
       }
       output.add('$tabSetStr}');
     }

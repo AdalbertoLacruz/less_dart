@@ -104,19 +104,19 @@ class Visitor extends VisitorBase {
     }
 
     // Replacing
-    List<T> out = <T>[];
+    List<dynamic> out = <dynamic>[];
     for (int i = 0; i < nodes.length; i++) {
-      final dynamic evald = visit(nodes[i]); //Node | List<Node>
+      final dynamic evald = visit(nodes.cast<dynamic>()[i]); //Node | List<Node>
       if (evald == null)
           continue;
 
       if (evald is! List) {
         out.add(evald);
       } else if (evald.isNotEmpty) {
-        out = flatten(evald, out);
+        out = flatten(evald.cast<Node>(), out);
       }
     }
-    return out;
+    return out.cast<T>();
 
 //2.3.1
 //  visitArray: function(nodes, nonReplacing) {
@@ -155,15 +155,15 @@ class Visitor extends VisitorBase {
   /// arr == [Node, [Node, Node...]] -> [Node, Node, Node, ...]
   /// MixinArgs don't need to be flatten and don't must be here
   ///
-  List<T> flatten<T>(List<T> arr, List<T> out) {
-    List<T> _out = out ?? <T>[];
+  List<dynamic> flatten(List<dynamic> arr, List<dynamic> out) {
+    List<dynamic> _out = out ?? <dynamic>[];
 
-    T item; //Node or List
+    dynamic item; //Node or List
     int nestedCnt;
     dynamic nestedItem;
 
     for (int i = 0; i < arr.length; i++) {
-      item = arr[i];
+      item = arr.cast<dynamic>()[i];
       if (item == null)
           continue;
 
@@ -181,7 +181,7 @@ class Visitor extends VisitorBase {
         if (nestedItem is! List) { //Node
           _out.add(nestedItem);
         } else if (nestedItem.isNotEmpty) {
-          _out = flatten<T>(nestedItem, _out);
+          _out = flatten(nestedItem, _out);
         }
       }
     }

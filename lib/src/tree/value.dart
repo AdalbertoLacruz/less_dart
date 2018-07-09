@@ -62,7 +62,7 @@ class Value extends Node {
     if (value.length == 1) {
       return value.first.eval(context);
     } else {
-      return new Value(value.map((Node v) => v.eval(context)).toList());
+      return new Value(value.map<Node>((Node v) => v.eval(context)).toList());
     }
 
 //2.3.1

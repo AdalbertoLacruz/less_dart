@@ -43,7 +43,7 @@ class FileTransformer extends AggregateTransformer {
 
   ///
   FileTransformer(BarbackSettings this.settings)
-      : options = new TransformerOptions.parse((settings.configuration as Map).cast<String, dynamic>()) {
+      : options = new TransformerOptions.parse(settings.configuration.cast<String, dynamic>()) {
 
     entryPoints = new EntryPoints()
         ..addPaths(options.entryPoints)
