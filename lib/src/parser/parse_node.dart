@@ -134,7 +134,7 @@ class ParseNode {
   ///
   /// search for Value nodes, with important property
   ///
-  List<Node> value() {
+  List<dynamic> value() {
     parse((){
       result
         ..add(parsers.value())

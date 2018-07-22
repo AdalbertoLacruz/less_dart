@@ -1,0 +1,25 @@
+builders:
+  less_dart:
+    import: 'package:less_dart/less_builder.dart'
+    builder_factories: ['lessBuilder']
+    auto_apply: none
+    build_extensions:
+          .less.html: ['.html']
+          .less: ['.css']
+    applies_builders:
+      - less_dart|less_source_cleanup
+    defaults:
+      options:
+        cleancss: false
+        compress: false
+#        entry_points: ['*.less']
+#        include_path: 'lib/includes'
+#        other_flags: ['']
+
+post_process_builders:
+  less_source_cleanup:
+    import: 'package:less_dart/less_builder.dart'
+    builder_factory: 'lessSourceCleanup'
+    defaults:
+      release_options:
+        enabled: true

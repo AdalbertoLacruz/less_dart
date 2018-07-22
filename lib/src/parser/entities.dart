@@ -235,6 +235,7 @@ class Entities {
     Node result;
     switch (name) {
       case 'alpha':
+      case 'Alpha':
         result = ieAlpha();
         if (result != null)
             args.add(result);

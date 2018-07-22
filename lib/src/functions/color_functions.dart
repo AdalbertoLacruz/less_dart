@@ -141,7 +141,7 @@ class ColorFunctions extends FunctionBase {
     final dynamic _l = clamp(number(l));
     final dynamic _a = clamp(number(a));
 
-    final double m2 = _l <= 0.5
+    final double m2 = (_l <= 0.5)
         ? _l * (_s + 1)
         : _l + _s - _l * _s;
     final double m1 = _l * 2 - m2;

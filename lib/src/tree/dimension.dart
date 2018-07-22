@@ -13,23 +13,37 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   Unit unit;
 
   ///
-  /// [value] is double or String
+  /// [value] is int/double or String
   /// [unit] is Unit or String
   ///
   Dimension(dynamic value, [dynamic unit]) {
-    try {
-      this.value = (value is String) ? double.parse(value) : value.toDouble();
-    } catch (e) {
-      throw new LessExceptionError(new LessError(
-        message: 'Dimension is not a number.')
-      );
-    }
+//    try {
+//      this.value = (value is String) ? double.parse(value) : value.toDouble();
+//    } catch (e) {
+//      throw new LessExceptionError(new LessError(
+//        message: 'Dimension is not a number.')
+//      );
+//    }
 
-    if (unit != null) {
-      this.unit = (unit is Unit) ? unit : new Unit(<String>[unit]);
-    } else {
-      this.unit = new Unit();
-    }
+    this.value = (value is String)
+        ? double.parse(value)
+        : (value is num)
+          ? value.toDouble()
+          : throw new LessExceptionError(new LessError(
+              message: 'Dimension is not a number.')
+          );
+
+//    if (unit != null) {
+//      this.unit = (unit is Unit) ? unit : new Unit(<String>[unit as String]);
+//    } else {
+//      this.unit = new Unit();
+//    }
+
+    this.unit = (unit is Unit)
+        ? unit
+        : (unit == null)
+          ? new Unit()
+          : new Unit(<String>[unit as String]);
 
     setParent(this.unit, this);
 
@@ -54,7 +68,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    unit = visitor.visit(unit);
+    unit = visitor.visit(unit) as Unit;
 
 //2.3.1
 //  Dimension.prototype.accept = function (visitor) {
@@ -77,15 +91,15 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
           message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${unit.toString()}'));
     }
 
-    if (cleanCss != null)
-        return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     final double value = fround(context, this.value);
     String strValue = numToString(value); //10.0 -> '10'
 
-    if (value != 0 && value < 0.000001 && value > -0.000001)
-        // would be output 1e-6 etc.
-        strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+    if (value != 0 && value < 0.000001 && value > -0.000001) {
+      // would be output 1e-6 etc.
+      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+    }
 
     if (context?.compress ?? false) {
       // Zero values doesn't need a unit
@@ -95,8 +109,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       }
 
       // Float values doesn't need a leading zero
-      if (value > 0 && value < 1)
-          strValue = strValue.substring(1);
+      if (value > 0 && value < 1) strValue = strValue.substring(1);
     }
 
     output.add(strValue);
@@ -137,19 +150,18 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
     final double value = fround(context, this.value, cleanCss.precision);
-    String strValue = numToString(value); //10.0 -> '10'
+    String strValue = numToString(value); // 10.0 -> '10'
 
-    if (value != 0 && value < 0.000001 && value > -0.000001)
-        // would be output 1e-6 etc.
-        strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+    if (value != 0 && value < 0.000001 && value > -0.000001) {
+      // would be output 1e-6 etc.
+      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+    }
     if (value == 0 && (unit.isLength(context) || unit.isAngle(context))) {
       output.add(strValue);
       return;
     }
-    if (value > 0 && value < 1)
-        strValue = strValue.substring(1); // 0.5
-    if (value < 0 && value > -1)
-        strValue = '-${strValue.substring(2)}'; // -0.5
+    if (value > 0 && value < 1) strValue = strValue.substring(1); // 0.5
+    if (value < 0 && value > -1) strValue = '-${strValue.substring(2)}'; // -0.5
 
     output.add(strValue);
     unit.genCSS(context, output);
@@ -176,8 +188,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     if (op == '+' || op == '-') {
       if (unit.numerator.isEmpty && unit.denominator.isEmpty) {
         unit = _other.unit.clone();
-        if (this.unit.backupUnit != null)
-            unit.backupUnit = this.unit.backupUnit;
+        if (this.unit.backupUnit != null) unit.backupUnit = this.unit.backupUnit;
       } else if (_other.unit.numerator.isEmpty && unit.denominator.isEmpty) {
         // do nothing
       } else {
@@ -254,8 +265,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   @override
   int compare(Node otherNode) {
-    if (otherNode is! Dimension)
-        return null;
+    if (otherNode is! Dimension) return null;
 
     Dimension       a;
     Dimension       b;
@@ -267,8 +277,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     } else {
       a = unify();
       b = other.unify();
-      if (a.unit.compare(b.unit) != 0)
-          return null;
+      if (a.unit.compare(b.unit) != 0) return null;
     }
 
     return Node.numericCompare(a.value, b.value);
@@ -332,7 +341,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       }
       conversionsMap = derivedConversions; // {length: 'px', ..}
     } else {
-      conversionsMap = conversions;
+      conversionsMap = conversions as Map<String, String>;
     }
 
     // maths on units

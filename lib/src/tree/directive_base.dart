@@ -11,23 +11,24 @@ class DirectiveBase extends Node
   @override FileInfo                currentFileInfo;
   @override DebugInfo               debugInfo;
   @override String                  name;
-  @override covariant List<Ruleset> rules; //more restrictive type
+//  @override covariant List<Ruleset> rules; //more restrictive type TODO: review
   @override final String            type = 'DirectiveBase';
 
   ///
   bool  isRooted = false;
 
   ///
-  DirectiveBase(
-      {this.currentFileInfo,
+  DirectiveBase({
+      this.currentFileInfo,
       this.debugInfo,
       int index,
       this.isRooted,
       this.name,
-      VisibilityInfo visibilityInfo}) {
-        this.index = index;
-        copyVisibilityInfo(visibilityInfo);
-      }
+      VisibilityInfo visibilityInfo
+    }) {
+      this.index = index;
+      copyVisibilityInfo(visibilityInfo);
+    }
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{
@@ -39,10 +40,8 @@ class DirectiveBase extends Node
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (rules != null)
-        rules = visitor.visitArray(rules);
-    if (value != null)
-        value = visitor.visit(value);
+    if (rules != null) rules = visitor.visitArray(rules);
+    if (value != null) value = visitor.visit(value);
 
 //2.8.0 20160702
 // AtRule.prototype.accept = function (visitor) {
@@ -110,7 +109,7 @@ class DirectiveBase extends Node
   @virtual @override
   Node eval(Contexts context) {
     Node          value = this.value;
-    List<Ruleset> rules = this.rules;
+    List<Node>    rules = this.rules; // TODO: review, List<Ruleset>
 
     // media stored inside other directive should not bubble over it
     // backpup media bubbling information
@@ -127,7 +126,7 @@ class DirectiveBase extends Node
     if (rules != null) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
       rules = <Ruleset>[rules[0].eval(context)];
-      rules[0].root = true;
+      (rules[0] as Ruleset).root = true;
     }
     // restore media bubbling information
     context
@@ -197,7 +196,7 @@ class DirectiveBase extends Node
   List<MixinFound> find(Selector selector, [dynamic self, Function filter]) {
     if (rules?.isNotEmpty ?? false)
         // assuming that there is only one rule at this point - that is how parser constructs the rule
-        return rules[0].find(selector, self, filter);
+        return (rules[0] as Ruleset).find(selector, self, filter);
     return null;
 
 //2.8.0 20160702
@@ -215,7 +214,7 @@ class DirectiveBase extends Node
   List<Node> rulesets() {
     if (rules?.isNotEmpty ?? false)
         // assuming that there is only one rule at this point - that is how parser constructs the rule
-        return rules[0].rulesets();
+        return (rules[0] as Ruleset).rulesets();
     return null;
 
 //2.8.0 20160702

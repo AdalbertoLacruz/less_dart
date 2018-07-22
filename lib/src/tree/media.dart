@@ -57,10 +57,8 @@ class Media extends DirectiveBase {
   ///
   @override
   void accept(VisitorBase visitor) {
-    if (features != null)
-        features = visitor.visit(features);
-    if (rules != null)
-        rules = visitor.visitArray(rules);
+    if (features != null) features = visitor.visit(features);
+    if (rules != null) rules = visitor.visitArray(rules);
 
 //2.3.1
 //  Media.prototype.accept = function (visitor) {
@@ -108,7 +106,7 @@ class Media extends DirectiveBase {
     context.mediaPath.add(media);
     context.mediaBlocks.add(media);
 
-    rules[0].functionRegistry =
+    (rules[0] as Ruleset).functionRegistry =
         new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
     context.frames.insert(0, rules[0]);
     media.rules = <Ruleset>[rules[0].eval(context)];

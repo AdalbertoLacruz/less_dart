@@ -32,7 +32,7 @@ class AtRule extends DirectiveBase {
     //
     this.value = (value is Node)
         ? value
-        : (value != null) ? new Anonymous(value) : value;
+        : (value != null) ? new Anonymous(value) : null;
 
     if (rules != null) {
       if (rules is List<Ruleset>) {
@@ -44,8 +44,8 @@ class AtRule extends DirectiveBase {
             currentFileInfo: currentFileInfo)
             .createEmptySelectors();
       }
-      this.rules.forEach((Ruleset rule) {
-        rule.allowImports = true;
+      this.rules.forEach((Node rule) {
+        (rule as Ruleset).allowImports = true;
       });
       setParent(rules, this);
     }

@@ -278,6 +278,7 @@ class TypesFunctions extends FunctionBase {
     try {
       return getItemsFromNode(values).elementAt(iIndex);
     } catch (e) {
+      // } on RangeError catch(_) { // Alternative
       return null;
     }
 

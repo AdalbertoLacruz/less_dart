@@ -48,7 +48,7 @@ Future<Object> loadSampleJSON(String name) {
   if (_name[0] == Platform.pathSeparator){
     _name = _name.substring(1);
   }
-  return getSampleFile(_name).readAsString().then(JSON.decode);
+  return getSampleFile(_name).readAsString().then(json.decode);
 }
 
 ///

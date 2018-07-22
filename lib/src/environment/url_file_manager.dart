@@ -38,7 +38,7 @@ class UrlFileManager extends AbstractFileManager {
         .getUrl(Uri.parse(urlStr))
         .then((HttpClientRequest request) => request.close())
         .then((HttpClientResponse response) {
-          response.transform(UTF8.decoder).listen((String contents) {
+          response.transform(utf8.decoder).listen((String contents) {
             dataBuffer.write(contents);
           }, onDone: () {
             if (response.statusCode == 404) {

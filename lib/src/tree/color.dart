@@ -36,41 +36,42 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// [originalForm] returned to CSS if color is not processed: #rgb or #rrggbb.
   ///
   Color(dynamic rgb, [num this.alpha = 1, String originalForm]) {
-    if (alpha == 0)
-        alpha = 0; // convert to int
-    if (alpha == 1)
-        alpha = 1;
+    if (alpha == 0) alpha = 0; // convert to int
+    if (alpha == 1) alpha = 1;
 
     final RegExp hex6 = new RegExp('.{2}');
 
     if (rgb is List<num>) {           // [0, 0 , 0]
       this.rgb = rgb;
-    } else if (rgb.length == 8) {     // # 'rrggbbaa'
-      this.rgb = hex6
-        .allMatches(rgb)
-        .map((Match c) => int.parse(c[0], radix: 16))
-        .toList();
-      alpha = this.rgb.removeAt(3) / 256;
-    } else if (rgb.length == 6) {    // # 'deb887'
-      this.rgb = hex6
-          .allMatches(rgb)
-          .map((Match c) => int.parse(c[0], radix: 16))
-          .toList();
-    } else if (rgb.length == 4) {    // # 'rgba'
-      this.rgb = rgb
-          .split('')
-          .map((String c) => int.parse('$c$c', radix: 16))
-          .toList();
-      alpha = this.rgb.removeAt(3) / 256;
-    } else {                          // # 'f01'
-      this.rgb = rgb
-          .split('')
-          .map((String c) => int.parse('$c$c', radix: 16))
-          .toList();
+    } else {
+      final String _rgb = rgb;
+      if (_rgb.length == 8) {     // # 'rrggbbaa'
+        this.rgb = hex6
+            .allMatches(_rgb)
+            .map<int>((Match c) => int.parse(c[0], radix: 16))
+            .toList();
+        alpha = this.rgb.removeAt(3) / 256;
+      } else if (_rgb.length == 6) {    // # 'deb887'
+        this.rgb = hex6
+            .allMatches(_rgb)
+            .map<int>((Match c) => int.parse(c[0], radix: 16))
+            .toList();
+      } else if (_rgb.length == 4) {    // # 'rgba'
+        this.rgb = _rgb
+            .split('')
+            .map<int>((String c) => int.parse('$c$c', radix: 16))
+            .toList();
+        alpha = this.rgb.removeAt(3) / 256;
+      } else {                          // # 'f01'
+        this.rgb = _rgb
+            .split('')
+            .map<int>((String c) => int.parse('$c$c', radix: 16))
+            .toList();
+      }
     }
 
-    if (originalForm != null)
-        value = originalForm;
+
+    if (originalForm != null) value = originalForm;
 
     alpha ??= 1;
 
@@ -166,9 +167,9 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     double g = this.g / 255;
     double b = this.b / 255;
 
-    r = (r <= 0.03928) ? r / 12.92 : math.pow(((r + 0.055) / 1.055), 2.4);
-    g = (g <= 0.03928) ? g / 12.92 : math.pow(((g + 0.055) / 1.055), 2.4);
-    b = (b <= 0.03928) ? b / 12.92 : math.pow(((b + 0.055) / 1.055), 2.4);
+    r = (r <= 0.03928) ? r / 12.92 : math.pow(((r + 0.055) / 1.055), 2.4).toDouble();
+    g = (g <= 0.03928) ? g / 12.92 : math.pow(((g + 0.055) / 1.055), 2.4).toDouble();
+    b = (b <= 0.03928) ? b / 12.92 : math.pow(((b + 0.055) / 1.055), 2.4).toDouble();
 
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
@@ -197,8 +198,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   String toCSS(Contexts context) {
-    if (cleanCss?.compatibility?.properties?.colors ?? false)
-        return toCleanCSS(context);
+    if (cleanCss?.compatibility?.properties?.colors ?? false) return toCleanCSS(context);
 
     num         alpha;
     String      color;
@@ -207,8 +207,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     // `value` is set if this color was originally
     // converted from a named color string so we need
     // to respect this and try to output named color too.
-    if (value != null)
-        return value;
+    if (value != null) return value;
 
 
     // If we have some transparency, the only way to represent it
@@ -216,12 +215,10 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     // which has better compatibility with older browsers.
     // Values are capped between `0` and `255`, rounded and zero-padded.
     alpha = fround(context, this.alpha);
-    if (alpha < 1)
-        return toRGBFunction(context);
+    if (alpha < 1) return toRGBFunction(context);
 
     color = toRGB();
-    if (compress)
-        color = tryHex3(color);
+    if (compress) color = tryHex3(color);
     return color;
 
 //2.3.1
@@ -267,20 +264,18 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     final num alpha = fround(context, this.alpha);
     String    color = toRGB();
 
-    if (cleanCss.compatibility.colors.opacity && alpha == 0 && color == '#000000')
+    if (cleanCss.compatibility.colors.opacity && alpha == 0 && color == '#000000') {
           return transparentKeyword;
+    }
     if (alpha == 1) {
       final String key = getColorKey(color);
       color = tryHex3(color);
       if (key != null) {
-        if (key.length < color.length)
-          return key;
-        if (key.length == color.length && value != null && key == value)
-          return key;
+        if (key.length < color.length) return key;
+        if (key.length == color.length && value != null && key == value) return key;
       }
     }
-    if (alpha < 1)
-        return toRGBFunction(context);
+    if (alpha < 1) return toRGBFunction(context);
 
     return color;
   }
@@ -333,7 +328,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       <dynamic>['r', r],
       <dynamic>['g', g],
       <dynamic>['b', b]
-    ]..sort((dynamic x, dynamic y) => y[1] - x[1]); // big to little
+    ]..sort((dynamic x, dynamic y) => y[1].compareTo(x[1]) as int); // big to little
 
     final double  max = maxList.first[1];
     final double  min = maxList[2][1];
@@ -347,7 +342,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     } else {
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
-      switch (maxList.first[0]) {
+      switch (maxList.first[0] as String) {
         case 'r':
           h = (g - b) / d + (g < b ? 6 : 0);
           break;
@@ -404,7 +399,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       <dynamic>['r', r],
       <dynamic>['g', g],
       <dynamic>['b', b]
-    ]..sort((dynamic x, dynamic y) => y[1] - x[1]); // big to little
+    ]..sort((dynamic x, dynamic y) => y[1].compareTo(x[1]) as int); // big to little
 
     final double  max = maxList.first[1];
     final double  min = maxList[2][1];
@@ -422,7 +417,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     if (max == min) {
       h = 0.0;
     } else {
-      switch (maxList.first[0]) {
+      switch (maxList.first[0] as String) {
         case 'r':
           h = (g - b) / d + (g < b ? 6 : 0);
           break;
@@ -481,8 +476,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   int compare(Node x) {
-    if (x is! Color)
-        return -1;
+    if (x is! Color) return -1;
 
     final Color xx = x;
     return (xx.r == r && xx.g == g && xx.b == b && xx.alpha == alpha)
@@ -527,8 +521,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// else return unchanged
   ///
   String tryHex3(String hex) {
-    if (hex.length != 7)
-        return hex;
+    if (hex.length != 7) return hex;
 
     if (hex[1] == hex[2] && hex[3] == hex[4] && hex[5] == hex[6]) {
       return '#${hex[1]}${hex[3]}${hex[5]}';

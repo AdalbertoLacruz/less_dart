@@ -339,18 +339,32 @@ class FileFileManager extends AbstractFileManager {
       if (pathData.first.contains(PACKAGES_TEST)) {
         pathInPackage = '../test/$pathInPackage'; //change from lib/path to test/path
       }
-      final AssetId asset = new AssetId(packageName, pathInPackage);
+//      final AssetId asset = new AssetId(packageName, pathInPackage);
       final PackageResolver _resolver = await _packageResolverProvider.getPackageResolver();
-      String result = (await _resolver.urlFor(asset.package, asset.path)).toFilePath();
+//      String result = (await _resolver.urlFor(asset.package, asset.path)).toFilePath();
+      String result = (await _resolver.urlFor(packageName, _normalizePath(pathInPackage))).toFilePath();
 
-      //urlFor.toFilePath() ignores trailing slash if path is a folder, but this slash is mandatory to ensure
-      //that pathDiff in AbstractFileManager returns correct result
+      // urlFor.toFilePath() ignores trailing slash if path is a folder, but this slash is mandatory to ensure
+      // that pathDiff in AbstractFileManager returns correct result
       if (filename.endsWith('/')) {
         result = '$result/';
       }
       return result;
     }
     return filename;
+  }
+
+  ///
+  /// Manages "." and "..".
+  /// Example:   'path/./to/..//file.text' -> 'path/file.txt'
+  ///
+  String _normalizePath(String path) {
+    if (pathLib.isAbsolute(path)) {
+      throw new ArgumentError('Asset paths must be relative, but got "$path".');
+    }
+
+    // Collapse "." and "..".
+    return pathLib.posix.normalize(path.replaceAll(r'\', '/'));
   }
 
   ///

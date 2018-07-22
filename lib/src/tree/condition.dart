@@ -46,8 +46,8 @@ class Condition extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    lvalue = visitor.visit(lvalue);
-    rvalue = visitor.visit(rvalue);
+    lvalue = visitor.visit(lvalue) as Node;
+    rvalue = visitor.visit(rvalue) as Node;
 
 //2.3.1
 //  Condition.prototype.accept = function (visitor) {

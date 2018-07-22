@@ -174,7 +174,7 @@ class NumberFunctions extends FunctionBase {
   ///   Output: 3.141592653589793
   ///
   ///
-  Dimension pi() => new Dimension(math.PI);
+  Dimension pi() => new Dimension(math.pi);
 
   ///
   /// Returns the value of the first argument modulus second argument.

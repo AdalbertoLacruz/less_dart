@@ -11,5 +11,6 @@ pubspec.lock
 /doc
 node_modules/
 /.atom
+/.dart_tool
 /.idea
 /.project

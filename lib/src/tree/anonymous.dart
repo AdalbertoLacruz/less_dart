@@ -73,8 +73,9 @@ class Anonymous extends Node implements CompareNode {
   @override
   void genCSS(Contexts context, Output output) {
     nodeVisible = (value != null);
-    if (nodeVisible)
-        output.add(value, fileInfo: _fileInfo, index: _index, mapLines: mapLines);
+    if (nodeVisible) {
+      output.add(value, fileInfo: _fileInfo, index: _index, mapLines: mapLines);
+    }
 
 //3.0.0 20160716
 // Anonymous.prototype.genCSS = function (context, output) {
@@ -87,8 +88,7 @@ class Anonymous extends Node implements CompareNode {
 
   @override
   String toString() {
-    if (value is String)
-        return value;
+    if (value is String) return value as String;
 
     final Output output = new Output();
     value.genCSS(null, output);

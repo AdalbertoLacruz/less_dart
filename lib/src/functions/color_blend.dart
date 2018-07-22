@@ -27,9 +27,8 @@ class ColorBlend extends FunctionBase {
     for (int i = 0; i < 3; i++) {
       cb = color1.rgb[i] / 255;
       cs = color2.rgb[i] / 255;
-      cr = fMode(cb, cs);
-      if (ar != 0)
-          cr = (as * cs + ab * (cb - as * (cb + cs - cr))) / ar;
+      cr = fMode(cb, cs) as double;
+      if (ar != 0) cr = (as * cs + ab * (cb - as * (cb + cs - cr))) / ar;
       r[i] = cr * 255;
     }
     return new Color(r, ar);

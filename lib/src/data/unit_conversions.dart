@@ -31,7 +31,7 @@ class UnitConversions {
 
   ///
   static Map<String, double> angle = <String, double>{
-    'rad':  1 / (2*math.PI),
+    'rad':  1 / (2 * math.pi),
     'deg':  1 / 360,
     'grad': 1 / 400,
     'turn': 1.0

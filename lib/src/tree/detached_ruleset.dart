@@ -33,7 +33,7 @@ class DetachedRuleset extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    ruleset = visitor.visit(ruleset);
+    ruleset = visitor.visit(ruleset) as Ruleset;
 
 //2.3.1
 //  DetachedRuleset.prototype.accept = function (visitor) {

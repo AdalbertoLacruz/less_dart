@@ -107,7 +107,7 @@ class Extend extends Node {
 
   ///
   //removed clone(context)
-  Node clone() =>
+  Extend clone() =>
       new Extend(selector, option, index, currentFileInfo, visibilityInfo());
 
 //3.0.0 20160714

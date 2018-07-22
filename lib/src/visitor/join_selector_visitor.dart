@@ -105,7 +105,7 @@ class JoinSelectorVisitor extends VisitorBase{
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
     final List<List<Selector>> context = contexts.last;
-    mediaNode.rules[0].root = (context.isEmpty ||
+    (mediaNode.rules[0] as Ruleset).root = (context.isEmpty ||
         (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
 
 //2.3.1
@@ -119,7 +119,7 @@ class JoinSelectorVisitor extends VisitorBase{
   void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
     final List<List<Selector>> context = contexts.last;
     if (atRuleNode.rules != null && atRuleNode.rules.isNotEmpty)
-        atRuleNode.rules[0].root = (atRuleNode.isRooted || context.isEmpty);
+      (atRuleNode.rules[0] as Ruleset).root = (atRuleNode.isRooted || context.isEmpty);
 
 //2.8.0 20160702
 // visitAtRule: function (atRuleNode, visitArgs) {

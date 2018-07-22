@@ -59,7 +59,7 @@ class Call extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    final List<Expression> args = this.args
+    final List<Node> args = this.args
         .map((Node a) => a.eval(context))
         .toList();
     final FunctionCaller funcCaller =

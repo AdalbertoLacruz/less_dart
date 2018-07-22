@@ -103,4 +103,7 @@ class BiMap<K, V> implements Map<K, V> {
 
   @override
   Iterable<V> get values => _inverse.isEmpty ? _map.values : _inverse.keys;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

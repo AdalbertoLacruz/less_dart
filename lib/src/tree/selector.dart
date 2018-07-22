@@ -274,12 +274,12 @@ class Selector extends Node {
   Selector eval(Contexts context) {
     final bool evaldCondition = condition?.eval(context)?.evaluated; //evaldCondition null is ok
     List<Element> elements = this.elements;
-    List<Node> extendList = this.extendList;
+    List<Extend> extendList = this.extendList;
 
     if (elements != null)
         elements = elements.map((Element e) => e.eval(context)).toList();
     if (extendList != null)
-        extendList = extendList.map((Node extend) => extend.eval(context)).toList();
+        extendList = extendList.map((Extend extend) => extend.eval(context)).toList();
 
     return createDerived(elements,
         extendList: extendList,

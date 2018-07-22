@@ -47,10 +47,9 @@ class Declaration extends Node implements MakeImportantNode {
         ? value
         : new Value(<Node>[value != null ? new Anonymous(value) : null]);
 
-    if (important?.isNotEmpty ?? false)
-        this.important = ' ${important.trim()}';
+    if (important?.isNotEmpty ?? false) this.important = ' ${important.trim()}';
 
-    this.variable = variable ?? (name is String && name.startsWith('@'));
+    this.variable = variable ?? (name is String && (name as String).startsWith('@'));
     allowRoot = true;
     setParent(this.value, this);
 
@@ -111,15 +110,13 @@ class Declaration extends Node implements MakeImportantNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (cleanCss != null)
-        return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     final String colon = (context?.compress ?? false) ? ':' : ': ';
     output.add('$name$colon', fileInfo: currentFileInfo, index: index);
 
     try {
-      if (value != null)
-          value.genCSS(context, output);
+      if (value != null) value.genCSS(context, output);
     } catch (e) {
       throw new LessExceptionError(LessError.transform(e,
           index: _index,
@@ -128,8 +125,11 @@ class Declaration extends Node implements MakeImportantNode {
     }
 
     String out = '';
-    if (!(inline ?? false))
-        out = ((context?.lastRule ?? false) && (context?.compress ?? false)) ? '' : ';';
+    if (!(inline ?? false)) {
+      out = ((context?.lastRule ?? false) && (context?.compress ?? false))
+          ? ''
+          : ';';
+    }
     output.add('$important$out', fileInfo: _fileInfo, index: _index);
 
 //3.0.0 20160714
@@ -152,8 +152,7 @@ class Declaration extends Node implements MakeImportantNode {
     output.add('$name:', fileInfo: currentFileInfo, index: index);
 
     try {
-      if (value != null)
-          value.genCSS(context, output);
+      if (value != null) value.genCSS(context, output);
     } catch (e) {
       throw new LessExceptionError(LessError.transform(e,
           index: index,
@@ -162,8 +161,9 @@ class Declaration extends Node implements MakeImportantNode {
     }
 
     String out = '';
-    if (!(inline ?? false))
-        out = (context.lastRule) ? '' : ';';
+    if (!(inline ?? false)) {
+      out = (context.lastRule) ? '' : ';';
+    }
     output.add('$important$out', fileInfo: currentFileInfo, index: index);
   }
 
@@ -179,13 +179,15 @@ class Declaration extends Node implements MakeImportantNode {
       // things faster (~10% for benchmark.less):
       name = ((name as List<Node>).length == 1) && (name[0] is Keyword)
           ? (name[0] as Keyword).value
-          : evalName(context, name);
+          : evalName(context, name as List<Node>);
       variable = false; // never treat expanded interpolation as new variable name
     }
+
     if (name == 'font' && !context.strictMath) {
       strictMathBypass = true;
       context.strictMath = true;
     }
+    
     try {
       context.importantScope.add(new ImportantRule());
       final Node evaldValue = value.eval(context);
@@ -200,8 +202,9 @@ class Declaration extends Node implements MakeImportantNode {
 
       String important = this.important;
       final ImportantRule importantResult = context.importantScope.removeLast();
-      if (important.isEmpty && importantResult.important.isNotEmpty)
-          important = importantResult.important;
+      if (important.isEmpty && importantResult.important.isNotEmpty) {
+        important = importantResult.important;
+      }
 
       return new Declaration(name, evaldValue, //TODO clone()
           important: important,
@@ -215,8 +218,7 @@ class Declaration extends Node implements MakeImportantNode {
           index: index,
           filename: currentFileInfo.filename));
     } finally {
-      if (strictMathBypass)
-          context.strictMath = false;
+      if (strictMathBypass) context.strictMath = false;
     }
 
 //3.0.0 20160714
@@ -314,13 +316,12 @@ class Declaration extends Node implements MakeImportantNode {
   String toString() {
     final StringBuffer sb = new StringBuffer();
 
-    if (name is String)
-        sb.write(name);
-    if (name is List)
-        name.forEach((Node e) {
-          sb.write(e.toString());
-        });
-
+    if (name is String) sb.write(name);
+    if (name is List) {
+      name.forEach((Node e) {
+        sb.write(e.toString());
+      });
+    }
     sb.write(': ${value.toString()};');
 
     return sb.toString();

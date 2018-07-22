@@ -24,7 +24,7 @@ class Combinator extends Node {
       emptyOrWhitespace = true;
     } else if (value != null) {
       this.value = value.trim();
-      emptyOrWhitespace = this.value.isEmpty;
+      emptyOrWhitespace = (this.value as String).isEmpty;
     }
 
 //2.3.1
@@ -49,8 +49,7 @@ class Combinator extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (context?.cleanCss ?? false)
-        return genCleanCSS(context, output);
+    if (context?.cleanCss ?? false) return genCleanCSS(context, output);
 
     final String spaceOrEmpty =
         ((context?.compress ?? false) || (_noSpaceCombinators[value] ?? false))
@@ -71,5 +70,5 @@ class Combinator extends Node {
   }
 
   @override
-  String toString() => value;
+  String toString() => value as String;
 }
