@@ -6,7 +6,9 @@ import 'package:build/build.dart';
 import 'package:less_dart/less.dart';
 import 'package:less_dart/src_builder/base_builder.dart';
 
+export 'package:build/build.dart';
 export 'package:less_dart/less.dart';
+export 'package:less_dart/src_builder/base_builder.dart';
 
 /// Extension for .html files
 const String DOT_HTML_TO = '.html';
@@ -106,7 +108,7 @@ class LessBuilder implements Builder {
   ///
   /// Extending the builder let modify programmatically the less options.
   ///
-  /// See test/custom_functions.dart and test/custom_builder.dart
+  /// See test/custom_functions.dart and test/less_custom_builder.dart
   ///
   void customOptions(LessOptions options) {}
 }

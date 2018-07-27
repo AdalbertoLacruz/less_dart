@@ -1,5 +1,6 @@
-## 2.0.0 (2018-07-xx)
-- Dart 2.0.0-dev.68.0 compliant. Don't work with Dart 1.x.
+## 2.0.0 (2018-07-27)
+- Dart 2.0.0-dev.68.0 compliant. It don't work with Dart 1.x.
+- Transformer replaced by builder.
 
 ## 1.1.1 (2017-12-18)
 
