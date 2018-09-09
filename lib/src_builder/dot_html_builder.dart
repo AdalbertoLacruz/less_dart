@@ -27,8 +27,9 @@ class DotHtmlBuilder extends BaseBuilder {
     final Completer<BaseBuilder> task = new Completer<BaseBuilder>();
 
     elements = parse(inputContent)..forEach((ContentElement element) {
-        if (element.hasLessCode)
+        if (element.hasLessCode) {
           runners.add(execute(element, modifyOptions));
+        }
       });
 
     Future.wait(runners).whenComplete(() {
@@ -146,11 +147,11 @@ class ContentElement {
   String tabStr2;
 
   ///
-  ContentElement(
-      {this.openTagStart,
-        this.openTagEnd,
-        this.closeTagStart,
-        this.closeTagEnd});
+  ContentElement({
+      this.openTagStart,
+      this.openTagEnd,
+      this.closeTagStart,
+      this.closeTagEnd});
 
   ///
   String get inner =>
@@ -200,10 +201,11 @@ class ContentElement {
     int tab = 0;
 
     for (int i = openTagStart - 1; i >= 0; i--) {
-      if (content[i] != '\n')
+      if (content[i] != '\n') {
         tab++;
-      else
+      } else {
         break;
+      }
     }
 
     return ' ' * tab;
@@ -227,8 +229,7 @@ class ContentElement {
   String tabCss() {
     final StringBuffer resultBuffer = new StringBuffer();
     final List<String> lines = css.split('\n');
-    if (lines.last == '')
-      lines.removeLast(); //no empty line
+    if (lines.last == '') lines.removeLast(); //no empty line
 
     for (int i = 0; i < lines.length; i++) {
       // ignore: prefer_interpolation_to_compose_strings
@@ -267,8 +268,9 @@ class StyleElement extends ContentElement {
 
     ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
       final String openTag = ContentElement.getOpenTag(fragment[0], openTagReg);
-      if (styleTypeReg.hasMatch(openTag))
+      if (styleTypeReg.hasMatch(openTag)) {
         result.add(new StyleElement(fragment));
+      }
     });
     return result;
   }
@@ -328,7 +330,6 @@ class LessElement extends ContentElement {
   /// Build the <less> and <style> elements as string
   ///
   @override
-  // ignore: prefer_interpolation_to_compose_strings
   String toString() => lessToString() + cssToString();
 
   /// Build <less> string
@@ -336,7 +337,6 @@ class LessElement extends ContentElement {
     if (isReplace) {
       return '';
     } else {
-      // ignore: prefer_interpolation_to_compose_strings
       return openTagResult + inner + closeTagResult;
     }
   }
@@ -380,8 +380,9 @@ class FragmentElement extends ContentElement {
         index = element.closeTagEnd;
       }
     }
-    if (index < content.length)
+    if (index < content.length) {
       result.add(new FragmentElement(content, index, content.length));
+    }
 
     return result;
   }

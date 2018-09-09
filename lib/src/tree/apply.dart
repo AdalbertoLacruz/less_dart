@@ -11,7 +11,7 @@ class Apply extends Node {
   @override covariant Anonymous value;
 
   ///
-  Apply(Anonymous this.value,int index, FileInfo currentFileInfo)
+  Apply(Anonymous this.value, int index, FileInfo currentFileInfo)
       : super.init(currentFileInfo: currentFileInfo, index: index) {
         allowRoot = true;
       }

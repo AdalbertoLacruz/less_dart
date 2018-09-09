@@ -16,8 +16,7 @@ class MergeRulesMixin {
   /// rules is modified by mergeRules, with the merged result
   ///
   void mergeRules(List<Node> rules) {
-    if (rules == null)
-        return;
+    if (rules == null) return;
 
     final Map<String, List<Declaration>>   groups = <String, List<Declaration>>{};
     final List<List<Declaration>>          groupsArr = <List<Declaration>>[];

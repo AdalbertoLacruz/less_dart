@@ -5,12 +5,9 @@ part of environment.less;
 /// Supports String, List, Map.
 ///
 bool isNotEmpty(dynamic value) {
-  if (value is String)
-      return value.isNotEmpty;
-  if (value is List)
-      return value.isNotEmpty;
-  if (value is Map)
-      return value.isNotEmpty;
+  if (value is String) return value.isNotEmpty;
+  if (value is List) return value.isNotEmpty;
+  if (value is Map) return value.isNotEmpty;
   return false; //if value is null
 }
 

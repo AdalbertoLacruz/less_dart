@@ -13,7 +13,7 @@ class DebugInfo {
   int     lineNumber;
 
   ///
-  DebugInfo({int this.lineNumber, String fileName}) {
+  DebugInfo({int this.lineNumber, String fileName}) { // fileName null?
     this.fileName = (path.isAbsolute(fileName))
         ? fileName
         : path.normalize(path.absolute(fileName));
@@ -79,14 +79,14 @@ class DebugInfo {
     final RegExp  reFileNameWithProtocol =
         new RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
 
-    if (!reFileNameWithProtocol.hasMatch(filenameWithProtocol))
-        filenameWithProtocol = 'file://$filenameWithProtocol';
+    if (!reFileNameWithProtocol.hasMatch(filenameWithProtocol)) {
+      filenameWithProtocol = 'file://$filenameWithProtocol';
+    }
 
     final String file = filenameWithProtocol
         .replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
             String a = m[1];
-            if (a == '\\')
-                a = '\/';
+            if (a == '\\') a = '\/';
             return '\\$a';
         });
 

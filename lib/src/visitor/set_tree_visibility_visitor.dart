@@ -31,8 +31,7 @@ class SetTreeVisibilityVisitor extends VisitorBase {
   @override
   List<T> visitArray<T>(List<T> nodes, {bool nonReplacing = false}) {
   //List<Node> visitArray(List<Node> nodes, {bool nonReplacing = false}) {
-    if (nodes == null)
-        return nodes;
+    if (nodes == null) return nodes;
 
     nodes.forEach((T node) {
       visit(node);
@@ -56,19 +55,12 @@ class SetTreeVisibilityVisitor extends VisitorBase {
   ///
   @override
   dynamic visit(dynamic node) {
-    if (node == null)
-        return node;
-
-    if (node is List)
-        return visitArray(node);
-
-    if (node is! Node) {
-      return node;
-    }
+    if (node == null) return node;
+    if (node is List) return visitArray(node);
+    if (node is! Node) return node;
 
     final Node _node = node;
-    if (_node.blocksVisibility())
-        return _node;
+    if (_node.blocksVisibility()) return _node;
 
     if (visible) {
       _node.ensureVisibility();

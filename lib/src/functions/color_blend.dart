@@ -31,7 +31,7 @@ class ColorBlend extends FunctionBase {
       if (ar != 0) cr = (as * cs + ab * (cb - as * (cb + cs - cr))) / ar;
       r[i] = cr * 255;
     }
-    return new Color(r, ar);
+    return new Color.fromList(r, ar);
 
 //    function colorBlend(mode, color1, color2) {
 //        var ab = color1.alpha, cb, // backdrop

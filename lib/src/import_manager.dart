@@ -85,8 +85,7 @@ class ImportManager {
     //
     queue.remove(path);
 
-    if (useCache)
-        return files[fullPath];
+    if (useCache) return files[fullPath];
 
     final ImportedFile importedFile = new ImportedFile(
         root: root,
@@ -95,8 +94,7 @@ class ImportManager {
         options: importOptions);
 
     // in js only if (!files.containsKey[fullPath]). But if we are here, don't like the cache
-    if (fullPath != null)
-        files[fullPath] = importedFile;
+    if (fullPath != null) files[fullPath] = importedFile;
 
     return importedFile;
   }
@@ -143,11 +141,11 @@ class ImportManager {
     final AbstractFileManager fileManager = environment.getFileManager(
         path, currentFileInfo.currentDirectory, _context, environment);
 
-    if (fileManager == null)
-        throw new LessError(message: 'Could not find a file-manager for $path');
+    if (fileManager == null) {
+      throw new LessError(message: 'Could not find a file-manager for $path');
+    }
 
-    if (tryAppendLessExtension)
-        _context.ext = '.less';
+    if (tryAppendLessExtension) _context.ext = '.less';
 
     try {
       final FileLoaded loadedFile = await fileManager.loadFile(path, currentFileInfo.currentDirectory, _context, environment);
@@ -166,9 +164,9 @@ class ImportManager {
         newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
         if (newFileInfo.relativeUrls) {
           String currentDirectory = newFileInfo.currentDirectory;
-          if (!currentDirectory.endsWith(pathLib.separator))
-              // ignore: prefer_interpolation_to_compose_strings
-              currentDirectory += pathLib.separator;
+          if (!currentDirectory.endsWith(pathLib.separator)) {
+            currentDirectory += pathLib.separator;
+          }
 
           final String entryPath = await fileManager.normalizeFilePath(newFileInfo.entryPath);
 
@@ -187,8 +185,9 @@ class ImportManager {
 
         this.contents[resolvedFilename] = contents;
 
-        if (currentFileInfo.reference || (importOptions?.reference ?? false))
-            newFileInfo.reference = true;
+        if (currentFileInfo.reference || (importOptions?.reference ?? false)) {
+          newFileInfo.reference = true;
+        }
 
         // if (importOptions.isPlugin) ...
         if (importOptions?.inline ?? false) {

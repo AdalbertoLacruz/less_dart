@@ -215,17 +215,17 @@ class Media extends DirectiveBase {
     //    b and c and e
 
     features = new Value(permute(path).map((List<Node> path) {
-      path = path
-          //All must be Node!!. This not necessary
-          .map((Node fragment) =>
-              (fragment is Node) ? fragment : new Anonymous(fragment))
-          .toList();
+        path = path
+            //All must be Node!!. This not necessary
+            .map((Node fragment) =>
+                (fragment is Node) ? fragment : new Anonymous(fragment))
+            .toList();
 
-      for (int i = path.length - 1; i > 0; i--) {
-        path.insert(i, new Anonymous('and'));
-      }
+        for (int i = path.length - 1; i > 0; i--) {
+          path.insert(i, new Anonymous('and'));
+        }
 
-      return new Expression(path);
+        return new Expression(path);
       }).toList());
     setParent(features, this);
 
@@ -284,8 +284,7 @@ class Media extends DirectiveBase {
   /// `[[Node1, Node2], [Node3, Node4]]` to `[[Node1, Node3], [Node2, Node3], [Node1, Node4], [Node2, Node4]]`
   ///
   List<List<Node>> permute(List<List<Node>> arr) {
-    if (arr.length < 2)
-        return arr;
+    if (arr.length < 2) return arr;
 
     final List<List<Node>> result = <List<Node>>[];
     final List<dynamic> rest = (arr.length == 2)
@@ -321,8 +320,7 @@ class Media extends DirectiveBase {
 
   ///
   void bubbleSelectors(List<Selector> selectors) {
-    if (selectors == null)
-        return;
+    if (selectors == null) return;
     rules = <Ruleset>[new Ruleset(selectors.sublist(0), <Node>[rules[0]])];
     setParent(rules, this);
 

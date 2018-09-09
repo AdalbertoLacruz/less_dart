@@ -54,15 +54,17 @@ void main() {
 
   group('simple', () {
     for (int id in config.keys) {
-      if (!config[id].isExtendedText && (runOnly?.contains(id) ?? true))
-          declareTest(id);
+      if (!config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
+        declareTest(id);
+      }
     }
   });
 
   group('extended', () {
     for (int id in config.keys) {
-      if (config[id].isExtendedText && (runOnly?.contains(id) ?? true))
-          declareTest(id);
+      if (config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
+        declareTest(id);
+      }
     }
   });
 }
@@ -419,6 +421,7 @@ Map<int, Config> configFill() => <int, Config>{
         options: <String>['--include-path=package_test://less_dart/less/import']),
     206: def('extendedTest/import-complex-path', isExtendedTest: true,
         options: <String>['--relative-urls']),
+    207: def('extendedTest/colors', isExtendedTest: true),
 
     //absolute path
     210: def('import-absolute-path',
@@ -517,8 +520,7 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
 String escFile(String fileName) {
   final String file = fileName.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
     String a = m[1];
-    if (a == '\\')
-        a = '\/';
+    if (a == '\\') a = '\/';
     // ignore: prefer_interpolation_to_compose_strings
     return '\\' + a;
   });
@@ -529,7 +531,6 @@ String escFile(String fileName) {
 // c:\CWD\pathName\ or c:/CWD/pathName/
 ///
 String absPath(String pathName) =>
-    // ignore: prefer_interpolation_to_compose_strings
     path.normalize(path.absolute(pathName)) + path.separator;
 
 ///
@@ -542,8 +543,7 @@ Future<Null> testRun(int c) async {
   final Less less = new Less();
 
   args.add('--no-color');
-  if (config[c].options != null)
-      args.addAll(config[c].options);
+  if (config[c].options != null) args.addAll(config[c].options);
 
   if (config[c].isReplaceSource) {
     String source = new File(fileToTest).readAsStringSync();

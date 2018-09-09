@@ -30,13 +30,11 @@ class TransformTree {
 
       variables.forEach((String k, Node value) {
         if (value is! Value) {
-          if (value is! Expression)
-              value = new Expression(<Node>[value]);
+          if (value is! Expression) value = new Expression(<Node>[value]);
           value = new Value(<Node>[value]);
         }
         //vars.add(new Declaration('@' + k, value, null, null, 0));
-        vars.add(new Declaration('@$k', value,
-            index: 0));
+        vars.add(new Declaration('@$k', value, index: 0));
       });
       evalEnv.frames = <Node>[new Ruleset(null, vars)];
     }

@@ -50,10 +50,12 @@ class Variable extends Node {
     final Node variable = find(context.frames, (VariableMixin frame) {
       final Declaration v = frame.variable(name);
       if (v != null) {
-        if (v.important.isNotEmpty)
-            context.importantScope.last.important = v.important;
+        if (v.important.isNotEmpty) {
+          context.importantScope.last.important = v.important;
+        }
         return v.value.eval(context);
       }
+      return null;
     });
 
     if (variable != null) {
@@ -111,8 +113,7 @@ class Variable extends Node {
   Node find(List<Node> obj, Function fun) {
     for (int i = 0; i < obj.length; i++) {
       final Node r = fun(obj[i]);
-      if (r != null)
-          return r;
+      if (r != null) return r;
     }
     return null;
   }

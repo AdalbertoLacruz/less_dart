@@ -27,8 +27,7 @@ class CleancssOptions {
   /// ej.: --compatibility:ie7
   ///
   bool parse(String command) {
-    if (command == null)
-        return setParseError('empty');
+    if (command == null) return setParseError('empty');
     final List<String> cleanOptionArgs = command.split(':');
 
     switch (cleanOptionArgs[0]) {
@@ -53,16 +52,13 @@ class CleancssOptions {
         break;
       case '--compatibility':
         // Force compatibility mode [ie7|ie8]
-        if (cleanOptionArgs.length < 2)
-            return setParseError(cleanOptionArgs[0]);
-        if (cleanOptionArgs[1] == '')
-            return setParseError(cleanOptionArgs[0]);
+        if (cleanOptionArgs.length < 2) return setParseError(cleanOptionArgs[0]);
+        if (cleanOptionArgs[1] == '') return setParseError(cleanOptionArgs[0]);
         compatibility = cleanOptionArgs[1];
         break;
       case '--rounding-precision':
         // Rounds pixel values to `N` decimal places, defaults to 2
-        if (cleanOptionArgs.length < 2)
-            return setParseError(cleanOptionArgs[0]);
+        if (cleanOptionArgs.length < 2) return setParseError(cleanOptionArgs[0]);
         try {
           roundingPrecision = int.parse(cleanOptionArgs[1]);
         } catch (e) {

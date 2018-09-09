@@ -38,8 +38,8 @@ class SourceMapOutput extends Output {
   String              sourceMapURL;
 
   ///
-  SourceMapOutput(
-      {Map<String, int> this.contentsIgnoredCharsMap,
+  SourceMapOutput({
+      Map<String, int> this.contentsIgnoredCharsMap,
       Ruleset this.rootNode,
       Map<String, String> this.contentsMap,
       String sourceMapFilename,
@@ -48,17 +48,20 @@ class SourceMapOutput extends Output {
       String sourceMapBasepath, //abs?
       String sourceMapRootpath,
       bool this.outputSourceFiles,
-      bool this.sourceMapFileInline}) {
+      bool this.sourceMapFileInline
+    }) {
 
-    if (sourceMapFilename != null)
-        this.sourceMapFilename = sourceMapFilename.replaceAll('\\', '/');
-    if (sourceMapBasepath != null)
-        this.sourceMapBasepath = sourceMapBasepath.replaceAll('\\', '/');
+    if (sourceMapFilename != null) {
+      this.sourceMapFilename = sourceMapFilename.replaceAll('\\', '/');
+    }
+    if (sourceMapBasepath != null) {
+      this.sourceMapBasepath = sourceMapBasepath.replaceAll('\\', '/');
+    }
     if (sourceMapRootpath != null) {
       this.sourceMapRootpath = sourceMapRootpath.replaceAll('\\', '/');
-      if (!this.sourceMapRootpath.endsWith('/'))
-          // ignore: prefer_interpolation_to_compose_strings
-          this.sourceMapRootpath += '/';
+      if (!this.sourceMapRootpath.endsWith('/')) {
+        this.sourceMapRootpath += '/';
+      }
     } else {
       this.sourceMapRootpath = '';
     }
@@ -100,8 +103,9 @@ class SourceMapOutput extends Output {
     String _path = path;
     if (sourceMapBasepath != null && path.startsWith(sourceMapBasepath)) {
       _path = _path.substring(sourceMapBasepath.length);
-      if (_path.startsWith('\\') || _path.startsWith('/'))
-          _path = _path.substring(1);
+      if (_path.startsWith('\\') || _path.startsWith('/')) {
+        _path = _path.substring(1);
+      }
     }
     return _path;
 
@@ -120,8 +124,7 @@ class SourceMapOutput extends Output {
 
   ///
   String normalizeFilename (String file) {
-    if (normalizeCache.containsKey(file))
-        return normalizeCache[file];
+    if (normalizeCache.containsKey(file)) return normalizeCache[file];
 
     String filename = file.replaceAll('\\', '/');
     filename = removeBasePath(filename);
@@ -144,8 +147,7 @@ class SourceMapOutput extends Output {
   ///
   @override
   void add(Object s, {FileInfo fileInfo, int index = 0, bool mapLines = false}) {
-    if (s == null)
-        return;
+    if (s == null) return;
 
     final String  chunk = (s is String) ? s : s.toString();
     String        columns;
@@ -155,8 +157,7 @@ class SourceMapOutput extends Output {
     List<String>  sourceLines;
 
     //ignore adding empty strings
-    if (chunk.isEmpty)
-        return;
+    if (chunk.isEmpty) return;
 
     if (fileInfo != null) {
       String inputSource = contentsMap[fileInfo.filename];
@@ -165,8 +166,7 @@ class SourceMapOutput extends Output {
       if (contentsIgnoredCharsMap[fileInfo.filename] != null) {
         // adjust the index
         _index -= contentsIgnoredCharsMap[fileInfo.filename];
-        if (_index < 0)
-            _index = 0;
+        if (_index < 0) _index = 0;
         // adjust the source
         inputSource = inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
       }
@@ -189,8 +189,9 @@ class SourceMapOutput extends Output {
             generatedLine: lineNumber,
             generatedColumn: column,
             generatedFile: normalizeFilename(outputFilename));
-        if (data != null)
-            sourceMapGenerator.addLocation(data.original, data.generated, null);
+        if (data != null) {
+          sourceMapGenerator.addLocation(data.original, data.generated, null);
+        }
       } else { // @import (inline)
         for (int i = 0; i < lines.length; i++) {
           final SourcemapData data = new SourcemapData(
@@ -203,8 +204,9 @@ class SourceMapOutput extends Output {
               generatedColumn: (i == 0) ? column : 0,
               generatedFile: normalizeFilename(outputFilename));
 
-          if (data != null)
-              sourceMapGenerator.addLocation(data.original, data.generated, null);
+          if (data != null) {
+            sourceMapGenerator.addLocation(data.original, data.generated, null);
+          }
         }
       }
     }
@@ -286,8 +288,9 @@ class SourceMapOutput extends Output {
     if (outputSourceFiles) { //--source-map-less-inline
       for (String filename in contentsMap.keys) {
         String source = contentsMap[filename];
-        if (contentsIgnoredCharsMap[filename] != null)
-            source = source.substring(contentsIgnoredCharsMap[filename]);
+        if (contentsIgnoredCharsMap[filename] != null) {
+          source = source.substring(contentsIgnoredCharsMap[filename]);
+        }
         contents[normalizeFilename(filename)] = source;
       }
     }
@@ -400,8 +403,7 @@ class SourcemapData {
     if (last != null) {
       if (last.originalIndex == originalIndex &&
           last.originalFile  == originalFile &&
-          last.generatedLine == generatedLine)
-          return null;
+          last.generatedLine == generatedLine) return null;
     }
 
     final SourcemapData data = new SourcemapData.create(

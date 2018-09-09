@@ -49,21 +49,19 @@ class Expression extends Node {
     final bool  inParenthesis = parens && !parensInOp;
     Node        returnValue;
 
-    if (inParenthesis)
-        context.inParenthesis();
+    if (inParenthesis) context.inParenthesis();
     if (value.length > 1) {
       returnValue = new Expression(value.map((Node e) => e?.eval(context)).toList());
     } else if (value.length == 1) {
-      if (value.first.parens && !value.first.parensInOp)
-          doubleParen = true;
+      if (value.first.parens && !value.first.parensInOp) doubleParen = true;
       returnValue = value.first.eval(context);
     } else {
       returnValue = this;
     }
-    if (inParenthesis)
-        context.outOfParenthesis();
-    if (parens && parensInOp && !(context.isMathOn()) && !doubleParen)
-        returnValue = new Paren(returnValue);
+    if (inParenthesis) context.outOfParenthesis();
+    if (parens && parensInOp && !(context.isMathOn()) && !doubleParen) {
+      returnValue = new Paren(returnValue);
+    }
     return returnValue;
 
 //2.3.1
@@ -99,13 +97,11 @@ class Expression extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (cleanCss != null)
-        return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i + 1 < value.length)
-          output.add(' ');
+      if (i + 1 < value.length) output.add(' ');
     }
 
 //2.3.1

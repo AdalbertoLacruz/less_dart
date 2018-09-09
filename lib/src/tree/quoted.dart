@@ -24,8 +24,7 @@ class Quoted extends Node implements CompareNode {
     escaped ??= true;
     value = content ?? '';
     quote = str.isNotEmpty ? str[0] : '';
-    if (!(quote == '"' || quote == "'" || quote == ''))
-        quote = '';
+    if (!(quote == '"' || quote == "'" || quote == '')) quote = '';
 
 //3.0.0 20160714
 // var Quoted = function (str, content, escaped, index, currentFileInfo) {
@@ -45,11 +44,9 @@ class Quoted extends Node implements CompareNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (!escaped)
-        output.add(quote, fileInfo: currentFileInfo, index: index);
+    if (!escaped) output.add(quote, fileInfo: currentFileInfo, index: index);
     output.add(value);
-    if (!escaped)
-        output.add(quote);
+    if (!escaped) output.add(quote);
 
 //3.0.0 20160714
 // Quoted.prototype.genCSS = function (context, output) {

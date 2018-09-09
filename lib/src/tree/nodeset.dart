@@ -16,7 +16,7 @@ class Nodeset extends Node {
   @override
   void addVisibilityBlock() {
     if (rules != null) {
-      rules.forEach((Node node){
+      rules.forEach((Node node) {
         node.addVisibilityBlock();
       });
     }

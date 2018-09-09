@@ -32,17 +32,16 @@ class FunctionBase {
       metadataList = method.metadata;
       if (metadataList.isNotEmpty) {
         annotation = metadataList.first.reflectee;
-        if (annotation.skip)
-            continue;
-        if (annotation.name != null)
-            externalName = annotation.name;
+        if (annotation.skip) continue;
+        if (annotation.name != null) externalName = annotation.name;
         listArguments = annotation.listArguments;
       }
       item = new FunctionRegistryItem(
           name: internalName,
           listArguments: listArguments);
-      if (method is MethodMirror && !method.isConstructor)
-          registry[externalName] = item;
+      if (method is MethodMirror && !method.isConstructor) {
+        registry[externalName] = item;
+      }
     }
     less = new TreeApi();
   }
@@ -69,8 +68,7 @@ class FunctionBase {
   /// Call the last valid name of method
   ///
   dynamic call(List<Node> args) {
-    if (name == null)
-        return null;
+    if (name == null) return null;
 
     final FunctionRegistryItem item = registry[name];
     final List<dynamic> arguments = item.listArguments ? <List<Node>>[args] : args;

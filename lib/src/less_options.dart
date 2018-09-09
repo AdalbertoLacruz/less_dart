@@ -215,8 +215,9 @@ class LessOptions {
     bool          result = true;
 
     line.split(' ').forEach((String arg) {
-      if ((match = regOption.firstMatch(arg)) != null)
-          result = result && parse(match);
+      if ((match = regOption.firstMatch(arg)) != null) {
+        result = result && parse(match);
+      }
     });
     return result;
   }
@@ -227,8 +228,7 @@ class LessOptions {
   /// Example: '-include-path=lib/lessIncludes;lib/otherIncludes'
   ///
   bool parse(Match arg) {
-    if (arg == null)
-        return setParseError('empty');
+    if (arg == null) return setParseError('empty');
     final String command = arg[1];
     //bool result;
 
@@ -319,20 +319,21 @@ class LessOptions {
         break;
       case 'source-map':
         sourceMap = true;
-        if (arg[2] != null)
-            sourceMapOptions.sourceMapFullFilename = arg[2];
+        if (arg[2] != null) sourceMapOptions.sourceMapFullFilename = arg[2];
         break;
       case 'source-map-rootpath':
         if (checkArgFunc(command, arg[2])) {
           sourceMapOptions.sourceMapRootpath = arg[2];
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'source-map-basepath':
         if (checkArgFunc(command, arg[2])) {
           sourceMapOptions.sourceMapBasepath = arg[2];
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'source-map-inline':
       case 'source-map-map-inline':
@@ -346,15 +347,17 @@ class LessOptions {
       case 'source-map-url':
         if (checkArgFunc(command, arg[2])) {
           sourceMapOptions.sourceMapURL = arg[2];
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'rp':
       case 'rootpath':
         if (checkArgFunc(command, arg[2])) {
           rootpath = arg[2].replaceAll(r'\', '/'); //arg[2] must be raw (r'something')
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'ru':
       case 'relative-urls':
@@ -363,36 +366,41 @@ class LessOptions {
       case 'sm':
       case 'strict-math':
         if (checkArgFunc(command, arg[2])) {
-          if ((strictMath = checkBooleanArg(arg[2])) == null)
-              return setParseError();
-        } else
-            return setParseError(command);
+          if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'su':
       case 'strict-units':
         if (checkArgFunc(command, arg[2])) {
-            if((strictUnits = checkBooleanArg(arg[2])) == null)
-                return setParseError();
-        } else
-            return setParseError(command);
+            if((strictUnits = checkBooleanArg(arg[2])) == null) {
+              return setParseError();
+            }
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'global-var':
         if (checkArgFunc(command, arg[2])) {
           parseVariableOption(arg[2], globalVariables);
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'modify-var':
         if (checkArgFunc(command, arg[2])) {
           parseVariableOption(arg[2], modifyVariables);
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'url-args':
         if (checkArgFunc(command, arg[2])) {
             urlArgs = arg[2];
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'show-tree-level':
         if (checkArgFunc(command, arg[2])) {
@@ -401,8 +409,9 @@ class LessOptions {
           } catch (e) {
             return setParseError('$command bad argument');
           }
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'log-level':
         if (checkArgFunc(command, arg[2])) {
@@ -412,14 +421,16 @@ class LessOptions {
           } catch (e) {
             return setParseError('$command bad argument');
           }
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'banner':
         if (checkArgFunc(command, arg[2])) {
           banner = arg[2];
-        } else
-            return setParseError(command);
+        } else {
+          return setParseError(command);
+        }
         break;
       case 'plugin':
         final Match  splitupArg = pluginRe.firstMatch(arg[2]);
@@ -450,8 +461,7 @@ class LessOptions {
 
   ///
   bool setParseError([String option]) {
-    if (option != null)
-        logger.error('unrecognised less option $option');
+    if (option != null) logger.error('unrecognised less option $option');
     parseError = true; // exitCode = 1
     return false;
   }
@@ -475,14 +485,12 @@ class LessOptions {
     Match         match;
     final RegExp  onOff = new RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
 
-    if ((match = onOff.firstMatch(arg)) == null){
+    if ((match = onOff.firstMatch(arg)) == null) {
       logger.error(' unable to parse $arg as a boolean. Use one of on/t/true/y/yes/off/f/false/n/no');
       return null;
     }
-    if (match[1] != null)
-        return true;
-    if (match[2] != null)
-        return false;
+    if (match[1] != null) return true;
+    if (match[2] != null) return false;
     return null;
   }
 
@@ -517,8 +525,7 @@ class LessOptions {
 
     if (load) {
       final Plugin pluginLoaded = pluginLoader.tryLoadPlugin(name, options);
-      if (pluginLoaded != null)
-          plugins.add(pluginLoaded);
+      if (pluginLoaded != null) plugins.add(pluginLoaded);
     }
   }
 
@@ -529,9 +536,10 @@ class LessOptions {
     if (input.isNotEmpty) {
       inputBase = input;
       filename  = input;
-      if (input != '-')
-          //input = path.normalize(path.absolute(input)); //use absolute path
-          paths.insert(0, new File(input).parent.path);
+      if (input != '-') {
+        //input = path.normalize(path.absolute(input)); //use absolute path
+        paths.insert(0, new File(input).parent.path);
+      }
     } else {
       logger.error('lessc: no input files\n');
       printUsage();

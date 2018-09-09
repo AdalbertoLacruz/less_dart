@@ -36,8 +36,7 @@ class Entities {
     String    str;
 
     parserInput.save();
-    if (parserInput.$char('~') != null)
-        isEscaped = true;
+    if (parserInput.$char('~') != null) isEscaped = true;
     str = parserInput.$quoted();
     if (str == null) {
       parserInput.restore();
@@ -80,8 +79,9 @@ class Entities {
   Node keyword() {
     final String k = parserInput.$char('%') ?? parserInput.$re(_keywordRegEx);
 
-    if (k != null)
-        return new Color.fromKeyword(k) ?? new Keyword(k);
+    if (k != null) {
+      return new Color.fromKeyword(k) ?? new Keyword(k);
+    }
 
     return null;
 
@@ -110,8 +110,7 @@ class Entities {
     final int   index = parserInput.i;
     String      name;
 
-    if (parserInput.peek(_reCallUrl))
-        return null;
+    if (parserInput.peek(_reCallUrl)) return null;
 
     parserInput.save();
 
@@ -190,8 +189,7 @@ class Entities {
   ///
   //Original in parsers.dart
   Quoted ieAlpha() {
-    if (parserInput.$re(_alphaRegExp1) == null)
-        return null; // i
+    if (parserInput.$re(_alphaRegExp1) == null) return null; // i
 
     String value = parserInput.$re(_alphaRegExp2);
     if (value == null) {
@@ -237,15 +235,13 @@ class Entities {
       case 'alpha':
       case 'Alpha':
         result = ieAlpha();
-        if (result != null)
-            args.add(result);
+        if (result != null) args.add(result);
         return true; // stop = true
         break;
       case 'boolean':
       case 'if':
         result = parserInput.expect(parsers.condition, 'expected condition');
-        if (result != null)
-            args.add(result);
+        if (result != null) args.add(result);
         return false;  //look for more arguments
         break;
     }
@@ -300,15 +296,14 @@ class Entities {
         value = parsers.detachedRuleset()
             ?? assignment()
             ?? parsers.expression();
-        if (value == null)
-            break;
-        if ((value.value is List) && (value.value?.length == 1 ?? false))
-            value = value.value.first;
+        if (value == null) break;
+        if ((value.value is List) && (value.value?.length == 1 ?? false)) {
+          value = value.value.first;
+        }
         argsComma.add(value);
       }
 
-      if (parserInput.$char(',') != null)
-          continue;
+      if (parserInput.$char(',') != null) continue;
 
       if (parserInput.$char(';') != null || isSemiColonSeparated) {
         isSemiColonSeparated = true;
@@ -516,8 +511,7 @@ class Entities {
 
     if (parserInput.currentChar() == '@') {
       name = parserInput.$re(_variableRegExp);
-      if (name != null)
-          return new Variable(name, index, fileInfo);
+      if (name != null) return new Variable(name, index, fileInfo);
     }
     return null;
 
@@ -576,8 +570,9 @@ class Entities {
     final int index = parserInput.i;
 
     if (parserInput.currentChar() == r'$' &&
-        (name = parserInput.$re(_propertyRegExp, 1)) != null)
-        return new Property(name, index, fileInfo);
+        (name = parserInput.$re(_propertyRegExp, 1)) != null) {
+      return new Property(name, index, fileInfo);
+    }
     return null;
 
 //3.0.0 20160718
@@ -651,8 +646,9 @@ class Entities {
       final String colorCandidateString = colorCandidateMatch[1];
 
       // verify if candidate consists only of allowed HEX characters
-      if (_colorRegExp3.firstMatch(colorCandidateString) == null)
-          parserInput.error('Invalid HEX color code');
+      if (_colorRegExp3.firstMatch(colorCandidateString) == null) {
+        parserInput.error('Invalid HEX color code');
+      }
 
       return new Color(rgb[1], null, '#$colorCandidateString');
     }
@@ -742,12 +738,10 @@ class Entities {
   ///     95%
   ///
   Dimension dimension() {
-    if (parserInput.peekNotNumeric())
-        return null;
+    if (parserInput.peekNotNumeric()) return null;
 
     final List<String> value = parserInput.$re(_dimensionRegExp);
-    if (value != null)
-        return new Dimension(value[1], value[2]);
+    if (value != null) return new Dimension(value[1], value[2]);
 
     return null;
 
@@ -773,8 +767,7 @@ class Entities {
   ///
   UnicodeDescriptor unicodeDescriptor() {
     final String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
-    if (ud != null)
-        return new UnicodeDescriptor(ud);
+    if (ud != null) return new UnicodeDescriptor(ud);
 
     return null;
 

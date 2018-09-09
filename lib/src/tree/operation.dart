@@ -50,10 +50,8 @@ class Operation extends Node {
     Node b = operands[1].eval(context);
 
     if (context.isMathOn()) {
-      if (a is Dimension && b is Color)
-          a = (a as Dimension).toColor();
-      if (b is Dimension && a is Color)
-          b = (b as Dimension).toColor();
+      if (a is Dimension && b is Color) a = (a as Dimension).toColor();
+      if (b is Dimension && a is Color) b = (b as Dimension).toColor();
       if (a is! OperateNode) {
         throw new LessExceptionError(new LessError(
             type: 'Operation',
@@ -96,11 +94,9 @@ class Operation extends Node {
   @override
   void genCSS(Contexts context, Output output) {
     operands[0].genCSS(context, output);
-    if (isSpaced)
-        output.add(' ');
+    if (isSpaced) output.add(' ');
     output.add(op);
-    if (isSpaced)
-        output.add(' ');
+    if (isSpaced) output.add(' ');
     operands[1].genCSS(context, output);
 
 //2.3.1

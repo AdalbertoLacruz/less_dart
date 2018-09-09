@@ -86,16 +86,13 @@ class Parsers {
     while (true) {
       while (true) {
         node = comment();
-        if (node == null)
-            break;
+        if (node == null) break;
         root.add(node);
       }
 
       // always process comments before deciding if finished
-      if (parserInput.finished || parserInput.isEmpty)
-          break;
-      if (parserInput.peekChar('}'))
-          break;
+      if (parserInput.finished || parserInput.isEmpty) break;
+      if (parserInput.peekChar('}')) break;
 
       nodeList = extendRule();
       if (nodeList != null) {
@@ -118,8 +115,7 @@ class Parsers {
         while (parserInput.$char(';') != null) {
           foundSemiColon = true;
         }
-        if (!foundSemiColon)
-            break;
+        if (!foundSemiColon) break;
       }
     }
 
@@ -215,8 +211,9 @@ class Parsers {
     String name;
 
     if (parserInput.currentChar() == '@' &&
-        (name = parserInput.$re(_variableRegExp)) != null)
-        return name;
+        (name = parserInput.$re(_variableRegExp)) != null) {
+      return name;
+    }
     return null;
 
 //2.2.0
@@ -239,8 +236,7 @@ class Parsers {
 
     if (parserInput.currentChar() == '@') {
       name = parserInput.$re(_variableCallRegExp);
-      if (name != null && end())
-          return new VariableCall(name);
+      if (name != null && end()) return new VariableCall(name);
     }
 
     return null;
@@ -272,16 +268,16 @@ class Parsers {
     final int     index = parserInput.i;
     String        option;
 
-    if (parserInput.$str(isRule ? '&:extend(' : ':extend(') ==  null)
-        return null;
+    if (parserInput.$str(isRule ? '&:extend(' : ':extend(') ==  null) {
+      return null;
+    }
 
     do {
       option = null;
       elements = null;
       while ((option = parserInput.$re(_extendRegExp, 1)) == null) {
         e = element();
-        if (e == null)
-            break;
+        if (e == null) break;
 
         (elements ??= <Element>[])
             ..add(e);
@@ -296,8 +292,7 @@ class Parsers {
     } while (parserInput.$char(',') != null);
 
     parserInput.expectChar(')');
-    if (isRule)
-        parserInput.expectChar(';');
+    if (isRule) parserInput.expectChar(';');
 
     return extendedList;
 
@@ -441,8 +436,9 @@ class Parsers {
       }
     }
 
-    if (e != null)
-        return new Element(c, e, index: index, currentFileInfo: fileInfo);
+    if (e != null) {
+      return new Element(c, e, index: index, currentFileInfo: fileInfo);
+    }
     return null;
 
 //3.0.0 20160719
@@ -579,25 +575,28 @@ class Parsers {
           allExtends = extendList;
         }
       } else {
-        if (allExtends != null)
-            parserInput.error('Extend can only be used at the end of selector');
+        if (allExtends != null) {
+          parserInput.error('Extend can only be used at the end of selector');
+        }
         c = parserInput.currentChar();
         (elements ??= <Element>[])
             ..add(e);
         e = null;
       }
-      if (c == '{' || c == '}' || c == ';' || c == ',' || c == ')' )
-          break;
+      if (c == '{' || c == '}' || c == ';' || c == ',' || c == ')' ) break;
     }
 
-    if (elements != null)
-        return new Selector(elements,
-            extendList: allExtends,
-            condition: condition,
-            index: index,
-            currentFileInfo: fileInfo);
-    if (allExtends != null)
-        parserInput.error('Extend must be used to extend a selector, it cannot be used on its own');
+    if (elements != null) {
+      return new Selector(elements,
+          extendList: allExtends,
+          condition: condition,
+          index: index,
+          currentFileInfo: fileInfo);
+    }
+    if (allExtends != null) {
+      parserInput.error(
+          'Extend must be used to extend a selector, it cannot be used on its own');
+    }
 
     return null;
 
@@ -650,8 +649,7 @@ class Parsers {
   ///     [type = "text"]
   ///
   Attribute attribute() {
-    if (parserInput.$char('[') == null)
-        return null;
+    if (parserInput.$char('[') == null) return null;
 
     dynamic key; //String or Node
     String  op;
@@ -703,8 +701,9 @@ class Parsers {
 
     if (parserInput.$char('{') != null
         && (content = primary()) != null
-        && parserInput.$char('}') != null)
-        return content;
+        && parserInput.$char('}') != null) {
+      return content;
+    }
     return null;
 
 //2.2.0
@@ -778,8 +777,7 @@ class Parsers {
 
     while (true) {
       s = selector();
-      if (s == null)
-          break;
+      if (s == null) break;
 
       // --polymer-mixin: {}
       // No standard js implementation
@@ -810,8 +808,9 @@ class Parsers {
       parserInput.forget();
       final Ruleset ruleset = new Ruleset(selectors, rules,
           strictImports: context.strictImports);
-      if (context.dumpLineNumbers?.isNotEmpty ?? false)
-          ruleset.debugInfo = debugInfo;
+      if (context.dumpLineNumbers?.isNotEmpty ?? false) {
+        ruleset.debugInfo = debugInfo;
+      }
       return ruleset;
     } else {
       parserInput.restore();
@@ -881,8 +880,7 @@ class Parsers {
     final int     startOfRule = parserInput.i;
     Node          value;
 
-    if (c == '.' || c == '#' || c == '&' || c == ':')
-        return null;
+    if (c == '.' || c == '#' || c == '&' || c == ':') return null;
 
     parserInput.save();
 
@@ -891,8 +889,7 @@ class Parsers {
 
     if (name != null) {
       isVariable = name is String;
-      if (isVariable)
-          value = detachedRuleset();
+      if (isVariable) value = detachedRuleset();
 
       parserInput.commentStore.length = 0;
       if (value == null) {
@@ -1002,8 +999,7 @@ class Parsers {
   Anonymous anonymousValue() {
     final int index = parserInput.i;
     final String match = parserInput.$re(_anonymousValueRegExp1, 1);
-    if (match != null)
-        return new Anonymous(match, index: index);
+    if (match != null) return new Anonymous(match, index: index);
     return null;
 
 //3.0.0 20160718
@@ -1049,8 +1045,7 @@ class Parsers {
               ..i = index
               ..error('missing semi-colon or unrecognised media features on import');
         }
-        if (features != null)
-            nodeFeatures = new Value(features);
+        if (features != null) nodeFeatures = new Value(features);
         return new Import(path, nodeFeatures, options, index, fileInfo);
       } else {
         parserInput
@@ -1102,8 +1097,8 @@ class Parsers {
     bool                value;
 
     // list of options, surrounded by parens
-    if (parserInput.$char('(') == null)
-        return null;
+    if (parserInput.$char('(') == null) return null;
+
     do {
       o = importOption();
       if (o != null) {
@@ -1120,8 +1115,7 @@ class Parsers {
             break;
         }
         options[optionName] = value;
-        if(parserInput.$char(',') == null)
-            break;
+        if(parserInput.$char(',') == null) break;
       }
     } while (o != null);
     parserInput.expectChar(')');
@@ -1216,8 +1210,7 @@ class Parsers {
     } while (e != null);
 
     parserInput.forget();
-    if (nodes.isNotEmpty)
-        return new Expression(nodes);
+    if (nodes.isNotEmpty) return new Expression(nodes);
     return null;
 
 //2.8.0 20160702
@@ -1266,14 +1259,12 @@ class Parsers {
       e = mediaFeature();
       if (e != null) {
         features.add(e);
-        if (parserInput.$char(',') == null)
-            break;
+        if (parserInput.$char(',') == null) break;
       } else {
         e = entities.variable();
         if (e != null) {
           features.add(e);
-          if (parserInput.$char(',') == null)
-              break;
+          if (parserInput.$char(',') == null) break;
         }
       }
     } while (e != null);
@@ -1315,8 +1306,9 @@ class Parsers {
 
     final int index = parserInput.i;
 
-    if (context.dumpLineNumbers?.isNotEmpty ?? false)
-        debugInfo = getDebugInfo(index);
+    if (context.dumpLineNumbers?.isNotEmpty ?? false) {
+      debugInfo = getDebugInfo(index);
+    }
 
     parserInput.save();
 
@@ -1332,8 +1324,9 @@ class Parsers {
       parserInput.forget();
 
       media = new Media(rules, features, index, fileInfo);
-      if (context.dumpLineNumbers?.isNotEmpty ?? false)
-          media.debugInfo = debugInfo;
+      if (context.dumpLineNumbers?.isNotEmpty ?? false) {
+        media.debugInfo = debugInfo;
+      }
       return media;
     }
     parserInput.restore();
@@ -1463,8 +1456,9 @@ class Parsers {
                 ..i = index
                 ..error('missing semi-colon on @plugin');
         }
-        if (value.value.contains('clean-css'))
-            context.cleanCss = true; //parser needs this
+        if (value.value.contains('clean-css')) {
+          context.cleanCss = true; //parser needs this
+        }
         return new Options(value, index, fileInfo,
             isPlugin: true,
             pluginArgs: args);
@@ -1574,26 +1568,24 @@ class Parsers {
     Ruleset   rules;
     Node      value;
 
-    if (parserInput.currentChar() != '@')
-        return null;
+    if (parserInput.currentChar() != '@') return null;
 
     value = import()
         ?? options()
         ?? plugin()
         ?? apply()
         ?? media();
-    if (value != null)
-        return value;
+    if (value != null) return value;
 
     parserInput.save();
 
     name = parserInput.$re(_directiveRegExp1);
-    if (name == null)
-        return null;
+    if (name == null) return null;
 
     nonVendorSpecificName = name;
-    if (name[1] == '-' && name.indexOf('-', 2) > 0)
-        nonVendorSpecificName = '@${name.substring(name.indexOf("-", 2) + 1)}';
+    if (name[1] == '-' && name.indexOf('-', 2) > 0) {
+      nonVendorSpecificName = '@${name.substring(name.indexOf("-", 2) + 1)}';
+    }
 
     switch (nonVendorSpecificName) {
       case '@charset':
@@ -1622,21 +1614,17 @@ class Parsers {
 
     if (hasIdentifier) {
       value = entity();
-      if (value == null)
-          parserInput.error('expected $name identifier');
+      if (value == null) parserInput.error('expected $name identifier');
     } else if (hasExpression) {
       value = expression();
-      if (value == null)
-          parserInput.error('expected $name expression');
+      if (value == null) parserInput.error('expected $name expression');
     } else if (hasUnknown) {
       final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
       hasBlock = (parserInput.currentChar() == '{');
-      if (unknown?.isNotEmpty ?? false)
-          value = new Anonymous(unknown);
+      if (unknown?.isNotEmpty ?? false) value = new Anonymous(unknown);
     }
 
-    if (hasBlock)
-        rules = blockRuleset();
+    if (hasBlock) rules = blockRuleset();
 
     if (rules != null || (!hasBlock && value != null && parserInput.$char(';') != null)) {
       parserInput.forget();
@@ -1750,13 +1738,11 @@ class Parsers {
       e = expression();
       if (e != null) {
         expressions.add(e);
-        if (parserInput.$char(',') == null)
-            break;
+        if (parserInput.$char(',') == null) break;
       }
     } while (e != null);
 
-    if (expressions.isNotEmpty)
-        return new Value(expressions, index: index);
+    if (expressions.isNotEmpty) return new Value(expressions, index: index);
     return null;
 
 //3.0.0 20160718
@@ -1868,8 +1854,7 @@ class Parsers {
     if (m != null) {
       isSpaced = parserInput.isWhitespacePrevPos();
       while (true) {
-        if (parserInput.peek(_reMultiplication)) //comments found
-            break;
+        if (parserInput.peek(_reMultiplication)) break; //comments found
 
         parserInput.save();
 
@@ -1957,16 +1942,12 @@ class Parsers {
       isSpaced = parserInput.isWhitespacePrevPos();
       while (true) {
         op = parserInput.$re(_additionRegExp1);
-        if (op == null && !isSpaced)
-            op = parserInput.$char('+');
-        if (op == null && !isSpaced)
-            op = parserInput.$char('-');
-        if (op == null)
-            break;
+        if (op == null && !isSpaced) op = parserInput.$char('+');
+        if (op == null && !isSpaced) op = parserInput.$char('-');
+        if (op == null) break;
 
         a = multiplication();
-        if (a == null)
-            break;
+        if (a == null) break;
 
         m.parensInOp = true;
         a.parensInOp = true;
@@ -2023,11 +2004,11 @@ class Parsers {
     a = this.condition();
     if (a != null) {
       while (true) {
-        if (!parserInput.peek(_reConditions) || (parserInput.$char(',') == null))
-            break;
+        if (!parserInput.peek(_reConditions) || (parserInput.$char(',') == null)) {
+          break;
+        }
         b = this.condition();
-        if (b == null)
-            break;
+        if (b == null) break;
 
         condition = new Condition('or', condition != null ? condition : a, b,
             index: index);
@@ -2074,8 +2055,7 @@ class Parsers {
     String or() => parserInput.$str('or');
 
     Condition result = conditionAnd();
-    if (result == null)
-        return null;
+    if (result == null) return null;
 
     final String logical = or();
     if (logical != null) {
@@ -2123,8 +2103,7 @@ class Parsers {
     String and() => parserInput.$str('and');
 
     Condition result = insideCondition();
-    if (result == null)
-        return null;
+    if (result == null) return null;
 
     final String logical = and();
     if (logical != null) {
@@ -2172,8 +2151,7 @@ class Parsers {
   Condition negatedCondition() {
     if (parserInput.$str('not') != null) {
       final Condition result = parenthesisCondition();
-      if (result != null)
-          result.negate = !result.negate;
+      if (result != null) result.negate = !result.negate;
       return result;
     }
     return null;
@@ -2483,14 +2461,14 @@ class Parsers {
         // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
         if (!parserInput.peek(_reExpression)) {
           delim = parserInput.$char('/');
-          if (delim != null)
-              entities.add(new Anonymous(delim, index: index));
+          if (delim != null) {
+            entities.add(new Anonymous(delim, index: index));
+          }
         }
       }
     } while (e != null);
-    if (entities.isNotEmpty)
-        return new Expression(entities);
 
+    if (entities.isNotEmpty) return new Expression(entities);
     return null;
 
 //3.0.0 20160718
@@ -2578,8 +2556,7 @@ class Parsers {
 
     match(_rulePropertyRegExp2);
     while (true) {
-      if (!match(_rulePropertyRegExp3))
-          break;
+      if (!match(_rulePropertyRegExp3)) break;
     }
 
     if (name.length > 1 && match(_rulePropertyRegExp4)) {

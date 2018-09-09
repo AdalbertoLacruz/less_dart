@@ -44,10 +44,8 @@ class MixinCall extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (selector != null)
-        selector = visitor.visit(selector);
-    if (arguments.isNotEmpty)
-        arguments = visitor.visitArray(arguments);
+    if (selector != null) selector = visitor.visit(selector);
+    if (arguments.isNotEmpty) arguments = visitor.visitArray(arguments);
 
 //2.5.1 20150625
 // MixinCall.prototype.accept = function (visitor) {
@@ -103,12 +101,15 @@ class MixinCall extends Node {
                 (namespace as MatchConditionNode).matchCondition(null, context);
           }
         }
-        if (mixin is MatchConditionNode)
-            conditionResult[f] = conditionResult[f] && mixin.matchCondition(args, context);
+        if (mixin is MatchConditionNode) {
+          conditionResult[f] =
+              conditionResult[f] && mixin.matchCondition(args, context);
+        }
       }
       if (conditionResult[0] || conditionResult[1]) {
-        if (conditionResult[0] != conditionResult[1])
-            return conditionResult[1] ? defTrue : defFalse;
+        if (conditionResult[0] != conditionResult[1]) {
+          return conditionResult[1] ? defTrue : defFalse;
+        }
         return defNone;
       }
       return defFalseEitherCase;
@@ -151,14 +152,12 @@ class MixinCall extends Node {
               break;
             }
           }
-          if (isRecursive)
-              continue;
+          if (isRecursive) continue;
 
           if (mixin.matchArgs(args, context)) {
             final Candidate candidate = new Candidate(
                 mixin: mixin, group: calcDefGroup(mixin, mixinPath));
-            if (candidate.group != defFalseEitherCase)
-                candidates.add(candidate);
+            if (candidate.group != defFalseEitherCase) candidates.add(candidate);
             match = true;
           }
         }
@@ -196,8 +195,9 @@ class MixinCall extends Node {
                     currentFileInfo: currentFileInfo,
                     visibilityInfo: originalRuleset.visibilityInfo());
                 (mixin as MixinDefinition).originalRuleset = originalRuleset;
-                if (originalRuleset != null)
-                    (mixin as MixinDefinition).id = originalRuleset.id;
+                if (originalRuleset != null) {
+                  (mixin as MixinDefinition).id = originalRuleset.id;
+                }
               }
               final List<Node> newRules = (mixin as MixinDefinition)
                   .evalCall(context, args, important: important)
@@ -400,16 +400,14 @@ class MixinCall extends Node {
     final String result = selector.toCSS(null).trim();
     final String argsStr = (args != null)
         ? args.fold(new StringBuffer(), (StringBuffer sb, MixinArgs a) {
-          if (sb.isNotEmpty)
-              sb.write(', ');
-          if (isNotEmpty(a.name))
-              sb.write('${a.name}:');
-          if (a.value is Node) {
-            sb.write(a.value.toCSS(null));
-          } else {
-            sb.write('???');
-          }
-          return sb;
+            if (sb.isNotEmpty) sb.write(', ');
+            if (isNotEmpty(a.name)) sb.write('${a.name}:');
+            if (a.value is Node) {
+              sb.write(a.value.toCSS(null));
+            } else {
+              sb.write('???');
+            }
+            return sb;
           }).toString()
         : '';
     return '$result($argsStr)';
@@ -462,11 +460,8 @@ class MixinArgs {
     env.tabLevel = env.tabLevel + 2;
     tabStr = '  ' * env.tabLevel;
 
-    if (name?.isNotEmpty ?? false)
-        output.add('$tabStr.name: String ($name)\n');
-
-    if (value != null)
-      value.genTree(env, output, '.value: ');
+    if (name?.isNotEmpty ?? false) output.add('$tabStr.name: String ($name)\n');
+    if (value != null) value.genTree(env, output, '.value: ');
 
     env.tabLevel = env.tabLevel - 2;
   }

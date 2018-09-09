@@ -14,10 +14,12 @@ class DefaultFunc extends FunctionBase {
     final int v = _value;
     final LessError e = _error;
 
-    if (e != null)
-        throw new LessExceptionError(e);
-    if (v != null)
-        return (v > 0) ? new Keyword.True() : new Keyword.False();
+    if (e != null) {
+      throw new LessExceptionError(e);
+    }
+    if (v != null) {
+      return (v > 0) ? new Keyword.True() : new Keyword.False();
+    }
     return null;
 
 //    eval: function () {

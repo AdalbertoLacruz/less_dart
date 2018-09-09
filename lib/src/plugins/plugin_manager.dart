@@ -26,10 +26,11 @@ class PluginManager {
   /// Adds all the plugins in the List
   ///
   void addPlugins(List<Plugin> plugins) {
-    if (plugins != null)
-        plugins.forEach((Plugin plugin) {
-          addPlugin(plugin);
-        });
+    if (plugins != null) {
+      plugins.forEach((Plugin plugin) {
+        addPlugin(plugin);
+      });
+    }
 
 //2.4.0
 //  PluginManager.prototype.addPlugins = function(plugins) {
@@ -70,8 +71,7 @@ class PluginManager {
   /// when it should run.
   ///
   void addVisitor(VisitorBase visitor) {
-    if (isLoaded)
-        return;
+    if (isLoaded) return;
     visitors.add(visitor);
 
 //3.0.0 20160719
@@ -94,14 +94,12 @@ class PluginManager {
   /// [priority] guidelines: 1 = before import, 1000 = import, 2000 = after import
   ///
   void addPreProcessor(Processor preProcessor, [int priority = 1000]) {
-    if (isLoaded)
-        return;
+    if (isLoaded) return;
 
     int indexToInsertAt;
 
     for (indexToInsertAt = 0; indexToInsertAt < preProcessors.length; indexToInsertAt++) {
-      if (preProcessors[indexToInsertAt].priority >= priority)
-          break;
+      if (preProcessors[indexToInsertAt].priority >= priority) break;
     }
     preProcessors.insert(
         indexToInsertAt,
@@ -124,14 +122,12 @@ class PluginManager {
   /// [priority] guidelines: 1 = before compression, 1000 = compression, 2000 = after compression
   ///
   void addPostProcessor(Processor postProcessor, [int priority = 1000]) {
-    if (isLoaded)
-        return;
+    if (isLoaded) return;
 
     int indexToInsertAt;
 
     for (indexToInsertAt = 0; indexToInsertAt < postProcessors.length; indexToInsertAt++) {
-      if (postProcessors[indexToInsertAt].priority >= priority)
-          break;
+      if (postProcessors[indexToInsertAt].priority >= priority) break;
     }
     postProcessors.insert(
         indexToInsertAt,
@@ -151,8 +147,7 @@ class PluginManager {
 
   ///
   void addFileManager(AbstractFileManager manager) {
-    if (isLoaded)
-        return;
+    if (isLoaded) return;
     fileManagers.add(manager);
 
 //2.4.0

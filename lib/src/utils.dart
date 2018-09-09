@@ -17,10 +17,10 @@ class Utils {
     int line;
     int column = -1;
 
-    while (--n >= 0 && inputStream[n] != '\n')
-        column++;
-    if (column < 0)
-        column = 0;
+    while (--n >= 0 && inputStream[n] != '\n') {
+      column++;
+    }
+    if (column < 0) column = 0;
 
     line = inputStream.substring(0, index).split('\n').length - 1;
 

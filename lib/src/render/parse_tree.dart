@@ -61,13 +61,13 @@ class ParseTree {
           });
     }
 
-    if (options.sourceMap)
-        result.map = sourceMapBuilder.getExternalSourceMap();
+    if (options.sourceMap) {
+      result.map = sourceMapBuilder.getExternalSourceMap();
+    }
 
     result.imports = <String>[];
     imports.files.forEach((String file, dynamic node) { //node is Ruleset
-      if (file != imports.rootFilename)
-          result.imports.add(file);
+      if (file != imports.rootFilename) result.imports.add(file);
     });
 
     return result;

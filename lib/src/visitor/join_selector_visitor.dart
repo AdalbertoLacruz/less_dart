@@ -64,11 +64,11 @@ class JoinSelectorVisitor extends VisitorBase{
         selectors.retainWhere((Selector selector) => selector.getIsOutput());
         rulesetNode.selectors =
             selectors.isNotEmpty ? selectors : (selectors = null);
-        if (selectors != null)
-            rulesetNode.joinSelectors(paths, context, selectors);
+        if (selectors != null) {
+          rulesetNode.joinSelectors(paths, context, selectors);
+        }
       }
-      if (selectors == null)
-          rulesetNode.rules = null;
+      if (selectors == null) rulesetNode.rules = null;
       rulesetNode.paths = paths;
     }
 
@@ -118,8 +118,9 @@ class JoinSelectorVisitor extends VisitorBase{
   ///
   void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
     final List<List<Selector>> context = contexts.last;
-    if (atRuleNode.rules != null && atRuleNode.rules.isNotEmpty)
+    if (atRuleNode.rules != null && atRuleNode.rules.isNotEmpty) {
       (atRuleNode.rules[0] as Ruleset).root = (atRuleNode.isRooted || context.isEmpty);
+    }
 
 //2.8.0 20160702
 // visitAtRule: function (atRuleNode, visitArgs) {
@@ -133,28 +134,24 @@ class JoinSelectorVisitor extends VisitorBase{
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media)
-        return visitMedia;
-    if (node is AtRule)
-        return visitAtRule;
-    if (node is Directive) //compatibility old node type
-        return visitAtRule;
-    if (node is MixinDefinition)
-        return visitMixinDefinition;
-    if (node is Declaration)
-        return visitDeclaration;
-    if (node is Rule) //compatibility old node type
-        return visitDeclaration;
-    if (node is Ruleset)
-        return visitRuleset;
+    if (node is Media) return visitMedia;
+    if (node is AtRule) return visitAtRule;
+    //compatibility old node type
+    if (node is Directive) return visitAtRule;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Declaration) return visitDeclaration;
+    //compatibility old node type
+    if (node is Rule) return visitDeclaration;
+    if (node is Ruleset) return visitRuleset;
+
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Ruleset)
-        return visitRulesetOut;
+    if (node is Ruleset) return visitRulesetOut;
+    
     return null;
   }
 }

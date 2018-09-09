@@ -4,8 +4,9 @@ part of tree.less;
 
 ///
 class Combinator extends Node {
-  @override final String  name = null;
-  @override final String  type = 'Combinator';
+  @override final String      name = null;
+  @override final String      type = 'Combinator';
+  @override covariant String  value;
 
   ///
   bool              emptyOrWhitespace;
@@ -24,7 +25,7 @@ class Combinator extends Node {
       emptyOrWhitespace = true;
     } else if (value != null) {
       this.value = value.trim();
-      emptyOrWhitespace = (this.value as String).isEmpty;
+      emptyOrWhitespace = this.value.isEmpty;
     }
 
 //2.3.1
@@ -70,5 +71,5 @@ class Combinator extends Node {
   }
 
   @override
-  String toString() => value as String;
+  String toString() => value;
 }

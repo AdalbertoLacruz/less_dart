@@ -58,8 +58,7 @@ class Import extends Node {
       css = !(options.less ?? false) || (options.inline ?? false);
     } else {
       final String pathValue = getPath();
-      if ((pathValue != null) && (rPathValue.hasMatch(pathValue)))
-          css = true;
+      if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) css = true;
     }
 
     copyVisibilityInfo(visibilityInfo);
@@ -98,13 +97,13 @@ class Import extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (features != null)
-        features = visitor.visit(features);
+    if (features != null) features = visitor.visit(features);
 
     path = visitor.visit(path);
 
-    if (!(options.inline ?? false) && root != null)
-        root = visitor.visit(root);
+    if (!(options.inline ?? false) && root != null) {
+      root = visitor.visit(root);
+    }
 
 //2.4.0 20150320
 //  Import.prototype.accept = function (visitor) {
@@ -159,10 +158,8 @@ class Import extends Node {
   ///
   bool isVariableImport() {
     Node path = this.path;
-    if (path is URL)
-        path = path.value;
-    if (path is Quoted)
-        return path.containsVariables();
+    if (path is URL) path = path.value;
+    if (path is Quoted) return path.containsVariables();
     return true;
 
 //2.3.1
@@ -183,9 +180,8 @@ class Import extends Node {
   /// Resolves @var in the path
   ///
   Import evalForImport(Contexts context) {
-    Node path = this.path; //TODO ??
-    if (path is URL)
-        path = path.value;
+    Node path = this.path;
+    if (path is URL) path = path.value;
 
     return new Import(path.eval(context), features, options, _index,
         _fileInfo, visibilityInfo());
@@ -211,9 +207,9 @@ class Import extends Node {
       if (rootpath != null) {
         final String pathValue = path.value;
         // Add the base path if the import is relative
-        if (pathValue != null && context.isPathRelative(pathValue))
-            // ignore: prefer_interpolation_to_compose_strings
-            path.value = rootpath + pathValue;
+        if (pathValue != null && context.isPathRelative(pathValue)) {
+          path.value = rootpath + pathValue;
+        }
       }
       path.value = context.normalizePath(path.value);
     }
@@ -248,8 +244,9 @@ class Import extends Node {
   @override
   Node eval(Contexts context) {
     final Node result = doEval(context);
-    if ((options.reference ?? false) || blocksVisibility())
-        result.addVisibilityBlock();
+    if ((options.reference ?? false) || blocksVisibility()) {
+      result.addVisibilityBlock();
+    }
     return result;
 
 //2.5.3 20151120
@@ -275,11 +272,9 @@ class Import extends Node {
     final Node features = this.features?.eval(context);
 
     if (skip != null) {
-      if (skip is Function)
-          skip = skip();
+      if (skip is Function) skip = skip();
       //if (skip) return [];
-      if (skip)
-          return new Nodeset(<Node>[]);
+      if (skip) return new Nodeset(<Node>[]);
     }
 
     if (options.inline ?? false) {
@@ -296,8 +291,9 @@ class Import extends Node {
           : new Nodeset(<Node>[contents]);
     } else if (css ?? false) {
       final Import newImport = new Import(evalPath(context), features, options, _index);
-      if (!(newImport.css ?? false) && errorImport != null)
-          throw new LessExceptionError(errorImport);
+      if (!(newImport.css ?? false) && errorImport != null) {
+        throw new LessExceptionError(errorImport);
+      }
       return newImport;
     } else {
       final Ruleset ruleset = new Ruleset(null, root.rules.sublist(0))

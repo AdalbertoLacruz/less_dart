@@ -25,8 +25,11 @@ class Output {
   };
 
   /// [s] String | Node. (Node.toString())
-  void add(Object s,
-      {FileInfo fileInfo, int index, bool mapLines}) {
+  void add(Object s, {
+      FileInfo fileInfo,
+      int index,
+      bool mapLines
+    }) {
     final Object _s = (separator != null) ? compose(s) : s;
     last = (_s is String && _s.isNotEmpty) ? _s[_s.length-1] : ''; //for cleanCss
     value.write(_s);
@@ -51,12 +54,9 @@ class Output {
     final String  separator = this.separator ?? '';
     this.separator = null;
 
-    if (source.isEmpty)
-        return source;
-    if (separators.containsKey(last) && separators[last])
-        return source;
-    if (separators.containsKey(source[0]) && separators[source[0]])
-        return source;
+    if (source.isEmpty) return source;
+    if (separators.containsKey(last) && separators[last]) return source;
+    if (separators.containsKey(source[0]) && separators[source[0]]) return source;
     return ('$separator$s');
   }
 

@@ -26,8 +26,7 @@ class LessPluginCleanCss extends Plugin {
   ///
   @override
   void install(PluginManager pluginManager) {
-    if (cleanCssOptions == null)
-        setOptions('');
+    if (cleanCssOptions == null) setOptions('');
     lessOptions.cleanCss = true;
 
     final VisitorBase cleanCssVisitor = new CleanCssVisitor(cleanCssOptions);

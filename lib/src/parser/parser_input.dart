@@ -55,8 +55,7 @@ class ParserInput {
   /// If we get null, the end of input has been reached
   ///
   String charAt(int pos) {
-    if (pos >= input.length)
-        return null;
+    if (pos >= input.length) return null;
     return input[pos];
   }
 
@@ -74,8 +73,7 @@ class ParserInput {
   /// Get the character code in the [pos]
   ///
   int charCodeAt(int pos) {
-    if (pos >= input.length)
-        return null;
+    if (pos >= input.length) return null;
     return input.codeUnitAt(pos);
   }
 
@@ -117,8 +115,7 @@ class ParserInput {
   ///
   bool isWhitespace([int offset = 0]) {
     final int pos = i + offset;
-    if (pos < 0 || pos >= input.length)
-        return false;
+    if (pos < 0 || pos >= input.length) return false;
 
     final int code = input.codeUnitAt(pos);
     return (code == Charcode.SPACE_32 ||
@@ -152,21 +149,16 @@ class ParserInput {
   /// if [index] is supplied, if match returns `m[index]`
   ///
   dynamic $re(RegExp reg, [int index]) {
-    if (isEmpty)
-        return null;
+    if (isEmpty) return null;
 
     final Match m = reg.matchAsPrefix(input, i);
-    if (m == null)
-        return null;
+    if (m == null) return null;
 
     assert(m.end == (m[0].length + i));
     skipWhitespace(m.end);
-    if (index != null && m.groupCount >= index)
-        return m[index];
-    if (m.groupCount == 0)
-        return m[0];
-    if (m.groupCount == 1)
-        return m[1];
+    if (index != null && m.groupCount >= index) return m[index];
+    if (m.groupCount == 0) return m[0];
+    if (m.groupCount == 1) return m[1];
 
     final List<String> resultList = <String>[];
     for (int item = 0; item <= m.groupCount; item++) {
@@ -180,8 +172,7 @@ class ParserInput {
   ///
   Match $reMatch(RegExp reg) {
     final Match m = reg.matchAsPrefix(input, i);
-    if (m == null)
-        return null;
+    if (m == null) return null;
 
     assert(m.end == (m[0].length + i));
     skipWhitespace(m.end);
@@ -194,8 +185,7 @@ class ParserInput {
   /// [tok] is a String.
   ///
   String $char(String tok) {
-    if (currentChar() != tok)
-        return null;
+    if (currentChar() != tok) return null;
 
     skipWhitespace(i + 1);
     return tok;
@@ -205,8 +195,7 @@ class ParserInput {
   /// Returns tok if found at current position
   ///
   String $str(String tok) {
-    if (isEmpty || !input.startsWith(tok, i))
-        return null;
+    if (isEmpty || !input.startsWith(tok, i)) return null;
 
     skipWhitespace(i + tok.length);
     return tok;
@@ -217,8 +206,7 @@ class ParserInput {
   ///
   String $quoted() {
     final String startChar = currentChar();
-    if (startChar != "'" && startChar != '"')
-        return null;
+    if (startChar != "'" && startChar != '"') return null;
 
     final int start = i;
     for (int end = (i + 1); end < input.length; end++) {
@@ -262,8 +250,7 @@ class ParserInput {
           final CommentPointer comment = new CommentPointer(index: i, isLineComment: true);
           int nextNewLine = input.indexOf('\n', i + 2);
 
-          if (nextNewLine < 0)
-              nextNewLine = endIndex;
+          if (nextNewLine < 0) nextNewLine = endIndex;
           i = nextNewLine;
 
           comment.text = input.substring(comment.index, i);
@@ -286,8 +273,9 @@ class ParserInput {
       if ((c != Charcode.SPACE_32) &&
           (c != Charcode.LF_10) &&
           (c != Charcode.TAB_9) &&
-          (c != Charcode.CR_13))
-          break;
+          (c != Charcode.CR_13)) {
+        break;
+      }
     }
 
     if (i == endIndex) {
@@ -391,8 +379,7 @@ class ParserInput {
   ///
   dynamic expect(dynamic arg, [String msg, int index]) {
     final dynamic result = (arg is Function) ? arg() : $re(arg);
-    if (result != null)
-        return result;
+    if (result != null) return result;
 
     final String message = msg ?? (arg is String)
         ? "expected '$arg' got '${currentChar()}'"
@@ -417,8 +404,7 @@ class ParserInput {
   ///
   //parser.js 2.2.0 56-62
   String expectChar(String arg, [String msg]) {
-    if ($char(arg) != null)
-        return arg;
+    if ($char(arg) != null) return arg;
 
     final String message = msg ?? "expected '$arg' got '${currentChar()}'";
     return error(message);
@@ -430,8 +416,7 @@ class ParserInput {
   /// [tok] = String | RegExp
   ///
   bool peek(dynamic tok) {
-    if (isEmpty)
-        return false;
+    if (isEmpty) return false;
     if (tok is String) {
       return input.startsWith(tok, i);
     } else {
@@ -444,8 +429,7 @@ class ParserInput {
   /// Specialization of peek(), searching for String [tok]
   ///
   bool peekChar(String tok) {
-    if (isEmpty)
-        return false;
+    if (isEmpty) return false;
     return input[i] == tok;
   }
 
@@ -458,8 +442,7 @@ class ParserInput {
   /// Test if current char is not a number
   ///
   bool peekNotNumeric() {
-    if (isEmpty)
-        return false;
+    if (isEmpty) return false;
 
     final int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'

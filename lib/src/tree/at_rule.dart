@@ -15,20 +15,20 @@ class AtRule extends DirectiveBase {
   /// value is Node | String
   /// ex.: AtRule('@charset', 'utf-8')
   ///
-  AtRule(String name, dynamic value,
-      {dynamic rules,
+  AtRule(String name, dynamic value, {
+      dynamic rules,
       int index,
       FileInfo currentFileInfo,
       DebugInfo debugInfo,
       VisibilityInfo visibilityInfo,
-      bool isRooted = false})
-      : super(
-            name: name,
-            index: index,
-            currentFileInfo: currentFileInfo,
-            debugInfo: debugInfo,
-            isRooted: isRooted,
-            visibilityInfo: visibilityInfo) {
+      bool isRooted = false
+      }) : super(
+          name: name,
+          index: index,
+          currentFileInfo: currentFileInfo,
+          debugInfo: debugInfo,
+          isRooted: isRooted,
+          visibilityInfo: visibilityInfo) {
     //
     this.value = (value is Node)
         ? value

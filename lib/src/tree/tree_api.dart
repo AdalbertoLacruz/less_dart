@@ -22,7 +22,7 @@ class TreeApi {
   Call call(String name, [String args]) => new Call(name, null);
 
   ///
-  Color color(List<num> rgb) => new Color(rgb);
+  Color color(List<num> rgb) => new Color.fromList(rgb);
 
   ///
   Combinator combinator(String value) => new Combinator(value);

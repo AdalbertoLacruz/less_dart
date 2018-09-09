@@ -72,8 +72,7 @@ class Element extends Node {
   @override
   void accept(covariant VisitorBase visitor) {
     combinator = visitor.visit(combinator);
-    if (value is Node)
-        value = visitor.visit(value);
+    if (value is Node) value = visitor.visit(value);
 
 //2.3.1
 //  Element.prototype.accept = function (visitor) {
@@ -138,23 +137,19 @@ class Element extends Node {
   @override
   String toCSS(Contexts context) {
     final Contexts    _context = context ?? new Contexts();
-    dynamic           value = this.value; // Node | String
     final bool        firstSelector = _context.firstSelector;
 
-    if (value is Paren)
-        // selector in parens should not be affected by outer selector
-        // flags (breaks only interpolated selectors - see #1973)
-        _context.firstSelector = true;
-
-    value = (value is Node) ? value.toCSS(_context) : value; // String
+    if (this.value is Paren) {
+      // selector in parens should not be affected by outer selector
+      // flags (breaks only interpolated selectors - see #1973)
+      _context.firstSelector = true;
+    }
+    final String value = (this.value is Node) ? this.value.toCSS(_context) : this.value;
     _context.firstSelector = firstSelector;
 
-    if (value.isEmpty && combinator.value.startsWith('&')) {
-      return '';
-    } else {
-      // ignore: prefer_interpolation_to_compose_strings
-      return combinator.toCSS(_context) + value;
-    }
+    return (value.isEmpty && combinator.value.startsWith('&'))
+        ? ''
+        : combinator.toCSS(_context) + value;
 
 //2.3.1
 //  Element.prototype.toCSS = function (context) {

@@ -133,8 +133,9 @@ class Parser {
     if (globalVars.isNotEmpty || banner.isNotEmpty) {
       preText = '$banner$globalVars'.replaceAll(new RegExp(r'\r\n?'), '\n');
 
-      if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename))
-          imports.contentsIgnoredChars[fileInfo.filename] = 0;
+      if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename)) {
+        imports.contentsIgnoredChars[fileInfo.filename] = 0;
+      }
       imports.contentsIgnoredChars[fileInfo.filename] += preText.length;
     }
 

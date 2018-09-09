@@ -176,8 +176,7 @@ class DirectiveBase extends Node
   //untested - no covered by tests
   @override
   Node variable(String name) {
-    if (rules?.isNotEmpty ?? false)
-        return rules[0].value(name);
+    if (rules?.isNotEmpty ?? false) return rules[0].value(name);
     return null;
 
 //2.8.0 20160702
@@ -212,9 +211,10 @@ class DirectiveBase extends Node
   //untested
   @override
   List<Node> rulesets() {
-    if (rules?.isNotEmpty ?? false)
-        // assuming that there is only one rule at this point - that is how parser constructs the rule
-        return (rules[0] as Ruleset).rulesets();
+    if (rules?.isNotEmpty ?? false) {
+      // assuming that there is only one rule at this point - that is how parser constructs the rule
+      return (rules[0] as Ruleset).rulesets();
+    }
     return null;
 
 //2.8.0 20160702

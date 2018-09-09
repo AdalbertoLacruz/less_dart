@@ -7,9 +7,9 @@ part of parser.less;
 ///
 class Chunker {
   ///
-  String    input;
+  String        input;
   ///
-  Contexts  env;
+  Contexts      env;
   ///
   int           chunkerCurrentIndex;
   ///
@@ -40,8 +40,7 @@ class Chunker {
   void emitChunk({bool force = false}) {
     final int len = chunkerCurrentIndex - emitFrom;
 
-    if (((len < 512) && !force) || len == 0)
-        return;
+    if (((len < 512) && !force) || len == 0) return;
 
     chunks.add(input.substring(emitFrom, chunkerCurrentIndex + 1));
     emitFrom = chunkerCurrentIndex + 1;
@@ -77,13 +76,13 @@ class Chunker {
           continue;
 
         case Charcode.CLOSE_PARENTHESIS_41: // )
-          if (--parenLevel < 0)
-              return fail('missing opening `(`', chunkerCurrentIndex);
+          if (--parenLevel < 0) {
+            return fail('missing opening `(`', chunkerCurrentIndex);
+          }
           continue;
 
         case Charcode.SEMICOLON_59:         // ;
-          if (parenLevel == 0)
-              emitChunk();
+          if (parenLevel == 0) emitChunk();
           continue;
 
         case Charcode.OPEN_BRACE_123:       // {
@@ -92,10 +91,10 @@ class Chunker {
           continue;
 
         case Charcode.CLOSE_BRACE_125:      // }
-          if (--level < 0)
-              return fail('missing opening `{`', chunkerCurrentIndex);
-          if (level == 0 && parenLevel == 0)
-              emitChunk();
+          if (--level < 0) {
+            return fail('missing opening `{`', chunkerCurrentIndex);
+          }
+          if (level == 0 && parenLevel == 0) emitChunk();
           continue;
 
         case Charcode.BACK_SLASH_92:        // \
@@ -114,25 +113,23 @@ class Chunker {
               chunkerCurrentIndex < len;
               chunkerCurrentIndex++) {
             cc2 = input.codeUnitAt(chunkerCurrentIndex);
-            if (cc2 > Charcode.BACK_QUOTE_96)
-                continue;
+            if (cc2 > Charcode.BACK_QUOTE_96) continue;
             if (cc2 == cc) {
               matched = true;
               break;
             }
             if (cc2 == Charcode.BACK_SLASH_92) { // \
-              if (chunkerCurrentIndex == len - 1)
-                  return fail('unescaped `\\`', chunkerCurrentIndex);
+              if (chunkerCurrentIndex == len - 1) {
+                return fail('unescaped `\\`', chunkerCurrentIndex);
+              }
               chunkerCurrentIndex++;
             }
           }
-          if (matched)
-              continue;
+          if (matched) continue;
           return fail('unmatched `${input[currentChunkStartIndex]}`', currentChunkStartIndex);
 
         case Charcode.SLASH_47:               // /, check for comment
-          if ((parenLevel != 0) || (chunkerCurrentIndex == len - 1 ))
-              continue;
+          if ((parenLevel != 0) || (chunkerCurrentIndex == len - 1 )) continue;
           cc2 = input.codeUnitAt(chunkerCurrentIndex + 1);
           if (cc2 == Charcode.SLASH_47) {
             // //, find lnfeed
@@ -141,8 +138,9 @@ class Chunker {
                 chunkerCurrentIndex++) {
               cc2 = input.codeUnitAt(chunkerCurrentIndex);
               if ((cc2 <= Charcode.CR_13) &&
-                  ((cc2 == Charcode.LF_10) || (cc2 == Charcode.CR_13)))
-                  break;
+                  ((cc2 == Charcode.LF_10) || (cc2 == Charcode.CR_13))) {
+                break;
+              }
             }
           } else if (cc2 == Charcode.ASTERISK_42) {
             // /*, find */
@@ -154,8 +152,7 @@ class Chunker {
               if (cc2 == Charcode.CLOSE_BRACE_125) {
                 lastMultiCommentEndBrace = chunkerCurrentIndex;
               }
-              if (cc2 != Charcode.ASTERISK_42)
-                  continue;
+              if (cc2 != Charcode.ASTERISK_42) continue;
               if (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47) {
                 break;
               }
@@ -169,8 +166,9 @@ class Chunker {
 
         case Charcode.ASTERISK_42:           // *, check for unmatched */
           if ((chunkerCurrentIndex < len - 1) &&
-              (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47))
-              return fail('unmatched `/*`', chunkerCurrentIndex);
+              (input.codeUnitAt(chunkerCurrentIndex + 1) == Charcode.SLASH_47)) {
+            return fail('unmatched `/*`', chunkerCurrentIndex);
+          }
           continue;
       }
     }

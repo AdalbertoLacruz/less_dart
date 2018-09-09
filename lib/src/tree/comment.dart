@@ -12,11 +12,11 @@ class Comment extends Node implements SilentNode {
   bool  isLineComment;
 
   ///
-  Comment(String this.value,
-      {bool this.isLineComment = false,
+  Comment(String this.value, {
+      bool this.isLineComment = false,
       int index,
-      FileInfo currentFileInfo})
-      : super.init(currentFileInfo: currentFileInfo, index: index) {
+      FileInfo currentFileInfo
+      }) : super.init(currentFileInfo: currentFileInfo, index: index) {
         allowRoot = true;
       }
 
@@ -39,8 +39,9 @@ class Comment extends Node implements SilentNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (debugInfo != null)
-        output.add(debugInfo.toOutput(context), fileInfo: currentFileInfo, index: index);
+    if (debugInfo != null) {
+      output.add(debugInfo.toOutput(context), fileInfo: currentFileInfo, index: index);
+    }
     output.add(value);
 
 //3.0.0 20160714

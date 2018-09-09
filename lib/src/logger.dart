@@ -37,8 +37,9 @@ class Logger {
   factory Logger([StringBuffer buffer]) {
     final int id = Zone.current[#id] ?? -1;
 
-    if (buffer != null && cache[id] != null)
-        throw new StateError('Console buffer yet initialized');
+    if (buffer != null && cache[id] != null) {
+      throw new StateError('Console buffer yet initialized');
+    }
 
     cache[id] ??= new Logger._(buffer);
     return cache[id];
@@ -76,33 +77,28 @@ class Logger {
   void log(String msg) {
     final StringBuffer buffer = (capture == null) ? stderr : capture;
 
-    if (buffer.isNotEmpty)
-        buffer.write('\n');
+    if (buffer.isNotEmpty) buffer.write('\n');
     buffer.write('$msg');
   }
 
   ///
   void error(String msg) {
-    if (logLevel >= logLevelError)
-        log(msg);
+    if (logLevel >= logLevelError) log(msg);
   }
 
   ///
   void warn(String msg) {
-    if (logLevel >= logLevelWarn)
-        log(msg);
+    if (logLevel >= logLevelWarn) log(msg);
   }
 
   ///
   void info(String msg) {
-    if (logLevel >= logLevelInfo)
-        log(msg);
+    if (logLevel >= logLevelInfo) log(msg);
   }
 
   ///
   void debug(String msg) {
-    if (logLevel >= logLevelDebug)
-        log(msg);
+    if (logLevel >= logLevelDebug) log(msg);
   }
 
   ///

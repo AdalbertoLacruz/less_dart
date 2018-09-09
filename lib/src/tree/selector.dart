@@ -22,13 +22,13 @@ class Selector extends Node {
   ///
   /// elements is List<Element> | String (to be parsed)
   ///
-  Selector(dynamic elements,
-      {List<Extend> this.extendList,
+  Selector(dynamic elements, {
+      List<Extend> this.extendList,
       Node this.condition,
       int index,
       FileInfo currentFileInfo,
-      VisibilityInfo visibilityInfo})
-      : super.init(currentFileInfo: currentFileInfo, index: index) {
+      VisibilityInfo visibilityInfo
+      }) : super.init(currentFileInfo: currentFileInfo, index: index) {
     //clone if List.clear is used, because collateral effects
     this.elements = getElements(elements);
     evaldCondition = (condition == null);
@@ -59,12 +59,9 @@ class Selector extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (elements != null)
-        elements = visitor.visitArray(elements);
-    if (extendList != null)
-        extendList = visitor.visitArray(extendList);
-    if (condition != null)
-        condition = visitor.visit(condition);
+    if (elements != null) elements = visitor.visitArray(elements);
+    if (extendList != null) extendList = visitor.visitArray(extendList);
+    if (condition != null) condition = visitor.visit(condition);
 
 //2.3.1
 //  Selector.prototype.accept = function (visitor) {
@@ -112,8 +109,7 @@ class Selector extends Node {
   List<Element> getElements(dynamic els) {
     if (els is String) {
       final Node result = new ParseNode(els, _index, _fileInfo).selector();
-      if (result != null)
-        return result.elements;
+      if (result != null) return result.elements;
     }
     return els;
 
@@ -167,13 +163,11 @@ class Selector extends Node {
   int match(Selector other) {
     final List<String> otherElements = other.mixinElements();
 
-    if (otherElements.isEmpty
-        || elements.length < otherElements.length) {
-          return 0;
+    if (otherElements.isEmpty || elements.length < otherElements.length) {
+      return 0;
     } else {
       for (int i = 0; i < otherElements.length; i++) {
-        if (elements[i].value != otherElements[i])
-            return 0;
+        if (elements[i].value != otherElements[i]) return 0;
       }
     }
     return otherElements.length; // return number of matched elements
@@ -208,8 +202,7 @@ class Selector extends Node {
   List<String> mixinElements() {
     final RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
-    if (_mixinElements != null)
-        return _mixinElements; // cache exist
+    if (_mixinElements != null) return _mixinElements; // cache exist
 
     final String css = elements
         .fold(new StringBuffer(), (StringBuffer prev, Element v) =>
@@ -223,8 +216,9 @@ class Selector extends Node {
     final Iterable<Match> matchs = re.allMatches(css);
     if (matchs != null) {
       _mixinElements = matchs.map((Match m) => m[0]).toList();
-      if (_mixinElements.isNotEmpty && _mixinElements[0] == '&')
-          _mixinElements.removeAt(0);
+      if (_mixinElements.isNotEmpty && _mixinElements[0] == '&') {
+        _mixinElements.removeAt(0);
+      }
     } else {
       _mixinElements = <String>[];
     }
@@ -276,10 +270,12 @@ class Selector extends Node {
     List<Element> elements = this.elements;
     List<Extend> extendList = this.extendList;
 
-    if (elements != null)
-        elements = elements.map((Element e) => e.eval(context)).toList();
-    if (extendList != null)
-        extendList = extendList.map((Extend extend) => extend.eval(context)).toList();
+    if (elements != null) {
+      elements = elements.map((Element e) => e.eval(context)).toList();
+    }
+    if (extendList != null) {
+      extendList = extendList.map((Extend extend) => extend.eval(context)).toList();
+    }
 
     return createDerived(elements,
         extendList: extendList,
@@ -304,8 +300,9 @@ class Selector extends Node {
   @override
   void genCSS(Contexts context, Output output) {
     if ((context == null || !context.firstSelector) &&
-        elements[0].combinator.value == '')
-        output.add(' ', fileInfo: currentFileInfo, index: index);
+        elements[0].combinator.value == '') {
+      output.add(' ', fileInfo: currentFileInfo, index: index);
+    }
     for (int i = 0; i < elements.length; i++) {
       elements[i].genCSS(context, output);
     }

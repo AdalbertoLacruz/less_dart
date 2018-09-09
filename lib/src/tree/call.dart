@@ -33,8 +33,7 @@ class Call extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (args != null)
-        args = visitor.visitArray(args);
+    if (args != null) args = visitor.visitArray(args);
 
 //2.3.1
 //  Call.prototype.accept = function (visitor) {
@@ -148,15 +147,13 @@ class Call extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (cleanCss != null)
-        return genCleanCSS(context, output);
+    if (cleanCss != null) return genCleanCSS(context, output);
 
     output.add('$name(', fileInfo: currentFileInfo, index: index);
 
     for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
-      if (i + 1 < args.length)
-          output.add(', ');
+      if (i + 1 < args.length) output.add(', ');
     }
 
     output.add(')');

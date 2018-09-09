@@ -53,8 +53,7 @@ class DataUriFunctions extends FunctionBase {
 
     final AbstractFileManager fileManager = environment.getFileManager(
         filePath, currentDirectory, _context, environment, isSync: true);
-    if (fileManager == null)
-        return fallback();
+    if (fileManager == null) return fallback();
 
     bool useBase64 = false;
 
@@ -69,8 +68,7 @@ class DataUriFunctions extends FunctionBase {
         final String charset = environment.charsetLookup(mimetype);
         useBase64 = !<String>['US-ASCII', 'UTF-8'].contains(charset);
       }
-      if (useBase64)
-          mimetype = '$mimetype;base64';
+      if (useBase64) mimetype = '$mimetype;base64';
     } else {
       useBase64 = new RegExp(r';base64$').hasMatch(mimetype);
     }

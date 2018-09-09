@@ -18,15 +18,17 @@ class ImageSizeFunctions extends FunctionBase {
         : currentFileInfo.entryPath;
 
     final int fragmentStart = filePath.indexOf('#');
-    if (fragmentStart != -1)
-        filePath = filePath.substring(0, fragmentStart);
+    if (fragmentStart != -1) {
+      filePath = filePath.substring(0, fragmentStart);
+    }
 
     final AbstractFileManager fileManager = environment.getFileManager(
         filePath, currentDirectory, context, environment, isSync: true);
     final FileLoaded fileSync = fileManager.existSync(
         filePath, currentDirectory, context, environment);
-    if (fileSync.error != null)
-        throw fileSync.error;
+    if (fileSync.error != null) {
+      throw fileSync.error;
+    }
 
     return imageSizeProcessor.sizeOf(fileSync.filename);
 
@@ -78,8 +80,7 @@ class ImageSizeFunctions extends FunctionBase {
   Expression imageSize(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
 
-    if (size == null)
-        return null;
+    if (size == null) return null;
 
     return new Expression(<Node>[
       new Dimension(size.width, 'px'),
@@ -109,8 +110,7 @@ class ImageSizeFunctions extends FunctionBase {
   Dimension imageWidth(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
 
-    if (size == null)
-        return null;
+    if (size == null) return null;
 
     return new Dimension(size.width, 'px');
 
@@ -134,8 +134,7 @@ class ImageSizeFunctions extends FunctionBase {
   Dimension imageHeigth(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
 
-    if (size == null)
-        return null;
+    if (size == null) return null;
 
     return new Dimension(size.height, 'px');
 

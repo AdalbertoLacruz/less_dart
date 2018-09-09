@@ -164,8 +164,7 @@ class Extend extends Node {
   String toString() {
     final Output output = new Output();
     selector.genCSS(null, output);
-    if(option != null)
-        output.add(' $option');
+    if(option != null) output.add(' $option');
     return output.toString().trim();
   }
 }

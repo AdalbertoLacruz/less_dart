@@ -14,15 +14,16 @@ class Unit extends Node implements CompareNode {
   List<String>    numerator;
 
   ///
-  Unit(
-      [List<String> numerator = const <String>[],
+  Unit([
+      List<String> numerator = const <String>[],
       List<String> denominator = const <String>[],
-      this.backupUnit]) {
-
+      this.backupUnit
+      ]) {
     this.numerator = numerator.sublist(0)..sort(); //clone
     this.denominator = denominator.sublist(0)..sort();
-    if (backupUnit == null && this.numerator.isNotEmpty)
-        backupUnit = this.numerator[0];
+    if (backupUnit == null && this.numerator.isNotEmpty) {
+      backupUnit = this.numerator[0];
+    }
 
 //3.0.0 20160714
 // var Unit = function (numerator, denominator, backupUnit) {
@@ -185,8 +186,9 @@ class Unit extends Node implements CompareNode {
 
     // ignore: avoid_positional_boolean_parameters
     String mapUnit(String atomicUnit, bool isDenominator) {
-      if (group.containsKey(atomicUnit) && !result.containsKey(groupName))
-          result[groupName] = atomicUnit;
+      if (group.containsKey(atomicUnit) && !result.containsKey(groupName)) {
+        result[groupName] = atomicUnit;
+      }
       return atomicUnit;
     }
 
@@ -233,15 +235,13 @@ class Unit extends Node implements CompareNode {
 
     for (int i = 0; i < numerator.length; i++) {
       atomicUnit = numerator[i];
-      if (!counter.containsKey(atomicUnit))
-          counter[atomicUnit] = 0;
+      if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] + 1;
     }
 
     for (int i = 0; i < denominator.length; i++) {
       atomicUnit = denominator[i];
-      if (!counter.containsKey(atomicUnit))
-          counter[atomicUnit] = 0;
+      if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] - 1;
     }
 
@@ -252,11 +252,13 @@ class Unit extends Node implements CompareNode {
       if (counter.containsKey(atomicUnit)) {
         final int count = counter[atomicUnit];
         if (count > 0) {
-          for (int i = 0; i < count; i++)
-              numerator.add(atomicUnit);
+          for (int i = 0; i < count; i++) {
+            numerator.add(atomicUnit);
+          }
         } else if (count < 0) {
-          for (int i = 0; i < -count; i++)
-              denominator.add(atomicUnit);
+          for (int i = 0; i < -count; i++) {
+            denominator.add(atomicUnit);
+          }
         }
       }
     }

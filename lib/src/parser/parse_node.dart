@@ -60,11 +60,9 @@ class ParseNode {
       }
     } catch (e) {
       isError = true;
-      if (ignoreErrors)
-          return;
+      if (ignoreErrors) return;
 
-      if (e is LessExceptionError)
-          e.error.index += index;
+      if (e is LessExceptionError) e.error.index += index;
       throw new LessExceptionError(LessError.transform(e, filename: fileInfo.filename));
     }
   }

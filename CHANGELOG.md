@@ -1,3 +1,6 @@
+## 2.0.1 (2018-09-09)
+- Internal code to simplify types.
+
 ## 2.0.0 (2018-07-27)
 - Dart 2.0.0-dev.68.0 compliant. It don't work with Dart 1.x.
 - Transformer replaced by builder.

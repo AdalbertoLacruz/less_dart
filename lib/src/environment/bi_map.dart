@@ -21,8 +21,7 @@ class BiMap<K, V> implements Map<K, V> {
   @override
   void operator []=(K key, V value) {
     _map[key] = value;
-    if (_inverse.isNotEmpty)
-        _inverse[value] = key;
+    if (_inverse.isNotEmpty) _inverse[value] = key;
   }
 
   @override
@@ -69,8 +68,7 @@ class BiMap<K, V> implements Map<K, V> {
   /// Given a value, returns the key
   ///
   K getKey(V value) {
-    if (_inverse.isEmpty && _map.isNotEmpty)
-        buildInverse(); //synchronize
+    if (_inverse.isEmpty && _map.isNotEmpty) buildInverse(); //synchronize
     return _inverse[value];
   }
 
@@ -88,15 +86,14 @@ class BiMap<K, V> implements Map<K, V> {
 
   @override
   V putIfAbsent(K key, V ifAbsent()) {
-    //Potential problems for _inverse
+    // Potential problems for _inverse
     _inverse.clear();
     return _map.putIfAbsent(key, ifAbsent);
   }
 
   @override
   V remove(Object key) {
-    if (key == null)
-        return null;
+    if (key == null) return null;
     _inverse.remove(_map[key]);
     return _map.remove(key);
   }

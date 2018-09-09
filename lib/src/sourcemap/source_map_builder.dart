@@ -37,11 +37,14 @@ class LessSourceMapBuilder {
     final String css = sourceMapOutput.toCSS(context).toString();
     sourceMap = sourceMapOutput.sourceMap;
     sourceMapURL = sourceMapOutput.sourceMapURL;
-    if (options.sourceMapInputFilename.isNotEmpty)
-        sourceMapInputFilename = sourceMapOutput.normalizeFilename(options.sourceMapInputFilename);
+    if (options.sourceMapInputFilename.isNotEmpty) {
+      sourceMapInputFilename =
+          sourceMapOutput.normalizeFilename(options.sourceMapInputFilename);
+    }
         
-    if (options.sourceMapBasepath.isNotEmpty && (sourceMapURL?.isNotEmpty ?? false))
-        sourceMapURL = sourceMapOutput.removeBasePath(sourceMapURL);
+    if (options.sourceMapBasepath.isNotEmpty && (sourceMapURL?.isNotEmpty ?? false)) {
+      sourceMapURL = sourceMapOutput.removeBasePath(sourceMapURL);
+    }
 
     return '$css${getCSSAppendage()}';
 
@@ -80,13 +83,13 @@ class LessSourceMapBuilder {
     String sourceMapURL = this.sourceMapURL;
 
     if (options.sourceMapFileInline) {
-      if (sourceMap == null)
-          return '';
+      if (sourceMap == null) return '';
       sourceMapURL = 'data:application/json;base64,${Base64String.encode(sourceMap)}';
     }
 
-    if (sourceMapURL.isNotEmpty)
-        return '/*# sourceMappingURL=$sourceMapURL */';
+    if (sourceMapURL.isNotEmpty) {
+      return '/*# sourceMappingURL=$sourceMapURL */';
+    }
 
     return '';
 

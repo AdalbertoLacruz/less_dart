@@ -8,8 +8,7 @@ class MoreList {
   /// Add [element] if not found
   ///
   static void addUnique<T>(List<T> to, T element) {
-    if (!to.contains(element))
-        to.add(element);
+    if (!to.contains(element)) to.add(element);
   }
 
   ///
@@ -17,11 +16,9 @@ class MoreList {
   /// function: map(element) => other element
   ///
   static List<T> addAllUnique<T>(List<T> to, List<T> from, {Function map}) {
-    if (from == null)
-        return to;
+    if (from == null) return to;
     from.forEach((T item) {
-      if (map != null)
-          item = map(item);
+      if (map != null) item = map(item);
       addUnique(to, item);
     });
     return to;
@@ -31,10 +28,8 @@ class MoreList {
   /// True if list a == list b
   ///
   static bool compare<T>(List<T> a, List<T> b) {
-    if (a == null || b == null)
-        return false;
-    if (a.length != b.length)
-        return false;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
 
     bool result = true;
     for (int i = 0; i < a.length; i++) {

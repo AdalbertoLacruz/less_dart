@@ -139,20 +139,19 @@ class AbstractFileManager {
     int             i;
     final UrlParts  urlParts = extractUrlParts(url);
 
-    if (urlParts.hostPart != baseUrlParts.hostPart)
-        return '';
+    if (urlParts.hostPart != baseUrlParts.hostPart) return '';
 
     final int max = math.max(baseUrlParts.directories.length, urlParts.directories.length);
 
     for (i = 0; i < max; i++) {
-      if (baseUrlParts.directories[i] != urlParts.directories[i])
-          break;
+      if (baseUrlParts.directories[i] != urlParts.directories[i]) break;
     }
     final List<String> baseUrlDirectories = baseUrlParts.directories.sublist(i);
     final List<String> urlDirectories = urlParts.directories.sublist(i);
 
-    if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) //both directories are the same
-        return './';
+    if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) { //both directories are the same
+      return './';
+    }
 
     urlDirectories[urlDirectories.length - 1] = ''; //join must end with '/'
     return '${"../" * (baseUrlDirectories.length - 1)}${urlDirectories.join("/")}';
@@ -195,10 +194,11 @@ class AbstractFileManager {
     final List<String> urlParts = <String>[];
 
     Match match = urlPartsRegex.firstMatch(url);
-    if (match != null)
-        for (int i = 0; i < match.groupCount; i++) {
-          urlParts.add(match[i]);
-        }
+    if (match != null) {
+      for (int i = 0; i < match.groupCount; i++) {
+        urlParts.add(match[i]);
+      }
+    }
 
     final UrlParts returner = new UrlParts();
 
@@ -215,10 +215,11 @@ class AbstractFileManager {
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
       match = urlPartsRegex.firstMatch(baseUrl);
       final List<String> baseUrlParts = <String>[];
-      if (match != null)
-          for (int i = 0; i < match.groupCount; i++) {
-            baseUrlParts.add(match[i]);
-          }
+      if (match != null) {
+        for (int i = 0; i < match.groupCount; i++) {
+          baseUrlParts.add(match[i]);
+        }
+      }
 
       if (baseUrlParts.isEmpty) {
         final LessError error = new LessError(
@@ -237,8 +238,7 @@ class AbstractFileManager {
     }
 
     for (int i = 0; i < urlParts.length; i ++) {
-      if (urlParts[i] == null)
-          urlParts[i] = '';
+      if (urlParts[i] == null) urlParts[i] = '';
     }
 
     for (int i = urlParts.length; i < 6; i++) {

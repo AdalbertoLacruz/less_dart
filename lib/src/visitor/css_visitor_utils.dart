@@ -22,15 +22,15 @@ class CSSVisitorUtils extends VisitorBase {
 
   ///
   bool containsSilentNonBlockedChild(List<Node> bodyRules) {
-    if (bodyRules == null)
-        return false;
+    if (bodyRules == null) return false;
 
     for (int r = 0; r < bodyRules.length; r++) {
       final Node rule = bodyRules[r];
-      if ((rule is SilentNode) && (rule as SilentNode).isSilent(_context) && !rule.blocksVisibility())
-          //the atRule contains something that was referenced (likely by extend)
-          //therefore it needs to be shown in output too
-          return true;
+      if ((rule is SilentNode) && (rule as SilentNode).isSilent(_context) && !rule.blocksVisibility()) {
+        //the atRule contains something that was referenced (likely by extend)
+        //therefore it needs to be shown in output too
+        return true;
+      }
     }
 
     return false;
@@ -55,8 +55,9 @@ class CSSVisitorUtils extends VisitorBase {
 
   ///
   void keepOnlyVisibleChilds(Node owner) {
-    if (owner?.rules != null )
-        owner.rules.retainWhere((Node thing) => thing.isVisible());
+    if (owner?.rules != null ) {
+      owner.rules.retainWhere((Node thing) => thing.isVisible());
+    }
 
 //3.0.0 20170601
 // keepOnlyVisibleChilds: function(owner) {
@@ -71,7 +72,9 @@ class CSSVisitorUtils extends VisitorBase {
   ///
   /// if [owner] rules is empty returns true
   ///
-  bool isEmpty(Node owner) => (owner?.rules != null) ? owner.rules.isEmpty : true;
+  bool isEmpty(Node owner) => (owner?.rules != null)
+      ? owner.rules.isEmpty
+      : true;
 
 //3.0.0 20170601
 // isEmpty: function(owner) {
@@ -83,8 +86,9 @@ class CSSVisitorUtils extends VisitorBase {
   ///
   /// true if [rulesetNode] has paths
   ///
-  bool hasVisibleSelector(Ruleset rulesetNode) =>
-     (rulesetNode?.paths != null) ? rulesetNode.paths.isNotEmpty : false;
+  bool hasVisibleSelector(Ruleset rulesetNode) => (rulesetNode?.paths != null)
+      ? rulesetNode.paths.isNotEmpty
+      : false;
 
 //3.0.0 20170601
 // hasVisibleSelector: function(rulesetNode) {
@@ -95,8 +99,9 @@ class CSSVisitorUtils extends VisitorBase {
   ///
   Node resolveVisibility(Node node, List<Node> originalRules) {
     if (!node.blocksVisibility()) {
-      if (isEmpty(node) && !containsSilentNonBlockedChild(originalRules))
-          return null;
+      if (isEmpty(node) && !containsSilentNonBlockedChild(originalRules)) {
+        return null;
+      }
       return node;
     }
 
@@ -107,8 +112,7 @@ class CSSVisitorUtils extends VisitorBase {
         : null;
     keepOnlyVisibleChilds(compiledRulesBody);
 
-    if (isEmpty(compiledRulesBody))
-        return null;
+    if (isEmpty(compiledRulesBody)) return null;
 
     return node
       ..ensureVisibility()
@@ -140,12 +144,9 @@ class CSSVisitorUtils extends VisitorBase {
 
   ///
   bool isVisibleRuleset(Ruleset rulesetNode) {
-    if (rulesetNode.firstRoot)
-        return true;
-    if (isEmpty(rulesetNode))
-        return false;
-    if (!rulesetNode.root && !hasVisibleSelector(rulesetNode))
-        return false;
+    if (rulesetNode.firstRoot) return true;
+    if (isEmpty(rulesetNode)) return false;
+    if (!rulesetNode.root && !hasVisibleSelector(rulesetNode)) return false;
 
     return true;
 

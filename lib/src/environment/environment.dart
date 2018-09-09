@@ -36,7 +36,7 @@ class Environment {
   ///
   static Map<int, Environment>  cache = <int, Environment>{};
   ///
-  List<AbstractFileManager>             fileManagers;
+  List<AbstractFileManager>     fileManagers;
   ///
   Logger                        logger = new Logger();
   ///
@@ -99,11 +99,15 @@ class Environment {
 
     AbstractFileManager fileManager;
 
-    if (filename == null)
-        logger.warn('getFileManager called with no filename.. Please report this issue. continuing.');
+    if (filename == null) {
+      logger.warn(
+          'getFileManager called with no filename.. Please report this issue. continuing.');
+    }
 
-    if (currentDirectory == null)
-        logger.warn('getFileManager called with null directory.. Please report this issue. continuing.');
+    if (currentDirectory == null) {
+      logger.warn(
+          'getFileManager called with null directory.. Please report this issue. continuing.');
+    }
 
     if (fileManagers == null) {
       fileManagers = <AbstractFileManager>[
@@ -111,16 +115,19 @@ class Environment {
           new FileFileManager(environment, new PackageResolverProvider()),
           new UrlFileManager(environment)
       ];
-      if (options.pluginManager != null)
-          fileManagers.addAll(options.pluginManager.getFileManagers());
+      if (options.pluginManager != null) {
+        fileManagers.addAll(options.pluginManager.getFileManagers());
+      }
     }
 
     for (int i = fileManagers.length - 1; i >= 0; i--) {
       fileManager = fileManagers[i];
-      if (isSync && fileManager.supportsSync(filename, currentDirectory, options, environment))
-          return fileManager;
-      if (!isSync && fileManager.supports(filename, currentDirectory, options, environment))
-          return fileManager;
+      if (isSync && fileManager.supportsSync(filename, currentDirectory, options, environment)) {
+        return fileManager;
+      }
+      if (!isSync && fileManager.supports(filename, currentDirectory, options, environment)) {
+        return fileManager;
+      }
     }
     return null;
 

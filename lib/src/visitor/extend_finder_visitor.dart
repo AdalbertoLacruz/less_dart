@@ -65,8 +65,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    if (rulesetNode.root)
-        return;
+    if (rulesetNode.root) return;
 
     final List<Extend> allSelectorsExtendList = <Extend>[];
 
@@ -103,8 +102,7 @@ class ExtendFinderVisitor extends VisitorBase {
         final Extend extend = extendList[j]
             ..findSelfSelectors(selectorPath)
             ..ruleset = rulesetNode;
-        if (j == 0)
-            extend.firstExtendOnThisSelectorPath = true;
+        if (j == 0) extend.firstExtendOnThisSelectorPath = true;
         allExtendsStack.last.add(extend);
       }
     }
@@ -161,8 +159,7 @@ class ExtendFinderVisitor extends VisitorBase {
 
   ///
   void visitRulesetOut(Ruleset rulesetNode) {
-    if (!rulesetNode.root)
-        contexts.removeLast();
+    if (!rulesetNode.root) contexts.removeLast();
 
 //2.3.1
 //  visitRulesetOut: function (rulesetNode) {
@@ -219,20 +216,16 @@ class ExtendFinderVisitor extends VisitorBase {
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media) //before AtRule
-        return visitMedia;
-    if (node is AtRule)
-        return visitAtRule;
-    if (node is Directive) //compatibility old node type
-        return visitAtRule;
-    if (node is MixinDefinition)
-        return visitMixinDefinition;
-    if (node is Declaration)
-        return visitDeclaration;
-    if (node is Rule)  //compatibility old node type
-        return visitDeclaration;
-    if (node is Ruleset)
-        return visitRuleset;
+    //before AtRule
+    if (node is Media) return visitMedia;
+    if (node is AtRule) return visitAtRule;
+    //compatibility old node type
+    if (node is Directive) return visitAtRule;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Declaration) return visitDeclaration;
+    //compatibility old node type
+    if (node is Rule) return visitDeclaration;
+    if (node is Ruleset) return visitRuleset;
 
     return null;
   }
@@ -240,14 +233,12 @@ class ExtendFinderVisitor extends VisitorBase {
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Media) //before Directive
-        return visitMediaOut;
-    if (node is AtRule)
-        return visitAtRuleOut;
-    if (node is Directive) //compatibility old node type
-        return visitAtRuleOut;
-    if (node is Ruleset)
-        return visitRulesetOut;
+    //before Directive
+    if (node is Media) return visitMediaOut;
+    if (node is AtRule) return visitAtRuleOut;
+    //compatibility old node type
+    if (node is Directive) return visitAtRuleOut;
+    if (node is Ruleset) return visitRulesetOut;
 
     return null;
   }

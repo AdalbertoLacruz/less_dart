@@ -1,7 +1,7 @@
 ///
 /// Example of custom functions definition inside a custom plugin
 ///
-/// Usage: pub run test/custom_functions_test.dart
+/// Usage: pub run example/custom_functions_example.dart
 ///
 import 'dart:io';
 import 'package:less_dart/less.dart';

@@ -38,8 +38,9 @@ class Assignment extends Node {
 
   ///
   @override
-  Assignment eval(Contexts context) =>
-      (value is Node) ? new Assignment(key, value.eval(context)) : this;
+  Assignment eval(Contexts context) => (value is Node)
+      ? new Assignment(key, value.eval(context))
+      : this;
 
 //2.3.1
 //  Assignment.prototype.eval = function (context) {

@@ -13,13 +13,13 @@ class Anonymous extends Node implements CompareNode {
   bool  rulesetLike;
 
   ///
-  Anonymous(dynamic value,
-      {int index,
+  Anonymous(dynamic value, {
+      int index,
       FileInfo currentFileInfo,
       bool this.mapLines = false,
       bool this.rulesetLike = false,
-      VisibilityInfo visibilityInfo})
-      : super.init(currentFileInfo: currentFileInfo, index: index,  value: value) {
+      VisibilityInfo visibilityInfo
+      }) : super.init(currentFileInfo: currentFileInfo, index: index,  value: value) {
         allowRoot = true;
         copyVisibilityInfo(visibilityInfo);
       }

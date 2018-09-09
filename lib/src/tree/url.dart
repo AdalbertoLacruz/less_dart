@@ -11,9 +11,11 @@ class URL extends Node {
   bool  isEvald;
 
   ///
-  URL(Node this.value,
-      {int index, FileInfo currentFileInfo, bool this.isEvald = false})
-      : super.init(currentFileInfo: currentFileInfo, index: index);
+  URL(Node this.value, {
+    int index,
+    FileInfo currentFileInfo,
+    bool this.isEvald = false
+    }) : super.init(currentFileInfo: currentFileInfo, index: index);
 
 //3.0.0
 // var URL = function (val, index, currentFileInfo, isEvald) {
@@ -80,14 +82,11 @@ class URL extends Node {
         final RegExp reData = new RegExp(r'^\s*data:');
         final Match match = reData.firstMatch(val.value);
         if (match == null) {
-          final String delimiter =
-              !(val.value as String).contains('?') ? '?' : '&';
-          // ignore: prefer_interpolation_to_compose_strings
+          final String delimiter = !(val.value as String).contains('?') ? '?' : '&';
           final String urlArgs = delimiter + context.urlArgs;
           if ((val.value as String).contains('#')) {
             val.value = (val.value as String).replaceFirst('#', '$urlArgs#');
           } else {
-            // ignore: prefer_interpolation_to_compose_strings
             val.value += urlArgs;
           }
         }

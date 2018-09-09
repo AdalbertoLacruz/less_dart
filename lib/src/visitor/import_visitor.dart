@@ -171,8 +171,9 @@ class ImportVisitor extends VisitorBase {
     }
 
     if (evaldImportNode != null && (!evaldImportNode.css || inlineCSS)) {
-      if (evaldImportNode.options.multiple ?? false)
-          context.importMultiple = true;
+      if (evaldImportNode.options.multiple ?? false) {
+        context.importMultiple = true;
+      }
 
       for (int i = 0; i < importParent.rules.length; i++) {
         if (importParent.rules[i] == importNode) {
@@ -270,16 +271,18 @@ class ImportVisitor extends VisitorBase {
       } else {
         // define function
         importNode.skip = () {
-          if (importVisitor.onceFileDetectionMap.containsKey(fullPath))
-              return true;
+          if (importVisitor.onceFileDetectionMap.containsKey(fullPath)) {
+            return true;
+          }
           importVisitor.onceFileDetectionMap[fullPath] = true;
           return false;
         };
       }
     }
 
-    if (!(fullPath?.isNotEmpty ?? false) && isOptional)
-        importNode.skip = true;
+    if (!(fullPath?.isNotEmpty ?? false) && isOptional) {
+      importNode.skip = true;
+    }
 
     // recursion - analyze the new root
     if (root != null) {
@@ -384,8 +387,7 @@ class ImportVisitor extends VisitorBase {
 
   ///
   void visitDeclarationOut(Declaration declNode) {
-    if (declNode is DetachedRuleset)
-        context.frames.removeAt(0);
+    if (declNode is DetachedRuleset) context.frames.removeAt(0);
 
 //2.8.0 20160702
 // visitDeclarationOut: function(declNode) {
@@ -478,42 +480,31 @@ class ImportVisitor extends VisitorBase {
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media)
-        return visitMedia;
-    if (node is AtRule)
-        return visitAtRule;
-    if (node is Directive) //compatibility old node type
-        return visitAtRule;
-    if (node is Import)
-        return visitImport;
-    if (node is MixinDefinition)
-        return visitMixinDefinition;
-    if (node is Declaration)
-        return visitDeclaration;
-    if (node is Rule) //compatibility old node type
-        return visitDeclaration;
-    if (node is Ruleset)
-        return visitRuleset;
+    if (node is Media) return visitMedia;
+    if (node is AtRule) return visitAtRule;
+    //compatibility old node type
+    if (node is Directive) return visitAtRule;
+    if (node is Import) return visitImport;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Declaration) return visitDeclaration;
+    //compatibility old node type
+    if (node is Rule) return visitDeclaration;
+    if (node is Ruleset) return visitRuleset;
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Media)
-        return visitMediaOut;
-    if (node is AtRule)
-        return visitAtRuleOut;
-    if (node is Directive) //compatibility old node type
-        return visitAtRuleOut;
-    if (node is MixinDefinition)
-        return visitMixinDefinitionOut;
-    if (node is Declaration)
-        return visitDeclarationOut;
-    if (node is Rule) //compatibility old node type
-        return visitDeclarationOut;
-    if (node is Ruleset)
-        return visitRulesetOut;
+    if (node is Media) return visitMediaOut;
+    if (node is AtRule) return visitAtRuleOut;
+    //compatibility old node type
+    if (node is Directive) return visitAtRuleOut;
+    if (node is MixinDefinition) return visitMixinDefinitionOut;
+    if (node is Declaration) return visitDeclarationOut;
+    //compatibility old node type
+    if (node is Rule) return visitDeclarationOut;
+    if (node is Ruleset) return visitRulesetOut;
     return null;
   }
 }

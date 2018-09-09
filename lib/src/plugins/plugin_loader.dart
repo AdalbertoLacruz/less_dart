@@ -106,8 +106,9 @@ class PluginLoader {
   // String (as js version) not supported in aVersion for simplicity
   int compareVersion(List<int> aVersion, List<int> bVersion) {
     for (int i = 0; i < aVersion.length; i++) {
-      if (aVersion[i] != bVersion[i])
-          return (aVersion[i] > bVersion[i]) ? -1 : 1;
+      if (aVersion[i] != bVersion[i]) {
+        return (aVersion[i] > bVersion[i]) ? -1 : 1;
+      }
     }
     return 0;
 

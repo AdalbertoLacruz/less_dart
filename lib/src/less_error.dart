@@ -54,17 +54,17 @@ class LessError {
 
   // less/parser.js 1.7.5 lines 309-331
   ///
-  LessError(
-      {int this.call,
+  LessError({
+      int this.call,
       Contexts context,
       int this.index,
       String this.filename,
       String this.message,
       StackTrace this.stack,
-      String this.type}) {
+      String this.type
+      }) {
 
-    if (context != null)
-        addFileInformation(context);
+    if (context != null) addFileInformation(context);
   }
 
   ///
@@ -110,16 +110,14 @@ class LessError {
       Contexts context}) {
 
     LessError error;
-    if (e is LessExceptionError)
-        error = e.error;
+    if (e is LessExceptionError) error = e.error;
     (error ??= (e is LessError) ? e : new LessError())
         ..index ??= index
         ..filename ??= filename
         ..message ??= (e != null && e is! LessError) ? e.toString() : message
         ..type ??= type
         ..stack ??= stackTrace;
-    if (context != null)
-        error.addFileInformation(context);
+    if (context != null) error.addFileInformation(context);
     return error;
   }
 
@@ -127,10 +125,8 @@ class LessError {
   /// For a [e] error get the message, with default ''
   ///
   static String getMessage(Object e) {
-    if (e is LessExceptionError)
-        return e.error.message;
-    if (e is LessError)
-        return e.message;
+    if (e is LessExceptionError) return e.error.message;
+    if (e is LessError) return e.message;
     return '';
   }
 
@@ -144,10 +140,8 @@ class LessError {
   /// For a [e] error get the type, with default ''
   ///
   static String getType(Object e) {
-    if (e is LessExceptionError)
-        return e.error.type;
-    if (e is LessError)
-        return e.type;
+    if (e is LessExceptionError) return e.error.type;
+    if (e is LessError) return e.type;
     return '';
 
   }
@@ -156,8 +150,7 @@ class LessError {
   /// Returns null if [line] is out of range in [lines]
   ///
   String getLine(List<String> lines, int line) {
-    if ((line >= 0) && (line <= lines.length -1))
-        return lines[line];
+    if ((line >= 0) && (line <= lines.length -1)) return lines[line];
     return null;
   }
 
@@ -295,8 +288,7 @@ class LessExceptionError implements Exception {
   ///
   // less/lessc_helper.js 1.7.5 lines 07-20
   String stylize(String str, int style) {
-    if (!_color)
-        return (str);
+    if (!_color) return (str);
 
     final Map<int, List<int>> styles = <int, List<int>>{
       STYLE_RESET:      <int>[ 0,  0],
@@ -317,8 +309,7 @@ class LessExceptionError implements Exception {
   String toString() {
     //if (error.silent) return '';
     error.message ??= '';
-    if (error.line == null)
-        error.isSimplyFormat = true;
+    if (error.line == null) error.isSimplyFormat = true;
     return error.isSimplyFormat ? simplyFormatError() : formatError();
   }
 }

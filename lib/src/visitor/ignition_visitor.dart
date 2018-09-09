@@ -56,8 +56,7 @@ class IgnitionVisitor extends VisitorBase {
 
   @override
   Function visitFtn(Node node) {
-    if (node is Options)
-        return visitOptions;
+    if (node is Options) return visitOptions;
 
     return null;
   }

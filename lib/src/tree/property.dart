@@ -7,7 +7,7 @@ class Property extends Node with MergeRulesMixin {
   @override final String name;
   @override String       type = 'Property';
 
-  /// recursivity control
+  /// recursive control
   bool evaluating = false;
 
   ///
@@ -59,6 +59,7 @@ class Property extends Node with MergeRulesMixin {
         }
         return v.value.eval(context);
       }
+      return null;
     });
 
     if (property != null) {
@@ -131,8 +132,7 @@ class Property extends Node with MergeRulesMixin {
   Node find(List<Node> obj, Function fun) {
     for (int i = 0; i < obj.length; i++) {
       final Node r = fun(obj[i]);
-      if (r != null)
-          return r;
+      if (r != null) return r;
     }
     return null;
 

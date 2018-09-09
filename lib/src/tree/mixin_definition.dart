@@ -115,11 +115,9 @@ class MixinDefinition extends Node
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (params?.isNotEmpty ?? false)
-        params = visitor.visitArray(params);
+    if (params?.isNotEmpty ?? false) params = visitor.visitArray(params);
     rules = visitor.visitArray(rules);
-    if (condition != null)
-        condition = visitor.visit(condition);
+    if (condition != null) condition = visitor.visit(condition);
 
 //2.3.1
 //  Definition.prototype.accept = function (visitor) {
@@ -204,8 +202,7 @@ class MixinDefinition extends Node
 
     argIndex = 0;
     for (int i = 0; i < params.length; i++) {
-      if (i < evaldArguments.length && evaldArguments[i] != null)
-          continue;
+      if (i < evaldArguments.length && evaldArguments[i] != null) continue;
 
       final MixinArgs arg = (_args != null && argIndex < _args.length)
           ? _args[argIndex]
@@ -409,8 +406,7 @@ class MixinDefinition extends Node
     ruleset = ruleset.eval(
         new Contexts.eval(context, <Node>[this, frame]..addAll(mixinFrames)));
 
-    if (important)
-        ruleset = ruleset.makeImportant();
+    if (important) ruleset = ruleset.makeImportant();
     return ruleset;
 
 //3.0.0 20160714
@@ -486,13 +482,10 @@ class MixinDefinition extends Node
         });
 
     if (!variadic) {
-      if (requiredArgsCnt < required)
-          return false;
-      if (allArgsCnt > params.length)
-          return false;
+      if (requiredArgsCnt < required) return false;
+      if (allArgsCnt > params.length) return false;
     } else {
-      if (requiredArgsCnt < (required - 1))
-          return false;
+      if (requiredArgsCnt < (required - 1)) return false;
     }
 
     // check patterns
@@ -500,8 +493,7 @@ class MixinDefinition extends Node
     for (int i = 0; i < len; i++) {
       if (params[i].name == null && !params[i].variadic) {
         if (args[i].value.eval(context).toCSS(context) !=
-            params[i].value.eval(context).toCSS(context))
-            return false;
+            params[i].value.eval(context).toCSS(context)) return false;
       }
     }
     return true;
@@ -552,8 +544,7 @@ class MixinDefinition extends Node
     if (params != null) {
       sb.write('(');
       params.forEach((MixinArgs m) {
-        if (!first)
-            sb.write(', ');
+        if (!first) sb.write(', ');
         sb.write(m.toString());
         first = false;
       });

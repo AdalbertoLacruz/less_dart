@@ -230,8 +230,7 @@ class Contexts {
   ///
   //2.2.0 TODO
   Contexts.parse(dynamic options) {
-    if (options == null)
-        return;
+    if (options == null) return;
 
     parseCopyProperties(options);
 
@@ -275,8 +274,7 @@ class Contexts {
   /// Some are common to options and contexts
   ///
   void parseCopyProperties(dynamic options) {
-    if (options is! LessOptions && options is! Contexts)
-        return;
+    if (options is! LessOptions && options is! Contexts) return;
 
     final List<String> properties = <String>[
       'paths',          // from options
@@ -309,8 +307,7 @@ class Contexts {
   /// [options] is LessOptions or Context
   ///
   static void evalCopyProperties(Contexts newctx, dynamic options) {
-    if (options == null)
-        return;
+    if (options == null) return;
 
     final List<String> properties = <String>[
       'compress',       // from options

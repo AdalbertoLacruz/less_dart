@@ -42,8 +42,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   /// Eliminates for output: @variable && no visible nodes
   ///
   Declaration visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
-    if (declNode.blocksVisibility() || declNode.variable)
-        return null;
+    if (declNode.blocksVisibility() || declNode.variable) return null;
     return declNode;
 
 //2.8.0 20160702
@@ -79,8 +78,9 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
   ///
   Comment visitComment(Comment commentNode, VisitArgs visitArgs) {
-    if (commentNode.blocksVisibility() || commentNode.isSilent(_context))
-        return null;
+    if (commentNode.blocksVisibility() || commentNode.isSilent(_context)) {
+      return null;
+    }
     return commentNode;
 
 //2.5.3 20151120
@@ -112,8 +112,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
   ///
   Import visitImport(Import importNode, VisitArgs visitArgs) {
-    if (importNode.blocksVisibility())
-        return null;
+    if (importNode.blocksVisibility()) return null;
     return importNode;
 
 //2.5.3 20151120
@@ -159,9 +158,9 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
     List<Node> getBodyRules(AtRule directiveNode) {
       final List<Ruleset> nodeRules = directiveNode.rules;
-      if (hasFakeRuleset(directiveNode))
-          return nodeRules[0].rules;
-      return nodeRules;
+      return (hasFakeRuleset(directiveNode))
+          ? nodeRules[0].rules
+          : nodeRules;
     }
 
     // it is still true that it is only one ruleset in array
@@ -171,8 +170,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     atRuleNode.accept(_visitor);
     visitArgs.visitDeeper = false;
 
-    if (!utils.isEmpty(atRuleNode))
-        mergeRules(atRuleNode.rules[0].rules);
+    if (!utils.isEmpty(atRuleNode)) mergeRules(atRuleNode.rules[0].rules);
     return utils.resolveVisibility(atRuleNode, originalRules);
 
 //2.8.0 20160702
@@ -208,8 +206,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
   ///
   Node visitAtRuleWithoutBody(AtRule atRuleNode, VisitArgs visitArgs) {
-    if (atRuleNode.blocksVisibility())
-        return null;
+    if (atRuleNode.blocksVisibility()) return null;
 
     if (atRuleNode.name == '@charset') {
       // Only output the debug info together with subsequent @charset definitions
@@ -258,8 +255,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   /// Check for errors in root
   ///
   void checkValidNodes(List<Node> rules, {bool isRoot}) {
-    if (rules == null)
-      return;
+    if (rules == null) return;
 
     for (int i = 0; i < rules.length; i++) {
       final Node ruleNode = rules[i];
@@ -309,9 +305,10 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     //at this point rulesets are nested into each other
     final List<dynamic> rulesets = <dynamic>[]; //Node || List<Node>
 
-    // error test for rules at first level, not inside a ruleset ??
-    if (rulesetNode.firstRoot) // TODO if?
-        checkValidNodes(rulesetNode.rules, isRoot: rulesetNode.firstRoot);
+    // error test for rules at first level, not inside a ruleset ?? TODO if?
+    if (rulesetNode.firstRoot) {
+      checkValidNodes(rulesetNode.rules, isRoot: rulesetNode.firstRoot);
+    }
 
     if (!rulesetNode.root) {
       //remove invisible paths
@@ -358,9 +355,9 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
       rulesets.insert(0, rulesetNode);
     }
 
-    if (rulesets.length == 1)
-        return rulesets.first;
-    return rulesets;
+    return (rulesets.length == 1)
+        ? rulesets.first
+        : rulesets;
 
 //2.6.1 20160305
 // visitRuleset: function (rulesetNode, visitArgs) {
@@ -422,11 +419,11 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   void _compileRulesetPaths(Ruleset rulesetNode) {
     if (rulesetNode.paths != null) {
       rulesetNode.paths.retainWhere((List<Selector> p) {
-        if (p[0].elements[0].combinator.value == ' ')
-            p[0].elements[0].combinator = new Combinator('');
+        if (p[0].elements[0].combinator.value == ' ') {
+          p[0].elements[0].combinator = new Combinator('');
+        }
         for (int i = 0; i < p.length; i++) {
-          if ((p[i].isVisible() ?? false) && p[i].getIsOutput())
-              return true;
+          if ((p[i].isVisible() ?? false) && p[i].getIsOutput()) return true;
         }
         return false;
       });
@@ -456,8 +453,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   /// Remove duplicates
   ///
   void _removeDuplicateRules(List<Node> rules) {
-    if (rules == null)
-        return;
+    if (rules == null) return;
 
     // If !Key Map[Rule1.name] = Rule1
     // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
@@ -519,8 +515,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
   ///
   Anonymous visitAnonymous(Anonymous anonymousNode, VisitArgs visitArgs) {
-    if (anonymousNode.blocksVisibility())
-        return null;
+    if (anonymousNode.blocksVisibility()) return null;
 
     anonymousNode.accept(_visitor);
     return anonymousNode;
@@ -538,30 +533,20 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Anonymous)
-        return visitAnonymous;
-    if (node is Comment)
-        return visitComment;
-    if (node is Media)
-        return visitMedia;
-    if (node is AtRule)
-        return visitAtRule;
-    if (node is Directive) //compatibility old node type
-        return visitAtRule;
-    if (node is Extend)
-        return visitExtend;
-    if (node is Import)
-        return visitImport;
-    if (node is MixinDefinition)
-        return visitMixinDefinition;
-    if (node is Options)
-        return visitOptions;
-    if (node is Declaration)
-        return visitDeclaration;
-    if (node is Rule) //compatibility old node type
-        return visitDeclaration;
-    if (node is Ruleset)
-        return visitRuleset;
+    if (node is Anonymous) return visitAnonymous;
+    if (node is Comment) return visitComment;
+    if (node is Media) return visitMedia;
+    if (node is AtRule) return visitAtRule;
+    //compatibility old node type
+    if (node is Directive) return visitAtRule;
+    if (node is Extend) return visitExtend;
+    if (node is Import) return visitImport;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Options) return visitOptions;
+    if (node is Declaration) return visitDeclaration;
+    //compatibility old node type
+    if (node is Rule) return visitDeclaration;
+    if (node is Ruleset) return visitRuleset;
     return null;
   }
 

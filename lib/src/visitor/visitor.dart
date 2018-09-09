@@ -162,8 +162,7 @@ class Visitor extends VisitorBase {
 
     for (int i = 0; i < arr.length; i++) {
       item = arr[i];
-      if (item == null)
-          continue;
+      if (item == null) continue;
 
       if (item is! List) { //Node
         _out.add(item);
@@ -174,8 +173,7 @@ class Visitor extends VisitorBase {
       nestedCnt = (item as List<dynamic>).length;
       for (int j = 0; j < nestedCnt; j++) {
         nestedItem = (item as List<dynamic>)[j];
-        if (nestedItem == null)
-            continue;
+        if (nestedItem == null) continue;
         if (nestedItem is! List) { //Node
           _out.add(nestedItem);
         } else if (nestedItem.isNotEmpty) {

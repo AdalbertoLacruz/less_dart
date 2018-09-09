@@ -48,8 +48,7 @@ class FileFileManager extends AbstractFileManager {
         options.paths,
         map: (String item) =>  pathLib.normalize(item)
     );
-    if (!isAbsoluteFilename)
-        MoreList.addUnique(paths, '.');
+    if (!isAbsoluteFilename) MoreList.addUnique(paths, '.');
     return paths;
   }
 
@@ -62,8 +61,7 @@ class FileFileManager extends AbstractFileManager {
     final Completer<String> task = new Completer<String>();
     String                  fullFilename;
 
-    if (index == 0)
-        filenamesTried.clear(); //first call not recursive
+    if (index == 0) filenamesTried.clear(); //first call not recursive
 
     if (index < paths.length) {
       fullFilename = environment.pathJoin(paths[index], filename);
@@ -95,8 +93,7 @@ class FileFileManager extends AbstractFileManager {
     for (int i = 0; i < paths.length; i++) {
       fullFilename = environment.pathJoin(paths[i], filename);
       filenamesTried.add(fullFilename);
-      if (new File(fullFilename).existsSync())
-          return fullFilename;
+      if (new File(fullFilename).existsSync()) return fullFilename;
     }
 
     return null;

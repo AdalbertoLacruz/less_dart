@@ -34,16 +34,14 @@ class Options extends Node {
     String line = value.value;
     if (isPlugin) {
       line = '--plugin=$line';
-      if (pluginArgs != null)
-          line = '$line=$pluginArgs';
+      if (pluginArgs != null) line = '$line=$pluginArgs';
     }
 
 
     logger.captureStart();
     final bool result = lessOptions.fromCommandLine(line);
     String capture = logger.captureStop();
-    if (capture.isNotEmpty)
-        capture = capture.split('\n').first;
+    if (capture.isNotEmpty) capture = capture.split('\n').first;
 
     if (!result) {
       throw new LessExceptionError(new LessError(

@@ -79,12 +79,13 @@ abstract class Node {
   ///
   /// Constructor for super call in derived class
   ///
-  Node.init(
-    {FileInfo currentFileInfo,
+  Node.init({
+    FileInfo currentFileInfo,
     int index,
     this.operands,
     this.rules,
-    this.value}) {
+    this.value
+    }) {
     _fileInfo = currentFileInfo;
     _index = index;
     id = hashCode;
@@ -166,8 +167,7 @@ abstract class Node {
   ///
   void setParent(dynamic nodes, Node parent) {
     void set(Node node) {
-      if (node == null)
-          return;
+      if (node == null) return;
       node.parent = parent;
     }
     if (nodes is List<Node>) {
@@ -280,8 +280,7 @@ abstract class Node {
   /// [precision] to force
   ///
   num fround(Contexts context, num value, [int precision]) {
-    if (value is int)
-        return value;
+    if (value is int) return value;
 
     final int _precision = (precision == null || precision == -1)
         ? context?.numPrecision
@@ -327,14 +326,11 @@ abstract class Node {
     final dynamic aValue = a.value;
     final dynamic bValue = b.value;
 
-    if (aValue is! List)
-        return (aValue == bValue) ? 0 : null;
+    if (aValue is! List) return (aValue == bValue) ? 0 : null;
     if (aValue is List && bValue is List) {
-      if (aValue.length != bValue.length)
-          return null;
+      if (aValue.length != bValue.length) return null;
       for (int i = 0; i < aValue.length; i++) {
-        if (Node.compareNodes(aValue[i], bValue[i]) != 0)
-            return null;
+        if (Node.compareNodes(aValue[i], bValue[i]) != 0) return null;
       }
     }
     return 0;
@@ -496,8 +492,7 @@ abstract class Node {
   /// This node get the visibility from [info]
   ///
   void copyVisibilityInfo(VisibilityInfo info) {
-    if (info == null)
-        return;
+    if (info == null) return;
     visibilityBlocks = info.visibilityBlocks;
     nodeVisible = info.nodeVisible;
 
@@ -534,7 +529,7 @@ abstract class Node {
       if (treeField == null) {
         output.add('***** FIELDS NOT DEFINED in $type *****');
       } else {
-        treeField.forEach((String fieldName, dynamic fieldValue){
+        treeField.forEach((String fieldName, dynamic fieldValue) {
           genTreeField(env, output, fieldName, fieldValue);
         });
       }
@@ -559,8 +554,7 @@ abstract class Node {
     if (fieldValue == null) {
 
     } else if (fieldValue is String) {
-      if (fieldValue.isNotEmpty)
-          output.add('$tabStr.$fieldName: String ($fieldValue)\n');
+      if (fieldValue.isNotEmpty) output.add('$tabStr.$fieldName: String ($fieldValue)\n');
     } else if (fieldValue is num) {
       output.add('$tabStr.$fieldName: num (${fieldValue.toString()})\n');
     } else if (fieldValue is Node) {

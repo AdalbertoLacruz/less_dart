@@ -31,8 +31,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
     extendIndices = <String, bool>{};
     extendFinder.run(root);
-    if (!extendFinder.foundExtends)
-        return root;
+    if (!extendFinder.foundExtends) return root;
 
     root.allExtends = root.allExtends.sublist(0)
         ..addAll(doExtendChaining(root.allExtends, root.allExtends));
@@ -130,8 +129,7 @@ class ProcessExtendsVisitor extends VisitorBase {
         final Extend targetExtend = extendsListTarget[targetExtendIndex];
 
         // look for circular references
-        if (extend.parentIds.contains(targetExtend.objectId))
-            continue;
+        if (extend.parentIds.contains(targetExtend.objectId)) continue;
 
         // find a match in the target extends self selector (the bit before :extend)
         final List<Selector> selectorPath = <Selector>[
@@ -146,7 +144,6 @@ class ProcessExtendsVisitor extends VisitorBase {
           //we found a match, so for each self selector.
           extend.selfSelectors.forEach((Selector selfSelector) {
             final VisibilityInfo info = targetExtend.visibilityInfo();
-
 
             //process the extend as usual
             final List<Selector> newSelector =
@@ -335,8 +332,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    if (rulesetNode.root)
-        return;
+    if (rulesetNode.root) return;
 
     final List<Extend>          allExtends = allExtendsStack.last;
     final ProcessExtendsVisitor extendVisitor = this;
@@ -348,11 +344,9 @@ class ProcessExtendsVisitor extends VisitorBase {
         final List<Selector> selectorPath = rulesetNode.paths[pathIndex];
 
         // extending extends happens initially, before the main pass
-        if (rulesetNode.extendOnEveryPath)
-            continue;
+        if (rulesetNode.extendOnEveryPath) continue;
         final List<Extend> extendList = selectorPath.last.extendList;
-        if (extendList?.isNotEmpty ?? false)
-            continue;
+        if (extendList?.isNotEmpty ?? false) continue;
 
         final List<MatchSelector> matches =
             findMatch(allExtends[extendIndex], selectorPath);
@@ -449,8 +443,9 @@ class ProcessExtendsVisitor extends VisitorBase {
           // then each selector in haystackSelectorPath has a space before it added in the toCSS phase. so we need to work out
           // what the resulting combinator will be
           String targetCombinator = haystackElement.combinator.value;
-          if (targetCombinator == '' && hackstackElementIndex == 0)
-              targetCombinator = ' ';
+          if (targetCombinator == '' && hackstackElementIndex == 0) {
+            targetCombinator = ' ';
+          }
 
           // if we don't match, null our match to indicate failure
           if (!extendVisitor.isElementValuesEqual(needleElements[potentialMatch.matched].value, haystackElement.value) ||
@@ -574,16 +569,19 @@ class ProcessExtendsVisitor extends VisitorBase {
     dynamic _elementValue1 = elementValue1;
     dynamic _elementValue2 = elementValue2;
 
-    if (_elementValue1 is String || _elementValue2 is String)
-        return _elementValue1 == _elementValue2;
+    if (_elementValue1 is String || _elementValue2 is String) {
+      return _elementValue1 == _elementValue2;
+    }
 
     if (_elementValue1 is Attribute) {
       if (_elementValue1.op != _elementValue2.op ||
-          _elementValue1.key != _elementValue2.key)
-          return false;
+          _elementValue1.key != _elementValue2.key) {
+        return false;
+      }
       if (_elementValue1.value == null || _elementValue2.value == null) {
-        if (_elementValue1.value != null || _elementValue2.value != null)
-            return false;
+        if (_elementValue1.value != null || _elementValue2.value != null) {
+          return false;
+        }
         return true;
       }
       _elementValue1 = (_elementValue1.value is Node)
@@ -599,18 +597,21 @@ class ProcessExtendsVisitor extends VisitorBase {
     _elementValue2 = _elementValue2.value;
     if (_elementValue1 is Selector) {
       if (_elementValue2 is! Selector ||
-          _elementValue1.elements.length != _elementValue2.elements.length)
-          return false;
+          _elementValue1.elements.length != _elementValue2.elements.length) {
+        return false;
+      }
       for (int i = 0; i < _elementValue1.elements.length; i++) {
         if (_elementValue1.elements[i].combinator.value !=
             _elementValue2.elements[i].combinator.value) {
           if (i != 0 ||
               (_elementValue1.elements[i].combinator.value ?? ' ') !=
-                  (_elementValue2.elements[i].combinator.value ?? ' '))
-              return false;
-        }
-        if (!isElementValuesEqual(_elementValue1.elements[i].value, _elementValue2.elements[i].value))
+                  (_elementValue2.elements[i].combinator.value ?? ' ')) {
             return false;
+          }
+        }
+        if (!isElementValuesEqual(_elementValue1.elements[i].value, _elementValue2.elements[i].value)) {
+          return false;
+        }
       }
       return true;
     }
@@ -859,34 +860,28 @@ class ProcessExtendsVisitor extends VisitorBase {
   /// func visitor.visit distribuitor
   @override
   Function visitFtn(Node node) {
-    if (node is Media)
-        return visitMedia;
-    if (node is AtRule)
-        return visitAtRule;
-    if (node is Directive) //compatibility old node type
-        return visitAtRule;
-    if (node is MixinDefinition)
-        return visitMixinDefinition;
-    if (node is Declaration)
-        return visitDeclaration;
-    if (node is Rule) //compatibility old node type
-        return visitDeclaration;
-    if (node is Ruleset)
-        return visitRuleset;
-    if (node is Selector)
-        return visitSelector;
+    if (node is Media) return visitMedia;
+    if (node is AtRule) return visitAtRule;
+    //compatibility old node type
+    if (node is Directive) return visitAtRule;
+    if (node is MixinDefinition) return visitMixinDefinition;
+    if (node is Declaration) return visitDeclaration;
+    //compatibility old node type
+    if (node is Rule) return visitDeclaration;
+    if (node is Ruleset) return visitRuleset;
+    if (node is Selector) return visitSelector;
+
     return null;
   }
 
   /// funcOut visitor.visit distribuitor
   @override
   Function visitFtnOut(Node node) {
-    if (node is Media)
-        return visitMediaOut;
-    if (node is AtRule)
-        return visitAtRuleOut;
-    if (node is Directive) //compatibility old node type
-        return visitAtRuleOut;
+    if (node is Media) return visitMediaOut;
+    if (node is AtRule) return visitAtRuleOut;
+    //compatibility old node type
+    if (node is Directive) return visitAtRuleOut;
+    
     return null;
   }
 }

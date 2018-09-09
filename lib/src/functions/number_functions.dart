@@ -6,10 +6,11 @@ part of functions.less;
 class NumberFunctions extends FunctionBase {
   @defineMethodSkip
   Node _minmax(bool isMin, List<Node> args) {
-    if (args.isEmpty)
-        throw new LessExceptionError(new LessError(
-            type: 'Argument',
-            message: 'one or more arguments required'));
+    if (args.isEmpty) {
+      throw new LessExceptionError(new LessError(
+          type: 'Argument',
+          message: 'one or more arguments required'));
+    }
 
     Dimension current;
     Dimension currentUnified;
@@ -28,8 +29,7 @@ class NumberFunctions extends FunctionBase {
 
     for (int i = 0; i < args.length; i++) {
       if (args[i] is! Dimension) {
-        if (args[i].value is List)
-            args.addAll(args[i].value);
+        if (args[i].value is List) args.addAll(args[i].value);
         continue;
       }
       current = args[i];
@@ -49,10 +49,11 @@ class NumberFunctions extends FunctionBase {
           ? values['']
           : values[unit];
       if (j == null) {
-        if (unitStatic != null && unit != unitStatic)
-            throw new LessExceptionError(new LessError(
-                type: 'Argument',
-                message: 'incompatible types'));
+        if (unitStatic != null && unit != unitStatic) {
+          throw new LessExceptionError(new LessError(
+              type: 'Argument',
+              message: 'incompatible types'));
+        }
         values[unit] = order.length;
         order.add(current);
         continue;
@@ -61,12 +62,12 @@ class NumberFunctions extends FunctionBase {
           ? new Dimension(order[j].value, unitClone).unify()
           : order[j].unify();
       if (isMin && currentUnified.value < referenceUnified.value ||
-          !isMin && currentUnified.value > referenceUnified.value)
-          order[j] = current;
+          !isMin && currentUnified.value > referenceUnified.value) {
+        order[j] = current;
+      }
     }
 
-    if (order.length == 1)
-        return order[0];
+    if (order.length == 1) return order[0];
     final String arguments = order
         .map((Dimension a) => a.toCSS(context))
         .toList()

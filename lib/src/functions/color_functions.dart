@@ -101,7 +101,7 @@ class ColorFunctions extends FunctionBase {
   // r, g, b, a are (Dimension | num)
   Color rgba(dynamic r, dynamic g, dynamic b, dynamic a) {
     final List<num> rgb = <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
-    return new Color(rgb, number(a));
+    return new Color.fromList(rgb, number(a));
 
 //    rgba: function (r, g, b, a) {
 //        var rgb = [r, g, b].map(function (c) { return scaled(c, 255); });
@@ -435,8 +435,7 @@ class ColorFunctions extends FunctionBase {
   Color saturate(dynamic color, [Dimension amount, Keyword method]) {
     // filter: saturate(3.2);
     // should be kept as is, so check for color
-    if (color is! Color)
-        return null;
+    if (color is! Color) return null;
 
     final HSLType hsl = color.toHSL();
 
@@ -758,7 +757,7 @@ class ColorFunctions extends FunctionBase {
     ];
     final double alpha = color1.alpha * p + color2.alpha * (1 - p);
 
-    return new Color(rgb, alpha);
+    return new Color.fromList(rgb, alpha);
 
 //    mix: function (color1, color2, weight) {
 //        if (!weight) {
@@ -807,8 +806,7 @@ class ColorFunctions extends FunctionBase {
   Color contrast(Node colorNode, [Color dark, Color light, Dimension threshold]) {
     // filter: contrast(3.2);
     // should be kept as is, so check for color
-    if (colorNode is! Color)
-        return null;
+    if (colorNode is! Color) return null;
     final Color color = colorNode;
 
     Color _light = light ?? rgba(255, 255, 255, 1.0);
@@ -880,8 +878,9 @@ class ColorFunctions extends FunctionBase {
   Color color(dynamic c) {
     final RegExp re = new RegExp(r'^#([a-f0-9]{6}|[a-f0-9]{3})$', caseSensitive: false);
 
-    if (c is Quoted && re.hasMatch(c.value))
-        return new Color(c.value.substring(1)); // #rrggbb or #rgb - without #
+    if (c is Quoted && re.hasMatch(c.value)) {
+      return new Color(c.value.substring(1)); // #rrggbb or #rgb - without #
+    }
 
     final Color _c = (c is Color) ? c : new Color.fromKeyword(c.value); //c.value must be a color name
     if (_c != null) {

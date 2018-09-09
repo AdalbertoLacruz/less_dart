@@ -82,15 +82,13 @@ class Less {
       return new Future<int>.value(exitCode);
     }
 
-    if (modifyOptions != null)
-        modifyOptions(_options);
+    if (modifyOptions != null) modifyOptions(_options);
     _options.pluginLoader.start();
 
     if (_options.input != '-') {
       // Default to .less
       String filename = _options.input;
-      if (path.extension(filename).isEmpty)
-          filename = '$filename.less';
+      if (path.extension(filename).isEmpty) filename = '$filename.less';
 
       final File file = new File(filename);
       if (!file.existsSync()) {
@@ -127,16 +125,14 @@ class Less {
         return;
       }
       if ((match = regOption.firstMatch(arg)) != null) {
-        if (continueProcessing)
-            continueProcessing = _options.parse(match);
+        if (continueProcessing) continueProcessing = _options.parse(match);
         return;
       }
       if (_options.input == '') {
         _options.input = arg;
         return;
       }
-      if (_options.output == '')
-          _options.output = arg;
+      if (_options.output == '') _options.output = arg;
     });
     return continueProcessing;
   }
@@ -147,8 +143,7 @@ class Less {
     return parser.parse(data).then((Ruleset tree) {
       RenderResult result;
 
-      if (tree == null)
-          return new Future<int>.value(exitCode);
+      if (tree == null) return new Future<int>.value(exitCode);
 
       //debug
       if (_options.showTreeLevel == 0) {
@@ -161,8 +156,7 @@ class Less {
         result = new ParseTree(tree, parser.imports).toCSS(_options.clone(), parser.context);
         imports = result.imports;
 
-        if (!_options.lint)
-          writeOutput(_options.output, result, _options);
+        if (!_options.lint) writeOutput(_options.output, result, _options);
 
       } on LessExceptionError catch (e) {
         logger.error(e.toString());
@@ -190,12 +184,14 @@ class Less {
     }
 
     //map
-    if (options.sourceMap && !options.sourceMapOptions.sourceMapFileInline)
-        writeFile(options.sourceMapOptions.sourceMapFullFilename, result.map);
+    if (options.sourceMap && !options.sourceMapOptions.sourceMapFileInline) {
+      writeFile(options.sourceMapOptions.sourceMapFullFilename, result.map);
+    }
 
     //dependencies
-    if (options.depends)
-        logger.log('${options.outputBase}: ${result.imports.join(' ')}');
+    if (options.depends) {
+      logger.log('${options.outputBase}: ${result.imports.join(' ')}');
+    }
 
 //2.7.1 20160503
 // var writeOutput = function(output, result, onSuccess) {

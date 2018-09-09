@@ -81,7 +81,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   Dimension eval(Contexts context) => this;
 
   ///
-  Color toColor() => new Color(<num>[value, value, value]);
+  Color toColor() => new Color.fromList(<num>[value, value, value]);
 
   ///
   @override

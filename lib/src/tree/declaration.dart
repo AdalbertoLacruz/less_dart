@@ -17,7 +17,7 @@ class Declaration extends Node implements MakeImportantNode {
   ///   @a    -> String
   ///   *zoom -> [0] keyword *, [1] keyword zoom
   ///
-  @override dynamic         name; //String or List<Keyword>
+  @override dynamic         name; // String or List<Keyword>
 
   @override final String    type = 'Declaration';
 
@@ -34,14 +34,14 @@ class Declaration extends Node implements MakeImportantNode {
   bool    variable = false;
 
   ///
-  Declaration(dynamic this.name, dynamic value,
-      {String important,
+  Declaration(dynamic this.name, dynamic value, {
+      String important,
       String this.merge,
       int index,
       FileInfo currentFileInfo,
       bool this.inline = false,
-      bool variable})
-      : super.init(currentFileInfo: currentFileInfo, index: index) {
+      bool variable
+      }) : super.init(currentFileInfo: currentFileInfo, index: index) {
     //
     this.value = (value is Node)
         ? value
@@ -87,7 +87,6 @@ class Declaration extends Node implements MakeImportantNode {
       variable: variable);
 
   ///
-  //function external to class. static?
   String evalName(Contexts context, List<Node> name) {
     final Output output = new Output();
 
@@ -206,7 +205,7 @@ class Declaration extends Node implements MakeImportantNode {
         important = importantResult.important;
       }
 
-      return new Declaration(name, evaldValue, //TODO clone()
+      return new Declaration(name, evaldValue,
           important: important,
           merge: merge,
           index: index,

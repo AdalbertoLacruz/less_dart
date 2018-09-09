@@ -11,12 +11,14 @@ class Value extends Node {
   ///
   /// value is List<Node> | Node => [value]
   ///
-  Value(dynamic value, {int index})
-      : super.init(index: index) {
+  Value(dynamic value, {
+      int index
+      }) : super.init(index: index) {
     //
-    if (value == null)
-        throw new LessExceptionError(new LessError(
-            message: 'Value requires an array argument'));
+    if (value == null) {
+      throw new LessExceptionError(new LessError(
+          message: 'Value requires an array argument'));
+    }
     if (value is! List<Node>) {
       this.value = <Node>[value];
     } else {
@@ -45,8 +47,7 @@ class Value extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    if (value != null)
-        value = visitor.visitArray(value);
+    if (value != null) value = visitor.visitArray(value);
 
 //2.3.1
 //  Value.prototype.accept = function (visitor) {
@@ -58,12 +59,9 @@ class Value extends Node {
 
   ///
   @override
-  Node eval(Contexts context) {
-    if (value.length == 1) {
-      return value.first.eval(context);
-    } else {
-      return new Value(value.map((Node v) => v.eval(context)).toList());
-    }
+  Node eval(Contexts context) => (value.length == 1)
+      ? value.first.eval(context)
+      : new Value(value.map((Node v) => v.eval(context)).toList());
 
 //2.3.1
 //  Value.prototype.eval = function (context) {
@@ -75,18 +73,17 @@ class Value extends Node {
 //          }));
 //      }
 //  };
-  }
 
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (context != null && context.cleanCss)
-        return genCleanCSS(context, output);
+    if (context != null && context.cleanCss) return genCleanCSS(context, output);
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i + 1 < value.length)
-          output.add((context != null && context.compress) ? ',' : ', ');
+      if (i + 1 < value.length) {
+        output.add((context != null && context.compress) ? ',' : ', ');
+      }
     }
 
 //2.3.1
@@ -105,8 +102,7 @@ class Value extends Node {
   void genCleanCSS(Contexts context, Output output) {
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i + 1 < value.length)
-          output.add(',');
+      if (i + 1 < value.length) output.add(',');
     }
   }
 
