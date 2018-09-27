@@ -1,4 +1,4 @@
-// source: lib/less/functions/types.js 2.5.0
+// source: lib/less/functions/types.js 3.0.3 20180430
 
 part of functions.less;
 

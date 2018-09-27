@@ -1,4 +1,4 @@
-//source: less/plugin-manager.js 3.0.0 201060719
+//source: less/plugin-manager.js 3.0.0 20180210
 
 part of plugins.less;
 
@@ -74,18 +74,9 @@ class PluginManager {
     if (isLoaded) return;
     visitors.add(visitor);
 
-//3.0.0 20160719
+// 3.0.0 20180210
 // PluginManager.prototype.addVisitor = function(visitor) {
-//     var proto;
-//     // 2.x to 3.x visitor compatibility
-//     try {
-//         proto = utils.getPrototype(visitor);
-//         upgradeVisitors(proto, 'Directive', 'AtRule');
-//         upgradeVisitors(proto, 'Rule', 'Declaration');
-//     }
-//     catch(e) {}
-//
-//     this.visitors.push(visitor);
+//    this.visitors.push(visitor);
 // };
   }
 

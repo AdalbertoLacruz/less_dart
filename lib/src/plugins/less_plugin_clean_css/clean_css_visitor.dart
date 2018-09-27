@@ -315,12 +315,8 @@ class CleanCssVisitor extends VisitorBase {
     if (node is Comment) return visitComment;
     if (node is Dimension) return visitDimension;
     if (node is AtRule) return visitAtRule;
-    // Compatibility old node type
-    if (node is Directive) return visitAtRule;
     if (node is Expression) return visitExpression;
     if (node is Declaration) return visitDeclaration;
-    // Compatibility old node type
-    if (node is Rule) return visitDeclaration;
     if (node is Ruleset) return visitRuleset;
     if (node is URL) return visitUrl;
     return null;

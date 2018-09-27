@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.0.0 20170607
+//source: less/parser/parser.js 3.0.0 20180211
 
 part of parser.less;
 
@@ -67,7 +67,7 @@ class Entities {
 //  },
   }
 
-  static final RegExp  _keywordRegEx = new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]*', caseSensitive: true);
+  static final RegExp  _keywordRegEx = new RegExp(r'\[?[_A-Za-z-][_A-Za-z0-9-]*\]?', caseSensitive: true);
 
   ///
   /// A catch-all word, such as:
@@ -85,9 +85,9 @@ class Entities {
 
     return null;
 
-//2.4.0 20150321 1640
+//3.0.0 20180210
 //  keyword: function () {
-//      var k = parserInput.$char("%") || parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]*/);
+//      var k = parserInput.$char("%") || parserInput.$re(/^\[?[_A-Za-z-][_A-Za-z0-9-]*\]?/);
 //      if (k) {
 //          return tree.Color.fromKeyword(k) || new(tree.Keyword)(k);
 //      }
@@ -591,7 +591,7 @@ class Entities {
   ///
   /// A property entity using the protective `{}`. Example:
   ///
-  ///     @{prop}
+  ///     ${prop}
   ///
   Property propertyCurly() {
     String    curly;

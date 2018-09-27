@@ -1,4 +1,4 @@
-// source: less/contexts.js 3.0.0 20171009
+// source: less/contexts.js 3.0.0 20180211
 
 library contexts.less;
 
@@ -96,6 +96,9 @@ class Contexts {
 
   /// Ruleset
   bool lastRule = false;
+
+  /// To let turn off math for calc()
+  bool mathOn = true;
 
   /// Ruleset
   List<Media> mediaBlocks;
@@ -358,14 +361,22 @@ class Contexts {
 //  };
 
   ///
-  bool isMathOn() => strictMath
-      ? (parensStack != null && parensStack.isNotEmpty)
+  bool isMathOn() {
+    if (!mathOn) return false;
+    
+    return strictMath
+      ? (parensStack?.isNotEmpty ?? false)
       : true;
 
-//2.2.0
+//3.0.0 20180211
+//  contexts.Eval.prototype.mathOn = true;
 //  contexts.Eval.prototype.isMathOn = function () {
-//      return this.strictMath ? (this.parensStack && this.parensStack.length) : true;
+//    if (!this.mathOn) {
+//        return false;
+//    }
+//    return this.strictMath ? (this.parensStack && this.parensStack.length) : true;
 //  };
+  }
 
   ///
   bool isPathRelative(String path) {

@@ -1,4 +1,4 @@
-//source: less/tree/dimension.js 3.0.0 20160714
+//source: less/tree/dimension.js 3.0.3 20180340
 
 part of tree.less;
 
@@ -117,12 +117,12 @@ class Unit extends Node implements CompareNode {
 
   ///
   bool isLength(Contexts context) {
-    final RegExp re = new RegExp(r'px|em|%|in|cm|mm|pc|pt|ex'); //i?
+    final RegExp re = new RegExp(r'^(px|em|ex|ch|rem|in|cm|mm|pc|pt|ex|vw|vh|vmin|vmax)$', caseSensitive: false);
     return re.hasMatch(toCSS(context));
 
-//2.3.1
+//3.0.3 20180430
 //  Unit.prototype.isLength = function () {
-//      return Boolean(this.toCSS().match(/px|em|%|in|cm|mm|pc|pt|ex/));
+//    return RegExp('^(px|em|ex|ch|rem|in|cm|mm|pc|pt|ex|vw|vh|vmin|vmax)$', 'gi').test(this.toCSS());
 //  };
   }
 

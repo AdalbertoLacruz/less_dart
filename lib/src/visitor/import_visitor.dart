@@ -482,13 +482,9 @@ class ImportVisitor extends VisitorBase {
   Function visitFtn(Node node) {
     if (node is Media) return visitMedia;
     if (node is AtRule) return visitAtRule;
-    //compatibility old node type
-    if (node is Directive) return visitAtRule;
     if (node is Import) return visitImport;
     if (node is MixinDefinition) return visitMixinDefinition;
     if (node is Declaration) return visitDeclaration;
-    //compatibility old node type
-    if (node is Rule) return visitDeclaration;
     if (node is Ruleset) return visitRuleset;
     return null;
   }
@@ -498,12 +494,8 @@ class ImportVisitor extends VisitorBase {
   Function visitFtnOut(Node node) {
     if (node is Media) return visitMediaOut;
     if (node is AtRule) return visitAtRuleOut;
-    //compatibility old node type
-    if (node is Directive) return visitAtRuleOut;
     if (node is MixinDefinition) return visitMixinDefinitionOut;
     if (node is Declaration) return visitDeclarationOut;
-    //compatibility old node type
-    if (node is Rule) return visitDeclarationOut;
     if (node is Ruleset) return visitRulesetOut;
     return null;
   }

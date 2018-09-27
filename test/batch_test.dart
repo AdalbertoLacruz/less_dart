@@ -83,51 +83,50 @@ void declareTest(int id) {
 
 ///
 Map<int, Config> configFill() => <int, Config>{
-     0: def('charsets'), //@import
-     1: def('colors'),
-     2: def('comments'),
-     3: def('comments2', options: <String>['--strict-math=on']),
-     4: def('css'),
-     5: def('css-3'),
-     6: def('css-escapes'),
-     7: def('css-guards'),
-     8: def('detached-rulesets'),
-     9: def('directives-bubling'),
-    10: def('empty'),
-    11: def('extend', options: <String>['--log-level=1']),
-    12: def('extend-chaining', options: <String>['--log-level=1']),
-    13: def('extend-clearfix'),
-    14: def('extend-exact', options: <String>['--log-level=1']),
-    15: def('extend-media'),
-    16: def('extend-nest', options: <String>['--log-level=1']),
-    17: def('extend-selector'),
-    18: def('extract-and-length'),
-    19: def('functions'),
-    20: def('ie-filters'),
-    21: def('import'),
-    22: def('import-inline'),
-    23: def('import-interpolation'),
-    24: def('import-once'),
-    25: def('import-reference', options: <String>['--log-level=1']),
-    26: def('import-reference-issues'),
+     0: def('calc'),
+     1: def('charsets'), //@import
+     2: def('colors'),
+     3: def('comments'),
+     4: def('comments2'),
+     6: def('css-3'),
+     7: def('css-escapes'),
+     8: def('css-grid'),
+     9: def('css-guards'),
+    10: def('detached-rulesets'),
+    11: def('directives-bubling'),
+    12: def('empty'),
+    13: def('extend', options: <String>['--log-level=1']),
+    14: def('extend-chaining', options: <String>['--log-level=1']),
+    15: def('extend-clearfix'),
+    16: def('extend-exact', options: <String>['--log-level=1']),
+    17: def('extend-media'),
+    18: def('extend-nest', options: <String>['--log-level=1']),
+    19: def('extend-selector'),
+    20: def('extract-and-length'),
+    21: def('functions'),
+    22: def('ie-filters'),
+    23: def('import'),
+    24: def('import-inline'),
+    25: def('import-interpolation'),
+    26: def('import-once'),
+    27: def('import-reference', options: <String>['--log-level=1']),
+    28: def('import-reference-issues'),
     //26: def('javascript'),
-    27: def('lazy-eval'),
-    28: def('media', options: <String>['--strict-math=on']),
-    29: def('merge'),
-    30: def('mixins'),
-    31: def('mixins-args', options: <String>['--strict-math=on']),
-    32: def('mixins-closure'),
-    33: def('mixins-guards'),
-    34: def('mixins-guards-default-func'),
-    35: def('mixins-important'),
-    36: def('mixins-interpolated'),
-    37: def('mixins-named-args'),
-    38: def('mixins-nested'),
-    39: def('mixins-pattern'),
-    40: def('no-output'),
-    41: def('operations'),
-    42: def('parens', options: <String>['--strict-math=on']),
-    43: def('plugin',
+    29: def('lazy-eval'),
+    30: def('media', options: <String>['--strict-math=off']), // also works with 'on'
+    31: def('merge'),
+    32: def('mixins'),
+    34: def('mixins-closure'),
+    35: def('mixins-guards'),
+    36: def('mixins-guards-default-func'),
+    37: def('mixins-important'),
+    38: def('mixins-interpolated'),
+    39: def('mixins-named-args'),
+    40: def('mixins-nested'),
+    41: def('mixins-pattern'),
+    42: def('no-output'),
+    43: def('operations'),
+    45: def('plugin',
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-global', new PluginGlobal())
@@ -149,18 +148,21 @@ Map<int, Config> configFill() => <int, Config>{
     53: def('variables'),
     54: def('variables-in-at-rules'),
     55: def('whitespace'),
-    56: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
-    57: def('no-strict-math/no-sm-operations'),
-    58: def('no-strict-math/mixins-guards'),
+    56: def('strict-math/css', options: <String>['--strict-math=on']),
+    57: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
+    58: def('strict-math/parens', options: <String>['--strict-math=on']),
+    59: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
+    60: def('no-strict-math/no-sm-operations'),
+    61: def('no-strict-math/mixins-guards'),
     // compression
-    60: def('compression/compression', options: <String>['-x']),
+    62: def('compression/compression', options: <String>['-x']),
 
     // globalVars
-    61: def('globalVars/simple', options: <String>[
+    63: def('globalVars/simple', options: <String>[
           '--global-var=my-color=red',
           '--banner=${dirPath}banner.txt'
         ]),
-    62: def('globalVars/extended', options: <String>[
+    64: def('globalVars/extended', options: <String>[
           '--global-var=the-border=1px',
           '--global-var=base-color=#111',
           '--global-var=red=#842210',
@@ -168,28 +170,28 @@ Map<int, Config> configFill() => <int, Config>{
         ]),
 
     // modifyVars
-    63: def('modifyVars/extended', options: <String>[
+    65: def('modifyVars/extended', options: <String>[
           '--modify-var=the-border=1px',
           '--modify-var=base-color=#111',
           '--modify-var=red=#842210'
         ]),
 
     // debug line-numbers
-    64: def('debug/linenumbers',
+    66: def('debug/linenumbers',
         options: <String>['--line-numbers=comments'],
         cssName: 'debug/linenumbers-comments',
         replace: <Map<String, String>>[
           <String, String>{'from': '{path}', 'to': absPath('${dirPath}less/debug')},
           <String, String>{'from': '{pathimport}', 'to': absPath('${dirPath}less/debug/import')}
         ]),
-    65: def('debug/linenumbers',
+    67: def('debug/linenumbers',
         options: <String>['--line-numbers=mediaquery'],
         cssName: 'debug/linenumbers-mediaquery',
         replace: <Map<String, String>>[
           <String, String>{'from': '{pathesc}', 'to': escFile(absPath('${dirPath}less/debug'))},
           <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
-    66: def('debug/linenumbers',
+    68: def('debug/linenumbers',
         options: <String>['--line-numbers=all'],
         cssName: 'debug/linenumbers-all',
         replace: <Map<String, String>>[
@@ -199,7 +201,7 @@ Map<int, Config> configFill() => <int, Config>{
           <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
 
-    67: def('legacy/legacy'),
+    69: def('legacy/legacy'),
 
     74: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
@@ -470,7 +472,7 @@ Map<int, Config> configFill() => <int, Config>{
         isCleancssTest: true),
     310: def('colors', isCleancssTest: true),
     311: def('css-3', isCleancssTest: true),
-    312: def('css', isCleancssTest: true)
+    312: def('css-clean', isCleancssTest: true)
 };
 
 ///

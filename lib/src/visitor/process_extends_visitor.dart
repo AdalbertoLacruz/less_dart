@@ -862,12 +862,8 @@ class ProcessExtendsVisitor extends VisitorBase {
   Function visitFtn(Node node) {
     if (node is Media) return visitMedia;
     if (node is AtRule) return visitAtRule;
-    //compatibility old node type
-    if (node is Directive) return visitAtRule;
     if (node is MixinDefinition) return visitMixinDefinition;
     if (node is Declaration) return visitDeclaration;
-    //compatibility old node type
-    if (node is Rule) return visitDeclaration;
     if (node is Ruleset) return visitRuleset;
     if (node is Selector) return visitSelector;
 
@@ -879,9 +875,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   Function visitFtnOut(Node node) {
     if (node is Media) return visitMediaOut;
     if (node is AtRule) return visitAtRuleOut;
-    //compatibility old node type
-    if (node is Directive) return visitAtRuleOut;
-    
+
     return null;
   }
 }

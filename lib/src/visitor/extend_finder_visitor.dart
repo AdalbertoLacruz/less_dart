@@ -219,12 +219,8 @@ class ExtendFinderVisitor extends VisitorBase {
     //before AtRule
     if (node is Media) return visitMedia;
     if (node is AtRule) return visitAtRule;
-    //compatibility old node type
-    if (node is Directive) return visitAtRule;
     if (node is MixinDefinition) return visitMixinDefinition;
     if (node is Declaration) return visitDeclaration;
-    //compatibility old node type
-    if (node is Rule) return visitDeclaration;
     if (node is Ruleset) return visitRuleset;
 
     return null;
@@ -236,8 +232,6 @@ class ExtendFinderVisitor extends VisitorBase {
     //before Directive
     if (node is Media) return visitMediaOut;
     if (node is AtRule) return visitAtRuleOut;
-    //compatibility old node type
-    if (node is Directive) return visitAtRuleOut;
     if (node is Ruleset) return visitRulesetOut;
 
     return null;

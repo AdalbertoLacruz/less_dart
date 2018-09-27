@@ -537,15 +537,11 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     if (node is Comment) return visitComment;
     if (node is Media) return visitMedia;
     if (node is AtRule) return visitAtRule;
-    //compatibility old node type
-    if (node is Directive) return visitAtRule;
     if (node is Extend) return visitExtend;
     if (node is Import) return visitImport;
     if (node is MixinDefinition) return visitMixinDefinition;
     if (node is Options) return visitOptions;
     if (node is Declaration) return visitDeclaration;
-    //compatibility old node type
-    if (node is Rule) return visitDeclaration;
     if (node is Ruleset) return visitRuleset;
     return null;
   }

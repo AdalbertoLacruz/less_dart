@@ -1,4 +1,4 @@
-//source: lib/less-node/file-manager.js 3.0.0 20171016
+//source: lib/less-node/file-manager.js 3.0.3 20180418
 
 part of environment.less;
 
@@ -18,7 +18,7 @@ class FileFileManager extends AbstractFileManager {
   List<String> filenamesTried = <String>[];
 
   /// content cache for files yet loaded
-  Map<String, String> files = <String, String>{};
+  Map<String, String> contents = <String, String>{};
 
   final PackageResolverProvider _packageResolverProvider;
 
@@ -127,7 +127,7 @@ class FileFileManager extends AbstractFileManager {
     }
   }
 
-//3.0.0 20171016
+//3.0.3 201804
 //FileManager.prototype.loadFile = function(filename, currentDirectory, options, environment, callback) {
 //
 //    var fullFilename,
@@ -136,16 +136,15 @@ class FileFileManager extends AbstractFileManager {
 //        self = this,
 //        prefix = filename.slice(0, 1),
 //        explicit = prefix === "." || prefix === "/",
-//        result = null;
+//        result = null,
+//        isNodeModule = false,
+//        npmPrefix = 'npm://';
 //
 //    options = options || {};
 //
 //    var paths = isAbsoluteFilename ? [''] : [currentDirectory];
 //
 //    if (options.paths) { paths.push.apply(paths, options.paths); }
-//
-//    // Search node_modules
-//    if (!explicit) { paths.push.apply(paths, this.modulePaths); }
 //
 //    if (!isAbsoluteFilename && paths.indexOf('.') === -1) { paths.push('.'); }
 //
@@ -182,23 +181,47 @@ class FileFileManager extends AbstractFileManager {
 //            if (i < paths.length) {
 //                (function tryPrefix(j) {
 //                    if (j < prefixes.length) {
+//                        isNodeModule = false;
 //                        fullFilename = fileParts.rawPath + prefixes[j] + fileParts.filename;
 //
 //                        if (paths[i]) {
 //                            fullFilename = path.join(paths[i], fullFilename);
 //                        }
 //
-//                        if (paths[i].indexOf('node_modules') > -1) {
+//                        if (!explicit && paths[i] === '.') {
 //                            try {
 //                                fullFilename = require.resolve(fullFilename);
+//                                isNodeModule = true;
 //                            }
-//                            catch (e) {}
+//                            catch (e) {
+//                                filenamesTried.push(npmPrefix + fullFilename);
+//                                tryWithExtension();
+//                            }
+//                        }
+//                        else {
+//                            tryWithExtension();
 //                        }
 //
-//                        fullFilename = options.ext ? self.tryAppendExtension(fullFilename, options.ext) : fullFilename;
+//                        function tryWithExtension() {
+//                            var extFilename = options.ext ? self.tryAppendExtension(fullFilename, options.ext) : fullFilename;
 //
-//                        if (self.files[fullFilename]) {
-//                            fulfill({ contents: self.files[fullFilename], filename: fullFilename});
+//                            if (extFilename !== fullFilename && !explicit && paths[i] === '.') {
+//                                try {
+//                                    fullFilename = require.resolve(extFilename);
+//                                    isNodeModule = true;
+//                                }
+//                                catch (e) {
+//                                    filenamesTried.push(npmPrefix + extFilename);
+//                                    fullFilename = extFilename;
+//                                }
+//                            }
+//                            else {
+//                                fullFilename = extFilename;
+//                            }
+//                        }
+//
+//                        if (self.contents[fullFilename]) {
+//                            fulfill({ contents: self.contents[fullFilename], filename: fullFilename});
 //                        }
 //                        else {
 //                            var readFileArgs = [fullFilename];
@@ -208,21 +231,21 @@ class FileFileManager extends AbstractFileManager {
 //                            if (options.syncImport) {
 //                                try {
 //                                    var data = fs.readFileSync.apply(this, readFileArgs);
-//                                    self.files[fullFilename] = data;
+//                                    self.contents[fullFilename] = data;
 //                                    fulfill({ contents: data, filename: fullFilename});
 //                                }
 //                                catch (e) {
-//                                    filenamesTried.push(fullFilename);
+//                                    filenamesTried.push(isNodeModule ? npmPrefix + fullFilename : fullFilename);
 //                                    return tryPrefix(j + 1);
 //                                }
 //                            }
 //                            else {
 //                                readFileArgs.push(function(e, data) {
 //                                    if (e) {
-//                                        filenamesTried.push(fullFilename);
+//                                        filenamesTried.push(isNodeModule ? npmPrefix + fullFilename : fullFilename);
 //                                        return tryPrefix(j + 1);
 //                                    }
-//                                    self.files[fullFilename] = data;
+//                                    self.contents[fullFilename] = data;
 //                                    fulfill({ contents: data, filename: fullFilename});
 //                                });
 //                                fs.readFile.apply(this, readFileArgs);
@@ -265,10 +288,10 @@ class FileFileManager extends AbstractFileManager {
       if (options.rawBuffer) {
         fileLoaded.codeUnits = new File(fullFilename).readAsBytesSync();
       } else {
-        if (!files.containsKey(fullFilename)) {
-          files[fullFilename] = new File(fullFilename).readAsStringSync();
+        if (!contents.containsKey(fullFilename)) {
+          contents[fullFilename] = new File(fullFilename).readAsStringSync();
         }
-        fileLoaded.contents = files[fullFilename];
+        fileLoaded.contents = contents[fullFilename];
       }
     } else {
       fileLoaded.error = new LessError(
@@ -315,11 +338,11 @@ class FileFileManager extends AbstractFileManager {
   /// Loads file by its [fullPath]
   ///
   Future<FileLoaded> getLoadedFile(String fullPath) async {
-    if (files.containsKey(fullPath)) {
-      return new FileLoaded(filename: fullPath, contents: files[fullPath]);
+    if (contents.containsKey(fullPath)) {
+      return new FileLoaded(filename: fullPath, contents: contents[fullPath]);
     }
     final String data = await new File(fullPath).readAsString();
-    files[fullPath] = data;
+    contents[fullPath] = data;
     return new FileLoaded(filename: fullPath, contents: data);
   }
 

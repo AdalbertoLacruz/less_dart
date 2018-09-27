@@ -24,8 +24,7 @@ class RemoveProperty extends VisitorBase {
 
   @override
   Function visitFtn(Node node) {
-    if (node is Declaration)
-        return visitDeclaration;
+    if (node is Declaration) return visitDeclaration;
     return null;
   }
 

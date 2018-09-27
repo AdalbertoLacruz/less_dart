@@ -1,4 +1,4 @@
-//source: less/import-manager.js 3.0.0 20171009
+//source: less/import-manager.js 3.0.1 20180219
 
 library importmanager.less;
 
@@ -77,7 +77,7 @@ class ImportManager {
   }
 
   ///
-  /// Build the return content and save in files cache
+  /// Build the return content and save it in files cache
   /// [root] = Node | String
   ///
   ImportedFile fileParsedFunc(String path, dynamic root, String fullPath,
@@ -93,13 +93,18 @@ class ImportManager {
         fullPath: fullPath,
         options: importOptions);
 
-    // in js only if (!files.containsKey[fullPath]). But if we are here, don't like the cache
-    if (fullPath != null) files[fullPath] = importedFile;
+    // Inline imports aren't cached here.
+    // If we start to cache them, please make sure they won't conflict with non-inline imports of the
+    // same name as they used to do before this comment and the condition below have been added.
+    //
+    // in js only if (!importManager.files[fullPath] && !importOptions.inline).
+    // But if we are here, don't like the cache
+    if (fullPath != null && !(importOptions?.inline ?? false)) files[fullPath] = importedFile;
 
     return importedFile;
   }
 
-//3.0.0 20170608
+//3.0.1 20180219
 //  var fileParsedFunc = function (e, root, fullPath) {
 //      importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue
 //
@@ -108,7 +113,10 @@ class ImportManager {
 //          callback(null, {rules:[]}, false, null);
 //      }
 //      else {
-//          if (!importManager.files[fullPath]) {
+//          // Inline imports aren't cached here.
+//          // If we start to cache them, please make sure they won't conflict with non-inline imports of the
+//          // same name as they used to do before this comment and the condition below have been added.
+//          if (!importManager.files[fullPath] && !importOptions.inline) {
 //              importManager.files[fullPath] = { root: root, options: importOptions };
 //          }
 //          if (e && !importManager.error) { importManager.error = e; }
@@ -128,8 +136,9 @@ class ImportManager {
   Future<ImportedFile> push(
       String path,
       FileInfo currentFileInfo,
-      ImportOptions importOptions,
-      {bool tryAppendLessExtension = false}) async {
+      ImportOptions importOptions, {
+        bool tryAppendLessExtension = false
+      }) async {
 
     final Contexts _context = context.clone();
 
@@ -149,77 +158,76 @@ class ImportManager {
 
     try {
       final FileLoaded loadedFile = await fileManager.loadFile(path, currentFileInfo.currentDirectory, _context, environment);
-        final String resolvedFilename = loadedFile.filename;
-        final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
+      final String resolvedFilename = loadedFile.filename;
+      final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
 
-        // Pass on an updated rootpath if path of imported file is relative and file
-        // is in a (sub|sup) directory
-        //
-        // Examples:
-        // - If path of imported file is 'module/nav/nav.less' and rootpath is 'less/',
-        //   then rootpath should become 'less/module/nav/'
-        // - If path of imported file is '../mixins.less' and rootpath is 'less/',
-        //   then rootpath should become 'less/../'
+      // Pass on an updated rootpath if path of imported file is relative and file
+      // is in a (sub|sup) directory
+      //
+      // Examples:
+      // - If path of imported file is 'module/nav/nav.less' and rootpath is 'less/',
+      //   then rootpath should become 'less/module/nav/'
+      // - If path of imported file is '../mixins.less' and rootpath is 'less/',
+      //   then rootpath should become 'less/../'
 
-        newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
-        if (newFileInfo.relativeUrls) {
-          String currentDirectory = newFileInfo.currentDirectory;
-          if (!currentDirectory.endsWith(pathLib.separator)) {
-            currentDirectory += pathLib.separator;
-          }
-
-          final String entryPath = await fileManager.normalizeFilePath(newFileInfo.entryPath);
-
-          final String pathdiff = fileManager.pathDiff(currentDirectory, entryPath);
-          newFileInfo.rootpath = fileManager.join((_context.rootpath ?? ''), pathdiff);
-
-          if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
-            newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
-          }
-        }
-        newFileInfo.filename = resolvedFilename;
-
-        final Contexts newEnv = new Contexts.parse(_context)
-            ..processImports = false
-            ..currentFileInfo = newFileInfo; // Not in original
-
-        this.contents[resolvedFilename] = contents;
-
-        if (currentFileInfo.reference || (importOptions?.reference ?? false)) {
-          newFileInfo.reference = true;
+      newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
+      if (newFileInfo.relativeUrls) {
+        String currentDirectory = newFileInfo.currentDirectory;
+        if (!currentDirectory.endsWith(pathLib.separator)) {
+          currentDirectory += pathLib.separator;
         }
 
-        // if (importOptions.isPlugin) ...
-        if (importOptions?.inline ?? false) {
-            return fileParsedFunc(path, contents, resolvedFilename, importOptions);
+        final String entryPath = await fileManager.normalizeFilePath(newFileInfo.entryPath);
 
-        // import (multiple) parse trees apparently get altered and can't be cached.
-        // TODO: investigate why this is (js)
-        } else if (files.containsKey(resolvedFilename)
-          && !(files[resolvedFilename].options?.multiple ?? false)
-          && !(importOptions?.multiple ?? false)) {
-          return fileParsedFunc(path, null, resolvedFilename, importOptions, useCache: true);
-        } else {
-          try {
-            final Ruleset root = await new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents);
-            return fileParsedFunc(path, root, resolvedFilename, importOptions);
-          }
-          catch (e) {
-            throw e;
-          }
+        final String pathdiff = fileManager.pathDiff(currentDirectory, entryPath);
+        newFileInfo.rootpath = fileManager.join((_context.rootpath ?? ''), pathdiff);
+
+        if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
+          newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
         }
       }
-      catch (e) {
-        //importOptions.optional: continue compiling when file is not found
-        if (importOptions?.optional ?? false) {
-          return fileParsedFunc(path, new Ruleset(<Selector>[], <Node>[]), null, importOptions);
-        } else {
+      newFileInfo.filename = resolvedFilename;
+
+      final Contexts newEnv = new Contexts.parse(_context)
+          ..processImports = false
+          ..currentFileInfo = newFileInfo; // Not in original
+
+      this.contents[resolvedFilename] = contents;
+
+      if (currentFileInfo.reference || (importOptions?.reference ?? false)) {
+        newFileInfo.reference = true;
+      }
+
+      // if (importOptions.isPlugin) ...
+      if (importOptions?.inline ?? false) {
+          return fileParsedFunc(path, contents, resolvedFilename, importOptions);
+
+      // import (multiple) parse trees apparently get altered and can't be cached.
+      // TODO: investigate why this is (js)
+      } else if (files.containsKey(resolvedFilename)
+        && !(files[resolvedFilename].options?.multiple ?? false)
+        && !(importOptions?.multiple ?? false)) {
+        return fileParsedFunc(path, null, resolvedFilename, importOptions, useCache: true);
+      } else {
+        try {
+          final Ruleset root = await new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents);
+          return fileParsedFunc(path, root, resolvedFilename, importOptions);
+        }
+        catch (e) {
           throw e;
         }
+      }
+    }
+    catch (e) {
+      //importOptions.optional: continue compiling when file is not found
+      if (importOptions?.optional ?? false) {
+        return fileParsedFunc(path, new Ruleset(<Selector>[], <Node>[]), null, importOptions);
+      } else {
+        throw e;
+      }
     }
 
-
-//3.0.0 20171009
+//3.0.1 20180219
 //  ImportManager.prototype.push = function (path, tryAppendExtension, currentFileInfo, importOptions, callback) {
 //      var importManager = this,
 //          pluginLoader = this.context.pluginManager.Loader;
@@ -234,7 +242,10 @@ class ImportManager {
 //              callback(null, {rules:[]}, false, null);
 //          }
 //          else {
-//              if (!importManager.files[fullPath]) {
+//              // Inline imports aren't cached here.
+//              // If we start to cache them, please make sure they won't conflict with non-inline imports of the
+//              // same name as they used to do before this comment and the condition below have been added.
+//              if (!importManager.files[fullPath] && !importOptions.inline) {
 //                  importManager.files[fullPath] = { root: root, options: importOptions };
 //              }
 //              if (e && !importManager.error) { importManager.error = e; }
