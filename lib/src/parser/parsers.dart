@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 195-end 3.0.0 20170607
+//source: less/parser/parser.js ines 250-end 3.0.4 20180622
 
 part of parser.less;
 
@@ -874,10 +874,10 @@ class Parsers {
   Declaration declaration() {
     final String  c = parserInput.currentChar();
     String        important;
+    final int     index = parserInput.i;
     bool          isVariable;
     String        merge = '';
-    dynamic       name; //String or Node
-    final int     startOfRule = parserInput.i;
+    dynamic       name; //String or List<Node>
     Node          value;
 
     if (c == '.' || c == '#' || c == '&' || c == ':') return null;
@@ -900,21 +900,30 @@ class Parsers {
             ? (name as List<Node>).removeLast().value
             : '';
 
-        // Try to store values as anonymous
-        // If we need the value later we'll re-parse it in ruleset.parseValue
-        value = anonymousValue();
+        // Custom property values get permissive parsing
+        if ((name is List) && (name.first.value is String) && (name.first.value as String).startsWith('--')) {
+          value = permissiveValue(); // TODO debug
+        } else {
+          // Try to store values as anonymous
+          // If we need the value later we'll re-parse it in ruleset.parseValue
+          value = anonymousValue();
+        }
+
         if (value != null) {
           parserInput.forget();
           // anonymous values absorb the end ';' which is required for them to work
           return new Declaration(name, value,
                   important: '',
                   merge: merge,
-                  index: startOfRule,
+                  index: index,
                   currentFileInfo: fileInfo);
         }
 
         value ??= this.value();
         important = this.important();
+
+        // As a last resort, let a variable try to be parsed as a permissive value
+        if (value == null && isVariable) value = permissiveValue(); // TODO debug
       }
 
       if (value != null && end()) {
@@ -922,7 +931,7 @@ class Parsers {
         return new Declaration(name, value,
             important: important,
             merge: merge,
-            index: startOfRule,
+            index: index,
             currentFileInfo: fileInfo);
       } else {
         parserInput.restore();
@@ -932,6 +941,69 @@ class Parsers {
     }
 
     return null;
+
+//3.0.4 20180622
+//declaration: function () {
+//    var name, value, index = parserInput.i,
+//        c = parserInput.currentChar(), important, merge, isVariable;
+//
+//    if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
+//
+//    parserInput.save();
+//
+//    name = this.variable() || this.ruleProperty();
+//    if (name) {
+//        isVariable = typeof name === "string";
+//
+//        if (isVariable) {
+//            value = this.detachedRuleset();
+//        }
+//
+//        parserInput.commentStore.length = 0;
+//        if (!value) {
+//            // a name returned by this.ruleProperty() is always an array of the form:
+//            // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
+//            // where each item is a tree.Keyword or tree.Variable
+//            merge = !isVariable && name.length > 1 && name.pop().value;
+//
+//            // Custom property values get permissive parsing
+//            if (name[0].value && name[0].value.slice(0, 2) === '--') {
+//                value = this.permissiveValue(';');
+//            }
+//            // Try to store values as anonymous
+//            // If we need the value later we'll re-parse it in ruleset.parseValue
+//            else {
+//                value = this.anonymousValue();
+//            }
+//            if (value) {
+//                parserInput.forget();
+//                // anonymous values absorb the end ';' which is required for them to work
+//                return new (tree.Declaration)(name, value, false, merge, index, fileInfo);
+//            }
+//
+//            if (!value) {
+//                value = this.value();
+//            }
+//
+//            important = this.important();
+//
+//            // As a last resort, let a variable try to be parsed as a permissive value
+//            if (!value && isVariable) {
+//                value = this.permissiveValue(';');
+//            }
+//        }
+//
+//        if (value && this.end()) {
+//            parserInput.forget();
+//            return new (tree.Declaration)(name, value, important, merge, index, fileInfo);
+//        }
+//        else {
+//            parserInput.restore();
+//        }
+//    } else {
+//        parserInput.restore();
+//    }
+//},
 
 //3.0.0 20160718
 // declaration: function () {
@@ -1010,6 +1082,54 @@ class Parsers {
 //         return new(tree.Anonymous)(match[1], index);
 //     }
 // },
+  }
+
+  ///
+  /// Used for custom properties and custom at-rules
+  /// Parses almost anything inside of {} [] () "" blocks
+  /// until it reaches outer-most tokens.
+  ///
+  Node permissiveValue({String untilTokensString, RegExp untilTokensRegExp}) {
+    int index = parserInput.i;
+    // TODO
+//    dynamic value = parserInput.$parseUntil(tok: untilTokensString, tokre: untilTokensRegExp);
+
+    return null;
+
+//3.4.0 20180622
+//permissiveValue: function (untilTokens) {
+//    var i, index = parserInput.i,
+//        value = parserInput.$parseUntil(untilTokens);
+//
+//    if (value) {
+//        if (typeof value === 'string') {
+//            error("Expected '" + value + "'", "Parse");
+//        }
+//        if (value.length === 1 && value[0] === ' ') {
+//            return new tree.Anonymous('', index);
+//        }
+//        var item, args = [];
+//        for (i = 0; i < value.length; i++) {
+//            item = value[i];
+//            if (Array.isArray(item)) {
+//                // Treat actual quotes as normal quoted values
+//                args.push(new tree.Quoted(item[0], item[1], true, index, fileInfo));
+//            }
+//            else {
+//                if (i === value.length - 1) {
+//                    item = item.trim();
+//                }
+//                // Treat like quoted values, but replace vars like unquoted expressions
+//                var quote = new tree.Quoted("'", item, true, index, fileInfo);
+//                quote.variableRegex = /@([\w-]+)/g;
+//                quote.propRegex = /\$([\w-]+)/g;
+//                quote.reparse = true;
+//                args.push(quote);
+//            }
+//        }
+//        return new tree.Expression(args, true);
+//    }
+//},
   }
 
   static final RegExp _importRegExp1 = new RegExp(r'@import?\s+', caseSensitive: true);
@@ -1618,11 +1738,30 @@ class Parsers {
     } else if (hasExpression) {
       value = expression();
       if (value == null) parserInput.error('expected $name expression');
-    } else if (hasUnknown) {
-      final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
-      hasBlock = (parserInput.currentChar() == '{');
-      if (unknown?.isNotEmpty ?? false) value = new Anonymous(unknown);
-    }
+//    } else if (hasUnknown) {
+//      final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
+//      hasBlock = (parserInput.currentChar() == '{');
+//      if (unknown?.isNotEmpty ?? false) value = new Anonymous(unknown);
+//    }
+      } else if (hasUnknown) { // TODO debug --- update pending
+        final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
+        hasBlock = (parserInput.currentChar() == '{');
+        if (unknown?.isNotEmpty ?? false) value = new Anonymous(unknown);
+      }
+
+
+//    } else if (hasUnknown) {
+//        value = this.permissiveValue(/^[{;]/);
+//        hasBlock = (parserInput.currentChar() === '{');
+//        if (!value) {
+//            if (!hasBlock && parserInput.currentChar() !== ';') {
+//                error(name + " rule is missing block or ending semi-colon");
+//            }
+//        }
+//        else if (!value.value) {
+//            value = null;
+//        }
+//    }
 
     if (hasBlock) rules = blockRuleset();
 
@@ -1638,6 +1777,92 @@ class Parsers {
 
     parserInput.restore('at-rule options not recognised');
     return null;
+
+//3.0.4 20180622
+//atrule: function () {
+//    var index = parserInput.i, name, value, rules, nonVendorSpecificName,
+//        hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
+//
+//    if (parserInput.currentChar() !== '@') { return; }
+//
+//    value = this['import']() || this.plugin() || this.media();
+//    if (value) {
+//        return value;
+//    }
+//
+//    parserInput.save();
+//
+//    name = parserInput.$re(/^@[a-z-]+/);
+//
+//    if (!name) { return; }
+//
+//    nonVendorSpecificName = name;
+//    if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
+//        nonVendorSpecificName = "@" + name.slice(name.indexOf('-', 2) + 1);
+//    }
+//
+//    switch (nonVendorSpecificName) {
+//        case "@charset":
+//            hasIdentifier = true;
+//            hasBlock = false;
+//            break;
+//        case "@namespace":
+//            hasExpression = true;
+//            hasBlock = false;
+//            break;
+//        case "@keyframes":
+//        case "@counter-style":
+//            hasIdentifier = true;
+//            break;
+//        case "@document":
+//        case "@supports":
+//            hasUnknown = true;
+//            isRooted = false;
+//            break;
+//        default:
+//            hasUnknown = true;
+//            break;
+//    }
+//
+//    parserInput.commentStore.length = 0;
+//
+//    if (hasIdentifier) {
+//        value = this.entity();
+//        if (!value) {
+//            error("expected " + name + " identifier");
+//        }
+//    } else if (hasExpression) {
+//        value = this.expression();
+//        if (!value) {
+//            error("expected " + name + " expression");
+//        }
+//    } else if (hasUnknown) {
+//        value = this.permissiveValue(/^[{;]/);
+//        hasBlock = (parserInput.currentChar() === '{');
+//        if (!value) {
+//            if (!hasBlock && parserInput.currentChar() !== ';') {
+//                error(name + " rule is missing block or ending semi-colon");
+//            }
+//        }
+//        else if (!value.value) {
+//            value = null;
+//        }
+//    }
+//
+//    if (hasBlock) {
+//        rules = this.blockRuleset();
+//    }
+//
+//    if (rules || (!hasBlock && value && parserInput.$char(';'))) {
+//        parserInput.forget();
+//        return new (tree.AtRule)(name, value, rules, index, fileInfo,
+//            context.dumpLineNumbers ? getDebugInfo(index) : null,
+//            isRooted
+//        );
+//    }
+//
+//    parserInput.restore("at-rule options not recognised");
+//},
 
 //3.0.0 20160718
 // atrule: function () {

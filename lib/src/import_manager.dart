@@ -1,4 +1,4 @@
-//source: less/import-manager.js 3.0.1 20180219
+//source: less/import-manager.js 3.0.1 20180616
 
 library importmanager.less;
 
@@ -9,6 +9,7 @@ import 'contexts.dart';
 import 'environment/environment.dart';
 import 'file_info.dart';
 import 'less_error.dart';
+import 'logger.dart';
 import 'parser/parser.dart';
 import 'tree/tree.dart';
 
@@ -40,6 +41,9 @@ class ImportManager {
 
   /// Holds the imported parse trees
   Map<String, ImportedFile> files = <String, ImportedFile>{};
+
+  /// Log
+  Logger logger;
 
   /// MIME type of .less files
   String mime;
@@ -104,13 +108,14 @@ class ImportManager {
     return importedFile;
   }
 
-//3.0.1 20180219
+//3.0.4 20180616
 //  var fileParsedFunc = function (e, root, fullPath) {
 //      importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue
 //
 //      var importedEqualsRoot = fullPath === importManager.rootFilename;
 //      if (importOptions.optional && e) {
 //          callback(null, {rules:[]}, false, null);
+//          logger.info("The file " + fullPath + " was skipped because it was not found and the import was marked optional.");
 //      }
 //      else {
 //          // Inline imports aren't cached here.
@@ -141,6 +146,7 @@ class ImportManager {
       }) async {
 
     final Contexts _context = context.clone();
+    String resolvedFilename;
 
     queue.add(path);
 
@@ -158,7 +164,7 @@ class ImportManager {
 
     try {
       final FileLoaded loadedFile = await fileManager.loadFile(path, currentFileInfo.currentDirectory, _context, environment);
-      final String resolvedFilename = loadedFile.filename;
+      resolvedFilename = loadedFile.filename;
       final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
 
       // Pass on an updated rootpath if path of imported file is relative and file
@@ -221,13 +227,15 @@ class ImportManager {
     catch (e) {
       //importOptions.optional: continue compiling when file is not found
       if (importOptions?.optional ?? false) {
+        (logger ??= new Logger())
+          ..info('The file ${resolvedFilename ?? path} was skipped because it was not found and the import was marked optional.');
         return fileParsedFunc(path, new Ruleset(<Selector>[], <Node>[]), null, importOptions);
       } else {
         throw e;
       }
     }
 
-//3.0.1 20180219
+//3.0.4 20180616
 //  ImportManager.prototype.push = function (path, tryAppendExtension, currentFileInfo, importOptions, callback) {
 //      var importManager = this,
 //          pluginLoader = this.context.pluginManager.Loader;
@@ -240,6 +248,7 @@ class ImportManager {
 //          var importedEqualsRoot = fullPath === importManager.rootFilename;
 //          if (importOptions.optional && e) {
 //              callback(null, {rules:[]}, false, null);
+//              logger.info("The file " + fullPath + " was skipped because it was not found and the import was marked optional.");
 //          }
 //          else {
 //              // Inline imports aren't cached here.

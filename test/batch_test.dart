@@ -95,38 +95,39 @@ Map<int, Config> configFill() => <int, Config>{
     10: def('detached-rulesets'),
     11: def('directives-bubling'),
     12: def('empty'),
-    13: def('extend', options: <String>['--log-level=1']),
-    14: def('extend-chaining', options: <String>['--log-level=1']),
-    15: def('extend-clearfix'),
-    16: def('extend-exact', options: <String>['--log-level=1']),
-    17: def('extend-media'),
-    18: def('extend-nest', options: <String>['--log-level=1']),
-    19: def('extend-selector'),
-    20: def('extract-and-length'),
-    21: def('functions'),
-    22: def('ie-filters'),
-    23: def('import'),
-    24: def('import-inline'),
-    25: def('import-interpolation'),
-    26: def('import-once'),
-    27: def('import-reference', options: <String>['--log-level=1']),
-    28: def('import-reference-issues'),
-    //26: def('javascript'),
-    29: def('lazy-eval'),
-    30: def('media', options: <String>['--strict-math=off']), // also works with 'on'
-    31: def('merge'),
-    32: def('mixins'),
-    34: def('mixins-closure'),
-    35: def('mixins-guards'),
-    36: def('mixins-guards-default-func'),
-    37: def('mixins-important'),
-    38: def('mixins-interpolated'),
-    39: def('mixins-named-args'),
-    40: def('mixins-nested'),
-    41: def('mixins-pattern'),
-    42: def('no-output'),
-    43: def('operations'),
-    45: def('plugin',
+    20: def('extend', options: <String>['--log-level=1']),
+    21: def('extend-chaining', options: <String>['--log-level=1']),
+    22: def('extend-clearfix'),
+    23: def('extend-exact', options: <String>['--log-level=1']),
+    24: def('extend-media'),
+    25: def('extend-nest', options: <String>['--log-level=1']),
+    26: def('extend-selector'),
+    30: def('extract-and-length'),
+    31: def('functions'),
+    32: def('ie-filters'),
+    40: def('import'),
+    41: def('import-inline'),
+    42: def('import-interpolation'),
+    43: def('import-once'),
+    44: def('import-reference', options: <String>['--log-level=1']),
+    45: def('import-reference-issues'),
+    //xx: def('javascript'),
+    50: def('lazy-eval'),
+    51: def('media', options: <String>['--strict-math=off']), // also works with 'on'
+    52: def('merge'),
+    60: def('mixins'),
+    61: def('mixins-closure'),
+    62: def('mixins-guards'),
+    63: def('mixins-guards-default-func'),
+    64: def('mixins-important'),
+    65: def('mixins-interpolated'),
+    66: def('mixins-named-args'),
+    67: def('mixins-nested'),
+    68: def('mixins-pattern'),
+    80: def('no-output'),
+    81: def('operations'),
+//    82: def('permissive-parse'),
+    83: def('plugin',
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-global', new PluginGlobal())
@@ -138,31 +139,31 @@ Map<int, Config> configFill() => <int, Config>{
               ..definePlugin('plugin-scope2', new PluginScope2())
               ..definePlugin('plugin-collection', new PluginCollection());
         }),
-    46: def('property-name-interp'),
-    47: def('property-accessors'),
-    48: def('rulesets'),
-    49: def('scope'),
-    50: def('selectors'),
-    51: def('strings'),
-    52: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
-    53: def('variables'),
-    54: def('variables-in-at-rules'),
-    55: def('whitespace'),
-    56: def('strict-math/css', options: <String>['--strict-math=on']),
-    57: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
-    58: def('strict-math/parens', options: <String>['--strict-math=on']),
-    59: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
-    60: def('no-strict-math/no-sm-operations'),
-    61: def('no-strict-math/mixins-guards'),
+    84: def('property-name-interp'),
+    85: def('property-accessors'),
+    86: def('rulesets'),
+    87: def('scope'),
+    88: def('selectors'),
+    89: def('strings'),
+    90: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
+    91: def('variables'),
+    92: def('variables-in-at-rules'),
+    93: def('whitespace'),
+   100: def('strict-math/css', options: <String>['--strict-math=on']),
+   101: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
+   102: def('strict-math/parens', options: <String>['--strict-math=on']),
+   110: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
+   120: def('no-strict-math/no-sm-operations'),
+   121: def('no-strict-math/mixins-guards'),
     // compression
-    62: def('compression/compression', options: <String>['-x']),
+   130: def('compression/compression', options: <String>['-x']),
 
     // globalVars
-    63: def('globalVars/simple', options: <String>[
+   140: def('globalVars/simple', options: <String>[
           '--global-var=my-color=red',
           '--banner=${dirPath}banner.txt'
         ]),
-    64: def('globalVars/extended', options: <String>[
+   141: def('globalVars/extended', options: <String>[
           '--global-var=the-border=1px',
           '--global-var=base-color=#111',
           '--global-var=red=#842210',
@@ -170,28 +171,28 @@ Map<int, Config> configFill() => <int, Config>{
         ]),
 
     // modifyVars
-    65: def('modifyVars/extended', options: <String>[
+   142: def('modifyVars/extended', options: <String>[
           '--modify-var=the-border=1px',
           '--modify-var=base-color=#111',
           '--modify-var=red=#842210'
         ]),
 
     // debug line-numbers
-    66: def('debug/linenumbers',
+   150: def('debug/linenumbers',
         options: <String>['--line-numbers=comments'],
         cssName: 'debug/linenumbers-comments',
         replace: <Map<String, String>>[
           <String, String>{'from': '{path}', 'to': absPath('${dirPath}less/debug')},
           <String, String>{'from': '{pathimport}', 'to': absPath('${dirPath}less/debug/import')}
         ]),
-    67: def('debug/linenumbers',
+   151: def('debug/linenumbers',
         options: <String>['--line-numbers=mediaquery'],
         cssName: 'debug/linenumbers-mediaquery',
         replace: <Map<String, String>>[
           <String, String>{'from': '{pathesc}', 'to': escFile(absPath('${dirPath}less/debug'))},
           <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
-    68: def('debug/linenumbers',
+   152: def('debug/linenumbers',
         options: <String>['--line-numbers=all'],
         cssName: 'debug/linenumbers-all',
         replace: <Map<String, String>>[
@@ -201,39 +202,39 @@ Map<int, Config> configFill() => <int, Config>{
           <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
 
-    69: def('legacy/legacy'),
+   160: def('legacy/legacy'),
 
-    74: def('filemanagerPlugin/filemanager',
+   170: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
           options.definePlugin('TestFileManagerPlugin', new TestFileManagerPlugin(),
               load: true, options: '');
         }),
-    75: def('postProcessorPlugin/postProcessor',
+   171: def('postProcessorPlugin/postProcessor',
         modifyOptions: (LessOptions options) {
           options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(),
               load: true, options: '');
         }),
-    76: def('preProcessorPlugin/preProcessor',
+   172: def('preProcessorPlugin/preProcessor',
         modifyOptions: (LessOptions options) {
           options.definePlugin('TestPreProcessorPlugin', new TestPreProcessorPlugin(),
               load: true, options: '');
         }),
-    77: def('visitorPlugin/visitor',
+   173: def('visitorPlugin/visitor',
         modifyOptions: (LessOptions options) {
           options.definePlugin('TestVisitorPlugin', new TestVisitorPlugin(),
               load: true, options: '');
         }),
 
     // static-urls
-    79: def('static-urls/urls',
+   180: def('static-urls/urls',
         options: <String>['--rootpath=folder (1)/']),
 
     //url-args
-    80: def('url-args/urls',
+   181: def('url-args/urls',
         options: <String>['--url-args=424242']),
 
     //sourcemaps
-    85: def('index',
+   190: def('index',
         isExtendedTest: true,
         isSourcemapTest: true,
         cssName: 'index-expected',
@@ -241,7 +242,7 @@ Map<int, Config> configFill() => <int, Config>{
           '--source-map=${dirPath}webSourceMap/index.map',
           '--banner=${dirPath}webSourceMap/banner.txt'
         ]),
-    86: def('index-less-inline',
+   191: def('index-less-inline',
         isExtendedTest: true,
         isSourcemapTest: true,
         cssName: 'index-less-inline-expected',
@@ -250,7 +251,7 @@ Map<int, Config> configFill() => <int, Config>{
           '--source-map-less-inline',
           '--banner=${dirPath}webSourceMap/banner.txt'
         ]),
-    87: def('index-map-inline',
+   192: def('index-map-inline',
         isExtendedTest: true,
         isSourcemapTest: true,
         cssName: 'index-map-inline-expected',
@@ -258,221 +259,221 @@ Map<int, Config> configFill() => <int, Config>{
           '--source-map-map-inline',
           '--banner=${dirPath}webSourceMap/banner.txt'
         ]),
-    88: def('sourcemaps-empty/empty', options: <String>['--source-map-map-inline']),
+   193: def('sourcemaps-empty/empty', options: <String>['--source-map-map-inline']),
 
     //include-path
-    90: def('include-path/include-path',
+   195: def('include-path/include-path',
         options: <String>['--include-path=${dirPath}less/import:${dirPath}data']),
-    91: def('include-path-string/include-path-string',
+   196: def('include-path-string/include-path-string',
         options: <String>['--include-path=${dirPath}data']),
 
     //errors
-    100: def('errors/add-mixed-units', isErrorTest: true),
-    101: def('errors/add-mixed-units2', isErrorTest: true),
-    102: def('errors/at-rules-undefined-var', isErrorTest: true),
-    103: def('errors/bad-variable-declaration1', isErrorTest: true),
-    104: def('errors/color-func-invalid-color', isErrorTest: true),
-    105: def('errors/color-invalid-hex-code', isErrorTest: true),
-    106: def('errors/color-invalid-hex-code2', isErrorTest: true),
-    //107: def('errors/comment-in-selector', isErrorTest: true),
-    108: def('errors/css-guard-default-func', isErrorTest: true),
-    109: def('errors/detached-ruleset-1', isErrorTest: true),
-    110: def('errors/detached-ruleset-2', isErrorTest: true),
-    111: def('errors/detached-ruleset-3', isErrorTest: true),
-    113: def('errors/detached-ruleset-5', isErrorTest: true),
-    114: def('errors/detached-ruleset-6', isErrorTest: true),
-    115: def('errors/divide-mixed-units', isErrorTest: true),
-    116: def('errors/extend-no-selector', isErrorTest: true),
-    117: def('errors/extend-not-at-end',  isErrorTest: true),
-    118: def('errors/import-malformed', isErrorTest: true),
-    119: def('errors/import-missing', isErrorTest: true),
-    120: def('errors/import-no-semi', isErrorTest: true),
-    121: def('errors/import-subfolder1', isErrorTest: true),
-    122: def('errors/import-subfolder2', isErrorTest: true),
-//      123: def('errors/javascript-error', isErrorTest: true),
-//      124: def('errors/javascript-undefined-var', isErrorTest: true),
-    125: def('errors/mixed-mixin-definition-args-1', isErrorTest: true),
-    126: def('errors/mixed-mixin-definition-args-2', isErrorTest: true),
-    127: def('errors/mixin-not-defined', isErrorTest: true),
-    128: def('errors/mixin-not-matched', isErrorTest: true),
-    129: def('errors/mixin-not-matched2', isErrorTest: true),
-    130: def('errors/mixin-not-visible-in-scope-1', isErrorTest: true),
-    131: def('errors/mixins-guards-default-func-1', isErrorTest: true),
-    132: def('errors/mixins-guards-default-func-2', isErrorTest: true),
-    133: def('errors/mixins-guards-default-func-3', isErrorTest: true),
-    134: def('errors/multiple-guards-on-css-selectors', isErrorTest: true),
-    135: def('errors/multiple-guards-on-css-selectors2', isErrorTest: true),
-    136: def('errors/multiply-mixed-units', isErrorTest: true),
-    137: def('errors/parens-error-1', isErrorTest: true),
-    138: def('errors/parens-error-2', isErrorTest: true),
-    139: def('errors/parens-error-3', isErrorTest: true),
-    140: def('errors/parse-error-curly-bracket', isErrorTest: true),
-    141: def('errors/parse-error-media-no-block-1', isErrorTest: true),
-    142: def('errors/parse-error-media-no-block-2', isErrorTest: true),
-    143: def('errors/parse-error-media-no-block-3', isErrorTest: true),
-    144: def('errors/parse-error-missing-bracket', isErrorTest: true),
-    145: def('errors/parse-error-missing-parens', isErrorTest: true),
-    146: def('errors/parse-error-with-import', isErrorTest: true),
-    147: def('errors/percentage-missing-space', isErrorTest: true),
-    148: def('errors/percentage-non-number-argument', isErrorTest: true),
-    149: def('errors/property-asterisk-only-name', isErrorTest: true),
-    150: def('errors/property-ie5-hack', isErrorTest: true),
-    151: def('errors/property-in-root', isErrorTest: true),
-    152: def('errors/property-in-root2', isErrorTest: true),
-    153: def('errors/property-in-root3', isErrorTest: true),
-    154: def('errors/property-interp-not-defined', isErrorTest: true),
-    155: def('errors/recursive-variable', isErrorTest: true),
-    156: def('errors/single-character', isErrorTest: true),
-    157: def('errors/svg-gradient1', isErrorTest: true),
-    158: def('errors/svg-gradient2', isErrorTest: true),
-    159: def('errors/svg-gradient3', isErrorTest: true),
-    160: def('errors/svg-gradient4', isErrorTest: true),
-    161: def('errors/svg-gradient5', isErrorTest: true),
-    162: def('errors/svg-gradient6', isErrorTest: true),
-    163: def('errors/unit-function', isErrorTest: true),
+    200: def('errors/add-mixed-units', isErrorTest: true),
+    201: def('errors/add-mixed-units2', isErrorTest: true),
+    202: def('errors/at-rules-undefined-var', isErrorTest: true),
+    203: def('errors/bad-variable-declaration1', isErrorTest: true),
+    204: def('errors/color-func-invalid-color', isErrorTest: true),
+    205: def('errors/color-invalid-hex-code', isErrorTest: true),
+    206: def('errors/color-invalid-hex-code2', isErrorTest: true),
+    //207: def('errors/comment-in-selector', isErrorTest: true),
+    208: def('errors/css-guard-default-func', isErrorTest: true),
+    209: def('errors/detached-ruleset-1', isErrorTest: true),
+    210: def('errors/detached-ruleset-2', isErrorTest: true),
+    211: def('errors/detached-ruleset-3', isErrorTest: true),
+    213: def('errors/detached-ruleset-5', isErrorTest: true),
+    214: def('errors/detached-ruleset-6', isErrorTest: true),
+    215: def('errors/divide-mixed-units', isErrorTest: true),
+    216: def('errors/extend-no-selector', isErrorTest: true),
+    217: def('errors/extend-not-at-end',  isErrorTest: true),
+    218: def('errors/import-malformed', isErrorTest: true),
+    219: def('errors/import-missing', isErrorTest: true),
+    220: def('errors/import-no-semi', isErrorTest: true),
+    221: def('errors/import-subfolder1', isErrorTest: true),
+    222: def('errors/import-subfolder2', isErrorTest: true),
+//      223: def('errors/javascript-error', isErrorTest: true),
+//      224: def('errors/javascript-undefined-var', isErrorTest: true),
+    225: def('errors/mixed-mixin-definition-args-1', isErrorTest: true),
+    226: def('errors/mixed-mixin-definition-args-2', isErrorTest: true),
+    227: def('errors/mixin-not-defined', isErrorTest: true),
+    228: def('errors/mixin-not-matched', isErrorTest: true),
+    229: def('errors/mixin-not-matched2', isErrorTest: true),
+    230: def('errors/mixin-not-visible-in-scope-1', isErrorTest: true),
+    231: def('errors/mixins-guards-default-func-1', isErrorTest: true),
+    232: def('errors/mixins-guards-default-func-2', isErrorTest: true),
+    233: def('errors/mixins-guards-default-func-3', isErrorTest: true),
+    234: def('errors/multiple-guards-on-css-selectors', isErrorTest: true),
+    235: def('errors/multiple-guards-on-css-selectors2', isErrorTest: true),
+    236: def('errors/multiply-mixed-units', isErrorTest: true),
+    237: def('errors/parens-error-1', isErrorTest: true),
+    238: def('errors/parens-error-2', isErrorTest: true),
+    239: def('errors/parens-error-3', isErrorTest: true),
+    240: def('errors/parse-error-curly-bracket', isErrorTest: true),
+    241: def('errors/parse-error-media-no-block-1', isErrorTest: true),
+    242: def('errors/parse-error-media-no-block-2', isErrorTest: true),
+    243: def('errors/parse-error-media-no-block-3', isErrorTest: true),
+    244: def('errors/parse-error-missing-bracket', isErrorTest: true),
+    245: def('errors/parse-error-missing-parens', isErrorTest: true),
+    246: def('errors/parse-error-with-import', isErrorTest: true),
+    247: def('errors/percentage-missing-space', isErrorTest: true),
+    248: def('errors/percentage-non-number-argument', isErrorTest: true),
+    249: def('errors/property-asterisk-only-name', isErrorTest: true),
+    250: def('errors/property-ie5-hack', isErrorTest: true),
+    251: def('errors/property-in-root', isErrorTest: true),
+    252: def('errors/property-in-root2', isErrorTest: true),
+    253: def('errors/property-in-root3', isErrorTest: true),
+    254: def('errors/property-interp-not-defined', isErrorTest: true),
+    255: def('errors/recursive-variable', isErrorTest: true),
+    256: def('errors/single-character', isErrorTest: true),
+    257: def('errors/svg-gradient1', isErrorTest: true),
+    258: def('errors/svg-gradient2', isErrorTest: true),
+    259: def('errors/svg-gradient3', isErrorTest: true),
+    260: def('errors/svg-gradient4', isErrorTest: true),
+    261: def('errors/svg-gradient5', isErrorTest: true),
+    262: def('errors/svg-gradient6', isErrorTest: true),
+    263: def('errors/unit-function', isErrorTest: true),
     //
-    170: def('errors/functions-1', isErrorTest: true,
+    270: def('errors/functions-1', isErrorTest: true,
           modifyOptions: (LessOptions options) {
             options
                 ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
           }),
-    172: def('errors/functions-3-assignment', isErrorTest: true,
+    272: def('errors/functions-3-assignment', isErrorTest: true,
           modifyOptions: (LessOptions options) {
             options
                 ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
           }),
-    173: def('errors/functions-4-call', isErrorTest: true,
+    273: def('errors/functions-4-call', isErrorTest: true,
           modifyOptions: (LessOptions options) {
             options
                 ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
           }),
-    174: def('errors/functions-5-color', isErrorTest: true,
+    274: def('errors/functions-5-color', isErrorTest: true,
           modifyOptions: (LessOptions options) {
             options
                 ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
           }),
-    175: def('errors/functions-5-color-2', isErrorTest: true),
-    176: def('errors/functions-6-condition', isErrorTest: true,
+    275: def('errors/functions-5-color-2', isErrorTest: true),
+    276: def('errors/functions-6-condition', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    177: def('errors/functions-7-dimension', isErrorTest: true,
+    277: def('errors/functions-7-dimension', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    178: def('errors/functions-8-element', isErrorTest: true,
+    278: def('errors/functions-8-element', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    179: def('errors/functions-9-expression', isErrorTest: true,
+    279: def('errors/functions-9-expression', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    180: def('errors/functions-10-keyword', isErrorTest: true,
+    280: def('errors/functions-10-keyword', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    181: def('errors/functions-11-operation', isErrorTest: true,
+    281: def('errors/functions-11-operation', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    182: def('errors/functions-12-quoted', isErrorTest: true,
+    282: def('errors/functions-12-quoted', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    183: def('errors/functions-13-selector', isErrorTest: true,
+    283: def('errors/functions-13-selector', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    184: def('errors/functions-14-url', isErrorTest: true,
+    284: def('errors/functions-14-url', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    185: def('errors/functions-15-value', isErrorTest: true,
+    285: def('errors/functions-15-value', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    186: def('errors/root-func-undefined-1', isErrorTest: true,
+    286: def('errors/root-func-undefined-1', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
-    187: def('errors/root-func-undefined-2', isErrorTest: true,
+    287: def('errors/root-func-undefined-2', isErrorTest: true,
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
         }),
 
     //
-    200: def('extendedTest/svg', isExtendedTest: true),
-    201: def('extendedTest/url', isExtendedTest: true),
-    202: def('extendedTest/image-size', isExtendedTest: true),
-    203: def('extendedTest/function-rem', isExtendedTest: true),
-    204: def('extendedTest/import-package', isExtendedTest: true),
-    205: def('extendedTest/import-package-lib', isExtendedTest: true,
+    300: def('extendedTest/svg', isExtendedTest: true),
+    301: def('extendedTest/url', isExtendedTest: true),
+    302: def('extendedTest/image-size', isExtendedTest: true),
+    303: def('extendedTest/function-rem', isExtendedTest: true),
+    304: def('extendedTest/import-package', isExtendedTest: true),
+    305: def('extendedTest/import-package-lib', isExtendedTest: true,
         options: <String>['--include-path=package_test://less_dart/less/import']),
-    206: def('extendedTest/import-complex-path', isExtendedTest: true,
+    306: def('extendedTest/import-complex-path', isExtendedTest: true,
         options: <String>['--relative-urls']),
-    207: def('extendedTest/colors', isExtendedTest: true),
+    307: def('extendedTest/colors', isExtendedTest: true),
 
     //absolute path
-    210: def('import-absolute-path',
+    310: def('import-absolute-path',
         isExtendedTest: true,
         isReplaceSource: true,
         replace: <Map<String, String>>[
           <String, String>{'from': '{pathabs}', 'to': absPath('${dirPath}less')}
         ]),
     //sync import
-    211: def('charsets',
+    311: def('charsets',
         isExtendedTest: true,
         modifyOptions: (LessOptions options) {
           options.syncImport = true;
         }),
     //options.variables
-    212: def('globalVars/simple',
+    312: def('globalVars/simple',
         isExtendedTest: true,
         options: <String>['--banner=${dirPath}banner.txt'],
         modifyOptions: (LessOptions options) {
           options.variables = <String, Node>{ 'my-color': new Color.fromKeyword('red') };
         }),
-    213: def('extendedTest/plugin-advanced-color',
+    313: def('extendedTest/plugin-advanced-color',
         isExtendedTest: true,
         options: <String>['--plugin=less-plugin-advanced-color-functions']),
     //@options and @plugin directives
-    220: def('extendedTest/options-strict-math', isExtendedTest: true),
-    221: def('extendedTest/options-import', isExtendedTest: true),
-    222: def('extendedTest/options-plugin', isExtendedTest: true),
+    320: def('extendedTest/options-strict-math', isExtendedTest: true),
+    321: def('extendedTest/options-import', isExtendedTest: true),
+    322: def('extendedTest/options-plugin', isExtendedTest: true),
     //@apply
-    230: def('extendedTest/apply', isExtendedTest: true),
+    330: def('extendedTest/apply', isExtendedTest: true),
     //clean-css
-    300: def('cleancss/main',
+    400: def('cleancss/main',
         options: <String>['--clean-css="keep-line-breaks s1"'],
         isCleancssTest: true),
-    301: def('cleancss/main-skip-advanced',
+    401: def('cleancss/main-skip-advanced',
         options: <String>['--clean-css="skip-advanced"'],
         isCleancssTest: true),
-    302: def('cleancss/colors-no',
+    402: def('cleancss/colors-no',
         options: <String>['--clean-css="compatibility=*,-properties.colors"'],
         isCleancssTest: true),
-    303: def('cleancss/main-ie7',
+    403: def('cleancss/main-ie7',
         options: <String>['--clean-css="compatibility=ie7"'],
         isCleancssTest: true),
-    304: def('cleancss/main-ie8',
+    404: def('cleancss/main-ie8',
         options: <String>['--clean-css="compatibility=ie8"'],
         isCleancssTest: true),
-    310: def('colors', isCleancssTest: true),
-    311: def('css-3', isCleancssTest: true),
-    312: def('css-clean', isCleancssTest: true)
+    410: def('colors', isCleancssTest: true),
+    411: def('css-3', isCleancssTest: true),
+    412: def('css-clean', isCleancssTest: true)
 };
 
 ///

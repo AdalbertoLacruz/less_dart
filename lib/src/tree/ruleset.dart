@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.0.0 20170601
+// source: less/tree/ruleset.js 3.0.4 20180616
 
 part of tree.less;
 
@@ -1524,47 +1524,52 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   /// if bestTry = true, error result do not propagate
   ///
   Declaration transformDeclaration(Declaration decl, {bool ignoreErrors: false}) {
-    if (decl.value is Anonymous && !decl.parsed && !decl.value.parsed) {
+    if (decl.value is Anonymous &&
+        !decl.parsed &&
+        !decl.value.parsed &&
+        decl.value.value is String) {
       final List<dynamic> result = new ParseNode(decl.value.value,
-            decl.value.index, decl.currentFileInfo, ignoreErrors: ignoreErrors)
-            .value();
+          decl.value.index, decl.currentFileInfo, ignoreErrors: ignoreErrors)
+          .value();
       if (result != null) {
         decl
-            ..value = result[0]
-            ..important = result[1] ?? ''
-            ..parsed = true;
+          ..value = result[0]
+          ..important = result[1] ?? '';
       }
-      return decl;
     }
-    return decl;
+    return decl
+      ..parsed = true;
 
 //inside parseValue
-//3.0.0 20160719
-// function transformDeclaration(decl) {
-//     if (decl.value instanceof Anonymous && !decl.parsed) {
-//         this.parse.parseNode(
-//             decl.value.value,
-//             ["value", "important"],
-//             decl.value.getIndex(),
-//             decl.fileInfo(),
-//             function(err, result) {
-//                 if (err) {
-//                     decl.parsed = true;
-//                 }
-//                 if (result) {
-//                     decl.value = result[0];
-//                     decl.important = result[1] || '';
-//                     decl.parsed = true;
-//                 }
-//             });
+//3.0.4 20180616
+//function transformDeclaration(decl) {
+//    if (decl.value instanceof Anonymous && !decl.parsed) {
+//        if (typeof decl.value.value === "string") {
+//            this.parse.parseNode(
+//                decl.value.value,
+//                ["value", "important"],
+//                decl.value.getIndex(),
+//                decl.fileInfo(),
+//                function(err, result) {
+//                    if (err) {
+//                        decl.parsed = true;
+//                    }
+//                    if (result) {
+//                        decl.value = result[0];
+//                        decl.important = result[1] || '';
+//                        decl.parsed = true;
+//                    }
+//                });
+//        } else {
+//            decl.parsed = true;
+//        }
 //
-//         return decl;
-//     }
-//     else {
-//         return decl;
-//     }
-// }
-
+//        return decl;
+//    }
+//    else {
+//        return decl;
+//    }
+//}
   }
 
   ///

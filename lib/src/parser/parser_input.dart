@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 2.6.0 20160217
+// source: parser/parser-input.js 3.0.4 20180622
 
 part of parser.less;
 
@@ -233,6 +233,226 @@ class ParserInput {
     }
     return null;
   }
+
+  ///
+  /// Permissive parsing. Ignores everything except matching {} [] () and quotes
+  /// until matching token (outside of blocks)
+  ///
+  /// tok = String (toks) | RegExp (tokre). Default ';'
+  ///
+  // in js $parseUntil(String|RegExp tok). Here we split to avoid dynamic.
+  List<String> $parseUntil({String tok, RegExp tokre}) {
+    int                 blockDepth = 0;
+    final List<String>  blockStack = <String>[]; // key expected to close block '}' ']' ')'
+    bool                inComment = false; // we are inside a comment
+    int                 lastPos = i;
+    bool                loop = true;
+    final List<String>  parseGroups = <String>[];
+    final String        quote = '';
+    final int           startPos = i;
+
+    final String toks = (tok == null && tokre == null) ? ';' : tok;
+    final bool isTokString = toks != null;
+
+    // check tok match
+    bool testChar(String char) => isTokString
+        ? char == toks
+        : tokre.hasMatch(char);
+
+    do {
+      String currentCharacter = currentChar(); // nextChar in js
+
+      if (blockDepth == 0 && testChar(currentCharacter)) {
+        final String value = input.substring(lastPos, i);
+        parseGroups.add(value.isNotEmpty ? value : ' ');
+        skipWhitespace(i - startPos); //??
+        loop = false;
+      } else {
+        if (inComment) {
+          if (currentCharacter == '*' && nextChar() == '/') {
+            i++;
+            blockDepth--;
+            inComment = false;
+          }
+          i++;
+          continue;
+        }
+
+        switch (currentCharacter) {
+          case r'\':
+            i++;
+            currentCharacter = currentChar();
+            parseGroups.add(input.substring(lastPos, i + 1));
+            lastPos = i + 1;
+            break;
+          case '/':
+            if (nextChar() == '*') {
+              i++;
+              inComment = true;
+              blockDepth++;
+            }
+            break;
+          case "'":
+          case '"':
+//                    quote = parserInput.$quoted(i);
+//                    if (quote) {
+//                        parseGroups.push(input.substr(lastPos, i - lastPos), quote);
+//                        i += quote[1].length - 1;
+//                        lastPos = i + 1;
+//                    }
+//                    else {
+//                        skipWhitespace(i - startPos);
+//                        returnVal = nextChar;
+//                        loop = false;
+//                    }
+            break;
+          case '{':
+            blockStack.add('}');
+            blockDepth++;
+            break;
+          case '(':
+            blockStack.add(')');
+            blockDepth++;
+            break;
+          case '[':
+            blockStack.add(']');
+            blockDepth++;
+            break;
+          case '}':
+          case ')':
+          case ']':
+            final String expected = blockStack.removeLast();
+            if (currentCharacter == expected) {
+              blockDepth--;
+            } else { // throw error
+//                        // move the parser to the error and return expected
+//                        skipWhitespace(i - startPos);
+//                        returnVal = expected;
+//                        loop = false;
+            }
+        }
+
+        i++;
+        if (isEmpty) loop = false;
+      }
+    } while (loop);
+
+    return parseGroups.isNotEmpty ? parseGroups : null;
+  }
+
+//3.0.4 20180622
+//parserInput.$parseUntil = function(tok) {
+//    var quote = '',
+//        returnVal = null,
+//        inComment = false,
+//        blockDepth = 0,
+//        blockStack = [],
+//        parseGroups = [],
+//        length = input.length,
+//        startPos = parserInput.i,
+//        lastPos = parserInput.i,
+//        i = parserInput.i,
+//        loop = true,
+//        testChar;
+//
+//    if (typeof tok === 'string') {
+//        testChar = function(char) {
+//            return char === tok;
+//        }
+//    } else {
+//        testChar = function(char) {
+//            return tok.test(char);
+//        }
+//    }
+//
+//    do {
+//        var prevChar, nextChar = input.charAt(i);
+//        if (blockDepth === 0 && testChar(nextChar)) {
+//            returnVal = input.substr(lastPos, i - lastPos);
+//            if (returnVal) {
+//                parseGroups.push(returnVal);
+//                returnVal = parseGroups;
+//            }
+//            else {
+//                returnVal = [' '];
+//            }
+//            skipWhitespace(i - startPos);
+//            loop = false
+//        } else {
+//            if (inComment) {
+//                if (nextChar === "*" &&
+//                    input.charAt(i + 1) === "/") {
+//                    i++;
+//                    blockDepth--;
+//                    inComment = false;
+//                }
+//                i++;
+//                continue;
+//            }
+//            switch (nextChar) {
+//                case '\\':
+//                    i++;
+//                    nextChar = input.charAt(i);
+//                    parseGroups.push(input.substr(lastPos, i - lastPos + 1));
+//                    lastPos = i + 1;
+//                    break;
+//                case "/":
+//                    if (input.charAt(i + 1) === "*") {
+//                        i++;
+//                        console.log(input.substr(lastPos, i - lastPos));
+//                        inComment = true;
+//                        blockDepth++;
+//                    }
+//                    break;
+//                case "'":
+//                case '"':
+//                    quote = parserInput.$quoted(i);
+//                    if (quote) {
+//                        parseGroups.push(input.substr(lastPos, i - lastPos), quote);
+//                        i += quote[1].length - 1;
+//                        lastPos = i + 1;
+//                    }
+//                    else {
+//                        skipWhitespace(i - startPos);
+//                        returnVal = nextChar;
+//                        loop = false;
+//                    }
+//                    break;
+//                case "{":
+//                    blockStack.push("}");
+//                    blockDepth++;
+//                    break;
+//                case "(":
+//                    blockStack.push(")");
+//                    blockDepth++;
+//                    break;
+//                case "[":
+//                    blockStack.push("]");
+//                    blockDepth++;
+//                    break;
+//                case "}":
+//                case ")":
+//                case "]":
+//                    var expected = blockStack.pop();
+//                    if (nextChar === expected) {
+//                        blockDepth--;
+//                    } else {
+//                        // move the parser to the error and return expected
+//                        skipWhitespace(i - startPos);
+//                        returnVal = expected;
+//                        loop = false;
+//                    }
+//            }
+//            i++;
+//            if (i > length) {
+//                loop = false;
+//            }
+//        }
+//        prevChar = nextChar;
+//    } while (loop);
+//
+//    return returnVal ? returnVal : null;
+//}
 
   ///
   /// Assure the input pointer is not a white space. Move forward if one is found.

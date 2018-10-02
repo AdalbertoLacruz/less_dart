@@ -1,38 +1,52 @@
-//source: less/tree/quoted.js 3.0.0 20180211
+//source: less/tree/quoted.js 3.0.4 20180622
 
 part of tree.less;
 
+///
+/// A string, which supports escaping `~`, `"` and `'`
+///
+///     "milky way" 'he\'s the one!'
 ///
 class Quoted extends Node implements CompareNode {
   @override final String      name = null;
   @override final String      type = 'Quoted';
   @override covariant String  value;
 
-  ///
-  bool    escaped;
-  ///
-  String  quote; // ' or "
+  /// false writes quote. true not.
+  bool   escaped;
+
+  /// Default value to identify a property: /\$\{([\w-]+)\}/g
+  RegExp propRegex;
+
+  /// ' or "
+  String quote;
+
+  /// Default value to identify a variable: /@\{([\w-]+)\}/g
+  RegExp variableRegex;
 
   ///
   Quoted(String str, String content,
       {bool this.escaped, int index, FileInfo currentFileInfo}) {
-    // ignore: prefer_initializing_formals
     this.index = index;
-    // ignore: prefer_initializing_formals
     this.currentFileInfo = currentFileInfo;
 
     escaped ??= true;
     value = content ?? '';
     quote = str.isNotEmpty ? str[0] : '';
-    if (!(quote == '"' || quote == "'" || quote == '')) quote = '';
+    if (!(quote == '"' || quote == "'" || quote == '')) quote = ''; // also ~ ?
 
-//3.0.0 20160714
+    variableRegex = new RegExp(r'@\{([\w-]+)\}');
+    propRegex = new RegExp(r'\$\{([\w-]+)\}');
+
+//3.0.4 20180622
 // var Quoted = function (str, content, escaped, index, currentFileInfo) {
 //     this.escaped = (escaped == null) ? true : escaped;
 //     this.value = content || '';
 //     this.quote = str.charAt(0);
 //     this._index = index;
 //     this._fileInfo = currentFileInfo;
+//     this.variableRegex = /@\{([\w-]+)\}/g;
+//     this.propRegex = /\$\{([\w-]+)\}/g;
 // };
   }
 
@@ -61,20 +75,17 @@ class Quoted extends Node implements CompareNode {
   }
 
   ///
-  bool containsVariables() =>
-      new RegExp(r'@\{([\w-]+)\}').hasMatch(value);
+  bool containsVariables() => variableRegex.hasMatch(value);
 
-//3.0.0 20170608
-// Quoted.prototype.containsVariables = function() {
-//     return this.value.match(/@\{([\w-]+)\}/);
-// };
+//3.0.4 20180622
+//  Quoted.prototype.containsVariables = function() {
+//    return this.value.match(this.variableRegex);
+//  };
 
   ///
   @override
   Node eval(Contexts context) {
     //RegExp reJS = new RegExp(r'`([^`]+)`'); //javascript expresion
-    final RegExp variableRegExp = new RegExp(r'@\{([\w-]+)\}');
-    final RegExp propertyRegExp = new RegExp(r'\$\{([\w-]+)\}');
     final Quoted that = this;
     String       value = this.value;
 
@@ -106,37 +117,37 @@ class Quoted extends Node implements CompareNode {
       return evaluatedValue;
     }
 
-    value = iterativeReplace(value, variableRegExp, variableReplacement);
-    value = iterativeReplace(value, propertyRegExp, propertyReplacement);
+    value = iterativeReplace(value, variableRegex, variableReplacement);
+    value = iterativeReplace(value, propRegex, propertyReplacement);
 
     return new Quoted('$quote$value$quote', value,
         escaped: escaped,
         index: index,
         currentFileInfo: currentFileInfo);
 
-//3.0.0 20170608
-// Quoted.prototype.eval = function (context) {
-//     var that = this, value = this.value;
-//     var variableReplacement = function (_, name) {
-//         var v = new Variable('@' + name, that.getIndex(), that.fileInfo()).eval(context, true);
-//         return (v instanceof Quoted) ? v.value : v.toCSS();
-//     };
-//     var propertyReplacement = function (_, name) {
-//         var v = new Property('$' + name, that.getIndex(), that.fileInfo()).eval(context, true);
-//         return (v instanceof Quoted) ? v.value : v.toCSS();
-//     };
-//     function iterativeReplace(value, regexp, replacementFnc) {
-//         var evaluatedValue = value;
-//         do {
-//             value = evaluatedValue;
-//             evaluatedValue = value.replace(regexp, replacementFnc);
-//         } while (value !== evaluatedValue);
-//         return evaluatedValue;
-//     }
-//     value = iterativeReplace(value, /@\{([\w-]+)\}/g, variableReplacement);
-//     value = iterativeReplace(value, /\$\{([\w-]+)\}/g, propertyReplacement);
-//     return new Quoted(this.quote + value + this.quote, value, this.escaped, this.getIndex(), this.fileInfo());
-// };
+//3.0.4 20180622
+//Quoted.prototype.eval = function (context) {
+//    var that = this, value = this.value;
+//    var variableReplacement = function (_, name) {
+//        var v = new Variable('@' + name, that.getIndex(), that.fileInfo()).eval(context, true);
+//        return (v instanceof Quoted) ? v.value : v.toCSS();
+//    };
+//    var propertyReplacement = function (_, name) {
+//        var v = new Property('$' + name, that.getIndex(), that.fileInfo()).eval(context, true);
+//        return (v instanceof Quoted) ? v.value : v.toCSS();
+//    };
+//    function iterativeReplace(value, regexp, replacementFnc) {
+//        var evaluatedValue = value;
+//        do {
+//            value = evaluatedValue;
+//            evaluatedValue = value.replace(regexp, replacementFnc);
+//        } while (value !== evaluatedValue);
+//        return evaluatedValue;
+//    }
+//    value = iterativeReplace(value, this.variableRegex, variableReplacement);
+//    value = iterativeReplace(value, this.propRegex, propertyReplacement);
+//    return new Quoted(this.quote + value + this.quote, value, this.escaped, this.getIndex(), this.fileInfo());
+//};
   }
 
 //--- CompareNode

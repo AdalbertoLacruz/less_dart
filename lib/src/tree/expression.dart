@@ -1,4 +1,4 @@
-//source: less/tree/expression.js 2.5.3 20151120
+//source: less/tree/expression.js 3.0.4 20180622
 
 part of tree.less;
 
@@ -8,7 +8,10 @@ class Expression extends Node {
   @override covariant List<Node>  value;
 
   ///
-  Expression(List<Node> this.value) {
+  bool noSpacing;
+
+  ///
+  Expression(List<Node> this.value, {bool this.noSpacing = false}) {
     parens = false;
     parensInOp = false;
 
@@ -17,13 +20,14 @@ class Expression extends Node {
           message: 'Expression requires an array parameter'));
     }
 
-//2.3.1
-//  var Expression = function (value) {
-//      this.value = value;
-//      if (!value) {
-//          throw new Error("Expression requires an array parameter");
-//      }
-//  };
+//3.0.4 20180622
+//var Expression = function (value, noSpacing) {
+//    this.value = value;
+//    this.noSpacing = noSpacing;
+//    if (!value) {
+//        throw new Error("Expression requires an array parameter");
+//    }
+//};
   }
 
   /// Fields to show with genTree
@@ -51,7 +55,10 @@ class Expression extends Node {
 
     if (inParenthesis) context.inParenthesis();
     if (value.length > 1) {
-      returnValue = new Expression(value.map((Node e) => e?.eval(context)).toList());
+      returnValue = new Expression(
+          value.map((Node e) => e?.eval(context)).toList(),
+          noSpacing: noSpacing
+      );
     } else if (value.length == 1) {
       if (value.first.parens && !value.first.parensInOp) doubleParen = true;
       returnValue = value.first.eval(context);
@@ -64,34 +71,34 @@ class Expression extends Node {
     }
     return returnValue;
 
-//2.3.1
-//  Expression.prototype.eval = function (context) {
-//      var returnValue,
-//          inParenthesis = this.parens && !this.parensInOp,
-//          doubleParen = false;
-//      if (inParenthesis) {
-//          context.inParenthesis();
-//      }
-//      if (this.value.length > 1) {
-//          returnValue = new Expression(this.value.map(function (e) {
-//              return e.eval(context);
-//          }));
-//      } else if (this.value.length === 1) {
-//          if (this.value[0].parens && !this.value[0].parensInOp) {
-//              doubleParen = true;
-//          }
-//          returnValue = this.value[0].eval(context);
-//      } else {
-//          returnValue = this;
-//      }
-//      if (inParenthesis) {
-//          context.outOfParenthesis();
-//      }
-//      if (this.parens && this.parensInOp && !(context.isMathOn()) && !doubleParen) {
-//          returnValue = new Paren(returnValue);
-//      }
-//      return returnValue;
-//  };
+//3.0.4 20180622
+//Expression.prototype.eval = function (context) {
+//    var returnValue,
+//        inParenthesis = this.parens && !this.parensInOp,
+//        doubleParen = false;
+//    if (inParenthesis) {
+//        context.inParenthesis();
+//    }
+//    if (this.value.length > 1) {
+//        returnValue = new Expression(this.value.map(function (e) {
+//            return e.eval(context);
+//        }), this.noSpacing);
+//    } else if (this.value.length === 1) {
+//        if (this.value[0].parens && !this.value[0].parensInOp) {
+//            doubleParen = true;
+//        }
+//        returnValue = this.value[0].eval(context);
+//    } else {
+//        returnValue = this;
+//    }
+//    if (inParenthesis) {
+//        context.outOfParenthesis();
+//    }
+//    if (this.parens && this.parensInOp && !(context.isMathOn()) && !doubleParen) {
+//        returnValue = new Paren(returnValue);
+//    }
+//    return returnValue;
+//};
   }
 
   ///
@@ -101,18 +108,18 @@ class Expression extends Node {
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
-      if (i + 1 < value.length) output.add(' ');
+      if (!noSpacing && i + 1 < value.length) output.add(' ');
     }
 
-//2.3.1
-//  Expression.prototype.genCSS = function (context, output) {
-//      for(var i = 0; i < this.value.length; i++) {
-//          this.value[i].genCSS(context, output);
-//          if (i + 1 < this.value.length) {
-//              output.add(" ");
-//          }
-//      }
-//  };
+//3.0.4 20180622
+//Expression.prototype.genCSS = function (context, output) {
+//    for (var i = 0; i < this.value.length; i++) {
+//        this.value[i].genCSS(context, output);
+//        if (!this.noSpacing && i + 1 < this.value.length) {
+//            output.add(" ");
+//        }
+//    }
+//};
   }
 
   /// clean-css output
