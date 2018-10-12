@@ -1,4 +1,4 @@
-//source: lib/less-node/file-manager.js 3.0.3 20180418
+//source: lib/less-node/file-manager.js 3.0.4 20180624
 
 part of environment.less;
 
@@ -127,7 +127,7 @@ class FileFileManager extends AbstractFileManager {
     }
   }
 
-//3.0.3 201804
+//3.0.4 20180624
 //FileManager.prototype.loadFile = function(filename, currentDirectory, options, environment, callback) {
 //
 //    var fullFilename,
@@ -220,10 +220,23 @@ class FileFileManager extends AbstractFileManager {
 //                            }
 //                        }
 //
+//                        var modified = false;
+//
 //                        if (self.contents[fullFilename]) {
-//                            fulfill({ contents: self.contents[fullFilename], filename: fullFilename});
+//                            try {
+//                                var stat = fs.statSync.apply(this, [fullFilename]);
+//                                if (stat.mtime.getTime() === self.contents[fullFilename].mtime.getTime()) {
+//                                    fulfill({ contents: self.contents[fullFilename].data, filename: fullFilename});
+//                                }
+//                                else {
+//                                    modified = true;
+//                                }
+//                            }
+//                            catch (e) {
+//                                modified = true;
+//                            }
 //                        }
-//                        else {
+//                        if (modified || !self.contents[fullFilename]) {
 //                            var readFileArgs = [fullFilename];
 //                            if (!options.rawBuffer) {
 //                                readFileArgs.push('utf-8');
@@ -231,7 +244,8 @@ class FileFileManager extends AbstractFileManager {
 //                            if (options.syncImport) {
 //                                try {
 //                                    var data = fs.readFileSync.apply(this, readFileArgs);
-//                                    self.contents[fullFilename] = data;
+//                                    var stat = fs.statSync.apply(this, [fullFilename]);
+//                                    self.contents[fullFilename] = { data: data, mtime: stat.mtime };
 //                                    fulfill({ contents: data, filename: fullFilename});
 //                                }
 //                                catch (e) {
@@ -245,7 +259,8 @@ class FileFileManager extends AbstractFileManager {
 //                                        filenamesTried.push(isNodeModule ? npmPrefix + fullFilename : fullFilename);
 //                                        return tryPrefix(j + 1);
 //                                    }
-//                                    self.contents[fullFilename] = data;
+//                                    var stat = fs.statSync.apply(this, [fullFilename]);
+//                                    self.contents[fullFilename] = { data: data, mtime: stat.mtime };
 //                                    fulfill({ contents: data, filename: fullFilename});
 //                                });
 //                                fs.readFile.apply(this, readFileArgs);
@@ -338,6 +353,7 @@ class FileFileManager extends AbstractFileManager {
   /// Loads file by its [fullPath]
   ///
   Future<FileLoaded> getLoadedFile(String fullPath) async {
+    // in js check if file in cache has been modified. Here, by now, is not necessary
     if (contents.containsKey(fullPath)) {
       return new FileLoaded(filename: fullPath, contents: contents[fullPath]);
     }

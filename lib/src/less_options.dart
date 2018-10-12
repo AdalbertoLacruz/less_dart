@@ -158,11 +158,13 @@ class LessOptions {
   bool                      strictImports = false;
 
   /// Without this option on, Less will try and process all math in your css
-  bool get strictMath => _strictMath;
-  set strictMath(bool value){
-    _strictMath = (value == null) ? false : value;
-  }
-  bool                      _strictMath = false;
+//  bool get strictMath => _strictMath;
+//  set strictMath(bool value){
+//    _strictMath = (value == null) ? false : value;
+//  }
+//  bool                      _strictMath = false;
+
+  String                    strictMath = 'false';
 
   /// Without this option, less attempts to guess at the output unit when it does maths.
   bool get strictUnits => _strictUnits;
@@ -366,11 +368,24 @@ class LessOptions {
       case 'sm':
       case 'strict-math':
         if (checkArgFunc(command, arg[2])) {
-          if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
+          strictMath = arg[2].toLowerCase() == 'division'
+              ? 'division'
+              : checkBooleanArg(arg[2])?.toString();
+          if (strictMath == null) return setParseError();
+
+//          if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
         } else {
           return setParseError(command);
         }
         break;
+
+//      case 'strict-math':
+//        if (checkArgFunc(command, arg[2])) {
+//          if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
+//        } else {
+//          return setParseError(command);
+//        }
+//        break;
       case 'su':
       case 'strict-units':
         if (checkArgFunc(command, arg[2])) {

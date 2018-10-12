@@ -1,4 +1,4 @@
-//source: less/tree/declaration.js 3.0.0 20160719
+//source: less/tree/declaration.js 3.0.4 20180625
 
 part of tree.less;
 
@@ -170,6 +170,7 @@ class Declaration extends Node implements MakeImportantNode {
   @override
   Declaration eval(Contexts context) {
     bool strictMathBypass = false;
+    String prevMath;
     dynamic name = this.name; // String || List<Node> (Variable, Keyword, ...)
     bool variable = this.variable;
 
@@ -182,9 +183,11 @@ class Declaration extends Node implements MakeImportantNode {
       variable = false; // never treat expanded interpolation as new variable name
     }
 
-    if (name == 'font' && !context.strictMath) {
+    // if (name == 'font' && !context.strictMath) {
+    if (name == 'font' && context.strictMath == 'false') { // TODO
       strictMathBypass = true;
-      context.strictMath = true;
+      prevMath = context.strictMath;
+      context.strictMath = 'division'; // TODO
     }
     
     try {
@@ -217,57 +220,58 @@ class Declaration extends Node implements MakeImportantNode {
           index: index,
           filename: currentFileInfo.filename));
     } finally {
-      if (strictMathBypass) context.strictMath = false;
+      if (strictMathBypass) context.strictMath = prevMath; // TODO
     }
 
-//3.0.0 20160714
-// Declaration.prototype.eval = function (context) {
-//     var strictMathBypass = false, name = this.name, evaldValue, variable = this.variable;
-//     if (typeof name !== "string") {
-//         // expand 'primitive' name directly to get
-//         // things faster (~10% for benchmark.less):
-//         name = (name.length === 1) && (name[0] instanceof Keyword) ?
-//                 name[0].value : evalName(context, name);
-//         variable = false; // never treat expanded interpolation as new variable name
-//     }
-//     if (name === "font" && !context.strictMath) {
-//         strictMathBypass = true;
-//         context.strictMath = true;
-//     }
-//     try {
-//         context.importantScope.push({});
-//         evaldValue = this.value.eval(context);
+//3.0.4 20180625
+//  Declaration.prototype.eval = function (context) {
+//      var strictMathBypass = false, prevMath, name = this.name, evaldValue, variable = this.variable;
+//      if (typeof name !== "string") {
+//          // expand 'primitive' name directly to get
+//          // things faster (~10% for benchmark.less):
+//          name = (name.length === 1) && (name[0] instanceof Keyword) ?
+//                  name[0].value : evalName(context, name);
+//          variable = false; // never treat expanded interpolation as new variable name
+//      }
+//      if (name === "font" && !context.strictMath) {
+//          strictMathBypass = true;
+//          prevMath = context.strictMath;
+//          context.strictMath = 'division';
+//      }
+//      try {
+//          context.importantScope.push({});
+//          evaldValue = this.value.eval(context);
 //
-//         if (!this.variable && evaldValue.type === "DetachedRuleset") {
-//             throw { message: "Rulesets cannot be evaluated on a property.",
-//                     index: this.getIndex(), filename: this.fileInfo().filename };
-//         }
-//         var important = this.important,
-//             importantResult = context.importantScope.pop();
-//         if (!important && importantResult.important) {
-//             important = importantResult.important;
-//         }
+//          if (!this.variable && evaldValue.type === "DetachedRuleset") {
+//              throw { message: "Rulesets cannot be evaluated on a property.",
+//                  index: this.getIndex(), filename: this.fileInfo().filename };
+//          }
+//          var important = this.important,
+//              importantResult = context.importantScope.pop();
+//          if (!important && importantResult.important) {
+//              important = importantResult.important;
+//          }
 //
-//         return new Declaration(name,
-//                           evaldValue,
-//                           important,
-//                           this.merge,
-//                           this.getIndex(), this.fileInfo(), this.inline,
-//                               variable);
-//     }
-//     catch(e) {
-//         if (typeof e.index !== 'number') {
-//             e.index = this.getIndex();
-//             e.filename = this.fileInfo().filename;
-//         }
-//         throw e;
-//     }
-//     finally {
-//         if (strictMathBypass) {
-//             context.strictMath = false;
-//         }
-//     }
-// };
+//          return new Declaration(name,
+//                            evaldValue,
+//                            important,
+//                            this.merge,
+//                            this.getIndex(), this.fileInfo(), this.inline,
+//                                variable);
+//      }
+//      catch (e) {
+//          if (typeof e.index !== 'number') {
+//              e.index = this.getIndex();
+//              e.filename = this.fileInfo().filename;
+//          }
+//          throw e;
+//      }
+//      finally {
+//          if (strictMathBypass) {
+//              context.strictMath = prevMath;
+//          }
+//      }
+//  };
   }
 
   ///

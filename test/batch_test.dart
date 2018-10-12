@@ -126,7 +126,7 @@ Map<int, Config> configFill() => <int, Config>{
     68: def('mixins-pattern'),
     80: def('no-output'),
     81: def('operations'),
-//    82: def('permissive-parse'),
+    82: def('permissive-parse'),
     83: def('plugin',
         modifyOptions: (LessOptions options) {
           options
@@ -152,6 +152,7 @@ Map<int, Config> configFill() => <int, Config>{
    100: def('strict-math/css', options: <String>['--strict-math=on']),
    101: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
    102: def('strict-math/parens', options: <String>['--strict-math=on']),
+   103: def('strict-math-division/new-division', options: <String>['--strict-math=division']),
    110: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
    120: def('no-strict-math/no-sm-operations'),
    121: def('no-strict-math/mixins-guards'),
@@ -202,7 +203,7 @@ Map<int, Config> configFill() => <int, Config>{
           <String, String>{'from': '{pathimportesc}', 'to': escFile(absPath('${dirPath}less/debug/import'))}
         ]),
 
-   160: def('legacy/legacy'),
+   160: def('legacy/legacy', options: <String>['--strict-math=off']),
 
    170: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
@@ -271,25 +272,29 @@ Map<int, Config> configFill() => <int, Config>{
     200: def('errors/add-mixed-units', isErrorTest: true),
     201: def('errors/add-mixed-units2', isErrorTest: true),
     202: def('errors/at-rules-undefined-var', isErrorTest: true),
-    203: def('errors/bad-variable-declaration1', isErrorTest: true),
-    204: def('errors/color-func-invalid-color', isErrorTest: true),
-    205: def('errors/color-invalid-hex-code', isErrorTest: true),
-    206: def('errors/color-invalid-hex-code2', isErrorTest: true),
+    203: def('errors/at-rules-unmatching-block', isErrorTest: true),
+    204: def('errors/bad-variable-declaration1', isErrorTest: true),
+    205: def('errors/color-func-invalid-color', isErrorTest: true),
+    206: def('errors/color-invalid-hex-code', isErrorTest: true),
+    207: def('errors/color-invalid-hex-code2', isErrorTest: true),
     //207: def('errors/comment-in-selector', isErrorTest: true),
     208: def('errors/css-guard-default-func', isErrorTest: true),
-    209: def('errors/detached-ruleset-1', isErrorTest: true),
-    210: def('errors/detached-ruleset-2', isErrorTest: true),
-    211: def('errors/detached-ruleset-3', isErrorTest: true),
-    213: def('errors/detached-ruleset-5', isErrorTest: true),
-    214: def('errors/detached-ruleset-6', isErrorTest: true),
-    215: def('errors/divide-mixed-units', isErrorTest: true),
-    216: def('errors/extend-no-selector', isErrorTest: true),
-    217: def('errors/extend-not-at-end',  isErrorTest: true),
-    218: def('errors/import-malformed', isErrorTest: true),
-    219: def('errors/import-missing', isErrorTest: true),
-    220: def('errors/import-no-semi', isErrorTest: true),
-    221: def('errors/import-subfolder1', isErrorTest: true),
-    222: def('errors/import-subfolder2', isErrorTest: true),
+    209: def('errors/custom-property-unmatched-block-1', isErrorTest: true),
+    210: def('errors/custom-property-unmatched-block-2', isErrorTest: true),
+    211: def('errors/custom-property-unmatched-block-3', isErrorTest: true),
+    212: def('errors/detached-ruleset-1', isErrorTest: true),
+    213: def('errors/detached-ruleset-2', isErrorTest: true),
+    214: def('errors/detached-ruleset-3', isErrorTest: true),
+    215: def('errors/detached-ruleset-5', isErrorTest: true),
+    216: def('errors/detached-ruleset-6', isErrorTest: true),
+    217: def('errors/divide-mixed-units', isErrorTest: true),
+    218: def('errors/extend-no-selector', isErrorTest: true),
+    219: def('errors/extend-not-at-end',  isErrorTest: true),
+    220: def('errors/import-malformed', isErrorTest: true),
+    221: def('errors/import-missing', isErrorTest: true),
+    222: def('errors/import-no-semi', isErrorTest: true),
+    223: def('errors/import-subfolder1', isErrorTest: true),
+    224: def('errors/import-subfolder2', isErrorTest: true),
 //      223: def('errors/javascript-error', isErrorTest: true),
 //      224: def('errors/javascript-undefined-var', isErrorTest: true),
     225: def('errors/mixed-mixin-definition-args-1', isErrorTest: true),
@@ -472,8 +477,10 @@ Map<int, Config> configFill() => <int, Config>{
         options: <String>['--clean-css="compatibility=ie8"'],
         isCleancssTest: true),
     410: def('colors', isCleancssTest: true),
-    411: def('css-3', isCleancssTest: true),
-    412: def('css-clean', isCleancssTest: true)
+    411: def('css-3',
+        isCleancssTest: true), // affected by parseUntil/permissiveValue quote
+    412: def('css-clean',
+        isCleancssTest: true)
 };
 
 ///

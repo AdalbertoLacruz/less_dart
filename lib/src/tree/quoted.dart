@@ -21,6 +21,9 @@ class Quoted extends Node implements CompareNode {
   /// ' or "
   String quote;
 
+  ///
+  bool   reparse = false;
+
   /// Default value to identify a variable: /@\{([\w-]+)\}/g
   RegExp variableRegex;
 

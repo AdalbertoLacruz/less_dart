@@ -203,8 +203,10 @@ class ParserInput {
 
   ///
   /// Returns a quoted `"..."` or `'...'` string if found, else null.
+  /// If [skip] == false, don't move the pointer (i) with skipWhitespace,
+  /// so, point to the first "|' character.
   ///
-  String $quoted() {
+  String $quoted({bool skip = true}) {
     final String startChar = currentChar();
     if (startChar != "'" && startChar != '"') return null;
 
@@ -224,7 +226,7 @@ class ParserInput {
         case '"':
           if (nextChar == startChar) {
             final String str = input.substring(start, end + 1);
-            skipWhitespace(end + 1);
+            if (skip) skipWhitespace(end + 1);
             return str;
           }
           break;
@@ -232,6 +234,39 @@ class ParserInput {
       }
     }
     return null;
+
+//3.0.4 20180622
+//parserInput.$quoted = function(loc) {
+//    var pos = loc || parserInput.i,
+//        startChar = input.charAt(pos);
+//
+//    if (startChar !== "'" && startChar !== '"') {
+//        return;
+//    }
+//    var length = input.length,
+//        currentPosition = pos;
+//
+//    for (var i = 1; i + currentPosition < length; i++) {
+//        var nextChar = input.charAt(i + currentPosition);
+//        switch (nextChar) {
+//            case "\\":
+//                i++;
+//                continue;
+//            case "\r":
+//            case "\n":
+//                break;
+//            case startChar:
+//                var str = input.substr(currentPosition, i + 1);
+//                if (!loc && loc !== 0) {
+//                    skipWhitespace(i + 1);
+//                    return str
+//                }
+//                return [startChar, str];
+//            default:
+//        }
+//    }
+//    return null;
+//};
   }
 
   ///
@@ -241,14 +276,14 @@ class ParserInput {
   /// tok = String (toks) | RegExp (tokre). Default ';'
   ///
   // in js $parseUntil(String|RegExp tok). Here we split to avoid dynamic.
-  List<String> $parseUntil({String tok, RegExp tokre}) {
+  List<ParseUntilReturnItem> $parseUntil({String tok, RegExp tokre}) {
     int                 blockDepth = 0;
     final List<String>  blockStack = <String>[]; // key expected to close block '}' ']' ')'
     bool                inComment = false; // we are inside a comment
     int                 lastPos = i;
     bool                loop = true;
-    final List<String>  parseGroups = <String>[];
-    final String        quote = '';
+    final List<ParseUntilReturnItem>  parseGroups = <ParseUntilReturnItem>[];
+    String              quote;
     final int           startPos = i;
 
     final String toks = (tok == null && tokre == null) ? ';' : tok;
@@ -264,8 +299,11 @@ class ParserInput {
 
       if (blockDepth == 0 && testChar(currentCharacter)) {
         final String value = input.substring(lastPos, i);
-        parseGroups.add(value.isNotEmpty ? value : ' ');
-        skipWhitespace(i - startPos); //??
+        parseGroups.add(new ParseUntilReturnItem()
+            ..isEnd = value.isEmpty
+            ..value = value
+        );
+//        skipWhitespace(i - startPos); //??
         loop = false;
       } else {
         if (inComment) {
@@ -282,7 +320,8 @@ class ParserInput {
           case r'\':
             i++;
             currentCharacter = currentChar();
-            parseGroups.add(input.substring(lastPos, i + 1));
+            parseGroups.add(new ParseUntilReturnItem()
+                ..value = input.substring(lastPos, i + 1));
             lastPos = i + 1;
             break;
           case '/':
@@ -294,17 +333,22 @@ class ParserInput {
             break;
           case "'":
           case '"':
-//                    quote = parserInput.$quoted(i);
-//                    if (quote) {
-//                        parseGroups.push(input.substr(lastPos, i - lastPos), quote);
-//                        i += quote[1].length - 1;
-//                        lastPos = i + 1;
-//                    }
-//                    else {
-//                        skipWhitespace(i - startPos);
-//                        returnVal = nextChar;
-//                        loop = false;
-//                    }
+            quote = $quoted(skip: false);
+            if (quote != null) {
+              parseGroups
+                  ..add(new ParseUntilReturnItem()
+                      ..value = input.substring(lastPos, i))
+                  ..add(new ParseUntilReturnItem()
+                      ..quote = quote[0]
+                      ..value = quote
+              );
+              i += quote.length - 1;
+              lastPos = i + 1;
+            } else {
+//              skipWhitespace(i - startPos);
+              throw new ParserInputException()
+                ..expected = currentCharacter;
+            }
             break;
           case '{':
             blockStack.add('}');
@@ -324,11 +368,11 @@ class ParserInput {
             final String expected = blockStack.removeLast();
             if (currentCharacter == expected) {
               blockDepth--;
-            } else { // throw error
-//                        // move the parser to the error and return expected
-//                        skipWhitespace(i - startPos);
-//                        returnVal = expected;
-//                        loop = false;
+            } else {
+              // move the parser to the error and return expected
+//              skipWhitespace(i - startPos);
+              throw new ParserInputException()
+                ..expected = expected;
             }
         }
 
@@ -337,6 +381,7 @@ class ParserInput {
       }
     } while (loop);
 
+    if (parseGroups.isEmpty) i = startPos;
     return parseGroups.isNotEmpty ? parseGroups : null;
   }
 
@@ -810,6 +855,17 @@ class CommentPointer {
 }
 
 ///
+/// Handling unexpected characters
+///
+class ParserInputException implements Exception {
+  /// Error, missing expected character )]}
+  String expected;
+
+  /// Constructor
+  ParserInputException();
+}
+
+///
 /// What happend in the parser?
 ///
 class ParserStatus {
@@ -835,4 +891,18 @@ class ParserStatus {
       this.furthestPossibleErrorMessage,
       this.furthestReachedEnd,
       this.furthestChar});
+}
+
+///
+/// Each item returned by $parseUntil
+///
+class ParseUntilReturnItem {
+  /// $parseUntil reached the end character (;, [, {, ...)
+  bool   isEnd = false;
+
+  /// If value is quoted (', "), the quoted character
+  String quote;
+
+  /// Each parsed string item
+  String value;
 }

@@ -50,7 +50,8 @@ class Expression extends Node {
   @override
   Node eval(Contexts context) {
     bool        doubleParen = false;
-    final bool  inParenthesis = parens && !parensInOp;
+//    final bool  inParenthesis = parens && !parensInOp;
+    final bool  inParenthesis = parens && (context.strictMath != 'true' || !parensInOp);
     Node        returnValue;
 
     if (inParenthesis) context.inParenthesis();
@@ -66,7 +67,7 @@ class Expression extends Node {
       returnValue = this;
     }
     if (inParenthesis) context.outOfParenthesis();
-    if (parens && parensInOp && !(context.isMathOn()) && !doubleParen) {
+    if (parens && parensInOp && !doubleParen && !(context.isMathOn())) {
       returnValue = new Paren(returnValue);
     }
     return returnValue;

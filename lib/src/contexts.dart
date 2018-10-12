@@ -1,4 +1,4 @@
-// source: less/contexts.js 3.0.0 20180211
+// source: less/contexts.js 3.0.4 20180625
 
 library contexts.less;
 
@@ -166,7 +166,7 @@ class Contexts {
   ///
   /// whether math has to be within parenthesis
   ///
-  bool strictMath = false;
+  String strictMath = 'false'; // TODO
 
   ///
   /// whether units need to evaluate correctly
@@ -361,20 +361,25 @@ class Contexts {
 //  };
 
   ///
-  bool isMathOn() {
+  bool isMathOn([String op]) {
     if (!mathOn) return false;
-    
-    return strictMath
-      ? (parensStack?.isNotEmpty ?? false)
-      : true;
+    if (op == '/' && (strictMath != 'false') && (parensStack?.isEmpty ?? true)) return false; // TODO
+    if (strictMath == 'true') return parensStack?.isNotEmpty ?? false; // TODO
+    return true;
 
-//3.0.0 20180211
+//3.0.4 20180625
 //  contexts.Eval.prototype.mathOn = true;
-//  contexts.Eval.prototype.isMathOn = function () {
+//  contexts.Eval.prototype.isMathOn = function (op) {
 //    if (!this.mathOn) {
 //        return false;
 //    }
-//    return this.strictMath ? (this.parensStack && this.parensStack.length) : true;
+//    if (op === '/' && this.strictMath && (!this.parensStack || !this.parensStack.length)) {
+//        return false;
+//    }
+//    if (this.strictMath === true) {
+//        return this.parensStack && this.parensStack.length;
+//    }
+//    return true;
 //  };
   }
 

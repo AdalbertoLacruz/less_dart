@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.0.4 20180622
+//source: less/parser/parser.js ines 250-end 3.0.4 20180625
 
 part of parser.less;
 
@@ -902,7 +902,7 @@ class Parsers {
 
         // Custom property values get permissive parsing
         if ((name is List) && (name.first.value is String) && (name.first.value as String).startsWith('--')) {
-          value = permissiveValue(); // TODO debug
+          value = permissiveValue();
         } else {
           // Try to store values as anonymous
           // If we need the value later we'll re-parse it in ruleset.parseValue
@@ -923,7 +923,7 @@ class Parsers {
         important = this.important();
 
         // As a last resort, let a variable try to be parsed as a permissive value
-        if (value == null && isVariable) value = permissiveValue(); // TODO debug
+        if (value == null && isVariable) value = permissiveValue();
       }
 
       if (value != null && end()) {
@@ -1004,57 +1004,6 @@ class Parsers {
 //        parserInput.restore();
 //    }
 //},
-
-//3.0.0 20160718
-// declaration: function () {
-//     var name, value, startOfRule = parserInput.i, c = parserInput.currentChar(), important, merge, isVariable;
-//
-//     if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
-//
-//     parserInput.save();
-//
-//     name = this.variable() || this.ruleProperty();
-//     if (name) {
-//         isVariable = typeof name === "string";
-//
-//         if (isVariable) {
-//             value = this.detachedRuleset();
-//         }
-//
-//         parserInput.commentStore.length = 0;
-//         if (!value) {
-//             // a name returned by this.ruleProperty() is always an array of the form:
-//             // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
-//             // where each item is a tree.Keyword or tree.Variable
-//             merge = !isVariable && name.length > 1 && name.pop().value;
-//
-//             // Try to store values as anonymous
-//             // If we need the value later we'll re-parse it in ruleset.parseValue
-//             value = this.anonymousValue();
-//             if (value) {
-//                 parserInput.forget();
-//                 // anonymous values absorb the end ';' which is required for them to work
-//                 return new (tree.Declaration)(name, value, false, merge, startOfRule, fileInfo);
-//             }
-//
-//             if (!value) {
-//                 value = this.value();
-//             }
-//
-//             important = this.important();
-//         }
-//
-//         if (value && this.end()) {
-//             parserInput.forget();
-//             return new (tree.Declaration)(name, value, important, merge, startOfRule, fileInfo);
-//         }
-//         else {
-//             parserInput.restore();
-//         }
-//     } else {
-//         parserInput.restore();
-//     }
-// },
   }
 
   static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@\$+\/'"*`(;{}-]*);''', caseSensitive: false);
@@ -1090,10 +1039,44 @@ class Parsers {
   /// until it reaches outer-most tokens.
   ///
   Node permissiveValue({String untilTokensString, RegExp untilTokensRegExp}) {
-    int index = parserInput.i;
-    // TODO
-//    dynamic value = parserInput.$parseUntil(tok: untilTokensString, tokre: untilTokensRegExp);
+    final int index = parserInput.i;
+    List<ParseUntilReturnItem> value;
 
+    try {
+      value = parserInput.$parseUntil(tok: untilTokensString, tokre: untilTokensRegExp);
+    } on ParserInputException catch(e) {
+      if (e.expected != null) {
+        parserInput.error("Expected '${e.expected}'", 'Parse');
+      }
+    }
+
+    if (value != null) {
+      final List<Node> args = <Node>[];
+
+      if (value.length == 1 && value.single.isEnd) {
+        return new Anonymous('', index: index);
+      }
+
+      for (int i = 0; i < value.length; i++) {
+        final ParseUntilReturnItem item = value[i];
+
+        if (item.quote != null) {
+          // Treat actual quotes as normal quoted values
+          args.add(new Quoted(item.quote, item.value,
+              escaped: true, index: index, currentFileInfo: fileInfo));
+        } else {
+          if (i == value.length - 1) item.value = item.value.trim();
+
+          // Treat like quoted values, but replace vars like unquoted expressions
+          args.add(new Quoted("'",  item.value,
+              escaped: true, index: index, currentFileInfo: fileInfo)
+            ..variableRegex = new RegExp(r'@([\w-]+)')
+            ..propRegex = new RegExp(r'\$([\w-]+)')
+            ..reparse = true);
+        }
+      }
+      return new Expression(args, noSpacing: true);
+    }
     return null;
 
 //3.4.0 20180622
@@ -1668,7 +1651,7 @@ class Parsers {
   }
 
   static final RegExp _directiveRegExp1 = new RegExp(r'@[a-z-]+', caseSensitive: true);
-  static final RegExp _directiveRegExp2 = new RegExp(r'[^{;]+', caseSensitive: true);
+//  static final RegExp _directiveRegExp2 = new RegExp(r'[^{;]+', caseSensitive: true);
 
 
   ///
@@ -1738,30 +1721,17 @@ class Parsers {
     } else if (hasExpression) {
       value = expression();
       if (value == null) parserInput.error('expected $name expression');
-//    } else if (hasUnknown) {
-//      final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
-//      hasBlock = (parserInput.currentChar() == '{');
-//      if (unknown?.isNotEmpty ?? false) value = new Anonymous(unknown);
-//    }
-      } else if (hasUnknown) { // TODO debug --- update pending
-        final String unknown = (parserInput.$re(_directiveRegExp2) ?? '').trim();
+      } else if (hasUnknown) {
+        value = permissiveValue(untilTokensRegExp: new RegExp(r'[{;]')); // /^[{;]/
         hasBlock = (parserInput.currentChar() == '{');
-        if (unknown?.isNotEmpty ?? false) value = new Anonymous(unknown);
+        if (value == null) {
+          if (!hasBlock && parserInput.currentChar() != ';') {
+            parserInput.error('$name rule is missing block or ending semi-colon');
+          }
+        } else if (value.value?.isEmpty ?? true) {
+          value = null;
+        }
       }
-
-
-//    } else if (hasUnknown) {
-//        value = this.permissiveValue(/^[{;]/);
-//        hasBlock = (parserInput.currentChar() === '{');
-//        if (!value) {
-//            if (!hasBlock && parserInput.currentChar() !== ';') {
-//                error(name + " rule is missing block or ending semi-colon");
-//            }
-//        }
-//        else if (!value.value) {
-//            value = null;
-//        }
-//    }
 
     if (hasBlock) rules = blockRuleset();
 
@@ -1863,87 +1833,6 @@ class Parsers {
 //
 //    parserInput.restore("at-rule options not recognised");
 //},
-
-//3.0.0 20160718
-// atrule: function () {
-//     var index = parserInput.i, name, value, rules, nonVendorSpecificName,
-//         hasIdentifier, hasExpression, hasUnknown, hasBlock = true, isRooted = true;
-//
-//     if (parserInput.currentChar() !== '@') { return; }
-//
-//     value = this['import']() || this.plugin() || this.media();
-//     if (value) {
-//         return value;
-//     }
-//
-//     parserInput.save();
-//
-//     name = parserInput.$re(/^@[a-z-]+/);
-//
-//     if (!name) { return; }
-//
-//     nonVendorSpecificName = name;
-//     if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
-//         nonVendorSpecificName = "@" + name.slice(name.indexOf('-', 2) + 1);
-//     }
-//
-//     switch(nonVendorSpecificName) {
-//         case "@charset":
-//             hasIdentifier = true;
-//             hasBlock = false;
-//             break;
-//         case "@namespace":
-//             hasExpression = true;
-//             hasBlock = false;
-//             break;
-//         case "@keyframes":
-//         case "@counter-style":
-//             hasIdentifier = true;
-//             break;
-//         case "@document":
-//         case "@supports":
-//             hasUnknown = true;
-//             isRooted = false;
-//             break;
-//         default:
-//             hasUnknown = true;
-//             break;
-//     }
-//
-//     parserInput.commentStore.length = 0;
-//
-//     if (hasIdentifier) {
-//         value = this.entity();
-//         if (!value) {
-//             error("expected " + name + " identifier");
-//         }
-//     } else if (hasExpression) {
-//         value = this.expression();
-//         if (!value) {
-//             error("expected " + name + " expression");
-//         }
-//     } else if (hasUnknown) {
-//         value = (parserInput.$re(/^[^{;]+/) || '').trim();
-//         hasBlock = (parserInput.currentChar() == '{');
-//         if (value) {
-//             value = new(tree.Anonymous)(value);
-//         }
-//     }
-//
-//     if (hasBlock) {
-//         rules = this.blockRuleset();
-//     }
-//
-//     if (rules || (!hasBlock && value && parserInput.$char(';'))) {
-//         parserInput.forget();
-//         return new (tree.AtRule)(name, value, rules, index, fileInfo,
-//             context.dumpLineNumbers ? getDebugInfo(index) : null,
-//             isRooted
-//         );
-//     }
-//
-//     parserInput.restore("at-rule options not recognised");
-// },
   }
 
   ///
@@ -2084,7 +1973,8 @@ class Parsers {
         parserInput.save();
 
         op = parserInput.$char('/')
-            ?? parserInput.$char('*');
+            ?? parserInput.$char('*')
+            ?? parserInput.$str('./');
         if (op == null) {
           parserInput.forget();
           break;
@@ -2108,7 +1998,7 @@ class Parsers {
     }
     return null;
 
-//2.2.0
+//3.0.4 20180625
 //  multiplication: function () {
 //      var m, a, op, operation, isSpaced;
 //      m = this.operand();
@@ -2121,7 +2011,7 @@ class Parsers {
 //
 //              parserInput.save();
 //
-//              op = parserInput.$char('/') || parserInput.$char('*');
+//              op = parserInput.$char('/') || parserInput.$char('*') || parserInput.$str('./');
 //
 //              if (!op) { parserInput.forget(); break; }
 //
@@ -2137,7 +2027,7 @@ class Parsers {
 //          }
 //          return operation || m;
 //      }
-//  }
+//  },
   }
 
   static final RegExp _additionRegExp1 = new RegExp(r'[-+]\s+', caseSensitive: true);

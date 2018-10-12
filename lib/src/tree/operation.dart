@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 2.5.0
+//source: less/tree/operation.js 3.0.4 20180625
 
 part of tree.less;
 
@@ -48,8 +48,10 @@ class Operation extends Node {
   Node eval(Contexts context) {
     Node a = operands[0].eval(context);
     Node b = operands[1].eval(context);
+    String op;
 
-    if (context.isMathOn()) {
+    if (context.isMathOn(this.op)) {
+      op = this.op == './' ? '/' : this.op;
       if (a is Dimension && b is Color) a = (a as Dimension).toColor();
       if (b is Dimension && a is Color) b = (b as Dimension).toColor();
       if (a is! OperateNode) {
@@ -63,15 +65,17 @@ class Operation extends Node {
         ? (a as OperateNode<Dimension>).operate(context, op, b)
         : (a as OperateNode<Color>).operate(context, op, b);
     } else {
-      return new Operation(op, <Node>[a, b], isSpaced: isSpaced);
+      return new Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
     }
 
-//2.3.1
+//3.0.4 20180625
 //  Operation.prototype.eval = function (context) {
 //      var a = this.operands[0].eval(context),
-//          b = this.operands[1].eval(context);
+//          b = this.operands[1].eval(context),
+//          op;
 //
-//      if (context.isMathOn()) {
+//      if (context.isMathOn(this.op)) {
+//          op = this.op === './' ? '/' : this.op;
 //          if (a instanceof Dimension && b instanceof Color) {
 //              a = a.toColor();
 //          }
@@ -80,10 +84,10 @@ class Operation extends Node {
 //          }
 //          if (!a.operate) {
 //              throw { type: "Operation",
-//                      message: "Operation on an invalid type" };
+//                  message: "Operation on an invalid type" };
 //          }
 //
-//          return a.operate(context, this.op, b);
+//          return a.operate(context, op, b);
 //      } else {
 //          return new Operation(this.op, [a, b], this.isSpaced);
 //      }
