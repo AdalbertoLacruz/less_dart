@@ -16,6 +16,9 @@ class Contexts {
   ///
   bool avoidDartOptimization; //Dart prune some code apparently not used
 
+  /// Parenthesis control in calc operations
+  List<bool> calcStack;
+
   ///
   /// option - whether to chunk input. more performant (?) but causes parse issues.
   ///
@@ -88,6 +91,9 @@ class Contexts {
 
   /// for LessError
   ImportManager imports;
+
+  /// We are executing a calc operation
+  bool inCalc = false;
 
   ///
   /// option - whether to allow imports from insecure ssl hosts
@@ -331,6 +337,35 @@ class Contexts {
     ];
 
     Utils.copyFrom(options, newctx, properties);
+  }
+
+  ///
+  void enterCalc() {
+    (calcStack ??= <bool>[]).add(true);
+    inCalc = true;
+
+//3.5.0.beta 20180625
+//  contexts.Eval.prototype.enterCalc = function () {
+//    if (!this.calcStack) {
+//      this.calcStack = [];
+//    }
+//    this.calcStack.push(true);
+//    this.inCalc = true;
+//  };
+  }
+
+  ///
+  void exitCalc() {
+    calcStack.removeLast();
+    if (calcStack.isEmpty) inCalc = false;
+
+//3.5.0.beta 20180625
+//  contexts.Eval.prototype.exitCalc = function () {
+//    this.calcStack.pop();
+//    if (!this.calcStack) {
+//      this.inCalc = false;
+//    }
+//  };
   }
 
   ///

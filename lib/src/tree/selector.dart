@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 3.0.0 20170528
+//source: less/tree/selector.js 3.5.0.beta 20180625
 
 part of tree.less;
 
@@ -137,22 +137,27 @@ class Selector extends Node {
 
   ///
   List<Selector> createEmptySelectors() {
-    final Element el = new Element('', '&', index: _index, currentFileInfo: _fileInfo);
+    final Element el = new Element('', '&',
+        isVariable: false,
+        index: _index,
+        currentFileInfo: _fileInfo);
+
     final List<Selector> sels = <Selector>[
       new Selector(<Element>[el],
         index: _index,
         currentFileInfo: _fileInfo)
     ];
-    sels[0].mediaEmpty = true;
-    return sels;
 
-//3.0.0 20160714
-// Selector.prototype.createEmptySelectors = function() {
-//     var el = new Element('', '&', this._index, this._fileInfo),
-//         sels = [new Selector([el], null, null, this._index, this._fileInfo)];
-//     sels[0].mediaEmpty = true;
-//     return sels;
-// };
+    return sels
+        ..first.mediaEmpty = true;
+
+// 3.5.0.beta 20180625
+//  Selector.prototype.createEmptySelectors = function() {
+//      var el = new Element('', '&', false, this._index, this._fileInfo),
+//          sels = [new Selector([el], null, null, this._index, this._fileInfo)];
+//      sels[0].mediaEmpty = true;
+//      return sels;
+//  };
   }
 
   ///

@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.0.0 20180211
+//source: less/parser/parser.js 3.5.0.beta 20180625
 
 part of parser.less;
 
@@ -30,13 +30,19 @@ class Entities {
   ///
   ///     "milky way" 'he\'s the one!'
   ///
-  Quoted quoted() {
+  Quoted quoted({bool forceEscaped = false}) {
     final int index = parserInput.i;
     bool      isEscaped = false;
     String    str;
 
     parserInput.save();
-    if (parserInput.$char('~') != null) isEscaped = true;
+    if (parserInput.$char('~') != null) {
+      isEscaped = true;
+    } else if (forceEscaped) {
+      parserInput.restore();
+      return null;
+    }
+
     str = parserInput.$quoted();
     if (str == null) {
       parserInput.restore();
@@ -48,22 +54,26 @@ class Entities {
         index: index,
         currentFileInfo: fileInfo);
 
-//2.4.0 20150315-1345
-//  quoted: function () {
-//      var str, index = parserInput.i, isEscaped = false;
+// 3.5.0.beta 20180625
+//  quoted: function (forceEscaped) {
+//    var str, index = parserInput.i, isEscaped = false;
 //
-//      parserInput.save();
-//      if (parserInput.$char("~")) {
-//          isEscaped = true;
-//      }
-//      str = parserInput.$quoted();
-//      if (!str) {
-//          parserInput.restore();
-//          return;
-//      }
-//      parserInput.forget();
+//    parserInput.save();
+//    if (parserInput.$char('~')) {
+//      isEscaped = true;
+//    } else if (forceEscaped) {
+//      parserInput.restore();
+//      return;
+//    }
 //
-//      return new(tree.Quoted)(str.charAt(0), str.substr(1, str.length - 2), isEscaped, index, fileInfo);
+//    str = parserInput.$quoted();
+//    if (!str) {
+//      parserInput.restore();
+//      return;
+//    }
+//    parserInput.forget();
+//
+//    return new(tree.Quoted)(str.charAt(0), str.substr(1, str.length - 2), isEscaped, index, fileInfo);
 //  },
   }
 

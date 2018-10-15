@@ -1,4 +1,4 @@
-// source: less/extend-visitor.js lines 91-451 3.0.0 20160714
+// source: less/extend-visitor.js lines 91-451 3.5.0.beta 20180625
 
 part of visitor.less;
 
@@ -662,8 +662,9 @@ class ProcessExtendsVisitor extends VisitorBase {
   /// For a set of matches, replace each match with the replacement selector
   ///
   List<Selector> extendSelector(List<MatchSelector> matches,
-      List<Selector> selectorPath, Selector replacementSelector, {bool isVisible: false}) {
-
+      List<Selector> selectorPath, Selector replacementSelector,
+      {bool isVisible: false}) {
+    //
     int                   currentSelectorPathElementIndex = 0;
     int                   currentSelectorPathIndex = 0;
     final List<Selector>  path = <Selector>[];
@@ -674,6 +675,7 @@ class ProcessExtendsVisitor extends VisitorBase {
       final Element firstElement = new Element(
           match.initialCombinator,
           replacementSelector.elements[0].value,
+          isVariable: replacementSelector.elements[0].isVariable,
           index: replacementSelector.elements[0].index,
           currentFileInfo: replacementSelector.elements[0].currentFileInfo);
 
@@ -729,79 +731,80 @@ class ProcessExtendsVisitor extends VisitorBase {
       })
       .toList();
 
-//3.0.0 20160714
-// extendSelector:function (matches, selectorPath, replacementSelector, isVisible) {
+// 3.5.0.beta 20180625
+//  extendSelector:function (matches, selectorPath, replacementSelector, isVisible) {
 //
-//     //for a set of matches, replace each match with the replacement selector
+//      // for a set of matches, replace each match with the replacement selector
 //
-//     var currentSelectorPathIndex = 0,
-//         currentSelectorPathElementIndex = 0,
-//         path = [],
-//         matchIndex,
-//         selector,
-//         firstElement,
-//         match,
-//         newElements;
+//      var currentSelectorPathIndex = 0,
+//          currentSelectorPathElementIndex = 0,
+//          path = [],
+//          matchIndex,
+//          selector,
+//          firstElement,
+//          match,
+//          newElements;
 //
-//     for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
-//         match = matches[matchIndex];
-//         selector = selectorPath[match.pathIndex];
-//         firstElement = new tree.Element(
-//             match.initialCombinator,
-//             replacementSelector.elements[0].value,
-//             replacementSelector.elements[0].getIndex(),
-//             replacementSelector.elements[0].fileInfo()
-//         );
+//      for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
+//          match = matches[matchIndex];
+//          selector = selectorPath[match.pathIndex];
+//          firstElement = new tree.Element(
+//              match.initialCombinator,
+//              replacementSelector.elements[0].value,
+//              replacementSelector.elements[0].isVariable,
+//              replacementSelector.elements[0].getIndex(),
+//              replacementSelector.elements[0].fileInfo()
+//          );
 //
-//         if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
-//             path[path.length - 1].elements = path[path.length - 1]
-//                 .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
-//             currentSelectorPathElementIndex = 0;
-//             currentSelectorPathIndex++;
-//         }
+//          if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
+//              path[path.length - 1].elements = path[path.length - 1]
+//                  .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
+//              currentSelectorPathElementIndex = 0;
+//              currentSelectorPathIndex++;
+//          }
 //
-//         newElements = selector.elements
-//             .slice(currentSelectorPathElementIndex, match.index)
-//             .concat([firstElement])
-//             .concat(replacementSelector.elements.slice(1));
+//          newElements = selector.elements
+//              .slice(currentSelectorPathElementIndex, match.index)
+//              .concat([firstElement])
+//              .concat(replacementSelector.elements.slice(1));
 //
-//         if (currentSelectorPathIndex === match.pathIndex && matchIndex > 0) {
-//             path[path.length - 1].elements =
-//                 path[path.length - 1].elements.concat(newElements);
-//         } else {
-//             path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
+//          if (currentSelectorPathIndex === match.pathIndex && matchIndex > 0) {
+//              path[path.length - 1].elements =
+//                  path[path.length - 1].elements.concat(newElements);
+//          } else {
+//              path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
 //
-//             path.push(new tree.Selector(
-//                 newElements
-//             ));
-//         }
-//         currentSelectorPathIndex = match.endPathIndex;
-//         currentSelectorPathElementIndex = match.endPathElementIndex;
-//         if (currentSelectorPathElementIndex >= selectorPath[currentSelectorPathIndex].elements.length) {
-//             currentSelectorPathElementIndex = 0;
-//             currentSelectorPathIndex++;
-//         }
-//     }
+//              path.push(new tree.Selector(
+//                  newElements
+//              ));
+//          }
+//          currentSelectorPathIndex = match.endPathIndex;
+//          currentSelectorPathElementIndex = match.endPathElementIndex;
+//          if (currentSelectorPathElementIndex >= selectorPath[currentSelectorPathIndex].elements.length) {
+//              currentSelectorPathElementIndex = 0;
+//              currentSelectorPathIndex++;
+//          }
+//      }
 //
-//     if (currentSelectorPathIndex < selectorPath.length && currentSelectorPathElementIndex > 0) {
-//         path[path.length - 1].elements = path[path.length - 1]
-//             .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
-//         currentSelectorPathIndex++;
-//     }
+//      if (currentSelectorPathIndex < selectorPath.length && currentSelectorPathElementIndex > 0) {
+//          path[path.length - 1].elements = path[path.length - 1]
+//              .elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
+//          currentSelectorPathIndex++;
+//      }
 //
-//     path = path.concat(selectorPath.slice(currentSelectorPathIndex, selectorPath.length));
-//     path = path.map(function (currentValue) {
-//         // we can re-use elements here, because the visibility property matters only for selectors
-//         var derived = currentValue.createDerived(currentValue.elements);
-//         if (isVisible) {
-//             derived.ensureVisibility();
-//         } else {
-//             derived.ensureInvisibility();
-//         }
-//         return derived;
-//     });
-//     return path;
-// },
+//      path = path.concat(selectorPath.slice(currentSelectorPathIndex, selectorPath.length));
+//      path = path.map(function (currentValue) {
+//          // we can re-use elements here, because the visibility property matters only for selectors
+//          var derived = currentValue.createDerived(currentValue.elements);
+//          if (isVisible) {
+//              derived.ensureVisibility();
+//          } else {
+//              derived.ensureInvisibility();
+//          }
+//          return derived;
+//      });
+//      return path;
+//  },
   }
 
   ///

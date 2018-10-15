@@ -126,8 +126,9 @@ Map<int, Config> configFill() => <int, Config>{
     68: def('mixins-pattern'),
     80: def('no-output'),
     81: def('operations'),
-    82: def('permissive-parse'),
-    83: def('plugin',
+    82: def('parse-interpolation'),
+    83: def('permissive-parse'),
+    84: def('plugin',
         modifyOptions: (LessOptions options) {
           options
               ..definePlugin('plugin-global', new PluginGlobal())
@@ -139,16 +140,16 @@ Map<int, Config> configFill() => <int, Config>{
               ..definePlugin('plugin-scope2', new PluginScope2())
               ..definePlugin('plugin-collection', new PluginCollection());
         }),
-    84: def('property-name-interp'),
-    85: def('property-accessors'),
-    86: def('rulesets'),
-    87: def('scope'),
-    88: def('selectors'),
-    89: def('strings'),
-    90: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
-    91: def('variables'),
-    92: def('variables-in-at-rules'),
-    93: def('whitespace'),
+    85: def('property-name-interp'),
+    86: def('property-accessors'),
+    87: def('rulesets'),
+    88: def('scope'),
+    89: def('selectors'),
+    90: def('strings'),
+    91: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
+    92: def('variables'),
+    93: def('variables-in-at-rules'),
+    94: def('whitespace'),
    100: def('strict-math/css', options: <String>['--strict-math=on']),
    101: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
    102: def('strict-math/parens', options: <String>['--strict-math=on']),

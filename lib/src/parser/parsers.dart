@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.0.4 20180625
+//source: less/parser/parser.js ines 250-end 3.5.0.beta 20180625
 
 part of parser.less;
 
@@ -436,39 +436,41 @@ class Parsers {
       }
     }
 
-    if (e != null) {
-      return new Element(c, e, index: index, currentFileInfo: fileInfo);
-    }
-    return null;
+    return (e != null)
+        ? new Element(c, e,
+            isVariable: e is Variable,
+            index: index,
+            currentFileInfo: fileInfo)
+        : null;
 
-//3.0.0 20160719
-// element: function () {
-//     var e, c, v, index = parserInput.i;
+// 3.5.0.beta 20180625
+//  element: function () {
+//      var e, c, v, index = parserInput.i;
 //
-//     c = this.combinator();
+//      c = this.combinator();
 //
-//     e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) ||
-//         parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
-//         parserInput.$char('*') || parserInput.$char('&') || this.attribute() ||
-//         parserInput.$re(/^\([^&()@]+\)/) ||  parserInput.$re(/^[\.#:](?=@)/) ||
-//         this.entities.variableCurly();
+//      e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) ||
+//          parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) ||
+//          parserInput.$char('*') || parserInput.$char('&') || this.attribute() ||
+//          parserInput.$re(/^\([^&()@]+\)/) ||  parserInput.$re(/^[\.#:](?=@)/) ||
+//          this.entities.variableCurly();
 //
-//     if (! e) {
-//         parserInput.save();
-//         if (parserInput.$char('(')) {
-//             if ((v = this.selector(false)) && parserInput.$char(')')) {
-//                 e = new(tree.Paren)(v);
-//                 parserInput.forget();
-//             } else {
-//                 parserInput.restore("Missing closing ')'");
-//             }
-//         } else {
-//             parserInput.forget();
-//         }
-//     }
+//      if (!e) {
+//          parserInput.save();
+//          if (parserInput.$char('(')) {
+//              if ((v = this.selector(false)) && parserInput.$char(')')) {
+//                  e = new(tree.Paren)(v);
+//                  parserInput.forget();
+//              } else {
+//                  parserInput.restore('Missing closing \')\'');
+//              }
+//          } else {
+//              parserInput.forget();
+//          }
+//      }
 //
-//     if (e) { return new(tree.Element)(c, e, index, fileInfo); }
-// },
+//      if (e) { return new(tree.Element)(c, e, e instanceof tree.Variable, index, fileInfo); }
+//  },
   }
 
   static final RegExp _combinatorRegExp1 = new RegExp(r'\/[a-z]+\/', caseSensitive: false);
@@ -634,6 +636,67 @@ class Parsers {
 //     if (allExtends) { error("Extend must be used to extend a selector, it cannot be used on its own"); }
 // },
   }
+
+  ///
+  List<Selector> selectors() {
+    Selector       s;
+    List<Selector> selectors;
+
+    while (true) {
+      s = selector();
+      if (s == null) break;
+
+      // --polymer-mixin: {}
+      // No standard js implementation
+      if (parserInput.peekChar(':') && s.elements.length == 1) {
+        if (s.elements[0].value is String && s.elements[0].value.startsWith('--')) {
+          s.elements[0].value = '${s.elements[0].value}:';
+          parserInput.$char(':'); //move pointer
+        }
+      }
+      // End no standard
+
+      (selectors ??= <Selector>[]).add(s);
+
+      parserInput.commentStore.length = 0;
+      if (s.condition != null && selectors.length > 1) {
+        parserInput.error('Guards are only currently allowed on a single selector.');
+      }
+      if (parserInput.$char(',') == null) break;
+      if (s.condition != null) {
+        parserInput.error('Guards are only currently allowed on a single selector.');
+      }
+      parserInput.commentStore.length = 0;
+    }
+    return selectors;
+
+// 3.5.0.beta 20180625
+//  selectors: function () {
+//      var s, selectors;
+//      while (true) {
+//          s = this.selector();
+//          if (!s) {
+//              break;
+//          }
+//          if (selectors) {
+//              selectors.push(s);
+//          } else {
+//              selectors = [ s ];
+//          }
+//          parserInput.commentStore.length = 0;
+//          if (s.condition && selectors.length > 1) {
+//              error("Guards are only currently allowed on a single selector.");
+//          }
+//          if (!parserInput.$char(',')) { break; }
+//          if (s.condition) {
+//              error("Guards are only currently allowed on a single selector.");
+//          }
+//          parserInput.commentStore.length = 0;
+//      }
+//      return selectors;
+//  },
+  }
+
   static final RegExp _attributeRegExp1 = new RegExp(r'[|~*$^]?=', caseSensitive: true);
   static final RegExp _attributeRegExp2 = new RegExp(r'[0-9]+%', caseSensitive: true);
   static final RegExp _attributeRegExp3 = new RegExp(r'[\w-]+', caseSensitive: true);
@@ -764,10 +827,8 @@ class Parsers {
   ///     selectors { rules }
   ///
   Ruleset ruleset() {
-    DebugInfo       debugInfo;
-    List<Node>      rules;
-    Selector        s;
-    List<Selector>  selectors;
+    DebugInfo  debugInfo;
+    List<Node> rules;
 
     parserInput.save();
 
@@ -775,34 +836,7 @@ class Parsers {
       debugInfo = getDebugInfo(parserInput.i);
     }
 
-    while (true) {
-      s = selector();
-      if (s == null) break;
-
-      // --polymer-mixin: {}
-      // No standard js implementation
-      if (parserInput.peekChar(':') && s.elements.length == 1) {
-        if (s.elements[0].value is String && s.elements[0].value.startsWith('--')) {
-          s.elements[0].value = '${s.elements[0].value}:';
-          parserInput.$char(':'); //move pointer
-        }
-      }
-      // End no standard
-
-      (selectors ??= <Selector>[])
-          ..add(s);
-
-      parserInput.commentStore.length = 0;
-      if (s.condition != null && selectors.length > 1) {
-        parserInput.error('Guards are only currently allowed on a single selector.');
-      }
-      if (parserInput.$char(',') == null)
-          break;
-      if (s.condition != null) {
-        parserInput.error('Guards are only currently allowed on a single selector.');
-      }
-      parserInput.commentStore.length = 0;
-    }
+    final List<Selector> selectors = this.selectors();
 
     if (selectors != null && (rules = block()) != null) {
       parserInput.forget();
@@ -817,48 +851,29 @@ class Parsers {
     }
     return null;
 
-//3.0.0 20160719
-// ruleset: function () {
-//     var selectors, s, rules, debugInfo;
+// 3.5.0.beta 20180625
+//  ruleset: function () {
+//      var selectors, rules, debugInfo;
 //
-//     parserInput.save();
+//      parserInput.save();
 //
-//     if (context.dumpLineNumbers) {
-//         debugInfo = getDebugInfo(parserInput.i);
-//     }
+//      if (context.dumpLineNumbers) {
+//          debugInfo = getDebugInfo(parserInput.i);
+//      }
 //
-//     while (true) {
-//         s = this.selector();
-//         if (!s) {
-//             break;
-//         }
-//         if (selectors) {
-//             selectors.push(s);
-//         } else {
-//             selectors = [ s ];
-//         }
-//         parserInput.commentStore.length = 0;
-//         if (s.condition && selectors.length > 1) {
-//             error("Guards are only currently allowed on a single selector.");
-//         }
-//         if (! parserInput.$char(',')) { break; }
-//         if (s.condition) {
-//             error("Guards are only currently allowed on a single selector.");
-//         }
-//         parserInput.commentStore.length = 0;
-//     }
+//      selectors = this.selectors();
 //
-//     if (selectors && (rules = this.block())) {
-//         parserInput.forget();
-//         var ruleset = new(tree.Ruleset)(selectors, rules, context.strictImports);
-//         if (context.dumpLineNumbers) {
-//             ruleset.debugInfo = debugInfo;
-//         }
-//         return ruleset;
-//     } else {
-//         parserInput.restore();
-//     }
-// },
+//      if (selectors && (rules = this.block())) {
+//          parserInput.forget();
+//          var ruleset = new(tree.Ruleset)(selectors, rules, context.strictImports);
+//          if (context.dumpLineNumbers) {
+//              ruleset.debugInfo = debugInfo;
+//          }
+//          return ruleset;
+//      } else {
+//          parserInput.restore();
+//      }
+//  },
   }
 
   ///
@@ -2515,6 +2530,7 @@ class Parsers {
         ?? entities.variable()
         ?? entities.property()
         ?? entities.call()
+        ?? entities.quoted(forceEscaped: true)
         ?? entities.colorKeyword();
 
     if (negate != null) {
@@ -2524,26 +2540,26 @@ class Parsers {
 
     return o;
 
-//3.0.0 20160718
-// operand: function () {
-//     var entities = this.entities, negate;
+// 3.5.0.beta 20180625
+//  operand: function () {
+//    var entities = this.entities, negate;
 //
-//     if (parserInput.peek(/^-[@\$\(]/)) {
-//         negate = parserInput.$char('-');
-//     }
+//    if (parserInput.peek(/^-[@\$\(]/)) {
+//      negate = parserInput.$char('-');
+//    }
 //
-//     var o = this.sub() || entities.dimension() ||
-//             entities.color() || entities.variable() ||
-//             entities.property() || entities.call() ||
-//             entities.colorKeyword();
+//    var o = this.sub() || entities.dimension() ||
+//        entities.color() || entities.variable() ||
+//        entities.property() || entities.call() ||
+//        entities.quoted(true) || entities.colorKeyword();
 //
-//     if (negate) {
-//         o.parensInOp = true;
-//         o = new(tree.Negative)(o);
-//     }
+//    if (negate) {
+//      o.parensInOp = true;
+//      o = new(tree.Negative)(o);
+//    }
 //
-//     return o;
-// },
+//    return o;
+//  },
   }
 
   static final RegExp _reExpression = new RegExp(r'\/[\/*]');

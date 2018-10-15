@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 3.0.0 20160714
+//source: tree/mixin-definition.js 3.5.0.beta 20180625
 
 part of tree.less;
 
@@ -56,8 +56,11 @@ class MixinDefinition extends Node
     this.index = index;
 
     selectors = <Selector>[
-      new Selector(<Element>[new Element(null, name, index: _index, currentFileInfo: _fileInfo)])
-    ];
+      new Selector(<Element>[new Element(null, name,
+          isVariable: false,
+          index: _index,
+          currentFileInfo: _fileInfo)])
+      ];
 
     arity = params.length;
 
@@ -77,31 +80,31 @@ class MixinDefinition extends Node
 
     //this._lookups = {}; //inside VariableMixin
 
-//3.0.0 20160714
-// var Definition = function (name, params, rules, condition, variadic, frames, visibilityInfo) {
-//     this.name = name;
-//     this.selectors = [new Selector([new Element(null, name, this._index, this._fileInfo)])];
-//     this.params = params;
-//     this.condition = condition;
-//     this.variadic = variadic;
-//     this.arity = params.length;
-//     this.rules = rules;
-//     this._lookups = {};
-//     var optionalParameters = [];
-//     this.required = params.reduce(function (count, p) {
-//         if (!p.name || (p.name && !p.value)) {
-//             return count + 1;
-//         }
-//         else {
-//             optionalParameters.push(p.name);
-//             return count;
-//         }
-//     }, 0);
-//     this.optionalParameters = optionalParameters;
-//     this.frames = frames;
-//     this.copyVisibilityInfo(visibilityInfo);
-//     this.allowRoot = true;
-// };
+// 3.5.0.beta 20180625
+//  var Definition = function (name, params, rules, condition, variadic, frames, visibilityInfo) {
+//      this.name = name;
+//      this.selectors = [new Selector([new Element(null, name, false, this._index, this._fileInfo)])];
+//      this.params = params;
+//      this.condition = condition;
+//      this.variadic = variadic;
+//      this.arity = params.length;
+//      this.rules = rules;
+//      this._lookups = {};
+//      var optionalParameters = [];
+//      this.required = params.reduce(function (count, p) {
+//          if (!p.name || (p.name && !p.value)) {
+//              return count + 1;
+//          }
+//          else {
+//              optionalParameters.push(p.name);
+//              return count;
+//          }
+//      }, 0);
+//      this.optionalParameters = optionalParameters;
+//      this.frames = frames;
+//      this.copyVisibilityInfo(visibilityInfo);
+//      this.allowRoot = true;
+//  };
   }
 
   /// Fields to show with genTree

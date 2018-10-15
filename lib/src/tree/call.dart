@@ -1,4 +1,4 @@
-//source: less/tree/call.js 3.0.0 20180211
+//source: less/tree/call.js 3.5.0.beta 20180625
 
 part of tree.less;
 
@@ -13,21 +13,21 @@ class Call extends Node {
   List<Node>  args; // Expression | Dimension | Assignment
 
   /// Controls math on calc function
-  bool mathOn;
+  bool calc;
 
   ///
   Call(this.name, this.args, {int index, FileInfo currentFileInfo})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-    mathOn = (name == 'calc') ? false : true;
+    calc = (name == 'calc');
 
-// 3.0.0 20180211
-// var Call = function (name, args, index, currentFileInfo) {
-//     this.name = name;
-//     this.args = args;
-//     this.mathOn = name === 'calc' ? false : true;
-//     this._index = index;
-//     this._fileInfo = currentFileInfo;
-// };
+// 3.5.0.beta 20180625
+//  var Call = function (name, args, index, currentFileInfo) {
+//    this.name = name;
+//    this.args = args;
+//    this.calc = name === 'calc';
+//    this._index = index;
+//    this._fileInfo = currentFileInfo;
+//  };
   }
 
   /// Fields to show with genTree
@@ -66,8 +66,11 @@ class Call extends Node {
   Node eval(Contexts context) {
     // Turn off math for calc(), and switch back on for evaluating nested functions
     final bool currentMathContext = context.mathOn;
-    context.mathOn = mathOn;
+    context.mathOn = !calc;
+    if (calc || context.inCalc) context.enterCalc();
+
     final List<Node> args = this.args.map((Node a) => a.eval(context)).toList();
+    if (calc || context.inCalc) context.exitCalc();
     context.mathOn = currentMathContext;
 
     final FunctionCaller funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
@@ -108,56 +111,61 @@ class Call extends Node {
     }
 
     return new Call(name, args, index: index, currentFileInfo: currentFileInfo);
-    
-// 3.0.0 20180211
-// Call.prototype.eval = function (context) {
-// 
-//     /**
-//      * Turn off math for calc(), and switch back on for evaluating nested functions
-//      */
-//     var currentMathContext = context.mathOn;
-//     context.mathOn = this.mathOn;
-//     var args = this.args.map(function (a) { return a.eval(context); });
-//     context.mathOn = currentMathContext;
-// 
-//     var result, funcCaller = new FunctionCaller(this.name, context, this.getIndex(), this.fileInfo());
-//     
-//     if (funcCaller.isValid()) {
-//         try {
-//             result = funcCaller.call(args);
-//         } catch (e) {
-//             throw { 
-//                 type: e.type || "Runtime",
-//                 message: "error evaluating function `" + this.name + "`" +
-//                          (e.message ? ': ' + e.message : ''),
-//                 index: this.getIndex(), 
-//                 filename: this.fileInfo().filename,
-//                 line: e.lineNumber,
-//                 column: e.columnNumber
-//             };
-//         }
-// 
-//         if (result !== null && result !== undefined) {
-//             //  Results that that are not nodes are cast as Anonymous nodes
-//             //  Falsy values or booleans are returned as empty nodes
-//             if (!(result instanceof Node)) {
-//                 if (!result || result === true) {
-//                     result = new Anonymous(null); 
-//                 }
-//                 else {
-//                     result = new Anonymous(result.toString()); 
-//                 }
-//                 
-//             }
-//             result._index = this._index;
-//             result._fileInfo = this._fileInfo;
-//             return result;
-//         }
-// 
-//     }
-// 
-//     return new Call(this.name, args, this.getIndex(), this.fileInfo());
-// };
+
+// 3.5.0 beta 20180625
+//  Call.prototype.eval = function (context) {
+//    /**
+//     * Turn off math for calc(), and switch back on for evaluating nested functions
+//     */
+//    var currentMathContext = context.mathOn;
+//    context.mathOn = !this.calc;
+//    if (this.calc || context.inCalc) {
+//      context.enterCalc();
+//    }
+//    var args = this.args.map(function (a) { return a.eval(context); });
+//    if (this.calc || context.inCalc) {
+//      context.exitCalc();
+//    }
+//    context.mathOn = currentMathContext;
+//
+//    var result, funcCaller = new FunctionCaller(this.name, context, this.getIndex(), this.fileInfo());
+//
+//    if (funcCaller.isValid()) {
+//      try {
+//        result = funcCaller.call(args);
+//      } catch (e) {
+//        throw {
+//          type: e.type || 'Runtime',
+//          message: 'error evaluating function `' + this.name + '`' +
+//              (e.message ? ': ' + e.message : ''),
+//          index: this.getIndex(),
+//          filename: this.fileInfo().filename,
+//          line: e.lineNumber,
+//          column: e.columnNumber
+//        };
+//      }
+//
+//      if (result !== null && result !== undefined) {
+//        // Results that that are not nodes are cast as Anonymous nodes
+//        // Falsy values or booleans are returned as empty nodes
+//        if (!(result instanceof Node)) {
+//          if (!result || result === true) {
+//            result = new Anonymous(null);
+//          }
+//          else {
+//            result = new Anonymous(result.toString());
+//          }
+//
+//        }
+//        result._index = this._index;
+//        result._fileInfo = this._fileInfo;
+//        return result;
+//      }
+//
+//    }
+//
+//    return new Call(this.name, args, this.getIndex(), this.fileInfo());
+//  };
   }
 
   ///

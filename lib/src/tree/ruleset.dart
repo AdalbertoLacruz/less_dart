@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.0.4 20180616
+// source: less/tree/ruleset.js 3.5.0.beta 20180625
 
 part of tree.less;
 
@@ -88,30 +88,39 @@ class Ruleset extends Node
   ///
   @override
   Ruleset eval(Contexts context) {
+    bool                  hasOnePassingSelector = false;
+    bool                  hasVariable = false;
     List<Selector>        selectors;
-    final List<Selector>  thisSelectors = this.selectors;
 
-    DefaultFunc defaultFunc;
-    if (context.defaultFunc == null) {
-      context.defaultFunc = defaultFunc = new DefaultFunc();
-    } else {
-      defaultFunc = context.defaultFunc;
-    }
-
-    bool hasOnePassingSelector = false;
+    final DefaultFunc defaultFunc = context.defaultFunc ??= new DefaultFunc();
 
     // selector such as body, h1, ...
-    if (thisSelectors != null && thisSelectors.isNotEmpty) {
+    if (this.selectors?.isNotEmpty ?? false) {
       selectors = <Selector>[];
       defaultFunc.error(new LessError(
           type: 'Syntax',
           message: 'it is currently only allowed in parametric mixin guards,',
           context: context));
-      for (int i = 0; i < thisSelectors.length; i++) {
-        final Selector selector = thisSelectors[i].eval(context);
+
+      this.selectors.forEach((Selector sel) {
+        final Selector selector = sel.eval(context);
+        hasVariable = hasVariable || selector.elements.any((Element el) => el.isVariable);
         selectors.add(selector);
         if (selector.evaldCondition) hasOnePassingSelector = true;
+      });
+
+      if (hasVariable) {
+        final List<String> toParseSelectors = selectors.map((Selector selector) =>
+            selector.toCSS(context)
+        ).toList();
+
+        final List<Selector> result = new ParseNode(
+            toParseSelectors.join(','),
+            selectors.first.index,
+            selectors.first.currentFileInfo).selectors();
+        if (result != null) selectors = result; // selectors = utils.flattenArray(result);
       }
+
       defaultFunc.reset();
     } else {
       hasOnePassingSelector = true;
@@ -136,7 +145,7 @@ class Ruleset extends Node
     final List<Node> ctxFrames = context.frames
         ..insert(0, ruleset);
 
-    // currrent selectors
+    // current selectors
     final List<List<Selector>> ctxSelectors = (context.selectors ??= <List<Selector>>[])
         ..insert(0, this.selectors);
 
@@ -204,7 +213,7 @@ class Ruleset extends Node
       // for rulesets, check if it is a css guard and can be removed
       if (rule is Ruleset && (rule.selectors?.length == 1 ?? false)) {
         // check if it can be folded in (e.g. & where)
-        if (rule.selectors.first.isJustParentSelector()) {
+        if (rule.selectors.isNotEmpty && rule.selectors.first.isJustParentSelector()) {
           ruleset
             .rules.removeAt(i--)
             .rules.forEach((Node subRule) {
@@ -228,156 +237,181 @@ class Ruleset extends Node
 
     return ruleset;
 
-//3.0.0 20170601
-// Ruleset.prototype.eval = function (context) {
-//     var thisSelectors = this.selectors, selectors,
-//         selCnt, selector, i, hasOnePassingSelector = false;
+// 3.5.0.beta 20180625
+//  Ruleset.prototype.eval = function (context) {
+//      var that = this, selectors, selCnt, selector, i, hasVariable, hasOnePassingSelector = false;
 //
-//     if (thisSelectors && (selCnt = thisSelectors.length)) {
-//         selectors = new Array(selCnt);
-//         defaultFunc.error({
-//             type: "Syntax",
-//             message: "it is currently only allowed in parametric mixin guards,"
-//         });
-//         for (i = 0; i < selCnt; i++) {
-//             selector = thisSelectors[i].eval(context);
-//             selectors[i] = selector;
-//             if (selector.evaldCondition) {
-//                 hasOnePassingSelector = true;
-//             }
-//         }
-//         defaultFunc.reset();
-//     } else {
-//         hasOnePassingSelector = true;
-//     }
+//      if (this.selectors && (selCnt = this.selectors.length)) {
+//          selectors = new Array(selCnt);
+//          defaultFunc.error({
+//              type: 'Syntax',
+//              message: 'it is currently only allowed in parametric mixin guards,'
+//          });
 //
-//     var rules = this.rules ? utils.copyArray(this.rules) : null,
-//         ruleset = new Ruleset(selectors, rules, this.strictImports, this.visibilityInfo()),
-//         rule, subRule;
+//          for (i = 0; i < selCnt; i++) {
+//              selector = this.selectors[i].eval(context);
+//              for (var j = 0; j < selector.elements.length; j++) {
+//                  if (selector.elements[j].isVariable) {
+//                      hasVariable = true;
+//                      break;
+//                  }
+//              }
+//              selectors[i] = selector;
+//              if (selector.evaldCondition) {
+//                  hasOnePassingSelector = true;
+//              }
+//          }
 //
-//     ruleset.originalRuleset = this;
-//     ruleset.root = this.root;
-//     ruleset.firstRoot = this.firstRoot;
-//     ruleset.allowImports = this.allowImports;
+//          if (hasVariable) {
+//              var toParseSelectors = new Array(selCnt);
+//              for (i = 0; i < selCnt; i++) {
+//                  selector = selectors[i];
+//                  toParseSelectors[i] = selector.toCSS(context);
+//              }
+//              this.parse.parseNode(
+//                  toParseSelectors.join(','),
+//                  ["selectors"],
+//                  selectors[0].getIndex(),
+//                  selectors[0].fileInfo(),
+//                  function(err, result) {
+//                      if (result) {
+//                          selectors = utils.flattenArray(result);
+//                      }
+//                  });
+//          }
 //
-//     if (this.debugInfo) {
-//         ruleset.debugInfo = this.debugInfo;
-//     }
+//          defaultFunc.reset();
+//      } else {
+//          hasOnePassingSelector = true;
+//      }
 //
-//     if (!hasOnePassingSelector) {
-//         rules.length = 0;
-//     }
+//      var rules = this.rules ? utils.copyArray(this.rules) : null,
+//          ruleset = new Ruleset(selectors, rules, this.strictImports, this.visibilityInfo()),
+//          rule, subRule;
 //
-//     // inherit a function registry from the frames stack when possible;
-//     // otherwise from the global registry
-//     ruleset.functionRegistry = (function (frames) {
-//         var i = 0,
-//             n = frames.length,
-//             found;
-//         for ( ; i !== n ; ++i ) {
-//             found = frames[ i ].functionRegistry;
-//             if ( found ) { return found; }
-//         }
-//         return globalFunctionRegistry;
-//     }(context.frames)).inherit();
+//      ruleset.originalRuleset = this;
+//      ruleset.root = this.root;
+//      ruleset.firstRoot = this.firstRoot;
+//      ruleset.allowImports = this.allowImports;
 //
-//     // push the current ruleset to the frames stack
-//     var ctxFrames = context.frames;
-//     ctxFrames.unshift(ruleset);
+//      if (this.debugInfo) {
+//          ruleset.debugInfo = this.debugInfo;
+//      }
 //
-//     // currrent selectors
-//     var ctxSelectors = context.selectors;
-//     if (!ctxSelectors) {
-//         context.selectors = ctxSelectors = [];
-//     }
-//     ctxSelectors.unshift(this.selectors);
+//      if (!hasOnePassingSelector) {
+//          rules.length = 0;
+//      }
 //
-//     // Evaluate imports
-//     if (ruleset.root || ruleset.allowImports || !ruleset.strictImports) {
-//         ruleset.evalImports(context);
-//     }
+//      // inherit a function registry from the frames stack when possible;
+//      // otherwise from the global registry
+//      ruleset.functionRegistry = (function (frames) {
+//          var i = 0,
+//              n = frames.length,
+//              found;
+//          for ( ; i !== n ; ++i ) {
+//              found = frames[ i ].functionRegistry;
+//              if ( found ) { return found; }
+//          }
+//          return globalFunctionRegistry;
+//      }(context.frames)).inherit();
 //
-//     // Store the frames around mixin definitions,
-//     // so they can be evaluated like closures when the time comes.
-//     var rsRules = ruleset.rules;
-//     for (i = 0; (rule = rsRules[i]); i++) {
-//         if (rule.evalFirst) {
-//             rsRules[i] = rule.eval(context);
-//         }
-//     }
+//      // push the current ruleset to the frames stack
+//      var ctxFrames = context.frames;
+//      ctxFrames.unshift(ruleset);
 //
-//     var mediaBlockCount = (context.mediaBlocks && context.mediaBlocks.length) || 0;
+//      // currrent selectors
+//      var ctxSelectors = context.selectors;
+//      if (!ctxSelectors) {
+//          context.selectors = ctxSelectors = [];
+//      }
+//      ctxSelectors.unshift(this.selectors);
 //
-//     // Evaluate mixin calls.
-//     for (i = 0; (rule = rsRules[i]); i++) {
-//         if (rule.type === "MixinCall") {
-//             /* jshint loopfunc:true */
-//             rules = rule.eval(context).filter(function(r) {
-//                 if ((r instanceof Declaration) && r.variable) {
-//                     // do not pollute the scope if the variable is
-//                     // already there. consider returning false here
-//                     // but we need a way to "return" variable from mixins
-//                     return !(ruleset.variable(r.name));
-//                 }
-//                 return true;
-//             });
-//             rsRules.splice.apply(rsRules, [i, 1].concat(rules));
-//             i += rules.length - 1;
-//             ruleset.resetCache();
-//         } else if (rule.type ===  "VariableCall") {
-//             /* jshint loopfunc:true */
-//             rules = rule.eval(context).rules.filter(function(r) {
-//                 if ((r instanceof Declaration) && r.variable) {
-//                     // do not pollute the scope at all
-//                     return false;
-//                 }
-//                 return true;
-//             });
-//             rsRules.splice.apply(rsRules, [i, 1].concat(rules));
-//             i += rules.length - 1;
-//             ruleset.resetCache();
-//         }
-//     }
+//      // Evaluate imports
+//      if (ruleset.root || ruleset.allowImports || !ruleset.strictImports) {
+//          ruleset.evalImports(context);
+//      }
 //
-//     // Evaluate everything else
-//     for (i = 0; (rule = rsRules[i]); i++) {
-//         if (!rule.evalFirst) {
-//             rsRules[i] = rule = rule.eval ? rule.eval(context) : rule;
-//         }
-//     }
+//      // Store the frames around mixin definitions,
+//      // so they can be evaluated like closures when the time comes.
+//      var rsRules = ruleset.rules;
+//      for (i = 0; (rule = rsRules[i]); i++) {
+//          if (rule.evalFirst) {
+//              rsRules[i] = rule.eval(context);
+//          }
+//      }
 //
-//     // Evaluate everything else
-//     for (i = 0; (rule = rsRules[i]); i++) {
-//         // for rulesets, check if it is a css guard and can be removed
-//         if (rule instanceof Ruleset && rule.selectors && rule.selectors.length === 1) {
-//             // check if it can be folded in (e.g. & where)
-//             if (rule.selectors[0].isJustParentSelector()) {
-//                 rsRules.splice(i--, 1);
+//      var mediaBlockCount = (context.mediaBlocks && context.mediaBlocks.length) || 0;
 //
-//                 for (var j = 0; (subRule = rule.rules[j]); j++) {
-//                     if (subRule instanceof Node) {
-//                         subRule.copyVisibilityInfo(rule.visibilityInfo());
-//                         if (!(subRule instanceof Declaration) || !subRule.variable) {
-//                             rsRules.splice(++i, 0, subRule);
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
+//      // Evaluate mixin calls.
+//      for (i = 0; (rule = rsRules[i]); i++) {
+//          if (rule.type === 'MixinCall') {
+//              /* jshint loopfunc:true */
+//              rules = rule.eval(context).filter(function(r) {
+//                  if ((r instanceof Declaration) && r.variable) {
+//                      // do not pollute the scope if the variable is
+//                      // already there. consider returning false here
+//                      // but we need a way to "return" variable from mixins
+//                      return !(ruleset.variable(r.name));
+//                  }
+//                  return true;
+//              });
+//              rsRules.splice.apply(rsRules, [i, 1].concat(rules));
+//              i += rules.length - 1;
+//              ruleset.resetCache();
+//          } else if (rule.type ===  'VariableCall') {
+//              /* jshint loopfunc:true */
+//              rules = rule.eval(context).rules.filter(function(r) {
+//                  if ((r instanceof Declaration) && r.variable) {
+//                      // do not pollute the scope at all
+//                      return false;
+//                  }
+//                  return true;
+//              });
+//              rsRules.splice.apply(rsRules, [i, 1].concat(rules));
+//              i += rules.length - 1;
+//              ruleset.resetCache();
+//          }
+//      }
 //
-//     // Pop the stack
-//     ctxFrames.shift();
-//     ctxSelectors.shift();
+//      // Evaluate everything else
+//      for (i = 0; (rule = rsRules[i]); i++) {
+//          if (!rule.evalFirst) {
+//              rsRules[i] = rule = rule.eval ? rule.eval(context) : rule;
+//          }
+//      }
 //
-//     if (context.mediaBlocks) {
-//         for (i = mediaBlockCount; i < context.mediaBlocks.length; i++) {
-//             context.mediaBlocks[i].bubbleSelectors(selectors);
-//         }
-//     }
+//      // Evaluate everything else
+//      for (i = 0; (rule = rsRules[i]); i++) {
+//          // for rulesets, check if it is a css guard and can be removed
+//          if (rule instanceof Ruleset && rule.selectors && rule.selectors.length === 1) {
+//              // check if it can be folded in (e.g. & where)
+//              if (rule.selectors[0] && rule.selectors[0].isJustParentSelector()) {
+//                  rsRules.splice(i--, 1);
 //
-//     return ruleset;
-// };
+//                  for (var j = 0; (subRule = rule.rules[j]); j++) {
+//                      if (subRule instanceof Node) {
+//                          subRule.copyVisibilityInfo(rule.visibilityInfo());
+//                          if (!(subRule instanceof Declaration) || !subRule.variable) {
+//                              rsRules.splice(++i, 0, subRule);
+//                          }
+//                      }
+//                  }
+//              }
+//          }
+//      }
+//
+//      // Pop the stack
+//      ctxFrames.shift();
+//      ctxSelectors.shift();
+//
+//      if (context.mediaBlocks) {
+//          for (i = mediaBlockCount; i < context.mediaBlocks.length; i++) {
+//              context.mediaBlocks[i].bubbleSelectors(selectors);
+//          }
+//      }
+//
+//      return ruleset;
+//  };
   }
 
   ///
@@ -815,43 +849,53 @@ class Ruleset extends Node
       final List<Element> insideParent = <Element>[]; // TODO map?
       for (int j = 0; j < elementsToPak.length; j++) {
         insideParent.add(new Element(null, elementsToPak[j],
-            index: originalElement._index, currentFileInfo: originalElement._fileInfo));
+            isVariable: originalElement.isVariable,
+            index: originalElement._index,
+            currentFileInfo: originalElement._fileInfo));
       }
       replacementParen = new Paren(new Selector(insideParent));
     }
     return replacementParen;
 
 //inside joinSelector
-//3.0.0 20160714
-// function createParenthesis(elementsToPak, originalElement) {
-//     var replacementParen, j;
-//     if (elementsToPak.length === 0) {
-//         replacementParen = new Paren(elementsToPak[0]);
-//     } else {
-//         var insideParent = new Array(elementsToPak.length);
-//         for (j = 0; j < elementsToPak.length; j++) {
-//             insideParent[j] = new Element(null, elementsToPak[j], originalElement._index, originalElement._fileInfo);
-//         }
-//         replacementParen = new Paren(new Selector(insideParent));
-//     }
-//     return replacementParen;
-// }
+// 3.5.0.beta 20180625
+//  function createParenthesis(elementsToPak, originalElement) {
+//      var replacementParen, j;
+//      if (elementsToPak.length === 0) {
+//          replacementParen = new Paren(elementsToPak[0]);
+//      } else {
+//          var insideParent = new Array(elementsToPak.length);
+//          for (j = 0; j < elementsToPak.length; j++) {
+//              insideParent[j] = new Element(
+//                  null,
+//                  elementsToPak[j],
+//                  originalElement.isVariable,
+//                  originalElement._index,
+//                  originalElement._fileInfo
+//              );
+//          }
+//          replacementParen = new Paren(new Selector(insideParent));
+//      }
+//      return replacementParen;
+//  }
   }
 
   ///
   Selector createSelector(Node containedElement, Element originalElement) {
     final Element element = new Element(null, containedElement,
-        index: originalElement._index, currentFileInfo: originalElement._fileInfo);
+        isVariable: originalElement.isVariable,
+        index: originalElement._index,
+        currentFileInfo: originalElement._fileInfo);
     return new Selector(<Element>[element]);
 
 // inside joinSelector
-//3.0.0 20160714
-// function createSelector(containedElement, originalElement) {
-//     var element, selector;
-//     element = new Element(null, containedElement, originalElement._index, originalElement._fileInfo);
-//     selector = new Selector([element]);
-//     return selector;
-// }
+// 3.5.0.beta 20180625
+//  function createSelector(containedElement, originalElement) {
+//      var element, selector;
+//      element = new Element(null, containedElement, originalElement.isVariable, originalElement._index, originalElement._fileInfo);
+//      selector = new Selector([element]);
+//      return selector;
+//  }
   }
 
   ///
@@ -945,7 +989,10 @@ class Ruleset extends Node
             // it is not lost
             if (sel.isNotEmpty) {
               sel.first.elements.add(new Element(
-                  el.combinator, '', index: el._index, currentFileInfo: el._fileInfo));
+                  el.combinator, '',
+                  isVariable: el.isVariable,
+                  index: el._index,
+                  currentFileInfo: el._fileInfo));
             }
             selectorsMultiplied.add(sel);
           } else {
@@ -985,121 +1032,121 @@ class Ruleset extends Node
 
     return hadParentSelector;
 
-//3.0.0 20160716
-// function replaceParentSelector(paths, context, inSelector) {
-//     // The paths are [[Selector]]
-//     // The first list is a list of comma separated selectors
-//     // The inner list is a list of inheritance separated selectors
-//     // e.g.
-//     // .a, .b {
-//     //   .c {
-//     //   }
-//     // }
-//     // == [[.a] [.c]] [[.b] [.c]]
-//     //
-//     var i, j, k, currentElements, newSelectors, selectorsMultiplied, sel, el, hadParentSelector = false, length, lastSelector;
-//     function findNestedSelector(element) {
-//         var maybeSelector;
-//         if (!(element.value instanceof Paren)) {
-//             return null;
-//         }
+// 3.5.0.beta 20180625
+//  function replaceParentSelector(paths, context, inSelector) {
+//      // The paths are [[Selector]]
+//      // The first list is a list of comma separated selectors
+//      // The inner list is a list of inheritance separated selectors
+//      // e.g.
+//      // .a, .b {
+//      //   .c {
+//      //   }
+//      // }
+//      // == [[.a] [.c]] [[.b] [.c]]
+//      //
+//      var i, j, k, currentElements, newSelectors, selectorsMultiplied, sel, el, hadParentSelector = false, length, lastSelector;
+//      function findNestedSelector(element) {
+//          var maybeSelector;
+//          if (!(element.value instanceof Paren)) {
+//              return null;
+//          }
 //
-//         maybeSelector = element.value.value;
-//         if (!(maybeSelector instanceof Selector)) {
-//             return null;
-//         }
+//          maybeSelector = element.value.value;
+//          if (!(maybeSelector instanceof Selector)) {
+//              return null;
+//          }
 //
-//         return maybeSelector;
-//     }
+//          return maybeSelector;
+//      }
 //
-//     // the elements from the current selector so far
-//     currentElements = [];
-//     // the current list of new selectors to add to the path.
-//     // We will build it up. We initiate it with one empty selector as we "multiply" the new selectors
-//     // by the parents
-//     newSelectors = [
-//         []
-//     ];
+//      // the elements from the current selector so far
+//      currentElements = [];
+//      // the current list of new selectors to add to the path.
+//      // We will build it up. We initiate it with one empty selector as we "multiply" the new selectors
+//      // by the parents
+//      newSelectors = [
+//          []
+//      ];
 //
-//     for (i = 0; (el = inSelector.elements[i]); i++) {
-//         // non parent reference elements just get added
-//         if (el.value !== "&") {
-//             var nestedSelector = findNestedSelector(el);
-//             if (nestedSelector != null) {
-//                 // merge the current list of non parent selector elements
-//                 // on to the current list of selectors to add
-//                 mergeElementsOnToSelectors(currentElements, newSelectors);
+//      for (i = 0; (el = inSelector.elements[i]); i++) {
+//          // non parent reference elements just get added
+//          if (el.value !== '&') {
+//              var nestedSelector = findNestedSelector(el);
+//              if (nestedSelector != null) {
+//                  // merge the current list of non parent selector elements
+//                  // on to the current list of selectors to add
+//                  mergeElementsOnToSelectors(currentElements, newSelectors);
 //
-//                 var nestedPaths = [], replaced, replacedNewSelectors = [];
-//                 replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
-//                 hadParentSelector = hadParentSelector || replaced;
-//                 //the nestedPaths array should have only one member - replaceParentSelector does not multiply selectors
-//                 for (k = 0; k < nestedPaths.length; k++) {
-//                     var replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
-//                     addAllReplacementsIntoPath(newSelectors, [replacementSelector], el, inSelector, replacedNewSelectors);
-//                 }
-//                 newSelectors = replacedNewSelectors;
-//                 currentElements = [];
+//                  var nestedPaths = [], replaced, replacedNewSelectors = [];
+//                  replaced = replaceParentSelector(nestedPaths, context, nestedSelector);
+//                  hadParentSelector = hadParentSelector || replaced;
+//                  // the nestedPaths array should have only one member - replaceParentSelector does not multiply selectors
+//                  for (k = 0; k < nestedPaths.length; k++) {
+//                      var replacementSelector = createSelector(createParenthesis(nestedPaths[k], el), el);
+//                      addAllReplacementsIntoPath(newSelectors, [replacementSelector], el, inSelector, replacedNewSelectors);
+//                  }
+//                  newSelectors = replacedNewSelectors;
+//                  currentElements = [];
 //
-//             } else {
-//                 currentElements.push(el);
-//             }
+//              } else {
+//                  currentElements.push(el);
+//              }
 //
-//         } else {
-//             hadParentSelector = true;
-//             // the new list of selectors to add
-//             selectorsMultiplied = [];
+//          } else {
+//              hadParentSelector = true;
+//              // the new list of selectors to add
+//              selectorsMultiplied = [];
 //
-//             // merge the current list of non parent selector elements
-//             // on to the current list of selectors to add
-//             mergeElementsOnToSelectors(currentElements, newSelectors);
+//              // merge the current list of non parent selector elements
+//              // on to the current list of selectors to add
+//              mergeElementsOnToSelectors(currentElements, newSelectors);
 //
-//             // loop through our current selectors
-//             for (j = 0; j < newSelectors.length; j++) {
-//                 sel = newSelectors[j];
-//                 // if we don't have any parent paths, the & might be in a mixin so that it can be used
-//                 // whether there are parents or not
-//                 if (context.length === 0) {
-//                     // the combinator used on el should now be applied to the next element instead so that
-//                     // it is not lost
-//                     if (sel.length > 0) {
-//                         sel[0].elements.push(new Element(el.combinator, '', el._index, el._fileInfo));
-//                     }
-//                     selectorsMultiplied.push(sel);
-//                 }
-//                 else {
-//                     // and the parent selectors
-//                     for (k = 0; k < context.length; k++) {
-//                         // We need to put the current selectors
-//                         // then join the last selector's elements on to the parents selectors
-//                         var newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
-//                         // add that to our new set of selectors
-//                         selectorsMultiplied.push(newSelectorPath);
-//                     }
-//                 }
-//             }
+//              // loop through our current selectors
+//              for (j = 0; j < newSelectors.length; j++) {
+//                  sel = newSelectors[j];
+//                  // if we don't have any parent paths, the & might be in a mixin so that it can be used
+//                  // whether there are parents or not
+//                  if (context.length === 0) {
+//                      // the combinator used on el should now be applied to the next element instead so that
+//                      // it is not lost
+//                      if (sel.length > 0) {
+//                          sel[0].elements.push(new Element(el.combinator, '', el.isVariable, el._index, el._fileInfo));
+//                      }
+//                      selectorsMultiplied.push(sel);
+//                  }
+//                  else {
+//                      // and the parent selectors
+//                      for (k = 0; k < context.length; k++) {
+//                          // We need to put the current selectors
+//                          // then join the last selector's elements on to the parents selectors
+//                          var newSelectorPath = addReplacementIntoPath(sel, context[k], el, inSelector);
+//                          // add that to our new set of selectors
+//                          selectorsMultiplied.push(newSelectorPath);
+//                      }
+//                  }
+//              }
 //
-//             // our new selectors has been multiplied, so reset the state
-//             newSelectors = selectorsMultiplied;
-//             currentElements = [];
-//         }
-//     }
+//              // our new selectors has been multiplied, so reset the state
+//              newSelectors = selectorsMultiplied;
+//              currentElements = [];
+//          }
+//      }
 //
-//     // if we have any elements left over (e.g. .a& .b == .b)
-//     // add them on to all the current selectors
-//     mergeElementsOnToSelectors(currentElements, newSelectors);
+//      // if we have any elements left over (e.g. .a& .b == .b)
+//      // add them on to all the current selectors
+//      mergeElementsOnToSelectors(currentElements, newSelectors);
 //
-//     for (i = 0; i < newSelectors.length; i++) {
-//         length = newSelectors[i].length;
-//         if (length > 0) {
-//             paths.push(newSelectors[i]);
-//             lastSelector = newSelectors[i][length - 1];
-//             newSelectors[i][length - 1] = lastSelector.createDerived(lastSelector.elements, inSelector.extendList);
-//         }
-//     }
+//      for (i = 0; i < newSelectors.length; i++) {
+//          length = newSelectors[i].length;
+//          if (length > 0) {
+//              paths.push(newSelectors[i]);
+//              lastSelector = newSelectors[i][length - 1];
+//              newSelectors[i][length - 1] = lastSelector.createDerived(lastSelector.elements, inSelector.extendList);
+//          }
+//      }
 //
-//     return hadParentSelector;
-// }
+//      return hadParentSelector;
+//  }
   }
 
   ///
@@ -1128,7 +1175,8 @@ class Ruleset extends Node
     }
 
     if (addPath.isNotEmpty) {
-      // /deep/ is a combinator that is valid without anything in front of it
+      // /deep/ is a CSS4 selector - (removed, so should deprecate)
+      // that is valid without anything in front of it
       // so if the & does not have a combinator that is "" or " " then
       // and there is a combinator on the parent, then grab that.
       // this also allows + a { & .b { .a & { ... though not sure why you would want to do that
@@ -1143,7 +1191,9 @@ class Ruleset extends Node
       // join the elements so far with the first part of the parent
       newJoinedSelector.elements
           ..add(new Element(combinator, parentEl.value,
-              index: replacedElement._index, currentFileInfo: replacedElement._fileInfo))
+              isVariable: replacedElement.isVariable,
+              index: replacedElement._index,
+              currentFileInfo: replacedElement._fileInfo))
           ..addAll(addPath.first.elements.sublist(1));
     }
 
@@ -1161,53 +1211,59 @@ class Ruleset extends Node
 
     return newSelectorPath;
 
-//3.0.0 20160714
-// function addReplacementIntoPath(beginningPath, addPath, replacedElement, originalSelector) {
-//     var newSelectorPath, lastSelector, newJoinedSelector;
-//     // our new selector path
-//     newSelectorPath = [];
+// 3.5.0.beta 20180625
+//  function addReplacementIntoPath(beginningPath, addPath, replacedElement, originalSelector) {
+//      var newSelectorPath, lastSelector, newJoinedSelector;
+//      // our new selector path
+//      newSelectorPath = [];
 //
-//     //construct the joined selector - if & is the first thing this will be empty,
-//     // if not newJoinedSelector will be the last set of elements in the selector
-//     if (beginningPath.length > 0) {
-//         newSelectorPath = utils.copyArray(beginningPath);
-//         lastSelector = newSelectorPath.pop();
-//         newJoinedSelector = originalSelector.createDerived(utils.copyArray(lastSelector.elements));
-//     }
-//     else {
-//         newJoinedSelector = originalSelector.createDerived([]);
-//     }
+//      // construct the joined selector - if & is the first thing this will be empty,
+//      // if not newJoinedSelector will be the last set of elements in the selector
+//      if (beginningPath.length > 0) {
+//          newSelectorPath = utils.copyArray(beginningPath);
+//          lastSelector = newSelectorPath.pop();
+//          newJoinedSelector = originalSelector.createDerived(utils.copyArray(lastSelector.elements));
+//      }
+//      else {
+//          newJoinedSelector = originalSelector.createDerived([]);
+//      }
 //
-//     if (addPath.length > 0) {
-//         // /deep/ is a combinator that is valid without anything in front of it
-//         // so if the & does not have a combinator that is "" or " " then
-//         // and there is a combinator on the parent, then grab that.
-//         // this also allows + a { & .b { .a & { ... though not sure why you would want to do that
-//         var combinator = replacedElement.combinator, parentEl = addPath[0].elements[0];
-//         if (combinator.emptyOrWhitespace && !parentEl.combinator.emptyOrWhitespace) {
-//             combinator = parentEl.combinator;
-//         }
-//         // join the elements so far with the first part of the parent
-//         newJoinedSelector.elements.push(new Element(combinator, parentEl.value, replacedElement._index, replacedElement._fileInfo));
-//         newJoinedSelector.elements = newJoinedSelector.elements.concat(addPath[0].elements.slice(1));
-//     }
+//      if (addPath.length > 0) {
+//          // /deep/ is a CSS4 selector - (removed, so should deprecate)
+//          // that is valid without anything in front of it
+//          // so if the & does not have a combinator that is "" or " " then
+//          // and there is a combinator on the parent, then grab that.
+//          // this also allows + a { & .b { .a & { ... though not sure why you would want to do that
+//          var combinator = replacedElement.combinator, parentEl = addPath[0].elements[0];
+//          if (combinator.emptyOrWhitespace && !parentEl.combinator.emptyOrWhitespace) {
+//              combinator = parentEl.combinator;
+//          }
+//          // join the elements so far with the first part of the parent
+//          newJoinedSelector.elements.push(new Element(
+//              combinator,
+//              parentEl.value,
+//              replacedElement.isVariable,
+//              replacedElement._index,
+//              replacedElement._fileInfo
+//          ));
+//          newJoinedSelector.elements = newJoinedSelector.elements.concat(addPath[0].elements.slice(1));
+//      }
 //
-//     // now add the joined selector - but only if it is not empty
-//     if (newJoinedSelector.elements.length !== 0) {
-//         newSelectorPath.push(newJoinedSelector);
-//     }
+//      // now add the joined selector - but only if it is not empty
+//      if (newJoinedSelector.elements.length !== 0) {
+//          newSelectorPath.push(newJoinedSelector);
+//      }
 //
-//     //put together the parent selectors after the join (e.g. the rest of the parent)
-//     if (addPath.length > 1) {
-//         var restOfPath = addPath.slice(1);
-//         restOfPath = restOfPath.map(function (selector) {
-//             return selector.createDerived(selector.elements, []);
-//         });
-//         newSelectorPath = newSelectorPath.concat(restOfPath);
-//     }
-//     return newSelectorPath;
-// }
-
+//      // put together the parent selectors after the join (e.g. the rest of the parent)
+//      if (addPath.length > 1) {
+//          var restOfPath = addPath.slice(1);
+//          restOfPath = restOfPath.map(function (selector) {
+//              return selector.createDerived(selector.elements, []);
+//          });
+//          newSelectorPath = newSelectorPath.concat(restOfPath);
+//      }
+//      return newSelectorPath;
+//  }
   }
 
   ///
@@ -1513,7 +1569,7 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   void parseForCompression() {
     for (int i = 0; i < (rules?.length ?? 0); i++) {
       if (rules[i] is Declaration) {
-        rules[i] = transformDeclaration(rules[i], ignoreErrors: true);
+        rules[i] = transformDeclaration(rules[i]);
       }
     }
   }
@@ -1521,24 +1577,23 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   /// Parse declaration.value
   ///
-  /// if bestTry = true, error result do not propagate
+  /// if ignoreErrors = true, error result do not propagate
   ///
-  Declaration transformDeclaration(Declaration decl, {bool ignoreErrors: false}) {
-    if (decl.value is Anonymous &&
-        !decl.parsed &&
-        !decl.value.parsed &&
-        decl.value.value is String) {
-      final List<dynamic> result = new ParseNode(decl.value.value,
-          decl.value.index, decl.currentFileInfo, ignoreErrors: ignoreErrors)
-          .value();
-      if (result != null) {
-        decl
-          ..value = result[0]
-          ..important = result[1] ?? '';
+  Declaration transformDeclaration(Declaration decl) {
+    if (decl.value is Anonymous && !decl.parsed) {
+      if (!decl.value.parsed && decl.value.value is String) {
+        final List<dynamic> result = new ParseNode(decl.value.value,
+            decl.value.index, decl.currentFileInfo)
+            .value();
+        if (result != null) {
+          decl
+            ..value = result[0]
+            ..important = result[1] ?? '';
+        }
       }
+      decl.parsed = true;
     }
-    return decl
-      ..parsed = true;
+    return decl;
 
 //inside parseValue
 //3.0.4 20180616

@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.0.0 20160718
+//source: less/parser/parser.js 3.5.0.beta 20180625
 
 part of parser.less;
 
@@ -62,7 +62,10 @@ class Mixin {
       if (e == null) break;
 
       (elements ??= <Element>[])
-        ..add(new Element(c, e, index: elemIndex, currentFileInfo: fileInfo));
+        ..add(new Element(c, e,
+            isVariable: false,
+            index: elemIndex,
+            currentFileInfo: fileInfo));
       c = parserInput.$char('>');
     }
 
@@ -84,7 +87,7 @@ class Mixin {
     parserInput.restore();
     return null;
 
-//2.4.0
+// 3.5.0.beta 20180625
 //  call: function () {
 //      var s = parserInput.currentChar(), important = false, index = parserInput.i, elemIndex,
 //          elements, elem, e, c, args;
@@ -99,7 +102,7 @@ class Mixin {
 //          if (!e) {
 //              break;
 //          }
-//          elem = new(tree.Element)(c, e, elemIndex, fileInfo);
+//          elem = new(tree.Element)(c, e, false, elemIndex, fileInfo);
 //          if (elements) {
 //              elements.push(elem);
 //          } else {

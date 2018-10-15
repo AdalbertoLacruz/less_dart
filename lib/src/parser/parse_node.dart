@@ -38,8 +38,7 @@ class ParseNode {
   ///
   /// `result[0]` has the result if isError == false
   ///
-  ParseNode(String input, int this.index, FileInfo this.fileInfo,
-      {bool this.ignoreErrors: false}) {
+  ParseNode(String input, int this.index, FileInfo this.fileInfo) {
     index ??= 0;
     fileInfo ??= new FileInfo();
     parsers = new Parsers(input, new Contexts());
@@ -52,7 +51,7 @@ class ParseNode {
     try {
       final int i = parsers.parserInput.i;
       parseFunction();
-      parsers.isFinished();
+      if (!parsers.parserInput.end().isFinished) isError = true;
       if (result.isNotEmpty && result.first is Node) {
         result[0]
             ..index = i + index
@@ -60,8 +59,6 @@ class ParseNode {
       }
     } catch (e) {
       isError = true;
-      if (ignoreErrors) return;
-
       if (e is LessExceptionError) e.error.index += index;
       throw new LessExceptionError(LessError.transform(e, filename: fileInfo.filename));
     }
@@ -108,23 +105,31 @@ class ParseNode {
 // }
 
   ///
-  /// search for a Selector Node
+  /// search for a Ruleset Node
   ///
-  Node selector() {
-    parse((){
-      result.add(parsers.selector());
-      parsers.isFinished();
+  Ruleset ruleset() {
+    parse(() {
+      result.add(parsers.ruleset());
     });
     return isError ? null : result.first;
   }
 
   ///
-  /// search for a Ruleset Node
+  /// search for a Selector Node
   ///
-  Ruleset ruleset() {
-    parse((){
-      result.add(parsers.ruleset());
-      parsers.isFinished();
+  Selector selector() {
+    parse(() {
+      result.add(parsers.selector());
+    });
+    return isError ? null : result.first;
+  }
+
+  ///
+  /// Search for List<Selector>
+  ///
+  List<Selector> selectors() {
+    parse(() {
+      result.add(parsers.selectors());
     });
     return isError ? null : result.first;
   }
@@ -133,11 +138,10 @@ class ParseNode {
   /// search for Value nodes, with important property
   ///
   List<dynamic> value() {
-    parse((){
+    parse(() {
       result
         ..add(parsers.value())
         ..add(parsers.important());
-      parsers.isFinished();
     });
     return isError ? null : result;
   }

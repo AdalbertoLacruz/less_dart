@@ -1,4 +1,4 @@
-//source: less/tree/element.js 3.0.0 20160714
+//source: less/tree/element.js 3.5.0.beta 20180625
 
 part of tree.less;
 
@@ -21,43 +21,44 @@ class Element extends Node {
   Combinator  combinator;
 
   ///
-  Element(dynamic combinator, dynamic value,
-      {int index,
+  bool isVariable;
+
+  /// Constructor
+  Element(dynamic combinator, dynamic value, {
+      bool this.isVariable = false,
+      int index,
       FileInfo currentFileInfo,
-      VisibilityInfo visibilityInfo})
-      : super.init(currentFileInfo: currentFileInfo, index: index) {
+      VisibilityInfo visibilityInfo
+    }) : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     this.combinator =
         (combinator is Combinator) ? combinator : new Combinator(combinator);
 
-    if (value is String) {
-      this.value = value.trim();
-    } else if (value != null) {
-      this.value = value;
-    } else {
-      this.value = '';
-    }
+    this.value = value is String
+        ? value.trim()
+        : value ?? '';
 
     copyVisibilityInfo(visibilityInfo);
     setParent(this.combinator, this);
 
-//3.0.0 20160714
-// var Element = function (combinator, value, index, currentFileInfo, visibilityInfo) {
-//     this.combinator = combinator instanceof Combinator ?
-//                       combinator : new Combinator(combinator);
+// 3.0.5.beta 20180625
+//  var Element = function (combinator, value, isVariable, index, currentFileInfo, visibilityInfo) {
+//      this.combinator = combinator instanceof Combinator ?
+//                        combinator : new Combinator(combinator);
 //
-//     if (typeof value === 'string') {
-//         this.value = value.trim();
-//     } else if (value) {
-//         this.value = value;
-//     } else {
-//         this.value = "";
-//     }
-//     this._index = index;
-//     this._fileInfo = currentFileInfo;
-//     this.copyVisibilityInfo(visibilityInfo);
-//     this.setParent(this.combinator, this);
-// };
+//      if (typeof value === 'string') {
+//          this.value = value.trim();
+//      } else if (value) {
+//          this.value = value;
+//      } else {
+//          this.value = '';
+//      }
+//      this.isVariable = isVariable;
+//      this._index = index;
+//      this._fileInfo = currentFileInfo;
+//      this.copyVisibilityInfo(visibilityInfo);
+//      this.setParent(this.combinator, this);
+//  };
   }
 
   /// Fields to show with genTree
@@ -67,7 +68,7 @@ class Element extends Node {
   };
 
   ///
-  /// Tree navegation for visitors
+  /// Tree navigation for visitors
   ///
   @override
   void accept(covariant VisitorBase visitor) {
@@ -91,32 +92,36 @@ class Element extends Node {
   Element eval(Contexts context) => new Element(
       combinator,
       (value is Node) ? value.eval(context) : value,
+      isVariable: isVariable,
       index: index,
       currentFileInfo: currentFileInfo,
       visibilityInfo: visibilityInfo());
 
-//3.0.0 20160714
-// Element.prototype.eval = function (context) {
-//     return new Element(this.combinator,
-//                              this.value.eval ? this.value.eval(context) : this.value,
-//                              this.getIndex(),
-//                              this.fileInfo(), this.visibilityInfo());
-// };
+// 3.5.0.beta 20180625
+//  Element.prototype.eval = function (context) {
+//      return new Element(this.combinator,
+//                               this.value.eval ? this.value.eval(context) : this.value,
+//                               this.isVariable,
+//                               this.getIndex(),
+//                               this.fileInfo(), this.visibilityInfo());
+//  };
 
   ///
   Element clone() =>
-      new Element(combinator, value, 
+      new Element(combinator, value,
+        isVariable: isVariable,
         index: index,
         currentFileInfo: currentFileInfo,
         visibilityInfo: visibilityInfo());
 
-//3.0.0 20160714
-// Element.prototype.clone = function () {
-//     return new Element(this.combinator,
-//         this.value,
-//         this.getIndex(),
-//         this.fileInfo(), this.visibilityInfo());
-// };
+// 3.5.0.beta 20180625
+//  Element.prototype.clone = function () {
+//      return new Element(this.combinator,
+//          this.value,
+//          this.isVariable,
+//          this.getIndex(),
+//          this.fileInfo(), this.visibilityInfo());
+//  };
 
   ///
   /// Writes the css code
