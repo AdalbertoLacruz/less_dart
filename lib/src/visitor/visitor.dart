@@ -1,4 +1,4 @@
-//source: less/visitor.js 2.5.0
+//source: less/visitor.js 3.5.0.beta 20180627
 
 part of visitor.less;
 
@@ -7,6 +7,10 @@ class Visitor extends VisitorBase {
   VisitorBase _implementation; //Join_Selector_visitor, ...
   VisitArgs   _visitArgs = new VisitArgs(visitDeeper: true);
 
+// Cache implementation, same times in benchmark
+//  Map<Type, Function> _visitInCache = <Type, Function>{};
+//  Map<Type, Function> _visitOutCache = <Type, Function>{};
+
   ///
   Visitor(VisitorBase this._implementation);
 
@@ -14,14 +18,26 @@ class Visitor extends VisitorBase {
   @override
   dynamic visit(dynamic node) {
     if (node == null) return node;
-    if (node is! Node) return node;
+    if (node is MixinArgs) {
+      visit(node.value);
+    }
+    if (node is! Node) return node; // MixinArgs returns here
 
     dynamic _node = node;
 
     _visitArgs.visitDeeper = true;
 
+// cache
+//    final Type nodeType = _node.runtimeType;
+//    final Function func = _visitInCache.containsKey(nodeType)
+//        ? _visitInCache[nodeType]
+//        : _visitInCache[nodeType] = _implementation.visitFtn(_node);
+//    final Function funcOut = _visitOutCache.containsKey(nodeType)
+//        ? _visitOutCache[nodeType]
+//        : _visitOutCache[nodeType] = _implementation.visitFtnOut(_node);
     final Function func = _implementation.visitFtn(_node);
     final Function funcOut = _implementation.visitFtnOut(_node);
+
 
     if (func != null) {
       final dynamic newNode = func(_node, _visitArgs); //Node or List
@@ -36,7 +52,7 @@ class Visitor extends VisitorBase {
 
     return _node;
 
-//2.3.1
+// 3.5.0.beta 20180627
 //  visit: function(node) {
 //      if (!node) {
 //          return node;
@@ -44,31 +60,32 @@ class Visitor extends VisitorBase {
 //
 //      var nodeTypeIndex = node.typeIndex;
 //      if (!nodeTypeIndex) {
+//          // MixinCall args aren't a node type?
+//          if (node.value && node.value.typeIndex) {
+//              this.visit(node.value);
+//          }
 //          return node;
 //      }
 //
-//      var visitFnCache = this._visitFnCache,
-//          impl = this._implementation,
-//          aryIndx = nodeTypeIndex << 1,
-//          outAryIndex = aryIndx | 1,
-//          func = visitFnCache[aryIndx],
-//          funcOut = visitFnCache[outAryIndex],
+//      var impl = this._implementation,
+//          func = this._visitInCache[nodeTypeIndex],
+//          funcOut = this._visitOutCache[nodeTypeIndex],
 //          visitArgs = _visitArgs,
 //          fnName;
 //
 //      visitArgs.visitDeeper = true;
 //
 //      if (!func) {
-//          fnName = "visit" + node.type;
+//          fnName = 'visit' + node.type;
 //          func = impl[fnName] || _noop;
-//          funcOut = impl[fnName + "Out"] || _noop;
-//          visitFnCache[aryIndx] = func;
-//          visitFnCache[outAryIndex] = funcOut;
+//          funcOut = impl[fnName + 'Out'] || _noop;
+//          this._visitInCache[nodeTypeIndex] = func;
+//          this._visitOutCache[nodeTypeIndex] = funcOut;
 //      }
 //
 //      if (func !== _noop) {
 //          var newNode = func.call(impl, node, visitArgs);
-//          if (impl.isReplacing) {
+//          if (node && impl.isReplacing) {
 //              node = newNode;
 //          }
 //      }

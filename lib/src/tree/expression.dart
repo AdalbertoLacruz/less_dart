@@ -1,4 +1,4 @@
-//source: less/tree/expression.js 3.5.0.beta 20180625
+//source: less/tree/expression.js 3.5.0.beta 20180627
 
 part of tree.less;
 
@@ -74,34 +74,37 @@ class Expression extends Node {
     }
     return returnValue;
 
-// 3.5.0.beta 20180625
+// 3.5.0.beta 20180627
 //  Expression.prototype.eval = function (context) {
-//    var returnValue,
-//        mathOn = context.isMathOn(),
-//        inParenthesis = this.parens && !this.parensInOp,
-//        doubleParen = false;
-//    if (inParenthesis) {
-//      context.inParenthesis();
-//    }
-//    if (this.value.length > 1) {
-//      returnValue = new Expression(this.value.map(function (e) {
-//      return e.eval(context);
-//      }), this.noSpacing);
-//    } else if (this.value.length === 1) {
-//      if (this.value[0].parens && !this.value[0].parensInOp && !context.inCalc) {
-//        doubleParen = true;
+//      var returnValue,
+//          mathOn = context.isMathOn(),
+//          inParenthesis = this.parens && !this.parensInOp,
+//          doubleParen = false;
+//      if (inParenthesis) {
+//          context.inParenthesis();
 //      }
-//      returnValue = this.value[0].eval(context);
-//    } else {
-//      returnValue = this;
-//    }
-//    if (inParenthesis) {
-//      context.outOfParenthesis();
-//    }
-//    if (this.parens && this.parensInOp && !mathOn && !doubleParen) {
-//      returnValue = new Paren(returnValue);
-//    }
-//    return returnValue;
+//      if (this.value.length > 1) {
+//          returnValue = new Expression(this.value.map(function (e) {
+//              if (!e.eval) {
+//                  return e;
+//              }
+//              return e.eval(context);
+//          }), this.noSpacing);
+//      } else if (this.value.length === 1) {
+//          if (this.value[0].parens && !this.value[0].parensInOp && !context.inCalc) {
+//              doubleParen = true;
+//          }
+//          returnValue = this.value[0].eval(context);
+//      } else {
+//          returnValue = this;
+//      }
+//      if (inParenthesis) {
+//          context.outOfParenthesis();
+//      }
+//      if (this.parens && this.parensInOp && !mathOn && !doubleParen) {
+//          returnValue = new Paren(returnValue);
+//      }
+//      return returnValue;
 //  };
   }
 

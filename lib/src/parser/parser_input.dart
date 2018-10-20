@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 3.0.4 20180622
+// source: parser/parser-input.js 3.5.0.beta 20180627
 
 part of parser.less;
 
@@ -60,16 +60,6 @@ class ParserInput {
   }
 
   ///
-  /// Get the character in the actual position
-  ///
-  String currentChar() => charAt(i);
-
-  ///
-  /// Get the next character, from the actual position
-  ///
-  String nextChar() => charAt(i + 1);
-
-  ///
   /// Get the character code in the [pos]
   ///
   int charCodeAt(int pos) {
@@ -81,6 +71,26 @@ class ParserInput {
   /// Get the character code in the actual position
   ///
   int charCodeAtPos() => charCodeAt(i);
+
+  ///
+  /// Get the character in the actual position
+  ///
+  String currentChar() => charAt(i);
+
+  ///
+  /// Get the next character, from the actual position
+  ///
+  String nextChar() => charAt(i + 1);
+
+  ///
+  /// Get the previous character, from the actual position
+  ///
+  String prevChar() => charAt(i - 1);
+
+// 3.5.0.beta 20180627
+//  parserInput.prevChar = function() {
+//      return input.charAt(parserInput.i - 1);
+//  };
 
   ///
   /// save input pointers in stack
@@ -286,13 +296,8 @@ class ParserInput {
     String              quote;
     final int           startPos = i;
 
-    final String toks = (tok == null && tokre == null) ? ';' : tok;
-    final bool isTokString = toks != null;
-
-    // check tok match
-    bool testChar(String char) => isTokString
-        ? char == toks
-        : tokre.hasMatch(char);
+    final TestChar tc = new TestChar(tok, tokre);
+    bool testChar(String char) => tc.test(char);
 
     do {
       String currentCharacter = currentChar(); // nextChar in js
@@ -303,7 +308,6 @@ class ParserInput {
             ..isEnd = value.isEmpty
             ..value = value
         );
-//        skipWhitespace(i - startPos); //??
         loop = false;
       } else {
         if (inComment) {
@@ -345,7 +349,6 @@ class ParserInput {
               i += quote.length - 1;
               lastPos = i + 1;
             } else {
-//              skipWhitespace(i - startPos);
               throw new ParserInputException()
                 ..expected = currentCharacter;
             }
@@ -369,8 +372,6 @@ class ParserInput {
             if (currentCharacter == expected) {
               blockDepth--;
             } else {
-              // move the parser to the error and return expected
-//              skipWhitespace(i - startPos);
               throw new ParserInputException()
                 ..expected = expected;
             }
@@ -385,119 +386,118 @@ class ParserInput {
     return parseGroups.isNotEmpty ? parseGroups : null;
   }
 
-//3.0.4 20180622
-//parserInput.$parseUntil = function(tok) {
-//    var quote = '',
-//        returnVal = null,
-//        inComment = false,
-//        blockDepth = 0,
-//        blockStack = [],
-//        parseGroups = [],
-//        length = input.length,
-//        startPos = parserInput.i,
-//        lastPos = parserInput.i,
-//        i = parserInput.i,
-//        loop = true,
-//        testChar;
+// 3.5.0.beta 20180627
+//  parserInput.$parseUntil = function(tok) {
+//      var quote = '',
+//          returnVal = null,
+//          inComment = false,
+//          blockDepth = 0,
+//          blockStack = [],
+//          parseGroups = [],
+//          length = input.length,
+//          startPos = parserInput.i,
+//          lastPos = parserInput.i,
+//          i = parserInput.i,
+//          loop = true,
+//          testChar;
 //
-//    if (typeof tok === 'string') {
-//        testChar = function(char) {
-//            return char === tok;
-//        }
-//    } else {
-//        testChar = function(char) {
-//            return tok.test(char);
-//        }
-//    }
+//      if (typeof tok === 'string') {
+//          testChar = function(char) {
+//              return char === tok;
+//          }
+//      } else {
+//          testChar = function(char) {
+//              return tok.test(char);
+//          }
+//      }
 //
-//    do {
-//        var prevChar, nextChar = input.charAt(i);
-//        if (blockDepth === 0 && testChar(nextChar)) {
-//            returnVal = input.substr(lastPos, i - lastPos);
-//            if (returnVal) {
-//                parseGroups.push(returnVal);
-//                returnVal = parseGroups;
-//            }
-//            else {
-//                returnVal = [' '];
-//            }
-//            skipWhitespace(i - startPos);
-//            loop = false
-//        } else {
-//            if (inComment) {
-//                if (nextChar === "*" &&
-//                    input.charAt(i + 1) === "/") {
-//                    i++;
-//                    blockDepth--;
-//                    inComment = false;
-//                }
-//                i++;
-//                continue;
-//            }
-//            switch (nextChar) {
-//                case '\\':
-//                    i++;
-//                    nextChar = input.charAt(i);
-//                    parseGroups.push(input.substr(lastPos, i - lastPos + 1));
-//                    lastPos = i + 1;
-//                    break;
-//                case "/":
-//                    if (input.charAt(i + 1) === "*") {
-//                        i++;
-//                        console.log(input.substr(lastPos, i - lastPos));
-//                        inComment = true;
-//                        blockDepth++;
-//                    }
-//                    break;
-//                case "'":
-//                case '"':
-//                    quote = parserInput.$quoted(i);
-//                    if (quote) {
-//                        parseGroups.push(input.substr(lastPos, i - lastPos), quote);
-//                        i += quote[1].length - 1;
-//                        lastPos = i + 1;
-//                    }
-//                    else {
-//                        skipWhitespace(i - startPos);
-//                        returnVal = nextChar;
-//                        loop = false;
-//                    }
-//                    break;
-//                case "{":
-//                    blockStack.push("}");
-//                    blockDepth++;
-//                    break;
-//                case "(":
-//                    blockStack.push(")");
-//                    blockDepth++;
-//                    break;
-//                case "[":
-//                    blockStack.push("]");
-//                    blockDepth++;
-//                    break;
-//                case "}":
-//                case ")":
-//                case "]":
-//                    var expected = blockStack.pop();
-//                    if (nextChar === expected) {
-//                        blockDepth--;
-//                    } else {
-//                        // move the parser to the error and return expected
-//                        skipWhitespace(i - startPos);
-//                        returnVal = expected;
-//                        loop = false;
-//                    }
-//            }
-//            i++;
-//            if (i > length) {
-//                loop = false;
-//            }
-//        }
-//        prevChar = nextChar;
-//    } while (loop);
+//      do {
+//          var prevChar, nextChar = input.charAt(i);
+//          if (blockDepth === 0 && testChar(nextChar)) {
+//              returnVal = input.substr(lastPos, i - lastPos);
+//              if (returnVal) {
+//                  parseGroups.push(returnVal);
+//                  returnVal = parseGroups;
+//              }
+//              else {
+//                  returnVal = [' '];
+//              }
+//              skipWhitespace(i - startPos);
+//              loop = false
+//          } else {
+//              if (inComment) {
+//                  if (nextChar === '*' &&
+//                      input.charAt(i + 1) === '/') {
+//                      i++;
+//                      blockDepth--;
+//                      inComment = false;
+//                  }
+//                  i++;
+//                  continue;
+//              }
+//              switch (nextChar) {
+//                  case '\\':
+//                      i++;
+//                      nextChar = input.charAt(i);
+//                      parseGroups.push(input.substr(lastPos, i - lastPos + 1));
+//                      lastPos = i + 1;
+//                      break;
+//                  case '/':
+//                      if (input.charAt(i + 1) === '*') {
+//                          i++;
+//                          inComment = true;
+//                          blockDepth++;
+//                      }
+//                      break;
+//                  case '\'':
+//                  case '"':
+//                      quote = parserInput.$quoted(i);
+//                      if (quote) {
+//                          parseGroups.push(input.substr(lastPos, i - lastPos), quote);
+//                          i += quote[1].length - 1;
+//                          lastPos = i + 1;
+//                      }
+//                      else {
+//                          skipWhitespace(i - startPos);
+//                          returnVal = nextChar;
+//                          loop = false;
+//                      }
+//                      break;
+//                  case '{':
+//                      blockStack.push('}');
+//                      blockDepth++;
+//                      break;
+//                  case '(':
+//                      blockStack.push(')');
+//                      blockDepth++;
+//                      break;
+//                  case '[':
+//                      blockStack.push(']');
+//                      blockDepth++;
+//                      break;
+//                  case '}':
+//                  case ')':
+//                  case ']':
+//                      var expected = blockStack.pop();
+//                      if (nextChar === expected) {
+//                          blockDepth--;
+//                      } else {
+//                          // move the parser to the error and return expected
+//                          skipWhitespace(i - startPos);
+//                          returnVal = expected;
+//                          loop = false;
+//                      }
+//              }
+//              i++;
+//              if (i > length) {
+//                  loop = false;
+//              }
+//          }
+//          prevChar = nextChar;
+//      } while (loop);
 //
-//    return returnVal ? returnVal : null;
-//}
+//      return returnVal ? returnVal : null;
+//  }
 
   ///
   /// Assure the input pointer is not a white space. Move forward if one is found.
@@ -671,7 +671,7 @@ class ParserInput {
   String expectChar(String arg, [String msg]) {
     if ($char(arg) != null) return arg;
 
-    final String message = msg ?? "expected '$arg' got '${currentChar()}'";
+    final String message = msg ?? "expected '$arg' got '${currentChar() ?? ''}'";
     return error(message);
   }
 
@@ -905,4 +905,34 @@ class ParseUntilReturnItem {
 
   /// Each parsed string item
   String value;
+}
+
+///
+/// Test character against a String or RegExp
+/// bool new TestChar(string, regExp).test(character)
+///
+class TestChar {
+  ///
+  String toks;
+
+  ///
+  RegExp tokre;
+
+  ///
+  bool isTokString;
+
+  ///
+  /// tok = String (toks) | RegExp (tokre). Default ';'
+  ///
+  TestChar(String tok, RegExp this.tokre) {
+    toks = (tok == null && tokre == null) ? ';' : tok;
+    isTokString = toks != null;
+  }
+
+  ///
+  /// check tok match
+  ///
+  bool test(String char) => isTokString
+      ? char == toks
+      : tokre.hasMatch(char);
 }

@@ -14,6 +14,7 @@ import '../lib/less.dart';
 
 part 'plugins/filemanager.dart';
 part 'plugins/functions.dart';
+part 'plugins/plugin_preeval.dart';
 part 'plugins/plugin_tree_node.dart';
 part 'plugins/postprocess.dart';
 part 'plugins/preprocess.dart';
@@ -140,16 +141,21 @@ Map<int, Config> configFill() => <int, Config>{
               ..definePlugin('plugin-scope2', new PluginScope2())
               ..definePlugin('plugin-collection', new PluginCollection());
         }),
-    85: def('property-name-interp'),
-    86: def('property-accessors'),
-    87: def('rulesets'),
-    88: def('scope'),
-    89: def('selectors'),
-    90: def('strings'),
-    91: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
-    92: def('variables'),
-    93: def('variables-in-at-rules'),
-    94: def('whitespace'),
+    85: def('plugin-preeval',
+        modifyOptions: (LessOptions options) {
+          options
+              ..definePlugin('plugin-preeval', new PluginPreeval());
+        }),
+    86: def('property-name-interp'),
+    87: def('property-accessors'),
+    88: def('rulesets'),
+    89: def('scope'),
+    90: def('selectors'),
+    91: def('strings'),
+    92: def('urls', options: <String>['--relative-urls', '--silent', '--ie-compat']),
+    93: def('variables'),
+    94: def('variables-in-at-rules'),
+    95: def('whitespace'),
    100: def('strict-math/css', options: <String>['--strict-math=on']),
    101: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
    102: def('strict-math/parens', options: <String>['--strict-math=on']),

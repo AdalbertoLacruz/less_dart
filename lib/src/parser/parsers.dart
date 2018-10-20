@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta 20180625
+//source: less/parser/parser.js ines 250-end 3.5.0.beta 20180627
 
 part of parser.less;
 
@@ -935,10 +935,11 @@ class Parsers {
         }
 
         value ??= this.value();
-        important = this.important();
 
         // As a last resort, let a variable try to be parsed as a permissive value
         if (value == null && isVariable) value = permissiveValue();
+
+        important = this.important();
       }
 
       if (value != null && end()) {
@@ -957,68 +958,67 @@ class Parsers {
 
     return null;
 
-//3.0.4 20180622
-//declaration: function () {
-//    var name, value, index = parserInput.i,
-//        c = parserInput.currentChar(), important, merge, isVariable;
+// 3.5.0.beta 20180627
+//  declaration: function () {
+//      var name, value, index = parserInput.i,
+//          c = parserInput.currentChar(), important, merge, isVariable;
 //
-//    if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
+//      if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
 //
-//    parserInput.save();
+//      parserInput.save();
 //
-//    name = this.variable() || this.ruleProperty();
-//    if (name) {
-//        isVariable = typeof name === "string";
+//      name = this.variable() || this.ruleProperty();
+//      if (name) {
+//          isVariable = typeof name === 'string';
 //
-//        if (isVariable) {
-//            value = this.detachedRuleset();
-//        }
+//          if (isVariable) {
+//              value = this.detachedRuleset();
+//          }
 //
-//        parserInput.commentStore.length = 0;
-//        if (!value) {
-//            // a name returned by this.ruleProperty() is always an array of the form:
-//            // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
-//            // where each item is a tree.Keyword or tree.Variable
-//            merge = !isVariable && name.length > 1 && name.pop().value;
+//          parserInput.commentStore.length = 0;
+//          if (!value) {
+//              // a name returned by this.ruleProperty() is always an array of the form:
+//              // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
+//              // where each item is a tree.Keyword or tree.Variable
+//              merge = !isVariable && name.length > 1 && name.pop().value;
 //
-//            // Custom property values get permissive parsing
-//            if (name[0].value && name[0].value.slice(0, 2) === '--') {
-//                value = this.permissiveValue(';');
-//            }
-//            // Try to store values as anonymous
-//            // If we need the value later we'll re-parse it in ruleset.parseValue
-//            else {
-//                value = this.anonymousValue();
-//            }
-//            if (value) {
-//                parserInput.forget();
-//                // anonymous values absorb the end ';' which is required for them to work
-//                return new (tree.Declaration)(name, value, false, merge, index, fileInfo);
-//            }
+//              // Custom property values get permissive parsing
+//              if (name[0].value && name[0].value.slice(0, 2) === '--') {
+//                  value = this.permissiveValue();
+//              }
+//              // Try to store values as anonymous
+//              // If we need the value later we'll re-parse it in ruleset.parseValue
+//              else {
+//                  value = this.anonymousValue();
+//              }
+//              if (value) {
+//                  parserInput.forget();
+//                  // anonymous values absorb the end ';' which is required for them to work
+//                  return new (tree.Declaration)(name, value, false, merge, index, fileInfo);
+//              }
 //
-//            if (!value) {
-//                value = this.value();
-//            }
+//              if (!value) {
+//                  value = this.value();
+//              }
+//              // As a last resort, try permissiveValue
+//              if (!value && isVariable) {
+//                  value = this.permissiveValue();
+//              }
 //
-//            important = this.important();
+//              important = this.important();
+//          }
 //
-//            // As a last resort, let a variable try to be parsed as a permissive value
-//            if (!value && isVariable) {
-//                value = this.permissiveValue(';');
-//            }
-//        }
-//
-//        if (value && this.end()) {
-//            parserInput.forget();
-//            return new (tree.Declaration)(name, value, important, merge, index, fileInfo);
-//        }
-//        else {
-//            parserInput.restore();
-//        }
-//    } else {
-//        parserInput.restore();
-//    }
-//},
+//          if (value && this.end()) {
+//              parserInput.forget();
+//              return new (tree.Declaration)(name, value, important, merge, index, fileInfo);
+//          }
+//          else {
+//              parserInput.restore();
+//          }
+//      } else {
+//          parserInput.restore();
+//      }
+//  },
   }
 
   static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@\$+\/'"*`(;{}-]*);''', caseSensitive: false);
@@ -1049,14 +1049,50 @@ class Parsers {
   }
 
   ///
-  /// Used for custom properties and custom at-rules
+  /// Used for custom properties, at-rules, and variables (as fallback)
   /// Parses almost anything inside of {} [] () "" blocks
   /// until it reaches outer-most tokens.
   ///
+  /// First, it will try to parse comments and entities to reach
+  /// the end. This is mostly like the Expression parser except no
+  /// math is allowed.
+  ///
   Node permissiveValue({String untilTokensString, RegExp untilTokensRegExp}) {
-    final int index = parserInput.i;
-    List<ParseUntilReturnItem> value;
+    final int         index = parserInput.i;
+    final List<Node>  result = <Node>[];
 
+    final TestChar tc = new TestChar(untilTokensString, untilTokensRegExp);
+    bool testCurrentChar() => tc.test(parserInput.currentChar());
+
+    if (testCurrentChar()) return null;
+
+    Node e;
+    final List<Node> valueNodes = <Node>[];
+    do {
+      e = comment();
+      if (e != null) {
+        valueNodes.add(e);
+        continue;
+      }
+      e = entity();
+      if (e != null) valueNodes.add(e);
+    } while (e != null);
+
+    if (valueNodes.isNotEmpty) {
+      final Expression expression = new Expression(valueNodes);
+      if (testCurrentChar()) { // done
+        return expression;
+      } else {
+        result.add(expression);
+      }
+      // Preserve space before $parseUntil as it will not
+      if (parserInput.prevChar() == ' ') {
+        result.add(new Anonymous(' ', index: index)); // fileInfo ?
+      }
+    }
+    parserInput.save();
+
+    List<ParseUntilReturnItem> value;
     try {
       value = parserInput.$parseUntil(tok: untilTokensString, tokre: untilTokensRegExp);
     } on ParserInputException catch(e) {
@@ -1066,9 +1102,8 @@ class Parsers {
     }
 
     if (value != null) {
-      final List<Node> args = <Node>[];
-
       if (value.length == 1 && value.single.isEnd) {
+        parserInput.forget();
         return new Anonymous('', index: index);
       }
 
@@ -1077,57 +1112,105 @@ class Parsers {
 
         if (item.quote != null) {
           // Treat actual quotes as normal quoted values
-          args.add(new Quoted(item.quote, item.value,
+          result.add(new Quoted(item.quote, item.value,
               escaped: true, index: index, currentFileInfo: fileInfo));
         } else {
           if (i == value.length - 1) item.value = item.value.trim();
 
           // Treat like quoted values, but replace vars like unquoted expressions
-          args.add(new Quoted("'",  item.value,
+          result.add(new Quoted("'",  item.value,
               escaped: true, index: index, currentFileInfo: fileInfo)
             ..variableRegex = new RegExp(r'@([\w-]+)')
-            ..propRegex = new RegExp(r'\$([\w-]+)')
-            ..reparse = true);
+            ..propRegex = new RegExp(r'\$([\w-]+)'));
+//            ..reparse = true);
         }
       }
-      return new Expression(args, noSpacing: true);
+      parserInput.forget();
+      return new Expression(result, noSpacing: true);
     }
+    parserInput.restore();
     return null;
 
-//3.4.0 20180622
-//permissiveValue: function (untilTokens) {
-//    var i, index = parserInput.i,
-//        value = parserInput.$parseUntil(untilTokens);
+// 3.5.0.beta 20180627
+//  permissiveValue: function (untilTokens) {
+//      var i, e, done, value,
+//          tok = untilTokens || ';',
+//          index = parserInput.i, result = [];
 //
-//    if (value) {
-//        if (typeof value === 'string') {
-//            error("Expected '" + value + "'", "Parse");
-//        }
-//        if (value.length === 1 && value[0] === ' ') {
-//            return new tree.Anonymous('', index);
-//        }
-//        var item, args = [];
-//        for (i = 0; i < value.length; i++) {
-//            item = value[i];
-//            if (Array.isArray(item)) {
-//                // Treat actual quotes as normal quoted values
-//                args.push(new tree.Quoted(item[0], item[1], true, index, fileInfo));
-//            }
-//            else {
-//                if (i === value.length - 1) {
-//                    item = item.trim();
-//                }
-//                // Treat like quoted values, but replace vars like unquoted expressions
-//                var quote = new tree.Quoted("'", item, true, index, fileInfo);
-//                quote.variableRegex = /@([\w-]+)/g;
-//                quote.propRegex = /\$([\w-]+)/g;
-//                quote.reparse = true;
-//                args.push(quote);
-//            }
-//        }
-//        return new tree.Expression(args, true);
-//    }
-//},
+//      function testCurrentChar() {
+//          var char = parserInput.currentChar();
+//          if (typeof tok === 'string') {
+//              return char === tok;
+//          } else {
+//              return tok.test(char);
+//          }
+//      }
+//      if (testCurrentChar()) {
+//          return;
+//      }
+//      value = [];
+//      do {
+//          e = this.comment();
+//          if (e) {
+//              value.push(e);
+//              continue;
+//          }
+//          e = this.entity();
+//          if (e) {
+//              value.push(e);
+//          }
+//      } while (e);
+//
+//      done = testCurrentChar();
+//
+//      if (value.length > 0) {
+//          value = new(tree.Expression)(value);
+//          if (done) {
+//              return value;
+//          }
+//          else {
+//              result.push(value);
+//          }
+//          // Preserve space before $parseUntil as it will not
+//          if (parserInput.prevChar() === ' ') {
+//              result.push(new tree.Anonymous(' ', index));
+//          }
+//      }
+//      parserInput.save();
+//
+//      value = parserInput.$parseUntil(tok);
+//
+//      if (value) {
+//          if (typeof value === 'string') {
+//              error('Expected \'' + value + '\'', 'Parse');
+//          }
+//          if (value.length === 1 && value[0] === ' ') {
+//              parserInput.forget();
+//              return new tree.Anonymous('', index);
+//          }
+//          var item;
+//          for (i = 0; i < value.length; i++) {
+//              item = value[i];
+//              if (Array.isArray(item)) {
+//                  // Treat actual quotes as normal quoted values
+//                  result.push(new tree.Quoted(item[0], item[1], true, index, fileInfo));
+//              }
+//              else {
+//                  if (i === value.length - 1) {
+//                      item = item.trim();
+//                  }
+//                  // Treat like quoted values, but replace vars like unquoted expressions
+//                  var quote = new tree.Quoted('\'', item, true, index, fileInfo);
+//                  quote.variableRegex = /@([\w-]+)/g;
+//                  quote.propRegex = /\$([\w-]+)/g;
+//                  result.push(quote);
+//              }
+//          }
+//          parserInput.forget();
+//          return new tree.Expression(result, true);
+//      }
+//      parserInput.restore();
+//  },
   }
 
   static final RegExp _importRegExp1 = new RegExp(r'@import?\s+', caseSensitive: true);
@@ -1309,7 +1392,7 @@ class Parsers {
         nodes.add(e);
       } else if (parserInput.$char('(') != null) {
         p = property();
-        e = value();
+        e = permissiveValue(untilTokensString: ')');
         if (parserInput.$char(')') != null) {
           if (p != null && e != null) {
             nodes.add(new Paren(new Declaration(p, e,
@@ -1330,6 +1413,37 @@ class Parsers {
     parserInput.forget();
     if (nodes.isNotEmpty) return new Expression(nodes);
     return null;
+
+// 3.5.0.beta 20180627
+//  mediaFeature: function () {
+//      var entities = this.entities, nodes = [], e, p;
+//      parserInput.save();
+//      do {
+//          e = entities.keyword() || entities.variable();
+//          if (e) {
+//              nodes.push(e);
+//          } else if (parserInput.$char('(')) {
+//              p = this.property();
+//              e = this.permissiveValue(')');
+//              if (parserInput.$char(')')) {
+//                  if (p && e) {
+//                      nodes.push(new(tree.Paren)(new(tree.Declaration)(p, e, null, null, parserInput.i, fileInfo, true)));
+//                  } else if (e) {
+//                      nodes.push(new(tree.Paren)(e));
+//                  } else {
+//                      error('badly formed media feature definition');
+//                  }
+//              } else {
+//                  error('Missing closing \')\'', 'Parse');
+//              }
+//          }
+//      } while (e);
+//
+//      parserInput.forget();
+//      if (nodes.length > 0) {
+//          return new(tree.Expression)(nodes);
+//      }
+//  },
 
 //2.8.0 20160702
 // mediaFeature: function () {
