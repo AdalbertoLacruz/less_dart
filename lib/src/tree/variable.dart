@@ -1,4 +1,4 @@
-//source: less/tree/variable.js 3.0.0 20160714
+//source: less/tree/variable.js 3.5.0.beta.2 20180630
 
 part of tree.less;
 
@@ -53,7 +53,17 @@ class Variable extends Node {
         if (v.important.isNotEmpty) {
           context.importantScope.last.important = v.important;
         }
-        return v.value.eval(context);
+
+//              //
+//              if (context.inCalc) {
+//                  return (new Call('_SELF', [v.value])).eval(context);
+//              }
+        // If in calc, wrap vars in a function call to cascade evaluate args first
+        if (context.inCalc) {
+          return new Call('self', <Node>[v.value]).eval(context);
+        } else {
+          return v.value.eval(context);
+        }
       }
       return null;
     });
@@ -69,6 +79,50 @@ class Variable extends Node {
           index: index,
           context: context));
     }
+
+// 3.5.0.beta.2 20180630
+//  Variable.prototype.eval = function (context) {
+//      var variable, name = this.name;
+//
+//      if (name.indexOf('@@') === 0) {
+//          name = '@' + new Variable(name.slice(1), this.getIndex(), this.fileInfo()).eval(context).value;
+//      }
+//
+//      if (this.evaluating) {
+//          throw { type: 'Name',
+//              message: 'Recursive variable definition for ' + name,
+//              filename: this.fileInfo().filename,
+//              index: this.getIndex() };
+//      }
+//
+//      this.evaluating = true;
+//
+//      variable = this.find(context.frames, function (frame) {
+//          var v = frame.variable(name);
+//          if (v) {
+//              if (v.important) {
+//                  var importantScope = context.importantScope[context.importantScope.length - 1];
+//                  importantScope.important = v.important;
+//              }
+//              // If in calc, wrap vars in a function call to cascade evaluate args first
+//              if (context.inCalc) {
+//                  return (new Call('_SELF', [v.value])).eval(context);
+//              }
+//              else {
+//                  return v.value.eval(context);
+//              }
+//          }
+//      });
+//      if (variable) {
+//          this.evaluating = false;
+//          return variable;
+//      } else {
+//          throw { type: 'Name',
+//              message: 'variable ' + name + ' is undefined',
+//              filename: this.fileInfo().filename,
+//              index: this.getIndex() };
+//      }
+//  };
 
 //3.0.0 20160714
 // Variable.prototype.eval = function (context) {

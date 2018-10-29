@@ -14,6 +14,8 @@ abstract class Plugin {
   LessOptions   lessOptions;
   ///
   Logger        logger;
+  /// Plugin name
+  String        name;
 
   ///
   Plugin() {
@@ -35,9 +37,11 @@ abstract class Plugin {
   List<int> get minVersion;
 
   ///
-  ///Removes " at the start/end
+  /// Removes " at the start/end
   ///
   String normalizeCommand(String cmdOptions) {
+    if (cmdOptions == null) return null;
+
     final String command = cmdOptions.startsWith('"')
         ? cmdOptions.substring(1)
         : cmdOptions;
@@ -54,7 +58,17 @@ abstract class Plugin {
   void printOptions() {}
 
   ///
-  void setOptions(String cmdOptions) {}
+  /// To be override
+  /// If the plugin receives options throw an error
+  ///
+  void setOptions(String cmdOptions) {
+    if (cmdOptions != null) {
+      throw new LessException('Options have been provided but the plugin $name does not support any options.');
+    }
+  }
+
+  /// Called after setOptions
+  void use() {}
 }
 
 ///

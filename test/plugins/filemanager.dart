@@ -30,4 +30,7 @@ class TestFileManagerPlugin extends Plugin {
     final AbstractFileManager fileManager = new TestFileManager(environment);
     pluginManager.addFileManager(fileManager);
   }
+
+  @override
+  void setOptions(String cmdOptions) {}
 }

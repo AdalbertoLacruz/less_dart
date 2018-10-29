@@ -44,4 +44,7 @@ class TestVisitorPlugin extends Plugin {
     final VisitorBase visitor = new RemoveProperty();
     pluginManager.addVisitor(visitor);
   }
+
+  @override
+  void setOptions(String cmdOptions) {}
 }

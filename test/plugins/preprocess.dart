@@ -30,4 +30,7 @@ class TestPreProcessorPlugin extends Plugin {
     final Processor processor = new TestPreProcessor(null);
     pluginManager.addPreProcessor(processor);
   }
+
+  @override
+  void setOptions(String cmdOptions) {}
 }

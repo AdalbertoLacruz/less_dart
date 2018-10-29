@@ -70,6 +70,7 @@ class LessPluginCleanCss extends Plugin {
   ///
   @override
   void setOptions(String cmdOptions) {
+    if (cmdOptions == null) return;
     cleanCssOptions = new CleanCssOptions(normalizeCommand(cmdOptions));
   }
 }

@@ -1,5 +1,5 @@
 //source: lib/less-node/plugin-loader.js 2.5.0
-//source: lib/less/environment/abstract-plugin-loader.js 3.0.0 20160713
+//source: lib/less/environment/abstract-plugin-loader.js 3.5.0.beta.2 20180630
 
 part of plugins.less;
 
@@ -42,6 +42,7 @@ class PluginLoader {
     Plugin plugin;
     final String prefix = installable.containsKey(name) ? '' : 'less-plugin-';
     final String pluginName = '$prefix$name';
+    String defaultMessage;
 
     if (installable.containsKey(pluginName)) {
       plugin = installable[pluginName];
@@ -49,53 +50,135 @@ class PluginLoader {
         logger.log('plugin $name requires version ${versionToString(plugin.minVersion)}');
         return null;
       }
-      plugin.init(options);
+      plugin
+          ..init(options)
+          ..name = name;
 
-      if (argument != null) {
-        try {
-          plugin.setOptions(argument);
-        } catch (e) {
-          logger.log('Error setting options on plugin $name\n${e.toString()}');
-          return null;
-        }
+      try {
+        defaultMessage = 'Error setting options on plugin $name\n}';
+        plugin.setOptions(argument);
+
+        defaultMessage = 'Error during @plugin call';
+        plugin.use();
+      } catch (e) {
+        logger.log(e is LessException
+          ? e.message
+          : defaultMessage);
+
+        return null;
       }
       return plugin;
     }
 
     return null;
 
-//2.4.0
-//  PluginLoader.prototype.tryLoadPlugin = function(name, argument) {
-//      var plugin = this.tryRequirePlugin(name);
-//      if (plugin) {
-//          // support plugins being a function
-//          // so that the plugin can be more usable programmatically
-//          if (typeof plugin === "function") {
-//              plugin = new plugin();
+// 3.5.0.beta.2 20180630
+//  AbstractPluginLoader.prototype.evalPlugin = function(contents, context, imports, pluginOptions, fileInfo) {
+//
+//      var loader,
+//          registry,
+//          pluginObj,
+//          localModule,
+//          pluginManager,
+//          filename,
+//          result;
+//
+//      pluginManager = context.pluginManager;
+//
+//      if (fileInfo) {
+//          if (typeof fileInfo === 'string') {
+//              filename = fileInfo;
 //          }
-//          if (plugin.minVersion) {
-//              if (this.compareVersion(plugin.minVersion, this.less.version) < 0) {
-//                  console.log("plugin " + name + " requires version " + this.versionToString(plugin.minVersion));
-//                  return null;
-//              }
+//          else {
+//              filename = fileInfo.filename;
 //          }
-//          if (argument) {
-//              if (!plugin.setOptions) {
-//                  console.log("options have been provided but the plugin " + name + "does not support any options");
-//                  return null;
+//      }
+//      var shortname = (new this.less.FileManager()).extractUrlParts(filename).filename;
+//
+//      if (filename) {
+//          pluginObj = pluginManager.get(filename);
+//
+//          if (pluginObj) {
+//              result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+//              if (result) {
+//                  return result;
 //              }
 //              try {
-//                  plugin.setOptions(argument);
+//                  if (pluginObj.use) {
+//                      pluginObj.use.call(this.context, pluginObj);
+//                  }
 //              }
-//              catch(e) {
-//                  console.log("Error setting options on plugin " + name);
-//                  console.log(e.message);
-//                  return null;
+//              catch (e) {
+//                  e.message = e.message || 'Error during @plugin call';
+//                  return new LessError(e, imports, filename);
+//              }
+//              return pluginObj;
+//          }
+//      }
+//      localModule = {
+//          exports: {},
+//          pluginManager: pluginManager,
+//          fileInfo: fileInfo
+//      };
+//      registry = functionRegistry.create();
+//
+//      var registerPlugin = function(obj) {
+//          pluginObj = obj;
+//      };
+//
+//      try {
+//          loader = new Function('module', 'require', 'registerPlugin', 'functions', 'tree', 'less', 'fileInfo', contents);
+//          loader(localModule, this.require(filename), registerPlugin, registry, this.less.tree, this.less, fileInfo);
+//      } catch (e) {
+//          return new LessError(e, imports, filename);
+//      }
+//
+//      if (!pluginObj) {
+//          pluginObj = localModule.exports;
+//      }
+//      pluginObj = this.validatePlugin(pluginObj, filename, shortname);
+//
+//      if (pluginObj instanceof LessError) {
+//          return pluginObj;
+//      }
+//
+//      if (pluginObj) {
+//          // For 2.x back-compatibility - setOptions() before install()
+//          pluginObj.imports = imports;
+//          pluginObj.filename = filename;
+//          result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+//          if (result) {
+//              return result;
+//          }
+//
+//          // Run on first load
+//          pluginManager.addPlugin(pluginObj, fileInfo.filename, registry);
+//          pluginObj.functions = registry.getLocalFunctions();
+//
+//          // Need to call setOptions again because the pluginObj might have functions
+//          result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+//          if (result) {
+//              return result;
+//          }
+//
+//          // Run every @plugin call
+//          try {
+//              if (pluginObj.use) {
+//                  pluginObj.use.call(this.context, pluginObj);
 //              }
 //          }
-//          return plugin;
+//          catch (e) {
+//              e.message = e.message || 'Error during @plugin call';
+//              return new LessError(e, imports, filename);
+//          }
+//
 //      }
-//      return null;
+//      else {
+//          return new LessError({ message: 'Not a valid plugin' }, imports, filename);
+//      }
+//
+//      return pluginObj;
+//
 //  };
   }
 

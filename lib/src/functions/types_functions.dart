@@ -1,4 +1,4 @@
-// source: lib/less/functions/types.js 3.0.3 20180430
+// source: lib/less/functions/types.js 3.5.0.beta.2 20180630
 
 part of functions.less;
 
@@ -337,4 +337,15 @@ class TypesFunctions extends FunctionBase {
     base = baseFont?.value ?? base;
     return new Dimension(fontSize.value / base, 'rem');
   }
+
+  ///
+  /// Used in calc to wrap vars in a function call to cascade evaluate args first
+  ///
+  @DefineMethod(name: 'self')
+  Node self(Node n) => n;
+
+// 3.5.0.beta.2 20180630
+//  _SELF: function(n) {
+//      return n;
+//  }
 }

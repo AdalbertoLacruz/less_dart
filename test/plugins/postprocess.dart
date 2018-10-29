@@ -22,4 +22,7 @@ class TestPostProcessorPlugin extends Plugin {
     final Processor processor = new TestPostProcessor(null);
     pluginManager.addPostProcessor(processor);
   }
+
+  @override
+  void setOptions(String cmdOptions) {}
 }

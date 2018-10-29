@@ -16,7 +16,7 @@
 .class {
   ns-mixin-global: global;
   ns-mixin-local: local;
-  ns-mixin-shadow: localtest=test;
+  ns-mixin-shadow: local;
   mixin-local: local;
   mixin-global: global;
   mixin-shadow: local;

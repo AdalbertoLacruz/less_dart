@@ -13,15 +13,12 @@ class PluginGlobalFunctions extends FunctionBase {
 
 ///
 class PluginLocalFunctions extends FunctionBase {
-  /// Plugin arguments
-  String args;
-
   ///
-  PluginLocalFunctions(String this.args);
+  PluginLocalFunctions();
 
   /// Supports plugin arguments in the function
   @DefineMethod(name: 'test-shadow')
-  Anonymous testShadow() => new Anonymous('local${(args != null) ? args : ""}');
+   Anonymous testShadow() => new Anonymous('local');
 
   ///
   @DefineMethod(name: 'test-local')
@@ -89,18 +86,16 @@ class PluginGlobal extends Plugin {
 ///
 class PluginLocal extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
-  ///
-  String args;
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginLocalFunctions(args);
+    final FunctionBase fun = new PluginLocalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 
   @override
   void setOptions(String cmdOptions) {
-    args = cmdOptions;
+    // do nothing
   }
 }
 

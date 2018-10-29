@@ -11,6 +11,7 @@ import 'dart:math' as math;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import '../lib/less.dart';
+import '../lib/src/less_error.dart';
 
 part 'plugins/filemanager.dart';
 part 'plugins/functions.dart';
@@ -18,6 +19,7 @@ part 'plugins/plugin_preeval.dart';
 part 'plugins/plugin_tree_node.dart';
 part 'plugins/postprocess.dart';
 part 'plugins/preprocess.dart';
+part 'plugins/plugin_set_options.dart';
 part 'plugins/visitor.dart';
 
 ///
@@ -136,6 +138,7 @@ Map<int, Config> configFill() => <int, Config>{
               ..definePlugin('plugin-local', new PluginLocal())
               ..definePlugin('plugin-transitive', new PluginTransitive())
               ..definePlugin('plugin-tree-nodes', new PluginTreeNode())
+              ..definePlugin('plugin-set-options', new PluginSetOptions())
               ..definePlugin('plugin-simple', new PluginSimple())
               ..definePlugin('plugin-scope1', new PluginScope1())
               ..definePlugin('plugin-scope2', new PluginScope2())

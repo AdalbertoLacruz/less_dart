@@ -3,6 +3,7 @@ library plugins.less;
 import '../environment/environment.dart';
 import '../functions/functions.dart';
 import '../index.dart';
+import '../less_error.dart';
 import '../less_options.dart';
 import '../logger.dart';
 import '../visitor/visitor_base.dart';

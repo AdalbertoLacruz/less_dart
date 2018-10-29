@@ -18,7 +18,7 @@
   // `test-local`  function should be reachable
   // `test-shadow` function should return local version, shadowing global version
   .local {
-    @plugin "plugin-local";
+    @plugin (option) "plugin-local";
     global : test-global();
     local  : test-local();
     shadow : test-shadow();
@@ -119,3 +119,9 @@
 
 test-atrule("@charset"; '"utf-8"');
 test-atrule("@arbitrary"; "value after ()");
+
+@plugin (option1) "plugin-set-options";
+@plugin "plugin-set-options";
+@plugin (option2) "plugin-set-options";
+@plugin "plugin-set-options";
+@plugin (option3) "plugin-set-options";

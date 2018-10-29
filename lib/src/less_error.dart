@@ -313,3 +313,14 @@ class LessExceptionError implements Exception {
     return error.isSimplyFormat ? simplyFormatError() : formatError();
   }
 }
+
+///
+/// Generic LessException
+///
+class LessException implements Exception {
+  ///
+  String message;
+
+  /// Constructor
+  LessException(this.message);
+}
