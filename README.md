@@ -2,7 +2,7 @@
 
 [Less](http://lesscss.org/)-builder for [webdev serve](https://webdev.dartlang.org/tools/webdev#serve), [webdev build](https://webdev.dartlang.org/tools/webdev#build) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run)
 
-This is a translation from Less 3.5.0.beta.3 Javascript (over nodejs) to Dart.
+This is a translation from Less 3.5.0.beta.4 Javascript (over nodejs) to Dart.
 It is a pure Dart implementation for the server/developer side.
 The minimum dart sdk supported is 2.0.
 
