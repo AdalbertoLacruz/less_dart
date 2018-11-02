@@ -51,6 +51,7 @@ part 'media.dart';
 part 'merge_rules_mixin.dart';
 part 'mixin_call.dart';
 part 'mixin_definition.dart';
+part 'namespace_value.dart';
 part 'negative.dart';
 part 'node.dart';
 part 'nodeset.dart';

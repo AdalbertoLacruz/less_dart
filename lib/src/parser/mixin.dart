@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta 20180625
+//source: less/parser/parser.js 3.5.0.beta.4 20180630
 
 part of parser.less;
 
@@ -28,37 +28,129 @@ class Mixin {
     fileInfo = context.currentFileInfo;
   }
 
-
-  static final RegExp _callRegExp = new RegExp(r'[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
-
   ///
   /// A Mixin call, with an optional argument list
   ///
   ///     #mixins > .square(#fff);
+  ///     #mixins.square(#fff);
   ///     .rounded(4px, black);
   ///     .button;
+  /// We can lookup / return a value using the lookup syntax:
+  ///
+  ///     color: #mixin.square(#fff)[@color];
   ///
   /// The `while` loop is there because mixins can be
   /// namespaced, but we only support the child and descendant
   /// selector for now.
   ///
-  MixinCall call() {
+  Node call({bool inValue = false}) {
     List<MixinArgs> args;
-    String          c;
-    String          e;
-    int             elemIndex;
     List<Element>   elements;
+    bool            hasparens = false;
     bool            important = false;
 
     final int index = parserInput.i;
     final String s = parserInput.currentChar();
+
     if (s != '.' && s != '#') return null;
 
     parserInput.save(); // stop us absorbing part of an invalid selector
 
+    elements = this.elements();
+
+    if (elements != null) {
+      if (parserInput.$char('(') != null) {
+        args = this.args(isCall: true).args;
+        parserInput.expectChar(')');
+        hasparens = true;
+      }
+
+      final List<String> lookups = ruleLookups();
+
+      if (inValue && lookups == null && !hasparens) {
+        // This isn't a valid in-value mixin call
+        parserInput.restore();
+        return null;
+      }
+
+      if (!inValue && parsers.important() != null) important = true;
+
+      if (inValue || parsers.end()) {
+        parserInput.forget();
+        final MixinCall mixin = new MixinCall(elements, args,
+            index: index,
+            currentFileInfo: fileInfo,
+            important: lookups == null && important);
+        return lookups != null
+            ? new NamespaceValue(mixin, lookups, important: important)
+            : mixin;
+      }
+    }
+
+    parserInput.restore();
+    return null;
+
+// 3.5.0.beta.4 20180630
+//  call: function (inValue) {
+//      var s = parserInput.currentChar(), important = false,
+//          index = parserInput.i, elements, args, hasParens;
+//
+//      if (s !== '.' && s !== '#') { return; }
+//
+//      parserInput.save(); // stop us absorbing part of an invalid selector
+//
+//      elements = this.elements();
+//
+//      if (elements) {
+//          if (parserInput.$char('(')) {
+//              args = this.args(true).args;
+//              expectChar(')');
+//              hasParens = true;
+//          }
+//
+//          var lookups = this.ruleLookups();
+//
+//          if (inValue && !lookups && !hasParens) {
+//              // This isn't a valid in-value mixin call
+//              parserInput.restore();
+//              return;
+//          }
+//
+//          if (!inValue && parsers.important()) {
+//              important = true;
+//          }
+//
+//          if (inValue || parsers.end()) {
+//              parserInput.forget();
+//              var mixin = new(tree.mixin.Call)(elements, args, index, fileInfo, !lookups && important);
+//              if (lookups) {
+//                  return new tree.NamespaceValue(mixin, lookups, important);
+//              }
+//              else {
+//                  return mixin;
+//              }
+//          }
+//      }
+//
+//      parserInput.restore();
+//  },
+  }
+
+  static final RegExp _elementsRegExp = new RegExp(r'[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+', caseSensitive: true);
+
+  ///
+  ///  Matching elements for mixins
+  ///  (Start with . or # and can have > )
+  ///
+  List<Element> elements() {
+    String          c;
+    String          e;
+    List<Element>   elements;
+    int             elemIndex;
+
     while (true) {
       elemIndex = parserInput.i;
-      e = parserInput.$re(_callRegExp);
+      e = parserInput.$re(_elementsRegExp);
       if (e == null) break;
 
       (elements ??= <Element>[])
@@ -68,37 +160,16 @@ class Mixin {
             currentFileInfo: fileInfo));
       c = parserInput.$char('>');
     }
+    return elements;
 
-    if (elements != null) {
-      if (parserInput.$char('(') != null) {
-        args = this.args(isCall: true).args;
-        parserInput.expectChar(')');
-      }
-      if (parsers.important() != null) important = true;
-      if (parsers.end()) {
-        parserInput.forget();
-        return new MixinCall(elements, args,
-            index: index,
-            currentFileInfo: fileInfo,
-            important: important);
-      }
-    }
-
-    parserInput.restore();
-    return null;
-
-// 3.5.0.beta 20180625
-//  call: function () {
-//      var s = parserInput.currentChar(), important = false, index = parserInput.i, elemIndex,
-//          elements, elem, e, c, args;
-//
-//      if (s !== '.' && s !== '#') { return; }
-//
-//      parserInput.save(); // stop us absorbing part of an invalid selector
-//
+// 3.5.0.beta.4 20180630
+//  elements: function() {
+//      var elements, e, c, elem, elemIndex,
+//          re = /^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/;
 //      while (true) {
 //          elemIndex = parserInput.i;
-//          e = parserInput.$re(/^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/);
+//          e = parserInput.$re(re);
+//
 //          if (!e) {
 //              break;
 //          }
@@ -110,25 +181,9 @@ class Mixin {
 //          }
 //          c = parserInput.$char('>');
 //      }
-//
-//      if (elements) {
-//          if (parserInput.$char('(')) {
-//              args = this.args(true).args;
-//              expectChar(')');
-//          }
-//
-//          if (parsers.important()) {
-//              important = true;
-//          }
-//
-//          if (parsers.end()) {
-//              parserInput.forget();
-//              return new(tree.mixin.Call)(elements, args, index, fileInfo, important);
-//          }
-//      }
-//
-//      parserInput.restore();
+//      return elements;
 //  },
+
   }
 
   ///
@@ -508,6 +563,104 @@ class Mixin {
 //        }
 //    }
 //},
+  }
+
+  ///
+  /// Arguments for Namespace call
+  /// in 'color1: @defaults[@nested][@color]' the list: @nested, @color
+  ///
+  List<String> ruleLookups() {
+    String rule;
+
+    if (parserInput.currentChar() != r'[') return null;
+    final List<String> lookups = <String>[];
+
+    while (true) {
+      parserInput.save();
+      rule = lookupValue();
+      if (rule == null) {
+        parserInput.restore();
+        break;
+      }
+      lookups.add(rule);
+      parserInput.forget();
+    }
+    return lookups.isNotEmpty ? lookups : null;
+
+// 3.5.0.beta.4 20180630
+//  ruleLookups: function() {
+//      var rule, args, lookups = [];
+//
+//      if (parserInput.currentChar() !== '[') {
+//          return;
+//      }
+//
+//      while (true) {
+//          parserInput.save();
+//          args = null;
+//          rule = this.lookupValue();
+//          if (!rule) {
+//              parserInput.restore();
+//              break;
+//          }
+//          lookups.push(rule);
+//          parserInput.forget();
+//      }
+//      if (lookups.length > 0) {
+//          return lookups;
+//      }
+//  },
+  }
+
+  static final RegExp _lookupValueRegExp = new RegExp(r'(?:@{0,2}|\$)[_a-zA-Z0-9-]+', caseSensitive: true);
+
+  ///
+  String lookupValue() {
+    parserInput.save();
+
+    if (parserInput.$char('[') == null) {
+      parserInput.restore();
+      return null;
+    }
+
+    final String name = parserInput.$re(_lookupValueRegExp);
+
+    if (parserInput.$char(']') == null) {
+      parserInput.restore();
+      return null;
+    }
+
+    if (name != null) {
+      parserInput.forget();
+      return name;
+    }
+
+    parserInput.restore();
+    return null;
+
+// 3.5.0.beta.4 20180630
+//  lookupValue: function() {
+//      parserInput.save();
+//
+//      if (!parserInput.$char('[')) {
+//          parserInput.restore();
+//          return;
+//      }
+//
+//      var name = parserInput.$re(/^(?:@{0,2}|\$)[_a-zA-Z0-9-]+/);
+//
+//      if (!parserInput.$char(']')) {
+//          parserInput.restore();
+//          return;
+//      }
+//
+//      if (name) {
+//          parserInput.forget();
+//          return name;
+//      }
+//
+//      parserInput.restore();
+//  }
   }
 }
 
