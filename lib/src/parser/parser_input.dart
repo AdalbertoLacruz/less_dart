@@ -368,7 +368,7 @@ class ParserInput {
           case '}':
           case ')':
           case ']':
-            final String expected = blockStack.isNotEmpty ? blockStack.removeLast() : null;
+            final String expected = blockStack.removeLast();
             if (currentCharacter == expected) {
               blockDepth--;
             } else {

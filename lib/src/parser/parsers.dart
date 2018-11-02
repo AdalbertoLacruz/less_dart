@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta.4 20180630
+//source: less/parser/parser.js ines 250-end 3.5.0.beta 20180627
 
 part of parser.less;
 
@@ -224,93 +224,34 @@ class Parsers {
 //  }
   }
 
-  // static final RegExp _variableCallRegExp = new RegExp(r'(@[\w-]+)\(\s*\)', caseSensitive: true);
-  static final RegExp _variableCallRegExp = new RegExp(r'(@[\w-]+)(\(\s*\))?', caseSensitive: true);
+  static final RegExp _variableCallRegExp = new RegExp(r'(@[\w-]+)\(\s*\)', caseSensitive: true);
 
   ///
-  /// Call a variable value to retrieve a detached ruleset
-  /// or a value from a detached ruleset's rules.
+  /// Call a variable value
   ///
-  ///     @fink();
-  ///     @fink;
-  ///     color: @fink[@color];
+  ///       @fink()
   ///
-  Node variableCall([String parsedName]) {
-    final int    index = parserInput.i;
-    bool         important = false;
-    final bool   inValue = parsedName != null;
-    String       name = parsedName;
-    List<String> lsName; // Each () matched in regExp
+  VariableCall variableCall() {
+    String name;
 
-    parserInput.save();
-    if ((inValue) ||
-        (parserInput.currentChar() == '@' &&
-            (lsName = parserInput.$re(_variableCallRegExp)) != null)) {
-
-      final List<String> lookups = mixin.ruleLookups();
-
-      if (lookups == null && lsName?.elementAt(2) != '()') {  // lsName[2]
-        parserInput.restore("Missing '[...]' lookup in variable call");
-        return null;
-      }
-
-      if (!inValue) name = lsName[1];
-      
-      if ((lookups != null) && (this.important() != null)) important = true;
-      
-      final VariableCall call = new VariableCall(name, index, fileInfo);
-
-      if (!inValue && end()) {
-        parserInput.forget();
-        return call;
-      } else {
-        parserInput.forget();
-        return new NamespaceValue(call, lookups,
-            index: index, fileInfo: fileInfo, important: important);
-      }
+    if (parserInput.currentChar() == '@') {
+      name = parserInput.$re(_variableCallRegExp);
+      if (name != null && end()) return new VariableCall(name);
     }
 
-    parserInput.restore();
     return null;
 
-// 3.5.0.beta.4 20180630
-//  variableCall: function (parsedName) {
-//      var lookups, important, i = parserInput.i,
-//          inValue = !!parsedName, name = parsedName;
+//3.0.0 20170601b
+// variableCall: function () {
+//     var name;
 //
-//      parserInput.save();
-//
-//      if (name || (parserInput.currentChar() === '@'
-//          && (name = parserInput.$re(/^(@[\w-]+)(\(\s*\))?/)))) {
-//
-//          lookups = this.mixin.ruleLookups();
-//
-//          if (!lookups && name[2] !== '()') {
-//              parserInput.restore('Missing \'[...]\' lookup in variable call');
-//              return;
-//          }
-//
-//          if (!inValue) {
-//              name = name[1];
-//          }
-//
-//          if (lookups && parsers.important()) {
-//              important = true;
-//          }
-//
-//          var call = new tree.VariableCall(name, i, fileInfo);
-//          if (!inValue && parsers.end()) {
-//              parserInput.forget();
-//              return call;
-//          }
-//          else {
-//              parserInput.forget();
-//              return new tree.NamespaceValue(call, lookups, important, i, fileInfo);
-//          }
-//      }
-//
-//      parserInput.restore();
-//  },
+//     if (parserInput.currentChar() === '@'
+//         && (name = parserInput.$re(/^(@[\w-]+)\(\s*\)/))
+//                    parserInput.$re(/^(@[\w-]+)\(\s*\)\s*;/)))
+//         && parsers.end()) {
+//         return new tree.VariableCall(name[1]);
+//     }
+// },
   }
 
   static final RegExp _extendRegExp = new RegExp(r'(all)(?=\s*(\)|,))', caseSensitive: true);
@@ -419,16 +360,15 @@ class Parsers {
         ?? entities.property()
         ?? entities.call()
         ?? entities.keyword()
-        ?? mixin.call(inValue: true)
         ?? entities.javascript();
 
-// 3.5.0.beta.4 20180630
-//  entity: function () {
-//      var entities = this.entities;
+//3.0.0 20160718
+// entity: function () {
+//     var entities = this.entities;
 //
-//      return this.comment() || entities.literal() || entities.variable() || entities.url() ||
-//          entities.property() || entities.call() || entities.keyword() || this.mixin.call(true) || entities.javascript();
-//  },
+//     return this.comment() || entities.literal() || entities.variable() || entities.url() ||
+//            entities.property() || entities.call() || entities.keyword()  || entities.javascript();
+// },
 
   ///
   /// A Declaration terminator.
@@ -1081,7 +1021,7 @@ class Parsers {
 //  },
   }
 
-  static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^.#@\$+\/'"*`(;{}-]*);''', caseSensitive: false);
+  static final RegExp _anonymousValueRegExp1 = new RegExp(r'''([^@\$+\/'"*`(;{}-]*);''', caseSensitive: false);
 
   ///
   /// Anonymous is almost anything. Example:
@@ -1098,14 +1038,14 @@ class Parsers {
     if (match != null) return new Anonymous(match, index: index);
     return null;
 
-// 3.5.0.beta.4 20180630
-//  anonymousValue: function () {
-//      var index = parserInput.i;
-//      var match = parserInput.$re(/^([^.#@\$+\/'"*`(;{}-]*);/);
-//      if (match) {
-//          return new(tree.Anonymous)(match[1], index);
-//      }
-//  },
+//3.0.0 20160718
+// anonymousValue: function () {
+//     var index = parserInput.i;
+//     var match = parserInput.$re(/^([^@\$+\/'"*`(;{}-]*);/);
+//     if (match) {
+//         return new(tree.Anonymous)(match[1], index);
+//     }
+// },
   }
 
   ///

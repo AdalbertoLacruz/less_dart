@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.4 20180630
+//source: less/parser/parser.js 3.5.0.beta 20180625
 
 part of parser.less;
 
@@ -515,54 +515,24 @@ class Entities {
   /// We use a different parser for variable definitions,
   /// see `parsers.variable`.
   ///
-  Node variable() {
+  Variable variable() {
     final int index = parserInput.i;
     String    name;
 
-    parserInput.save();
-    if ((parserInput.currentChar() == '@') &&
-        (name = parserInput.$re(_variableRegExp)) != null) {
-      final String ch = parserInput.currentChar();
-      if (ch == '(' || ch == '[') {
-        // this may be a VariableCall lookup
-        final Node result = parsers.variableCall(name);
-        if (result == null) {
-          parserInput.restore();
-          return null;
-        } else {
-          parserInput.forget();
-          return result;
-        }
-      }
-      parserInput.forget();
-      return new Variable(name, index, fileInfo);
+    if (parserInput.currentChar() == '@') {
+      name = parserInput.$re(_variableRegExp);
+      if (name != null) return new Variable(name, index, fileInfo);
     }
-    parserInput.restore();
     return null;
 
-// 3.5.0.beta.4 20180630
+//2.2.0
 //  variable: function () {
-//      var ch, name, index = parserInput.i;
+//      var name, index = parserInput.i;
 //
-//      parserInput.save();
 //      if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^@@?[\w-]+/))) {
-//          ch = parserInput.currentChar();
-//          if (ch === '(' || ch === '[') {
-//              // this may be a VariableCall lookup
-//              var result = parsers.variableCall(name);
-//              if (!result) {
-//                  return parserInput.restore();
-//              }
-//              else {
-//                  parserInput.forget();
-//                  return result;
-//              }
-//          }
-//          parserInput.forget();
 //          return new(tree.Variable)(name, index, fileInfo);
 //      }
-//      parserInput.restore();
-//  },
+//  }
   }
 
   static final RegExp _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
