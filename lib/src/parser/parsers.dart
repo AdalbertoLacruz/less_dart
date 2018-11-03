@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta.4 20180630
+//source: less/parser/parser.js ines 250-end 3.5.0.beta.5 20180702
 
 part of parser.less;
 
@@ -103,7 +103,7 @@ class Parsers {
       node = mixin.definition()
           ?? declaration()
           ?? ruleset()
-          ?? mixin.call()
+          ?? mixin.call(inValue: false, getLookup: false)
           ?? variableCall()
           ?? entities.call()
           ?? atrule();
@@ -121,47 +121,47 @@ class Parsers {
 
     return root;
 
-//3.0.0 20170601
-// primary: function () {
-//     var mixin = this.mixin, root = [], node;
+// 3.5.0.beta.5 20180702
+//  primary: function () {
+//      var mixin = this.mixin, root = [], node;
 //
-//     while (true) {
-//         while (true) {
-//             node = this.comment();
-//             if (!node) { break; }
-//             root.push(node);
-//         }
-//         // always process comments before deciding if finished
-//         if (parserInput.finished) {
-//             break;
-//         }
-//         if (parserInput.peek('}')) {
-//             break;
-//         }
+//      while (true) {
+//          while (true) {
+//              node = this.comment();
+//              if (!node) { break; }
+//              root.push(node);
+//          }
+//          // always process comments before deciding if finished
+//          if (parserInput.finished) {
+//              break;
+//          }
+//          if (parserInput.peek('}')) {
+//              break;
+//          }
 //
-//         node = this.extendRule();
-//         if (node) {
-//             root = root.concat(node);
-//             continue;
-//         }
+//          node = this.extendRule();
+//          if (node) {
+//              root = root.concat(node);
+//              continue;
+//          }
 //
-//         node = mixin.definition() || this.declaration() || this.ruleset() ||
-//             mixin.call() || this.variableCall() || this.entities.call() || this.atrule();
-//         if (node) {
-//             root.push(node);
-//         } else {
-//             var foundSemiColon = false;
-//             while (parserInput.$char(";")) {
-//                 foundSemiColon = true;
-//             }
-//             if (!foundSemiColon) {
-//                 break;
-//             }
-//         }
-//     }
+//          node = mixin.definition() || this.declaration() || this.ruleset() ||
+//              mixin.call(false, false) || this.variableCall() || this.entities.call() || this.atrule();
+//          if (node) {
+//              root.push(node);
+//          } else {
+//              var foundSemiColon = false;
+//              while (parserInput.$char(';')) {
+//                  foundSemiColon = true;
+//              }
+//              if (!foundSemiColon) {
+//                  break;
+//              }
+//          }
+//      }
 //
-//     return root;
-// },
+//      return root;
+//  },
   }
 
   ///
@@ -422,12 +422,13 @@ class Parsers {
         ?? mixin.call(inValue: true)
         ?? entities.javascript();
 
-// 3.5.0.beta.4 20180630
+// 3.5.0.beta.5 20180702
 //  entity: function () {
 //      var entities = this.entities;
 //
 //      return this.comment() || entities.literal() || entities.variable() || entities.url() ||
-//          entities.property() || entities.call() || entities.keyword() || this.mixin.call(true) || entities.javascript();
+//          entities.property() || entities.call() || entities.keyword() || this.mixin.call(true) ||
+//          entities.javascript();
 //  },
 
   ///
@@ -948,6 +949,7 @@ class Parsers {
   ///
   Declaration declaration() {
     final String  c = parserInput.currentChar();
+    bool          hasDR = false; // has DetachedRuleset
     String        important;
     final int     index = parserInput.i;
     bool          isVariable;
@@ -964,7 +966,11 @@ class Parsers {
 
     if (name != null) {
       isVariable = name is String;
-      if (isVariable) value = detachedRuleset();
+
+      if (isVariable) {
+        value = detachedRuleset();
+        if (value != null) hasDR = true;
+      }
 
       parserInput.commentStore.length = 0;
       if (value == null) {
@@ -1002,7 +1008,7 @@ class Parsers {
         important = this.important();
       }
 
-      if (value != null && end()) {
+      if (value != null && (end() || hasDR)) {
         parserInput.forget();
         return new Declaration(name, value,
             important: important,
@@ -1018,9 +1024,9 @@ class Parsers {
 
     return null;
 
-// 3.5.0.beta 20180627
+// 3.5.0.beta.5 20180702
 //  declaration: function () {
-//      var name, value, index = parserInput.i,
+//      var name, value, index = parserInput.i, hasDR,
 //          c = parserInput.currentChar(), important, merge, isVariable;
 //
 //      if (c === '.' || c === '#' || c === '&' || c === ':') { return; }
@@ -1033,6 +1039,9 @@ class Parsers {
 //
 //          if (isVariable) {
 //              value = this.detachedRuleset();
+//              if (value) {
+//                  hasDR = true;
+//              }
 //          }
 //
 //          parserInput.commentStore.length = 0;
@@ -1068,7 +1077,7 @@ class Parsers {
 //              important = this.important();
 //          }
 //
-//          if (value && this.end()) {
+//          if (value && (this.end() || hasDR)) {
 //              parserInput.forget();
 //              return new (tree.Declaration)(name, value, important, merge, index, fileInfo);
 //          }
@@ -2594,9 +2603,13 @@ class Parsers {
     final int index = parserInput.i;
     String    op;
 
-    a = addition()
+    // function definition
+    Node cond() => addition()
         ?? entities.keyword()
-        ?? entities.quoted();
+        ?? entities.quoted()
+        ?? entities.mixinLookup();
+
+    a = cond();
 
     if (a != null) {
       if (parserInput.$char('>') != null) {
@@ -2622,9 +2635,7 @@ class Parsers {
       }
 
       if (op != null) {
-        b = addition()
-            ?? entities.keyword()
-            ?? entities.quoted();
+        b = cond();
 
         if (b != null) {
           c = new Condition(op, a, b, index: index);
@@ -2638,48 +2649,53 @@ class Parsers {
     }
     return null;
 
-//2.5.3 20160114
-// atomicCondition: function () {
-//     var entities = this.entities, index = parserInput.i, a, b, c, op;
+// 3.5.0.beta.5 20180702
+//  atomicCondition: function () {
+//      var entities = this.entities, index = parserInput.i, a, b, c, op;
 //
-//     a = this.addition() || entities.keyword() || entities.quoted();
-//     if (a) {
-//         if (parserInput.$char('>')) {
-//             if (parserInput.$char('=')) {
-//                 op = ">=";
-//             } else {
-//                 op = '>';
-//             }
-//         } else
-//         if (parserInput.$char('<')) {
-//             if (parserInput.$char('=')) {
-//                 op = "<=";
-//             } else {
-//                 op = '<';
-//             }
-//         } else
-//         if (parserInput.$char('=')) {
-//             if (parserInput.$char('>')) {
-//                 op = "=>";
-//             } else if (parserInput.$char('<')) {
-//                 op = '=<';
-//             } else {
-//                 op = '=';
-//             }
-//         }
-//         if (op) {
-//             b = this.addition() || entities.keyword() || entities.quoted();
-//             if (b) {
-//                 c = new(tree.Condition)(op, a, b, index, false);
-//             } else {
-//                 error('expected expression');
-//             }
-//         } else {
-//             c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, false);
-//         }
-//         return c;
-//     }
-// },
+//      function cond() {
+//          return this.addition() || entities.keyword() || entities.quoted() || entities.mixinLookup();
+//      }
+//      cond = cond.bind(this);
+//
+//      a = cond();
+//      if (a) {
+//          if (parserInput.$char('>')) {
+//              if (parserInput.$char('=')) {
+//                  op = '>=';
+//              } else {
+//                  op = '>';
+//              }
+//          } else
+//          if (parserInput.$char('<')) {
+//              if (parserInput.$char('=')) {
+//                  op = '<=';
+//              } else {
+//                  op = '<';
+//              }
+//          } else
+//          if (parserInput.$char('=')) {
+//              if (parserInput.$char('>')) {
+//                  op = '=>';
+//              } else if (parserInput.$char('<')) {
+//                  op = '=<';
+//              } else {
+//                  op = '=';
+//              }
+//          }
+//          if (op) {
+//              b = cond();
+//              if (b) {
+//                  c = new(tree.Condition)(op, a, b, index, false);
+//              } else {
+//                  error('expected expression');
+//              }
+//          } else {
+//              c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, false);
+//          }
+//          return c;
+//      }
+//  },
   }
 
   static final RegExp _reOperand = new RegExp(r'-[@\$\(]');
@@ -2705,7 +2721,8 @@ class Parsers {
         ?? entities.property()
         ?? entities.call()
         ?? entities.quoted(forceEscaped: true)
-        ?? entities.colorKeyword();
+        ?? entities.colorKeyword()
+        ?? entities.mixinLookup();
 
     if (negate != null) {
       o.parensInOp = true;
@@ -2714,25 +2731,26 @@ class Parsers {
 
     return o;
 
-// 3.5.0.beta 20180625
+// 3.5.0.beta.5 20180702
 //  operand: function () {
-//    var entities = this.entities, negate;
+//      var entities = this.entities, negate;
 //
-//    if (parserInput.peek(/^-[@\$\(]/)) {
-//      negate = parserInput.$char('-');
-//    }
+//      if (parserInput.peek(/^-[@\$\(]/)) {
+//          negate = parserInput.$char('-');
+//      }
 //
-//    var o = this.sub() || entities.dimension() ||
-//        entities.color() || entities.variable() ||
-//        entities.property() || entities.call() ||
-//        entities.quoted(true) || entities.colorKeyword();
+//      var o = this.sub() || entities.dimension() ||
+//              entities.color() || entities.variable() ||
+//              entities.property() || entities.call() ||
+//              entities.quoted(true) || entities.colorKeyword() ||
+//              entities.mixinLookup();
 //
-//    if (negate) {
-//      o.parensInOp = true;
-//      o = new(tree.Negative)(o);
-//    }
+//      if (negate) {
+//          o.parensInOp = true;
+//          o = new(tree.Negative)(o);
+//      }
 //
-//    return o;
+//      return o;
 //  },
   }
 

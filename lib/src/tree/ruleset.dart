@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.5.0.beta 20180625
+// source: less/tree/ruleset.js 3.5.0.beta.5 20180702
 
 part of tree.less;
 
@@ -1424,35 +1424,35 @@ abstract class VariableMixin implements Node {
           if (r is Import && r.root != null && r.root is VariableMixin) {
             final Map<String, Node> vars = r.root.variables();
             for (String name in vars.keys) {
-              if (vars.containsKey(name)) hash[name] = vars[name];
+              if (vars.containsKey(name)) hash[name] = r.root.variable(name);
             }
           }
           return hash;
         });
 
-//2.3.1
-//Ruleset.prototype.variables = function () {
-//  if (!this._variables) {
-//      this._variables = !this.rules ? {} : this.rules.reduce(function (hash, r) {
-//          if (r instanceof Rule && r.variable === true) {
-//              hash[r.name] = r;
-//          }
-//          // when evaluating variables in an import statement, imports have not been eval'd
-//          // so we need to go inside import statements.
-//          // guard against root being a string (in the case of inlined less)
-//          if (r.type === "Import" && r.root && r.root.variables) {
-//                var vars = r.root.variables();
-//                for(var name in vars) {
-//                    if (vars.hasOwnProperty(name)) {
-//                        hash[name] = vars[name];
-//                    }
-//                }
-//            }
-//            return hash;
-//        }, {});
-//    }
-//    return this._variables;
-//};
+// 3.5.0.beta.5 20180702
+//  Ruleset.prototype.variables = function () {
+//      if (!this._variables) {
+//          this._variables = !this.rules ? {} : this.rules.reduce(function (hash, r) {
+//              if (r instanceof Declaration && r.variable === true) {
+//                  hash[r.name] = r;
+//              }
+//              // when evaluating variables in an import statement, imports have not been eval'd
+//              // so we need to go inside import statements.
+//              // guard against root being a string (in the case of inlined less)
+//              if (r.type === 'Import' && r.root && r.root.variables) {
+//                  var vars = r.root.variables();
+//                  for (var name in vars) {
+//                      if (vars.hasOwnProperty(name)) {
+//                          hash[name] = r.root.variable(name);
+//                      }
+//                  }
+//              }
+//              return hash;
+//          }, {});
+//      }
+//      return this._variables;
+//  };
 
 ///
 Map<String, List<Declaration>> properties() => _properties ??= (rules == null)

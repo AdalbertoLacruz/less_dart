@@ -1,4 +1,4 @@
-// source: less/tree/namespace-value.js 3.5.0.beta.4 20180630
+// source: less/tree/namespace-value.js 3.5.0.beta.5 20180702
 
 part of tree.less;
 
@@ -16,8 +16,8 @@ class NamespaceValue extends Node {
 
   ///
   /// Store Namespaces Values
-  /// Ex.
-  ///   color: #color[primary]
+  // Ex.
+  //   color: #color[primary]
   ///   
   NamespaceValue(Node ruleCall, List<String> this.lookups,
       { int index, FileInfo fileInfo, bool this.important })
@@ -43,67 +43,45 @@ class NamespaceValue extends Node {
     for (int i = 0; i < lookups.length; i++) {
       String name = lookups[i];
 
-      // Eval'd mixins return rules
+      // Eval'd DRs return rulesets.
+      // Eval'd mixins return rules, so let's make a ruleset if we need it.
+      // We need to do this because of late parsing of properties
       if (rules is Nodeset) {
-        final List<Node> nsRules = rules.rules;
-        name = name.startsWith(r'$') ? name.substring(1) : name;
+        rules = new Ruleset(<Selector>[new Selector(null)], rules.rules);
+      }
 
-        // Find the last declaration match
-        bool found = false;
-        for (int j = nsRules.length - 1; j >= 0; j--) {
-          if (nsRules[j].name == name) {
-            found = true;
-            rules = nsRules[j];
-            break;
-          }
+      if (name.startsWith('@')) {
+        if (name.startsWith('@@')) {
+          // ignore: prefer_interpolation_to_compose_strings
+          name = '@' + new Variable(name.substring(1)).eval(context).value;
         }
-
-        if (!found) {
-          final String message = name.startsWith('@')
-            ? 'variable $name not found'
-            : 'property "$name" not found';
-
+        if (rules is VariableMixin) {
+          rules = (rules as VariableMixin).variable(name);
+        }
+        if (rules == null) {
           throw new LessExceptionError(new LessError(
-            type: 'Name',
-            message: message,
-            filename: currentFileInfo.filename,
-            index: index
+              type: 'Name',
+              message: 'variable $name not found',
+              filename: currentFileInfo.filename,
+              index: index
           ));
         }
-      } else { // Eval'd DRs return rulesets
-        if (name.startsWith('@')) {
-          if (name.startsWith('@@')) {
-            // ignore: prefer_interpolation_to_compose_strings
-            name = '@' + new Variable(name.substring(1)).eval(context).value;
-          }
-          if (rules is VariableMixin) {
-            rules = (rules as VariableMixin).variables()[name];
-          }
-          if (rules == null) {
-            throw new LessExceptionError(new LessError(
-                type: 'Name',
-                message: 'variable $name not found',
-                filename: currentFileInfo.filename,
-                index: index
-            ));
-          }
-        } else {
-          List<Node> lsRules;
-          if (rules is VariableMixin) {
-            lsRules = rules.properties()[name.startsWith(r'$') ? name : '\$$name'];
-          }
-          if (lsRules == null) {
-            throw new LessExceptionError(new LessError(
-                type: 'Name',
-                message: 'property "$name" not found',
-                filename: currentFileInfo.filename,
-                index: index
-            ));
-          }
-          // Properties are an array of values, since a ruleset can have multiple props.
-          // We pick the last one (the "cascaded" value)
-          rules = lsRules.last;
+      } else {
+        List<Node> lsRules;
+        if (rules is VariableMixin) {
+          lsRules = rules.property(name.startsWith(r'$') ? name : '\$$name');
         }
+        if (lsRules == null) {
+          throw new LessExceptionError(new LessError(
+              type: 'Name',
+              message: 'property "$name" not found',
+              filename: currentFileInfo.filename,
+              index: index
+          ));
+        }
+        // Properties are an array of values, since a ruleset can have multiple props.
+        // We pick the last one (the "cascaded" value)
+        rules = lsRules.last;
       }
       if (rules.value != null) rules = rules.eval(context).value;
       if (rules is DetachedRuleset) {
@@ -113,7 +91,7 @@ class NamespaceValue extends Node {
 
     return rules;
 
-// 3.5.0.beta.4 20180630
+// 3.5.0.beta.5 20180702
 //  NamespaceValue.prototype.eval = function (context) {
 //      var i, j, name, found,
 //          rules = this.value.eval(context);
@@ -121,61 +99,46 @@ class NamespaceValue extends Node {
 //      for (i = 0; i < this.lookups.length; i++) {
 //          name = this.lookups[i];
 //
-//          // Eval'd mixins return rules
+//          /**
+//           * Eval'd DRs return rulesets.
+//           * Eval'd mixins return rules, so let's make a ruleset if we need it.
+//           * We need to do this because of late parsing of properties
+//           */
 //          if (Array.isArray(rules)) {
-//              name = name.charAt(0) === '$' ? name.substr(1) : name;
-//              // Find the last declaration match
-//              for (j = rules.length - 1; j >= 0; j--) {
-//                  if (rules[j].name === name) {
-//                      found = true;
-//                      rules = rules[j];
-//                      break;
-//                  }
-//              }
-//              if (!found) {
-//                  var message = name.charAt(0) === '@' ?
-//                      'variable ' + name + ' not found' :
-//                      'property "' + name + ' not found';
+//              rules = new Ruleset([new Selector()], rules);
+//          }
 //
+//          if (name.charAt(0) === '@') {
+//              if (name.charAt(1) === '@') {
+//                  name = '@' + new Variable(name.substr(1)).eval(context).value;
+//              }
+//              if (rules.variables) {
+//                  rules = rules.variable(name);
+//              }
+//
+//              if (!rules) {
 //                  throw { type: 'Name',
-//                      message: message,
+//                      message: 'variable ' + name + ' not found',
 //                      filename: this.fileInfo().filename,
 //                      index: this.getIndex() };
 //              }
 //          }
-//          // Eval'd DRs return rulesets
 //          else {
-//              if (name.charAt(0) === '@') {
-//                  if (name.charAt(1) === '@') {
-//                      name = '@' + new Variable(name.substr(1)).eval(context).value;
-//                  }
-//                  if (rules.variables) {
-//                      rules = rules.variables()[name];
-//                  }
-//
-//                  if (!rules) {
-//                      throw { type: 'Name',
-//                          message: 'variable ' + name + ' not found',
-//                          filename: this.fileInfo().filename,
-//                          index: this.getIndex() };
-//                  }
+//              if (rules.properties) {
+//                  rules = rules.property(name.charAt(0) === '$' ? name : '$' + name);
 //              }
-//              else {
-//                  if (rules.properties) {
-//                      rules = rules.properties()[name.charAt(0) === '$' ? name : '$' + name];
-//                  }
 //
-//                  if (!rules) {
-//                      throw { type: 'Name',
-//                          message: 'property "' + name + '" not found',
-//                          filename: this.fileInfo().filename,
-//                          index: this.getIndex() };
-//                  }
-//                  // Properties are an array of values, since a ruleset can have multiple props.
-//                  // We pick the last one (the "cascaded" value)
-//                  rules = rules[rules.length - 1];
+//              if (!rules) {
+//                  throw { type: 'Name',
+//                      message: 'property "' + name + '" not found',
+//                      filename: this.fileInfo().filename,
+//                      index: this.getIndex() };
 //              }
+//              // Properties are an array of values, since a ruleset can have multiple props.
+//              // We pick the last one (the "cascaded" value)
+//              rules = rules[rules.length - 1];
 //          }
+//
 //          if (rules.value) {
 //              rules = rules.eval(context).value;
 //          }

@@ -4,9 +4,6 @@ part of batch.test.less;
 class PluginSetOptions extends Plugin {
   @override List<int> minVersion = <int>[2, 1, 0];
 
-  /// first options must be not null
-  String anyOptions;
-
   ///
   String error;
 
@@ -15,6 +12,9 @@ class PluginSetOptions extends Plugin {
 
   ///
   String options;
+
+  ///
+  bool optionsWereSet = false;
 
   /// options call sequence, else throws error
   List<String> optionStack = <String>[
@@ -27,7 +27,7 @@ class PluginSetOptions extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    if (anyOptions == null) {
+    if (!optionsWereSet) {
       error = 'setOptions() not called before install';
     }
   }
@@ -44,7 +44,7 @@ class PluginSetOptions extends Plugin {
 
   @override
   void setOptions(String cmdOptions) {
+    optionsWereSet = true;
     options = cmdOptions;
-    anyOptions ??= cmdOptions;
   }
 }

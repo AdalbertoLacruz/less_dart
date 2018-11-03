@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.4 20180630
+//source: less/parser/parser.js 3.5.0.beta.5 20180702
 
 part of parser.less;
 
@@ -24,6 +24,14 @@ class Entities {
   Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
     fileInfo = context.currentFileInfo;
   }
+
+  ///
+  Node mixinLookup() => parsers.mixin.call(inValue: true, getLookup: true);
+
+// 3.5.0.beta.5 20180702
+//  mixinLookup: function() {
+//      return parsers.mixin.call(true, true);
+//  },
 
   ///
   /// A string, which supports escaping `~`, `"` and `'`

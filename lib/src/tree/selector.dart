@@ -1,4 +1,4 @@
-//source: less/tree/selector.js 3.5.0.beta 20180625
+//source: less/tree/selector.js 3.5.0.beta.5 20180702
 
 part of tree.less;
 
@@ -107,32 +107,38 @@ class Selector extends Node {
   /// [els] is List<Element> | String
   ///
   List<Element> getElements(dynamic els) {
+    if (els == null) return <Element>[new Element('', '&',
+        isVariable: false, index: _index, currentFileInfo: _fileInfo)];
+
     if (els is String) {
       final Node result = new ParseNode(els, _index, _fileInfo).selector();
       if (result != null) return result.elements;
     }
     return els;
 
-//3.0.0 20170528
-// Selector.prototype.getElements = function(els) {
-//   if (typeof els === "string") {
-//       this.parse.parseNode(
-//           els,
-//           ["selector"],
-//           this._index,
-//           this._fileInfo,
-//           function(err, result) {
-//               if (err) {
-//                   throw new LessError({
-//                       index: err.index,
-//                       message: err.message
-//                   }, this.parse.imports, this._fileInfo.filename);
-//               }
-//               els = result[0].elements;
-//           });
-//   }
-//   return els;
-// };
+// 3.5.0.beta.5 20180702
+//  Selector.prototype.getElements = function(els) {
+//      if (!els) {
+//          return [new Element('', '&', false, this._index, this._fileInfo)];
+//      }
+//      if (typeof els === 'string') {
+//          this.parse.parseNode(
+//              els,
+//              ['selector'],
+//              this._index,
+//              this._fileInfo,
+//              function(err, result) {
+//                  if (err) {
+//                      throw new LessError({
+//                          index: err.index,
+//                          message: err.message
+//                      }, this.parse.imports, this._fileInfo.filename);
+//                  }
+//                  els = result[0].elements;
+//              });
+//      }
+//      return els;
+//  };
   }
 
   ///

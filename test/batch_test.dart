@@ -220,6 +220,8 @@ Map<int, Config> configFill() => <int, Config>{
    164: def('edge/namespacing-4'),
    165: def('edge/namespacing-5'),
    166: def('edge/namespacing-6'),
+   167: def('edge/namespacing-7'),
+   168: def('edge/namespacing-operations'),
 
    170: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
@@ -326,7 +328,6 @@ Map<int, Config> configFill() => <int, Config>{
     234: def('errors/multiple-guards-on-css-selectors', isErrorTest: true),
     235: def('errors/multiple-guards-on-css-selectors2', isErrorTest: true),
     236: def('errors/multiply-mixed-units', isErrorTest: true),
-    237: def('errors/namespacing-1', isErrorTest: true),
     238: def('errors/namespacing-2', isErrorTest: true),
     239: def('errors/namespacing-3', isErrorTest: true),
     240: def('errors/namespacing-4', isErrorTest: true),

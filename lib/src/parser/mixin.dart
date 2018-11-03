@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.4 20180630
+//source: less/parser/parser.js 3.5.0.beta.5 20180702
 
 part of parser.less;
 
@@ -43,11 +43,12 @@ class Mixin {
   /// namespaced, but we only support the child and descendant
   /// selector for now.
   ///
-  Node call({bool inValue = false}) {
+  Node call({bool inValue = false, bool getLookup}) {
     List<MixinArgs> args;
     List<Element>   elements;
     bool            hasparens = false;
     bool            important = false;
+    List<String>    lookups;
 
     final int index = parserInput.i;
     final String s = parserInput.currentChar();
@@ -65,7 +66,11 @@ class Mixin {
         hasparens = true;
       }
 
-      final List<String> lookups = ruleLookups();
+      if (getLookup != false) lookups = ruleLookups();
+      if (getLookup == true && lookups == null) {
+        parserInput.restore();
+        return null;
+      }
 
       if (inValue && lookups == null && !hasparens) {
         // This isn't a valid in-value mixin call
@@ -90,9 +95,9 @@ class Mixin {
     parserInput.restore();
     return null;
 
-// 3.5.0.beta.4 20180630
-//  call: function (inValue) {
-//      var s = parserInput.currentChar(), important = false,
+// 3.5.0.beta.5 20180702
+//  call: function (inValue, getLookup) {
+//      var s = parserInput.currentChar(), important = false, lookups,
 //          index = parserInput.i, elements, args, hasParens;
 //
 //      if (s !== '.' && s !== '#') { return; }
@@ -108,7 +113,13 @@ class Mixin {
 //              hasParens = true;
 //          }
 //
-//          var lookups = this.ruleLookups();
+//          if (getLookup !== false) {
+//              lookups = this.ruleLookups();
+//          }
+//          if (getLookup === true && !lookups) {
+//              parserInput.restore();
+//              return;
+//          }
 //
 //          if (inValue && !lookups && !hasParens) {
 //              // This isn't a valid in-value mixin call
