@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.5 20180702
+//source: less/parser/parser.js 3.5.0.beta.5 20180703
 
 part of parser.less;
 
@@ -225,8 +225,8 @@ class Mixin {
 
     while (true) {
       if (isCall) {
-        arg = parsers.detachedRuleset();
-        arg ??= parsers.expression();
+        arg = parsers.detachedRuleset()
+            ?? parsers.expression();
       } else {
         parserInput.commentStore.length = 0;
         if (parserInput.$str('...') != null) {
@@ -244,7 +244,8 @@ class Mixin {
         arg = entities.variable()
             ?? entities.property()
             ?? entities.literal()
-            ?? entities.keyword();
+            ?? entities.keyword()
+            ?? call(inValue: true);
       }
 
       if (arg == null) break;
@@ -330,126 +331,125 @@ class Mixin {
     returner.args = isSemiColonSeperated ? argsSemiColon : argsComma;
     return returner;
 
-
-//3.0.0 20160718
-// args: function (isCall) {
-//     var entities = parsers.entities,
-//         returner = { args:null, variadic: false },
-//         expressions = [], argsSemiColon = [], argsComma = [],
-//         isSemiColonSeparated, expressionContainsNamed, name, nameLoop,
-//         value, arg, expand;
+// 3.5.0.beta.5 20180703
+//  args: function (isCall) {
+//      var entities = parsers.entities,
+//          returner = { args:null, variadic: false },
+//          expressions = [], argsSemiColon = [], argsComma = [],
+//          isSemiColonSeparated, expressionContainsNamed, name, nameLoop,
+//          value, arg, expand;
 //
-//     parserInput.save();
+//      parserInput.save();
 //
-//     while (true) {
-//         if (isCall) {
-//             arg = parsers.detachedRuleset() || parsers.expression();
-//         } else {
-//             parserInput.commentStore.length = 0;
-//             if (parserInput.$str("...")) {
-//                 returner.variadic = true;
-//                 if (parserInput.$char(";") && !isSemiColonSeparated) {
-//                     isSemiColonSeparated = true;
-//                 }
-//                 (isSemiColonSeparated ? argsSemiColon : argsComma)
-//                     .push({ variadic: true });
-//                 break;
-//             }
-//             arg = entities.variable() || entities.property() || entities.literal() || entities.keyword();
-//         }
+//      while (true) {
+//          if (isCall) {
+//              arg = parsers.detachedRuleset() || parsers.expression();
+//          } else {
+//              parserInput.commentStore.length = 0;
+//              if (parserInput.$str('...')) {
+//                  returner.variadic = true;
+//                  if (parserInput.$char(';') && !isSemiColonSeparated) {
+//                      isSemiColonSeparated = true;
+//                  }
+//                  (isSemiColonSeparated ? argsSemiColon : argsComma)
+//                      .push({ variadic: true });
+//                  break;
+//              }
+//              arg = entities.variable() || entities.property() || entities.literal() || entities.keyword() || this.call(true);
+//          }
 //
-//         if (!arg) {
-//             break;
-//         }
+//          if (!arg) {
+//              break;
+//          }
 //
-//         nameLoop = null;
-//         if (arg.throwAwayComments) {
-//             arg.throwAwayComments();
-//         }
-//         value = arg;
-//         var val = null;
+//          nameLoop = null;
+//          if (arg.throwAwayComments) {
+//              arg.throwAwayComments();
+//          }
+//          value = arg;
+//          var val = null;
 //
-//         if (isCall) {
-//             // Variable
-//             if (arg.value && arg.value.length == 1) {
-//                 val = arg.value[0];
-//             }
-//         } else {
-//             val = arg;
-//         }
+//          if (isCall) {
+//              // Variable
+//              if (arg.value && arg.value.length == 1) {
+//                  val = arg.value[0];
+//              }
+//          } else {
+//              val = arg;
+//          }
 //
-//         if (val && (val instanceof tree.Variable || val instanceof tree.Property)) {
-//             if (parserInput.$char(':')) {
-//                 if (expressions.length > 0) {
-//                     if (isSemiColonSeparated) {
-//                         error("Cannot mix ; and , as delimiter types");
-//                     }
-//                     expressionContainsNamed = true;
-//                 }
+//          if (val && (val instanceof tree.Variable || val instanceof tree.Property)) {
+//              if (parserInput.$char(':')) {
+//                  if (expressions.length > 0) {
+//                      if (isSemiColonSeparated) {
+//                          error('Cannot mix ; and , as delimiter types');
+//                      }
+//                      expressionContainsNamed = true;
+//                  }
 //
-//                 value = parsers.detachedRuleset() || parsers.expression();
+//                  value = parsers.detachedRuleset() || parsers.expression();
 //
-//                 if (!value) {
-//                     if (isCall) {
-//                         error("could not understand value for named argument");
-//                     } else {
-//                         parserInput.restore();
-//                         returner.args = [];
-//                         return returner;
-//                     }
-//                 }
-//                 nameLoop = (name = val.name);
-//             } else if (parserInput.$str("...")) {
-//                 if (!isCall) {
-//                     returner.variadic = true;
-//                     if (parserInput.$char(";") && !isSemiColonSeparated) {
-//                         isSemiColonSeparated = true;
-//                     }
-//                     (isSemiColonSeparated ? argsSemiColon : argsComma)
-//                         .push({ name: arg.name, variadic: true });
-//                     break;
-//                 } else {
-//                     expand = true;
-//                 }
-//             } else if (!isCall) {
-//                 name = nameLoop = val.name;
-//                 value = null;
-//             }
-//         }
+//                  if (!value) {
+//                      if (isCall) {
+//                          error('could not understand value for named argument');
+//                      } else {
+//                          parserInput.restore();
+//                          returner.args = [];
+//                          return returner;
+//                      }
+//                  }
+//                  nameLoop = (name = val.name);
+//              } else if (parserInput.$str('...')) {
+//                  if (!isCall) {
+//                      returner.variadic = true;
+//                      if (parserInput.$char(';') && !isSemiColonSeparated) {
+//                          isSemiColonSeparated = true;
+//                      }
+//                      (isSemiColonSeparated ? argsSemiColon : argsComma)
+//                          .push({ name: arg.name, variadic: true });
+//                      break;
+//                  } else {
+//                      expand = true;
+//                  }
+//              } else if (!isCall) {
+//                  name = nameLoop = val.name;
+//                  value = null;
+//              }
+//          }
 //
-//         if (value) {
-//             expressions.push(value);
-//         }
+//          if (value) {
+//              expressions.push(value);
+//          }
 //
-//         argsComma.push({ name:nameLoop, value:value, expand:expand });
+//          argsComma.push({ name:nameLoop, value:value, expand:expand });
 //
-//         if (parserInput.$char(',')) {
-//             continue;
-//         }
+//          if (parserInput.$char(',')) {
+//              continue;
+//          }
 //
-//         if (parserInput.$char(';') || isSemiColonSeparated) {
+//          if (parserInput.$char(';') || isSemiColonSeparated) {
 //
-//             if (expressionContainsNamed) {
-//                 error("Cannot mix ; and , as delimiter types");
-//             }
+//              if (expressionContainsNamed) {
+//                  error('Cannot mix ; and , as delimiter types');
+//              }
 //
-//             isSemiColonSeparated = true;
+//              isSemiColonSeparated = true;
 //
-//             if (expressions.length > 1) {
-//                 value = new(tree.Value)(expressions);
-//             }
-//             argsSemiColon.push({ name:name, value:value, expand:expand });
+//              if (expressions.length > 1) {
+//                  value = new(tree.Value)(expressions);
+//              }
+//              argsSemiColon.push({ name:name, value:value, expand:expand });
 //
-//             name = null;
-//             expressions = [];
-//             expressionContainsNamed = false;
-//         }
-//     }
+//              name = null;
+//              expressions = [];
+//              expressionContainsNamed = false;
+//          }
+//      }
 //
-//     parserInput.forget();
-//     returner.args = isSemiColonSeparated ? argsSemiColon : argsComma;
-//     return returner;
-// },
+//      parserInput.forget();
+//      returner.args = isSemiColonSeparated ? argsSemiColon : argsComma;
+//      return returner;
+//  },
   }
 
   static final RegExp _definitionRegExp = new RegExp(r'([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(', caseSensitive: true);

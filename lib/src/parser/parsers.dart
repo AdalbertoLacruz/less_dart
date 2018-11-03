@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta.5 20180702
+//source: less/parser/parser.js ines 250-end 3.5.0.beta.5 20180703
 
 part of parser.less;
 
@@ -1455,7 +1455,8 @@ class Parsers {
     parserInput.save();
     do {
       e = entities.keyword()
-          ?? entities.variable();
+          ?? entities.variable()
+          ?? entities.mixinLookup();
 
       if (e != null) {
         nodes.add(e);
@@ -1483,12 +1484,12 @@ class Parsers {
     if (nodes.isNotEmpty) return new Expression(nodes);
     return null;
 
-// 3.5.0.beta 20180627
+// 3.5.0.beta.5 20180703
 //  mediaFeature: function () {
 //      var entities = this.entities, nodes = [], e, p;
 //      parserInput.save();
 //      do {
-//          e = entities.keyword() || entities.variable();
+//          e = entities.keyword() || entities.variable() || entities.mixinLookup();
 //          if (e) {
 //              nodes.push(e);
 //          } else if (parserInput.$char('(')) {
@@ -1562,7 +1563,9 @@ class Parsers {
         features.add(e);
         if (parserInput.$char(',') == null) break;
       } else {
-        e = entities.variable();
+        e = entities.variable()
+          ?? entities.mixinLookup();
+
         if (e != null) {
           features.add(e);
           if (parserInput.$char(',') == null) break;
@@ -1572,25 +1575,25 @@ class Parsers {
 
     return features.isNotEmpty ? features : null;
 
-//2.2.0
+// 3.5.0.beta.5 20180703
 //  mediaFeatures: function () {
 //      var entities = this.entities, features = [], e;
 //      do {
 //          e = this.mediaFeature();
 //          if (e) {
 //              features.push(e);
-//              if (! parserInput.$char(',')) { break; }
+//              if (!parserInput.$char(',')) { break; }
 //          } else {
-//              e = entities.variable();
+//              e = entities.variable() || entities.mixinLookup();
 //              if (e) {
 //                  features.push(e);
-//                  if (! parserInput.$char(',')) { break; }
+//                  if (!parserInput.$char(',')) { break; }
 //              }
 //          }
 //      } while (e);
 //
 //      return features.length > 0 ? features : null;
-//  }
+//  },
   }
 
   ///

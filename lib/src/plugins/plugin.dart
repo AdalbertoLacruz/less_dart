@@ -34,7 +34,7 @@ abstract class Plugin {
   ///
   /// Less required minimal version
   ///
-  List<int> get minVersion;
+  List<int> get minVersion => <int>[3,0,0];
 
   ///
   /// Removes " at the start/end

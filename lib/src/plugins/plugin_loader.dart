@@ -1,5 +1,5 @@
 //source: lib/less-node/plugin-loader.js 2.5.0
-//source: lib/less/environment/abstract-plugin-loader.js 3.5.0.beta.2 20180630
+//source: lib/less/environment/abstract-plugin-loader.js 3.5.0.beta.5 20180703
 
 part of plugins.less;
 
@@ -72,7 +72,7 @@ class PluginLoader {
 
     return null;
 
-// 3.5.0.beta.2 20180630
+// 3.5.0.beta.5 20180703
 //  AbstractPluginLoader.prototype.evalPlugin = function(contents, context, imports, pluginOptions, fileInfo) {
 //
 //      var loader,
@@ -129,7 +129,8 @@ class PluginLoader {
 //      try {
 //          loader = new Function('module', 'require', 'registerPlugin', 'functions', 'tree', 'less', 'fileInfo', contents);
 //          loader(localModule, this.require(filename), registerPlugin, registry, this.less.tree, this.less, fileInfo);
-//      } catch (e) {
+//      }
+//      catch (e) {
 //          return new LessError(e, imports, filename);
 //      }
 //
@@ -143,12 +144,16 @@ class PluginLoader {
 //      }
 //
 //      if (pluginObj) {
-//          // For 2.x back-compatibility - setOptions() before install()
 //          pluginObj.imports = imports;
 //          pluginObj.filename = filename;
-//          result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
-//          if (result) {
-//              return result;
+//
+//          // For < 3.x (or unspecified minVersion) - setOptions() before install()
+//          if (!pluginObj.minVersion || this.compareVersion('3.0.0', pluginObj.minVersion) < 0) {
+//              result = this.trySetOptions(pluginObj, filename, shortname, pluginOptions);
+//
+//              if (result) {
+//                  return result;
+//              }
 //          }
 //
 //          // Run on first load

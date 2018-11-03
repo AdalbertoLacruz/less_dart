@@ -221,7 +221,8 @@ Map<int, Config> configFill() => <int, Config>{
    165: def('edge/namespacing-5'),
    166: def('edge/namespacing-6'),
    167: def('edge/namespacing-7'),
-   168: def('edge/namespacing-operations'),
+   168: def('edge/namespacing-media'),
+   169: def('edge/namespacing-operations'),
 
    170: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
