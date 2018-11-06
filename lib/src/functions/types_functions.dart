@@ -1,30 +1,9 @@
-// source: lib/less/functions/types.js 3.5.0.beta.2 20180630
+// source: lib/less/functions/types.js 3.5.0.beta.6 20180704
 
 part of functions.less;
 
 ///
 class TypesFunctions extends FunctionBase {
-//  var isa = function (n, Type) {
-//      return (n instanceof Type) ? Keyword.True : Keyword.False;
-//  }
-
-  ///
-  // handle non-array values as an array of length 1
-  // return null if index is invalid
-  @defineMethodSkip
-  List<Node> getItemsFromNode(Node node) =>
-      (node.value is List) ? node.value : <Node>[node];
-
-//2.4.0+2
-//  getItemsFromNode = function(node) {
-//      // handle non-array values as an array of length 1
-//      // return 'undefined' if index is invalid
-//      var items = Array.isArray(node.value) ?
-//          node.value : Array(node);
-//
-//      return items;
-//  };
-
   ///
   /// Returns true if a value is a ruleset, false otherwise.
   ///
@@ -258,56 +237,6 @@ class TypesFunctions extends FunctionBase {
   Anonymous getUnit(Dimension n) => new Anonymous(n.unit);
 
   ///
-  /// Returns the value at a specified position in a list.
-  ///
-  /// Parameters:
-  ///
-  ///     [values] - list, a comma or space separated list of values.
-  ///     [index] - an integer that specifies a position of a list element to return.
-  ///
-  /// Returns: a value at the specified position in a list.
-  ///
-  /// Example:
-  ///
-  ///     extract(8px dotted red, 2);
-  ///     Output: dotted
-  ///
-  Node extract(Node values, Node index) {
-    final int iIndex = (index.value as num).toInt() - 1; // (1-based index)
-    //return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
-    try {
-      return getItemsFromNode(values).elementAt(iIndex);
-    } catch (e) {
-      // } on RangeError catch(_) { // Alternative
-      return null;
-    }
-
-//2.4.0
-//  extract: function(values, index) {
-//      index = index.value - 1; // (1-based index)
-//      return getItemsFromNode(values)[index];
-//  },
-  }
-
-  ///
-  /// Returns the number of elements in a value list.
-  ///
-  /// Parameters:
-  ///   list - a comma or space separated list of values.
-  ///   Returns: an integer number of elements in a list
-  /// Example: length(1px solid #0080ff);
-  ///   Output: 3
-  ///
-  Dimension length(Node values) =>
-      new Dimension(getItemsFromNode(values).length);
-
-//2.4.0
-//  length: function(values) {
-//
-//      return new Dimension(getItemsFromNode(values).length);
-//  }
-
-  ///
   /// Converts from px, pt or em to rem units
   ///
   /// Parameters:
@@ -337,15 +266,4 @@ class TypesFunctions extends FunctionBase {
     base = baseFont?.value ?? base;
     return new Dimension(fontSize.value / base, 'rem');
   }
-
-  ///
-  /// Used in calc to wrap vars in a function call to cascade evaluate args first
-  ///
-  @DefineMethod(name: 'self')
-  Node self(Node n) => n;
-
-// 3.5.0.beta.2 20180630
-//  _SELF: function(n) {
-//      return n;
-//  }
 }

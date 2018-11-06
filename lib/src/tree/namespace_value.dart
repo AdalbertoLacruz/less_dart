@@ -1,4 +1,4 @@
-// source: less/tree/namespace-value.js 3.5.0.beta.5 20180702
+// source: less/tree/namespace-value.js 3.5.0.beta.6 20180704
 
 part of tree.less;
 
@@ -45,12 +45,14 @@ class NamespaceValue extends Node {
 
       // Eval'd DRs return rulesets.
       // Eval'd mixins return rules, so let's make a ruleset if we need it.
-      // We need to do this because of late parsing of properties
+      // We need to do this because of late parsing of values
       if (rules is Nodeset) {
         rules = new Ruleset(<Selector>[new Selector(null)], rules.rules);
       }
 
-      if (name.startsWith('@')) {
+      if (name.isEmpty && rules is VariableMixin) {
+        rules = (rules as VariableMixin).lastDeclaration();
+      } else if (name.startsWith('@')) {
         if (name.startsWith('@@')) {
           // ignore: prefer_interpolation_to_compose_strings
           name = '@' + new Variable(name.substring(1)).eval(context).value;
@@ -68,13 +70,21 @@ class NamespaceValue extends Node {
         }
       } else {
         List<Node> lsRules;
-        if (rules is VariableMixin) {
-          lsRules = rules.property(name.startsWith(r'$') ? name : '\$$name');
+        if (name.startsWith(r'$@')) {
+          // ignore: prefer_interpolation_to_compose_strings
+          name = r'$' + new Variable(name.substring(1)).eval(context).value;
+        } else {
+          name = name.startsWith(r'$') ? name : '\$$name';
         }
+
+        if (rules is VariableMixin) {
+          lsRules = rules.property(name);
+        }
+
         if (lsRules == null) {
           throw new LessExceptionError(new LessError(
               type: 'Name',
-              message: 'property "$name" not found',
+              message: 'property "${name.substring(1)}" not found',
               filename: currentFileInfo.filename,
               index: index
           ));
@@ -91,10 +101,9 @@ class NamespaceValue extends Node {
 
     return rules;
 
-// 3.5.0.beta.5 20180702
+// 3.5.0.beta.6 20180704
 //  NamespaceValue.prototype.eval = function (context) {
-//      var i, j, name, found,
-//          rules = this.value.eval(context);
+//      var i, j, name, rules = this.value.eval(context);
 //
 //      for (i = 0; i < this.lookups.length; i++) {
 //          name = this.lookups[i];
@@ -102,13 +111,16 @@ class NamespaceValue extends Node {
 //          /**
 //           * Eval'd DRs return rulesets.
 //           * Eval'd mixins return rules, so let's make a ruleset if we need it.
-//           * We need to do this because of late parsing of properties
+//           * We need to do this because of late parsing of values
 //           */
 //          if (Array.isArray(rules)) {
 //              rules = new Ruleset([new Selector()], rules);
 //          }
 //
-//          if (name.charAt(0) === '@') {
+//          if (name === '') {
+//              rules = rules.lastDeclaration();
+//          }
+//          else if (name.charAt(0) === '@') {
 //              if (name.charAt(1) === '@') {
 //                  name = '@' + new Variable(name.substr(1)).eval(context).value;
 //              }
@@ -124,13 +136,19 @@ class NamespaceValue extends Node {
 //              }
 //          }
 //          else {
+//              if (name.substring(0, 2) === '$@') {
+//                  name = '$' + new Variable(name.substr(1)).eval(context).value;
+//              }
+//              else {
+//                  name = name.charAt(0) === '$' ? name : '$' + name;
+//              }
 //              if (rules.properties) {
-//                  rules = rules.property(name.charAt(0) === '$' ? name : '$' + name);
+//                  rules = rules.property(name);
 //              }
 //
 //              if (!rules) {
 //                  throw { type: 'Name',
-//                      message: 'property "' + name + '" not found',
+//                      message: 'property "' + name.substr(1) + '" not found',
 //                      filename: this.fileInfo().filename,
 //                      index: this.getIndex() };
 //              }

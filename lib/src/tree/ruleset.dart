@@ -1,4 +1,4 @@
-// source: less/tree/ruleset.js 3.5.0.beta.5 20180702
+// source: less/tree/ruleset.js 3.5.0.beta.6 20180704
 
 part of tree.less;
 
@@ -1527,6 +1527,29 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
 //         return this.parseValue(decl);
 //     }
 // };
+  }
+
+  ///
+  /// Returns the last Declaration node in rules
+  /// example:
+  ///   bar: @return[]; where '[]' is the last declaration
+  ///
+  Node lastDeclaration() {
+    for (int i = rules.length; i > 0; i--) {
+      final Node decl = rules[i - 1];
+      if (decl is Declaration) return parseValue(decl);
+    }
+    return null;
+
+// 3.5.0.beta.6 20180704
+//  Ruleset.prototype.lastDeclaration = function () {
+//      for (var i = this.rules.length; i > 0; i--) {
+//          var decl = this.rules[i - 1];
+//          if (decl instanceof Declaration) {
+//              return this.parseValue(decl);
+//          }
+//      }
+//  };
   }
 
   ///

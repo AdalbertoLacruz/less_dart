@@ -638,7 +638,7 @@ class ParserInput {
   /// Search for something and throw error if not found
   ///
   ///
-  /// [arg] Function, RegExp or String
+  /// [arg] Function, RegExp, String or List<String>
   /// [index] ????
   /// return String or List<String>
   ///

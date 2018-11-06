@@ -1,4 +1,4 @@
-//source: less/tree/javascript.js 3.0.0 20160714
+//source: less/tree/javascript.js 3.5.0.beta.6 2080704
 
 part of tree.less;
 
@@ -37,20 +37,21 @@ class JavaScript extends Node with JsEvalNodeMixin {
   @override
   Anonymous eval(Contexts context) => new Anonymous(expression);
 
-//3.0.0 20160714
-// JavaScript.prototype.eval = function(context) {
-//     var result = this.evaluateJavaScript(this.expression, context);
+// 3.5.0.beta.6 20180704
+//  JavaScript.prototype.eval = function(context) {
+//      var result = this.evaluateJavaScript(this.expression, context);
+//      var type = typeof result;
 //
-//     if (typeof result === 'number') {
-//         return new Dimension(result);
-//     } else if (typeof result === 'string') {
-//         return new Quoted('"' + result + '"', result, this.escaped, this._index);
-//     } else if (Array.isArray(result)) {
-//         return new Anonymous(result.join(', '));
-//     } else {
-//         return new Anonymous(result);
-//     }
-// };
+//      if (type === 'number' && !isNaN(result)) {
+//          return new Dimension(result);
+//      } else if (type === 'string') {
+//          return new Quoted('"' + result + '"', result, this.escaped, this._index);
+//      } else if (Array.isArray(result)) {
+//          return new Anonymous(result.join(', '));
+//      } else {
+//          return new Anonymous(result);
+//      }
+//  };
 
   //for genTree
   @override

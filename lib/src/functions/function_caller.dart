@@ -50,6 +50,7 @@ class FunctionCaller {
       new ColorFunctions(),
       new DataUriFunctions(),
       new ImageSizeFunctions(),
+      new ListFunctions(),
       new MathFunctions(),
       new NumberFunctions(),
       new StringFunctions(),

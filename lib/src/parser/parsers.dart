@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta.5 20180703
+//source: less/parser/parser.js ines 250-end 3.5.0.beta.6 20180704
 
 part of parser.less;
 
@@ -866,8 +866,28 @@ class Parsers {
   ///     { rules }
   ///
   DetachedRuleset detachedRuleset() {
+//    List<MixinArgs> args;
+//
+//    if (parserInput.$char('(') != null) {
+//      args = mixin.args().args;
+//      parserInput.expectChar(')');
+//    }
+
     final Ruleset blockRuleset = this.blockRuleset();
-    return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
+    return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null; // , args
+
+// 3.5.0.beta.6 20180704
+//  detachedRuleset: function() {
+//      var args;
+//      if (parserInput.$char('(')) {
+//          args = this.mixin.args().args;
+//          expectChar(')');
+//      }
+//      var blockRuleset = this.blockRuleset();
+//      if (blockRuleset) {
+//          return new tree.DetachedRuleset(blockRuleset, args);
+//      }
+//  },
 
 //2.2.0
 //  detachedRuleset: function() {
@@ -2317,13 +2337,13 @@ class Parsers {
     Condition condition;
     final int index = parserInput.i;
 
-    a = this.condition();
+    a = this.condition(needsParens: true);
     if (a != null) {
       while (true) {
         if (!parserInput.peek(_reConditions) || (parserInput.$char(',') == null)) {
           break;
         }
-        b = this.condition();
+        b = this.condition(needsParens: true);
         if (b == null) break;
 
         condition = new Condition('or', condition != null ? condition : a, b,
@@ -2334,17 +2354,17 @@ class Parsers {
 
     return null;
 
-//2.2.0
+// 20180708
 //  conditions: function () {
 //      var a, b, index = parserInput.i, condition;
 //
-//      a = this.condition();
+//      a = this.condition(true);
 //      if (a) {
 //          while (true) {
 //              if (!parserInput.peek(/^,\s*(not\s*)?\(/) || !parserInput.$char(',')) {
 //                  break;
 //              }
-//              b = this.condition();
+//              b = this.condition(true);
 //              if (!b) {
 //                  break;
 //              }
@@ -2352,7 +2372,7 @@ class Parsers {
 //          }
 //          return condition || a;
 //      }
-//  }
+//  },
   }
 
   ///
@@ -2367,15 +2387,15 @@ class Parsers {
   ///       color: white;
   ///     }
   ///
-  Condition condition() {
+  Condition condition({bool needsParens = false}) {
     String or() => parserInput.$str('or');
 
-    Condition result = conditionAnd();
+    Condition result = conditionAnd(needsParens: needsParens);
     if (result == null) return null;
 
     final String logical = or();
     if (logical != null) {
-      final Condition next = condition();
+      final Condition next = condition(needsParens: needsParens);
       if (next != null) {
         result = new Condition(logical, result, next);
       } else {
@@ -2384,28 +2404,28 @@ class Parsers {
     }
     return result;
 
-//2.5.3 20160117
-// condition: function () {
-//     var result, logical, next;
-//     function or() {
-//         return parserInput.$str("or");
-//     }
+// 20180708
+//  condition: function (needsParens) {
+//      var result, logical, next;
+//      function or() {
+//          return parserInput.$str('or');
+//      }
 //
-//     result = this.conditionAnd(this);
-//     if (!result) {
-//         return ;
-//     }
-//     logical = or();
-//     if (logical) {
-//         next = this.condition();
-//         if (next) {
-//             result = new(tree.Condition)(logical, result, next);
-//         } else {
-//             return ;
-//         }
-//     }
-//     return result;
-// },
+//      result = this.conditionAnd(needsParens);
+//      if (!result) {
+//          return ;
+//      }
+//      logical = or();
+//      if (logical) {
+//          next = this.condition(needsParens);
+//          if (next) {
+//              result = new(tree.Condition)(logical, result, next);
+//          } else {
+//              return ;
+//          }
+//      }
+//      return result;
+//  },
   }
 
   ///
@@ -2414,16 +2434,26 @@ class Parsers {
   ///     (@a = white)
   ///     (@a = white) and (@b = black) and ...
   ///
-  Condition conditionAnd() {
-    Condition insideCondition() => negatedCondition() ?? parenthesisCondition();
+  Condition conditionAnd({bool needsParens = false}) {
+    // inside functions
+    Condition insideCondition() {
+      final Condition cond = negatedCondition(needsParens: needsParens)
+          ?? parenthesisCondition(needsParens: needsParens);
+      if (cond == null && !needsParens) {
+        return atomicCondition(needsParens: needsParens);
+      }
+      return cond;
+    }
+
     String and() => parserInput.$str('and');
 
+    // code
     Condition result = insideCondition();
     if (result == null) return null;
 
     final String logical = and();
     if (logical != null) {
-      final Condition next = conditionAnd();
+      final Condition next = conditionAnd(needsParens: needsParens);
       if (next != null) {
         result = new Condition(logical, result, next);
       } else {
@@ -2431,6 +2461,36 @@ class Parsers {
       }
     }
     return result;
+
+// 20180708
+//  conditionAnd: function (needsParens) {
+//      var result, logical, next, self = this;
+//      function insideCondition() {
+//          var cond = self.negatedCondition(needsParens) || self.parenthesisCondition(needsParens);
+//          if (!cond && !needsParens) {
+//              return self.atomicCondition(needsParens);
+//          }
+//          return cond;
+//      }
+//      function and() {
+//          return parserInput.$str('and');
+//      }
+//
+//      result = insideCondition();
+//      if (!result) {
+//          return ;
+//      }
+//      logical = and();
+//      if (logical) {
+//          next = this.conditionAnd(needsParens);
+//          if (next) {
+//              result = new(tree.Condition)(logical, result, next);
+//          } else {
+//              return ;
+//          }
+//      }
+//      return result;
+//  },
 
 //2.5.3 20160117
 // conditionAnd: function () {
@@ -2464,13 +2524,24 @@ class Parsers {
   ///
   ///     not(@a = 0)
   ///
-  Condition negatedCondition() {
+  Condition negatedCondition({bool needsParens = false}) {
     if (parserInput.$str('not') != null) {
-      final Condition result = parenthesisCondition();
+      final Condition result = parenthesisCondition(needsParens: needsParens);
       if (result != null) result.negate = !result.negate;
       return result;
     }
     return null;
+
+// 20180708
+//  negatedCondition: function (needsParens) {
+//      if (parserInput.$str('not')) {
+//          var result = this.parenthesisCondition(needsParens);
+//          if (result) {
+//              result.negate = !result.negate;
+//          }
+//          return result;
+//      }
+//  },
 
 //2.5.3 20160114
 // negatedCondition: function () {
@@ -2493,11 +2564,11 @@ class Parsers {
   ///
   ///     (@a = 0)
   ///
-  Condition parenthesisCondition() {
+  Condition parenthesisCondition({bool needsParens = false}) {
     //
     Condition tryConditionFollowedByParenthesis() {
       parserInput.save();
-      final Condition body = condition();
+      final Condition body = condition(needsParens: needsParens);
       if (body == null) {
         parserInput.restore();
         return null;
@@ -2522,7 +2593,7 @@ class Parsers {
       return body;
     }
 
-    body = atomicCondition();
+    body = atomicCondition(needsParens: needsParens);
     if (body == null) {
       parserInput.restore();
       return null;
@@ -2533,6 +2604,49 @@ class Parsers {
     }
     parserInput.forget();
     return body;
+
+// 20180708
+//  parenthesisCondition: function (needsParens) {
+//      function tryConditionFollowedByParenthesis(me) {
+//          var body;
+//          parserInput.save();
+//          body = me.condition(needsParens);
+//          if (!body) {
+//              parserInput.restore();
+//              return ;
+//          }
+//          if (!parserInput.$char(')')) {
+//              parserInput.restore();
+//              return ;
+//          }
+//          parserInput.forget();
+//          return body;
+//      }
+//
+//      var body;
+//      parserInput.save();
+//      if (!parserInput.$str('(')) {
+//          parserInput.restore();
+//          return ;
+//      }
+//      body = tryConditionFollowedByParenthesis(this);
+//      if (body) {
+//          parserInput.forget();
+//          return body;
+//      }
+//
+//      body = this.atomicCondition(needsParens);
+//      if (!body) {
+//          parserInput.restore();
+//          return ;
+//      }
+//      if (!parserInput.$char(')')) {
+//          parserInput.restore('expected \')\' got \'' + parserInput.currentChar() + '\'');
+//          return ;
+//      }
+//      parserInput.forget();
+//      return body;
+//  },
 
 //2.6.0 20160217
 // parenthesisCondition: function () {
@@ -2599,7 +2713,7 @@ class Parsers {
   ///     Example: @a  is the same as @a = true
   ///
   ///
-  Condition atomicCondition() {
+  Condition atomicCondition({bool needsParens = false}) {
     Node      a;
     Node      b;
     Condition c;
@@ -2651,6 +2765,54 @@ class Parsers {
       return c;
     }
     return null;
+
+// 20180708
+//  atomicCondition: function (needsParens) {
+//      var entities = this.entities, index = parserInput.i, a, b, c, op;
+//
+//      function cond() {
+//          return this.addition() || entities.keyword() || entities.quoted() || entities.mixinLookup();
+//      }
+//      cond = cond.bind(this);
+//
+//      a = cond();
+//      if (a) {
+//          if (parserInput.$char('>')) {
+//              if (parserInput.$char('=')) {
+//                  op = '>=';
+//              } else {
+//                  op = '>';
+//              }
+//          } else
+//          if (parserInput.$char('<')) {
+//              if (parserInput.$char('=')) {
+//                  op = '<=';
+//              } else {
+//                  op = '<';
+//              }
+//          } else
+//          if (parserInput.$char('=')) {
+//              if (parserInput.$char('>')) {
+//                  op = '=>';
+//              } else if (parserInput.$char('<')) {
+//                  op = '=<';
+//              } else {
+//                  op = '=';
+//              }
+//          }
+//          if (op) {
+//              b = cond();
+//              if (b) {
+//                  c = new(tree.Condition)(op, a, b, index, false);
+//              } else {
+//                  error('expected expression');
+//              }
+//          } else {
+//              c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, false);
+//          }
+//          return c;
+//      }
+//  },
 
 // 3.5.0.beta.5 20180702
 //  atomicCondition: function () {
