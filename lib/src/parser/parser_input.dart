@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 3.5.0.beta 20180627
+// source: parser/parser-input.js 3.5.0.beta.7 20180704
 
 part of parser.less;
 
@@ -652,16 +652,18 @@ class ParserInput {
     return error(message);
 
 // inside parser.js
-//2.6.0 20160217
-// function expect(arg, msg, index) {
-//     // some older browsers return typeof 'function' for RegExp
-//     var result = (arg instanceof Function) ? arg.call(parsers) : parserInput.$re(arg);
-//     if (result) {
-//         return result;
-//     }
-//     error(msg || (typeof arg === 'string' ? "expected '" + arg + "' got '" + parserInput.currentChar() + "'"
-//                                            : "unexpected token"));
-// }
+// 3.5.0.beta.7 20180704
+//  function expect(arg, msg) {
+//      // some older browsers return typeof 'function' for RegExp
+//      var result = (arg instanceof Function) ? arg.call(parsers) : parserInput.$re(arg);
+//      if (result) {
+//          return result;
+//      }
+//
+//      error(msg || (typeof arg === 'string'
+//          ? 'expected \'' + arg + '\' got \'' + parserInput.currentChar() + '\''
+//          : 'unexpected token'));
+//  }
   }
 
   ///

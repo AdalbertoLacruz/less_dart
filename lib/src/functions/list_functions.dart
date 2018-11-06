@@ -110,54 +110,57 @@ class ListFunctions extends FunctionBase {
   ///    a: b;
   ///  }
   ///
-  Node each(dynamic list, dynamic rs) { // todo debug - guest types
+  Node each(Node list, Node rs) {
     int              i = 0;
-    List<dynamic>    iterator;
+    List<Node>       iterator;
     List<Node>       newRules;
-    dynamic          _rs = rs;
+    Ruleset          ruleset;
     final List<Node> rules = <Node>[];
 
-    if (list is Node && list.value != null) {
-      if (list.value is List) {
-        iterator = list.value;
-      } else {
-        iterator = <dynamic>[list.value];
-      }
-    } else if (list is DetachedRuleset && list.ruleset != null) {
+    if (list is DetachedRuleset) {
       iterator = list.ruleset.rules;
-    } else if (list is List) {
-      iterator = list;
+    } else if (list is Nodeset) {
+      iterator = list.rules;
+    } else if (list.value is List<Node>) {
+      iterator = list.value;
+    } else if (list.value is Node) {
+      iterator = <Node>[list.value]; // ??
     } else {
-      iterator = <dynamic>[list];
+      iterator = <Node>[list];
     }
 
     String valueName = '@value';
     String keyName = '@key';
     String indexName = '@index';
 
-    if (_rs is MixinDefinition && _rs.params != null) {
-      valueName = _rs.params.isNotEmpty ? _rs.params[0].name : null;
-      keyName = _rs.params.length > 1 ? _rs.params[1].name : null;
-      indexName = _rs.params.length > 2 ? _rs.params[2].name : null;
-      _rs = _rs.rules;
+    if (rs is MixinDefinition && rs.params != null) { // todo debug
+      final MixinDefinition md = rs;
+      valueName = md.params.isNotEmpty ? md.params[0].name : null;
+      keyName = md.params.length > 1 ? md.params[1].name : null;
+      indexName = md.params.length > 2 ? md.params[2].name : null;
+//      _rs = _rs.rules;
+//      ruleset = rs;
+      return null;  // todo ruleset = ...
+    } else if (rs is DetachedRuleset) {
+      ruleset = rs.ruleset;
     } else {
-      _rs = _rs.ruleset;
+      return null; // Something goes bad
     }
 
-    iterator.forEach((dynamic item) { // item is Node?
+    iterator.forEach((Node item) { // item is Node?
       i = i + 1;
-      dynamic key;
+      Node key;
       Node value;
 
       if (item is Declaration) {
-        key = item.name is String ? item.name : item.name.first;
+        key = item.name is String ? new Anonymous(item.name) : item.name.first;
         value = item.value;
       } else {
         key = new Dimension(i);
         value = item;
       }
 
-      newRules = new List<Node>.from(rs.rules); // clone
+      newRules = new List<Node>.from(ruleset.rules); // clone
       if (valueName != null) {
         newRules.add(new Declaration(valueName, value,
           important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
@@ -171,11 +174,11 @@ class ListFunctions extends FunctionBase {
             important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
       }
       rules.add(new Ruleset(<Selector>[new Selector(<Element>[new Element('', '&')])],
-          rules));
+          newRules));
     });
 
     return new Ruleset(<Selector>[new Selector(<Element>[new Element('', '&')])],
-      rules, strictImports: _rs.strictImports, visibilityInfo: _rs.visibilityInfo())
+      rules, strictImports: ruleset.strictImports, visibilityInfo: ruleset.visibilityInfo())
       .eval(context);
 
 // 20180708

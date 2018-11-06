@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.5 20180702
+//source: less/parser/parser.js 3.5.0.beta.7 20180704
 
 part of parser.less;
 

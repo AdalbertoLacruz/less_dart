@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.6 20180704
+//source: less/parser/parser.js 3.5.0.beta.7 20180704
 
 part of parser.less;
 
@@ -612,10 +612,37 @@ class Mixin {
 
     final String name = parserInput.$re(_definitionRegExp);
     if (name != null) {
-      final MixinDefinition block = body(name);
-      if (block != null) {
+      Condition             cond;
+      final MixinReturner   argInfo = args(isCall: false);
+      final int             index = parserInput.i; //not in original
+
+      final List<MixinArgs> params = argInfo.args;
+      final bool            variadic = argInfo.variadic;
+
+      // .mixincall("@{a}");
+      // looks a bit like a mixin definition..
+      // also
+      // .mixincall(@a: {rule: set;});
+      // so we have to be nice and restore
+      if (parserInput.$char(')') == null) {
+        parserInput.restore("Missing closing ')'");
+        return null;
+      }
+
+      parserInput.commentStore.length = 0;
+
+      if (parserInput.$str('when') != null) { // Guard
+        cond = parserInput.expect(parsers.conditions, 'expected condition');
+      }
+
+      final List<Node> ruleset = parsers.block();
+
+      if (ruleset != null) {
         parserInput.forget();
-        return block;
+        return new MixinDefinition(name, params, ruleset, cond,
+            variadic: variadic,
+            index: index,
+            currentFileInfo: context.currentFileInfo);
       } else {
         parserInput.restore();
       }
@@ -625,9 +652,9 @@ class Mixin {
 
     return null;
 
-// 3.5.0.beta.6 20180704
+// 3.5.0.beta.7 20180704
 //  definition: function () {
-//      var name, match;
+//      var name, params = [], match, ruleset, cond, variadic = false;
 //      if ((parserInput.currentChar() !== '.' && parserInput.currentChar() !== '#') ||
 //          parserInput.peek(/^[^{]*\}/)) {
 //          return;
@@ -638,93 +665,37 @@ class Mixin {
 //      match = parserInput.$re(/^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(/);
 //      if (match) {
 //          name = match[1];
-//          block = this.body(name);
-//          if (block) {
+//
+//          var argInfo = this.args(false);
+//          params = argInfo.args;
+//          variadic = argInfo.variadic;
+//
+//          // .mixincall("@{a}");
+//          // looks a bit like a mixin definition..
+//          // also
+//          // .mixincall(@a: {rule: set;});
+//          // so we have to be nice and restore
+//          if (!parserInput.$char(')')) {
+//              parserInput.restore('Missing closing \')\'');
+//              return;
+//          }
+//
+//          parserInput.commentStore.length = 0;
+//
+//          if (parserInput.$str('when')) { // Guard
+//              cond = expect(parsers.conditions, 'expected condition');
+//          }
+//
+//          ruleset = parsers.block();
+//
+//          if (ruleset) {
 //              parserInput.forget();
-//              return block;
+//              return new(tree.mixin.Definition)(name, params, ruleset, cond, variadic);
 //          } else {
 //              parserInput.restore();
 //          }
 //      } else {
 //          parserInput.forget();
-//      }
-//  },
-  }
-
-  ///
-  MixinDefinition body(String name) {
-    parserInput.save();
-
-    Condition             cond;
-    final MixinReturner   argInfo = args(isCall: false);
-    final int             index = parserInput.i; //not in original
-
-    final List<MixinArgs> params = argInfo.args;
-    final bool            variadic = argInfo.variadic;
-
-    // .mixincall("@{a}");
-    // looks a bit like a mixin definition..
-    // also
-    // .mixincall(@a: {rule: set;});
-    // so we have to be nice and restore
-    if (parserInput.$char(')') == null) {
-      parserInput.restore("Missing closing ')'");
-      return null;
-    }
-
-    parserInput.commentStore.length = 0;
-
-    if (parserInput.$str('when') != null) { // Guard
-      cond = parserInput.expect(parsers.conditions, 'expected condition');
-    }
-
-    final List<Node> ruleset = parsers.block();
-
-    if (ruleset != null) {
-      parserInput.forget();
-      return new MixinDefinition(name, params, ruleset, cond,
-          variadic: variadic,
-          index: index,
-          currentFileInfo: context.currentFileInfo);
-    } else {
-      parserInput.restore();
-    }
-
-    return null;
-
-// 3.5.0.beta.6 20180704
-//  body: function(name) {
-//      var argInfo, params, variadic, cond, ruleset;
-//
-//      parserInput.save();
-//
-//      argInfo = this.args(false);
-//      params = argInfo.args;
-//      variadic = argInfo.variadic;
-//
-//      // .mixincall("@{a}");
-//      // looks a bit like a mixin definition..
-//      // also
-//      // .mixincall(@a: {rule: set;});
-//      // so we have to be nice and restore
-//      if (!parserInput.$char(')')) {
-//          parserInput.restore('Missing closing \')\'');
-//          return;
-//      }
-//
-//      parserInput.commentStore.length = 0;
-//
-//      if (parserInput.$str('when')) { // Guard
-//          cond = expect(parsers.conditions, 'expected condition');
-//      }
-//
-//      ruleset = parsers.block();
-//
-//      if (ruleset) {
-//          parserInput.forget();
-//          return new(tree.mixin.Definition)(name, params, ruleset, cond, variadic);
-//      } else {
-//          parserInput.restore();
 //      }
 //  },
   }

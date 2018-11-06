@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta.6 20180704
+//source: less/parser/parser.js ines 250-end 3.5.0.beta.7 20180704
 
 part of parser.less;
 
@@ -866,36 +866,16 @@ class Parsers {
   ///     { rules }
   ///
   DetachedRuleset detachedRuleset() {
-//    List<MixinArgs> args;
-//
-//    if (parserInput.$char('(') != null) {
-//      args = mixin.args().args;
-//      parserInput.expectChar(')');
-//    }
-
     final Ruleset blockRuleset = this.blockRuleset();
-    return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null; // , args
+    return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
 
-// 3.5.0.beta.6 20180704
-//  detachedRuleset: function() {
-//      var args;
-//      if (parserInput.$char('(')) {
-//          args = this.mixin.args().args;
-//          expectChar(')');
-//      }
-//      var blockRuleset = this.blockRuleset();
-//      if (blockRuleset) {
-//          return new tree.DetachedRuleset(blockRuleset, args);
-//      }
-//  },
-
-//2.2.0
+// 3.5.0.beta.7 20180704
 //  detachedRuleset: function() {
 //      var blockRuleset = this.blockRuleset();
 //      if (blockRuleset) {
 //          return new tree.DetachedRuleset(blockRuleset);
 //      }
-//  }
+//  },
   }
 
   ///
@@ -2492,31 +2472,31 @@ class Parsers {
 //      return result;
 //  },
 
-//2.5.3 20160117
-// conditionAnd: function () {
-//     var result, logical, next;
-//     function insideCondition(me) {
-//         return me.negatedCondition() || me.parenthesisCondition();
-//     }
-//     function and() {
-//         return parserInput.$str("and");
-//     }
+// 3.5.0.beta.7 20180704
+//  conditionAnd: function () {
+//      var result, logical, next;
+//      function insideCondition(me) {
+//          return me.negatedCondition() || me.parenthesisCondition() || me.atomicCondition();
+//      }
+//      function and() {
+//          return parserInput.$str('and');
+//      }
 //
-//     result = insideCondition(this);
-//     if (!result) {
-//         return ;
-//     }
-//     logical = and();
-//     if (logical) {
-//         next = this.conditionAnd();
-//         if (next) {
-//             result = new(tree.Condition)(logical, result, next);
-//         } else {
-//             return ;
-//         }
-//     }
-//     return result;
-// },
+//      result = insideCondition(this);
+//      if (!result) {
+//          return ;
+//      }
+//      logical = and();
+//      if (logical) {
+//          next = this.conditionAnd();
+//          if (next) {
+//              result = new(tree.Condition)(logical, result, next);
+//          } else {
+//              return ;
+//          }
+//      }
+//      return result;
+//  },
   }
 
   ///
