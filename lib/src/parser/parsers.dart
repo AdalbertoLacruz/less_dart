@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.0.beta.7 20180704
+//source: less/parser/parser.js ines 250-end 3.5.1 20180706
 
 part of parser.less;
 
@@ -249,7 +249,8 @@ class Parsers {
 
       final List<String> lookups = mixin.ruleLookups();
 
-      if (lookups == null && lsName?.elementAt(2) != '()') {  // lsName[2]
+      if (lookups == null &&
+          ((inValue && parserInput.$str('()') != '()') || (lsName?.elementAt(2) != '()'))) {  // lsName[2]
         parserInput.restore("Missing '[...]' lookup in variable call");
         return null;
       }
@@ -273,7 +274,7 @@ class Parsers {
     parserInput.restore();
     return null;
 
-// 3.5.0.beta.4 20180630
+// 3.5.0 20180705
 //  variableCall: function (parsedName) {
 //      var lookups, important, i = parserInput.i,
 //          inValue = !!parsedName, name = parsedName;
@@ -285,7 +286,7 @@ class Parsers {
 //
 //          lookups = this.mixin.ruleLookups();
 //
-//          if (!lookups && name[2] !== '()') {
+//          if (!lookups && ((inValue && parserInput.$str('()') !== '()') || (name[2] !== '()'))) {
 //              parserInput.restore('Missing \'[...]\' lookup in variable call');
 //              return;
 //          }
@@ -1002,10 +1003,12 @@ class Parsers {
 
         value ??= this.value();
 
-        // As a last resort, let a variable try to be parsed as a permissive value
-        if (value == null && isVariable) value = permissiveValue();
-
-        important = this.important();
+        if (value != null) {
+          important = this.important();
+        } else if (isVariable){
+          // As a last resort, try permissive value
+          value = permissiveValue();
+        }
       }
 
       if (value != null && (end() || hasDR)) {
@@ -1024,7 +1027,7 @@ class Parsers {
 
     return null;
 
-// 3.5.0.beta.5 20180702
+// 3.5.1 20180706
 //  declaration: function () {
 //      var name, value, index = parserInput.i, hasDR,
 //          c = parserInput.currentChar(), important, merge, isVariable;
@@ -1069,12 +1072,13 @@ class Parsers {
 //              if (!value) {
 //                  value = this.value();
 //              }
-//              // As a last resort, try permissiveValue
-//              if (!value && isVariable) {
+//
+//              if (value) {
+//                  important = this.important();
+//              } else if (isVariable) {
+//                  // As a last resort, try permissiveValue
 //                  value = this.permissiveValue();
 //              }
-//
-//              important = this.important();
 //          }
 //
 //          if (value && (this.end() || hasDR)) {

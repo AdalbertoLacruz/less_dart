@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.7 20180704
+//source: less/parser/parser.js 3.5.1 20180706
 
 part of parser.less;
 
@@ -85,7 +85,7 @@ class Entities {
 //  },
   }
 
-  static final RegExp  _keywordRegEx = new RegExp(r'\[?[_A-Za-z-][_A-Za-z0-9-]*\]?', caseSensitive: true);
+  static final RegExp  _keywordRegEx = new RegExp(r'\[?(?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+\]?', caseSensitive: true);
 
   ///
   /// A catch-all word, such as:
@@ -103,9 +103,9 @@ class Entities {
 
     return null;
 
-//3.0.0 20180210
+// 3.5.1 20180706
 //  keyword: function () {
-//      var k = parserInput.$char("%") || parserInput.$re(/^\[?[_A-Za-z-][_A-Za-z0-9-]*\]?/);
+//      var k = parserInput.$char('%') || parserInput.$re(/^\[?(?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+\]?/);
 //      if (k) {
 //          return tree.Color.fromKeyword(k) || new(tree.Keyword)(k);
 //      }
@@ -531,13 +531,10 @@ class Entities {
     if ((parserInput.currentChar() == '@') &&
         (name = parserInput.$re(_variableRegExp)) != null) {
       final String ch = parserInput.currentChar();
-      if (ch == '(' || ch == '[') {
+      if (ch == '(' || ch == '[' && !parserInput.prevChar().contains(new RegExp(r'\s'))) {
         // this may be a VariableCall lookup
         final Node result = parsers.variableCall(name);
-        if (result == null) {
-          parserInput.restore();
-          return null;
-        } else {
+        if (result != null) {
           parserInput.forget();
           return result;
         }
@@ -548,20 +545,17 @@ class Entities {
     parserInput.restore();
     return null;
 
-// 3.5.0.beta.4 20180630
+// 3.5.0 20180705
 //  variable: function () {
 //      var ch, name, index = parserInput.i;
 //
 //      parserInput.save();
 //      if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^@@?[\w-]+/))) {
 //          ch = parserInput.currentChar();
-//          if (ch === '(' || ch === '[') {
+//          if (ch === '(' || ch === '[' && !parserInput.prevChar().match(/^\s/)) {
 //              // this may be a VariableCall lookup
 //              var result = parsers.variableCall(name);
-//              if (!result) {
-//                  return parserInput.restore();
-//              }
-//              else {
+//              if (result) {
 //                  parserInput.forget();
 //                  return result;
 //              }

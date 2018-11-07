@@ -1,4 +1,4 @@
-// source: parser/parser-input.js 3.5.0.beta.7 20180704
+// source: parser/parser-input.js 3.5.1 20180706
 
 part of parser.less;
 
@@ -384,9 +384,8 @@ class ParserInput {
 
     if (parseGroups.isEmpty) i = startPos;
     return parseGroups.isNotEmpty ? parseGroups : null;
-  }
 
-// 3.5.0.beta 20180627
+// 3.5.1 20180706
 //  parserInput.$parseUntil = function(tok) {
 //      var quote = '',
 //          returnVal = null,
@@ -417,11 +416,11 @@ class ParserInput {
 //              returnVal = input.substr(lastPos, i - lastPos);
 //              if (returnVal) {
 //                  parseGroups.push(returnVal);
-//                  returnVal = parseGroups;
 //              }
 //              else {
-//                  returnVal = [' '];
+//                  parseGroups.push(' ');
 //              }
+//              returnVal = parseGroups;
 //              skipWhitespace(i - startPos);
 //              loop = false
 //          } else {
@@ -498,6 +497,7 @@ class ParserInput {
 //
 //      return returnVal ? returnVal : null;
 //  }
+  }
 
   ///
   /// Assure the input pointer is not a white space. Move forward if one is found.
