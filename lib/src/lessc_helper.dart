@@ -1,4 +1,4 @@
-//source: lib/less-node/lessc-helper.js 3.0.0 20170111
+//source: lib/less-node/lessc-helper.js 3.5.3 20180708
 
 library helper.less;
 
@@ -45,9 +45,13 @@ class LesscHelper {
         ..log('  -rp, --rootpath=URL          Set rootpath for url rewriting in relative imports and urls.')
         ..log('                               Works with or without the relative-urls option.')
         ..log('  -ru, --relative-urls         Re-write relative urls to the base less file.')
-        ..log('  -sm=on|off                   Turn on or off strict math, where in strict mode, math.')
-        ..log('  --strict-math=on|off         Requires brackets. This option may default to on and then')
-        ..log('                               be removed in the future.')
+        ..log('')
+        ..log('  -m=, --math=')
+        ..log('     always                    Less will eagerly perform math operations always.')
+        ..log('     parens-division           Math performed except for division (/) operator')
+        ..log('     parens | strict           Math only performed inside parentheses')
+        ..log('     strict-legacy             Parens required in very strict terms (legacy --strict-math)')
+        ..log('')
         ..log('  -su=on|off                   Allow mixed units, e.g. 1px+1em or 1px*1px which have units')
         ..log('  --strict-units=on|off        that cannot be represented.')
         ..log("  --global-var='VAR=VALUE'     Defines a variable that can be referenced by the file.")
@@ -66,6 +70,11 @@ class LesscHelper {
         ..log('                               https://github.com/GoalSmashers/clean-css e.g.')
         ..log('                               --clean-option=--selectors-merge-mode:ie8')
         ..log('                               and to switch on advanced use --clean-option=--advanced')
+        ..log('')
+        ..log('-------------------------- Deprecated ----------------')
+        ..log('  -sm=on|off               Legacy parens-only math. Use --math')
+        ..log('  --strict-math=on|off     ')
+        ..log('')
         ..log('  --line-numbers=TYPE          Outputs filename and line numbers.')
         ..log("                               TYPE can be either 'comments', which will output")
         ..log("                               the debug info within comments, 'mediaquery'")

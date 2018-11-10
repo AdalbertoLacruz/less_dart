@@ -4,11 +4,15 @@
   width: 36;
   padding: 2px 36px;
 }
+.in-function {
+  value: 2 + 1;
+}
 .more-parens {
   padding: 8 4 4 4px;
   width-all: 96;
   width-first: 16 * 6;
   width-keep: (4 * 4) * 6;
+  height: calc(100% + (25vh - 20px));
   height-keep: (7 * 7) + (8 * 8);
   height-all: 113;
   height-parts: 49 + 64;

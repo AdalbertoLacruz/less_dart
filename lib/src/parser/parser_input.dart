@@ -646,9 +646,11 @@ class ParserInput {
     final dynamic result = (arg is Function) ? arg() : $re(arg);
     if (result != null) return result;
 
-    final String message = msg ?? (arg is String)
+    String message = msg; // ? avoid bug
+    message ??= (arg is String)
         ? "expected '$arg' got '${currentChar()}'"
         : 'unexpected token';
+
     return error(message);
 
 // inside parser.js

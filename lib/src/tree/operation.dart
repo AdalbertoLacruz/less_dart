@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 3.0.4 20180625
+//source: less/tree/operation.js 3.5.3 20180707
 
 part of tree.less;
 
@@ -55,6 +55,9 @@ class Operation extends Node {
       if (a is Dimension && b is Color) a = (a as Dimension).toColor();
       if (b is Dimension && a is Color) b = (b as Dimension).toColor();
       if (a is! OperateNode) {
+        if (a is Operation && a.op == '/' && context.math == MATH_PARENS_DIVISION) {
+          return new Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
+        }
         throw new LessExceptionError(new LessError(
             type: 'Operation',
             message: 'Operation on an invalid type'
@@ -68,7 +71,7 @@ class Operation extends Node {
       return new Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
     }
 
-//3.0.4 20180625
+// 3.5.3 20180707
 //  Operation.prototype.eval = function (context) {
 //      var a = this.operands[0].eval(context),
 //          b = this.operands[1].eval(context),
@@ -83,8 +86,11 @@ class Operation extends Node {
 //              b = b.toColor();
 //          }
 //          if (!a.operate) {
-//              throw { type: "Operation",
-//                  message: "Operation on an invalid type" };
+//              if (a instanceof Operation && a.op === '/' && context.math === MATH.PARENS_DIVISION) {
+//                  return new Operation(this.op, [a, b], this.isSpaced);
+//              }
+//              throw { type: 'Operation',
+//                  message: 'Operation on an invalid type' };
 //          }
 //
 //          return a.operate(context, op, b);

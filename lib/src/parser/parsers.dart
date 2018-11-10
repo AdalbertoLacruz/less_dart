@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.1 20180706
+//source: less/parser/parser.js ines 250-end 3.5.3 20180708
 
 part of parser.less;
 
@@ -861,21 +861,73 @@ class Parsers {
 //  }
   }
 
+  static final RegExp _detachedRulesetRegExp = new RegExp(r'[.#]\(', caseSensitive: true);
+
   ///
   /// Search for
   ///
   ///     { rules }
+  /// returns Node = MixinDefinition | DetachedRuleset
   ///
-  DetachedRuleset detachedRuleset() {
-    final Ruleset blockRuleset = this.blockRuleset();
-    return (blockRuleset != null) ? new DetachedRuleset(blockRuleset) : null;
+  Node detachedRuleset() {
+    List<MixinArgs> params;
+    bool            variadic;
 
-// 3.5.0.beta.7 20180704
+    parserInput.save();
+    if (parserInput.$re(_detachedRulesetRegExp) != null) {
+      // DR args currently only implemented for each() function, and not
+      // yet settable as `@dr: #(@arg) {}`
+      // This should be done when DRs are merged with mixins.
+      // See: https://github.com/less/less-meta/issues/16
+      final MixinReturner argInfo = mixin.args(isCall: false);
+      params = argInfo.args;
+      variadic = argInfo.variadic;
+      if (parserInput.$char(')') == null) {
+        parserInput.restore();
+        return null;
+      }
+    }
+
+    final Ruleset blockRuleset = this.blockRuleset();
+    if (blockRuleset != null) {
+      parserInput.forget();
+      if (params != null) {
+        return new MixinDefinition(null, params, blockRuleset.rules, null, variadic: variadic);
+      }
+      return new DetachedRuleset(blockRuleset);
+    }
+    parserInput.restore();
+    return null;
+
+// 3.5.3 20180708
 //  detachedRuleset: function() {
+//      var argInfo, params, variadic;
+//
+//      parserInput.save();
+//      if (parserInput.$re(/^[.#]\(/)) {
+//          /**
+//           * DR args currently only implemented for each() function, and not
+//           * yet settable as `@dr: #(@arg) {}`
+//           * This should be done when DRs are merged with mixins.
+//           * See: https://github.com/less/less-meta/issues/16
+//           */
+//          argInfo = this.mixin.args(false);
+//          params = argInfo.args;
+//          variadic = argInfo.variadic;
+//          if (!parserInput.$char(')')) {
+//              parserInput.restore();
+//              return;
+//          }
+//      }
 //      var blockRuleset = this.blockRuleset();
 //      if (blockRuleset) {
+//          parserInput.forget();
+//          if (params) {
+//              return new tree.mixin.Definition(null, params, blockRuleset, null, variadic);
+//          }
 //          return new tree.DetachedRuleset(blockRuleset);
 //      }
+//      parserInput.restore();
 //  },
   }
 
@@ -1466,7 +1518,7 @@ class Parsers {
         nodes.add(e);
       } else if (parserInput.$char('(') != null) {
         p = property();
-        e = permissiveValue(untilTokensString: ')');
+        e = value();
         if (parserInput.$char(')') != null) {
           if (p != null && e != null) {
             nodes.add(new Paren(new Declaration(p, e,
@@ -1488,7 +1540,7 @@ class Parsers {
     if (nodes.isNotEmpty) return new Expression(nodes);
     return null;
 
-// 3.5.0.beta.5 20180703
+// 3.5.1 20180706
 //  mediaFeature: function () {
 //      var entities = this.entities, nodes = [], e, p;
 //      parserInput.save();
@@ -1498,7 +1550,7 @@ class Parsers {
 //              nodes.push(e);
 //          } else if (parserInput.$char('(')) {
 //              p = this.property();
-//              e = this.permissiveValue(')');
+//              e = this.value();
 //              if (parserInput.$char(')')) {
 //                  if (p && e) {
 //                      nodes.push(new(tree.Paren)(new(tree.Declaration)(p, e, null, null, parserInput.i, fileInfo, true)));
@@ -1518,37 +1570,6 @@ class Parsers {
 //          return new(tree.Expression)(nodes);
 //      }
 //  },
-
-//2.8.0 20160702
-// mediaFeature: function () {
-//     var entities = this.entities, nodes = [], e, p;
-//     parserInput.save();
-//     do {
-//         e = entities.keyword() || entities.variable();
-//         if (e) {
-//             nodes.push(e);
-//         } else if (parserInput.$char('(')) {
-//             p = this.property();
-//             e = this.value();
-//             if (parserInput.$char(')')) {
-//                 if (p && e) {
-//                     nodes.push(new(tree.Paren)(new(tree.Declaration)(p, e, null, null, parserInput.i, fileInfo, true)));
-//                 } else if (e) {
-//                     nodes.push(new(tree.Paren)(e));
-//                 } else {
-//                     error("badly formed media feature definition");
-//                 }
-//             } else {
-//                 error("Missing closing ')'", "Parse");
-//             }
-//         }
-//     } while (e);
-//
-//     parserInput.forget();
-//     if (nodes.length > 0) {
-//         return new(tree.Expression)(nodes);
-//     }
-// },
   }
 
   ///
@@ -2338,7 +2359,7 @@ class Parsers {
 
     return null;
 
-// 20180708
+// 3.5.3 20180708
 //  conditions: function () {
 //      var a, b, index = parserInput.i, condition;
 //
@@ -2388,7 +2409,7 @@ class Parsers {
     }
     return result;
 
-// 20180708
+// 3.5.3 20180708
 //  condition: function (needsParens) {
 //      var result, logical, next;
 //      function or() {
@@ -2446,7 +2467,7 @@ class Parsers {
     }
     return result;
 
-// 20180708
+// 3.5.3 20180708
 //  conditionAnd: function (needsParens) {
 //      var result, logical, next, self = this;
 //      function insideCondition() {
@@ -2475,32 +2496,6 @@ class Parsers {
 //      }
 //      return result;
 //  },
-
-// 3.5.0.beta.7 20180704
-//  conditionAnd: function () {
-//      var result, logical, next;
-//      function insideCondition(me) {
-//          return me.negatedCondition() || me.parenthesisCondition() || me.atomicCondition();
-//      }
-//      function and() {
-//          return parserInput.$str('and');
-//      }
-//
-//      result = insideCondition(this);
-//      if (!result) {
-//          return ;
-//      }
-//      logical = and();
-//      if (logical) {
-//          next = this.conditionAnd();
-//          if (next) {
-//              result = new(tree.Condition)(logical, result, next);
-//          } else {
-//              return ;
-//          }
-//      }
-//      return result;
-//  },
   }
 
   ///
@@ -2516,7 +2511,7 @@ class Parsers {
     }
     return null;
 
-// 20180708
+// 3.5.3 20180708
 //  negatedCondition: function (needsParens) {
 //      if (parserInput.$str('not')) {
 //          var result = this.parenthesisCondition(needsParens);
@@ -2526,17 +2521,6 @@ class Parsers {
 //          return result;
 //      }
 //  },
-
-//2.5.3 20160114
-// negatedCondition: function () {
-//     if (parserInput.$str("not")) {
-//         var result = this.parenthesisCondition();
-//         if (result) {
-//             result.negate = !result.negate;
-//         }
-//         return result;
-//     }
-// },
   }
 
   ///
@@ -2589,7 +2573,7 @@ class Parsers {
     parserInput.forget();
     return body;
 
-// 20180708
+// 3.5.3 20180708
 //  parenthesisCondition: function (needsParens) {
 //      function tryConditionFollowedByParenthesis(me) {
 //          var body;
@@ -2631,49 +2615,6 @@ class Parsers {
 //      parserInput.forget();
 //      return body;
 //  },
-
-//2.6.0 20160217
-// parenthesisCondition: function () {
-//     function tryConditionFollowedByParenthesis(me) {
-//         var body;
-//         parserInput.save();
-//         body = me.condition();
-//         if (!body) {
-//             parserInput.restore();
-//             return ;
-//         }
-//         if (!parserInput.$char(')')) {
-//             parserInput.restore();
-//             return ;
-//         }
-//         parserInput.forget();
-//         return body;
-//     }
-//
-//     var body;
-//     parserInput.save();
-//     if (!parserInput.$str("(")) {
-//         parserInput.restore();
-//         return ;
-//     }
-//     body = tryConditionFollowedByParenthesis(this);
-//     if (body) {
-//         parserInput.forget();
-//         return body;
-//     }
-//
-//     body = this.atomicCondition();
-//     if (!body) {
-//         parserInput.restore();
-//         return ;
-//     }
-//     if (!parserInput.$char(')')) {
-//         parserInput.restore("expected ')' got '" + parserInput.currentChar() + "'");
-//         return ;
-//     }
-//     parserInput.forget();
-//     return body;
-// },
   }
 
   ///
@@ -2750,56 +2691,8 @@ class Parsers {
     }
     return null;
 
-// 20180708
+// 3.5.3 20180708
 //  atomicCondition: function (needsParens) {
-//      var entities = this.entities, index = parserInput.i, a, b, c, op;
-//
-//      function cond() {
-//          return this.addition() || entities.keyword() || entities.quoted() || entities.mixinLookup();
-//      }
-//      cond = cond.bind(this);
-//
-//      a = cond();
-//      if (a) {
-//          if (parserInput.$char('>')) {
-//              if (parserInput.$char('=')) {
-//                  op = '>=';
-//              } else {
-//                  op = '>';
-//              }
-//          } else
-//          if (parserInput.$char('<')) {
-//              if (parserInput.$char('=')) {
-//                  op = '<=';
-//              } else {
-//                  op = '<';
-//              }
-//          } else
-//          if (parserInput.$char('=')) {
-//              if (parserInput.$char('>')) {
-//                  op = '=>';
-//              } else if (parserInput.$char('<')) {
-//                  op = '=<';
-//              } else {
-//                  op = '=';
-//              }
-//          }
-//          if (op) {
-//              b = cond();
-//              if (b) {
-//                  c = new(tree.Condition)(op, a, b, index, false);
-//              } else {
-//                  error('expected expression');
-//              }
-//          } else {
-//              c = new(tree.Condition)('=', a, new(tree.Keyword)('true'), index, false);
-//          }
-//          return c;
-//      }
-//  },
-
-// 3.5.0.beta.5 20180702
-//  atomicCondition: function () {
 //      var entities = this.entities, index = parserInput.i, a, b, c, op;
 //
 //      function cond() {

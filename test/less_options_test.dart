@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 
+import '../lib/src/data/math_constants.dart';
 import '../lib/src/less_options.dart';
 //import '../lib/src/logger.dart';
 
@@ -218,16 +219,28 @@ void lessOptionsTest() {
       expect(options.relativeUrls, true);
     });
 
-    test('-sm on', () {
-      result = options.parse(getArgument('-sm=on'));
+    test('-m=always', () {
+      result = options.parse(getArgument('-m=always'));
       expect(result, true);
-      expect(options.strictMath, true);
+      expect(options.math, MATH_ALWAYS);
     });
 
-    test('-strict-math off', () {
-      result = options.parse(getArgument('-strict-math=off'));
+    test('-m=parens-division', () {
+      result = options.parse(getArgument('-m=parens-division'));
       expect(result, true);
-      expect(options.strictMath, false);
+      expect(options.math, MATH_PARENS_DIVISION);
+    });
+
+    test('-m=parens-all', () {
+      result = options.parse(getArgument('-m=parens-all'));
+      expect(result, true);
+      expect(options.math, MATH_PARENS);
+    });
+
+    test('-m=strict-legacy', () {
+      result = options.parse(getArgument('-m=strict-legacy'));
+      expect(result, true);
+      expect(options.math, MATH_STRICT_LEGACY);
     });
 
     test('-su', () {
@@ -302,10 +315,10 @@ void lessOptionsTest() {
       expect(result, false);
     });
 
-    test('-strict-math bad', () {
-      result = options.parse(getArgument('-strict-math=bad'));
+    test('-math=bad', () {
+      result = options.parse(getArgument('-math=bad'));
       expect(result, false);
-      expect(options.strictMath, false);
+      expect(options.math, MATH_ALWAYS);
     });
 
     test('-strict-units bad', () {

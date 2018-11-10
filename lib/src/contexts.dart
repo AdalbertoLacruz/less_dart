@@ -1,7 +1,8 @@
-// source: less/contexts.js 3.0.4 20180625
+// source: less/contexts.js 3.5.3 20180707
 
 library contexts.less;
 
+import 'data/math_constants.dart';
 import 'file_info.dart';
 import 'functions/functions.dart';
 import 'import_manager.dart';
@@ -14,14 +15,12 @@ import 'utils.dart';
 class Contexts {
   // ***** From options
   ///
-  bool avoidDartOptimization; //Dart prune some code apparently not used
+  bool avoidDartOptimization; //Dart prune some code apparently, not used
 
   /// Parenthesis control in calc operations
   List<bool> calcStack;
 
-  ///
   /// option - whether to chunk input. more performant (?) but causes parse issues.
-  ///
   bool chunkInput;
 
   /// options.cleancss
@@ -30,27 +29,23 @@ class Contexts {
   /// options.color
   bool color = false;
 
-  ///
   /// option - whether to compress
-  ///
   bool compress = false;
 
   /// Map - filename to contents of all the files
   Map<String, String> contents = <String, String>{};
 
-  /// map - filename to lines at the begining of each file to ignore
+  /// Map - filename to lines at the begining of each file to ignore
   Map<String, int> contentsIgnoredChars = <String, int>{};
 
   /// Information about the current file.
   /// For error reporting and importing and making urls relative etc.
   FileInfo currentFileInfo;
 
-  /// for default() function evaluation
+  /// For default() function evaluation
   FunctionBase defaultFunc;
 
-  ///
   /// option - whether to dump line numbers
-  ///
   String dumpLineNumbers;
 
   /// What extension try append to import file ('.less')
@@ -68,40 +63,33 @@ class Contexts {
   ///
   String input; // for LessError
 
-  ///
   /// option - whether Inline JavaScript is enabled.
-  /// if undefined, defaults to false
-  ///
+  /// If undefined, defaults to false
   bool javascriptEnabled = true;
 
-  ///
-  /// whether to enforce IE compatibility (IE8 data-uri)
-  ///
+  /// Whether to enforce IE compatibility (IE8 data-uri)
   bool ieCompat = true;
 
-  ///
-  /// used to bubble up !important statements
-  /// 
+  /// Ued to bubble up !important statements
   List<ImportantRule> importantScope = <ImportantRule>[];
 
-  ///
-  /// whether we are currently importing multiple copies
-  ///
+  /// Whether we are currently importing multiple copies
   bool importMultiple = false;
 
-  /// for LessError
+  /// For LessError
   ImportManager imports;
 
   /// We are executing a calc operation
   bool inCalc = false;
 
-  ///
   /// option - whether to allow imports from insecure ssl hosts
-  ///
   bool insecure = false;
 
   /// Ruleset
   bool lastRule = false;
+
+  /// Whether math has to be within parenthesis
+  int math = MATH_ALWAYS;
 
   /// To let turn off math for calc()
   bool mathOn = true;
@@ -112,9 +100,7 @@ class Contexts {
   ///
   List<Media> mediaPath;
 
-  ///
   /// browser only - mime type for sheet import
-  ///
   String mime;
 
   /// options.numPrecision
@@ -123,83 +109,54 @@ class Contexts {
   /// Stack for evaluating expression in parenthesis flag
   List<bool> parensStack;
 
-  ///
   /// option - unmodified - paths to search for imports on (additional include paths)
-  ///
   List<String> paths;
 
-  ///
   /// Used as the plugin manager for the session
-  ///
   PluginManager pluginManager;
 
-  ///
   /// option & context - whether to process imports. if false then imports will not be imported.
   /// Used by the import manager to stop multiple import visitors being created.
-  ///
   bool processImports;
 
-  ///
   /// Used in FileManager.loadFileSync to read the file asBytes.
   /// Return the contents in FileLoaded.codeUnits
-  ///
   bool rawBuffer = false;
 
-  ///
   /// option - whether to adjust URL's to be relative
-  ///
   bool relativeUrls = false;
 
-  ///
   /// option - rootpath to append to URL's
-  ///
   String rootpath;
 
-  /// used in Ruleset
+  /// Used in Ruleset
   List<List<Selector>> selectors;
 
   // options.silent
   //bool silent;
 
-  ///
-  /// whether to output a source map
-  ///
+  /// Whether to output a source map
   bool sourceMap;
 
   /// options.strictImports
   bool strictImports = false;
 
-  ///
-  /// whether math has to be within parenthesis
-  ///
-  String strictMath = 'false'; // TODO
-
-  ///
-  /// whether units need to evaluate correctly
-  ///
+  /// Whether units need to evaluate correctly
   bool strictUnits = false;
 
-  ///
   /// option - whether to import synchronously
-  ///
   bool syncImport = false;
 
-  ///
-  /// for identation in Ruleset CSS generation
-  ///
+  /// For identation in Ruleset CSS generation
   int tabLevel = 0;
 
-  ///
-  /// whether to add args into url tokens
-  ///
+  /// Whether to add args into url tokens
   String urlArgs;
 
-  ///
-  /// browser only - whether to use the per file session cache
-  ///
+  /// Browser only - whether to use the per file session cache
   bool useFileCache;
 
-  /// options.verbose
+  // options.verbose
   //bool verbose;
 
   /// options.yuicompress - deprecated
@@ -321,7 +278,7 @@ class Contexts {
     final List<String> properties = <String>[
       'compress',       // from options
       'ieCompat',
-      'strictMath',
+      'math',
       'strictUnits',
       'numPrecision',
       'sourceMap',
@@ -398,23 +355,29 @@ class Contexts {
   ///
   bool isMathOn([String op]) {
     if (!mathOn) return false;
-    if (op == '/' && (strictMath != 'false') && (parensStack?.isEmpty ?? true)) return false; // TODO
-    if (strictMath == 'true') return parensStack?.isNotEmpty ?? false; // TODO
+
+    if (op == '/' && math != MATH_ALWAYS && (parensStack?.isEmpty ?? true)) {
+      return false;
+    }
+
+    if (math > MATH_PARENS_DIVISION) {
+      return parensStack?.isNotEmpty ?? false;
+    }
+
     return true;
 
-//3.0.4 20180625
-//  contexts.Eval.prototype.mathOn = true;
+// 3.5.3 20180707
 //  contexts.Eval.prototype.isMathOn = function (op) {
-//    if (!this.mathOn) {
-//        return false;
-//    }
-//    if (op === '/' && this.strictMath && (!this.parensStack || !this.parensStack.length)) {
-//        return false;
-//    }
-//    if (this.strictMath === true) {
-//        return this.parensStack && this.parensStack.length;
-//    }
-//    return true;
+//      if (!this.mathOn) {
+//          return false;
+//      }
+//      if (op === '/' && this.math !== MATH.ALWAYS && (!this.parensStack || !this.parensStack.length)) {
+//          return false;
+//      }
+//      if (this.math > MATH.PARENS_DIVISION) {
+//          return this.parensStack && this.parensStack.length;
+//      }
+//      return true;
 //  };
   }
 

@@ -1,4 +1,4 @@
-//source: less/tree/declaration.js 3.0.4 20180625
+//source: less/tree/declaration.js 3.5.3 20180707
 
 part of tree.less;
 
@@ -169,8 +169,8 @@ class Declaration extends Node implements MakeImportantNode {
   ///
   @override
   Declaration eval(Contexts context) {
-    bool strictMathBypass = false;
-    String prevMath;
+    bool mathBypass = false;
+    int prevMath;
     dynamic name = this.name; // String || List<Node> (Variable, Keyword, ...)
     bool variable = this.variable;
 
@@ -183,11 +183,11 @@ class Declaration extends Node implements MakeImportantNode {
       variable = false; // never treat expanded interpolation as new variable name
     }
 
-    // if (name == 'font' && !context.strictMath) {
-    if (name == 'font' && context.strictMath == 'false') { // TODO
-      strictMathBypass = true;
-      prevMath = context.strictMath;
-      context.strictMath = 'division'; // TODO
+    // todo remove when parens-division is default
+    if (name == 'font' && context.math == MATH_ALWAYS) {
+      mathBypass = true;
+      prevMath = context.math;
+      context.math = MATH_PARENS_DIVISION;
     }
     
     try {
@@ -220,30 +220,32 @@ class Declaration extends Node implements MakeImportantNode {
           index: index,
           filename: currentFileInfo.filename));
     } finally {
-      if (strictMathBypass) context.strictMath = prevMath; // TODO
+      if (mathBypass) context.math = prevMath;
     }
 
-//3.0.4 20180625
+// 3.5.3 20180707
 //  Declaration.prototype.eval = function (context) {
-//      var strictMathBypass = false, prevMath, name = this.name, evaldValue, variable = this.variable;
-//      if (typeof name !== "string") {
+//      var mathBypass = false, prevMath, name = this.name, evaldValue, variable = this.variable;
+//      if (typeof name !== 'string') {
 //          // expand 'primitive' name directly to get
 //          // things faster (~10% for benchmark.less):
 //          name = (name.length === 1) && (name[0] instanceof Keyword) ?
 //                  name[0].value : evalName(context, name);
 //          variable = false; // never treat expanded interpolation as new variable name
 //      }
-//      if (name === "font" && !context.strictMath) {
-//          strictMathBypass = true;
-//          prevMath = context.strictMath;
-//          context.strictMath = 'division';
+//
+//      // @todo remove when parens-division is default
+//      if (name === 'font' && context.math === MATH.ALWAYS) {
+//          mathBypass = true;
+//          prevMath = context.math;
+//          context.math = MATH.PARENS_DIVISION;
 //      }
 //      try {
 //          context.importantScope.push({});
 //          evaldValue = this.value.eval(context);
 //
-//          if (!this.variable && evaldValue.type === "DetachedRuleset") {
-//              throw { message: "Rulesets cannot be evaluated on a property.",
+//          if (!this.variable && evaldValue.type === 'DetachedRuleset') {
+//              throw { message: 'Rulesets cannot be evaluated on a property.',
 //                  index: this.getIndex(), filename: this.fileInfo().filename };
 //          }
 //          var important = this.important,
@@ -267,8 +269,8 @@ class Declaration extends Node implements MakeImportantNode {
 //          throw e;
 //      }
 //      finally {
-//          if (strictMathBypass) {
-//              context.strictMath = prevMath;
+//          if (mathBypass) {
+//              context.math = prevMath;
 //          }
 //      }
 //  };

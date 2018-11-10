@@ -1,4 +1,4 @@
-//source: less/tree/expression.js 3.5.0.beta 20180627
+//source: less/tree/expression.js 3.5.3 20180707
 
 part of tree.less;
 
@@ -50,7 +50,8 @@ class Expression extends Node {
   @override
   Node eval(Contexts context) {
     bool        doubleParen = false;
-    final bool  inParenthesis = parens && (context.strictMath != 'true' || !parensInOp);
+    final bool  inParenthesis = parens &&
+        (context.math != MATH_STRICT_LEGACY || !parensInOp);
     final bool  mathOn = context.isMathOn();
     Node        returnValue;
 
@@ -69,16 +70,17 @@ class Expression extends Node {
       returnValue = this;
     }
     if (inParenthesis) context.outOfParenthesis();
-    if (parens && parensInOp && !mathOn && !doubleParen) {
+    if (parens && parensInOp && !mathOn && !doubleParen && returnValue is! Dimension) {
       returnValue = new Paren(returnValue);
     }
     return returnValue;
 
-// 3.5.0.beta 20180627
+// 3.5.3 20180707
 //  Expression.prototype.eval = function (context) {
 //      var returnValue,
 //          mathOn = context.isMathOn(),
-//          inParenthesis = this.parens && !this.parensInOp,
+//          inParenthesis = this.parens &&
+//              (context.math !== MATH.STRICT_LEGACY || !this.parensInOp),
 //          doubleParen = false;
 //      if (inParenthesis) {
 //          context.inParenthesis();
@@ -101,7 +103,8 @@ class Expression extends Node {
 //      if (inParenthesis) {
 //          context.outOfParenthesis();
 //      }
-//      if (this.parens && this.parensInOp && !mathOn && !doubleParen) {
+//      if (this.parens && this.parensInOp && !mathOn && !doubleParen
+//          && (!(returnValue instanceof Dimension))) {
 //          returnValue = new Paren(returnValue);
 //      }
 //      return returnValue;

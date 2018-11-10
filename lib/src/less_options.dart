@@ -1,4 +1,4 @@
-// source: bin/lessc.js less/default-options.js 3.0.0 20170111
+// source: bin/lessc.js less/default-options.js 3.5.3 20180708
 
 library lessOptions.less;
 
@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'cleancss_options.dart';
+import 'data/math_constants.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
 import 'logger.dart';
@@ -96,6 +97,8 @@ class LessOptions {
   ///
   int                       logLevel = logLevelWarn;
 
+  /// How to process math
+  int                       math = MATH_ALWAYS;
 
   /// max-line-len - deprecated
   int get maxLineLen => _maxLineLen;
@@ -156,15 +159,6 @@ class LessOptions {
   /// Forces evaluation of imports
   ///
   bool                      strictImports = false;
-
-  /// Without this option on, Less will try and process all math in your css
-//  bool get strictMath => _strictMath;
-//  set strictMath(bool value){
-//    _strictMath = (value == null) ? false : value;
-//  }
-//  bool                      _strictMath = false;
-
-  String                    strictMath = 'false';
 
   /// Without this option, less attempts to guess at the output unit when it does maths.
   bool get strictUnits => _strictUnits;
@@ -367,25 +361,35 @@ class LessOptions {
         break;
       case 'sm':
       case 'strict-math':
+        logger.warn('--strict-math is deprecated. Use --math=strict');
         if (checkArgFunc(command, arg[2])) {
-          strictMath = arg[2].toLowerCase() == 'division'
-              ? 'division'
-              : checkBooleanArg(arg[2])?.toString();
-          if (strictMath == null) return setParseError();
-
-//          if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
-        } else {
-          return setParseError(command);
+          if (checkBooleanArg(arg[2])) math = MATH_STRICT_LEGACY;
         }
         break;
-
-//      case 'strict-math':
-//        if (checkArgFunc(command, arg[2])) {
-//          if ((strictMath = checkBooleanArg(arg[2])) == null) return setParseError();
-//        } else {
-//          return setParseError(command);
-//        }
-//        break;
+      case 'm':
+      case 'math':
+        if (checkArgFunc(command, arg[2])) {
+          switch (arg[2].toLowerCase()) {
+            case 'always':
+              math = MATH_ALWAYS;
+              break;
+            case 'parens-division':
+              math = MATH_PARENS_DIVISION;
+              break;
+            case 'strict':
+            case 'parens':
+              math = MATH_PARENS;
+              break;
+            case 'strict-legacy':
+              math = MATH_STRICT_LEGACY;
+              break;
+            default:
+              return setParseError();
+          }
+        } else {
+          return setParseError();
+        }
+        break;
       case 'su':
       case 'strict-units':
         if (checkArgFunc(command, arg[2])) {
@@ -635,12 +639,12 @@ class LessOptions {
         ..compress         = compress
         ..cleancssOptions  = cleancssOptions
         ..dumpLineNumbers  = dumpLineNumbers
+        ..math             = math
         ..sourceMap        = (sourceMap is bool) ? sourceMap : (sourceMap as String).isNotEmpty
         ..sourceMapOptions = sourceMapOptions
         ..maxLineLen       = maxLineLen
         ..pluginManager    = pluginManager
         ..paths            = paths
-        ..strictMath       = strictMath
         ..strictUnits      = strictUnits
         ..numPrecision     = numPrecision
         ..urlArgs          = urlArgs

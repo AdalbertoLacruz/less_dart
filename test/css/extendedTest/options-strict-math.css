@@ -21,7 +21,7 @@
 }
 .negative {
   neg-var: -1;
-  neg-var-paren: -(1);
+  neg-var-paren: -1;
 }
 .nested-parens {
   width: 2 * (4 * (2 + (1 + 6))) - 1;

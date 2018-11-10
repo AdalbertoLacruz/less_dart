@@ -1,4 +1,4 @@
-//Less 2.6.1 20160315
+//Less 3.5.3 20180707
 // use:
 // cmd> pub run test test/batch_test.dart
 //
@@ -41,6 +41,9 @@ Stopwatch timeInProcess;
 /// test directory
 String dirPath = 'test/';
 
+/// external tests import urls with http://...
+bool runExternal = false;
+
 /// runOnly = null; runs all test.
 /// runOnly = <int>[1, 2]; only run test 1 and 2
 List<int> runOnly;
@@ -50,14 +53,16 @@ List<int> runOnly;
 int testNumResults;
 
 ///
-bool useExtendedTest = true;
+bool useExtendedTest = false;
 
 void main() {
   config = configFill();
 
   group('simple', () {
     for (int id in config.keys) {
-      if (!config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
+      if (!config[id].isExtendedText &&
+          (runOnly?.contains(id) ?? true) &&
+          (runExternal || !config[id].isExternal)) {
         declareTest(id);
       }
     }
@@ -117,7 +122,7 @@ Map<int, Config> configFill() => <int, Config>{
     45: def('import-reference-issues'),
     //xx: def('javascript'),
     50: def('lazy-eval'),
-    51: def('media', options: <String>['--strict-math=off']), // also works with 'on'
+    51: def('media'),
     52: def('merge'),
     60: def('mixins'),
     61: def('mixins-closure'),
@@ -160,15 +165,23 @@ Map<int, Config> configFill() => <int, Config>{
     93: def('variables'),
     94: def('variables-in-at-rules'),
     95: def('whitespace'),
-   100: def('strict-math/css', options: <String>['--strict-math=on']),
-   101: def('strict-math/mixins-args', options: <String>['--strict-math=on']),
-   102: def('strict-math/parens', options: <String>['--strict-math=on']),
-   103: def('strict-math-division/new-division', options: <String>['--strict-math=division']),
-   110: def('strict-units/strict-units', options: <String>['--strict-math=on', '--strict-units=on']),
+   100: def('math/parens-division/media-math', options: <String>['--math=parens-division']),
+   101: def('math/parens-division/mixins-args', options: <String>['--math=parens-division']),
+   102: def('math/parens-division/new-division', options: <String>['--math=parens-division']),
+   103: def('math/parens-division/parens', options: <String>['--math=parens-division']),
+   105: def('math/strict/css', options: <String>['--math=parens']),
+   106: def('math/strict/media-math', options: <String>['--math=parens']),
+   107: def('math/strict/mixins-args', options: <String>['--math=parens']),
+   108: def('math/strict/parens', options: <String>['--math=parens']),
+   110: def('math/strict-legacy/css', options: <String>['--math=strict-legacy']),
+   111: def('math/strict-legacy/media-math', options: <String>['--math=strict-legacy']),
+   112: def('math/strict-legacy/mixins-args', options: <String>['--math=strict-legacy']),
+   113: def('math/strict-legacy/parens', options: <String>['--math=strict-legacy']),
+   115: def('strict-units/strict-units', options: <String>['--math=strict-legacy', '--strict-units=on']),
    120: def('no-strict-math/no-sm-operations'),
    121: def('no-strict-math/mixins-guards'),
     // compression
-   130: def('compression/compression', options: <String>['-x']),
+   135: def('compression/compression', options: <String>['-x']),
 
     // globalVars
    140: def('globalVars/simple', options: <String>[
@@ -326,42 +339,43 @@ Map<int, Config> configFill() => <int, Config>{
     229: def('errors/mixin-not-matched', isErrorTest: true),
     230: def('errors/mixin-not-matched2', isErrorTest: true),
     231: def('errors/mixin-not-visible-in-scope-1', isErrorTest: true),
-    232: def('errors/mixins-guards-default-func-1', isErrorTest: true),
-    233: def('errors/mixins-guards-default-func-2', isErrorTest: true),
-    234: def('errors/mixins-guards-default-func-3', isErrorTest: true),
-    235: def('errors/multiple-guards-on-css-selectors', isErrorTest: true),
-    236: def('errors/multiple-guards-on-css-selectors2', isErrorTest: true),
-    237: def('errors/multiply-mixed-units', isErrorTest: true),
-    238: def('errors/namespacing-2', isErrorTest: true),
-    239: def('errors/namespacing-3', isErrorTest: true),
-    240: def('errors/namespacing-4', isErrorTest: true),
-    241: def('errors/parens-error-1', isErrorTest: true),
-    242: def('errors/parens-error-2', isErrorTest: true),
-    243: def('errors/parens-error-3', isErrorTest: true),
-    244: def('errors/parse-error-curly-bracket', isErrorTest: true),
-    245: def('errors/parse-error-media-no-block-1', isErrorTest: true),
-    246: def('errors/parse-error-media-no-block-2', isErrorTest: true),
-    247: def('errors/parse-error-media-no-block-3', isErrorTest: true),
-    248: def('errors/parse-error-missing-bracket', isErrorTest: true),
-    249: def('errors/parse-error-missing-parens', isErrorTest: true),
-    250: def('errors/parse-error-with-import', isErrorTest: true),
-    251: def('errors/percentage-missing-space', isErrorTest: true),
-    252: def('errors/percentage-non-number-argument', isErrorTest: true),
-    253: def('errors/property-asterisk-only-name', isErrorTest: true),
-    254: def('errors/property-ie5-hack', isErrorTest: true),
-    255: def('errors/property-in-root', isErrorTest: true),
-    256: def('errors/property-in-root2', isErrorTest: true),
-    257: def('errors/property-in-root3', isErrorTest: true),
-    258: def('errors/property-interp-not-defined', isErrorTest: true),
-    259: def('errors/recursive-variable', isErrorTest: true),
-    260: def('errors/single-character', isErrorTest: true),
-    261: def('errors/svg-gradient1', isErrorTest: true),
-    262: def('errors/svg-gradient2', isErrorTest: true),
-    263: def('errors/svg-gradient3', isErrorTest: true),
-    264: def('errors/svg-gradient4', isErrorTest: true),
-    265: def('errors/svg-gradient5', isErrorTest: true),
-    266: def('errors/svg-gradient6', isErrorTest: true),
-    267: def('errors/unit-function', isErrorTest: true),
+    232: def('errors/mixins-guards-cond-expected', isErrorTest: true),
+    233: def('errors/mixins-guards-default-func-1', isErrorTest: true),
+    234: def('errors/mixins-guards-default-func-2', isErrorTest: true),
+    235: def('errors/mixins-guards-default-func-3', isErrorTest: true),
+    236: def('errors/multiple-guards-on-css-selectors', isErrorTest: true),
+    237: def('errors/multiple-guards-on-css-selectors2', isErrorTest: true),
+    238: def('errors/multiply-mixed-units', isErrorTest: true),
+    239: def('errors/namespacing-2', isErrorTest: true),
+    240: def('errors/namespacing-3', isErrorTest: true),
+    241: def('errors/namespacing-4', isErrorTest: true),
+    242: def('errors/parens-error-1', isErrorTest: true),
+    243: def('errors/parens-error-2', isErrorTest: true),
+    244: def('errors/parens-error-3', isErrorTest: true),
+    245: def('errors/parse-error-curly-bracket', isErrorTest: true),
+    246: def('errors/parse-error-media-no-block-1', isErrorTest: true),
+    247: def('errors/parse-error-media-no-block-2', isErrorTest: true),
+    248: def('errors/parse-error-media-no-block-3', isErrorTest: true),
+    249: def('errors/parse-error-missing-bracket', isErrorTest: true),
+    250: def('errors/parse-error-missing-parens', isErrorTest: true),
+    251: def('errors/parse-error-with-import', isErrorTest: true),
+    252: def('errors/percentage-missing-space', isErrorTest: true),
+    253: def('errors/percentage-non-number-argument', isErrorTest: true),
+    254: def('errors/property-asterisk-only-name', isErrorTest: true),
+    255: def('errors/property-ie5-hack', isErrorTest: true),
+    256: def('errors/property-in-root', isErrorTest: true),
+    257: def('errors/property-in-root2', isErrorTest: true),
+    258: def('errors/property-in-root3', isErrorTest: true),
+    259: def('errors/property-interp-not-defined', isErrorTest: true),
+    260: def('errors/recursive-variable', isErrorTest: true),
+    261: def('errors/single-character', isErrorTest: true),
+    262: def('errors/svg-gradient1', isErrorTest: true),
+    263: def('errors/svg-gradient2', isErrorTest: true),
+    264: def('errors/svg-gradient3', isErrorTest: true),
+    265: def('errors/svg-gradient4', isErrorTest: true),
+    266: def('errors/svg-gradient5', isErrorTest: true),
+    267: def('errors/svg-gradient6', isErrorTest: true),
+    268: def('errors/unit-function', isErrorTest: true),
     //
     270: def('errors/functions-1', isErrorTest: true,
           modifyOptions: (LessOptions options) {
@@ -506,13 +520,16 @@ Map<int, Config> configFill() => <int, Config>{
     411: def('css-3',
         isCleancssTest: true), // affected by parseUntil/permissiveValue quote
     412: def('css-clean',
-        isCleancssTest: true)
+        isCleancssTest: true),
+    500: def('3rd-party/bootstrap', isExternal: true)
 };
 
 ///
-Config def(String name, {List<String> options, String cssName, List<Map<String, String>> replace,
-  bool isCleancssTest: false, bool isErrorTest: false, bool isExtendedTest: false, bool isReplaceSource: false,
-  bool isSourcemapTest: false, Function modifyOptions}) {
+Config def(String name, {List<String> options, String cssName,
+  List<Map<String, String>> replace, bool isCleancssTest: false,
+  bool isErrorTest: false, bool isExtendedTest: false, bool isExternal: false,
+  bool isReplaceSource: false, bool isSourcemapTest: false,
+  Function modifyOptions}) {
 
   bool                      _isExtendedTest = isExtendedTest;
   List<String>              _options = options;
@@ -525,7 +542,7 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
     baseLess = '${dirPath}webSourceMap';
     baseCss  = '${dirPath}webSourceMap';
   } else if (isErrorTest) {
-    _options ??= <String>['--strict-math=on', '--strict-units=on'];
+    _options ??= <String>['--math=strict-legacy', '--strict-units=on'];
     _replace ??= <Map<String, String>>[
       // ignore: prefer_interpolation_to_compose_strings
       <String, String>{'from': '{path}', 'to': path.normalize(dirPath + 'less/errors') + path.separator},
@@ -547,6 +564,7 @@ Config def(String name, {List<String> options, String cssName, List<Map<String, 
       ..replace = _replace
       ..isErrorTest = isErrorTest
       ..isExtendedText = _isExtendedTest
+      ..isExternal = isExternal
       ..isReplaceSource = isReplaceSource
       ..isSourcemapTest = isSourcemapTest
       ..modifyOptions = modifyOptions;
@@ -691,6 +709,8 @@ class Config {
   bool isErrorTest;
   ///
   bool isExtendedText;
+  ///
+  bool isExternal;
   ///
   bool isReplaceSource;
   ///

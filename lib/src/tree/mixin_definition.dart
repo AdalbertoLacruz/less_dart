@@ -1,4 +1,4 @@
-//source: tree/mixin-definition.js 3.5.0.beta.4 20180630
+//source: tree/mixin-definition.js 3.5.3 20180708
 
 part of tree.less;
 
@@ -39,7 +39,7 @@ class MixinDefinition extends Node
   ///
   //index, currentFileInfo not in original. See order when calling with frames.
   MixinDefinition(
-      String this.name,
+      String name,
       List<MixinArgs> this.params,
       List<Node> this.rules,
       Node this.condition,
@@ -49,6 +49,7 @@ class MixinDefinition extends Node
       this.frames,
       VisibilityInfo visibilityInfo}) {
 
+    this.name = name ??= 'anonymous mixin';
     evalFirst = true;
     isRuleset = true;
     // ignore: prefer_initializing_formals
@@ -80,9 +81,9 @@ class MixinDefinition extends Node
 
     //this._lookups = {}; //inside VariableMixin
 
-// 3.5.0.beta 20180625
+// 3.5.3 20180708
 //  var Definition = function (name, params, rules, condition, variadic, frames, visibilityInfo) {
-//      this.name = name;
+//      this.name = name || 'anonymous mixin';
 //      this.selectors = [new Selector([new Element(null, name, false, this._index, this._fileInfo)])];
 //      this.params = params;
 //      this.condition = condition;

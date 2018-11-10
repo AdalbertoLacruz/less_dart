@@ -14,14 +14,11 @@ each(@selectors, {
   });
 
   // nested each
-  each(10px 15px, 20px 25px; { 
-    @alpha: a b c d;
-    @i: (@index - 1);
-
-    each(@value; {
-      @a: extract(@alpha, (@i * 2 + @key));
-      nest-@{a}-@{index}: @value @key;
-    });
+    each(10px 15px, 20px 25px; {
+      // demonstrates nesting of each()
+      each(@value; #(@v, @k, @i) {
+        nest-@{i}-@{index}: @v @k;
+      });
   });
 
   // vector math
@@ -40,15 +37,14 @@ each(@selectors, {
     @{key}: @value;
   });
 }
-
 .set-2() {
   one: blue;
   two: green;
   three: red;
 }
 .set-2 {
-  each(.set-2(), {
-    @{key}: @value;
+  each(.set-2(), .(@v, @k, @i) {
+    @{k}-@{i}: @v;
   });
 }
 
@@ -66,4 +62,11 @@ each(@selectors, {
   each(1 2 3 4, {
     .pick(@value);
   });
+}
+
+@list: a b c d;
+.box {
+  each(@list, {
+    -less-log: extract(@list, @index);
+  })
 }

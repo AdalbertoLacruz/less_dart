@@ -1,4 +1,4 @@
-// source: lib/less/functions/list.js 3.5.0.beta.6 20180704
+// source: lib/less/functions/list.js 3.5.3 20180708
 
 part of functions.less;
 
@@ -124,7 +124,7 @@ class ListFunctions extends FunctionBase {
     } else if (list.value is List<Node>) {
       iterator = list.value;
     } else if (list.value is Node) {
-      iterator = <Node>[list.value]; // ??
+      iterator = <Node>[list.value]; // Nodeset??
     } else {
       iterator = <Node>[list];
     }
@@ -133,21 +133,19 @@ class ListFunctions extends FunctionBase {
     String keyName = '@key';
     String indexName = '@index';
 
-    if (rs is MixinDefinition && rs.params != null) { // todo debug
+    if (rs is MixinDefinition && rs.params != null) {
       final MixinDefinition md = rs;
       valueName = md.params.isNotEmpty ? md.params[0].name : null;
       keyName = md.params.length > 1 ? md.params[1].name : null;
       indexName = md.params.length > 2 ? md.params[2].name : null;
-//      _rs = _rs.rules;
-//      ruleset = rs;
-      return null;  // todo ruleset = ...
+      ruleset = new Ruleset(null, md.rules);
     } else if (rs is DetachedRuleset) {
       ruleset = rs.ruleset;
     } else {
-      return null; // Something goes bad
+      return null; // Something goes bad - function not processed
     }
 
-    iterator.forEach((Node item) { // item is Node?
+    iterator.forEach((Node item) {
       i = i + 1;
       Node key;
       Node value;
@@ -181,7 +179,7 @@ class ListFunctions extends FunctionBase {
       rules, strictImports: ruleset.strictImports, visibilityInfo: ruleset.visibilityInfo())
       .eval(context);
 
-// 20180708
+// 3.5.3 20180708
 //  each: function(list, rs) {
 //      var i = 0, rules = [], newRules, iterator;
 //
@@ -239,37 +237,6 @@ class ListFunctions extends FunctionBase {
 //                  key,
 //                  false, false, this.index, this.currentFileInfo));
 //          }
-//
-//          rules.push(new Ruleset([ new(Selector)([ new Element("", '&') ]) ],
-//              newRules,
-//              rs.strictImports,
-//              rs.visibilityInfo()
-//          ));
-//      });
-//
-//      return new Ruleset([ new(Selector)([ new Element("", '&') ]) ],
-//              rules,
-//              rs.strictImports,
-//              rs.visibilityInfo()
-//          ).eval(this.context);
-//
-//  }
-
-// 3.5.0.beta.6 20180704
-//  each: function(list, ruleset) {
-//      var i = 0, rules = [], rs, newRules;
-//
-//      rs = ruleset.ruleset;
-//
-//      list.value.forEach(function(item) {
-//          i = i + 1;
-//          newRules = rs.rules.slice(0);
-//          newRules.push(new Rule(ruleset && vars.value[1] ? '@' + vars.value[1].value : '@item',
-//              item,
-//              false, false, this.index, this.currentFileInfo));
-//          newRules.push(new Rule(ruleset && vars.value[0] ? '@' + vars.value[0].value : '@index',
-//              new Dimension(i),
-//              false, false, this.index, this.currentFileInfo));
 //
 //          rules.push(new Ruleset([ new(Selector)([ new Element("", '&') ]) ],
 //              newRules,
