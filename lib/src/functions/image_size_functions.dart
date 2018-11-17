@@ -1,4 +1,4 @@
-// source: lib/less-node/image-size.js 2.5.0
+// source: lib/less-node/image-size.js 3.7.1 20180718
 
 part of functions.less;
 
@@ -13,7 +13,7 @@ class ImageSizeFunctions extends FunctionBase {
   @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
     String        filePath = filePathNode.value;
-    final String  currentDirectory = currentFileInfo.relativeUrls
+    final String  currentDirectory = currentFileInfo.rewriteUrls > RewriteUrlsConstants.off
         ? currentFileInfo.currentDirectory
         : currentFileInfo.entryPath;
 
@@ -32,11 +32,11 @@ class ImageSizeFunctions extends FunctionBase {
 
     return imageSizeProcessor.sizeOf(fileSync.filename);
 
-//2.4.0 20150329
+// 3.7.1 20180718
 //  function imageSize(functionContext, filePathNode) {
 //      var filePath = filePathNode.value;
 //      var currentFileInfo = functionContext.currentFileInfo;
-//      var currentDirectory = currentFileInfo.relativeUrls ?
+//      var currentDirectory = currentFileInfo.rewriteUrls ?
 //      currentFileInfo.currentDirectory : currentFileInfo.entryPath;
 //
 //      var fragmentStart = filePath.indexOf('#');
@@ -50,8 +50,8 @@ class ImageSizeFunctions extends FunctionBase {
 //
 //      if (!fileManager) {
 //          throw {
-//              type: "File",
-//              message: "Can not set up FileManager for " + filePathNode
+//              type: 'File',
+//              message: 'Can not set up FileManager for ' + filePathNode
 //          };
 //      }
 //

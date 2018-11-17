@@ -1,8 +1,8 @@
-// source: less/contexts.js 3.5.3 20180707
+// source: less/contexts.js 3.7.1 20180718
 
 library contexts.less;
 
-import 'data/math_constants.dart';
+import 'data/constants.dart';
 import 'file_info.dart';
 import 'functions/functions.dart';
 import 'import_manager.dart';
@@ -89,7 +89,7 @@ class Contexts {
   bool lastRule = false;
 
   /// Whether math has to be within parenthesis
-  int math = MATH_ALWAYS;
+  int math = MathConstants.always;
 
   /// To let turn off math for calc()
   bool mathOn = true;
@@ -124,7 +124,7 @@ class Contexts {
   bool rawBuffer = false;
 
   /// option - whether to adjust URL's to be relative
-  bool relativeUrls = false;
+  int rewriteUrls = RewriteUrlsConstants.off;
 
   /// option - rootpath to append to URL's
   String rootpath;
@@ -213,7 +213,7 @@ class Contexts {
 
       currentFileInfo = new FileInfo()
             ..filename = filename
-            ..relativeUrls = relativeUrls
+            ..rewriteUrls = rewriteUrls
             ..rootpath = options.rootpath ?? ''
             ..currentDirectory = entryPath
             ..entryPath = entryPath
@@ -244,7 +244,7 @@ class Contexts {
 
     final List<String> properties = <String>[
       'paths',          // from options
-      'relativeUrls',
+      'rewriteUrls',
       'rootpath',
       'strictImports',
       'insecure',
@@ -288,6 +288,7 @@ class Contexts {
       'dumpLineNumbers',
       'pluginManager',
       'paths',
+      'rewriteUrls',
       'cleanCss',
       'defaultFunc',     // from Contexts
       'importantScope'
@@ -356,25 +357,25 @@ class Contexts {
   bool isMathOn([String op]) {
     if (!mathOn) return false;
 
-    if (op == '/' && math != MATH_ALWAYS && (parensStack?.isEmpty ?? true)) {
+    if (op == '/' && math != MathConstants.always && (parensStack?.isEmpty ?? true)) {
       return false;
     }
 
-    if (math > MATH_PARENS_DIVISION) {
+    if (math > MathConstants.parensDivision) {
       return parensStack?.isNotEmpty ?? false;
     }
 
     return true;
 
-// 3.5.3 20180707
+// 3.7.1 20180718
 //  contexts.Eval.prototype.isMathOn = function (op) {
 //      if (!this.mathOn) {
 //          return false;
 //      }
-//      if (op === '/' && this.math !== MATH.ALWAYS && (!this.parensStack || !this.parensStack.length)) {
+//      if (op === '/' && this.math !== Constants.Math.ALWAYS && (!this.parensStack || !this.parensStack.length)) {
 //          return false;
 //      }
-//      if (this.math > MATH.PARENS_DIVISION) {
+//      if (this.math > Constants.Math.PARENS_DIVISION) {
 //          return this.parensStack && this.parensStack.length;
 //      }
 //      return true;
@@ -382,13 +383,49 @@ class Contexts {
   }
 
   ///
-  bool isPathRelative(String path) {
-    final RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
-    return !re.hasMatch(path);
+  /// True if path is local or relative
+  ///
+  bool pathRequiresRewrite(String path) => rewriteUrls == RewriteUrlsConstants.local
+      ? isPathLocalRelative(path)
+      : isPathRelative(path);
 
-//2.4.0
-//  contexts.Eval.prototype.isPathRelative = function (path) {
-//      return !/^(?:[a-z-]+:|\/|#)/i.test(path);
+// 3.7.1 20180718
+//  contexts.Eval.prototype.pathRequiresRewrite = function (path) {
+//      var isRelative = this.rewriteUrls === Constants.RewriteUrls.LOCAL ? isPathLocalRelative : isPathRelative;
+//
+//      return isRelative(path);
+//  };
+
+  ///
+  String rewritePath(String path, String rootpath) {
+    final String _rootpath = rootpath ?? '';
+    String newPath = normalizePath(_rootpath + path);
+
+    // If a path was explicit relative and the rootpath was not an absolute path
+    // we must ensure that the new path is also explicit relative.
+    if (isPathLocalRelative(path) && isPathRelative(_rootpath) &&
+      !isPathLocalRelative(newPath)) {
+      newPath = './$newPath';
+    }
+
+    return newPath;
+
+// 3.7.1 20180718
+//  contexts.Eval.prototype.rewritePath = function (path, rootpath) {
+//      var newPath;
+//
+//      rootpath = rootpath || '';
+//      newPath = this.normalizePath(rootpath + path);
+//
+//      // If a path was explicit relative and the rootpath was not an absolute path
+//      // we must ensure that the new path is also explicit relative.
+//      if (isPathLocalRelative(path) &&
+//          isPathRelative(rootpath) &&
+//          isPathLocalRelative(newPath) === false) {
+//          newPath = './' + newPath;
+//      }
+//
+//      return newPath;
 //  };
   }
 
@@ -419,32 +456,53 @@ class Contexts {
 
     return pathList.join('/');
 
-//2.2.0
-//  contexts.Eval.prototype.normalizePath = function( path ) {
+// 3.7.1 20180718
+//  contexts.Eval.prototype.normalizePath = function (path) {
 //      var
-//        segments = path.split("/").reverse(),
-//        segment;
+//          segments = path.split('/').reverse(),
+//          segment;
 //
 //      path = [];
-//      while (segments.length !== 0 ) {
+//      while (segments.length !== 0) {
 //          segment = segments.pop();
-//          switch( segment ) {
-//              case ".":
+//          switch ( segment ) {
+//              case '.':
 //                  break;
-//              case "..":
-//                  if ((path.length === 0) || (path[path.length - 1] === "..")) {
+//              case '..':
+//                  if ((path.length === 0) || (path[path.length - 1] === '..')) {
 //                      path.push( segment );
 //                  } else {
 //                      path.pop();
 //                  }
 //                  break;
 //              default:
-//                  path.push( segment );
+//                  path.push(segment);
 //                  break;
 //          }
 //      }
 //
-//      return path.join("/");
+//      return path.join('/');
 //  };
   }
+
+  ///
+  bool isPathRelative(String path) {
+    final RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
+    return !re.hasMatch(path);
+
+// 3.7.1 20180718
+//  function isPathRelative(path) {
+//      return !/^(?:[a-z-]+:|\/|#)/i.test(path);
+//  }
+  }
+
+  ///
+  /// true if path is local  ./  ....
+  ///
+  bool isPathLocalRelative(String path) => path.startsWith('.');
+
+// 3.7.1 20180718
+//  function isPathLocalRelative(path) {
+//      return path.charAt(0) === '.';
+//  }
 }

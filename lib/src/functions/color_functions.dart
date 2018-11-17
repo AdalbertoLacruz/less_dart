@@ -1,4 +1,4 @@
-// source: lib/less/functions/color.js 2.5.0
+// source: lib/less/functions/color.js 3.8.0 20180729
 
 part of functions.less;
 
@@ -15,12 +15,36 @@ class ColorFunctions extends FunctionBase {
 //  function clamp(val) {
 //      return Math.min(1, Math.max(0, val));
 //  }
+  static final RegExp _hslaRegExp = new RegExp(r'(rgb|hsl)', caseSensitive: true);
+  ///
+  /// Returns a color from hsl, keeping the original color space
+  ///
+  @defineMethodSkip
+  Color hslaColorSpace(Color origColor, HSLType hsl) {
+    final Color color = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    if (color != null) {
+//      color.value = ((origColor?.value != null ?? false) && _hslaRegExp.hasMatch(origColor.value))
+      color.value = _hslaRegExp.hasMatch(origColor?.value ?? '') // todo could be null?
+          ? origColor.value
+          : 'rgb';
+      return color;
+    }
+    return null;
 
-  //hsla(color) {
-//  function hsla(color) {
-//      return colorFunctions.hsla(color.h, color.s, color.l, color.a);
+// 3.8.0 20180729
+//  function hsla(origColor, hsl) {
+//      var color = colorFunctions.hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+//      if (color) {
+//          if (origColor.value &&
+//              /^(rgb|hsl)/.test(origColor.value)) {
+//              color.value = origColor.value;
+//          } else {
+//              color.value = 'rgb';
+//          }
+//          return color;
+//      }
 //  }
-  //}
+  }
 
   ///
   /// [n] num | Node<Dimension> | error anything else
@@ -84,7 +108,21 @@ class ColorFunctions extends FunctionBase {
   /// Example: rgb(90, 129, 32)
   ///   Output: #5a8120
   ///
-  Color rgb(dynamic r, dynamic g, dynamic b) => rgba(r, g, b, 1.0);
+  Color rgb(dynamic r, [dynamic g, dynamic b]) {
+    final Color color = rgba(r, g, b, 1.0);
+    return (color != null)
+        ? (color..value = 'rgb')
+        : null;
+
+// 3.8.0 20180729
+//  rgb: function (r, g, b) {
+//      var color = colorFunctions.rgba(r, g, b, 1.0);
+//      if (color) {
+//          color.value = 'rgb';
+//          return color;
+//      }
+//  },
+  }
 
   ///
   /// Creates a transparent color object from decimal red, green, blue and alpha (RGBA) values.
@@ -98,16 +136,37 @@ class ColorFunctions extends FunctionBase {
   /// Example: rgba(90, 129, 32, 0.5)
   ///   Output: rgba(90, 129, 32, 0.5)
   ///
-  // r, g, b, a are (Dimension | num)
-  Color rgba(dynamic r, dynamic g, dynamic b, dynamic a) {
-    final List<num> rgb = <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
-    return new Color.fromList(rgb, number(a));
+  // r, g, b, a are (Dimension | num). r could be Color.
+  Color rgba(dynamic r, [dynamic g, dynamic b, dynamic a]) {
+    try {
+      if (r is Color) {
+        final num alpha = g != null ? number(g) : r.alpha;
+        return new Color.fromList(r.rgb, alpha, 'rgba');
+      }
 
-//    rgba: function (r, g, b, a) {
-//        var rgb = [r, g, b].map(function (c) { return scaled(c, 255); });
-//        a = number(a);
-//        return new Color(rgb, a);
-//    }
+      final List<num> rgb = <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
+      return new Color.fromList(rgb, number(a), 'rgba');
+    } catch (e) {
+      return null;
+    }
+
+// 3.8.0 20180729
+//  rgba: function (r, g, b, a) {
+//      try {
+//          if (r instanceof Color) {
+//              if (g) {
+//                  a = number(g);
+//              } else {
+//                  a = r.alpha;
+//              }
+//              return new Color(r.rgb, a, 'rgba');
+//          }
+//          var rgb = [r, g, b].map(function (c) { return scaled(c, 255); });
+//          a = number(a);
+//          return new Color(rgb, a, 'rgba');
+//      }
+//      catch (e) {}
+//  },
   }
 
   ///
@@ -121,7 +180,21 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsl(90, 100%, 50%)
   ///   Output: #80ff00
   ///
-  Color hsl(dynamic h, dynamic s, dynamic l) => hsla(h, s, l, 1.0);
+  Color hsl(dynamic h, [dynamic s, dynamic l]) {
+    final Color color = hsla(h, s, l, 1.0);
+    return (color != null)
+        ? (color..value = 'hsl')
+        : null;
+
+// 3.8.0 20180729
+//  hsl: function (h, s, l) {
+//      var color = colorFunctions.hsla(h, s, l, 1.0);
+//      if (color) {
+//          color.value = 'hsl';
+//          return color;
+//      }
+//  },
+  }
 
   ///
   /// Creates a transparent color object from hue, saturation, lightness and alpha (HSLA) values.
@@ -135,35 +208,92 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsl(90, 100%, 50%, 0.5)
   ///   Output: rgba(128, 255, 0, 0.5)
   ///
-  Color hsla(dynamic h, dynamic s, dynamic l, dynamic a) {
-    final dynamic _h = (number(h) % 360) / 360;
-    final dynamic _s = clamp(number(s));
-    final dynamic _l = clamp(number(l));
-    final dynamic _a = clamp(number(a));
-
-    final double m2 = (_l <= 0.5)
-        ? _l * (_s + 1)
-        : _l + _s - _l * _s;
-    final double m1 = _l * 2 - m2;
-
-    double hue(num h) {
-      final num _h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
-      if (_h * 6 < 1) {
-        return m1 + (m2 - m1) * _h * 6;
-      } else if (_h * 2 < 1) {
-        return m2;
-      } else if (_h * 3 < 2) {
-        return m1 + (m2 - m1) * (2 / 3 - _h) * 6;
-      } else {
-        return m1;
+  Color hsla(dynamic h, [dynamic s, dynamic l, dynamic a]) {
+    try {
+      if (h is Color) {
+        final num alpha = s != null ? number(s) : h.alpha;
+        return new Color.fromList(h.rgb, alpha, 'hsla');
       }
-    }
 
-    return rgba(
+      final dynamic _h = (number(h) % 360) / 360;
+      final dynamic _s = clamp(number(s));
+      final dynamic _l = clamp(number(l));
+      final dynamic _a = clamp(number(a));
+
+      final double m2 = (_l <= 0.5)
+          ? _l * (_s + 1)
+          : _l + _s - _l * _s;
+      final double m1 = _l * 2 - m2;
+
+      double hue(num h) {
+        final num _h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
+        if (_h * 6 < 1) {
+          return m1 + (m2 - m1) * _h * 6;
+        } else if (_h * 2 < 1) {
+          return m2;
+        } else if (_h * 3 < 2) {
+          return m1 + (m2 - m1) * (2 / 3 - _h) * 6;
+        } else {
+          return m1;
+        }
+      }
+
+      final List<num> rgb = <num>[
         hue(_h + 1 / 3) * 255,
         hue(_h) * 255,
-        hue(_h - 1 / 3) * 255,
-        _a);
+        hue(_h - 1 / 3) * 255
+      ];
+      return new Color.fromList(rgb, _a, 'hsla');
+    } catch (e) {
+      return null;
+    }
+
+// 3.8.0 20180729
+//  hsla: function (h, s, l, a) {
+//      try {
+//          if (h instanceof Color) {
+//              if (s) {
+//                  a = number(s);
+//              } else {
+//                  a = h.alpha;
+//              }
+//              return new Color(h.rgb, a, 'hsla');
+//          }
+//
+//          var m1, m2;
+//
+//          function hue(h) {
+//              h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
+//              if (h * 6 < 1) {
+//                  return m1 + (m2 - m1) * h * 6;
+//              }
+//              else if (h * 2 < 1) {
+//                  return m2;
+//              }
+//              else if (h * 3 < 2) {
+//                  return m1 + (m2 - m1) * (2 / 3 - h) * 6;
+//              }
+//              else {
+//                  return m1;
+//              }
+//          }
+//
+//          h = (number(h) % 360) / 360;
+//          s = clamp(number(s)); l = clamp(number(l)); a = clamp(number(a));
+//
+//          m2 = l <= 0.5 ? l * (s + 1) : l + s - l * s;
+//          m1 = l * 2 - m2;
+//
+//          var rgb = [
+//              hue(h + 1 / 3) * 255,
+//              hue(h)       * 255,
+//              hue(h - 1 / 3) * 255
+//          ];
+//          a = number(a);
+//          return new Color(rgb, a, 'hsla');
+//      }
+//      catch (e) {}
+//  },
 
 //    hsla: function (h, s, l, a) {
 //        function hue(h) {
@@ -446,9 +576,9 @@ class ColorFunctions extends FunctionBase {
     }
 
     hsl.s = clamp(hsl.s);
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//2.4.0 20150315
+// 3.8.0 20180729
 //  saturate: function (color, amount, method) {
 //      // filter: saturate(3.2);
 //      // should be kept as is, so check for color
@@ -457,14 +587,14 @@ class ColorFunctions extends FunctionBase {
 //      }
 //      var hsl = color.toHSL();
 //
-//      if (typeof method !== "undefined" && method.value === "relative") {
+//      if (typeof method !== 'undefined' && method.value === 'relative') {
 //          hsl.s +=  hsl.s * amount.value / 100;
 //      }
 //      else {
 //          hsl.s += amount.value / 100;
 //      }
 //      hsl.s = clamp(hsl.s);
-//      return hsla(hsl);
+//      return hsla(color, hsl);
 //  },
   }
 
@@ -488,20 +618,20 @@ class ColorFunctions extends FunctionBase {
       hsl.s -= amount.value / 100;
     }
     hsl.s = clamp(hsl.s);
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//2.4.0 20150315
+// 3.8.0 20180729
 //  desaturate: function (color, amount, method) {
 //      var hsl = color.toHSL();
 //
-//      if (typeof method !== "undefined" && method.value === "relative") {
+//      if (typeof method !== 'undefined' && method.value === 'relative') {
 //          hsl.s -=  hsl.s * amount.value / 100;
 //      }
 //      else {
 //          hsl.s -= amount.value / 100;
 //      }
 //      hsl.s = clamp(hsl.s);
-//      return hsla(hsl);
+//      return hsla(color, hsl);
 //  },
   }
 
@@ -525,20 +655,20 @@ class ColorFunctions extends FunctionBase {
       hsl.l += amount.value / 100;
     }
     hsl.l = clamp(hsl.l);
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//2.4.0 20150315
+// 3.8.0 20180729
 //  lighten: function (color, amount, method) {
 //      var hsl = color.toHSL();
 //
-//      if (typeof method !== "undefined" && method.value === "relative") {
+//      if (typeof method !== 'undefined' && method.value === 'relative') {
 //          hsl.l +=  hsl.l * amount.value / 100;
 //      }
 //      else {
 //          hsl.l += amount.value / 100;
 //      }
 //      hsl.l = clamp(hsl.l);
-//      return hsla(hsl);
+//      return hsla(color, hsl);
 //  },
   }
 
@@ -562,20 +692,20 @@ class ColorFunctions extends FunctionBase {
       hsl.l -= amount.value / 100;
     }
     hsl.l = clamp(hsl.l);
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//2.4.0 20150315
+// 3.8.0 20180729
 //  darken: function (color, amount, method) {
 //      var hsl = color.toHSL();
 //
-//      if (typeof method !== "undefined" && method.value === "relative") {
+//      if (typeof method !== 'undefined' && method.value === 'relative') {
 //          hsl.l -=  hsl.l * amount.value / 100;
 //      }
 //      else {
 //          hsl.l -= amount.value / 100;
 //      }
 //      hsl.l = clamp(hsl.l);
-//      return hsla(hsl);
+//      return hsla(color, hsl);
 //  },
   }
 
@@ -599,20 +729,20 @@ class ColorFunctions extends FunctionBase {
       hsl.a += amount.value / 100;
     }
     hsl.a = clamp(hsl.a);
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//2.4.0 20150315
+// 3.8.0 20180729
 //  fadein: function (color, amount, method) {
 //      var hsl = color.toHSL();
 //
-//      if (typeof method !== "undefined" && method.value === "relative") {
+//      if (typeof method !== 'undefined' && method.value === 'relative') {
 //          hsl.a +=  hsl.a * amount.value / 100;
 //      }
 //      else {
 //          hsl.a += amount.value / 100;
 //      }
 //      hsl.a = clamp(hsl.a);
-//      return hsla(hsl);
+//      return hsla(color, hsl);
 //  },
   }
 
@@ -636,20 +766,20 @@ class ColorFunctions extends FunctionBase {
       hsl.a -= amount.value / 100;
     }
     hsl.a = clamp(hsl.a);
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//2.4.0 20150315
+// 3.8.0 20180729
 //  fadeout: function (color, amount, method) {
 //      var hsl = color.toHSL();
 //
-//      if (typeof method !== "undefined" && method.value === "relative") {
+//      if (typeof method !== 'undefined' && method.value === 'relative') {
 //          hsl.a -=  hsl.a * amount.value / 100;
 //      }
 //      else {
 //          hsl.a -= amount.value / 100;
 //      }
 //      hsl.a = clamp(hsl.a);
-//      return hsla(hsl);
+//      return hsla(color, hsl);
 //  },
   }
 
@@ -667,15 +797,16 @@ class ColorFunctions extends FunctionBase {
     final HSLType hsl = color.toHSL()
         ..a = clamp(amount.value / 100);
 
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//    fade: function (color, amount) {
-//        var hsl = color.toHSL();
+// 3.8.0 20170729
+//  fade: function (color, amount) {
+//      var hsl = color.toHSL();
 //
-//        hsl.a = amount.value / 100;
-//        hsl.a = clamp(hsl.a);
-//        return hsla(hsl);
-//    }
+//      hsl.a = amount.value / 100;
+//      hsl.a = clamp(hsl.a);
+//      return hsla(color, hsl);
+//  },
   }
 
   ///
@@ -711,16 +842,17 @@ class ColorFunctions extends FunctionBase {
     final double  hue = (hsl.h + amount.value) % 360;
 
     hsl.h = hue < 0 ? 360 + hue : hue;
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
-//    spin: function (color, amount) {
-//        var hsl = color.toHSL();
-//        var hue = (hsl.h + amount.value) % 360;
+// 3.8.0 20180829
+//  spin: function (color, amount) {
+//      var hsl = color.toHSL();
+//      var hue = (hsl.h + amount.value) % 360;
 //
-//        hsl.h = hue < 0 ? 360 + hue : hue;
+//      hsl.h = hue < 0 ? 360 + hue : hue;
 //
-//        return hsla(hsl);
-//    }
+//      return hsla(color, hsl);
+//  },
   }
 
   ///
@@ -876,10 +1008,11 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #aaa
   ///
   Color color(dynamic c) {
-    final RegExp re = new RegExp(r'^#([a-f0-9]{6}|[a-f0-9]{3})$', caseSensitive: false);
+    final RegExp re = new RegExp(r'^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$', caseSensitive: false);
 
     if (c is Quoted && re.hasMatch(c.value)) {
-      return new Color(c.value.substring(1)); // #rrggbb or #rgb - without #
+      final String val = c.value.substring(1);
+      return new Color(val, null, '#$val');
     }
 
     final Color _c = (c is Color) ? c : new Color.fromKeyword(c.value); //c.value must be a color name
@@ -889,23 +1022,24 @@ class ColorFunctions extends FunctionBase {
     }
     throw new LessExceptionError(new LessError(
         type: 'Argument',
-        message: 'argument must be a color keyword or 3/6 digit hex e.g. #FFF'));
+        message: 'argument must be a color keyword or 3|4|6|8 digit hex e.g. #FFF'));
 
-//2.2.0
-//    color: function(c) {
-//        if ((c instanceof Quoted) &&
-//            (/^#([a-f0-9]{6}|[a-f0-9]{3})$/i.test(c.value))) {
-//            return new Color(c.value.slice(1));
-//        }
-//        if ((c instanceof Color) || (c = Color.fromKeyword(c.value))) {
-//            c.keyword = undefined;
-//            return c;
-//        }
-//        throw {
-//            type:    "Argument",
-//            message: "argument must be a color keyword or 3/6 digit hex e.g. #FFF"
-//        };
-//    }
+// 3.8.0 20180729
+//  color: function(c) {
+//      if ((c instanceof Quoted) &&
+//          (/^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$/i.test(c.value))) {
+//          var val = c.value.slice(1);
+//          return new Color(val, undefined, '#' + val);
+//      }
+//      if ((c instanceof Color) || (c = Color.fromKeyword(c.value))) {
+//          c.value = undefined;
+//          return c;
+//      }
+//      throw {
+//          type:    'Argument',
+//          message: 'argument must be a color keyword or 3|4|6|8 digit hex e.g. #FFF'
+//      };
+//  },
   }
 
   ///

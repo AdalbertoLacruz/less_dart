@@ -1,4 +1,4 @@
-//source: less/tree/declaration.js 3.5.3 20180707
+//source: less/tree/declaration.js 3.7.1 20180718
 
 part of tree.less;
 
@@ -184,10 +184,10 @@ class Declaration extends Node implements MakeImportantNode {
     }
 
     // todo remove when parens-division is default
-    if (name == 'font' && context.math == MATH_ALWAYS) {
+    if (name == 'font' && context.math == MathConstants.always) {
       mathBypass = true;
       prevMath = context.math;
-      context.math = MATH_PARENS_DIVISION;
+      context.math = MathConstants.parensDivision;
     }
     
     try {

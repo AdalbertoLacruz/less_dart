@@ -1,4 +1,4 @@
-// source: bin/lessc.js less/default-options.js 3.5.3 20180708
+// source: bin/lessc.js less/default-options.js 3.7.1 20180718
 
 library lessOptions.less;
 
@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'cleancss_options.dart';
-import 'data/math_constants.dart';
+import 'data/constants.dart';
 import 'index.dart';
 import 'lessc_helper.dart';
 import 'logger.dart';
@@ -98,7 +98,8 @@ class LessOptions {
   int                       logLevel = logLevelWarn;
 
   /// How to process math
-  int                       math = MATH_ALWAYS;
+//  int                       math = MATH_ALWAYS;
+  int                       math = MathConstants.always;
 
   /// max-line-len - deprecated
   int get maxLineLen => _maxLineLen;
@@ -131,7 +132,7 @@ class LessOptions {
   /// This option allows you to re-write URL's in imported files so that the
   /// URL is always relative to the base imported file
   ///
-  bool                      relativeUrls = false;
+  int                       rewriteUrls = RewriteUrlsConstants.off;
 
   ///
   /// Allows you to add a path to every generated import and url in your css.
@@ -355,15 +356,35 @@ class LessOptions {
           return setParseError(command);
         }
         break;
-      case 'ru':
       case 'relative-urls':
-        relativeUrls = true;
+        logger.warn('The --relative-urls option has been deprecated. Use --rewrite-urls=all.');
+        rewriteUrls = RewriteUrlsConstants.all;
+        break;
+      case 'ru':
+      case 'rewrite-urls':
+        if (arg[2] != null) {
+          switch (arg[2].toLowerCase()) {
+            case 'local':
+              rewriteUrls = RewriteUrlsConstants.local;
+              break;
+            case 'off':
+              rewriteUrls = RewriteUrlsConstants.off;
+              break;
+            case 'all':
+              rewriteUrls = RewriteUrlsConstants.all;
+              break;
+            default:
+              return exitError('Unknown rewrite-urls argument ${arg[2]}');
+          }
+        } else {
+          rewriteUrls = RewriteUrlsConstants.all;
+        }
         break;
       case 'sm':
       case 'strict-math':
-        logger.warn('--strict-math is deprecated. Use --math=strict');
+        logger.warn('The --strict-math option has been deprecated. Use --math=strict');
         if (checkArgFunc(command, arg[2])) {
-          if (checkBooleanArg(arg[2])) math = MATH_STRICT_LEGACY;
+          if (checkBooleanArg(arg[2])) math = MathConstants.strictLegacy;
         }
         break;
       case 'm':
@@ -371,17 +392,17 @@ class LessOptions {
         if (checkArgFunc(command, arg[2])) {
           switch (arg[2].toLowerCase()) {
             case 'always':
-              math = MATH_ALWAYS;
+              math = MathConstants.always;
               break;
             case 'parens-division':
-              math = MATH_PARENS_DIVISION;
+              math = MathConstants.parensDivision;
               break;
             case 'strict':
             case 'parens':
-              math = MATH_PARENS;
+              math = MathConstants.parens;
               break;
             case 'strict-legacy':
-              math = MATH_STRICT_LEGACY;
+              math = MathConstants.strictLegacy;
               break;
             default:
               return setParseError();
@@ -460,9 +481,10 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to load plugin $name please make sure that it is installed\n');
-          parseError = true; // exitCode = 1
-          return false;
+//          logger.error('Unable to load plugin $name please make sure that it is installed\n');
+//          parseError = true; // exitCode = 1
+//          return false;
+          return exitError('Unable to load plugin $name please make sure that it is installed\n');
         }
         break;
       default:
@@ -470,9 +492,10 @@ class LessOptions {
         if (plugin != null) {
           plugins.add(plugin);
         } else {
-          logger.error('Unable to interpret argument $command\nif it is a plugin (less-plugin-$command), make sure that it is installed\n');
-          parseError = true; // exitCode = 1
-          return false;
+//          logger.error('Unable to interpret argument $command\nif it is a plugin (less-plugin-$command), make sure that it is installed\n');
+//          parseError = true; // exitCode = 1
+//          return false;
+          return exitError('Unable to interpret argument $command\nif it is a plugin (less-plugin-$command), make sure that it is installed\n');
         }
     }
     return true;
@@ -481,6 +504,15 @@ class LessOptions {
   ///
   bool setParseError([String option]) {
     if (option != null) logger.error('unrecognised less option $option');
+    parseError = true; // exitCode = 1
+    return false;
+  }
+
+  ///
+  /// exit with error message
+  ///
+  bool exitError(String message) {
+    logger.error(message);
     parseError = true; // exitCode = 1
     return false;
   }
@@ -621,9 +653,10 @@ class LessOptions {
 
     if (depends) {
       if (outputBase.isEmpty) {
-        logger.error('option --depends requires an output path to be specified');
-        parseError = true;
-        return false;
+//        logger.error('option --depends requires an output path to be specified');
+//        parseError = true;
+//        return false;
+        return exitError('option --depends requires an output path to be specified');
       }
     }
 
@@ -645,6 +678,7 @@ class LessOptions {
         ..maxLineLen       = maxLineLen
         ..pluginManager    = pluginManager
         ..paths            = paths
+        ..rewriteUrls      = rewriteUrls
         ..strictUnits      = strictUnits
         ..numPrecision     = numPrecision
         ..urlArgs          = urlArgs

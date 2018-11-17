@@ -1,4 +1,4 @@
-//source: less/import-manager.js 3.0.1 20180616
+//source: less/import-manager.js 3.7.1 201800718
 
 library importmanager.less;
 
@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:path/path.dart' as pathLib;
 
 import 'contexts.dart';
+import 'data/constants.dart';
 import 'environment/environment.dart';
 import 'file_info.dart';
 import 'less_error.dart';
@@ -14,7 +15,7 @@ import 'parser/parser.dart';
 import 'tree/tree.dart';
 
 // FileInfo = {
-//  'relativeUrls' - option - whether to adjust URL's to be relative
+//  'rewriteUrls' - option - whether to adjust URL's to be relative
 //  'filename' - full resolved filename of current file
 //  'rootpath' - path to append to normal URLs for this node
 //  'currentDirectory' - path to the current file, absolute
@@ -177,7 +178,7 @@ class ImportManager {
       //   then rootpath should become 'less/../'
 
       newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
-      if (newFileInfo.relativeUrls) {
+      if (newFileInfo.rewriteUrls > RewriteUrlsConstants.off) {
         String currentDirectory = newFileInfo.currentDirectory;
         if (!currentDirectory.endsWith(pathLib.separator)) {
           currentDirectory += pathLib.separator;
@@ -235,7 +236,7 @@ class ImportManager {
       }
     }
 
-//3.0.4 20180616
+// 3.7.1 20180718
 //  ImportManager.prototype.push = function (path, tryAppendExtension, currentFileInfo, importOptions, callback) {
 //      var importManager = this,
 //          pluginLoader = this.context.pluginManager.Loader;
@@ -248,7 +249,7 @@ class ImportManager {
 //          var importedEqualsRoot = fullPath === importManager.rootFilename;
 //          if (importOptions.optional && e) {
 //              callback(null, {rules:[]}, false, null);
-//              logger.info("The file " + fullPath + " was skipped because it was not found and the import was marked optional.");
+//              logger.info('The file ' + fullPath + ' was skipped because it was not found and the import was marked optional.');
 //          }
 //          else {
 //              // Inline imports aren't cached here.
@@ -263,7 +264,7 @@ class ImportManager {
 //      };
 //
 //      var newFileInfo = {
-//          relativeUrls: this.context.relativeUrls,
+//          rewriteUrls: this.context.rewriteUrls,
 //          entryPath: currentFileInfo.entryPath,
 //          rootpath: currentFileInfo.rootpath,
 //          rootFilename: currentFileInfo.rootFilename
@@ -272,7 +273,7 @@ class ImportManager {
 //      var fileManager = environment.getFileManager(path, currentFileInfo.currentDirectory, this.context, environment);
 //
 //      if (!fileManager) {
-//          fileParsedFunc({ message: "Could not find a file-manager for " + path });
+//          fileParsedFunc({ message: 'Could not find a file-manager for ' + path });
 //          return;
 //      }
 //
@@ -290,9 +291,9 @@ class ImportManager {
 //          // - If path of imported file is '../mixins.less' and rootpath is 'less/',
 //          //   then rootpath should become 'less/../'
 //          newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
-//          if (newFileInfo.relativeUrls) {
+//          if (newFileInfo.rewriteUrls) {
 //              newFileInfo.rootpath = fileManager.join(
-//                  (importManager.context.rootpath || ""),
+//                  (importManager.context.rootpath || ''),
 //                  fileManager.pathDiff(newFileInfo.currentDirectory, newFileInfo.entryPath));
 //
 //              if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
@@ -340,7 +341,7 @@ class ImportManager {
 //      var promise, context = utils.clone(this.context);
 //
 //      if (tryAppendExtension) {
-//          context.ext = importOptions.isPlugin ? ".js" : ".less";
+//          context.ext = importOptions.isPlugin ? '.js' : '.less';
 //      }
 //
 //      if (importOptions.isPlugin) {

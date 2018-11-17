@@ -1,4 +1,4 @@
-//source: lib/less-node/lessc-helper.js 3.5.3 20180708
+//source: lib/less-node/lessc-helper.js 3.7.1 20180718
 
 library helper.less;
 
@@ -44,7 +44,8 @@ class LesscHelper {
         ..log('                               in generated CSS file.')
         ..log('  -rp, --rootpath=URL          Set rootpath for url rewriting in relative imports and urls.')
         ..log('                               Works with or without the relative-urls option.')
-        ..log('  -ru, --relative-urls         Re-write relative urls to the base less file.')
+        ..log('  -ru=, --rewrite-urls=        Rewrites URLs to make them relative to the base less file.')
+        ..log("    all|local|off              'all' rewrites all URLs, 'local' just those starting with a '.'")
         ..log('')
         ..log('  -m=, --math=')
         ..log('     always                    Less will eagerly perform math operations always.')

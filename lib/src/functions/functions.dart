@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'dart:mirrors' hide Comment;
 
 import '../contexts.dart';
+import '../data/constants.dart';
 import '../environment/environment.dart';
 import '../file_info.dart';
 import '../less_error.dart';

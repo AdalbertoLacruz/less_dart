@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 
-import '../lib/src/data/math_constants.dart';
+import '../lib/src/data/constants.dart';
 import '../lib/src/less_options.dart';
 //import '../lib/src/logger.dart';
 
@@ -210,37 +210,55 @@ void lessOptionsTest() {
     test('-ru', () {
       result = options.parse(getArgument('-ru'));
       expect(result, true);
-      expect(options.relativeUrls, true);
+      expect(options.rewriteUrls, RewriteUrlsConstants.all);
     });
 
-    test('-relative-urls', () {
-      result = options.parse(getArgument('-relative-urls'));
+    test('-rewrite-urls', () {
+      result = options.parse(getArgument('-rewrite-urls'));
       expect(result, true);
-      expect(options.relativeUrls, true);
+      expect(options.rewriteUrls, RewriteUrlsConstants.all);
+    });
+
+    test('-rewrite-urls=off', () {
+      result = options.parse(getArgument('-rewrite-urls=off'));
+      expect(result, true);
+      expect(options.rewriteUrls, RewriteUrlsConstants.off);
+    });
+
+    test('-rewrite-urls=local', () {
+      result = options.parse(getArgument('-rewrite-urls=local'));
+      expect(result, true);
+      expect(options.rewriteUrls, RewriteUrlsConstants.local);
+    });
+
+    test('-rewrite-urls=all', () {
+      result = options.parse(getArgument('-rewrite-urls=all'));
+      expect(result, true);
+      expect(options.rewriteUrls, RewriteUrlsConstants.all);
     });
 
     test('-m=always', () {
       result = options.parse(getArgument('-m=always'));
       expect(result, true);
-      expect(options.math, MATH_ALWAYS);
+      expect(options.math, MathConstants.always);
     });
 
     test('-m=parens-division', () {
       result = options.parse(getArgument('-m=parens-division'));
       expect(result, true);
-      expect(options.math, MATH_PARENS_DIVISION);
+      expect(options.math, MathConstants.parensDivision);
     });
 
     test('-m=parens-all', () {
-      result = options.parse(getArgument('-m=parens-all'));
+      result = options.parse(getArgument('-m=parens'));
       expect(result, true);
-      expect(options.math, MATH_PARENS);
+      expect(options.math, MathConstants.parens);
     });
 
     test('-m=strict-legacy', () {
       result = options.parse(getArgument('-m=strict-legacy'));
       expect(result, true);
-      expect(options.math, MATH_STRICT_LEGACY);
+      expect(options.math, MathConstants.strictLegacy);
     });
 
     test('-su', () {
@@ -316,9 +334,9 @@ void lessOptionsTest() {
     });
 
     test('-math=bad', () {
-      result = options.parse(getArgument('-math=bad'));
+      result = options.parse(getArgument('--math=bad'));
       expect(result, false);
-      expect(options.math, MATH_ALWAYS);
+      expect(options.math, MathConstants.always);
     });
 
     test('-strict-units bad', () {

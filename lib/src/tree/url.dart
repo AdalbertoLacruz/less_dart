@@ -1,4 +1,4 @@
-//source: less/tree/url.js 3.0.0 20160714
+//source: less/tree/url.js 3.7.1 20180718
 
 part of tree.less;
 
@@ -63,19 +63,18 @@ class URL extends Node {
     String rootpath;
 
     if (!isEvald) {
-      // Add the base path if the URL is relative
+      // Add the rootpath if the URL requires a rewrite
       rootpath = currentFileInfo?.rootpath;
-      if (rootpath.isNotEmpty &&
+      if (rootpath != null &&
           (val.value is String) &&
-          context.isPathRelative(val.value)) {
+          context.pathRequiresRewrite(val.value)) {
         if (val is! Quoted) {
-          rootpath = rootpath.replaceAllMapped(
-              new RegExp(r'''[\(\)'"\s]'''), (Match match) => '\\${match[0]}');
+          rootpath = escapePath(rootpath);
         }
-        // ignore: prefer_interpolation_to_compose_strings
-        val.value = rootpath + val.value;
+        val.value = context.rewritePath(val.value, rootpath);
+      } else {
+        val.value = context.normalizePath(val.value);
       }
-      val.value = context.normalizePath(val.value);
 
       // Add url args if enabled
       if (isNotEmpty(context.urlArgs)) {
@@ -97,43 +96,53 @@ class URL extends Node {
         currentFileInfo: currentFileInfo,
         isEvald: true);
 
-//3.0.0 20160714
-// URL.prototype.eval = function (context) {
-//     var val = this.value.eval(context),
-//         rootpath;
+// 3.7.1 20180718
+//  URL.prototype.eval = function (context) {
+//      var val = this.value.eval(context),
+//          rootpath;
 //
-//     if (!this.isEvald) {
-//         // Add the base path if the URL is relative
-//         rootpath = this.fileInfo() && this.fileInfo().rootpath;
-//         if (rootpath &&
-//             typeof val.value === "string" &&
-//             context.isPathRelative(val.value)) {
+//      if (!this.isEvald) {
+//          // Add the rootpath if the URL requires a rewrite
+//          rootpath = this.fileInfo() && this.fileInfo().rootpath;
+//          if (typeof rootpath === 'string' &&
+//              typeof val.value === 'string' &&
+//              context.pathRequiresRewrite(val.value)) {
+//              if (!val.quote) {
+//                  rootpath = escapePath(rootpath);
+//              }
+//              val.value = context.rewritePath(val.value, rootpath);
+//          } else {
+//              val.value = context.normalizePath(val.value);
+//          }
 //
-//             if (!val.quote) {
-//                 rootpath = rootpath.replace(/[\(\)'"\s]/g, function(match) { return "\\" + match; });
-//             }
-//             val.value = rootpath + val.value;
-//         }
+//          // Add url args if enabled
+//          if (context.urlArgs) {
+//              if (!val.value.match(/^\s*data:/)) {
+//                  var delimiter = val.value.indexOf('?') === -1 ? '?' : '&';
+//                  var urlArgs = delimiter + context.urlArgs;
+//                  if (val.value.indexOf('#') !== -1) {
+//                      val.value = val.value.replace('#', urlArgs + '#');
+//                  } else {
+//                      val.value += urlArgs;
+//                  }
+//              }
+//          }
+//      }
 //
-//         val.value = context.normalizePath(val.value);
-//
-//         // Add url args if enabled
-//         if (context.urlArgs) {
-//             if (!val.value.match(/^\s*data:/)) {
-//                 var delimiter = val.value.indexOf('?') === -1 ? '?' : '&';
-//                 var urlArgs = delimiter + context.urlArgs;
-//                 if (val.value.indexOf('#') !== -1) {
-//                     val.value = val.value.replace('#', urlArgs + '#');
-//                 } else {
-//                     val.value += urlArgs;
-//                 }
-//             }
-//         }
-//     }
-//
-//     return new URL(val, this.getIndex(), this.fileInfo(), true);
-// };
+//      return new URL(val, this.getIndex(), this.fileInfo(), true);
+//  };
   }
+
+  ///
+  /// Replaces (, ), ', " and space with \(, \), \', \"
+  ///
+  String escapePath(String path) => path.replaceAllMapped(
+      new RegExp(r'''[\(\)'"\s]'''), (Match match) => '\\${match[0]}');
+
+// 3.7.1 20180718
+//  function escapePath(path) {
+//      return path.replace(/[\(\)'"\s]/g, function(match) { return '\\' + match; });
+//  }
 
   @override
   String toString() {

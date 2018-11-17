@@ -1,4 +1,4 @@
-//source: less/tree/expression.js 3.5.3 20180707
+//source: less/tree/expression.js 3.7.1 20180818
 
 part of tree.less;
 
@@ -51,7 +51,7 @@ class Expression extends Node {
   Node eval(Contexts context) {
     bool        doubleParen = false;
     final bool  inParenthesis = parens &&
-        (context.math != MATH_STRICT_LEGACY || !parensInOp);
+        (context.math != MathConstants.strictLegacy || !parensInOp);
     final bool  mathOn = context.isMathOn();
     Node        returnValue;
 

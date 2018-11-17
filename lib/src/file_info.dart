@@ -19,7 +19,7 @@ class FileInfo {
   bool reference = false;
 
   /// option - whether to adjust URL's to be relative
-  bool relativeUrls;
+  int rewriteUrls;
 
   /// filename of the base file
   String rootFilename;
@@ -40,7 +40,7 @@ class FileInfo {
   /// #
   ///
   FileInfo.cloneForLoader(FileInfo current, Contexts context) {
-    relativeUrls   = context.relativeUrls;
+    rewriteUrls    = context.rewriteUrls;
     entryPath      = current.entryPath;
     rootpath       = current.rootpath;
     rootFilename   = current.rootFilename;

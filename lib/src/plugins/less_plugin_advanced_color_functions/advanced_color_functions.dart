@@ -9,7 +9,7 @@ class AdvancedColorFunctions extends ColorFunctions {
     final HSLType hsl = color.toHSL();
     hsl.l = clamp(1 - hsl.l);
 
-    return hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    return hslaColorSpace(color, hsl);
 
 //      invertluma: function( color ){
 //          var hsl = color.toHSL();
@@ -43,7 +43,7 @@ class AdvancedColorFunctions extends ColorFunctions {
       }
       newluma = clamp(newluma);
       hsl.l = newluma;
-      autocontrast = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+      autocontrast = hslaColorSpace(color1, hsl);
     }
 
     return autocontrast;
@@ -100,7 +100,7 @@ class AdvancedColorFunctions extends ColorFunctions {
           newLuma = 1 - hsl.l;
       newLuma = clamp(newLuma);
       hsl.l = newLuma;
-      autocontrast = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+      autocontrast = hslaColorSpace(color1, hsl);
     }
 
     return autocontrast;

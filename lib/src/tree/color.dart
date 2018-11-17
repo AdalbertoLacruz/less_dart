@@ -1,4 +1,4 @@
-//source: less/tree/color.js 3.0.0 20160714
+//source: less/tree/color.js 3.8.0 20180808
 
 part of tree.less;
 
@@ -11,7 +11,8 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
   @override final String      type = 'Color';
 
-  /// original form or named color to return to CSS
+  /// original form  (#fea) or named color (blue) to return to CSS
+  /// Color space (rgb, hsl) from function operations, to preserve in output
   @override covariant String  value;
 
   ///
@@ -41,58 +42,58 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   Color(String rgb, [num this.alpha = 1, String originalForm]) {
     final RegExp hex6 = new RegExp('.{2}');
 
-    if (rgb.length == 8) {           // # 'rrggbbaa'
+    if (rgb.length >= 6) { // # 'rrggbbaa', # 'rrggbb'
       this.rgb = hex6
           .allMatches(rgb)
           .map<int>((Match c) => int.parse(c[0], radix: 16))
           .toList();
-      alpha = this.rgb.removeAt(3) / 256;
-    } else if (rgb.length == 6) {    // # 'deb887'
-      this.rgb = hex6
-          .allMatches(rgb)
-          .map<int>((Match c) => int.parse(c[0], radix: 16))
-          .toList();
-    } else if (rgb.length == 4) {    // # 'rgba'
-      this.rgb = rgb
-          .split('')
-          .map<int>((String c) => int.parse('$c$c', radix: 16))
-          .toList();
-      alpha = this.rgb.removeAt(3) / 256;
-    } else {                          // # 'f01'
+    } else { // # 'rgba', # 'rgb'
       this.rgb = rgb
           .split('')
           .map<int>((String c) => int.parse('$c$c', radix: 16))
           .toList();
     }
 
+    if (this.rgb.length > 3) alpha = this.rgb.removeAt(3) / 255;
     if (originalForm != null) value = originalForm;
 
     alphaCheck();
 
-//2.5.1 20150719
-// var Color = function (rgb, a, originalForm) {
-//     //
-//     // The end goal here, is to parse the arguments
-//     // into an integer triplet, such as `128, 255, 0`
-//     //
-//     // This facilitates operations and conversions.
-//     //
-//     if (Array.isArray(rgb)) {
-//         this.rgb = rgb;
-//     } else if (rgb.length == 6) {
-//         this.rgb = rgb.match(/.{2}/g).map(function (c) {
-//             return parseInt(c, 16);
-//         });
-//     } else {
-//         this.rgb = rgb.split('').map(function (c) {
-//             return parseInt(c + c, 16);
-//         });
-//     }
-//     this.alpha = typeof a === 'number' ? a : 1;
-//     if (typeof originalForm !== 'undefined') {
-//         this.value = originalForm;
-//     }
-// };
+// 3.8.0 20180729
+//  var Color = function (rgb, a, originalForm) {
+//      var self = this;
+//      //
+//      // The end goal here, is to parse the arguments
+//      // into an integer triplet, such as `128, 255, 0`
+//      //
+//      // This facilitates operations and conversions.
+//      //
+//      if (Array.isArray(rgb)) {
+//          this.rgb = rgb;
+//      } else if (rgb.length >= 6) {
+//          this.rgb = [];
+//          rgb.match(/.{2}/g).map(function (c, i) {
+//              if (i < 3) {
+//                  self.rgb.push(parseInt(c, 16));
+//              } else {
+//                  self.alpha = (parseInt(c, 16)) / 255;
+//              }
+//          });
+//      } else {
+//          this.rgb = [];
+//          rgb.split('').map(function (c, i) {
+//              if (i < 3) {
+//                  self.rgb.push(parseInt(c + c, 16));
+//              } else {
+//                  self.alpha = (parseInt(c + c, 16)) / 255;
+//              }
+//          });
+//      }
+//      this.alpha = this.alpha || (typeof a === 'number' ? a : 1);
+//      if (typeof originalForm !== 'undefined') {
+//          this.value = originalForm;
+//      }
+//  };
   }
 
   ///
@@ -100,7 +101,8 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// [alpha] 0 < alpha < 1. Default = 1.
   ///
-  Color.fromList(List<num> this.rgb, [num this.alpha = 1]) {
+  Color.fromList(List<num> this.rgb, [num this.alpha = 1, String originalForm]) {
+    if (originalForm != null) value = originalForm;
     alphaCheck();
   }
 
@@ -158,14 +160,23 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// Review alpha value and type
   ///
   void alphaCheck() {
-    if (alpha == 0) alpha = 0; // convert to int
-    if (alpha == 1) alpha = 1;
     alpha ??= 1;
+    if (alpha is double && alpha.remainder(1) == 0) alpha = alpha.toInt();
   }
 
+  ///
   /// Don't use spaces to css
+  ///
   bool isCompress(Contexts context) =>
       (cleanCss != null) || (context?.compress ?? false);
+
+  ///
+  /// Format alpha
+  ///
+  String alphaToString(num alpha) {
+    final String alphaStr = numToString(clamp(alpha, 1));
+    return cleanCss != null ? alphaStr.replaceFirst('0.', '.') : alphaStr; //0.1 -> .1
+  }
 
   ///
   @override
@@ -210,50 +221,114 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   String toCSS(Contexts context) {
+//    final bool doNotCompress = false; // in js is an argument in toCSS. ??
     if (cleanCss?.compatibility?.properties?.colors ?? false) return toCleanCSS(context);
 
     num         alpha;
     String      color;
-    final bool  compress = context?.compress ?? false;
+    final bool  compress = (context?.compress ?? false); // && !doNotCompress;
+    String      colorFunction;
+    List<String>   args = <String>[];
 
     // `value` is set if this color was originally
     // converted from a named color string so we need
     // to respect this and try to output named color too.
-    if (value != null) return value;
-
-
-    // If we have some transparency, the only way to represent it
-    // is via `rgba`. Otherwise, we use the hex representation,
-    // which has better compatibility with older browsers.
-    // Values are capped between `0` and `255`, rounded and zero-padded.
     alpha = fround(context, this.alpha);
-    if (alpha < 1) return toRGBFunction(context);
+
+    if (value != null) {
+      if (value.startsWith('rgb')) {
+        if (alpha < 1) colorFunction = 'rgba';
+      } else if (value.startsWith('hsl')) {
+        colorFunction = alpha < 1 ? 'hsla' : 'hsl';
+      } else {
+        return value;
+      }
+    } else {
+      if (alpha < 1) colorFunction = 'rgba';
+    }
+
+    switch (colorFunction) {
+      case 'rgba':
+        args = rgb
+            .map((num c) => clamp(c.round(), 255).toString())
+            .toList()
+            ..add(alphaToString(alpha));
+        break;
+      case 'hsla':
+        args.add(alphaToString(alpha));
+        continue hsl;
+
+      hsl:
+      case 'hsl':
+        final HSLType color = toHSL();
+        args = <String>[
+          numToString(fround(context, color.h)),
+          '${numToString(fround(context, color.s * 100))}%',
+          '${numToString(fround(context, color.l * 100))}%'
+        ] + args;
+        break;
+    }
+
+    // Values are capped between `0` and `255`, rounded and zero-padded.
+    if (colorFunction != null) {
+      final String separator = isCompress(context) ? ',' : ', ';
+      return '$colorFunction(${args.join(separator)})';
+    }
 
     color = toRGB();
     if (compress) color = tryHex3(color);
     return color;
 
-//2.3.1
+// 3.8.0 20180808
 //  Color.prototype.toCSS = function (context, doNotCompress) {
-//      var compress = context && context.compress && !doNotCompress, color, alpha;
+//      var compress = context && context.compress && !doNotCompress, color, alpha,
+//          colorFunction, args = [];
 //
 //      // `value` is set if this color was originally
 //      // converted from a named color string so we need
 //      // to respect this and try to output named color too.
+//      alpha = this.fround(context, this.alpha);
+//
 //      if (this.value) {
-//          return this.value;
+//          if (this.value.indexOf('rgb') === 0) {
+//              if (alpha < 1) {
+//                  colorFunction = 'rgba';
+//              }
+//          } else if (this.value.indexOf('hsl') === 0) {
+//              if (alpha < 1) {
+//                  colorFunction = 'hsla';
+//              } else {
+//                  colorFunction = 'hsl';
+//              }
+//          } else {
+//              return this.value;
+//          }
+//      } else {
+//          if (alpha < 1) {
+//              colorFunction = 'rgba';
+//          }
 //      }
 //
-//      // If we have some transparency, the only way to represent it
-//      // is via `rgba`. Otherwise, we use the hex representation,
-//      // which has better compatibility with older browsers.
-//      // Values are capped between `0` and `255`, rounded and zero-padded.
-//      alpha = this.fround(context, this.alpha);
-//      if (alpha < 1) {
-//          return "rgba(" + this.rgb.map(function (c) {
-//              return clamp(Math.round(c), 255);
-//          }).concat(clamp(alpha, 1))
-//              .join(',' + (compress ? '' : ' ')) + ")";
+//      switch (colorFunction) {
+//          case 'rgba':
+//              args = this.rgb.map(function (c) {
+//                  return clamp(Math.round(c), 255);
+//              }).concat(clamp(alpha, 1));
+//              break;
+//          case 'hsla':
+//              args.push(clamp(alpha, 1));
+//          case 'hsl':
+//              color = this.toHSL();
+//              args = [
+//                  this.fround(context, color.h),
+//                  this.fround(context, color.s * 100) + '%',
+//                  this.fround(context, color.l * 100) + '%'
+//              ].concat(args);
+//      }
+//
+//      if (colorFunction) {
+//          // Values are capped between `0` and `255`, rounded and zero-padded.
+//          return colorFunction + '(' + args.join(',' + (compress ? '' : ' ')) + ')';
 //      }
 //
 //      color = this.toRGB();

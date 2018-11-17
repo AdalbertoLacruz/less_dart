@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 3.5.3 20180707
+//source: less/tree/operation.js 3.7.1 20180718
 
 part of tree.less;
 
@@ -55,7 +55,7 @@ class Operation extends Node {
       if (a is Dimension && b is Color) a = (a as Dimension).toColor();
       if (b is Dimension && a is Color) b = (b as Dimension).toColor();
       if (a is! OperateNode) {
-        if (a is Operation && a.op == '/' && context.math == MATH_PARENS_DIVISION) {
+        if (a is Operation && a.op == '/' && context.math == MathConstants.parensDivision) {
           return new Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
         }
         throw new LessExceptionError(new LessError(

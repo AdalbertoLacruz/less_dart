@@ -177,7 +177,17 @@ Map<int, Config> configFill() => <int, Config>{
    111: def('math/strict-legacy/media-math', options: <String>['--math=strict-legacy']),
    112: def('math/strict-legacy/mixins-args', options: <String>['--math=strict-legacy']),
    113: def('math/strict-legacy/parens', options: <String>['--math=strict-legacy']),
-   115: def('strict-units/strict-units', options: <String>['--math=strict-legacy', '--strict-units=on']),
+   114: def('rewrite-urls-all/rewrite-urls-all', options: <String>['-ru=all']),
+   115: def('rewrite-urls-local/rewrite-urls-local', options: <String>['-ru=local']),
+   116: def('rootpath-rewrite-urls-all/rootpath-rewrite-urls-all', options: <String>[
+     '--rootpath=http://example.com/assets/css/',
+     '-ru=all']
+   ),
+   117: def('rootpath-rewrite-urls-local/rootpath-rewrite-urls-local', options: <String>[
+     '--rootpath=http://example.com/assets/css/',
+     '-ru=local'
+   ]),
+   118: def('strict-units/strict-units', options: <String>['--math=strict-legacy', '--strict-units=on']),
    120: def('no-strict-math/no-sm-operations'),
    121: def('no-strict-math/mixins-guards'),
     // compression
@@ -295,7 +305,11 @@ Map<int, Config> configFill() => <int, Config>{
           '--banner=${dirPath}webSourceMap/banner.txt'
         ]),
    193: def('sourcemaps-empty/empty', options: <String>['--source-map-map-inline']),
-
+   194: def('custom-props',
+        isExtendedTest: true,
+        isSourcemapTest: true,
+        cssName: 'custom-props-expected',
+        options: <String>['--source-map']),
     //include-path
    195: def('include-path/include-path',
         options: <String>['--include-path=${dirPath}less/import:${dirPath}data']),
@@ -309,8 +323,6 @@ Map<int, Config> configFill() => <int, Config>{
     203: def('errors/at-rules-unmatching-block', isErrorTest: true),
     204: def('errors/bad-variable-declaration1', isErrorTest: true),
     205: def('errors/color-func-invalid-color', isErrorTest: true),
-    206: def('errors/color-invalid-hex-code', isErrorTest: true),
-    207: def('errors/color-invalid-hex-code2', isErrorTest: true),
     //207: def('errors/comment-in-selector', isErrorTest: true),
     208: def('errors/css-guard-default-func', isErrorTest: true),
     209: def('errors/custom-property-unmatched-block-1', isErrorTest: true),

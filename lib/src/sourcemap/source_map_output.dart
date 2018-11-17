@@ -1,4 +1,4 @@
-// source: less/source-map-output.js 3.0.0 20160804
+// source: less/source-map-output.js 3.8.0 20180808
 
 part of sourcemap.less;
 
@@ -159,7 +159,7 @@ class SourceMapOutput extends Output {
     //ignore adding empty strings
     if (chunk.isEmpty) return;
 
-    if (fileInfo != null) {
+    if (fileInfo?.filename != null) {
       String inputSource = contentsMap[fileInfo.filename];
 
       // remove vars/banner added to the top of the file
@@ -178,7 +178,7 @@ class SourceMapOutput extends Output {
     lines = chunk.split('\n');
     columns = lines.last;
 
-    if (fileInfo != null) {
+    if (fileInfo?.filename != null) {
       if (!mapLines) {
         final SourcemapData data = new SourcemapData(
             originalIndex: _index,
@@ -221,10 +221,10 @@ class SourceMapOutput extends Output {
     super.add(chunk);
     indexGenerated += chunk.length;
 
-//2.4.0
+// 3.8.0 20180808
 //  SourceMapOutput.prototype.add = function(chunk, fileInfo, index, mapLines) {
 //
-//      //ignore adding empty strings
+//      // ignore adding empty strings
 //      if (!chunk) {
 //          return;
 //      }
@@ -235,7 +235,7 @@ class SourceMapOutput extends Output {
 //          sourceColumns,
 //          i;
 //
-//      if (fileInfo) {
+//      if (fileInfo && fileInfo.filename) {
 //          var inputSource = this._contentsMap[fileInfo.filename];
 //
 //          // remove vars/banner added to the top of the file
@@ -247,14 +247,14 @@ class SourceMapOutput extends Output {
 //              inputSource = inputSource.slice(this._contentsIgnoredCharsMap[fileInfo.filename]);
 //          }
 //          inputSource = inputSource.substring(0, index);
-//          sourceLines = inputSource.split("\n");
+//          sourceLines = inputSource.split('\n');
 //          sourceColumns = sourceLines[sourceLines.length - 1];
 //      }
 //
-//      lines = chunk.split("\n");
+//      lines = chunk.split('\n');
 //      columns = lines[lines.length - 1];
 //
-//      if (fileInfo) {
+//      if (fileInfo && fileInfo.filename) {
 //          if (!mapLines) {
 //              this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
 //                  original: { line: sourceLines.length, column: sourceColumns.length},

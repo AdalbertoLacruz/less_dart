@@ -1,4 +1,4 @@
-//source: less/tree/import.js 3.0.0 20161222
+//source: less/tree/import.js 3.7.1 20180718
 
 part of tree.less;
 
@@ -201,38 +201,39 @@ class Import extends Node {
   ///
   Node evalPath(Contexts context) {
     final Node    path = this.path.eval(context);
-    final String  rootpath = _fileInfo?.rootpath;
 
     if (path is! URL) {
-      if (rootpath != null) {
-        final String pathValue = path.value;
-        // Add the base path if the import is relative
-        if (pathValue != null && context.isPathRelative(pathValue)) {
-          path.value = rootpath + pathValue;
-        }
+      // Add the rootpath if the URL requires a rewrite
+      final String pathValue = path.value;
+      if (_fileInfo != null &&
+          pathValue != null &&
+          context.pathRequiresRewrite(pathValue)) {
+        path.value = context.rewritePath(pathValue, _fileInfo.rootpath);
+      } else {
+        path.value = context.normalizePath(path.value);
       }
-      path.value = context.normalizePath(path.value);
     }
     return path;
 
-//3.0.0 20160714
-// Import.prototype.evalPath = function (context) {
-//     var path = this.path.eval(context);
-//     var rootpath = this._fileInfo && this._fileInfo.rootpath;
+// 3.7.1 20180718
+//  Import.prototype.evalPath = function (context) {
+//      var path = this.path.eval(context);
+//      var fileInfo = this._fileInfo;
 //
-//     if (!(path instanceof URL)) {
-//         if (rootpath) {
-//             var pathValue = path.value;
-//             // Add the base path if the import is relative
-//             if (pathValue && context.isPathRelative(pathValue)) {
-//                 path.value = rootpath + pathValue;
-//             }
-//         }
-//         path.value = context.normalizePath(path.value);
-//     }
+//      if (!(path instanceof URL)) {
+//          // Add the rootpath if the URL requires a rewrite
+//          var pathValue = path.value;
+//          if (fileInfo &&
+//              pathValue &&
+//              context.pathRequiresRewrite(pathValue)) {
+//              path.value = context.rewritePath(pathValue, fileInfo.rootpath);
+//          } else {
+//              path.value = context.normalizePath(path.value);
+//          }
+//      }
 //
-//     return path;
-// };
+//      return path;
+//  };
   }
 
 

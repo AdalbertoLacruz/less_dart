@@ -1,0 +1,6 @@
+body {
+  border-left: 1px solid var(--foo);
+  width: calc(50% - 5px);
+  border-top: 1px solid var(--foo);
+}
+/*# sourceMappingURL=custom-props.css.map */
