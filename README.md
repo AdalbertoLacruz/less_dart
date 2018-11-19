@@ -42,7 +42,7 @@ There is an example:
         Less less = new Less();
 
         args.add('-no-color');
-        args.add('--strict-math=on');
+        args.add('--math=always');
         args.add('--strict-units=on');
         args.add('less/charsets.less');
         less.transform(args).then((exitCode){

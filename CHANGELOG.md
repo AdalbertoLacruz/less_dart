@@ -1,6 +1,6 @@
-## 2.2.0 (2018-xx-xx)
+## 2.2.0 (2018-11-19)
 
-- Less 3.x.x code.
+- Less 3.8.1 code, including namespaces and each function.
 
 ## 2.1.0 (2018-10-02)
 

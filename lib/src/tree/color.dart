@@ -3,8 +3,7 @@
 part of tree.less;
 
 ///
-/// RGB Colors - #ff0014, #eee
-/// also #rgba #rrggbbaa  - not a standard yet
+/// RGB Colors: #rgb #rgba #rrggbb #rrggbbaa
 ///
 class Color extends Node implements CompareNode, OperateNode<Color> {
   @override final String      name = null;
@@ -631,7 +630,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   }
 
   ///
-  /// [value] == '#rrggbb' returns the color key
+  /// [value] == '#rrggbb' returns the color key (color name)
   ///
   String getColorKey(String value) => colors.getKey(value);
 

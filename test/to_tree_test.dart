@@ -7,7 +7,7 @@ void main(List<String> args) {
     final Less less = new Less();
     less.transform(<String>[
       '-no-color',
-      '--strict-math=on',
+      '--math=always',
       '--strict-units=on',
       '--show-tree-level=0',
       'test/less/tree.less'

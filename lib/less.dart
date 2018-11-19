@@ -153,7 +153,8 @@ class Less {
       }
 
       try {
-        result = new ParseTree(tree, parser.imports).toCSS(_options.clone(), parser.context);
+        result = new ParseTree(tree, parser.imports)
+            .toCSS(_options.clone(), parser.context);
         imports = result.imports;
 
         if (!_options.lint) writeOutput(_options.output, result, _options);
