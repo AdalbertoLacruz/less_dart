@@ -1,3 +1,6 @@
+## 2.3.0 (XXXX)
+- Less xx code
+
 ## 2.2.0 (2018-11-19)
 
 - Less 3.8.1 code, including namespaces and each function.

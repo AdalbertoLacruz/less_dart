@@ -1,4 +1,4 @@
-// source: lib/less/functions/list.js 3.5.3 20180708
+// source: lib/less/functions/list.js 3.8.1 20181129
 
 part of functions.less;
 
@@ -84,6 +84,63 @@ class ListFunctions extends FunctionBase {
 //  },
 
   ///
+  /// Creates a Less list of incremental values.
+  /// Modeled after Lodash's range function, also exists natively in PHP
+  ///
+  /// Parameters
+  ///   start - (optional) The start value e.g. 1 or 1px
+  ///   end - The end value e.g. 5px
+  ///   step - (optional) The amount to increment by
+  ///
+  /// Examples:
+  ///   range(4) => 1 2 3 4
+  ///   range(10px, 30px, 10) => 10px 20px 30px
+  ///
+  Expression range(Dimension start, [Dimension end, Dimension step]) {
+    num from;
+    Dimension to;
+    num stepValue = 1;
+    final List<Node> list = <Node>[];
+
+    if (end != null) {
+      to = end;
+      from = start.value;
+      if (step != null) stepValue = step.value;
+    } else {
+      from = 1;
+      to = start;
+    }
+
+    for (num i = from; i <= to.value; i += stepValue) {
+      list.add(new Dimension(i, to.unit));
+    }
+
+    return new Expression(list);
+
+// 3.8.2 20181129
+//  range: function(start, end, step) {
+//      var from, to, stepValue = 1, list = [];
+//      if (end) {
+//          to = end;
+//          from = start.value;
+//          if (step) {
+//              stepValue = step.value;
+//          }
+//      }
+//      else {
+//          from = 1;
+//          to = start;
+//      }
+//
+//      for (var i = from; i <= to.value; i += stepValue) {
+//          list.push(new Dimension(i, to.unit));
+//      }
+//
+//      return new Expression(list);
+//  },
+  }
+
+  ///
   /// Bind the evaluation of a ruleset to each member of a list.
   ///
   /// Parameters:
@@ -111,7 +168,6 @@ class ListFunctions extends FunctionBase {
   ///  }
   ///
   Node each(Node list, Node rs) {
-    int              i = 0;
     List<Node>       iterator;
     List<Node>       newRules;
     Ruleset          ruleset;
@@ -119,7 +175,7 @@ class ListFunctions extends FunctionBase {
 
     if (list is DetachedRuleset) {
       iterator = list.ruleset.rules;
-    } else if (list is Nodeset) {
+    } else if (list is Nodeset || list is Ruleset) {
       iterator = list.rules;
     } else if (list.value is List<Node>) {
       iterator = list.value;
@@ -145,8 +201,8 @@ class ListFunctions extends FunctionBase {
       return null; // Something goes bad - function not processed
     }
 
-    iterator.forEach((Node item) {
-      i = i + 1;
+    for (int i = 0; i < iterator.length; i++) {
+      final Node item = iterator[i];
       Node key;
       Node value;
 
@@ -154,17 +210,19 @@ class ListFunctions extends FunctionBase {
         key = item.name is String ? new Anonymous(item.name) : item.name.first;
         value = item.value;
       } else {
-        key = new Dimension(i);
+        key = new Dimension(i + 1);
         value = item;
       }
+
+      if (item is Comment) continue;
 
       newRules = new List<Node>.from(ruleset.rules); // clone
       if (valueName != null) {
         newRules.add(new Declaration(valueName, value,
-          important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
+            important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
       }
       if (indexName != null) {
-        newRules.add(new Declaration(indexName, new Dimension(i),
+        newRules.add(new Declaration(indexName, new Dimension(i + 1),
             important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
       }
       if (keyName != null) {
@@ -173,15 +231,16 @@ class ListFunctions extends FunctionBase {
       }
       rules.add(new Ruleset(<Selector>[new Selector(<Element>[new Element('', '&')])],
           newRules));
-    });
+
+    }
 
     return new Ruleset(<Selector>[new Selector(<Element>[new Element('', '&')])],
       rules, strictImports: ruleset.strictImports, visibilityInfo: ruleset.visibilityInfo())
       .eval(context);
 
-// 3.5.3 20180708
+// 3.8.1 20181129
 //  each: function(list, rs) {
-//      var i = 0, rules = [], newRules, iterator;
+//      var rules = [], newRules, iterator;
 //
 //      if (list.value) {
 //          if (Array.isArray(list.value)) {
@@ -191,6 +250,8 @@ class ListFunctions extends FunctionBase {
 //          }
 //      } else if (list.ruleset) {
 //          iterator = list.ruleset.rules;
+//      } else if (list.rules) {
+//          iterator = list.rules;
 //      } else if (Array.isArray(list)) {
 //          iterator = list;
 //      } else {
@@ -210,15 +271,18 @@ class ListFunctions extends FunctionBase {
 //          rs = rs.ruleset;
 //      }
 //
-//      iterator.forEach(function(item) {
-//          i = i + 1;
-//          var key, value;
+//      for (var i = 0; i < iterator.length; i++) {
+//          var key, value, item = iterator[i];
 //          if (item instanceof Declaration) {
 //              key = typeof item.name === 'string' ? item.name : item.name[0].value;
 //              value = item.value;
 //          } else {
-//              key = new Dimension(i);
+//              key = new Dimension(i + 1);
 //              value = item;
+//          }
+//
+//          if (item instanceof Comment) {
+//              continue;
 //          }
 //
 //          newRules = rs.rules.slice(0);
@@ -229,7 +293,7 @@ class ListFunctions extends FunctionBase {
 //          }
 //          if (indexName) {
 //              newRules.push(new Declaration(indexName,
-//                  new Dimension(i),
+//                  new Dimension(i + 1),
 //                  false, false, this.index, this.currentFileInfo));
 //          }
 //          if (keyName) {
@@ -243,7 +307,7 @@ class ListFunctions extends FunctionBase {
 //              rs.strictImports,
 //              rs.visibilityInfo()
 //          ));
-//      });
+//      }
 //
 //      return new Ruleset([ new(Selector)([ new Element("", '&') ]) ],
 //              rules,

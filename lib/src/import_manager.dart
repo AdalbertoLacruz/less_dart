@@ -1,4 +1,4 @@
-//source: less/import-manager.js 3.7.1 201800718
+//source: less/import-manager.js 3.9.0 20181130
 
 library importmanager.less;
 
@@ -236,7 +236,7 @@ class ImportManager {
       }
     }
 
-// 3.7.1 20180718
+// 3.9.0 20181130
 //  ImportManager.prototype.push = function (path, tryAppendExtension, currentFileInfo, importOptions, callback) {
 //      var importManager = this,
 //          pluginLoader = this.context.pluginManager.Loader;
@@ -345,6 +345,7 @@ class ImportManager {
 //      }
 //
 //      if (importOptions.isPlugin) {
+//          context.mime = 'application/javascript';
 //          promise = pluginLoader.loadPlugin(path, currentFileInfo.currentDirectory, context, environment, fileManager);
 //      }
 //      else {

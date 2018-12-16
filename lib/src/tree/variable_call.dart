@@ -1,4 +1,4 @@
-//source: less/tree/variable-call.js 3.5.0.beta.4 20180630
+//source: less/tree/variable-call.js 3.8.1 20181129
 
 part of tree.less;
 
@@ -39,39 +39,47 @@ class VariableCall extends Node {
 
     if (result is! DetachedRuleset) {
       List<Node> rules;
-      if (result is Nodeset) {
+      Ruleset rs;
+      if (result is Ruleset) {
+        rs = result;
+      } else if (result is Nodeset) {
         rules = result.rules;
       } else if (result.value is List<Node>) {
         rules = result.value;
       } else {
         throw error;
       }
-      detachedRuleset = new DetachedRuleset(new Ruleset(null, rules));
+      rs ??= new Ruleset(null, rules);
+      detachedRuleset = new DetachedRuleset(rs);
     } else {
       detachedRuleset = result;
     }
+
     if (detachedRuleset.ruleset != null) {
       return detachedRuleset.callEval(context);
     }
 
     throw error;
 
-// 3.5.0.beta.4 20180630
+// 3.8.1 20181129
 //  VariableCall.prototype.eval = function (context) {
 //      var rules, detachedRuleset = new Variable(this.variable, this.getIndex(), this.fileInfo()).eval(context),
 //          error = new LessError({message: 'Could not evaluate variable call ' + this.variable});
 //
 //      if (!detachedRuleset.ruleset) {
-//          if (Array.isArray(detachedRuleset)) {
+//          if (detachedRuleset.rules) {
 //              rules = detachedRuleset;
 //          }
+//          else if (Array.isArray(detachedRuleset)) {
+//              rules = new Ruleset('', detachedRuleset);
+//          }
 //          else if (Array.isArray(detachedRuleset.value)) {
-//              rules = detachedRuleset.value;
+//              rules = new Ruleset('', detachedRuleset.value);
 //          }
 //          else {
 //              throw error;
 //          }
-//          detachedRuleset = new DetachedRuleset(new Ruleset('', rules));
+//          detachedRuleset = new DetachedRuleset(rules);
 //      }
 //      if (detachedRuleset.ruleset) {
 //          return detachedRuleset.callEval(context);
