@@ -8,7 +8,7 @@ class SetTreeVisibilityVisitor extends VisitorBase {
   bool visible;
 
   ///
-  SetTreeVisibilityVisitor({bool this.visible});
+  SetTreeVisibilityVisitor({this.visible});
 
 //2.5.3 20151120
 // var SetTreeVisibilityVisitor = function(visible) {

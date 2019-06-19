@@ -8,7 +8,7 @@ class Paren extends Node {
   @override covariant Node  value;
 
   ///
-  Paren(Node this.value);
+  Paren(this.value);
 
   ///
   @override

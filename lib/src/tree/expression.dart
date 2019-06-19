@@ -11,7 +11,7 @@ class Expression extends Node {
   bool noSpacing;
 
   ///
-  Expression(List<Node> this.value, {bool this.noSpacing = false}) {
+  Expression(this.value, {this.noSpacing = false}) {
     parens = false;
     parensInOp = false;
 

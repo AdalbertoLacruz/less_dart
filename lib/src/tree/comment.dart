@@ -12,8 +12,8 @@ class Comment extends Node implements SilentNode {
   bool  isLineComment;
 
   ///
-  Comment(String this.value, {
-      bool this.isLineComment = false,
+  Comment(this.value, {
+      this.isLineComment = false,
       int index,
       FileInfo currentFileInfo
       }) : super.init(currentFileInfo: currentFileInfo, index: index) {

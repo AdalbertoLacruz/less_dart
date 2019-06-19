@@ -55,13 +55,13 @@ class LessError {
   // less/parser.js 1.7.5 lines 309-331
   ///
   LessError({
-      int this.call,
+      this.call,
       Contexts context,
-      int this.index,
-      String this.filename,
-      String this.message,
-      StackTrace this.stack,
-      String this.type
+      this.index,
+      this.filename,
+      this.message,
+      this.stack,
+      this.type
       }) {
 
     if (context != null) addFileInformation(context);

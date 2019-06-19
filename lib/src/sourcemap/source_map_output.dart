@@ -39,16 +39,16 @@ class SourceMapOutput extends Output {
 
   ///
   SourceMapOutput({
-      Map<String, int> this.contentsIgnoredCharsMap,
-      Ruleset this.rootNode,
-      Map<String, String> this.contentsMap,
+      this.contentsIgnoredCharsMap,
+      this.rootNode,
+      this.contentsMap,
       String sourceMapFilename,
-      String this.sourceMapURL,
-      String this.outputFilename,
+      this.sourceMapURL,
+      this.outputFilename,
       String sourceMapBasepath, //abs?
       String sourceMapRootpath,
-      bool this.outputSourceFiles,
-      bool this.sourceMapFileInline
+      this.outputSourceFiles,
+      this.sourceMapFileInline
     }) {
 
     if (sourceMapFilename != null) {

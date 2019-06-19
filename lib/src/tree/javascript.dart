@@ -12,8 +12,8 @@ class JavaScript extends Node with JsEvalNodeMixin {
   String  expression;
 
   ///
-  JavaScript(String this.expression,
-      {bool this.escaped, int index, FileInfo currentFileInfo}) {
+  JavaScript(this.expression,
+      {this.escaped, int index, FileInfo currentFileInfo}) {
     // ignore: prefer_initializing_formals
     this.index = index;
     // ignore: prefer_initializing_formals

@@ -20,7 +20,7 @@ class Chunker {
   int           emitFrom = 0;
 
   ///
-  Chunker(String this.input, this.env);
+  Chunker(this.input, this.env);
 
   ///
   /// throw Parse error

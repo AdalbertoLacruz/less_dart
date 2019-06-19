@@ -25,7 +25,7 @@ class ImportVisitor extends VisitorBase {
   ///
   /// Structure to search for @import in the tree.
   ///
-  ImportVisitor(ImportManager this.importer,
+  ImportVisitor(this.importer,
       [Contexts context,
       ImportDetector onceFileDetectionMap,
       ImportDetector recursionDetector]) {

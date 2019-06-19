@@ -19,8 +19,8 @@ class NamespaceValue extends Node {
   // Ex.
   //   color: #color[primary]
   ///   
-  NamespaceValue(Node ruleCall, List<String> this.lookups,
-      { int index, FileInfo fileInfo, bool this.important })
+  NamespaceValue(Node ruleCall, this.lookups,
+      { int index, FileInfo fileInfo, this.important })
       : super.init(currentFileInfo: fileInfo, index: index) {
     // ignore: prefer_initializing_formals
     value = ruleCall;

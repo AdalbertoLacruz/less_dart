@@ -29,7 +29,7 @@ class Quoted extends Node implements CompareNode {
 
   ///
   Quoted(String str, String content,
-      {bool this.escaped, int index, FileInfo currentFileInfo}) {
+      {this.escaped, int index, FileInfo currentFileInfo}) {
     this.index = index;
     this.currentFileInfo = currentFileInfo;
 

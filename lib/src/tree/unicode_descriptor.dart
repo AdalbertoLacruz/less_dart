@@ -8,7 +8,7 @@ class UnicodeDescriptor extends Node {
   @override covariant String  value;
 
   ///
-  UnicodeDescriptor(String this.value);
+  UnicodeDescriptor(this.value);
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

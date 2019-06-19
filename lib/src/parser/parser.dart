@@ -106,7 +106,7 @@ class Parser {
   ///
   /// Parser constructor used in @import process
   ///
-  Parser.fromImporter(Contexts this.context, ImportManager this.imports, FileInfo this.fileInfo);
+  Parser.fromImporter(this.context, this.imports, this.fileInfo);
 
   ///
   /// Parse an input string into an abstract syntax tree.

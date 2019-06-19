@@ -13,7 +13,7 @@ class Operation extends Node {
 
   ///
   Operation(String op, List<Node> operands,
-      {bool this.isSpaced = false})
+      {this.isSpaced = false})
       : super.init(operands: operands) {
 
     this.op = op.trim();

@@ -25,7 +25,7 @@ class Element extends Node {
 
   /// Constructor
   Element(dynamic combinator, dynamic value, {
-      bool this.isVariable = false,
+      this.isVariable = false,
       int index,
       FileInfo currentFileInfo,
       VisibilityInfo visibilityInfo

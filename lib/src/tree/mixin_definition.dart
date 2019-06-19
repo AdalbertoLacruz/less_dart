@@ -40,10 +40,10 @@ class MixinDefinition extends Node
   //index, currentFileInfo not in original. See order when calling with frames.
   MixinDefinition(
       String name,
-      List<MixinArgs> this.params,
-      List<Node> this.rules,
-      Node this.condition,
-      {bool this.variadic,
+      this.params,
+      this.rules,
+      this.condition,
+      {this.variadic,
       int index,
       FileInfo currentFileInfo,
       this.frames,

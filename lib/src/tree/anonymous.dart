@@ -16,8 +16,8 @@ class Anonymous extends Node implements CompareNode {
   Anonymous(dynamic value, {
       int index,
       FileInfo currentFileInfo,
-      bool this.mapLines = false,
-      bool this.rulesetLike = false,
+      this.mapLines = false,
+      this.rulesetLike = false,
       VisibilityInfo visibilityInfo
       }) : super.init(currentFileInfo: currentFileInfo, index: index,  value: value) {
         allowRoot = true;

@@ -21,7 +21,7 @@ class Entities {
   ///
   /// Constructor. It's an auxiliary class for parsers.
   ///
-  Entities(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers) {
+  Entities(this.context, this.parserInput, this.parsers) {
     fileInfo = context.currentFileInfo;
   }
 

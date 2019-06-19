@@ -19,8 +19,8 @@ class Options extends Node {
   bool                isPlugin;
 
   ///
-  Options(Quoted this.value, int index, FileInfo currentFileInfo,
-      {bool this.isPlugin: false, String this.pluginArgs})
+  Options(this.value, int index, FileInfo currentFileInfo,
+      {this.isPlugin: false, this.pluginArgs})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
         allowRoot = true;
       }

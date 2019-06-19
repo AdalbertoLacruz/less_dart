@@ -15,7 +15,7 @@ class LessSourceMapBuilder {
   String            sourceMapURL; //map filename or base64 contents
 
   ///
-  LessSourceMapBuilder(SourceMapOptions this.options);
+  LessSourceMapBuilder(this.options);
 
   ///
   /// Generates the css & map contents

@@ -38,7 +38,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// [originalForm] returned to CSS if color is not processed: #rgb or #rrggbb.
   ///
-  Color(String rgb, [num this.alpha = 1, String originalForm]) {
+  Color(String rgb, [this.alpha = 1, String originalForm]) {
     final RegExp hex6 = new RegExp('.{2}');
 
     if (rgb.length >= 6) { // # 'rrggbbaa', # 'rrggbb'
@@ -100,7 +100,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// [alpha] 0 < alpha < 1. Default = 1.
   ///
-  Color.fromList(List<num> this.rgb, [num this.alpha = 1, String originalForm]) {
+  Color.fromList(this.rgb, [this.alpha = 1, String originalForm]) {
     if (originalForm != null) value = originalForm;
     alphaCheck();
   }

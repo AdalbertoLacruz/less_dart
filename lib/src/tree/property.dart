@@ -11,7 +11,7 @@ class Property extends Node with MergeRulesMixin {
   bool evaluating = false;
 
   ///
-  Property(String this.name, int index, FileInfo currentFileInfo) {
+  Property(this.name, int index, FileInfo currentFileInfo) {
     _fileInfo = currentFileInfo;
     _index = index;
 

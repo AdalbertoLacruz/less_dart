@@ -1,5 +1,6 @@
-## 2.3.0 (XXXX)
-- Less xx code
+## 2.3.0 (2019-06-19)
+- Less 3.9.0 code.
+- Dependencies upgrade.
 
 ## 2.2.0 (2018-11-19)
 

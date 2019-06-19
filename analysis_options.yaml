@@ -12,7 +12,6 @@ analyzer:
       invalid_assignment: error
       missing_return: error
       not_enough_required_arguments: error
-      strong_mode_invalid_field_override: error
       todo: ignore
       undefined_class: error
       undefined_function: error
@@ -123,11 +122,10 @@ linter:
     - slash_for_doc_comments
     ### - sort_constructors_first
     - sort_unnamed_constructors_first
-    - super_goes_last
     - test_types_in_equals
     ### - throw_in_finally
     - type_annotate_public_apis
-    ### - type_init_formals
+    - type_init_formals
     - unawaited_futures
     - unnecessary_brace_in_string_interps
     ## - unnecessary_const

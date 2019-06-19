@@ -16,7 +16,7 @@ class Assignment extends Node {
   String key;
 
   /// value == Node | String
-  Assignment(String this.key, dynamic value)
+  Assignment(this.key, dynamic value)
       : super.init(value: value);
 
   /// Fields to show with genTree

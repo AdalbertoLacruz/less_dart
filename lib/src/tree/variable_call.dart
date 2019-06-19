@@ -11,7 +11,7 @@ class VariableCall extends Node {
   String variable;
 
   ///
-  VariableCall(String this.variable, int index, FileInfo currentFileInfo)
+  VariableCall(this.variable, int index, FileInfo currentFileInfo)
       : super.init(currentFileInfo: currentFileInfo, index: index) {
     allowRoot = true;
 

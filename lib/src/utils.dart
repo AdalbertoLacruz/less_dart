@@ -150,5 +150,5 @@ class LocationPoint {
   int column;
 
   ///
-  LocationPoint({int this.line, int this.column});
+  LocationPoint({this.line, this.column});
 }

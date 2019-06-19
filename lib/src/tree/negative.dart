@@ -8,7 +8,7 @@ class Negative extends Node {
   @override covariant Node  value;
 
   ///
-  Negative(Node this.value);
+  Negative(this.value);
 
   /// Fields to show with genTree
   @override Map<String, dynamic> get treeField => <String, dynamic>{

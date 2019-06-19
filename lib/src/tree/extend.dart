@@ -31,7 +31,7 @@ class Extend extends Node {
   List<Selector>  selfSelectors;
 
   ///
-  Extend(Node this.selector, String this.option, int index,
+  Extend(this.selector, this.option, int index,
       FileInfo currentFileInfo, [VisibilityInfo visibilityInfo])
       : super.init(index: index) {
     //

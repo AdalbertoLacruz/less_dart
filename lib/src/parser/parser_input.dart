@@ -38,7 +38,7 @@ class ParserInput {
   ///
   /// Receives the `input` string and the environment information and reset pointers.
   ///
-  ParserInput(String this.input, Contexts this.context) {
+  ParserInput(this.input, this.context) {
     i = furthest = 0;
     skipWhitespace(0);
   }
@@ -928,7 +928,7 @@ class TestChar {
   ///
   /// tok = String (toks) | RegExp (tokre). Default ';'
   ///
-  TestChar(String tok, RegExp this.tokre) {
+  TestChar(String tok, this.tokre) {
     toks = (tok == null && tokre == null) ? ';' : tok;
     isTokString = toks != null;
   }

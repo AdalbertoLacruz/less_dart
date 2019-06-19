@@ -8,7 +8,7 @@ class Keyword extends Node {
   @override covariant String  value;
 
   ///
-  Keyword(String this.value);
+  Keyword(this.value);
 
   ///
   // ignore: non_constant_identifier_names

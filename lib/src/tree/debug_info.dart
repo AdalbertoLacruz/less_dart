@@ -13,7 +13,7 @@ class DebugInfo {
   int     lineNumber;
 
   ///
-  DebugInfo({int this.lineNumber, String fileName}) { // fileName null?
+  DebugInfo({this.lineNumber, String fileName}) { // fileName null?
     this.fileName = (path.isAbsolute(fileName))
         ? fileName
         : path.normalize(path.absolute(fileName));

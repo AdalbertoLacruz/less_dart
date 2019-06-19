@@ -23,13 +23,13 @@ class Selector extends Node {
   /// elements is List<Element> | String (to be parsed)
   ///
   Selector(dynamic elements, {
-      List<Extend> this.extendList,
-      Node this.condition,
+      this.extendList,
+      this.condition,
       int index,
       FileInfo currentFileInfo,
       VisibilityInfo visibilityInfo
       }) : super.init(currentFileInfo: currentFileInfo, index: index) {
-    //clone if List.clear is used, because collateral effects
+    //clone if List.clear is used, to avoid collateral effects
     this.elements = getElements(elements);
     evaldCondition = (condition == null);
     copyVisibilityInfo(visibilityInfo);

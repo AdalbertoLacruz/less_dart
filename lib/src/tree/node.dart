@@ -59,13 +59,13 @@ abstract class Node {
   bool                rootNode;
 
   /// The ruleset rules
-  @virtual List<Node> rules;
+  List<Node> rules;
 
   /// The ruleset selectors
   List<Selector>      selectors;
 
   /// the node value
-  @virtual dynamic    value;
+  dynamic    value;
 
   /// Node visibility control
   int                 visibilityBlocks;
@@ -244,7 +244,6 @@ abstract class Node {
   ///
   /// Default evaluation - returns the node
   ///
-  @virtual
   Node eval(Contexts context) => this;
 
 //2.3.1

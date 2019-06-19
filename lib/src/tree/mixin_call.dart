@@ -15,7 +15,7 @@ class MixinCall extends Node {
 
   ///
   MixinCall(List<Node> elements, List<MixinArgs> args,
-      {int index, FileInfo currentFileInfo, bool this.important})
+      {int index, FileInfo currentFileInfo, this.important})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
 
     selector = new Selector(elements);
@@ -451,10 +451,10 @@ class MixinArgs {
 
   ///
   MixinArgs(
-      {String this.name,
-      Node this.value,
-      bool this.variadic: false,
-      bool this.expand: false});
+      {this.name,
+      this.value,
+      this.variadic: false,
+      this.expand: false});
 
   ///
   void genTree(Contexts env, Output output, [String prefix = '']) {

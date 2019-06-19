@@ -106,7 +106,7 @@ class DirectiveBase extends Node
   }
 
   ///
-  @virtual @override
+  @override
   Node eval(Contexts context) {
     Node          value = this.value;
     List<Node>    rules = this.rules; // TODO: review, List<Ruleset>

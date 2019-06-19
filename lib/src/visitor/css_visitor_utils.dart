@@ -10,7 +10,7 @@ class CSSVisitorUtils extends VisitorBase {
   Visitor   _visitor;
 
   ///
-  CSSVisitorUtils(Contexts this._context) {
+  CSSVisitorUtils(this._context) {
     _visitor = new Visitor(this);
 
 //2.5.3 20151120

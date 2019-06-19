@@ -24,7 +24,7 @@ class Mixin {
   ///
   /// Auxiliary class for Parsers
   ///
-  Mixin(Contexts this.context, ParserInput this.parserInput, Parsers this.parsers, Entities this.entities) {
+  Mixin(this.context, this.parserInput, this.parsers, this.entities) {
     fileInfo = context.currentFileInfo;
   }
 

@@ -21,9 +21,9 @@ class Condition extends Node {
   ///     lvalue op rvalue
   ///     @a1 = true
   ///
-  Condition(String op, Node this.lvalue, Node this.rvalue, {
+  Condition(String op, this.lvalue, this.rvalue, {
       int index,
-      bool this.negate = false
+      this.negate = false
       }) : super.init(index: index) {
 
     this.op = op.trim();

@@ -11,10 +11,10 @@ class URL extends Node {
   bool  isEvald;
 
   ///
-  URL(Node this.value, {
+  URL(this.value, {
     int index,
     FileInfo currentFileInfo,
-    bool this.isEvald = false
+    this.isEvald = false
     }) : super.init(currentFileInfo: currentFileInfo, index: index);
 
 //3.0.0

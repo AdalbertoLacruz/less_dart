@@ -34,12 +34,12 @@ class Declaration extends Node implements MakeImportantNode {
   bool    variable = false;
 
   ///
-  Declaration(dynamic this.name, dynamic value, {
+  Declaration(this.name, dynamic value, {
       String important,
-      String this.merge,
+      this.merge,
       int index,
       FileInfo currentFileInfo,
-      bool this.inline = false,
+      this.inline = false,
       bool variable
       }) : super.init(currentFileInfo: currentFileInfo, index: index) {
     //

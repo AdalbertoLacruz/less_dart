@@ -12,7 +12,7 @@ class Visitor extends VisitorBase {
 //  Map<Type, Function> _visitOutCache = <Type, Function>{};
 
   ///
-  Visitor(VisitorBase this._implementation);
+  Visitor(this._implementation);
 
   /// Process a [node] and the subtree. node is Node | String
   @override

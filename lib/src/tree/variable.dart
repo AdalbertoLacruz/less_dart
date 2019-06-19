@@ -11,7 +11,7 @@ class Variable extends Node {
   bool  evaluating = false; // Recursivity control
 
   ///
-  Variable(String this.name, [int index, FileInfo currentFileInfo])
+  Variable(this.name, [int index, FileInfo currentFileInfo])
     : super.init(currentFileInfo: currentFileInfo, index: index);
 
 //3.0.0 20160714

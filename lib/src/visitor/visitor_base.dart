@@ -1,7 +1,6 @@
 library visitor.less;
 
 import 'dart:async';
-import 'package:meta/meta.dart';
 import '../contexts.dart';
 import '../environment/environment.dart';
 import '../import_manager.dart';
@@ -50,7 +49,6 @@ abstract class VisitorBase {
   }
 
   ///
-  @virtual
   dynamic visit(dynamic node) => node;
 
   ///
@@ -63,5 +61,5 @@ class VisitArgs {
   bool visitDeeper;
 
   ///
-  VisitArgs({bool this.visitDeeper});
+  VisitArgs({this.visitDeeper});
 }

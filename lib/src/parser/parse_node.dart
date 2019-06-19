@@ -38,7 +38,7 @@ class ParseNode {
   ///
   /// `result[0]` has the result if isError == false
   ///
-  ParseNode(String input, int this.index, FileInfo this.fileInfo) {
+  ParseNode(String input, this.index, this.fileInfo) {
     index ??= 0;
     fileInfo ??= new FileInfo();
     parsers = new Parsers(input, new Contexts());
