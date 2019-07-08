@@ -1,3 +1,6 @@
+## 2.3.1 (2019-07-08)
+- Prepare for breaking change to HttpClientResponse return type (sdk #36900).
+
 ## 2.3.0 (2019-06-19)
 - Less 3.9.0 code.
 - Dependencies upgrade.
