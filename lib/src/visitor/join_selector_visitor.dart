@@ -3,16 +3,17 @@
 part of visitor.less;
 
 ///
-class JoinSelectorVisitor extends VisitorBase{
+class JoinSelectorVisitor extends VisitorBase {
   ///
-  List<List<List<Selector>>>  contexts;
+  List<List<List<Selector>>> contexts;
+
   ///
-  Visitor                     _visitor;
+  Visitor _visitor;
 
   ///
   JoinSelectorVisitor() {
     contexts = <List<List<Selector>>>[<List<Selector>>[]];
-    _visitor = new Visitor(this);
+    _visitor = Visitor(this);
 
 //2.3.1
 //  var JoinSelectorVisitor = function() {
@@ -41,7 +42,8 @@ class JoinSelectorVisitor extends VisitorBase{
   }
 
   ///
-  void visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
+  void visitMixinDefinition(
+      MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     visitArgs.visitDeeper = false;
 
 //2.3.1
@@ -52,9 +54,9 @@ class JoinSelectorVisitor extends VisitorBase{
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    final List<List<Selector>>  context = contexts.last;
-    final List<List<Selector>>  paths = <List<Selector>>[];
-    List<Selector>              selectors;
+    final List<List<Selector>> context = contexts.last;
+    final List<List<Selector>> paths = <List<Selector>>[];
+    List<Selector> selectors;
 
     contexts.add(paths);
 
@@ -105,8 +107,8 @@ class JoinSelectorVisitor extends VisitorBase{
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
     final List<List<Selector>> context = contexts.last;
-    (mediaNode.rules[0] as Ruleset).root = (context.isEmpty ||
-        (context[0] is Ruleset && (context[0] as Ruleset).multiMedia));
+    (mediaNode.rules[0] as Ruleset).root = context.isEmpty ||
+        (context[0] is Ruleset && (context[0] as Ruleset).multiMedia);
 
 //2.3.1
 //  visitMedia: function (mediaNode, visitArgs) {
@@ -119,7 +121,8 @@ class JoinSelectorVisitor extends VisitorBase{
   void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
     final List<List<Selector>> context = contexts.last;
     if (atRuleNode.rules != null && atRuleNode.rules.isNotEmpty) {
-      (atRuleNode.rules[0] as Ruleset).root = (atRuleNode.isRooted || context.isEmpty);
+      (atRuleNode.rules[0] as Ruleset).root =
+          atRuleNode.isRooted || context.isEmpty;
     }
 
 //2.8.0 20160702

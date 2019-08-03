@@ -5,25 +5,29 @@ part of less_plugin_clean_css.plugins.less;
 ///
 class CleanCssCompatibility {
   ///
-  String              source;
+  String source;
+
   ///
-  CleanCssColors      colors = new CleanCssColors();
+  CleanCssColors colors = CleanCssColors();
+
   ///
-  CleanCssProperties  properties = new CleanCssProperties();
+  CleanCssProperties properties = CleanCssProperties();
+
   ///
-  CleanCssSelectors   selectors = new CleanCssSelectors();
+  CleanCssSelectors selectors = CleanCssSelectors();
+
   ///
-  CleanCssUnits       units = new CleanCssUnits();
+  CleanCssUnits units = CleanCssUnits();
 
   // --compatibility: 'ie8,+units.rem'
 
   ///
   CleanCssCompatibility(this.source) {
-    bool          isAdd;
-    List<String>  key;
-    String        group;
-    String        option;
-    String        part;
+    bool isAdd;
+    List<String> key;
+    String group;
+    String option;
+    String part;
 
     final List<String> parts = source.split(',');
     final String nav = parts[0].trim();
@@ -35,7 +39,8 @@ class CleanCssCompatibility {
         properties.ieSuffixHack = true;
         properties.merging = false;
         properties.spaceAfterClosingBrace = true;
-        selectors.special = new RegExp(r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:root|:nth|:first\-of|:last|:only|:empty|:target|:checked|::selection|:enabled|:disabled|:not)');
+        selectors.special = RegExp(
+            r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:root|:nth|:first\-of|:last|:only|:empty|:target|:checked|::selection|:enabled|:disabled|:not)');
         units.ch = false;
         units.rem = false;
         units.vh = false;
@@ -51,7 +56,8 @@ class CleanCssCompatibility {
         properties.merging = false;
         properties.spaceAfterClosingBrace = true;
         selectors.ie7Hack = true;
-        selectors.special = new RegExp(r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:focus|:before|:after|:root|:nth|:first\-of|:last|:only|:empty|:target|:checked|::selection|:enabled|:disabled|:not)');
+        selectors.special = RegExp(
+            r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:focus|:before|:after|:root|:nth|:first\-of|:last|:only|:empty|:target|:checked|::selection|:enabled|:disabled|:not)');
         units.ch = false;
         units.rem = false;
         units.vh = false;
@@ -66,7 +72,7 @@ class CleanCssCompatibility {
     if (parts.length > 1) {
       for (int i = 1; i < parts.length; i++) {
         part = parts[i].trim();
-        isAdd = (part[0] == '+');
+        isAdd = part[0] == '+';
         key = part.substring(1).split('.');
         group = key[0].trim();
         option = key[1].trim();
@@ -176,7 +182,8 @@ class CleanCssSelectors {
   bool ie7Hack = false;
 
   /// special selectors which prevent merging
-  RegExp special = new RegExp(r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:dir\([a-z-]*\)|:first(?![a-z-])|:fullscreen|:left|:read-only|:read-write|:right)');
+  RegExp special = RegExp(
+      r'(\-moz\-|\-ms\-|\-o\-|\-webkit\-|:dir\([a-z-]*\)|:first(?![a-z-])|:fullscreen|:left|:read-only|:read-write|:right)');
 
   ///
   void setOption(String option, {bool isAdd = false}) {
@@ -195,16 +202,23 @@ class CleanCssSelectors {
 class CleanCssUnits {
   ///
   bool ch = true;
+
   ///
   bool rem = true;
+
   ///
   bool vh = true;
+
   ///
-  bool vm = true; // vm is vmin on IE9+ see https://developer.mozilla.org/en-US/docs/Web/CSS/length
+  // vm is vmin on IE9+ see https://developer.mozilla.org/en-US/docs/Web/CSS/length
+  bool vm = true;
+
   ///
   bool vmax = true;
+
   ///
   bool vmin = true;
+
   ///
   bool vw = true;
 

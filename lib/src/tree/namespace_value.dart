@@ -4,23 +4,26 @@ part of tree.less;
 
 ///
 class NamespaceValue extends Node {
-  @override final String    type = 'NamespaceValue';
+  @override
+  final String type = 'NamespaceValue';
 
-  @override covariant Node   value;
+  @override
+  covariant Node value;
 
   ///
-  bool      important;
+  bool important;
 
   ///
   List<String> lookups;
 
   ///
   /// Store Namespaces Values
+  ///
   // Ex.
   //   color: #color[primary]
-  ///   
+  //
   NamespaceValue(Node ruleCall, this.lookups,
-      { int index, FileInfo fileInfo, this.important })
+      {int index, FileInfo fileInfo, this.important})
       : super.init(currentFileInfo: fileInfo, index: index) {
     // ignore: prefer_initializing_formals
     value = ruleCall;
@@ -47,7 +50,7 @@ class NamespaceValue extends Node {
       // Eval'd mixins return rules, so let's make a ruleset if we need it.
       // We need to do this because of late parsing of values
       if (rules is Nodeset) {
-        rules = new Ruleset(<Selector>[new Selector(null)], rules.rules);
+        rules = Ruleset(<Selector>[Selector(null)], rules.rules);
       }
 
       if (name.isEmpty && rules is VariableMixin) {
@@ -55,24 +58,23 @@ class NamespaceValue extends Node {
       } else if (name.startsWith('@')) {
         if (name.startsWith('@@')) {
           // ignore: prefer_interpolation_to_compose_strings
-          name = '@' + new Variable(name.substring(1)).eval(context).value;
+          name = '@' + Variable(name.substring(1)).eval(context).value;
         }
         if (rules is VariableMixin) {
           rules = (rules as VariableMixin).variable(name);
         }
         if (rules == null) {
-          throw new LessExceptionError(new LessError(
+          throw LessExceptionError(LessError(
               type: 'Name',
               message: 'variable $name not found',
               filename: currentFileInfo.filename,
-              index: index
-          ));
+              index: index));
         }
       } else {
         List<Node> lsRules;
         if (name.startsWith(r'$@')) {
           // ignore: prefer_interpolation_to_compose_strings
-          name = r'$' + new Variable(name.substring(1)).eval(context).value;
+          name = r'$' + Variable(name.substring(1)).eval(context).value;
         } else {
           name = name.startsWith(r'$') ? name : '\$$name';
         }
@@ -82,12 +84,11 @@ class NamespaceValue extends Node {
         }
 
         if (lsRules == null) {
-          throw new LessExceptionError(new LessError(
+          throw LessExceptionError(LessError(
               type: 'Name',
               message: 'property "${name.substring(1)}" not found',
               filename: currentFileInfo.filename,
-              index: index
-          ));
+              index: index));
         }
         // Properties are an array of values, since a ruleset can have multiple props.
         // We pick the last one (the "cascaded" value)

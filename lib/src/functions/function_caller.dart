@@ -5,11 +5,13 @@ part of functions.less;
 ///
 class FunctionCaller {
   ///
-  Contexts  context;
+  Contexts context;
+
   ///
-  FileInfo  currentFileInfo;
+  FileInfo currentFileInfo;
+
   ///
-  int       index;
+  int index;
 
   /// Instance reutilitation
   static FunctionCaller cache;
@@ -18,18 +20,21 @@ class FunctionCaller {
   String name;
 
   /// Inner instance classes
-  List<FunctionBase>  innerCache;
+  List<FunctionBase> innerCache;
+
   ///
-  List<FunctionBase>  customCache;
+  List<FunctionBase> customCache;
+
   ///
-  FunctionBase        defaultCache;
+  FunctionBase defaultCache;
 
   /// Instance that has the method to call
   FunctionBase found;
 
   ///
-  factory FunctionCaller(String name, Contexts context, int index, FileInfo currentFileInfo) {
-    cache ??= new FunctionCaller._(context);
+  factory FunctionCaller(
+      String name, Contexts context, int index, FileInfo currentFileInfo) {
+    cache ??= FunctionCaller._(context);
 
     return cache
       ..name = name.toLowerCase()
@@ -45,19 +50,19 @@ class FunctionCaller {
   ///
   FunctionCaller._(Contexts context) {
     innerCache = <FunctionBase>[
-      new BooleanFunctions(),
-      new ColorBlend(),
-      new ColorFunctions(),
-      new DataUriFunctions(),
-      new ImageSizeFunctions(),
-      new ListFunctions(),
-      new MathFunctions(),
-      new NumberFunctions(),
-      new StringFunctions(),
-      new SvgFunctions(),
-      new TypesFunctions()
+      BooleanFunctions(),
+      ColorBlend(),
+      ColorFunctions(),
+      DataUriFunctions(),
+      ImageSizeFunctions(),
+      ListFunctions(),
+      MathFunctions(),
+      NumberFunctions(),
+      StringFunctions(),
+      SvgFunctions(),
+      TypesFunctions()
     ];
-    defaultCache = new DefaultFunc();
+    defaultCache = DefaultFunc();
 
 //2.4.0 20150305
 //  var functionCaller = function(name, context, index, currentFileInfo) {
@@ -75,8 +80,8 @@ class FunctionCaller {
   ///
   bool isValid() {
     final List<FunctionBase> inner = innerCache.sublist(0)
-        ..add(context.defaultFunc != null ? context.defaultFunc : defaultCache)
-        ..addAll(customCache);
+      ..add(context.defaultFunc ?? defaultCache)
+      ..addAll(customCache);
     found = null;
 
     for (int i = 0; i < inner.length; i++) {
@@ -106,13 +111,9 @@ class FunctionCaller {
       _args = _args.map((Node item) {
         if (item is Expression) {
           final List<Node> subNodes = item.value
-              ..retainWhere((Node item) => item is! Comment);
+            ..retainWhere((Node item) => item is! Comment);
 
-          if (subNodes.length == 1) {
-            return subNodes[0];
-          } else {
-            return new Expression(subNodes);
-          }
+          return subNodes.length == 1 ? subNodes[0] : Expression(subNodes);
         }
         return item;
       }).toList();

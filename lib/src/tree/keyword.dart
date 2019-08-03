@@ -4,8 +4,11 @@ part of tree.less;
 
 ///
 class Keyword extends Node {
-  @override final String      type = 'Keyword';
-  @override covariant String  value;
+  @override
+  final String type = 'Keyword';
+
+  @override
+  covariant String value;
 
   ///
   Keyword(this.value);
@@ -23,15 +26,15 @@ class Keyword extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
   void genCSS(Contexts context, Output output) {
     if (value == '%') {
-      throw new LessExceptionError(new LessError(
-          type: 'Syntax',
-          message: 'Invalid % without number'));
+      throw LessExceptionError(
+          LessError(type: 'Syntax', message: 'Invalid % without number'));
     }
     output.add(value);
 

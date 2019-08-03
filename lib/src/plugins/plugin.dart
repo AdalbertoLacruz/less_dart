@@ -5,21 +5,25 @@ part of plugins.less;
 ///
 abstract class Plugin {
   ///
-  String        cmdOptions;
+  String cmdOptions;
+
   ///
-  Environment   environment;
+  Environment environment;
+
   ///
-  bool          isLoaded = false; //true after first load
+  bool isLoaded = false; //true after first load
   ///
-  LessOptions   lessOptions;
+  LessOptions lessOptions;
+
   ///
-  Logger        logger;
+  Logger logger;
+
   /// Plugin name
-  String        name;
+  String name;
 
   ///
   Plugin() {
-    environment = new Environment();
+    environment = Environment();
     logger = environment.logger;
   }
 
@@ -34,7 +38,7 @@ abstract class Plugin {
   ///
   /// Less required minimal version
   ///
-  List<int> get minVersion => <int>[3,0,0];
+  List<int> get minVersion => <int>[3, 0, 0];
 
   ///
   /// Removes " at the start/end
@@ -42,9 +46,8 @@ abstract class Plugin {
   String normalizeCommand(String cmdOptions) {
     if (cmdOptions == null) return null;
 
-    final String command = cmdOptions.startsWith('"')
-        ? cmdOptions.substring(1)
-        : cmdOptions;
+    final String command =
+        cmdOptions.startsWith('"') ? cmdOptions.substring(1) : cmdOptions;
 
     return command.endsWith('"')
         ? command.substring(0, command.length - 1)
@@ -63,7 +66,8 @@ abstract class Plugin {
   ///
   void setOptions(String cmdOptions) {
     if (cmdOptions != null) {
-      throw new LessException('Options have been provided but the plugin $name does not support any options.');
+      throw LessException(
+          'Options have been provided but the plugin $name does not support any options.');
     }
   }
 

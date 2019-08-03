@@ -19,7 +19,7 @@ class TestPostProcessorPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final Processor processor = new TestPostProcessor(null);
+    final Processor processor = TestPostProcessor(null);
     pluginManager.addPostProcessor(processor);
   }
 

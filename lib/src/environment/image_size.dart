@@ -15,35 +15,35 @@ class ImageSize {
   ///
   /// Reads the file as bytes (List<int>)
   ///
-  List<int> loadCodeUnits() => new File(filePath).readAsBytesSync();
+  List<int> loadCodeUnits() => File(filePath).readAsBytesSync();
 
   ///
   /// Reads the file as String
   ///
-  String loadContents() => new File(filePath).readAsStringSync();
+  String loadContents() => File(filePath).readAsStringSync();
 
   ///
   /// Read the file and returns the width & heigth dimensions
   ///
   ImageDimension sizeOf(String filePath) {
-    ext = pathLib.extension(filePath).toLowerCase();
+    ext = path_lib.extension(filePath).toLowerCase();
     this.filePath = filePath;
 
     switch (ext) {
       case '.bmp':
-        return new BmpImage(loadCodeUnits()).calculate();
+        return BmpImage(loadCodeUnits()).calculate();
       case '.gif':
-        return new GifImage(loadCodeUnits()).calculate();
+        return GifImage(loadCodeUnits()).calculate();
       case '.jpg':
-        return new JpgImage(loadCodeUnits()).calculate();
+        return JpgImage(loadCodeUnits()).calculate();
       case '.png':
-        return new PngImage(loadCodeUnits()).calculate();
+        return PngImage(loadCodeUnits()).calculate();
       case '.psd':
-        return new PsdImage(loadCodeUnits()).calculate();
+        return PsdImage(loadCodeUnits()).calculate();
       case '.svg':
-        return new SvgImage(loadContents()).calculate();
+        return SvgImage(loadContents()).calculate();
       case '.webp':
-        return new WebpImage(loadCodeUnits()).calculate();
+        return WebpImage(loadCodeUnits()).calculate();
     }
 
     return null;
@@ -55,7 +55,7 @@ class ImageSize {
 ///
 class ImageDimension {
   ///
-  int width;  //px
+  int width; //px
   ///
   int height; //px
 
@@ -80,12 +80,11 @@ class BmpImage {
   bool isBmp() => MoreList.compare(bmpSignature, codeUnits.sublist(0, 2));
 
   /// Calculate size for bmp file
-  ImageDimension calculate() {
-    if (!isBmp()) return null;
-    return new ImageDimension(
-        width:  MoreList.readUInt32LE(codeUnits, 18),
-        height: MoreList.readUInt32LE(codeUnits, 22));
-  }
+  ImageDimension calculate() => !isBmp()
+      ? null
+      : ImageDimension(
+          width: MoreList.readUInt32LE(codeUnits, 18),
+          height: MoreList.readUInt32LE(codeUnits, 22));
 }
 
 //------------------------------------------------ .gif
@@ -94,6 +93,7 @@ class BmpImage {
 class GifImage {
   ///
   List<int> codeUnits;
+
   ///
   List<int> gif87Signature = <int>[71, 73, 70, 56, 55, 97]; // 'GIF87a'
   ///
@@ -108,12 +108,11 @@ class GifImage {
       MoreList.compare(gif89Signature, codeUnits.sublist(0, 6));
 
   /// Calculate size for gif file
-  ImageDimension calculate() {
-    if (!isGif()) return null;
-    return new ImageDimension(
-        width:  MoreList.readUInt16LE(codeUnits, 6),
-        height: MoreList.readUInt16LE(codeUnits, 8));
-  }
+  ImageDimension calculate() => !isGif()
+      ? null
+      : ImageDimension(
+          width: MoreList.readUInt16LE(codeUnits, 6),
+          height: MoreList.readUInt16LE(codeUnits, 8));
 }
 
 //------------------------------------------------ .jpg
@@ -129,11 +128,11 @@ class JpgImage {
     'ffe0': '4a46494600', // Standard JPEG
     'ffe1': '4578696600', // Camera JPEG, with EXIF data
     'ffe2': '4943435f50', // Canon EOS-1D JPEG
-    //'ffe3': '',           // Samsung D500 JPEG
+    //'ffe3': '',         // Samsung D500 JPEG
     'ffe8': '5350494646', // SPIFF JPEG
     'ffec': '4475636b79', // Photoshop JPEG
     'ffed': '50686f746f', // Adobe JPEG, Photoshop CMYK buffer
-    'ffee': '41646f6265'  // Adobe JPEG, Unrecognised (Lightroom??)
+    'ffee': '41646f6265' // Adobe JPEG, Unrecognised (Lightroom??)
   };
 
   ///
@@ -170,8 +169,8 @@ class JpgImage {
   ///
   /// jpg file size
   ///
-  ImageDimension extractJpgSize(int i) => new ImageDimension(
-      width:  MoreList.readUInt16BE(codeUnits, i + 2),
+  ImageDimension extractJpgSize(int i) => ImageDimension(
+      width: MoreList.readUInt16BE(codeUnits, i + 2),
       height: MoreList.readUInt16BE(codeUnits, i));
 
   ///
@@ -211,8 +210,10 @@ class JpgImage {
 class PngImage {
   ///
   List<int> codeUnits;
+
   ///
   List<int> pngSignature = <int>[80, 78, 71, 13, 10, 26, 10]; // 'PNG\r\n\x1a\n'
+
   ///
   List<int> ihdrSignature = <int>[73, 72, 68, 82]; // 'IHDR'
 
@@ -229,12 +230,11 @@ class PngImage {
   ///
   /// Calculate size for png file
   ///
-  ImageDimension calculate() {
-    if (!isPng()) return null;
-    return new ImageDimension(
-        width:  MoreList.readUInt32BE(codeUnits, 16),
-        height: MoreList.readUInt32BE(codeUnits, 20));
-  }
+  ImageDimension calculate() => !isPng()
+      ? null
+      : ImageDimension(
+          width: MoreList.readUInt32BE(codeUnits, 16),
+          height: MoreList.readUInt32BE(codeUnits, 20));
 }
 
 //------------------------------------------------ .psd
@@ -243,8 +243,10 @@ class PngImage {
 class PsdImage {
   ///
   List<int> codeUnits;
+
   ///
   List<int> psdSignature = <int>[56, 66, 80, 83]; // '8BPS'
+
   ///
   PsdImage(this.codeUnits);
 
@@ -256,12 +258,11 @@ class PsdImage {
   ///
   /// Calculate size for psd file
   ///
-  ImageDimension calculate() {
-    if (!isPsd()) return null;
-    return new ImageDimension(
-        width:  MoreList.readUInt32BE(codeUnits, 18),
-        height: MoreList.readUInt32BE(codeUnits, 14));
-  }
+  ImageDimension calculate() => !isPsd()
+      ? null
+      : ImageDimension(
+          width: MoreList.readUInt32BE(codeUnits, 18),
+          height: MoreList.readUInt32BE(codeUnits, 14));
 }
 
 //------------------------------------------------ .svg
@@ -270,16 +271,24 @@ class PsdImage {
 class SvgImage {
   ///
   String contents;
+
   ///
-  RegExp svgReg = new RegExp(r'<svg[^>]+[^>]*>');
+  RegExp svgReg = RegExp(r'<svg[^>]+[^>]*>');
+
   ///
-  RegExp svgRootReg = new RegExp(r'<svg [^>]+>');
+  RegExp svgRootReg = RegExp(r'<svg [^>]+>');
+
   ///
-  RegExp svgWidthReg = new RegExp(r'(^|\s)width\s*=\s*"(.+?)(px)?"', caseSensitive: false);
+  RegExp svgWidthReg =
+      RegExp(r'(^|\s)width\s*=\s*"(.+?)(px)?"', caseSensitive: false);
+
   ///
-  RegExp svgHeightReg = new RegExp(r'(^|\s)height\s*=\s*"(.+?)(px)?"', caseSensitive: false);
+  RegExp svgHeightReg =
+      RegExp(r'(^|\s)height\s*=\s*"(.+?)(px)?"', caseSensitive: false);
+
   ///
-  RegExp svgViewboxReg = new RegExp(r'(^|\s)viewbox\s*=\s*"(.+?)"', caseSensitive: false);
+  RegExp svgViewboxReg =
+      RegExp(r'(^|\s)viewbox\s*=\s*"(.+?)"', caseSensitive: false);
 
   ///
   SvgImage(this.contents);
@@ -295,7 +304,7 @@ class SvgImage {
     if (viewboxMatch != null && viewboxMatch[2] != null) {
       final List<String> dim = viewboxMatch[2].split(' ');
       if (dim.length == 4) {
-        final List<int> dimi = dim.map((String s) => int.parse(s)).toList();
+        final List<int> dimi = dim.map(int.parse).toList();
         ratio = (dimi[2] - dimi[0]) / (dimi[3] - dimi[1]);
       }
     }
@@ -306,13 +315,13 @@ class SvgImage {
   /// Calculate size for svg file
   ///
   ImageDimension calculate() {
-    int     height;
-    double  ratio;
-    int     width;
+    int height;
+    double ratio;
+    int width;
 
     if (!isSvg()) return null;
 
-    contents = contents.replaceAll(new RegExp(r'[\r\n\s]+'), ' ');
+    contents = contents.replaceAll(RegExp(r'[\r\n\s]+'), ' ');
     final Match section = svgRootReg.firstMatch(contents);
     final String root = section?.group(0);
     if (root != null) {
@@ -326,12 +335,12 @@ class SvgImage {
     }
 
     if (width != null && height != null) {
-      return new ImageDimension(width: width, height: height);
+      return ImageDimension(width: width, height: height);
     } else {
       if (width != null) {
-        return new ImageDimension(width: width, height: (width/ ratio).floor());
+        return ImageDimension(width: width, height: (width / ratio).floor());
       } else if (height != null) {
-        return new ImageDimension(width: (height * ratio).floor(), height: height);
+        return ImageDimension(width: (height * ratio).floor(), height: height);
       } else {
         return null;
       }
@@ -345,6 +354,7 @@ class SvgImage {
 class WebpImage {
   ///
   List<int> codeUnits;
+
   ///
   WebpImage(this.codeUnits);
 
@@ -352,10 +362,13 @@ class WebpImage {
   /// check is webp file
   ///
   bool isWebp() {
-    final bool riffHeader = MoreList.compare(<int>[82, 73, 70, 70], codeUnits.sublist(0, 4)); // 'RIFF'
-    final bool webpHeader = MoreList.compare(<int>[87, 69, 66, 80], codeUnits.sublist(8, 12)); // 'WEBP'
-    final bool vp8Header = MoreList.compare(<int>[86, 80, 56], codeUnits.sublist(12, 15)); // 'VP8'
-    return (riffHeader && webpHeader && vp8Header);
+    final bool riffHeader = MoreList.compare(
+        <int>[82, 73, 70, 70], codeUnits.sublist(0, 4)); // 'RIFF'
+    final bool webpHeader = MoreList.compare(
+        <int>[87, 69, 66, 80], codeUnits.sublist(8, 12)); // 'WEBP'
+    final bool vp8Header =
+        MoreList.compare(<int>[86, 80, 56], codeUnits.sublist(12, 15)); // 'VP8'
+    return riffHeader && webpHeader && vp8Header;
   }
 
   ///
@@ -363,15 +376,17 @@ class WebpImage {
     // `& 0x3fff` returns the last 14 bits
     final int width = MoreList.readInt16LE(buffer, 6) & 0x3fff;
     final int height = MoreList.readInt16LE(buffer, 8) & 0x3fff;
-    return new ImageDimension(width: width, height: height);
+    return ImageDimension(width: width, height: height);
   }
 
   ///
   ImageDimension calculateWebpLossless(List<int> buffer) {
     final int width = 1 + (((buffer[2] & 0x3F) << 8) | buffer[1]);
-    final int height = 1 + (((buffer[4] & 0xF) << 10) | (buffer[3] << 2) |
-                      ((buffer[2] & 0xC0) >> 6));
-    return new ImageDimension(width: width, height: height);
+    final int height = 1 +
+        (((buffer[4] & 0xF) << 10) |
+            (buffer[3] << 2) |
+            ((buffer[2] & 0xC0) >> 6));
+    return ImageDimension(width: width, height: height);
   }
 
   ///
@@ -384,14 +399,17 @@ class WebpImage {
     final List<int> buffer = codeUnits.sublist(20, 30);
 
     // Lossless webp stream signature
-    if (MoreList.compare(<int>[86, 80, 56, 32], chunkHeader) && buffer[0] != 47) { // 'VP8 ' 0x2f
+    // 'VP8 ' 0x2f
+    if (MoreList.compare(<int>[86, 80, 56, 32], chunkHeader) &&
+        buffer[0] != 47) {
       return calculateWebpLossy(buffer);
     }
 
-
     //Lossy webp stream signature
     final String signature = MoreList.foldHex(buffer.sublist(3, 6));
-    if (MoreList.compare(<int>[86, 80, 56, 76], chunkHeader) && signature != '9d012a') { // 'VP8L'
+    // 'VP8L'
+    if (MoreList.compare(<int>[86, 80, 56, 76], chunkHeader) &&
+        signature != '9d012a') {
       return calculateWebpLossless(buffer);
     }
 

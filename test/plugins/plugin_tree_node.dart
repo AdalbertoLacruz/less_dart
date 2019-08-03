@@ -117,7 +117,7 @@ class PluginTreeNode extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new AddMultipleFunctions();
+    final FunctionBase fun = AddMultipleFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }

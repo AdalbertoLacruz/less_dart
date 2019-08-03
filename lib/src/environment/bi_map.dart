@@ -27,14 +27,15 @@ class BiMap<K, V> implements Map<K, V> {
   @override
   void addAll(Map<K, V> other) {
     _map.addAll(other);
-    if (_inverse.isNotEmpty)
-        other.forEach((K key, V value) {
-          _inverse[value] = key;
-        });
+    if (_inverse.isNotEmpty) {
+      other.forEach((K key, V value) {
+        _inverse[value] = key;
+      });
+    }
   }
 
   ///
-  /// Syncrhonize the internal maps
+  /// Synchronize internal maps
   ///
   void buildInverse() {
     _inverse.clear();

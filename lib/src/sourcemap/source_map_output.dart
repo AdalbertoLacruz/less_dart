@@ -5,41 +5,56 @@ part of sourcemap.less;
 ///
 class SourceMapOutput extends Output {
   ///
-  int                 column = 0;
-  ///
-  Map<String, int>    contentsIgnoredCharsMap;
-  ///
-  Map<String, String> contentsMap;
-  ///
-  int                 indexGenerated = 0;
-  ///
-  int                 lineNumber = 0;
-  ///
-  Map<String, String> normalizeCache = <String, String>{};
-  ///
-  String              outputFilename;
-  ///
-  bool                outputSourceFiles;
-  ///
-  Ruleset             rootNode;
-  ///
-  String              sourceMap; //result
-  ///
-  String              sourceMapBasepath;
-  ///
-  String              sourceMapFilename;
-  ///
-  SourceMapBuilder    sourceMapGenerator; //class instance
-  ///
-  bool                sourceMapFileInline;
-  ///
-  String              sourceMapRootpath;
-  ///
-  String              sourceMapURL;
+  int column = 0;
 
   ///
-  SourceMapOutput({
-      this.contentsIgnoredCharsMap,
+  Map<String, int> contentsIgnoredCharsMap;
+
+  ///
+  Map<String, String> contentsMap;
+
+  ///
+  int indexGenerated = 0;
+
+  ///
+  int lineNumber = 0;
+
+  ///
+  Map<String, String> normalizeCache = <String, String>{};
+
+  ///
+  String outputFilename;
+
+  ///
+  bool outputSourceFiles;
+
+  ///
+  Ruleset rootNode;
+
+  ///
+  String sourceMap; //result
+
+  ///
+  String sourceMapBasepath;
+
+  ///
+  String sourceMapFilename;
+
+  ///
+  SourceMapBuilder sourceMapGenerator; //class instance
+
+  ///
+  bool sourceMapFileInline;
+
+  ///
+  String sourceMapRootpath;
+
+  ///
+  String sourceMapURL;
+
+  ///
+  SourceMapOutput(
+      {this.contentsIgnoredCharsMap,
       this.rootNode,
       this.contentsMap,
       String sourceMapFilename,
@@ -48,15 +63,15 @@ class SourceMapOutput extends Output {
       String sourceMapBasepath, //abs?
       String sourceMapRootpath,
       this.outputSourceFiles,
-      this.sourceMapFileInline
-    }) {
-
+      this.sourceMapFileInline}) {
     if (sourceMapFilename != null) {
       this.sourceMapFilename = sourceMapFilename.replaceAll('\\', '/');
     }
+
     if (sourceMapBasepath != null) {
       this.sourceMapBasepath = sourceMapBasepath.replaceAll('\\', '/');
     }
+
     if (sourceMapRootpath != null) {
       this.sourceMapRootpath = sourceMapRootpath.replaceAll('\\', '/');
       if (!this.sourceMapRootpath.endsWith('/')) {
@@ -66,7 +81,7 @@ class SourceMapOutput extends Output {
       this.sourceMapRootpath = '';
     }
 
-    sourceMapGenerator = new SourceMapBuilder();
+    sourceMapGenerator = SourceMapBuilder();
 
 //2.4.0
 //  var SourceMapOutput = function (options) {
@@ -123,13 +138,13 @@ class SourceMapOutput extends Output {
   }
 
   ///
-  String normalizeFilename (String file) {
+  String normalizeFilename(String file) {
     if (normalizeCache.containsKey(file)) return normalizeCache[file];
 
     String filename = file.replaceAll('\\', '/');
     filename = removeBasePath(filename);
 
-    final String result = path.normalize('${sourceMapRootpath ?? ''}$filename');
+    final String result = path_lib.normalize('${sourceMapRootpath ?? ''}$filename');
     normalizeCache[file] = result;
     return result;
 
@@ -146,15 +161,16 @@ class SourceMapOutput extends Output {
   /// [s] String | Node
   ///
   @override
-  void add(Object s, {FileInfo fileInfo, int index = 0, bool mapLines = false}) {
+  void add(Object s,
+      {FileInfo fileInfo, int index = 0, bool mapLines = false}) {
     if (s == null) return;
 
-    final String  chunk = (s is String) ? s : s.toString();
-    String        columns;
-    int           _index = index;
-    List<String>  lines;
-    String        sourceColumns;
-    List<String>  sourceLines;
+    final String chunk = (s is String) ? s : s.toString();
+    String columns;
+    int _index = index;
+    List<String> lines;
+    String sourceColumns;
+    List<String> sourceLines;
 
     //ignore adding empty strings
     if (chunk.isEmpty) return;
@@ -168,7 +184,8 @@ class SourceMapOutput extends Output {
         _index -= contentsIgnoredCharsMap[fileInfo.filename];
         if (_index < 0) _index = 0;
         // adjust the source
-        inputSource = inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
+        inputSource =
+            inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
       }
       inputSource = inputSource.substring(0, _index);
       sourceLines = inputSource.split('\n');
@@ -180,7 +197,7 @@ class SourceMapOutput extends Output {
 
     if (fileInfo?.filename != null) {
       if (!mapLines) {
-        final SourcemapData data = new SourcemapData(
+        final SourcemapData data = SourcemapData(
             originalIndex: _index,
             originalLine: sourceLines.length - 1,
             originalColumn: sourceColumns.length,
@@ -192,9 +209,10 @@ class SourceMapOutput extends Output {
         if (data != null) {
           sourceMapGenerator.addLocation(data.original, data.generated, null);
         }
-      } else { // @import (inline)
+      } else {
+        // @import (inline)
         for (int i = 0; i < lines.length; i++) {
-          final SourcemapData data = new SourcemapData(
+          final SourcemapData data = SourcemapData(
               originalIndex: _index,
               originalLine: sourceLines.length + i - 1,
               originalColumn: (i == 0) ? sourceColumns.length : 0,
@@ -282,11 +300,12 @@ class SourceMapOutput extends Output {
   ///
   String toCSS(Contexts context) {
     final Map<String, String> contents = <String, String>{};
-    Map<dynamic, dynamic>     json; //<String, dynamic> dynamic = String | int
-    String                    sourceMapURL = '';
+    Map<dynamic, dynamic> json; //<String, dynamic> dynamic = String | int
+    String sourceMapURL = '';
 
-    if (outputSourceFiles) { //--source-map-less-inline
-      for (String filename in contentsMap.keys) {
+    if (outputSourceFiles) {
+      //--source-map-less-inline
+      for (final String filename in contentsMap.keys) {
         String source = contentsMap[filename];
         if (contentsIgnoredCharsMap[filename] != null) {
           source = source.substring(contentsIgnoredCharsMap[filename]);
@@ -299,16 +318,18 @@ class SourceMapOutput extends Output {
 
     if (!super.isEmpty) {
       String sourceMapContent;
-      if (outputSourceFiles) {//--source-map-less-inline
+      if (outputSourceFiles) {
+        //--source-map-less-inline
         json = sourceMapGenerator.build(normalizeFilename(outputFilename));
         final List<String> sourcesContent = <String>[];
-        for (String filename in json['sources']) {
+        for (final String filename in json['sources']) {
           sourcesContent.add(contents[filename]);
         }
         json['sourcesContent'] = sourcesContent;
         sourceMapContent = jsonEncode(json);
       } else {
-        sourceMapContent = sourceMapGenerator.toJson(normalizeFilename(outputFilename));
+        sourceMapContent =
+            sourceMapGenerator.toJson(normalizeFilename(outputFilename));
       }
 
       if (sourceMapURL.isNotEmpty) {
@@ -367,25 +388,35 @@ class SourceMapOutput extends Output {
 ///
 class SourcemapData {
   ///
-  SourceLocation  original;
+  SourceLocation original;
+
   ///
-  int             originalIndex;
+  int originalIndex;
+
   ///
-  int             originalLine;
+  int originalLine;
+
   ///
-  int             originalColumn;
+  int originalColumn;
+
   ///
-  String          originalFile;
+  String originalFile;
+
   ///
-  SourceLocation  generated;
+  SourceLocation generated;
+
   ///
-  int             generatedIndex;
+  int generatedIndex;
+
   ///
-  int             generatedLine;
+  int generatedLine;
+
   ///
-  int             generatedColumn;
+  int generatedColumn;
+
   ///
-  String          generatedFile;
+  String generatedFile;
+
   ///
   static SourcemapData last;
 
@@ -399,37 +430,40 @@ class SourcemapData {
       int generatedLine,
       int generatedColumn,
       String generatedFile}) {
-
     if (last != null) {
       if (last.originalIndex == originalIndex &&
-          last.originalFile  == originalFile &&
+          last.originalFile == originalFile &&
           last.generatedLine == generatedLine) return null;
     }
 
-    final SourcemapData data = new SourcemapData.create(
-        originalIndex, originalLine, originalColumn, originalFile,
-        generatedIndex, generatedLine, generatedColumn, generatedFile)
-        ..original = new SourceLocation(originalIndex,
-            line: originalLine,
-            column: originalColumn,
-            sourceUrl: originalFile)
-        ..generated = new SourceLocation(generatedIndex,
-            line: generatedLine,
-            column: generatedColumn,
-            sourceUrl: generatedFile);
+    final SourcemapData data = SourcemapData.create(
+        originalIndex,
+        originalLine,
+        originalColumn,
+        originalFile,
+        generatedIndex,
+        generatedLine,
+        generatedColumn,
+        generatedFile)
+      ..original = SourceLocation(originalIndex,
+          line: originalLine, column: originalColumn, sourceUrl: originalFile)
+      ..generated = SourceLocation(generatedIndex,
+          line: generatedLine,
+          column: generatedColumn,
+          sourceUrl: generatedFile);
 
     last = data;
     return data;
   }
 
-///
-SourcemapData.create(
-    this.originalIndex,
-    this.originalLine,
-    this.originalColumn,
-    this.originalFile,
-    this.generatedIndex,
-    this.generatedLine,
-    this.generatedColumn,
-    this.generatedFile);
+  ///
+  SourcemapData.create(
+      this.originalIndex,
+      this.originalLine,
+      this.originalColumn,
+      this.originalFile,
+      this.generatedIndex,
+      this.generatedLine,
+      this.generatedColumn,
+      this.generatedFile);
 }

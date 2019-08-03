@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('Transform test/less/cleancss/main-ie8.less with --clean-css', () async {
-    final Less less = new Less();
+    final Less less = Less();
     final int exitCode = await less.transform(<String>[
       '--no-color',
       '--clean-css="compatibility=ie8"',

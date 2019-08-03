@@ -5,12 +5,10 @@ library environment.less;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
+import 'dart:math' as math_lib;
 
-// import 'package:barback/barback.dart';
-
-import 'package:mime/mime.dart' as mime;
-import 'package:path/path.dart' as pathLib;
+import 'package:mime/mime.dart' as mime_lib;
+import 'package:path/path.dart' as path_lib;
 
 import '../contexts.dart';
 import '../less_error.dart';
@@ -34,13 +32,16 @@ part 'url_file_manager.dart';
 ///
 class Environment {
   ///
-  static Map<int, Environment>  cache = <int, Environment>{};
+  static Map<int, Environment> cache = <int, Environment>{};
+
   ///
-  List<AbstractFileManager>     fileManagers;
+  List<AbstractFileManager> fileManagers;
+
   ///
-  Logger                        logger = new Logger();
+  Logger logger = Logger();
+
   ///
-  LessOptions                   options;
+  LessOptions options;
 
   ///
   /// Returns the environment for this runZoned
@@ -53,7 +54,7 @@ class Environment {
   ///
   factory Environment() {
     final int id = Zone.current[#id] ?? -1;
-    cache[id] ??= new Environment._();
+    cache[id] ??= Environment._();
     return cache[id];
   }
 
@@ -61,7 +62,7 @@ class Environment {
 
   /// Join and normalize two parts of path
   String pathJoin(String basePath, String laterPath) =>
-      pathLib.normalize(pathLib.join(basePath, laterPath));
+      path_lib.normalize(path_lib.join(basePath, laterPath));
 
   /// Normalize the path
 //  String pathNormalize(String basePath) => pathLib.normalize(basePath);
@@ -70,11 +71,11 @@ class Environment {
   /// Lookup the mime-type of a [filename]
   ///
   String mimeLookup(String filename) {
-    final String type = mime.lookupMimeType(filename);
+    final String type = mime_lib.lookupMimeType(filename);
 
     if (type == null) {
-      final String ext = pathLib.extension(filename);
-      throw new LessExceptionError(new LessError(
+      final String ext = path_lib.extension(filename);
+      throw LessExceptionError(LessError(
           message: 'Optional dependency "mime" is required for $ext'));
     }
     return type;
@@ -85,7 +86,7 @@ class Environment {
   ///
   String charsetLookup(String mime) {
     // assumes all text types are UTF-8
-    final RegExp re = new RegExp(r'^text\/');
+    final RegExp re = RegExp(r'^text\/');
 
     return (mime != null && re.hasMatch(mime)) ? 'UTF-8' : '';
   }
@@ -94,9 +95,8 @@ class Environment {
   /// Returns the UrlFileManager or FileFileManager to load the [filename]
   ///
   AbstractFileManager getFileManager(String filename, String currentDirectory,
-        Contexts options, Environment environment,
-        {bool isSync = false}) {
-
+      Contexts options, Environment environment,
+      {bool isSync = false}) {
     AbstractFileManager fileManager;
 
     if (filename == null) {
@@ -111,9 +111,9 @@ class Environment {
 
     if (fileManagers == null) {
       fileManagers = <AbstractFileManager>[
-          //order is important
-          new FileFileManager(environment, new PackageResolverProvider()),
-          new UrlFileManager(environment)
+        //order is important
+        FileFileManager(environment, PackageResolverProvider()),
+        UrlFileManager(environment)
       ];
       if (options.pluginManager != null) {
         fileManagers.addAll(options.pluginManager.getFileManagers());
@@ -122,10 +122,14 @@ class Environment {
 
     for (int i = fileManagers.length - 1; i >= 0; i--) {
       fileManager = fileManagers[i];
-      if (isSync && fileManager.supportsSync(filename, currentDirectory, options, environment)) {
+      if (isSync &&
+          fileManager.supportsSync(
+              filename, currentDirectory, options, environment)) {
         return fileManager;
       }
-      if (!isSync && fileManager.supports(filename, currentDirectory, options, environment)) {
+      if (!isSync &&
+          fileManager.supports(
+              filename, currentDirectory, options, environment)) {
         return fileManager;
       }
     }

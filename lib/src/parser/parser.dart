@@ -7,7 +7,7 @@ library parser.less;
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
+import 'dart:math' as math_lib;
 
 import '../contexts.dart';
 import '../environment/environment.dart';
@@ -60,38 +60,38 @@ part 'parsers.dart';
 ///
 class Parser {
   /// Text to insert as header
-  String        banner = '';
+  String banner = '';
 
   /// Environment variables
-  Contexts      context;
+  Contexts context;
 
   /// Data about the file being parsed
-  FileInfo      fileInfo;
+  FileInfo fileInfo;
 
   /// Less variables to define at the file start
-  String        globalVars = '';
+  String globalVars = '';
 
   /// Data to process @import directives
   ImportManager imports;
 
   /// Less variables to define at the end of file
-  String        modifyVars = '';
+  String modifyVars = '';
 
   /// To reference other Parsers functions
-  Parsers       parsers;
+  Parsers parsers;
 
   /// Banner and glovalVars mix
-  String        preText = '';
+  String preText = '';
 
   ///
   /// Normal Parser constructor, with less [options]
   ///
   Parser(LessOptions options) {
-    context = new Contexts.parse(options);
+    context = Contexts.parse(options);
 
     if (options.banner.isNotEmpty) {
       try {
-        banner = new File(options.banner).readAsStringSync();
+        banner = File(options.banner).readAsStringSync();
       } catch (_) {}
     }
 
@@ -115,23 +115,26 @@ class Parser {
   ///
   Future<Ruleset> parse(String str) {
     Ruleset root;
-    String  _str = str;
+    String _str = str;
 
     fileInfo ??= context.currentFileInfo;
-    imports ??= new ImportManager(context, fileInfo);
-    final Map<String, dynamic> processOptions =  <String, dynamic>{
-        'context': context,
-        'imports': imports,
-        'fileInfo': fileInfo};
+    imports ??= ImportManager(context, fileInfo);
+    final Map<String, dynamic> processOptions = <String, dynamic>{
+      'context': context,
+      'imports': imports,
+      'fileInfo': fileInfo
+    };
 
     if (context.pluginManager != null) {
-      context.pluginManager.getPreProcessors().forEach((Processor preProcessor) {
+      context.pluginManager
+          .getPreProcessors()
+          .forEach((Processor preProcessor) {
         _str = preProcessor.process(_str, processOptions);
       });
     }
 
     if (globalVars.isNotEmpty || banner.isNotEmpty) {
-      preText = '$banner$globalVars'.replaceAll(new RegExp(r'\r\n?'), '\n');
+      preText = '$banner$globalVars'.replaceAll(RegExp(r'\r\n?'), '\n');
 
       if (!imports.contentsIgnoredChars.containsKey(fileInfo.filename)) {
         imports.contentsIgnoredChars[fileInfo.filename] = 0;
@@ -140,7 +143,7 @@ class Parser {
     }
 
     // Remove potential UTF Byte Order Mark
-    _str = _str.replaceAll('\r\n', '\n').replaceAll(new RegExp(r'^\uFEFF'), '');
+    _str = _str.replaceAll('\r\n', '\n').replaceAll(RegExp(r'^\uFEFF'), '');
     _str = '$preText$_str$modifyVars';
 
     imports.contents[fileInfo.filename] = _str;
@@ -155,29 +158,29 @@ class Parser {
     // output. The callback is called when the input is parsed.
 
     try {
-      parsers = new Parsers(_str, context);
-      root = new Ruleset(null, parsers.primary())
-          ..root = true
-          ..firstRoot = true;
+      parsers = Parsers(_str, context);
+      root = Ruleset(null, parsers.primary())
+        ..root = true
+        ..firstRoot = true;
       parsers.isFinished();
 
-      new IgnitionVisitor().run(root); // @options directive process
+      IgnitionVisitor().run(root); // @options directive process
 
       if (context.processImports) {
-        return new ImportVisitor(imports)
+        return ImportVisitor(imports)
             .runAsync(root)
-            .then((_) => new Future<Ruleset>.value(root))
+            .then((_) => Future<Ruleset>.value(root))
             .catchError((Object e) {
-              throw new LessExceptionError(LessError.transform(e, type: 'Import', context: context));
-            });
+          throw LessExceptionError(
+              LessError.transform(e, type: 'Import', context: context));
+        });
       }
     } catch (e, s) {
-      return new Future<Ruleset>.error(
-        new LessExceptionError(LessError.transform(e, stackTrace: s, context: context))
-      );
+      return Future<Ruleset>.error(LessExceptionError(
+          LessError.transform(e, stackTrace: s, context: context)));
     }
 
-    return new Future<Ruleset>.value(root);
+    return Future<Ruleset>.value(root);
   }
 
   ///
@@ -186,13 +189,14 @@ class Parser {
   ///
   ///     @color: red;
   ///
-  String serializeVars(List<VariableDefinition> vars) =>
-      vars.fold(new StringBuffer(), (StringBuffer prev, VariableDefinition vardef) =>
-        prev
+  String serializeVars(List<VariableDefinition> vars) => vars
+      .fold(
+          StringBuffer(),
+          (StringBuffer prev, VariableDefinition vardef) => prev
             ..write(vardef.name.startsWith('@') ? '' : '@')
             ..write('${vardef.name}: ${vardef.value}')
-            ..write(vardef.value.endsWith(';') ? '' : ';')
-      ).toString();
+            ..write(vardef.value.endsWith(';') ? '' : ';'))
+      .toString();
 
 //2.4.0
 //  Parser.serializeVars = function(vars) {

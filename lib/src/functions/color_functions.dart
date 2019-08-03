@@ -6,7 +6,7 @@ part of functions.less;
 class ColorFunctions extends FunctionBase {
   ///
   /// Returns [val] clamped to be in the range 0..val..1.
-  /// Mantains type
+  /// Maintains type
   ///
   @defineMethodSkip
   T clamp<T extends num>(T val) =>
@@ -15,7 +15,8 @@ class ColorFunctions extends FunctionBase {
 //  function clamp(val) {
 //      return Math.min(1, Math.max(0, val));
 //  }
-  static final RegExp _hslaRegExp = new RegExp(r'(rgb|hsl)', caseSensitive: true);
+  static final RegExp _hslaRegExp = RegExp(r'(rgb|hsl)', caseSensitive: true);
+
   ///
   /// Returns a color from hsl, keeping the original color space
   ///
@@ -23,10 +24,10 @@ class ColorFunctions extends FunctionBase {
   Color hslaColorSpace(Color origColor, HSLType hsl) {
     final Color color = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
     if (color != null) {
-//      color.value = ((origColor?.value != null ?? false) && _hslaRegExp.hasMatch(origColor.value))
-      color.value = _hslaRegExp.hasMatch(origColor?.value ?? '') // todo could be null?
-          ? origColor.value
-          : 'rgb';
+      color.value =
+          _hslaRegExp.hasMatch(origColor?.value ?? '') // todo could be null?
+              ? origColor.value
+              : 'rgb';
       return color;
     }
     return null;
@@ -56,7 +57,7 @@ class ColorFunctions extends FunctionBase {
     } else if (n is num) {
       return n;
     } else {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Argument',
           message: 'color functions take numbers as parameters'));
     }
@@ -79,7 +80,7 @@ class ColorFunctions extends FunctionBase {
   @defineMethodSkip
   num scaled(dynamic n, int size) {
     if (n is Dimension && n.unit.isUnit('%')) {
-      return (n.value * size / 100);
+      return n.value * size / 100;
     } else {
       return number(n);
     }
@@ -110,9 +111,7 @@ class ColorFunctions extends FunctionBase {
   ///
   Color rgb(dynamic r, [dynamic g, dynamic b]) {
     final Color color = rgba(r, g, b, 1.0);
-    return (color != null)
-        ? (color..value = 'rgb')
-        : null;
+    return (color != null) ? (color..value = 'rgb') : null;
 
 // 3.8.0 20180729
 //  rgb: function (r, g, b) {
@@ -141,11 +140,12 @@ class ColorFunctions extends FunctionBase {
     try {
       if (r is Color) {
         final num alpha = g != null ? number(g) : r.alpha;
-        return new Color.fromList(r.rgb, alpha, 'rgba');
+        return Color.fromList(r.rgb, alpha, 'rgba');
       }
 
-      final List<num> rgb = <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
-      return new Color.fromList(rgb, number(a), 'rgba');
+      final List<num> rgb =
+          <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
+      return Color.fromList(rgb, number(a), 'rgba');
     } catch (e) {
       return null;
     }
@@ -182,9 +182,7 @@ class ColorFunctions extends FunctionBase {
   ///
   Color hsl(dynamic h, [dynamic s, dynamic l]) {
     final Color color = hsla(h, s, l, 1.0);
-    return (color != null)
-        ? (color..value = 'hsl')
-        : null;
+    return (color != null) ? (color..value = 'hsl') : null;
 
 // 3.8.0 20180729
 //  hsl: function (h, s, l) {
@@ -212,7 +210,7 @@ class ColorFunctions extends FunctionBase {
     try {
       if (h is Color) {
         final num alpha = s != null ? number(s) : h.alpha;
-        return new Color.fromList(h.rgb, alpha, 'hsla');
+        return Color.fromList(h.rgb, alpha, 'hsla');
       }
 
       final dynamic _h = (number(h) % 360) / 360;
@@ -220,9 +218,7 @@ class ColorFunctions extends FunctionBase {
       final dynamic _l = clamp(number(l));
       final dynamic _a = clamp(number(a));
 
-      final double m2 = (_l <= 0.5)
-          ? _l * (_s + 1)
-          : _l + _s - _l * _s;
+      final double m2 = (_l <= 0.5) ? _l * (_s + 1) : _l + _s - _l * _s;
       final double m1 = _l * 2 - m2;
 
       double hue(num h) {
@@ -243,7 +239,7 @@ class ColorFunctions extends FunctionBase {
         hue(_h) * 255,
         hue(_h - 1 / 3) * 255
       ];
-      return new Color.fromList(rgb, _a, 'hsla');
+      return Color.fromList(rgb, _a, 'hsla');
     } catch (e) {
       return null;
     }
@@ -354,26 +350,23 @@ class ColorFunctions extends FunctionBase {
     final double f = (_h / 60) - i;
 
     final List<num> vs = <num>[
-        _v,
-        _v * (1 - _s),
-        _v * (1 - f * _s),
-        _v * (1 - (1 - f) * _s)
+      _v,
+      _v * (1 - _s),
+      _v * (1 - f * _s),
+      _v * (1 - (1 - f) * _s)
     ];
 
     final List<List<int>> perm = <List<int>>[
-        <int>[0, 3, 1],
-        <int>[2, 0, 1],
-        <int>[1, 0, 3],
-        <int>[1, 2, 0],
-        <int>[3, 1, 0],
-        <int>[0, 1, 2]
+      <int>[0, 3, 1],
+      <int>[2, 0, 1],
+      <int>[1, 0, 3],
+      <int>[1, 2, 0],
+      <int>[3, 1, 0],
+      <int>[0, 1, 2]
     ];
 
     return rgba(
-        vs[perm[i][0]] * 255,
-        vs[perm[i][1]] * 255,
-        vs[perm[i][2]] * 255,
-        _a);
+        vs[perm[i][0]] * 255, vs[perm[i][1]] * 255, vs[perm[i][2]] * 255, _a);
 
 //    hsva: function(h, s, v, a) {
 //        h = ((number(h) % 360) / 360) * 360;
@@ -410,7 +403,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hue(hsl(90, 100%, 50%))
   ///   Output: 90
   ///
-  Dimension hue(Color color) => new Dimension(color.toHSL().h);
+  Dimension hue(Color color) => Dimension(color.toHSL().h);
 
   ///
   /// Extracts the saturation channel of a color object in the HSL color space.
@@ -421,7 +414,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: saturation(hsl(90, 100%, 50%))
   ///   Output: 100%
   ///
-  Dimension saturation(Color color) => new Dimension(color.toHSL().s * 100, '%');
+  Dimension saturation(Color color) => Dimension(color.toHSL().s * 100, '%');
 
   ///
   /// Extracts the lightness channel of a color object in the HSL color space.
@@ -432,7 +425,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: lightness(hsl(90, 100%, 50%))
   ///   Output: 50%
   ///
-  Dimension lightness(Color color) => new Dimension(color.toHSL().l * 100, '%');
+  Dimension lightness(Color color) => Dimension(color.toHSL().l * 100, '%');
 
   ///
   /// Extracts the hue channel of a color object in the HSV color space.
@@ -443,7 +436,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsvhue(hsv(90, 100%, 50%))
   ///   Output: 90
   ///
-  Dimension hsvhue(Color color) => new Dimension(color.toHSV().h);
+  Dimension hsvhue(Color color) => Dimension(color.toHSV().h);
 
   ///
   /// Extracts the saturation channel of a color object in the HSV color space.
@@ -454,8 +447,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsvsaturation(hsv(90, 100%, 50%))
   ///   Output: 100%
   ///
-  Dimension hsvsaturation(Color color) =>
-      new Dimension(color.toHSV().s * 100, '%');
+  Dimension hsvsaturation(Color color) => Dimension(color.toHSV().s * 100, '%');
 
   ///
   /// Extracts the value channel of a color object in the HSV color space.
@@ -466,7 +458,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsvvalue(hsv(90, 100%, 50%))
   ///   Output: 50%
   ///
-  Dimension hsvvalue(Color color) => new Dimension(color.toHSV().v * 100, '%');
+  Dimension hsvvalue(Color color) => Dimension(color.toHSV().v * 100, '%');
 
   ///
   /// Extracts the red channel of a color object.
@@ -477,7 +469,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: red(rgb(10, 20, 30))
   ///   Output: 10
   //
-  Dimension red(Color color) => new Dimension(color.r);
+  Dimension red(Color color) => Dimension(color.r);
 
   ///
   /// Extracts the green channel of a color object.
@@ -488,7 +480,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: green(rgb(10, 20, 30))
   ///   Output: 20
   ///
-  Dimension green(Color color) => new Dimension(color.g);
+  Dimension green(Color color) => Dimension(color.g);
 
   ///
   /// Extracts the blue channel of a color object.
@@ -499,7 +491,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: blue(rgb(10, 20, 30))
   ///   Output: 30
   ///
-  Dimension blue(Color color) => new Dimension(color.b);
+  Dimension blue(Color color) => Dimension(color.b);
 
   ///
   /// Extracts the alpha channel of a color object.
@@ -510,7 +502,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: alpha(rgba(10, 20, 30, 0.5))
   ///   Output: 0.5
   ///
-  Dimension alpha(Color color) => new Dimension(color.toHSL().a); //color.alpha?
+  Dimension alpha(Color color) => Dimension(color.toHSL().a); //color.alpha?
 
   ///
   /// Calculates the luma (perceptual brightness) of a color object.
@@ -522,7 +514,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: 44%
   ///
   Dimension luma(Color color) =>
-      new Dimension(color.luma() * color.alpha * 100, '%');
+      Dimension(color.luma() * color.alpha * 100, '%');
 
   ///
   /// Calculates the value of the luma without gamma correction
@@ -534,12 +526,11 @@ class ColorFunctions extends FunctionBase {
   ///   Output: 65%
   ///
   Dimension luminance(Color color) {
-    final double luminance =
-        (0.2126 * color.r / 255) +
+    final double luminance = (0.2126 * color.r / 255) +
         (0.7152 * color.g / 255) +
         (0.0722 * color.b / 255);
 
-    return new Dimension(luminance * color.alpha * 100, '%');
+    return Dimension(luminance * color.alpha * 100, '%');
 
 //    luminance: function (color) {
 //        var luminance =
@@ -794,8 +785,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: rgba(128, 242, 13, 0.1) //hsla(90, 90%, 50%, 0.1)
   ///
   Color fade(Color color, Dimension amount) {
-    final HSLType hsl = color.toHSL()
-        ..a = clamp(amount.value / 100);
+    final HSLType hsl = color.toHSL()..a = clamp(amount.value / 100);
 
     return hslaColorSpace(color, hsl);
 
@@ -839,7 +829,7 @@ class ColorFunctions extends FunctionBase {
   ///
   Color spin(Color color, Dimension amount) {
     final HSLType hsl = color.toHSL();
-    final double  hue = (hsl.h + amount.value) % 360;
+    final double hue = (hsl.h + amount.value) % 360;
 
     hsl.h = hue < 0 ? 360 + hue : hue;
     return hslaColorSpace(color, hsl);
@@ -873,7 +863,7 @@ class ColorFunctions extends FunctionBase {
   // Copyright (c) 2006-2009 Hampton Catlin, Natalie Weizenbaum, and Chris Eppstein
   // http://sass-lang.com
   Color mix(Color color1, Color color2, [Dimension weight]) {
-    weight ??= new Dimension(50);
+    weight ??= Dimension(50);
 
     final double p = weight.value / 100.0;
     final double w = p * 2 - 1;
@@ -883,13 +873,13 @@ class ColorFunctions extends FunctionBase {
     final double w2 = 1 - w1;
 
     final List<num> rgb = <num>[
-        color1.r * w1 + color2.r * w2,
-        color1.g * w1 + color2.g * w2,
-        color1.b * w1 + color2.b * w2
+      color1.r * w1 + color2.r * w2,
+      color1.g * w1 + color2.g * w2,
+      color1.b * w1 + color2.b * w2
     ];
     final double alpha = color1.alpha * p + color2.alpha * (1 - p);
 
-    return new Color.fromList(rgb, alpha);
+    return Color.fromList(rgb, alpha);
 
 //    mix: function (color1, color2, weight) {
 //        if (!weight) {
@@ -922,7 +912,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: greyscale(hsl(90, 90%, 50%))
   ///   Output: #808080 // hsl(90, 0%, 50%)
   ///
-  Color greyscale(Color color) => desaturate(color, new Dimension(100));
+  Color greyscale(Color color) => desaturate(color, Dimension(100));
 
   ///
   /// Choose which of two colors provides the greatest contrast with another.
@@ -935,7 +925,8 @@ class ColorFunctions extends FunctionBase {
   ///   transition from "dark" to "light" is (defaults to 43%, matching SASS).
   ///   Returns: color
   ///
-  Color contrast(Node colorNode, [Color dark, Color light, Dimension threshold]) {
+  Color contrast(Node colorNode,
+      [Color dark, Color light, Dimension threshold]) {
     // filter: contrast(3.2);
     // should be kept as is, so check for color
     if (colorNode is! Color) return null;
@@ -995,7 +986,7 @@ class ColorFunctions extends FunctionBase {
   /// Example: argb(rgba(90, 23, 148, 0.5));
   ///   Output: #805a1794
   ///
-  Anonymous argb(Color color) => new Anonymous(color.toARGB())..parsed = true;
+  Anonymous argb(Color color) => Anonymous(color.toARGB())..parsed = true;
 
   ///
   /// Parses a color, so a string representing a color becomes a color.
@@ -1008,21 +999,26 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #aaa
   ///
   Color color(dynamic c) {
-    final RegExp re = new RegExp(r'^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$', caseSensitive: false);
+    final RegExp re = RegExp(
+        r'^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$',
+        caseSensitive: false);
 
     if (c is Quoted && re.hasMatch(c.value)) {
       final String val = c.value.substring(1);
-      return new Color(val, null, '#$val');
+      return Color(val, null, '#$val');
     }
 
-    final Color _c = (c is Color) ? c : new Color.fromKeyword(c.value); //c.value must be a color name
+    final Color _c = (c is Color)
+        ? c
+        : Color.fromKeyword(c.value); //c.value must be a color name
     if (_c != null) {
       _c.value = null;
       return _c;
     }
-    throw new LessExceptionError(new LessError(
+    throw LessExceptionError(LessError(
         type: 'Argument',
-        message: 'argument must be a color keyword or 3|4|6|8 digit hex e.g. #FFF'));
+        message:
+            'argument must be a color keyword or 3|4|6|8 digit hex e.g. #FFF'));
 
 // 3.8.0 20180729
 //  color: function(c) {
@@ -1051,5 +1047,6 @@ class ColorFunctions extends FunctionBase {
   ///
   /// returns a [color] [amount]% points *darker*
   ///
-  Color shade(Color color, Dimension amount) => mix(rgb(0, 0, 0), color, amount);
+  Color shade(Color color, Dimension amount) =>
+      mix(rgb(0, 0, 0), color, amount);
 }

@@ -38,17 +38,6 @@ class MoreList {
     return result;
   }
 
-  //
-  // Returns the indexth element.
-  // If index < 0 || index >= length => null
-  //
-  /* static dynamic elementAt(List list, int index) {
-    if (list == null) return null;
-    if (index < 0) return null;
-    if (index >= list.length) return null;
-    return list[index];
-  }*/
-
   ///
   /// Return the [list]<int> codeUnits (0-255) converted to hexadecimal string
   ///
@@ -56,9 +45,10 @@ class MoreList {
   /// [255, 254] => 'ffe0'
   ///
   static String foldHex(List<int> list) => list
-      .fold(new StringBuffer(), (StringBuffer hex, int x) =>
-          hex
-              ..write(x.toRadixString(16).padLeft(2, '0')))
+      .fold(
+          StringBuffer(),
+          (StringBuffer hex, int x) =>
+              hex..write(x.toRadixString(16).padLeft(2, '0')))
       .toString();
 
   ///
@@ -66,7 +56,8 @@ class MoreList {
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
   static int readInt16LE(List<int> buffer, int offset) {
-    final String hex = MoreList.foldHex(buffer.sublist(offset, offset + 2).reversed.toList());
+    final String hex =
+        MoreList.foldHex(buffer.sublist(offset, offset + 2).reversed.toList());
     return int.parse(hex, radix: 16).toSigned(16);
   }
 
@@ -89,12 +80,17 @@ class MoreList {
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
   static int readUInt32BE(List<int> buffer, int offset) =>
-      ((buffer[offset] * 256 + buffer[offset + 1]) * 256 + buffer[offset + 2]) * 256 + buffer[offset + 3];
+      ((buffer[offset] * 256 + buffer[offset + 1]) * 256 + buffer[offset + 2]) *
+          256 +
+      buffer[offset + 3];
 
   ///
   /// Reads an unsigned 32 bit integer from the buffer at the specified [offset]
   /// with specified endian format.
   ///
   static int readUInt32LE(List<int> buffer, int offset) =>
-      ((buffer[offset + 3] * 256 + buffer[offset + 2]) * 256 + buffer[offset + 1]) * 256 + buffer[offset];
+      ((buffer[offset + 3] * 256 + buffer[offset + 2]) * 256 +
+              buffer[offset + 1]) *
+          256 +
+      buffer[offset];
 }

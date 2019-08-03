@@ -5,19 +5,25 @@ part of plugins.less;
 ///
 class PluginManager {
   ///
-  List<FunctionBase>  customFunctions = <FunctionBase>[];
+  List<FunctionBase> customFunctions = <FunctionBase>[];
+
   ///
-  List<AbstractFileManager>   fileManagers = <AbstractFileManager>[];
+  List<AbstractFileManager> fileManagers = <AbstractFileManager>[];
+
   ///
-  bool                isLoaded = false; //true if plugin has been loaded previously
+  bool isLoaded = false; //true if plugin has been loaded previously
+
   ///
-  List<Plugin>        installedPlugins = <Plugin>[];
+  List<Plugin> installedPlugins = <Plugin>[];
+
   ///
   List<ProcessorItem> postProcessors = <ProcessorItem>[];
+
   ///
   List<ProcessorItem> preProcessors = <ProcessorItem>[];
+
   ///
-  List<VisitorBase>   visitors = <VisitorBase>[];
+  List<VisitorBase> visitors = <VisitorBase>[];
 
   ///
   PluginManager();
@@ -26,11 +32,7 @@ class PluginManager {
   /// Adds all the plugins in the List
   ///
   void addPlugins(List<Plugin> plugins) {
-    if (plugins != null) {
-      plugins.forEach((Plugin plugin) {
-        addPlugin(plugin);
-      });
-    }
+    if (plugins != null) plugins.forEach(addPlugin);
 
 //2.4.0
 //  PluginManager.prototype.addPlugins = function(plugins) {
@@ -50,8 +52,8 @@ class PluginManager {
     isLoaded = plugin.isLoaded;
 
     plugin
-        ..install(this)
-        ..isLoaded = true;
+      ..install(this)
+      ..isLoaded = true;
     isLoaded = false;
 
 //3.0.0 20160716
@@ -89,12 +91,13 @@ class PluginManager {
 
     int indexToInsertAt;
 
-    for (indexToInsertAt = 0; indexToInsertAt < preProcessors.length; indexToInsertAt++) {
+    for (indexToInsertAt = 0;
+        indexToInsertAt < preProcessors.length;
+        indexToInsertAt++) {
       if (preProcessors[indexToInsertAt].priority >= priority) break;
     }
-    preProcessors.insert(
-        indexToInsertAt,
-        new ProcessorItem(preProcessor: preProcessor, priority: priority));
+    preProcessors.insert(indexToInsertAt,
+        ProcessorItem(preProcessor: preProcessor, priority: priority));
 
 //2.4.0
 //  PluginManager.prototype.addPreProcessor = function(preProcessor, priority) {
@@ -117,12 +120,13 @@ class PluginManager {
 
     int indexToInsertAt;
 
-    for (indexToInsertAt = 0; indexToInsertAt < postProcessors.length; indexToInsertAt++) {
+    for (indexToInsertAt = 0;
+        indexToInsertAt < postProcessors.length;
+        indexToInsertAt++) {
       if (postProcessors[indexToInsertAt].priority >= priority) break;
     }
-    postProcessors.insert(
-        indexToInsertAt,
-        new ProcessorItem(postProcessor: postProcessor, priority: priority));
+    postProcessors.insert(indexToInsertAt,
+        ProcessorItem(postProcessor: postProcessor, priority: priority));
 
 //2.4.0
 //  PluginManager.prototype.addPostProcessor = function(postProcessor, priority) {
@@ -221,10 +225,12 @@ class PluginManager {
 class ProcessorItem {
   ///
   Processor preProcessor;
+
   ///
   Processor postProcessor;
+
   ///
-  int       priority;
+  int priority;
 
   ///
   ProcessorItem({this.preProcessor, this.postProcessor, this.priority});

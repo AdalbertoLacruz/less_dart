@@ -7,9 +7,10 @@ int debugCounter = 0;
 /// check type
 /// Example:  `isType(ctxSelectors, 'Selector', isListList: true);`
 ///
-bool isType(dynamic value, String type, {bool isList = false, bool isListList = false}) {
-  final bool  _isList = isList || isListList;
-  bool        result = true;
+bool isType(dynamic value, String type,
+    {bool isList = false, bool isListList = false}) {
+  final bool _isList = isList || isListList;
+  bool result = true;
 
   if (value == null) return true;
 

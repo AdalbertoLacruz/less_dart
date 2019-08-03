@@ -18,12 +18,12 @@ const String DOT_LESS_TO = '.css';
 
 ///
 Builder lessBuilder(BuilderOptions builderOptions) =>
-  new LessBuilder(new LessBuilderOptions(builderOptions));
+    LessBuilder(LessBuilderOptions(builderOptions));
 
 /// Remove input files
 PostProcessBuilder lessSourceCleanup(BuilderOptions options) =>
-  new FileDeletingBuilder(<String>['.less', '.less.html'],
-      isEnabled: (options.config['enabled'] as bool) ?? false);
+    FileDeletingBuilder(<String>['.less', '.less.html'],
+        isEnabled: (options.config['enabled'] as bool) ?? false);
 
 ///
 /// build.yaml example file in project:
@@ -58,12 +58,13 @@ class LessBuilder implements Builder {
     final String extension = inputId.extension;
 
     if (extension.toLowerCase() == '.less') {
-      final DotLessBuilder transformer = new DotLessBuilder()
+      final DotLessBuilder transformer = DotLessBuilder()
         ..createFlags(options)
         ..inputContent = await buildStep.readAsString(inputId);
 
       final AssetId outputId = inputId.changeExtension(DOT_LESS_TO);
-      log.info('  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
+      log.info(
+          '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
       await transformer.transform(customOptions);
       if (transformer.isError) {
@@ -74,16 +75,17 @@ class LessBuilder implements Builder {
 
       // dependents - force AssetGraph inclusion, we are called on change
       transformer.imports.forEach((String path) async {
-        await buildStep.canRead(new AssetId(package, path));
+        await buildStep.canRead(AssetId(package, path));
       });
     } else if (extension.toLowerCase() == '.html') {
-      final DotHtmlBuilder transformer = new DotHtmlBuilder()
+      final DotHtmlBuilder transformer = DotHtmlBuilder()
         ..createFlags(options)
         ..inputContent = await buildStep.readAsString(inputId);
 
       final String outputPath = inputId.path.replaceAll('.less.html', '.html');
-      final AssetId outputId = new AssetId(package, outputPath);
-      log.info('  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
+      final AssetId outputId = AssetId(package, outputPath);
+      log.info(
+          '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
       await transformer.transform(customOptions);
       if (transformer.isError) {
@@ -94,16 +96,16 @@ class LessBuilder implements Builder {
 
       // dependents - force AssetGraph inclusion, we are called on change
       transformer.imports.forEach((String path) async {
-        await buildStep.canRead(new AssetId(package, path));
+        await buildStep.canRead(AssetId(package, path));
       });
     }
   }
 
   @override
   Map<String, List<String>> get buildExtensions => <String, List<String>>{
-      '.less.html': <String>[DOT_HTML_TO],
-      '.less': <String>[DOT_LESS_TO]
-  };
+        '.less.html': <String>[DOT_HTML_TO],
+        '.less': <String>[DOT_LESS_TO]
+      };
 
   ///
   /// Extending the builder let modify programmatically the less options.

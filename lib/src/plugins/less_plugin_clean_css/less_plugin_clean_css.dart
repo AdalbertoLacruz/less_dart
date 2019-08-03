@@ -18,7 +18,8 @@ class LessPluginCleanCss extends Plugin {
   ///
   CleanCssOptions cleanCssOptions;
 
-  @override List<int> minVersion = <int>[2, 1, 0];
+  @override
+  List<int> minVersion = <int>[2, 1, 0];
 
   ///
   LessPluginCleanCss() : super();
@@ -29,10 +30,10 @@ class LessPluginCleanCss extends Plugin {
     if (cleanCssOptions == null) setOptions('');
     lessOptions.cleanCss = true;
 
-    final VisitorBase cleanCssVisitor = new CleanCssVisitor(cleanCssOptions);
+    final VisitorBase cleanCssVisitor = CleanCssVisitor(cleanCssOptions);
     pluginManager.addVisitor(cleanCssVisitor);
 
-    final Processor cleanCssProcessor = new CleanCssProcessor(cleanCssOptions);
+    final Processor cleanCssProcessor = CleanCssProcessor(cleanCssOptions);
     pluginManager.addPostProcessor(cleanCssProcessor, 1500);
 
 //2.4.0
@@ -46,14 +47,22 @@ class LessPluginCleanCss extends Plugin {
   @override
   void printUsage() {
     logger
-        ..log('')
-        ..log('Clean CSS Plugin')
-        ..log('specify plugin with --clean-css')
-        ..log('To pass an option to clean css, we use similar CLI arguments as from https://github.com/GoalSmashers/clean-css')
-        ..log('The exception is advanced and rebase - we turn these off by default so use advanced/rebase to turn it back on again.')
-        ..log('--clean-css="-s1 --advanced --rebase"')
-        ..log('The options do not require dashes, so this is also equivalent')
-        ..log('--clean-css="s1 advanced rebase"');
+      ..log(
+          '')
+      ..log(
+          'Clean CSS Plugin')
+      ..log(
+          'specify plugin with --clean-css')
+      ..log(
+          'To pass an option to clean css, we use similar CLI arguments as from https://github.com/GoalSmashers/clean-css')
+      ..log(
+          'The exception is advanced and rebase - we turn these off by default so use advanced/rebase to turn it back on again.')
+      ..log(
+          '--clean-css="-s1 --advanced --rebase"')
+      ..log(
+          'The options do not require dashes, so this is also equivalent')
+      ..log(
+          '--clean-css="s1 advanced rebase"');
     printOptions();
     logger.log('');
   }
@@ -62,15 +71,16 @@ class LessPluginCleanCss extends Plugin {
   @override
   void printOptions() {
     logger
-        ..log("we support the following arguments... 'keep-line-breaks', 'b'")
-        ..log("'s0', 's1', 'advanced', 'rebase', 'keepSpecialComments', compatibility', 'rounding-precision'")
-        ..log("'skip-aggressive-merging', 'skip-shorthand-compacting'");
+      ..log("we support the following arguments... 'keep-line-breaks', 'b'")
+      ..log(
+          "'s0', 's1', 'advanced', 'rebase', 'keepSpecialComments', compatibility', 'rounding-precision'")
+      ..log("'skip-aggressive-merging', 'skip-shorthand-compacting'");
   }
 
   ///
   @override
   void setOptions(String cmdOptions) {
     if (cmdOptions == null) return;
-    cleanCssOptions = new CleanCssOptions(normalizeCommand(cmdOptions));
+    cleanCssOptions = CleanCssOptions(normalizeCommand(cmdOptions));
   }
 }

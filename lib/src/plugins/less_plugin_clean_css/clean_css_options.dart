@@ -5,36 +5,36 @@ part of less_plugin_clean_css.plugins.less;
 ///
 class CleanCssOptions extends PluginOptions {
   /// set to false to disable advanced optimizations - selector & property merging, reduction, etc.
-  bool                  advanced = true;
+  bool advanced = true;
 
   /// set to false to disable aggressive merging of properties.
-  bool                  aggressiveMerging = true;
+  bool aggressiveMerging = true;
 
   /// enables compatibility mode: ie7, ie8 *
   CleanCssCompatibility compatibility;
 
   /// whether to keep line breaks (default is false)
-  bool                  keepBreaks = false;
+  bool keepBreaks = false;
 
   /// * for keeping all (default), 1 for keeping first one only, 0 for removing all
-  String                keepSpecialComments = '*';
+  String keepSpecialComments = '*';
 
   /// set to false to skip URL rebasing
-  bool                  rebase = true;
+  bool rebase = true;
 
   /// defaults to 2; -1 disables rounding
-  int                   roundingPrecision = 2;
+  int roundingPrecision = 2;
 
   /// set to false to skip shorthand compacting (default is true unless sourceMap is set when it's false)
-  bool                  shorthandCompacting = true;
+  bool shorthandCompacting = true;
 
   ///
   CleanCssOptions(String cmdOptions) {
-    String              argName;
-    List<String>        argSplit;
-    final List<String>  cleanOptionArgs = cmdOptions.split(' ');
-    String              compatibilitySource = '';
-    final RegExp        reName = new RegExp(r'^-+');
+    String argName;
+    List<String> argSplit;
+    final List<String> cleanOptionArgs = cmdOptions.split(' ');
+    String compatibilitySource = '';
+    final RegExp reName = RegExp(r'^-+');
 
     for (int i = 0; i < cleanOptionArgs.length; i++) {
       argSplit = cleanOptionArgs[i].split('=');
@@ -85,10 +85,11 @@ class CleanCssOptions extends PluginOptions {
           roundingPrecision = int.parse(argSplit[1]);
           break;
         default:
-          throw new UnsupportedError("unrecognised clean-css option '${argSplit[0]}'");
+          throw UnsupportedError(
+              "unrecognised clean-css option '${argSplit[0]}'");
       }
     }
-    compatibility = new CleanCssCompatibility(compatibilitySource);
+    compatibility = CleanCssCompatibility(compatibilitySource);
   }
 }
 

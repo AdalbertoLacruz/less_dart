@@ -15,28 +15,26 @@ part of tree.less;
 /// such as a tag a class, or `*`.
 ///
 class Element extends Node {
-  @override final String type = 'Element';
+  @override
+  final String type = 'Element';
 
   ///
-  Combinator  combinator;
+  Combinator combinator;
 
   ///
   bool isVariable;
 
   /// Constructor
-  Element(dynamic combinator, dynamic value, {
-      this.isVariable = false,
+  Element(dynamic combinator, dynamic value,
+      {this.isVariable = false,
       int index,
       FileInfo currentFileInfo,
-      VisibilityInfo visibilityInfo
-    }) : super.init(currentFileInfo: currentFileInfo, index: index) {
-
+      VisibilityInfo visibilityInfo})
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
     this.combinator =
-        (combinator is Combinator) ? combinator : new Combinator(combinator);
+        (combinator is Combinator) ? combinator : Combinator(combinator);
 
-    this.value = value is String
-        ? value.trim()
-        : value ?? '';
+    this.value = value is String ? value.trim() : value ?? '';
 
     copyVisibilityInfo(visibilityInfo);
     setParent(this.combinator, this);
@@ -62,10 +60,9 @@ class Element extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'combinator': combinator,
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'combinator': combinator, 'value': value};
 
   ///
   /// Tree navigation for visitors
@@ -89,13 +86,12 @@ class Element extends Node {
   /// Replace variables by value
   ///
   @override
-  Element eval(Contexts context) => new Element(
-      combinator,
-      (value is Node) ? value.eval(context) : value,
-      isVariable: isVariable,
-      index: index,
-      currentFileInfo: currentFileInfo,
-      visibilityInfo: visibilityInfo());
+  Element eval(Contexts context) =>
+      Element(combinator, (value is Node) ? value.eval(context) : value,
+          isVariable: isVariable,
+          index: index,
+          currentFileInfo: currentFileInfo,
+          visibilityInfo: visibilityInfo());
 
 // 3.5.0.beta 20180625
 //  Element.prototype.eval = function (context) {
@@ -107,12 +103,11 @@ class Element extends Node {
 //  };
 
   ///
-  Element clone() =>
-      new Element(combinator, value,
-        isVariable: isVariable,
-        index: index,
-        currentFileInfo: currentFileInfo,
-        visibilityInfo: visibilityInfo());
+  Element clone() => Element(combinator, value,
+      isVariable: isVariable,
+      index: index,
+      currentFileInfo: currentFileInfo,
+      visibilityInfo: visibilityInfo());
 
 // 3.5.0.beta 20180625
 //  Element.prototype.clone = function () {
@@ -141,15 +136,16 @@ class Element extends Node {
   ///
   @override
   String toCSS(Contexts context) {
-    final Contexts    _context = context ?? new Contexts();
-    final bool        firstSelector = _context.firstSelector;
+    final Contexts _context = context ?? Contexts();
+    final bool firstSelector = _context.firstSelector;
 
     if (this.value is Paren) {
       // selector in parens should not be affected by outer selector
       // flags (breaks only interpolated selectors - see #1973)
       _context.firstSelector = true;
     }
-    final String value = (this.value is Node) ? this.value.toCSS(_context) : this.value;
+    final String value =
+        (this.value is Node) ? this.value.toCSS(_context) : this.value;
     _context.firstSelector = firstSelector;
 
     return (value.isEmpty && combinator.value.startsWith('&'))

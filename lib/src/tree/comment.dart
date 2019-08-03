@@ -4,21 +4,24 @@ part of tree.less;
 
 ///
 class Comment extends Node implements SilentNode {
-  @override final String      name = null;
-  @override final String      type = 'Comment';
-  @override covariant String  value;
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Comment';
+
+  @override
+  covariant String value;
 
   ///
-  bool  isLineComment;
+  bool isLineComment;
 
   ///
-  Comment(this.value, {
-      this.isLineComment = false,
-      int index,
-      FileInfo currentFileInfo
-      }) : super.init(currentFileInfo: currentFileInfo, index: index) {
-        allowRoot = true;
-      }
+  Comment(this.value,
+      {this.isLineComment = false, int index, FileInfo currentFileInfo})
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
+    allowRoot = true;
+  }
 
 //3.0.0 20160714
 // var Comment = function (value, isLineComment, index, currentFileInfo) {
@@ -30,9 +33,8 @@ class Comment extends Node implements SilentNode {
 // };
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   /// Writes the comment in [output].
@@ -40,7 +42,8 @@ class Comment extends Node implements SilentNode {
   @override
   void genCSS(Contexts context, Output output) {
     if (debugInfo != null) {
-      output.add(debugInfo.toOutput(context), fileInfo: currentFileInfo, index: index);
+      output.add(debugInfo.toOutput(context),
+          fileInfo: currentFileInfo, index: index);
     }
     output.add(value);
 

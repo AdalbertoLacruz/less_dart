@@ -4,21 +4,23 @@ part of tree.less;
 
 ///
 class Unit extends Node implements CompareNode {
-  @override final String type = 'Unit';
+  @override
+  final String type = 'Unit';
 
   ///
-  String          backupUnit;
-  ///
-  List<String>    denominator;
-  ///
-  List<String>    numerator;
+  String backupUnit;
 
   ///
-  Unit([
-      List<String> numerator = const <String>[],
+  List<String> denominator;
+
+  ///
+  List<String> numerator;
+
+  ///
+  Unit(
+      [List<String> numerator = const <String>[],
       List<String> denominator = const <String>[],
-      this.backupUnit
-      ]) {
+      this.backupUnit]) {
     this.numerator = numerator.sublist(0)..sort(); //clone
     this.denominator = denominator.sublist(0)..sort();
     if (backupUnit == null && this.numerator.isNotEmpty) {
@@ -38,14 +40,13 @@ class Unit extends Node implements CompareNode {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'numerator': numerator,
-    'denominator': denominator
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'numerator': numerator, 'denominator': denominator};
 
   ///
   Unit clone() =>
-      new Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);
+      Unit(numerator.sublist(0), denominator.sublist(0), backupUnit);
 
 //3.0.0 20160714
 // Unit.prototype.clone = function () {
@@ -82,8 +83,8 @@ class Unit extends Node implements CompareNode {
 
   ///
   @override
-  String toString() =>
-      denominator.fold(numerator.join('*'), (String prev, String d) => '$prev/$d');
+  String toString() => denominator.fold(
+      numerator.join('*'), (String prev, String d) => '$prev/$d');
 
 //2.3.1
 //  Unit.prototype.toString = function () {
@@ -116,21 +117,19 @@ class Unit extends Node implements CompareNode {
 //  };
 
   ///
-  bool isLength(Contexts context) {
-    final RegExp re = new RegExp(r'^(px|em|ex|ch|rem|in|cm|mm|pc|pt|ex|vw|vh|vmin|vmax)$', caseSensitive: false);
-    return re.hasMatch(toCSS(context));
+  bool isLength(Contexts context) =>
+      RegExp(r'^(px|em|ex|ch|rem|in|cm|mm|pc|pt|ex|vw|vh|vmin|vmax)$',
+              caseSensitive: false)
+          .hasMatch(toCSS(context));
 
 //3.0.3 20180430
 //  Unit.prototype.isLength = function () {
 //    return RegExp('^(px|em|ex|ch|rem|in|cm|mm|pc|pt|ex|vw|vh|vmin|vmax)$', 'gi').test(this.toCSS());
 //  };
-  }
 
   ///
-  bool isAngle(Contexts context) {
-    final RegExp re = new RegExp(r'rad|deg|grad|turn'); //i?
-    return re.hasMatch(toCSS(context));
-  }
+  bool isAngle(Contexts context) =>
+      RegExp(r'rad|deg|grad|turn').hasMatch(toCSS(context));
 
   ///
   /// True if numerator & denominator isEmpty
@@ -143,7 +142,7 @@ class Unit extends Node implements CompareNode {
 //  };
 
   ///
-  bool isSingular() => (numerator.length <= 1 && denominator.isEmpty);
+  bool isSingular() => numerator.length <= 1 && denominator.isEmpty;
 
 //2.3.1
 //  Unit.prototype.isSingular = function() {
@@ -180,8 +179,8 @@ class Unit extends Node implements CompareNode {
 
   ///
   Map<String, String> usedUnits() {
-    Map<String, double>       group;
-    String                    groupName;
+    Map<String, double> group;
+    String groupName;
     final Map<String, String> result = <String, String>{};
 
     // ignore: avoid_positional_boolean_parameters
@@ -193,7 +192,8 @@ class Unit extends Node implements CompareNode {
     }
 
     for (groupName in UnitConversions.groups.keys) {
-      if (UnitConversions.groups.containsKey(groupName)) {//redundant?
+      if (UnitConversions.groups.containsKey(groupName)) {
+        //redundant?
         group = UnitConversions.groups[groupName];
         map(mapUnit);
       }
@@ -230,8 +230,8 @@ class Unit extends Node implements CompareNode {
   /// Normalize numerator and denominator after operations
   ///
   void cancel() {
-    String                  atomicUnit;
-    final Map<String, int>  counter = <String, int>{};
+    String atomicUnit;
+    final Map<String, int> counter = <String, int>{};
 
     for (int i = 0; i < numerator.length; i++) {
       atomicUnit = numerator[i];

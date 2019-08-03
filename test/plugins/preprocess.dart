@@ -10,8 +10,7 @@ class TestPreProcessor extends Processor {
     final String injected = '@color: red;\n';
     final Map<String, int> ignored = options['imports'].contentsIgnoredChars;
     final FileInfo fileInfo = options['fileInfo'];
-    if (ignored[fileInfo.filename] == null)
-        ignored[fileInfo.filename] = 0;
+    if (ignored[fileInfo.filename] == null) ignored[fileInfo.filename] = 0;
     ignored[fileInfo.filename] += injected.length;
 
     return '$injected$src';
@@ -27,7 +26,7 @@ class TestPreProcessorPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final Processor processor = new TestPreProcessor(null);
+    final Processor processor = TestPreProcessor(null);
     pluginManager.addPreProcessor(processor);
   }
 

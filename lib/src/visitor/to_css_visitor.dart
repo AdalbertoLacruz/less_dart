@@ -5,21 +5,21 @@ part of visitor.less;
 ///
 class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   ///
-  bool            charset = false;
+  bool charset = false;
 
-  Contexts        _context;
+  Contexts _context;
 
   ///
   CSSVisitorUtils utils;
 
-  Visitor         _visitor;
+  Visitor _visitor;
 
   ///
   ToCSSVisitor(Contexts context) {
     isReplacing = true;
-    _visitor = new Visitor(this);
+    _visitor = Visitor(this);
     _context = context;
-    utils = new CSSVisitorUtils(context);
+    utils = CSSVisitorUtils(context);
 
 //2.5.3 20151120
 // var ToCSSVisitor = function(context) {
@@ -41,9 +41,8 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   ///
   /// Eliminates for output: @variable && no visible nodes
   ///
-  Declaration visitDeclaration(Declaration declNode, VisitArgs visitArgs) {
-    if (declNode.blocksVisibility() || declNode.variable) return null;
-    return declNode;
+  Declaration visitDeclaration(Declaration declNode, VisitArgs visitArgs) =>
+      (declNode.blocksVisibility() || declNode.variable) ? null : declNode;
 
 //2.8.0 20160702
 // visitDeclaration: function (declNode, visitArgs) {
@@ -52,7 +51,6 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 //     }
 //     return declNode;
 // },
-  }
 
   ///
   /// mixin definitions do not get eval'd - this means they keep state
@@ -77,11 +75,10 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 //  },
 
   ///
-  Comment visitComment(Comment commentNode, VisitArgs visitArgs) {
-    if (commentNode.blocksVisibility() || commentNode.isSilent(_context)) {
-      return null;
-    }
-    return commentNode;
+  Comment visitComment(Comment commentNode, VisitArgs visitArgs) =>
+      (commentNode.blocksVisibility() || commentNode.isSilent(_context))
+          ? null
+          : commentNode;
 
 //2.5.3 20151120
 // visitComment: function (commentNode, visitArgs) {
@@ -90,7 +87,6 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 //     }
 //     return commentNode;
 // },
-  }
 
   ///
   Media visitMedia(Media mediaNode, VisitArgs visitArgs) {
@@ -111,9 +107,8 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   }
 
   ///
-  Import visitImport(Import importNode, VisitArgs visitArgs) {
-    if (importNode.blocksVisibility()) return null;
-    return importNode;
+  Import visitImport(Import importNode, VisitArgs visitArgs) =>
+      importNode.blocksVisibility() ? null : importNode;
 
 //2.5.3 20151120
 // visitImport: function (importNode, visitArgs) {
@@ -122,19 +117,16 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 //     }
 //     return importNode;
 // },
-  }
 
   // remove
   ///
   Options visitOptions(Options optionsNode, VisitArgs visitArgs) => null;
 
-    ///
-  Node visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
-    if (atRuleNode.rules?.isNotEmpty ?? false) {
-      return visitAtRuleWithBody(atRuleNode, visitArgs);
-    } else {
-      return visitAtRuleWithoutBody(atRuleNode, visitArgs);
-    }
+  ///
+  Node visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) =>
+      (atRuleNode.rules?.isNotEmpty ?? false)
+          ? visitAtRuleWithBody(atRuleNode, visitArgs)
+          : visitAtRuleWithoutBody(atRuleNode, visitArgs);
 
 //2.8.0 20160702
 // visitAtRule: function(atRuleNode, visitArgs) {
@@ -144,7 +136,6 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 //         return this.visitAtRuleWithoutBody(atRuleNode, visitArgs);
 //     }
 // },
-}
 
   ///
   Node visitAtRuleWithBody(AtRule atRuleNode, VisitArgs visitArgs) {
@@ -152,15 +143,13 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     // just fake ruleset
     bool hasFakeRuleset(AtRule directiveNode) {
       final List<Ruleset> bodyRules = directiveNode.rules;
-      return (bodyRules.length == 1)
-          && (bodyRules.first.paths?.isEmpty ?? true);
+      return (bodyRules.length == 1) &&
+          (bodyRules.first.paths?.isEmpty ?? true);
     }
 
     List<Node> getBodyRules(AtRule directiveNode) {
       final List<Ruleset> nodeRules = directiveNode.rules;
-      return (hasFakeRuleset(directiveNode))
-          ? nodeRules[0].rules
-          : nodeRules;
+      return (hasFakeRuleset(directiveNode)) ? nodeRules[0].rules : nodeRules;
     }
 
     // it is still true that it is only one ruleset in array
@@ -216,8 +205,8 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
         if (atRuleNode.debugInfo != null) {
           final String directive =
               atRuleNode.toCSS(_context).replaceAll(r'\n', '');
-          final Comment comment = new Comment('/* $directive */\n')
-              ..debugInfo = atRuleNode.debugInfo;
+          final Comment comment = Comment('/* $directive */\n')
+            ..debugInfo = atRuleNode.debugInfo;
           return _visitor.visit(comment);
         }
         return null;
@@ -260,17 +249,22 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     for (int i = 0; i < rules.length; i++) {
       final Node ruleNode = rules[i];
       if (isRoot && ruleNode is Declaration && !ruleNode.variable) {
-        error(message: 'Properties must be inside selector blocks. They cannot be in the root',
+        error(
+            message:
+                'Properties must be inside selector blocks. They cannot be in the root',
             index: ruleNode.index,
             filename: ruleNode.currentFileInfo?.filename);
       }
       if (ruleNode is Call) {
-        error(message: "Function '${ruleNode.name}' is undefined",
+        error(
+            message: "Function '${ruleNode.name}' is undefined",
             index: ruleNode.index,
             filename: ruleNode.currentFileInfo?.filename);
       }
       if ((ruleNode.type != null) && !ruleNode.allowRoot) {
-        error(message: '${ruleNode.type} node returned by a function is not valid here',
+        error(
+            message:
+                '${ruleNode.type} node returned by a function is not valid here',
             index: ruleNode.index,
             filename: ruleNode.currentFileInfo?.filename);
       }
@@ -315,7 +309,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
       _compileRulesetPaths(rulesetNode);
 
       // remove rulesets from this ruleset body and compile them separately
-      final List<Node>  nodeRules = rulesetNode.rules;
+      final List<Node> nodeRules = rulesetNode.rules;
       int nodeRuleCnt = nodeRules?.length ?? 0;
 
       for (int i = 0; i < nodeRuleCnt;) {
@@ -339,7 +333,8 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
         rulesetNode.rules = null;
       }
       visitArgs.visitDeeper = false;
-    } else { //if (! rulesetNode.root)
+    } else {
+      //if (! rulesetNode.root)
       rulesetNode.accept(_visitor);
       visitArgs.visitDeeper = false;
     }
@@ -355,9 +350,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
       rulesets.insert(0, rulesetNode);
     }
 
-    return (rulesets.length == 1)
-        ? rulesets.first
-        : rulesets;
+    return (rulesets.length == 1) ? rulesets.first : rulesets;
 
 //2.6.1 20160305
 // visitRuleset: function (rulesetNode, visitArgs) {
@@ -420,7 +413,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     if (rulesetNode.paths != null) {
       rulesetNode.paths.retainWhere((List<Selector> p) {
         if (p[0].elements[0].combinator.value == ' ') {
-          p[0].elements[0].combinator = new Combinator('');
+          p[0].elements[0].combinator = Combinator('');
         }
         for (int i = 0; i < p.length; i++) {
           if ((p[i].isVisible() ?? false) && p[i].getIsOutput()) return true;
@@ -457,7 +450,8 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
     // If !Key Map[Rule1.name] = Rule1
     // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
-    final Map<String, dynamic>  ruleCache = <String, dynamic>{}; //<String, Declaration || List<String>>
+    final Map<String, dynamic> ruleCache =
+        <String, dynamic>{}; //<String, Declaration || List<String>>
 
     for (int i = rules.length - 1; i >= 0; i--) {
       final Node rule = rules[i];

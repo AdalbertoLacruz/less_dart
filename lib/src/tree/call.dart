@@ -18,7 +18,7 @@ class Call extends Node {
   ///
   Call(this.name, this.args, {int index, FileInfo currentFileInfo})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-    calc = (name == 'calc');
+    calc = name == 'calc';
 
 // 3.5.0.beta 20180625
 //  var Call = function (name, args, index, currentFileInfo) {
@@ -73,7 +73,7 @@ class Call extends Node {
     if (calc || context.inCalc) context.exitCalc();
     context.mathOn = currentMathContext;
 
-    final FunctionCaller funcCaller = new FunctionCaller(name, context, index, currentFileInfo);
+    final FunctionCaller funcCaller = FunctionCaller(name, context, index, currentFileInfo);
     dynamic _result;
     Node result;
 
@@ -93,7 +93,7 @@ class Call extends Node {
             column: LessError.getErrorColumn(e))
         ..message = 'error evaluating function `$name`$message';
 
-        throw new LessExceptionError(error);
+        throw LessExceptionError(error);
       }
 
       if (_result != null) {
@@ -102,15 +102,15 @@ class Call extends Node {
         result = _result is Node
             ? _result
             : (_result is bool)
-                ? new Anonymous(null)
-                : new Anonymous(_result.toString());
+                ? Anonymous(null)
+                : Anonymous(_result.toString());
         return result
             ..index = _index
             ..currentFileInfo = _fileInfo;
       }
     }
 
-    return new Call(name, args, index: index, currentFileInfo: currentFileInfo);
+    return Call(name, args, index: index, currentFileInfo: currentFileInfo);
 
 // 3.5.0 beta 20180625
 //  Call.prototype.eval = function (context) {
@@ -203,8 +203,7 @@ class Call extends Node {
 
     for (int i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
-      if (i + 1 < args.length)
-          output.add(',');
+      if (i + 1 < args.length) output.add(',');
     }
 
     output.add(')');
@@ -212,7 +211,7 @@ class Call extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

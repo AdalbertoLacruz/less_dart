@@ -4,12 +4,14 @@ part of tree.less;
 
 ///
 class JavaScript extends Node with JsEvalNodeMixin {
-  @override final String type = 'JavaScript';
+  @override
+  final String type = 'JavaScript';
 
   ///
-  bool    escaped;
+  bool escaped;
+
   ///
-  String  expression;
+  String expression;
 
   ///
   JavaScript(this.expression,
@@ -29,13 +31,13 @@ class JavaScript extends Node with JsEvalNodeMixin {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'expression': expression
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'expression': expression};
 
   // Not supported javascript
   @override
-  Anonymous eval(Contexts context) => new Anonymous(expression);
+  Anonymous eval(Contexts context) => Anonymous(expression);
 
 // 3.5.0.beta.6 20180704
 //  JavaScript.prototype.eval = function(context) {

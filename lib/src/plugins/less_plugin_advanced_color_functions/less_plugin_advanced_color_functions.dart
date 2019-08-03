@@ -10,8 +10,9 @@ class LessPluginAdvancedColorFunctions extends Plugin {
   ///
   @override
   void install(PluginManager pluginManager) {
-    pluginManager.addCustomFunctions(new AdvancedColorFunctions());
+    pluginManager.addCustomFunctions(AdvancedColorFunctions());
   }
 
-  @override List<int> minVersion = <int>[2,1,0];
+  @override
+  List<int> minVersion = <int>[2, 1, 0];
 }

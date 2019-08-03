@@ -25,23 +25,24 @@ targets:
 
 ///
 Builder lessCustomBuilder(BuilderOptions builderOptions) =>
-    new LessCustomBuilder(new LessBuilderOptions(builderOptions));
+    LessCustomBuilder(LessBuilderOptions(builderOptions));
 
 ///
 class LessCustomBuilder extends LessBuilder {
   ///
-  LessCustomBuilder(LessBuilderOptions options):super(options);
+  LessCustomBuilder(LessBuilderOptions options) : super(options);
 
   @override
   void customOptions(LessOptions options) {
-    options.definePlugin('myplugin', new MyPlugin()); //use @plugin "myplugin";  directive to load it
+    options.definePlugin(
+        'myplugin', MyPlugin()); //use @plugin "myplugin";  directive to load it
   }
 }
 
 ///
 class MyProcessor extends Processor {
   ///
-  MyProcessor(PluginOptions options):super(options);
+  MyProcessor(PluginOptions options) : super(options);
 
   @override
   String process(String input, Map<String, dynamic> options) =>
@@ -50,14 +51,15 @@ class MyProcessor extends Processor {
 
 ///
 class MyPlugin extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
+  @override
+  List<int> minVersion = <int>[2, 1, 0];
 
   ///
-  MyPlugin(): super();
+  MyPlugin() : super();
 
   @override
   void install(PluginManager pluginManager) {
-    final Processor myProcessor = new MyProcessor(null);
+    final Processor myProcessor = MyProcessor(null);
     pluginManager.addPostProcessor(myProcessor);
   }
 }

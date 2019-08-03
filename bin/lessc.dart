@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:less_dart/less.dart';
 
 Future<Null> main(List<String> args) {
-  final Less less = new Less();
+  final Less less = Less();
 
   //TODO stdin
 

@@ -7,7 +7,7 @@ class RemoveProperty extends VisitorBase {
   ///
   RemoveProperty() {
     isReplacing = true;
-    _visitor = new Visitor(this);
+    _visitor = Visitor(this);
   }
 
   @override
@@ -41,7 +41,7 @@ class TestVisitorPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final VisitorBase visitor = new RemoveProperty();
+    final VisitorBase visitor = RemoveProperty();
     pluginManager.addVisitor(visitor);
   }
 

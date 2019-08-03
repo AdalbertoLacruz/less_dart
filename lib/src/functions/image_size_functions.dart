@@ -5,17 +5,19 @@ part of functions.less;
 ///
 class ImageSizeFunctions extends FunctionBase {
   ///
-  Environment environment = new Environment();
+  Environment environment = Environment();
+
   ///
-  ImageSize   imageSizeProcessor = new ImageSize();
+  ImageSize imageSizeProcessor = ImageSize();
 
   ///
   @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
-    String        filePath = filePathNode.value;
-    final String  currentDirectory = currentFileInfo.rewriteUrls > RewriteUrlsConstants.off
-        ? currentFileInfo.currentDirectory
-        : currentFileInfo.entryPath;
+    String filePath = filePathNode.value;
+    final String currentDirectory =
+        currentFileInfo.rewriteUrls > RewriteUrlsConstants.off
+            ? currentFileInfo.currentDirectory
+            : currentFileInfo.entryPath;
 
     final int fragmentStart = filePath.indexOf('#');
     if (fragmentStart != -1) {
@@ -23,9 +25,10 @@ class ImageSizeFunctions extends FunctionBase {
     }
 
     final AbstractFileManager fileManager = environment.getFileManager(
-        filePath, currentDirectory, context, environment, isSync: true);
-    final FileLoaded fileSync = fileManager.existSync(
-        filePath, currentDirectory, context, environment);
+        filePath, currentDirectory, context, environment,
+        isSync: true);
+    final FileLoaded fileSync =
+        fileManager.existSync(filePath, currentDirectory, context, environment);
     if (fileSync.error != null) {
       throw fileSync.error;
     }
@@ -79,13 +82,10 @@ class ImageSizeFunctions extends FunctionBase {
   @DefineMethod(name: 'image-size')
   Expression imageSize(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
-
-    if (size == null) return null;
-
-    return new Expression(<Node>[
-      new Dimension(size.width, 'px'),
-      new Dimension(size.height, 'px')
-    ]);
+    return size == null
+        ? null
+        : Expression(
+            <Node>[Dimension(size.width, 'px'), Dimension(size.height, 'px')]);
 
 //2.4.0 20150321
 //  "image-size": function(filePathNode) {
@@ -109,10 +109,7 @@ class ImageSizeFunctions extends FunctionBase {
   @DefineMethod(name: 'image-width')
   Dimension imageWidth(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
-
-    if (size == null) return null;
-
-    return new Dimension(size.width, 'px');
+    return size == null ? null : Dimension(size.width, 'px');
 
 //2.4.0 20150321
 //  "image-width": function(filePathNode) {
@@ -133,10 +130,7 @@ class ImageSizeFunctions extends FunctionBase {
   @DefineMethod(name: 'image-height')
   Dimension imageHeigth(Quoted filePathNode) {
     final ImageDimension size = imageSizeFtn(filePathNode);
-
-    if (size == null) return null;
-
-    return new Dimension(size.height, 'px');
+    return size == null ? null : Dimension(size.height, 'px');
 
 //2.4.0 20150321
 //  "image-height": function(filePathNode) {

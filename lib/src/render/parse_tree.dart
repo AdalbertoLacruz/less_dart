@@ -6,59 +6,62 @@ part of render.less;
 class ParseTree {
   ///
   ImportManager imports;
+
   ///
-  Environment   environment;
+  Environment environment;
+
   ///
-  Ruleset       root;
+  Ruleset root;
 
   ///
   ParseTree(this.root, this.imports) {
-    environment = new Environment();
+    environment = Environment();
   }
 
   ///
   /// The root becomes in the result
   ///
-  RenderResult toCSS(LessOptions options, Contexts context) { //context for errors
-    Ruleset               evaldRoot;
-    final RenderResult    result = new RenderResult();
-    LessSourceMapBuilder  sourceMapBuilder;
-    Contexts              toCSSOptions;
+  // context for errors
+  RenderResult toCSS(LessOptions options, Contexts context) {
+    Ruleset evaldRoot;
+    final RenderResult result = RenderResult();
+    LessSourceMapBuilder sourceMapBuilder;
+    Contexts toCSSOptions;
 
     try {
-      evaldRoot = new TransformTree().call(root, options);
+      evaldRoot = TransformTree().call(root, options);
 
 //      if (options.compress) {
 //        //environment.logger.warn("The compress option has been deprecated. We recommend you use a dedicated css minifier, for instance see less-plugin-clean-css.");
 //      }
 
-      toCSSOptions = new Contexts()
-          ..compress = options.compress
-          ..cleanCss = options.cleanCss
-          ..dumpLineNumbers = options.dumpLineNumbers
-          ..strictUnits = options.strictUnits
-          ..numPrecision = 8;
+      toCSSOptions = Contexts()
+        ..compress = options.compress
+        ..cleanCss = options.cleanCss
+        ..dumpLineNumbers = options.dumpLineNumbers
+        ..strictUnits = options.strictUnits
+        ..numPrecision = 8;
 
       if (options.sourceMap) {
-        sourceMapBuilder = new LessSourceMapBuilder(options.sourceMapOptions);
+        sourceMapBuilder = LessSourceMapBuilder(options.sourceMapOptions);
         result.css = sourceMapBuilder.toCSS(evaldRoot, toCSSOptions, imports);
       } else {
         result.css = evaldRoot.toCSS(toCSSOptions).toString();
       }
     } catch (e) {
-      throw new LessExceptionError(LessError.transform(e, context: context));
+      throw LessExceptionError(LessError.transform(e, context: context));
     }
 
     if (options.pluginManager != null) {
       options.pluginManager
           .getPostProcessors()
           .forEach((Processor postProcessor) {
-            result.css = postProcessor.process(result.css, <String, dynamic>{
-                'sourceMap': sourceMapBuilder,
-                'options': options,
-                'imports': imports
-            });
-          });
+        result.css = postProcessor.process(result.css, <String, dynamic>{
+          'sourceMap': sourceMapBuilder,
+          'options': options,
+          'imports': imports
+        });
+      });
     }
 
     if (options.sourceMap) {
@@ -66,7 +69,7 @@ class ParseTree {
     }
 
     result.imports = <String>[];
-    imports.files.forEach((String file, dynamic node) { //node is Ruleset
+    imports.files.forEach((String file, dynamic node /* node is Ruleset */) {
       if (file != imports.rootFilename) result.imports.add(file);
     });
 
@@ -129,11 +132,13 @@ class ParseTree {
 /// Result type for ParseTree
 class RenderResult {
   ///
-  String        css;
+  String css;
+
   ///
-  List<String>  imports; //filename
+  List<String> imports; //filename
+
   ///
-  String        map;
+  String map;
 
   ///
   RenderResult();

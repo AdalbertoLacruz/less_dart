@@ -5,25 +5,32 @@ import 'dart:async';
 // The amount of logging to the console (stderr).
 ///
 const int logLevelDebug = 4; // Debug, Info, Warns and Errors
+
 ///
-const int logLevelInfo  = 3; // Info, Warns and Errors
+const int logLevelInfo = 3; // Info, Warns and Errors
+
 ///
-const int logLevelWarn  = 2; // Warns and Errors - DEFAULT
+const int logLevelWarn = 2; // Warns and Errors - DEFAULT
+
 ///
 const int logLevelError = 1; // Errors
+
 ///
-const int logLevelNone  = 0; // None
+const int logLevelNone = 0; // None
 
 ///
 class Logger {
   ///
   static Map<int, Logger> cache = <int, Logger>{};
+
   ///
-  StringBuffer            capture;
+  StringBuffer capture;
+
   ///
-  int                     logLevel;
+  int logLevel;
+
   ///
-  StringBuffer            stderr;
+  StringBuffer stderr;
 
   /*
    * If not runZoned, #id == null. Example:
@@ -38,16 +45,16 @@ class Logger {
     final int id = Zone.current[#id] ?? -1;
 
     if (buffer != null && cache[id] != null) {
-      throw new StateError('Console buffer yet initialized');
+      throw StateError('Console buffer yet initialized');
     }
 
-    cache[id] ??= new Logger._(buffer);
+    cache[id] ??= Logger._(buffer);
     return cache[id];
   }
 
   ///
   Logger._(this.stderr) {
-    stderr ??= new StringBuffer();
+    stderr ??= StringBuffer();
     logLevel = logLevelWarn;
   }
 
@@ -61,7 +68,7 @@ class Logger {
   /// route the messages to capture buffer
   ///
   void captureStart() {
-    capture = new StringBuffer();
+    capture = StringBuffer();
   }
 
   ///

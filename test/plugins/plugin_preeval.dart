@@ -8,7 +8,7 @@ class VisitorReplace extends VisitorBase {
   VisitorReplace() {
     isReplacing = true;
     isPreEvalVisitor = true;
-    native = new Visitor(this);
+    native = Visitor(this);
   }
 
   @override
@@ -17,7 +17,7 @@ class VisitorReplace extends VisitorBase {
 
   Node visitVariable(Variable node, VisitArgs visitArgs) {
     if (node.name == '@replace') {
-      return new Quoted("'", 'bar', escaped: true);
+      return Quoted("'", 'bar', escaped: true);
     }
     return node;
   }
@@ -41,7 +41,7 @@ class PluginPreeval extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final VisitorBase visitor = new VisitorReplace();
+    final VisitorBase visitor = VisitorReplace();
     pluginManager.addVisitor(visitor);
   }
 }

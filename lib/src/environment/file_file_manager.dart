@@ -4,7 +4,6 @@ part of environment.less;
 
 /// File loader
 class FileFileManager extends AbstractFileManager {
-
   /// packages prefix:
   ///     @import "packages/less_dart/test/import-charset-test";
   ///     @import "package://less_dart/test/import-charset-test";
@@ -23,31 +22,31 @@ class FileFileManager extends AbstractFileManager {
   final PackageResolverProvider _packageResolverProvider;
 
   ///
-  FileFileManager(Environment environment, this._packageResolverProvider) : super(environment);
+  FileFileManager(Environment environment, this._packageResolverProvider)
+      : super(environment);
 
   ///
   @override
-  bool supports (String filename, String currentDirectory, Contexts options,
-      Environment environment) => true;
+  bool supports(String filename, String currentDirectory, Contexts options,
+          Environment environment) =>
+      true;
 
   ///
   @override
   bool supportsSync(String filename, String currentDirectory, Contexts options,
-      Environment environment) => true;
+          Environment environment) =>
+      true;
 
   ///
   /// Build the directory list where to search the file
   ///
-  List<String> createListPaths(String filename, String currentDirectory, Contexts options) {
+  List<String> createListPaths(
+      String filename, String currentDirectory, Contexts options) {
     final bool isAbsoluteFilename = isPathAbsolute(filename);
     final List<String> paths = isAbsoluteFilename
         ? <String>['']
-        : <String>[pathLib.normalize(currentDirectory)];
-    MoreList.addAllUnique(
-        paths,
-        options.paths,
-        map: (String item) =>  pathLib.normalize(item)
-    );
+        : <String>[path_lib.normalize(currentDirectory)];
+    MoreList.addAllUnique(paths, options.paths, map: path_lib.normalize);
     if (!isAbsoluteFilename) MoreList.addUnique(paths, '.');
     return paths;
   }
@@ -57,24 +56,21 @@ class FileFileManager extends AbstractFileManager {
   ///
   /// Returns a Future with the full path found or null
   ///
-  Future<String> findFile(String filename, List<String> paths, [int index = 0]) {
-    final Completer<String> task = new Completer<String>();
-    String                  fullFilename;
+  Future<String> findFile(String filename, List<String> paths,
+      [int index = 0]) {
+    final Completer<String> task = Completer<String>();
+    String fullFilename;
 
     if (index == 0) filenamesTried.clear(); //first call not recursive
 
     if (index < paths.length) {
       fullFilename = environment.pathJoin(paths[index], filename);
       filenamesTried.add(fullFilename);
-      new File(fullFilename).exists().then((bool exist) {
-        if (exist) {
-          task.complete(fullFilename);
-        } else {
-          findFile(filename, paths, index + 1).then((String fullFilename) {
-            task.complete(fullFilename);
-          });
-        }
-      });
+      if (File(fullFilename).existsSync()) {
+        task.complete(fullFilename);
+      } else {
+        findFile(filename, paths, index + 1).then(task.complete);
+      }
     } else {
       task.complete(null);
     }
@@ -93,7 +89,7 @@ class FileFileManager extends AbstractFileManager {
     for (int i = 0; i < paths.length; i++) {
       fullFilename = environment.pathJoin(paths[i], filename);
       filenamesTried.add(fullFilename);
-      if (new File(fullFilename).existsSync()) return fullFilename;
+      if (File(fullFilename).existsSync()) return fullFilename;
     }
 
     return null;
@@ -101,29 +97,33 @@ class FileFileManager extends AbstractFileManager {
 
   /// Load Async the file
   @override
-  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) async {
-    final Contexts _options = options ?? new Contexts();
-    final String _filename = (_options.ext != null) ? tryAppendExtension(filename, _options.ext) : filename;
+  Future<FileLoaded> loadFile(String filename, String currentDirectory,
+      Contexts options, Environment environment) async {
+    final Contexts _options = options ?? Contexts();
+    final String _filename = (_options.ext != null)
+        ? tryAppendExtension(filename, _options.ext)
+        : filename;
 
     if (_options.syncImport ?? false) {
-      final FileLoaded fileLoaded = loadFileSync(_filename, currentDirectory, _options, environment);
+      final FileLoaded fileLoaded =
+          loadFileSync(_filename, currentDirectory, _options, environment);
       if (fileLoaded.error == null) {
         return fileLoaded;
-      }
-      else {
-        throw(fileLoaded.error);
+      } else {
+        throw fileLoaded.error;
       }
     }
     final String normalizedFilename = await normalizeFilePath(_filename);
-    final List<String> paths = await _normalizePaths(createListPaths(_filename, currentDirectory, _options));
+    final List<String> paths = await _normalizePaths(
+        createListPaths(_filename, currentDirectory, _options));
     final String fullFilename = await findFile(normalizedFilename, paths);
     if (fullFilename != null) {
       return getLoadedFile(fullFilename);
     } else {
-      throw new LessError(
+      throw LessError(
           type: 'File',
-          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
-      );
+          message:
+              "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}");
     }
   }
 
@@ -289,30 +289,30 @@ class FileFileManager extends AbstractFileManager {
   ///
   @override
   FileLoaded loadFileSync(String filename, String currentDirectory,
-        Contexts options, Environment environment) {
+      Contexts options, Environment environment) {
+    final FileLoaded fileLoaded = FileLoaded();
+    final Contexts _options = options ?? Contexts();
 
-    final FileLoaded  fileLoaded = new FileLoaded();
-    final Contexts    _options = options ?? new Contexts();
-
-    final List<String> paths = createListPaths(filename, currentDirectory, _options);
+    final List<String> paths =
+        createListPaths(filename, currentDirectory, _options);
     final String fullFilename = findFileSync(filename, paths);
 
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
 
       if (options.rawBuffer) {
-        fileLoaded.codeUnits = new File(fullFilename).readAsBytesSync();
+        fileLoaded.codeUnits = File(fullFilename).readAsBytesSync();
       } else {
         if (!contents.containsKey(fullFilename)) {
-          contents[fullFilename] = new File(fullFilename).readAsStringSync();
+          contents[fullFilename] = File(fullFilename).readAsStringSync();
         }
         fileLoaded.contents = contents[fullFilename];
       }
     } else {
-      fileLoaded.error = new LessError(
+      fileLoaded.error = LessError(
           type: 'File',
-          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
-      );
+          message:
+              "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}");
     }
 
     return fileLoaded;
@@ -329,21 +329,21 @@ class FileFileManager extends AbstractFileManager {
   ///
   @override
   FileLoaded existSync(String filename, String currentDirectory,
-        Contexts options, Environment environment) {
+      Contexts options, Environment environment) {
+    final FileLoaded fileLoaded = FileLoaded();
+    final Contexts _options = options ?? Contexts();
 
-    final FileLoaded  fileLoaded = new FileLoaded();
-    final Contexts    _options = options ?? new Contexts();
-
-    final List<String> paths = createListPaths(filename, currentDirectory, _options);
+    final List<String> paths =
+        createListPaths(filename, currentDirectory, _options);
     final String fullFilename = findFileSync(filename, paths);
 
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
     } else {
-      fileLoaded.error = new LessError(
+      fileLoaded.error = LessError(
           type: 'File',
-          message: "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}"
-      );
+          message:
+              "'$filename' wasn't found. Tried - ${filenamesTried.join(', ')}");
     }
 
     return fileLoaded;
@@ -355,11 +355,11 @@ class FileFileManager extends AbstractFileManager {
   Future<FileLoaded> getLoadedFile(String fullPath) async {
     // in js check if file in cache has been modified. Here, by now, is not necessary
     if (contents.containsKey(fullPath)) {
-      return new FileLoaded(filename: fullPath, contents: contents[fullPath]);
+      return FileLoaded(filename: fullPath, contents: contents[fullPath]);
     }
-    final String data = await new File(fullPath).readAsString();
+    final String data = await File(fullPath).readAsString();
     contents[fullPath] = data;
-    return new FileLoaded(filename: fullPath, contents: data);
+    return FileLoaded(filename: fullPath, contents: data);
   }
 
   ///
@@ -368,23 +368,24 @@ class FileFileManager extends AbstractFileManager {
 
   @override
   Future<String> normalizeFilePath(String filename) async {
-    final List<String> pathData = pathLib.split(pathLib.normalize(filename));
+    final List<String> pathData = path_lib.split(path_lib.normalize(filename));
     if (pathData.length > 1 && pathData.first.startsWith(PACKAGES_PREFIX)) {
       final String packageName = pathData[1];
-      String pathInPackage = pathLib.joinAll(pathData.getRange(2, pathData.length));
+      String pathInPackage =
+          path_lib.joinAll(pathData.getRange(2, pathData.length));
       if (pathData.first.contains(PACKAGES_TEST)) {
-        pathInPackage = '../test/$pathInPackage'; //change from lib/path to test/path
+        //change from lib/path to test/path
+        pathInPackage = '../test/$pathInPackage';
       }
-//      final AssetId asset = new AssetId(packageName, pathInPackage);
-      final PackageResolver _resolver = await _packageResolverProvider.getPackageResolver();
-//      String result = (await _resolver.urlFor(asset.package, asset.path)).toFilePath();
-      String result = (await _resolver.urlFor(packageName, _normalizePath(pathInPackage))).toFilePath();
+      final PackageResolver _resolver =
+          await _packageResolverProvider.getPackageResolver();
+      String result =
+          (await _resolver.urlFor(packageName, _normalizePath(pathInPackage)))
+              .toFilePath();
 
       // urlFor.toFilePath() ignores trailing slash if path is a folder, but this slash is mandatory to ensure
       // that pathDiff in AbstractFileManager returns correct result
-      if (filename.endsWith('/')) {
-        result = '$result/';
-      }
+      if (filename.endsWith('/')) result = '$result/';
       return result;
     }
     return filename;
@@ -395,18 +396,18 @@ class FileFileManager extends AbstractFileManager {
   /// Example:   'path/./to/..//file.text' -> 'path/file.txt'
   ///
   String _normalizePath(String path) {
-    if (pathLib.isAbsolute(path)) {
-      throw new ArgumentError('Asset paths must be relative, but got "$path".');
+    if (path_lib.isAbsolute(path)) {
+      throw ArgumentError('Asset paths must be relative, but got "$path".');
     }
 
     // Collapse "." and "..".
-    return pathLib.posix.normalize(path.replaceAll(r'\', '/'));
+    return path_lib.posix.normalize(path.replaceAll(r'\', '/'));
   }
 
   ///
-  Future <List<String>> _normalizePaths(List<String> paths) async {
+  Future<List<String>> _normalizePaths(List<String> paths) async {
     final List<String> normalizedPaths = <String>[];
-    for (String path in paths) {
+    for (final String path in paths) {
       normalizedPaths.add(await normalizeFilePath(path));
     }
     return normalizedPaths;

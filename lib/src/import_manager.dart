@@ -3,7 +3,7 @@
 library importmanager.less;
 
 import 'dart:async';
-import 'package:path/path.dart' as pathLib;
+import 'package:path/path.dart' as path_lib;
 
 import 'contexts.dart';
 import 'data/constants.dart';
@@ -63,7 +63,7 @@ class ImportManager {
     rootFilename = rootFileInfo.filename;
     paths = context.paths ?? <String>[];
     mime = context.mime;
-    environment = new Environment();
+    environment = Environment();
 
 //3.0.0 20170608
 //  var ImportManager = function(less, context, rootFileInfo) {
@@ -87,14 +87,13 @@ class ImportManager {
   ///
   ImportedFile fileParsedFunc(String path, dynamic root, String fullPath,
       ImportOptions importOptions, {bool useCache = false}) {
-    //
     queue.remove(path);
 
     if (useCache) return files[fullPath];
 
-    final ImportedFile importedFile = new ImportedFile(
+    final ImportedFile importedFile = ImportedFile(
         root: root,
-        importedPreviously: (fullPath == rootFilename), // importedEqualsRoot
+        importedPreviously: fullPath == rootFilename, // importedEqualsRoot
         fullPath: fullPath,
         options: importOptions);
 
@@ -151,14 +150,14 @@ class ImportManager {
 
     queue.add(path);
 
-    final FileInfo newFileInfo = new FileInfo
+    final FileInfo newFileInfo = FileInfo
         .cloneForLoader(currentFileInfo, _context);
 
     final AbstractFileManager fileManager = environment.getFileManager(
         path, currentFileInfo.currentDirectory, _context, environment);
 
     if (fileManager == null) {
-      throw new LessError(message: 'Could not find a file-manager for $path');
+      throw LessError(message: 'Could not find a file-manager for $path');
     }
 
     if (tryAppendLessExtension) _context.ext = '.less';
@@ -166,7 +165,7 @@ class ImportManager {
     try {
       final FileLoaded loadedFile = await fileManager.loadFile(path, currentFileInfo.currentDirectory, _context, environment);
       resolvedFilename = loadedFile.filename;
-      final String contents = loadedFile.contents.replaceFirst(new RegExp('^\uFEFF'), '');
+      final String contents = loadedFile.contents.replaceFirst(RegExp('^\uFEFF'), '');
 
       // Pass on an updated rootpath if path of imported file is relative and file
       // is in a (sub|sup) directory
@@ -180,14 +179,14 @@ class ImportManager {
       newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
       if (newFileInfo.rewriteUrls > RewriteUrlsConstants.off) {
         String currentDirectory = newFileInfo.currentDirectory;
-        if (!currentDirectory.endsWith(pathLib.separator)) {
-          currentDirectory += pathLib.separator;
+        if (!currentDirectory.endsWith(path_lib.separator)) {
+          currentDirectory += path_lib.separator;
         }
 
         final String entryPath = await fileManager.normalizeFilePath(newFileInfo.entryPath);
 
         final String pathdiff = fileManager.pathDiff(currentDirectory, entryPath);
-        newFileInfo.rootpath = fileManager.join((_context.rootpath ?? ''), pathdiff);
+        newFileInfo.rootpath = fileManager.join(_context.rootpath ?? '', pathdiff);
 
         if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
           newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
@@ -195,7 +194,7 @@ class ImportManager {
       }
       newFileInfo.filename = resolvedFilename;
 
-      final Contexts newEnv = new Contexts.parse(_context)
+      final Contexts newEnv = Contexts.parse(_context)
           ..processImports = false
           ..currentFileInfo = newFileInfo; // Not in original
 
@@ -216,23 +215,18 @@ class ImportManager {
         && !(importOptions?.multiple ?? false)) {
         return fileParsedFunc(path, null, resolvedFilename, importOptions, useCache: true);
       } else {
-        try {
-          final Ruleset root = await new Parser.fromImporter(newEnv, this, newFileInfo).parse(contents);
-          return fileParsedFunc(path, root, resolvedFilename, importOptions);
-        }
-        catch (e) {
-          throw e;
-        }
+        final Ruleset root = await Parser.fromImporter(newEnv, this, newFileInfo).parse(contents);
+        return fileParsedFunc(path, root, resolvedFilename, importOptions);
       }
     }
     catch (e) {
       //importOptions.optional: continue compiling when file is not found
       if (importOptions?.optional ?? false) {
-        (logger ??= new Logger())
-          ..info('The file ${resolvedFilename ?? path} was skipped because it was not found and the import was marked optional.');
-        return fileParsedFunc(path, new Ruleset(<Selector>[], <Node>[]), null, importOptions);
+        (logger ??= Logger())
+          .info('The file ${resolvedFilename ?? path} was skipped because it was not found and the import was marked optional.');
+        return fileParsedFunc(path, Ruleset(<Selector>[], <Node>[]), null, importOptions);
       } else {
-        throw e;
+        rethrow;
       }
     }
 

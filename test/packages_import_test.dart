@@ -21,13 +21,12 @@ void packagesImportTest() {
       final String lessRelativePath = 'test/less/import-packages/test.less';
       final String lessAbsolutePath = uriParentFolder.resolve(lessRelativePath).toFilePath();
 
-      final PackageResolver _resolver = await PackageResolver.loadConfig(new Uri.dataFromString(packagesFileContent));
-      final PackageResolverProviderMock _packageResolverProviderMock = new PackageResolverProviderMock();
-      when(_packageResolverProviderMock.getPackageResolver()).thenReturn(new Future<PackageResolver>.value(_resolver));
+      final PackageResolver _resolver = await PackageResolver.loadConfig(Uri.dataFromString(packagesFileContent));
+      final PackageResolverProviderMock _packageResolverProviderMock = PackageResolverProviderMock();
+      when(_packageResolverProviderMock.getPackageResolver()).thenReturn(Future<PackageResolver>.value(_resolver));
 
-      final FileFileManager _fileManager = new FileFileManager(new Environment(), _packageResolverProviderMock);
+      final FileFileManager _fileManager = FileFileManager(Environment(), _packageResolverProviderMock);
       final FileLoaded result = await _fileManager.loadFile('packages/test_package/$lessRelativePath', '.', null, null);
-
       expect(result.filename == lessAbsolutePath, true);
     });
   });

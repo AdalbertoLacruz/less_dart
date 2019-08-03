@@ -2,28 +2,27 @@
 
 part of tree.less;
 
-/// -
+///
 class Value extends Node {
-  @override final String          name = null;
-  @override final String          type = 'Value';
-  @override covariant List<Node>  value;
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Value';
+
+  @override
+  covariant List<Node> value;
 
   ///
   /// value is List<Node> | Node => [value]
   ///
-  Value(dynamic value, {
-      int index
-      }) : super.init(index: index) {
+  Value(dynamic value, {int index}) : super.init(index: index) {
     //
     if (value == null) {
-      throw new LessExceptionError(new LessError(
-          message: 'Value requires an array argument'));
+      throw LessExceptionError(
+          LessError(message: 'Value requires an array argument'));
     }
-    if (value is! List<Node>) {
-      this.value = <Node>[value];
-    } else {
-      this.value = value;
-    }
+    this.value = (value is! List<Node>) ? <Node>[value] : value;
 
 //3.0.0 20160719
 // var Value = function (value) {
@@ -40,9 +39,8 @@ class Value extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
@@ -61,7 +59,7 @@ class Value extends Node {
   @override
   Node eval(Contexts context) => (value.length == 1)
       ? value.first.eval(context)
-      : new Value(value.map((Node v) => v.eval(context)).toList());
+      : Value(value.map((Node v) => v.eval(context)).toList());
 
 //2.3.1
 //  Value.prototype.eval = function (context) {
@@ -77,7 +75,9 @@ class Value extends Node {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    if (context != null && context.cleanCss) return genCleanCSS(context, output);
+    if (context != null && context.cleanCss) {
+      return genCleanCSS(context, output);
+    }
 
     for (int i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
@@ -108,7 +108,7 @@ class Value extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

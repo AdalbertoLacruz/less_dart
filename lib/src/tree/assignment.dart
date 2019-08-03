@@ -9,21 +9,22 @@ part of tree.less;
 ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
 ///
 class Assignment extends Node {
-  @override final String    name = null;
-  @override final String    type = 'Assignment';
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Assignment';
 
   ///
   String key;
 
   /// value == Node | String
-  Assignment(this.key, dynamic value)
-      : super.init(value: value);
+  Assignment(this.key, dynamic value) : super.init(value: value);
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'key': key,
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'key': key, 'value': value};
 
   ///
   @override
@@ -38,9 +39,8 @@ class Assignment extends Node {
 
   ///
   @override
-  Assignment eval(Contexts context) => (value is Node)
-      ? new Assignment(key, value.eval(context))
-      : this;
+  Assignment eval(Contexts context) =>
+      (value is Node) ? Assignment(key, value.eval(context)) : this;
 
 //2.3.1
 //  Assignment.prototype.eval = function (context) {
@@ -69,7 +69,7 @@ class Assignment extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

@@ -1,4 +1,4 @@
-library fileInfo.less;
+library file_info.less;
 
 import 'contexts.dart';
 

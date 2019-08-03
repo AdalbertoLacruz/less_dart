@@ -4,21 +4,23 @@ part of tree.less;
 
 ///
 class MixinCall extends Node {
-  @override final String type = 'MixinCall';
+  @override
+  final String type = 'MixinCall';
 
   ///
   List<MixinArgs> arguments;
+
   ///
-  bool            important;
+  bool important;
+
   ///
-  Selector        selector;
+  Selector selector;
 
   ///
   MixinCall(List<Node> elements, List<MixinArgs> args,
       {int index, FileInfo currentFileInfo, this.important})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-
-    selector = new Selector(elements);
+    selector = Selector(elements);
     arguments = args ?? <MixinArgs>[];
     allowRoot = true;
     setParent(selector, this);
@@ -36,10 +38,9 @@ class MixinCall extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'elements': elements,
-    'arguments': arguments
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'elements': elements, 'arguments': arguments};
 
   ///
   @override
@@ -67,18 +68,18 @@ class MixinCall extends Node {
   Node eval(Contexts context) {
     final List<MixinArgs> args = <MixinArgs>[];
     final List<Candidate> candidates = <Candidate>[];
-    final List<bool>      conditionResult = <bool>[null, null];
-    int                   defaultResult;
-    bool                  isOneFound = false;
-    bool                  isRecursive;
-    bool                  match = false;
-    List<Node>            mixinPath;
-    List<MixinFound>      mixins;
-    final List<Node>      rules = <Node>[];
+    final List<bool> conditionResult = <bool>[null, null];
+    int defaultResult;
+    bool isOneFound = false;
+    bool isRecursive;
+    bool match = false;
+    List<Node> mixinPath;
+    List<MixinFound> mixins;
+    final List<Node> rules = <Node>[];
 
     DefaultFunc defaultFunc;
     if (context.defaultFunc == null) {
-      context.defaultFunc = defaultFunc = new DefaultFunc();
+      context.defaultFunc = defaultFunc = DefaultFunc();
     } else {
       defaultFunc = context.defaultFunc;
     }
@@ -122,10 +123,10 @@ class MixinCall extends Node {
       if (arg.expand && argValue.value is List) {
         argValue = argValue.value;
         for (int m = 0; m < argValue.length; m++) {
-          args.add(new MixinArgs(value: argValue[m]));
+          args.add(MixinArgs(value: argValue[m]));
         }
       } else {
-        args.add(new MixinArgs(name: arg.name, value: argValue));
+        args.add(MixinArgs(name: arg.name, value: argValue));
       }
     });
 
@@ -134,7 +135,9 @@ class MixinCall extends Node {
 
     // Search MixinDefinition
     for (int i = 0; i < context.frames.length; i++) {
-      if ((mixins = (context.frames[i] as VariableMixin).find(selector, null, noArgumentsFilter)).isNotEmpty) {
+      if ((mixins = (context.frames[i] as VariableMixin)
+              .find(selector, null, noArgumentsFilter))
+          .isNotEmpty) {
         isOneFound = true;
 
         // To make `default()` function independent of definition order we have two "subpasses" here.
@@ -157,9 +160,11 @@ class MixinCall extends Node {
           if (isRecursive) continue;
 
           if (mixin.matchArgs(args, context)) {
-            final Candidate candidate = new Candidate(
-                mixin: mixin, group: calcDefGroup(mixin, mixinPath));
-            if (candidate.group != defFalseEitherCase) candidates.add(candidate);
+            final Candidate candidate =
+                Candidate(mixin: mixin, group: calcDefGroup(mixin, mixinPath));
+            if (candidate.group != defFalseEitherCase) {
+              candidates.add(candidate);
+            }
             match = true;
           }
         }
@@ -176,9 +181,10 @@ class MixinCall extends Node {
         } else {
           defaultResult = defTrue;
           if ((count[defTrue] + count[defFalse]) > 1) {
-            throw new LessExceptionError(new LessError(
+            throw LessExceptionError(LessError(
                 type: 'Runtime',
-                message: 'Ambiguous use of `default()` found when matching for `${format(args)}`',
+                message:
+                    'Ambiguous use of `default()` found when matching for `${format(args)}`',
                 index: index,
                 filename: currentFileInfo.filename));
           }
@@ -190,8 +196,9 @@ class MixinCall extends Node {
             try {
               MatchConditionNode mixin = candidates[m].mixin;
               if (mixin is! MixinDefinition) {
-                final Ruleset originalRuleset = (mixin as Ruleset).originalRuleset ?? mixin;
-                mixin = new MixinDefinition('', <MixinArgs>[], mixin.rules, null,
+                final Ruleset originalRuleset =
+                    (mixin as Ruleset).originalRuleset ?? mixin;
+                mixin = MixinDefinition('', <MixinArgs>[], mixin.rules, null,
                     variadic: false,
                     index: index,
                     currentFileInfo: currentFileInfo,
@@ -209,7 +216,7 @@ class MixinCall extends Node {
             } catch (e, s) {
 //              print("$e, $s");
               //in js creates a new error and lost type: NameError -> SyntaxError
-              throw new LessExceptionError(LessError.transform(e,
+              throw LessExceptionError(LessError.transform(e,
                   index: index,
                   filename: currentFileInfo.filename,
                   stackTrace: s));
@@ -219,25 +226,23 @@ class MixinCall extends Node {
 
         if (match) {
           //return rules; in js
-          return new Nodeset(rules);
+          return Nodeset(rules);
         }
       }
     }
 
     if (isOneFound) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Runtime',
           message: 'No matching definition was found for `${format(args)}`',
           index: index,
-          filename: currentFileInfo.filename
-      ));
+          filename: currentFileInfo.filename));
     } else {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Name',
           message: '${selector.toCSS(context).trim()} is undefined',
           index: index,
-          filename: currentFileInfo.filename
-      ));
+          filename: currentFileInfo.filename));
     }
 
 // 3.5.0.beta.4 20180630
@@ -403,7 +408,7 @@ class MixinCall extends Node {
   String format(List<MixinArgs> args) {
     final String result = selector.toCSS(null).trim();
     final String argsStr = (args != null)
-        ? args.fold(new StringBuffer(), (StringBuffer sb, MixinArgs a) {
+        ? args.fold(StringBuffer(), (StringBuffer sb, MixinArgs a) {
             if (sb.isNotEmpty) sb.write(', ');
             if (isNotEmpty(a.name)) sb.write('${a.name}:');
             if (a.value is Node) {
@@ -441,20 +446,20 @@ class MixinCall extends Node {
 ///
 class MixinArgs {
   ///
-  String  name;
+  String name;
+
   ///
-  Node    value;
+  Node value;
+
   ///
-  bool    variadic;
+  bool variadic;
+
   ///
-  bool    expand;
+  bool expand;
 
   ///
   MixinArgs(
-      {this.name,
-      this.value,
-      this.variadic: false,
-      this.expand: false});
+      {this.name, this.value, this.variadic = false, this.expand = false});
 
   ///
   void genTree(Contexts env, Output output, [String prefix = '']) {
@@ -484,9 +489,10 @@ class MixinArgs {
 ///
 class Candidate {
   ///
-  MatchConditionNode  mixin;
+  MatchConditionNode mixin;
+
   ///
-  int                 group;
+  int group;
 
   ///
   Candidate({this.mixin, this.group});

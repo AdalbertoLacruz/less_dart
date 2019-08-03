@@ -11,17 +11,6 @@ bool isNotEmpty(dynamic value) {
   return false; //if value is null
 }
 
-//
-// if [value] is null return default.
-//
-/*getValueOrDefault(value, defaultValue) {
-  if (value == null) {
-    return defaultValue;
-  } else {
-    return value;
-  }
-}*/
-
 ///
 /// -[value] int | double. Considers null value.
 ///

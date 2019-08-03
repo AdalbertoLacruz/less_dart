@@ -6,7 +6,7 @@ part of functions.less;
 class DefaultFunc extends FunctionBase {
   LessError _error;
 
-  int       _value;
+  int _value;
 
   ///
   @DefineMethod(name: 'default')
@@ -15,10 +15,10 @@ class DefaultFunc extends FunctionBase {
     final LessError e = _error;
 
     if (e != null) {
-      throw new LessExceptionError(e);
+      throw LessExceptionError(e);
     }
     if (v != null) {
-      return (v > 0) ? new Keyword.True() : new Keyword.False();
+      return (v > 0) ? Keyword.True() : Keyword.False();
     }
     return null;
 

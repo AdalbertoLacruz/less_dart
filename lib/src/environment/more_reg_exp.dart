@@ -3,13 +3,15 @@ part of environment.less;
 ///
 class MoreRegExp {
   ///
-  bool    caseSensitive = true;
+  bool caseSensitive = true;
+
   ///
-  bool    global = false;
+  bool global = false;
+
   ///
-  String  pattern;
-  
-  RegExp  _thisRE;
+  String pattern;
+
+  RegExp _thisRE;
 
   ///
   /// flags:
@@ -21,7 +23,7 @@ class MoreRegExp {
       caseSensitive = !flags.contains('i');
       global = flags.contains('g');
     }
-    _thisRE = new RegExp(pattern, caseSensitive: caseSensitive);
+    _thisRE = RegExp(pattern, caseSensitive: caseSensitive);
   }
 
   ///
@@ -37,10 +39,10 @@ class MoreRegExp {
   ///   re == 'This is a new string.'
   ///
   String replace(String source, String replacement) {
-    final RegExp  dollar = new RegExp(r'\$\d+');
-    String        dollarN;
-    Match         match;
-    String        _replacement = replacement;
+    final RegExp dollar = RegExp(r'\$\d+');
+    String dollarN;
+    Match match;
+    String _replacement = replacement;
 
     if (dollar.hasMatch(_replacement)) {
       match = _thisRE.firstMatch(source);
@@ -67,8 +69,8 @@ class MoreRegExp {
     if (match != null) {
       final String replacement = map(match);
       return global
-        ? source.replaceAll(_thisRE, replacement)
-        : source.replaceFirst(_thisRE, replacement);
+          ? source.replaceAll(_thisRE, replacement)
+          : source.replaceFirst(_thisRE, replacement);
     }
     return source;
   }

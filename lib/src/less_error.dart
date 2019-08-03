@@ -10,60 +10,58 @@ import 'utils.dart';
 /// Besides standard message it keeps some additional data like a path to the file where the error
 /// occurred along with line and column numbers.
 ///
-class LessError {
+class LessError extends Error {
   ///
-  int           call;
+  int call;
 
   ///
-  int           callLine;
+  int callLine;
 
   ///
-  String        callExtract;
+  String callExtract;
 
   /// color in error messages
-  bool          color;
+  bool color;
 
   /// error column
-  int           column;
+  int column;
 
   /// lines around the error
-  List<String>  extract;
+  List<String> extract;
 
   /// path to file with error
-  String        filename;
+  String filename;
 
   /// error character position
-  int           index;
+  int index;
 
   ///
-  bool          isSimplyFormat = true;
+  bool isSimplyFormat = true;
 
   /// error line
-  int           line;
+  int line;
 
   /// error description
-  String        message;
+  String message;
 
   //bool silent = false;
 
   ///
-  StackTrace    stack;
+  StackTrace stack;
 
   /// error type
-  String        type;
+  String type;
 
   // less/parser.js 1.7.5 lines 309-331
   ///
-  LessError({
-      this.call,
+  LessError(
+      {this.call,
       Contexts context,
       this.index,
       this.filename,
       this.message,
       this.stack,
-      this.type
-      }) {
-
+      this.type}) {
     if (context != null) addFileInformation(context);
   }
 
@@ -79,7 +77,8 @@ class LessError {
       final LocationPoint loc = Utils.getLocation(index, input);
       final int line = loc.line;
       final int col = loc.column;
-      final int callLine = (call != null) ? Utils.getLocation(call, input).line : 0;
+      final int callLine =
+          (call != null) ? Utils.getLocation(call, input).line : 0;
       final List<String> lines = input.split('\n');
 
       this.line = (line is num) ? line + 1 : null;
@@ -87,9 +86,10 @@ class LessError {
       callExtract = lines[callLine];
       column = col;
       extract = <String>[
-          getLine(lines, line - 1),
-          getLine(lines, line),
-          getLine(lines, line + 1)];
+        getLine(lines, line - 1),
+        getLine(lines, line),
+        getLine(lines, line + 1)
+      ];
       color = context.color;
       isSimplyFormat = false;
     }
@@ -104,19 +104,18 @@ class LessError {
       String filename,
       String message,
       String type,
-      int line,  //TODO
+      int line, //TODO
       int column, //TODO
       StackTrace stackTrace,
       Contexts context}) {
-
     LessError error;
     if (e is LessExceptionError) error = e.error;
-    (error ??= (e is LessError) ? e : new LessError())
-        ..index ??= index
-        ..filename ??= filename
-        ..message ??= (e != null && e is! LessError) ? e.toString() : message
-        ..type ??= type
-        ..stack ??= stackTrace;
+    (error ??= (e is LessError) ? e : LessError())
+      ..index ??= index
+      ..filename ??= filename
+      ..message ??= (e != null && e is! LessError) ? e.toString() : message
+      ..type ??= type
+      ..stack ??= stackTrace;
     if (context != null) error.addFileInformation(context);
     return error;
   }
@@ -143,14 +142,13 @@ class LessError {
     if (e is LessExceptionError) return e.error.type;
     if (e is LessError) return e.type;
     return '';
-
   }
 
   ///
   /// Returns null if [line] is out of range in [lines]
   ///
   String getLine(List<String> lines, int line) {
-    if ((line >= 0) && (line <= lines.length -1)) return lines[line];
+    if ((line >= 0) && (line <= lines.length - 1)) return lines[line];
     return null;
   }
 
@@ -173,21 +171,28 @@ class LessError {
 
 //Style for LessExceptionError.stylize
 ///
-const int STYLE_RESET       = 0;
+const int STYLE_RESET = 0;
+
 ///
-const int STYLE_BOLD        = 1;
+const int STYLE_BOLD = 1;
+
 ///
-const int STYLE_INVERSE     = 2;
+const int STYLE_INVERSE = 2;
+
 ///
-const int STYLE_UNDERLINE   = 3;
+const int STYLE_UNDERLINE = 3;
+
 ///
-const int STYLE_YELLOW      = 4;
+const int STYLE_YELLOW = 4;
+
 ///
-const int STYLE_GREEN       = 5;
+const int STYLE_GREEN = 5;
+
 ///
-const int STYLE_RED         = 6;
+const int STYLE_RED = 6;
+
 ///
-const int STYLE_GREY        = 7;
+const int STYLE_GREY = 7;
 
 ///
 class LessExceptionError implements Exception {
@@ -211,33 +216,35 @@ class LessExceptionError implements Exception {
   ///
   // less/index.js 1.7.5 lines 44-92
   String formatError() {
-    final List<String>  errorLines = <String>[];
-    String              errorPosition; // '....^'
-    String              errorTxt;
-    final int           lineCounterWidth = (error.line + 1).toString().length;
-    final StringBuffer  message = new StringBuffer();
+    final List<String> errorLines = <String>[];
+    String errorPosition; // '....^'
+    String errorTxt;
+    final int lineCounterWidth = (error.line + 1).toString().length;
+    final StringBuffer message = StringBuffer();
 
     error
-        ..type ??= 'Syntax'
-        ..message ??= 'Error:';
+      ..type ??= 'Syntax'
+      ..message ??= 'Error:';
 
     if (error.extract[0] != null) {
-      errorTxt = stGrey('${formatLineCounter((error.line - 1), lineCounterWidth)} ${error.extract[0]}');
+      errorTxt = stGrey(
+          '${formatLineCounter(error.line - 1, lineCounterWidth)} ${error.extract[0]}');
       errorLines.add(errorTxt.trimRight());
     }
     if (error.extract[1] != null) {
       // ignore: prefer_interpolation_to_compose_strings
       error.extract[1] += ' '; //assure (error.column + 1) exist
-      errorTxt = '${formatLineCounter((error.line), lineCounterWidth)} ${error.extract[1].substring(0, error.column)}';
+      errorTxt =
+          '${formatLineCounter(error.line, lineCounterWidth)} ${error.extract[1].substring(0, error.column)}';
       errorPosition = "${'.' * errorTxt.length}^";
       // ignore: prefer_interpolation_to_compose_strings
-      errorTxt += stInverse(stRed(stBold(error.extract[1][error.column]) + error.extract[1].substring(error.column+1)));
-      errorLines
-          ..add(errorTxt.trimRight())
-          ..add(errorPosition);
+      errorTxt += stInverse(stRed(stBold(error.extract[1][error.column]) +
+          error.extract[1].substring(error.column + 1)));
+      errorLines..add(errorTxt.trimRight())..add(errorPosition);
     }
     if (error.extract[2] != null) {
-      errorTxt = stGrey('${formatLineCounter((error.line + 1),lineCounterWidth)} ${error.extract[2]}');
+      errorTxt = stGrey(
+          '${formatLineCounter(error.line + 1, lineCounterWidth)} ${error.extract[2]}');
       errorLines.add(errorTxt.trimRight());
     }
 
@@ -249,10 +256,10 @@ class LessExceptionError implements Exception {
         ..write(stGrey(' on line ${error.line}, column ${error.column + 1}:'));
     }
     message
-        ..write('\n')
-        ..write(errorLines.join('\n'))
-        ..write(stReset(''))
-        ..write('\n');
+      ..write('\n')
+      ..write(errorLines.join('\n'))
+      ..write(stReset(''))
+      ..write('\n');
 
 //    if (ctx.callLine) {
 //        message += stylize('from ', STYLE_RED) + (error.filename || '') + '/n';
@@ -263,7 +270,7 @@ class LessExceptionError implements Exception {
 
   /// Format the [line] number to the [width] with 0's. ex. line = 9, width = 2 => return '09'
   String formatLineCounter(int line, int width) =>
-      line.toString().padLeft(width,'0');
+      line.toString().padLeft(width, '0');
 
   /// Stylize [str] in bold
   String stBold(String str) => stylize(str, STYLE_BOLD);
@@ -288,21 +295,21 @@ class LessExceptionError implements Exception {
   ///
   // less/lessc_helper.js 1.7.5 lines 07-20
   String stylize(String str, int style) {
-    if (!_color) return (str);
+    if (!_color) return str;
 
     final Map<int, List<int>> styles = <int, List<int>>{
-      STYLE_RESET:      <int>[ 0,  0],
-      STYLE_BOLD:       <int>[ 1, 22],
-      STYLE_INVERSE:    <int>[ 7, 27],
-      STYLE_UNDERLINE:  <int>[ 4, 24],
-      STYLE_YELLOW:     <int>[33, 39],
-      STYLE_GREEN:      <int>[32, 39],
-      STYLE_RED:        <int>[31, 39],
-      STYLE_GREY:       <int>[90, 39]
+      STYLE_RESET: <int>[0, 0],
+      STYLE_BOLD: <int>[1, 22],
+      STYLE_INVERSE: <int>[7, 27],
+      STYLE_UNDERLINE: <int>[4, 24],
+      STYLE_YELLOW: <int>[33, 39],
+      STYLE_GREEN: <int>[32, 39],
+      STYLE_RED: <int>[31, 39],
+      STYLE_GREY: <int>[90, 39]
     };
     const String ESC = '\u001b[';
 
-    return ('$ESC${styles[style][0]}m$str$ESC${styles[style][1]}m'); //TODO test in linux
+    return '$ESC${styles[style][0]}m$str$ESC${styles[style][1]}m'; //TODO test in linux
   }
 
   @override

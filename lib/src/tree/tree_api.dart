@@ -8,74 +8,76 @@ class TreeApi {
   ///
   ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
   ///
-  Assignment assignment(String key, String value) => new Assignment(key, value);
+  Assignment assignment(String key, String value) => Assignment(key, value);
 
   ///
-  AtRule atRule(String name, String value) => new AtRule(name, value);
+  AtRule atRule(String name, String value) => AtRule(name, value);
 
   ///
   Attribute attribute(String key, String op, String value) =>
-      new Attribute(key, op, value);
+      Attribute(key, op, value);
 
   ///
   // TODO args 'arg1, arg2, ...' => List<Node>
-  Call call(String name, [String args]) => new Call(name, null);
+  Call call(String name, [String args]) => Call(name, null);
 
   ///
-  Color color(List<num> rgb) => new Color.fromList(rgb);
+  Color color(List<num> rgb) => Color.fromList(rgb);
 
   ///
-  Combinator combinator(String value) => new Combinator(value);
+  Combinator combinator(String value) => Combinator(value);
 
   ///
   Condition condition(String condition, Node lValue, Node rValue) =>
-      new Condition(condition, lValue, rValue);
+      Condition(condition, lValue, rValue);
 
   ///
   Declaration declaration(String name, String value) =>
-      new Declaration(name, value);
+      Declaration(name, value);
 
   ///
   /// Creates a Ruleset with no css output
   ///
-  DetachedRuleset detachedRuleset(Ruleset ruleset) => new DetachedRuleset(ruleset);
+  DetachedRuleset detachedRuleset(Ruleset ruleset) => DetachedRuleset(ruleset);
 
   ///
-  Dimension dimension(dynamic value, String unit) => new Dimension(value, unit);
+  Dimension dimension(dynamic value, String unit) => Dimension(value, unit);
 
   ///
-  Element element(String combinator, String value) => new Element(combinator, value);
+  Element element(String combinator, String value) =>
+      Element(combinator, value);
 
   ///
-  Expression expression(List<dynamic> value) => new Expression(toListNode(value));
+  Expression expression(List<dynamic> value) => Expression(toListNode(value));
 
   ///
-  Keyword keyword(String value) => new Keyword(value);
+  Keyword keyword(String value) => Keyword(value);
 
   ///
-  Operation operation(String op, List<dynamic> operands) => new Operation(op, toListNode(operands));
+  Operation operation(String op, List<dynamic> operands) =>
+      Operation(op, toListNode(operands));
 
   ///
-  Quoted quoted(String str, String content) => new Quoted(str, content);
+  Quoted quoted(String str, String content) => Quoted(str, content);
 
   ///
   /// ex.: ruleset('h1 div, h2 div', [declaration('prop', 'value')]);
   ///
-  Ruleset ruleset(String selectors, List<Node> rules ) {
+  Ruleset ruleset(String selectors, List<Node> rules) {
     if (selectors?.isNotEmpty ?? false) {
       final String _selectors = '$selectors {}';
-      final Ruleset result = new ParseNode(_selectors, 0, null).ruleset();
-      return new Ruleset(result.selectors, rules);
+      final Ruleset result = ParseNode(_selectors, 0, null).ruleset();
+      return Ruleset(result.selectors, rules);
     } else {
-      return new Ruleset(null, rules);
+      return Ruleset(null, rules);
     }
   }
 
   ///
-  Selector selector(String elements) => new Selector(elements);
+  Selector selector(String elements) => Selector(elements);
 
   ///
-  URL url(dynamic value) => new URL(toNode(value));
+  URL url(dynamic value) => URL(toNode(value));
 
   ///
   /// Returns a Value node
@@ -88,7 +90,7 @@ class TreeApi {
     } else {
       result.add(toNode(value));
     }
-    return new Value(result);
+    return Value(result);
   }
 
   ///
@@ -96,9 +98,7 @@ class TreeApi {
   ///
   Node toNode(dynamic value) => value is Node
       ? value
-      : value is num
-          ? new Dimension(value)
-          : new Anonymous(value);
+      : value is num ? Dimension(value) : Anonymous(value);
 
   ///
   /// returns List<Node> from a List with Node|String|num elements

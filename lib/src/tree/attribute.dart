@@ -4,28 +4,29 @@ part of tree.less;
 
 ///
 class Attribute extends Node {
-  @override final String  name = null;
-  @override final String  type = 'Attribute';
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Attribute';
 
   ///
   dynamic key; // String or Node
-  ///
-  String  op; // '=', '^=', ...
 
   ///
-  Attribute(this.key, this.op, dynamic value)
-      : super.init(value: value);
+  String op; // '=', '^=', ...
+
+  ///
+  Attribute(this.key, this.op, dynamic value) : super.init(value: value);
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'key': key,
-    'op': op,
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'key': key, 'op': op, 'value': value};
 
   ///
   @override
-  Attribute eval(Contexts context) => new Attribute(
+  Attribute eval(Contexts context) => Attribute(
       key is Node ? key.eval(context) : key,
       op,
       value is Node ? value.eval(context) : value);
@@ -53,9 +54,8 @@ class Attribute extends Node {
     String value = (key is Node) ? key.toCSS(context) : key;
 
     if (op != null) {
-      final String attr = (this.value is Node)
-          ? this.value.toCSS(context)
-          : this.value;
+      final String attr =
+          (this.value is Node) ? this.value.toCSS(context) : this.value;
       value = '$value$op$attr';
     }
 

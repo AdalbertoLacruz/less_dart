@@ -12,10 +12,11 @@ class TestFileManager extends AbstractFileManager {
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory,
       Contexts options, Environment environment) {
-    final RegExp testRe = new RegExp(r'.*\.test$');
-    if (testRe.hasMatch(filename))
-        return environment.fileManagers[0]
-            .loadFile('colors.test', currentDirectory, options, environment);
+    final RegExp testRe = RegExp(r'.*\.test$');
+    if (testRe.hasMatch(filename)) {
+      return environment.fileManagers[0]
+          .loadFile('colors.test', currentDirectory, options, environment);
+    }
     return environment.fileManagers[0]
         .loadFile(filename, currentDirectory, options, environment);
   }
@@ -27,7 +28,7 @@ class TestFileManagerPlugin extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final AbstractFileManager fileManager = new TestFileManager(environment);
+    final AbstractFileManager fileManager = TestFileManager(environment);
     pluginManager.addFileManager(fileManager);
   }
 

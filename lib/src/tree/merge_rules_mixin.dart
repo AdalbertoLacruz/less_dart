@@ -18,8 +18,8 @@ class MergeRulesMixin {
   void mergeRules(List<Node> rules) {
     if (rules == null) return;
 
-    final Map<String, List<Declaration>>   groups = <String, List<Declaration>>{};
-    final List<List<Declaration>>          groupsArr = <List<Declaration>>[];
+    final Map<String, List<Declaration>> groups = <String, List<Declaration>>{};
+    final List<List<Declaration>> groupsArr = <List<Declaration>>[];
 
     for (int i = 0; i < rules.length; i++) {
       final Node rule = rules[i];
@@ -28,7 +28,8 @@ class MergeRulesMixin {
       // rule is not only Declaration
       if (rule is Declaration && (rule.merge?.isNotEmpty ?? false)) {
         final String key = rule.name;
-        final List<Declaration> group = groups.putIfAbsent(key, () => <Declaration>[]);
+        final List<Declaration> group =
+            groups.putIfAbsent(key, () => <Declaration>[]);
         group.isNotEmpty ? rules.removeAt(i--) : groupsArr.add(group);
         group.add(rule);
       }
@@ -38,16 +39,18 @@ class MergeRulesMixin {
       if (group.isNotEmpty) {
         final Declaration result = group.first;
         List<Node> space = <Node>[];
-        final List<Expression> comma = <Expression>[new Expression(space)];
+        final List<Expression> comma = <Expression>[Expression(space)];
         group.forEach((Declaration rule) {
           if ((rule.merge == '+') && (space.isNotEmpty)) {
             space = <Node>[];
-            comma.add(new Expression(space));
+            comma.add(Expression(space));
           }
-          space.add(rule.value); //rule.value is any Node, so space is List<Node>
-          result.important = result.important.isNotEmpty ? result.important : rule.important;
+          space
+              .add(rule.value); //rule.value is any Node, so space is List<Node>
+          result.important =
+              result.important.isNotEmpty ? result.important : rule.important;
         });
-        result.value = new Value(comma);
+        result.value = Value(comma);
       }
     });
 

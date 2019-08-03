@@ -10,8 +10,9 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import '../lib/less.dart';
-import '../lib/src/less_error.dart';
+
+import 'package:less_dart/less.dart';
+import 'package:less_dart/src/less_error.dart';
 
 part 'plugins/filemanager.dart';
 part 'plugins/functions.dart';
@@ -59,7 +60,7 @@ void main() {
   config = configFill();
 
   group('simple', () {
-    for (int id in config.keys) {
+    for (final int id in config.keys) {
       if (!config[id].isExtendedText &&
           (runOnly?.contains(id) ?? true) &&
           (runExternal || !config[id].isExternal)) {
@@ -69,7 +70,7 @@ void main() {
   });
 
   group('extended', () {
-    for (int id in config.keys) {
+    for (final int id in config.keys) {
       if (config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
         declareTest(id);
       }
@@ -140,20 +141,19 @@ Map<int, Config> configFill() => <int, Config>{
     84: def('plugin',
         modifyOptions: (LessOptions options) {
           options
-              ..definePlugin('plugin-global', new PluginGlobal())
-              ..definePlugin('plugin-local', new PluginLocal())
-              ..definePlugin('plugin-transitive', new PluginTransitive())
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode())
-              ..definePlugin('plugin-set-options', new PluginSetOptions())
-              ..definePlugin('plugin-simple', new PluginSimple())
-              ..definePlugin('plugin-scope1', new PluginScope1())
-              ..definePlugin('plugin-scope2', new PluginScope2())
-              ..definePlugin('plugin-collection', new PluginCollection());
+              ..definePlugin('plugin-global', PluginGlobal())
+              ..definePlugin('plugin-local', PluginLocal())
+              ..definePlugin('plugin-transitive', PluginTransitive())
+              ..definePlugin('plugin-tree-nodes', PluginTreeNode())
+              ..definePlugin('plugin-set-options', PluginSetOptions())
+              ..definePlugin('plugin-simple', PluginSimple())
+              ..definePlugin('plugin-scope1', PluginScope1())
+              ..definePlugin('plugin-scope2', PluginScope2())
+              ..definePlugin('plugin-collection', PluginCollection());
         }),
     85: def('plugin-preeval',
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-preeval', new PluginPreeval());
+          options.definePlugin('plugin-preeval', PluginPreeval());
         }),
     86: def('property-name-interp'),
     87: def('property-accessors'),
@@ -251,22 +251,22 @@ Map<int, Config> configFill() => <int, Config>{
 
    175: def('filemanagerPlugin/filemanager',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestFileManagerPlugin', new TestFileManagerPlugin(),
+          options.definePlugin('TestFileManagerPlugin', TestFileManagerPlugin(),
               load: true, options: '');
         }),
    176: def('postProcessorPlugin/postProcessor',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestPostProcessorPlugin', new TestPostProcessorPlugin(),
+          options.definePlugin('TestPostProcessorPlugin', TestPostProcessorPlugin(),
               load: true, options: '');
         }),
    177: def('preProcessorPlugin/preProcessor',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestPreProcessorPlugin', new TestPreProcessorPlugin(),
+          options.definePlugin('TestPreProcessorPlugin', TestPreProcessorPlugin(),
               load: true, options: '');
         }),
    178: def('visitorPlugin/visitor',
         modifyOptions: (LessOptions options) {
-          options.definePlugin('TestVisitorPlugin', new TestVisitorPlugin(),
+          options.definePlugin('TestVisitorPlugin', TestVisitorPlugin(),
               load: true, options: '');
         }),
 
@@ -391,84 +391,68 @@ Map<int, Config> configFill() => <int, Config>{
     //
     270: def('errors/functions-1', isErrorTest: true,
           modifyOptions: (LessOptions options) {
-            options
-                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+            options.definePlugin('plugin-tree-nodes', PluginTreeNode());
           }),
     272: def('errors/functions-3-assignment', isErrorTest: true,
           modifyOptions: (LessOptions options) {
-            options
-                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+            options.definePlugin('plugin-tree-nodes', PluginTreeNode());
           }),
     273: def('errors/functions-4-call', isErrorTest: true,
           modifyOptions: (LessOptions options) {
-            options
-                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+            options.definePlugin('plugin-tree-nodes', PluginTreeNode());
           }),
     274: def('errors/functions-5-color', isErrorTest: true,
           modifyOptions: (LessOptions options) {
-            options
-                ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+            options.definePlugin('plugin-tree-nodes', PluginTreeNode());
           }),
     275: def('errors/functions-5-color-2', isErrorTest: true),
     276: def('errors/functions-6-condition', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     277: def('errors/functions-7-dimension', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     278: def('errors/functions-8-element', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     279: def('errors/functions-9-expression', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     280: def('errors/functions-10-keyword', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     281: def('errors/functions-11-operation', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     282: def('errors/functions-12-quoted', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     283: def('errors/functions-13-selector', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     284: def('errors/functions-14-url', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     285: def('errors/functions-15-value', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     286: def('errors/root-func-undefined-1', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
     287: def('errors/root-func-undefined-2', isErrorTest: true,
         modifyOptions: (LessOptions options) {
-          options
-              ..definePlugin('plugin-tree-nodes', new PluginTreeNode());
+          options.definePlugin('plugin-tree-nodes', PluginTreeNode());
         }),
 
     //
@@ -501,7 +485,7 @@ Map<int, Config> configFill() => <int, Config>{
         isExtendedTest: true,
         options: <String>['--banner=${dirPath}banner.txt'],
         modifyOptions: (LessOptions options) {
-          options.variables = <String, Node>{ 'my-color': new Color.fromKeyword('red') };
+          options.variables = <String, Node>{ 'my-color': Color.fromKeyword('red') };
         }),
     313: def('extendedTest/plugin-advanced-color',
         isExtendedTest: true,
@@ -537,10 +521,16 @@ Map<int, Config> configFill() => <int, Config>{
 };
 
 ///
-Config def(String name, {List<String> options, String cssName,
-  List<Map<String, String>> replace, bool isCleancssTest: false,
-  bool isErrorTest: false, bool isExtendedTest: false, bool isExternal: false,
-  bool isReplaceSource: false, bool isSourcemapTest: false,
+Config def(String name, {
+  List<String> options,
+  String cssName,
+  List<Map<String, String>> replace,
+  bool isCleancssTest = false,
+  bool isErrorTest = false,
+  bool isExtendedTest = false,
+  bool isExternal = false,
+  bool isReplaceSource = false,
+  bool isSourcemapTest = false,
   Function modifyOptions}) {
 
   bool                      _isExtendedTest = isExtendedTest;
@@ -568,7 +558,7 @@ Config def(String name, {List<String> options, String cssName,
   }
 
   cssName ??= name;
-  return new Config(name)
+  return Config(name)
       ..lessFile = path.normalize('$baseLess/$name.less')
       ..cssFile = path.normalize('$baseCss/$cssName.css')
       ..errorFile = path.normalize('${dirPath}less/$name.txt')
@@ -584,7 +574,7 @@ Config def(String name, {List<String> options, String cssName,
 
 ///
 String escFile(String fileName) {
-  final String file = fileName.replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
+  final String file = fileName.replaceAllMapped(RegExp(r'([.:\/\\])'), (Match m) {
     String a = m[1];
     if (a == '\\') a = '\/';
     // ignore: prefer_interpolation_to_compose_strings
@@ -606,13 +596,13 @@ Future<Null> testRun(int c) async {
   String fileOutputName;
   final String fileResult = config[c].cssFile;
   final String fileToTest = config[c].lessFile;
-  final Less less = new Less();
+  final Less less = Less();
 
   args.add('--no-color');
   if (config[c].options != null) args.addAll(config[c].options);
 
   if (config[c].isReplaceSource) {
-    String source = new File(fileToTest).readAsStringSync();
+    String source = File(fileToTest).readAsStringSync();
     if (config[c].replace != null) {
       for (int i = 0; i < config[c].replace.length; i++) {
         source = source.replaceAll(config[c].replace[i]['from'], config[c].replace[i]['to']);
@@ -634,19 +624,19 @@ Future<Null> testRun(int c) async {
   expect(exitCode, isNot(equals(3)));
 
   if (config[c].isSourcemapTest) {
-    final String expectedCss = new File(config[c].cssFile).readAsStringSync();
-    final String resultCss = new File(fileOutputName).readAsStringSync();
+    final String expectedCss = File(config[c].cssFile).readAsStringSync();
+    final String resultCss = File(fileOutputName).readAsStringSync();
     expect(resultCss, equals(expectedCss));
 
     final String mapFileName = '${path.withoutExtension(config[c].lessFile)}.map';
     final String expectedMapFileName =  '${path.withoutExtension(config[c].cssFile)}.map';
-    if (new File(mapFileName).existsSync()) {
-      final String resultMap = new File(mapFileName).readAsStringSync();
-      final String expectedResultMap = new File(expectedMapFileName).readAsStringSync();
+    if (File(mapFileName).existsSync()) {
+      final String resultMap = File(mapFileName).readAsStringSync();
+      final String expectedResultMap = File(expectedMapFileName).readAsStringSync();
       expect(resultMap, equals(expectedResultMap));
     }
   } else if (config[c].isErrorTest) {
-    final String errorContent = await new File(fileError).readAsString();
+    final String errorContent = await File(fileError).readAsString();
 
     String errorContentReplaced = errorContent;
     if (config[c].replace != null) {
@@ -656,24 +646,24 @@ Future<Null> testRun(int c) async {
     }
 
     if (c == testNumResults) {
-      new File('${dirPath}result/expected.txt')
+      File('${dirPath}result/expected.txt')
           ..createSync(recursive: true)
           ..writeAsStringSync(errorContentReplaced);
-      new File('${dirPath}result/result.txt')
+      File('${dirPath}result/result.txt')
           .writeAsStringSync(config[c].stderr);
-      new File('${dirPath}result/result.css')
+      File('${dirPath}result/result.css')
           .writeAsStringSync(less.stdout.toString());
     }
 
     try {
       expect(config[c].stderr, equals(errorContentReplaced));
-    } on TestFailure catch (e) {
+    } on TestFailure {
       writeTestResult(c, 'css', less.stdout.toString());
       writeTestResult(c, 'txt', config[c].stderr);
-      throw e;
+      rethrow;
     }
   } else {
-    final String cssGood = await new File(fileResult).readAsString();
+    final String cssGood = await File(fileResult).readAsString();
 
     String cssGoodReplaced = cssGood;
     if (config[c].replace != null) {
@@ -684,19 +674,19 @@ Future<Null> testRun(int c) async {
     }
 
     if (c == testNumResults) {
-      new File('${dirPath}result/expected.css')
+      File('${dirPath}result/expected.css')
         ..createSync(recursive: true)
         ..writeAsStringSync(cssGoodReplaced);
-      new File('${dirPath}result/result.css')
+      File('${dirPath}result/result.css')
           .writeAsStringSync(less.stdout.toString());
     }
 
     try {
       expect(less.stdout.toString(), equals(cssGoodReplaced));
-    } on TestFailure catch (e) {
+    } on TestFailure {
       writeTestResult(c, 'css', less.stdout.toString());
       writeTestResult(c, 'txt', config[c].stderr);
-      throw e;
+      rethrow;
     }
   }
 }
@@ -704,7 +694,7 @@ Future<Null> testRun(int c) async {
 ///
 void writeTestResult(int c, String fileType, String content) {
   final String name = '${dirPath}result/TestFile$c.$fileType';
-  new File(name)
+  File(name)
       ..createSync(recursive: true)
       ..writeAsStringSync(content);
 }

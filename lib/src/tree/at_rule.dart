@@ -8,40 +8,41 @@ part of tree.less;
 ///   `@charset "UTF-8"`
 ///
 class AtRule extends DirectiveBase {
-  @override final String    type = 'AtRule';
-  @override covariant Node  value;
+  @override
+  final String type = 'AtRule';
+
+  @override
+  covariant Node value;
 
   ///
   /// value is Node | String
   /// ex.: AtRule('@charset', 'utf-8')
   ///
-  AtRule(String name, dynamic value, {
-      dynamic rules,
+  AtRule(String name, dynamic value,
+      {dynamic rules,
       int index,
       FileInfo currentFileInfo,
       DebugInfo debugInfo,
       VisibilityInfo visibilityInfo,
-      bool isRooted = false
-      }) : super(
-          name: name,
-          index: index,
-          currentFileInfo: currentFileInfo,
-          debugInfo: debugInfo,
-          isRooted: isRooted,
-          visibilityInfo: visibilityInfo) {
+      bool isRooted = false})
+      : super(
+            name: name,
+            index: index,
+            currentFileInfo: currentFileInfo,
+            debugInfo: debugInfo,
+            isRooted: isRooted,
+            visibilityInfo: visibilityInfo) {
     //
-    this.value = (value is Node)
-        ? value
-        : (value != null) ? new Anonymous(value) : null;
+    this.value =
+        (value is Node) ? value : (value != null) ? Anonymous(value) : null;
 
     if (rules != null) {
       if (rules is List<Ruleset>) {
         this.rules = rules;
       } else {
         this.rules = <Ruleset>[rules as Ruleset];
-        this.rules[0].selectors = new Selector(<Element>[],
-            index: index,
-            currentFileInfo: currentFileInfo)
+        this.rules[0].selectors = Selector(<Element>[],
+                index: index, currentFileInfo: currentFileInfo)
             .createEmptySelectors();
       }
       this.rules.forEach((Node rule) {

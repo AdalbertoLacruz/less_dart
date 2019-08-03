@@ -7,23 +7,30 @@ part of tree.less;
 /// @plugin (args) "plugin-name"
 ///
 class Options extends Node {
-  @override final String      name = null;
-  @override final String      type = 'Options';
-  @override covariant Quoted  value;
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Options';
+
+  @override
+  covariant Quoted value;
 
   /// args in  `@plugin (args) "lib"`;
-  String              pluginArgs;
+  String pluginArgs;
+
   ///
-  List<FunctionBase>  functions;
+  List<FunctionBase> functions;
+
   ///
-  bool                isPlugin;
+  bool isPlugin;
 
   ///
   Options(this.value, int index, FileInfo currentFileInfo,
-      {this.isPlugin: false, this.pluginArgs})
+      {this.isPlugin = false, this.pluginArgs})
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-        allowRoot = true;
-      }
+    allowRoot = true;
+  }
 
   ///
   /// Load the options and plugins
@@ -37,14 +44,13 @@ class Options extends Node {
       if (pluginArgs != null) line = '$line=$pluginArgs';
     }
 
-
     logger.captureStart();
     final bool result = lessOptions.fromCommandLine(line);
     String capture = logger.captureStop();
     if (capture.isNotEmpty) capture = capture.split('\n').first;
 
     if (!result) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           message: 'bad options ($capture)',
           index: index,
           filename: currentFileInfo.filename));

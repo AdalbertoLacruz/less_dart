@@ -17,39 +17,46 @@ class Declaration extends Node implements MakeImportantNode {
   ///   @a    -> String
   ///   *zoom -> [0] keyword *, [1] keyword zoom
   ///
-  @override dynamic         name; // String or List<Keyword>
+  @override
+  dynamic name; // String or List<Keyword>
 
-  @override final String    type = 'Declaration';
+  @override
+  final String type = 'Declaration';
 
   /// rule/declaration right side
-  @override covariant Node  value;
+  @override
+  covariant Node value;
 
   ///
-  String  important = '';
-  ///
-  bool    inline;
-  ///
-  String  merge;
-  ///
-  bool    variable = false;
+  String important = '';
 
   ///
-  Declaration(this.name, dynamic value, {
-      String important,
+  bool inline;
+
+  ///
+  String merge;
+
+  ///
+  bool variable = false;
+
+  ///
+  Declaration(this.name, dynamic value,
+      {String important,
       this.merge,
       int index,
       FileInfo currentFileInfo,
       this.inline = false,
-      bool variable
-      }) : super.init(currentFileInfo: currentFileInfo, index: index) {
+      bool variable})
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
     //
     this.value = (value is Node)
         ? value
-        : new Value(<Node>[value != null ? new Anonymous(value) : null]);
+        : Value(<Node>[value != null ? Anonymous(value) : null]);
 
     if (important?.isNotEmpty ?? false) this.important = ' ${important.trim()}';
 
-    this.variable = variable ?? (name is String && (name as String).startsWith('@'));
+    this.variable =
+        variable ?? (name is String && (name as String).startsWith('@'));
     allowRoot = true;
     setParent(this.value, this);
 
@@ -70,25 +77,24 @@ class Declaration extends Node implements MakeImportantNode {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'name': name,
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'name': name, 'value': value};
 
   ///
   ///  clone this Declaration
   ///
-  Declaration clone() => new Declaration(name, value,
+  Declaration clone() => Declaration(name, value,
       important: important,
       merge: merge,
-      index:  index,
+      index: index,
       currentFileInfo: currentFileInfo,
       inline: inline,
       variable: variable);
 
   ///
   String evalName(Contexts context, List<Node> name) {
-    final Output output = new Output();
+    final Output output = Output();
 
     for (int i = 0; i < name.length; i++) {
       name[i].eval(context).genCSS(context, output);
@@ -117,10 +123,8 @@ class Declaration extends Node implements MakeImportantNode {
     try {
       if (value != null) value.genCSS(context, output);
     } catch (e) {
-      throw new LessExceptionError(LessError.transform(e,
-          index: _index,
-          filename: _fileInfo.filename,
-          context: context));
+      throw LessExceptionError(LessError.transform(e,
+          index: _index, filename: _fileInfo.filename, context: context));
     }
 
     String out = '';
@@ -151,12 +155,10 @@ class Declaration extends Node implements MakeImportantNode {
     output.add('$name:', fileInfo: currentFileInfo, index: index);
 
     try {
-      if (value != null) value.genCSS(context, output);
+      value?.genCSS(context, output);
     } catch (e) {
-      throw new LessExceptionError(LessError.transform(e,
-          index: index,
-          filename: currentFileInfo.filename,
-          context: context));
+      throw LessExceptionError(LessError.transform(e,
+          index: index, filename: currentFileInfo.filename, context: context));
     }
 
     String out = '';
@@ -180,7 +182,8 @@ class Declaration extends Node implements MakeImportantNode {
       name = ((name as List<Node>).length == 1) && (name[0] is Keyword)
           ? (name[0] as Keyword).value
           : evalName(context, name as List<Node>);
-      variable = false; // never treat expanded interpolation as new variable name
+      // never treat expanded interpolation as new variable name
+      variable = false;
     }
 
     // todo remove when parens-division is default
@@ -189,13 +192,13 @@ class Declaration extends Node implements MakeImportantNode {
       prevMath = context.math;
       context.math = MathConstants.parensDivision;
     }
-    
+
     try {
-      context.importantScope.add(new ImportantRule());
+      context.importantScope.add(ImportantRule());
       final Node evaldValue = value.eval(context);
 
       if (!this.variable && (evaldValue is DetachedRuleset)) {
-        throw new LessExceptionError(new LessError(
+        throw LessExceptionError(LessError(
             message: 'Rulesets cannot be evaluated on a property.',
             index: index,
             filename: currentFileInfo.filename,
@@ -208,7 +211,7 @@ class Declaration extends Node implements MakeImportantNode {
         important = importantResult.important;
       }
 
-      return new Declaration(name, evaldValue,
+      return Declaration(name, evaldValue,
           important: important,
           merge: merge,
           index: index,
@@ -216,9 +219,8 @@ class Declaration extends Node implements MakeImportantNode {
           inline: inline,
           variable: variable);
     } catch (e) {
-      throw new LessExceptionError(LessError.transform(e,
-          index: index,
-          filename: currentFileInfo.filename));
+      throw LessExceptionError(LessError.transform(e,
+          index: index, filename: currentFileInfo.filename));
     } finally {
       if (mathBypass) context.math = prevMath;
     }
@@ -278,13 +280,12 @@ class Declaration extends Node implements MakeImportantNode {
 
   ///
   @override
-  Declaration makeImportant() =>
-      new Declaration(name, value,
-          important: '!important',
-          merge: merge,
-          index: index,
-          currentFileInfo: currentFileInfo,
-          inline: inline);
+  Declaration makeImportant() => Declaration(name, value,
+      important: '!important',
+      merge: merge,
+      index: index,
+      currentFileInfo: currentFileInfo,
+      inline: inline);
 
 //3.0.0 20160714
 // Declaration.prototype.makeImportant = function () {
@@ -297,20 +298,20 @@ class Declaration extends Node implements MakeImportantNode {
 
   @override
   void genTree(Contexts env, Output output, [String prefix = '']) {
-      genTreeTitle(env, output, prefix, type, toString());
+    genTreeTitle(env, output, prefix, type, toString());
 
-      final int tabs = prefix.isEmpty ? 1 : 2;
-      env.tabLevel = env.tabLevel + tabs ;
+    final int tabs = prefix.isEmpty ? 1 : 2;
+    env.tabLevel = env.tabLevel + tabs;
 
-      if (treeField == null) {
-        output.add('***** FIELDS NOT DEFINED *****');
-      } else {
-        treeField.forEach((String fieldName, dynamic fieldValue){
-          genTreeField(env, output, fieldName, fieldValue);
-        });
-      }
+    if (treeField == null) {
+      output.add('***** FIELDS NOT DEFINED *****');
+    } else {
+      treeField.forEach((String fieldName, dynamic fieldValue) {
+        genTreeField(env, output, fieldName, fieldValue);
+      });
+    }
 
-      env.tabLevel = env.tabLevel - tabs;
+    env.tabLevel = env.tabLevel - tabs;
   }
 
   ///
@@ -319,7 +320,7 @@ class Declaration extends Node implements MakeImportantNode {
   ///
   @override
   String toString() {
-    final StringBuffer sb = new StringBuffer();
+    final StringBuffer sb = StringBuffer();
 
     if (name is String) sb.write(name);
     if (name is List) {

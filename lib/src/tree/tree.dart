@@ -8,7 +8,7 @@ library tree.less;
 import 'dart:collection';
 import 'dart:math' as math;
 
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as path_lib;
 
 import '../contexts.dart';
 import '../data/colors.dart';

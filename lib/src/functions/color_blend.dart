@@ -14,12 +14,12 @@ class ColorBlend extends FunctionBase {
 
   @defineMethodSkip
   Color colorBlend(Function fMode, Color color1, Color color2) {
-    final double    ab = color1.alpha.toDouble(); // backdrop
-    double          cb;
-    final double    as = color2.alpha.toDouble(); // source
-    double          cs;
-    double          ar; // alpha result
-    double          cr; // channel result
+    final double ab = color1.alpha.toDouble(); // backdrop
+    double cb;
+    final double as = color2.alpha.toDouble(); // source
+    double cs;
+    double ar; // alpha result
+    double cr; // channel result
     final List<num> r = <num>[0, 0, 0];
 
     ar = as + ab * (1 - as);
@@ -31,7 +31,7 @@ class ColorBlend extends FunctionBase {
       if (ar != 0) cr = (as * cs + ab * (cb - as * (cb + cs - cr))) / ar;
       r[i] = cr * 255;
     }
-    return new Color.fromList(r, ar);
+    return Color.fromList(r, ar);
 
 //    function colorBlend(mode, color1, color2) {
 //        var ab = color1.alpha, cb, // backdrop

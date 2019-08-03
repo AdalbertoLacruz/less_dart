@@ -30,13 +30,8 @@ class SetTreeVisibilityVisitor extends VisitorBase {
   ///
   @override
   List<T> visitArray<T>(List<T> nodes, {bool nonReplacing = false}) {
-  //List<Node> visitArray(List<Node> nodes, {bool nonReplacing = false}) {
     if (nodes == null) return nodes;
-
-    nodes.forEach((T node) {
-      visit(node);
-    });
-    return nodes;
+    return nodes..forEach(visit);
 
 //2.5.3 20151120
 // SetTreeVisibilityVisitor.prototype.visitArray = function(nodes) {
@@ -62,11 +57,7 @@ class SetTreeVisibilityVisitor extends VisitorBase {
     final Node _node = node;
     if (_node.blocksVisibility()) return _node;
 
-    if (visible) {
-      _node.ensureVisibility();
-    } else {
-      _node.ensureInvisibility();
-    }
+    visible ? _node.ensureVisibility() : _node.ensureInvisibility();
     _node.accept(this);
     return _node;
 

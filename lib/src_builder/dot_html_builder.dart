@@ -24,9 +24,10 @@ class DotHtmlBuilder extends BaseBuilder {
   ///
   @override
   Future<BaseBuilder> transform(Function modifyOptions) {
-    final Completer<BaseBuilder> task = new Completer<BaseBuilder>();
+    final Completer<BaseBuilder> task = Completer<BaseBuilder>();
 
-    elements = parse(inputContent)..forEach((ContentElement element) {
+    elements = parse(inputContent)
+      ..forEach((ContentElement element) {
         if (element.hasLessCode) {
           runners.add(execute(element, modifyOptions));
         }
@@ -60,10 +61,10 @@ class DotHtmlBuilder extends BaseBuilder {
   /// Transform less to css inside the [element]
   ///
   Future<Null> execute(ContentElement element, Function modifyOptions) {
-    final Completer<Null> task = new Completer<Null>();
+    final Completer<Null> task = Completer<Null>();
 
     runZoned(() {
-      final Less less = new Less();
+      final Less less = Less();
       less.stdin.write(element.inner);
       less.transform(flags, modifyOptions: modifyOptions).then((int exitCode) {
         if (exitCode == 0) {
@@ -92,14 +93,13 @@ class DotHtmlBuilder extends BaseBuilder {
 //    if (elements.length == 1)
 //      deliverToPipe = false;
 
-    final StringBuffer output = elements
-        .fold(new StringBuffer(), (StringBuffer out, ContentElement element) =>
+    final StringBuffer output = elements.fold(
+        StringBuffer(),
+        (StringBuffer out, ContentElement element) =>
             out..write(element.toString()));
     return output.toString();
   }
 }
-
-
 
 // ------------------------ class ------
 
@@ -147,8 +147,8 @@ class ContentElement {
   String tabStr2;
 
   ///
-  ContentElement({
-      this.openTagStart,
+  ContentElement(
+      {this.openTagStart,
       this.openTagEnd,
       this.closeTagStart,
       this.closeTagEnd});
@@ -227,12 +227,11 @@ class ContentElement {
   /// Build the inner <style> result element string, with the line tabs
   ///
   String tabCss() {
-    final StringBuffer resultBuffer = new StringBuffer();
+    final StringBuffer resultBuffer = StringBuffer();
     final List<String> lines = css.split('\n');
     if (lines.last == '') lines.removeLast(); //no empty line
 
     for (int i = 0; i < lines.length; i++) {
-      // ignore: prefer_interpolation_to_compose_strings
       resultBuffer.writeln(tabStr2 + lines[i]);
     }
 
@@ -245,13 +244,16 @@ class ContentElement {
 ///
 class StyleElement extends ContentElement {
   ///
-  static RegExp outerTagReg = new RegExp(r'<style[^>]*>(.|\n)*?<\/style>');
+  static RegExp outerTagReg = RegExp(r'<style[^>]*>(.|\n)*?<\/style>');
+
   ///
-  static RegExp openTagReg = new RegExp(r'<style[^>]*>');
+  static RegExp openTagReg = RegExp(r'<style[^>]*>');
+
   ///
-  static RegExp closeTagReg = new RegExp(r'<\/style>');
+  static RegExp closeTagReg = RegExp(r'<\/style>');
+
   ///
-  static RegExp styleTypeReg = new RegExp(r'type="text\/less"');
+  static RegExp styleTypeReg = RegExp(r'type="text\/less"');
 
   ///
   StyleElement(Match fragment) {
@@ -269,7 +271,7 @@ class StyleElement extends ContentElement {
     ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
       final String openTag = ContentElement.getOpenTag(fragment[0], openTagReg);
       if (styleTypeReg.hasMatch(openTag)) {
-        result.add(new StyleElement(fragment));
+        result.add(StyleElement(fragment));
       }
     });
     return result;
@@ -296,11 +298,13 @@ class LessElement extends ContentElement {
   String cssCloseTag = '</style>';
 
   ///
-  static RegExp outerTagReg = new RegExp(r'<less[^>]*>(.|\n)*?<\/less>');
+  static RegExp outerTagReg = RegExp(r'<less[^>]*>(.|\n)*?<\/less>');
+
   ///
-  static RegExp openTagReg = new RegExp(r'<less[^>]*>');
+  static RegExp openTagReg = RegExp(r'<less[^>]*>');
+
   ///
-  static RegExp closeTagReg = new RegExp(r'<\/less>');
+  static RegExp closeTagReg = RegExp(r'<\/less>');
 
   ///
   LessElement(Match fragment) {
@@ -313,7 +317,9 @@ class LessElement extends ContentElement {
       cssOpenTag = trimSpaces(cssOpenTag.replaceFirst('replace', ''));
     }
     // ignore: prefer_interpolation_to_compose_strings
-    openTagResult = trimSpaces(openTag.substring(0, openTag.length - 1) + ' style="display:none"' + '>');
+    openTagResult = trimSpaces(openTag.substring(0, openTag.length - 1) +
+        ' style="display:none"' +
+        '>');
   }
 
   ///
@@ -321,7 +327,7 @@ class LessElement extends ContentElement {
     final List<LessElement> result = <LessElement>[];
 
     ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
-      result.add(new LessElement(fragment));
+      result.add(LessElement(fragment));
     });
     return result;
   }
@@ -355,18 +361,18 @@ class FragmentElement extends ContentElement {
   ///
   FragmentElement(String content, int openTagStart, int closeTagEnd)
       : super(
-      openTagStart: openTagStart,
-      openTagEnd: openTagStart,
-      closeTagStart: closeTagEnd,
-      closeTagEnd: closeTagEnd) {
-
+            openTagStart: openTagStart,
+            openTagEnd: openTagStart,
+            closeTagStart: closeTagEnd,
+            closeTagEnd: closeTagEnd) {
     outer = content.substring(openTagStart, closeTagEnd);
   }
 
   ///
   /// Creates FragmentElement components between ContentElement not contiguous
   ///
-  static List<ContentElement> parse(String content, List<ContentElement> source) {
+  static List<ContentElement> parse(
+      String content, List<ContentElement> source) {
     final List<ContentElement> result = <ContentElement>[];
     ContentElement element;
     int index = 0;
@@ -375,13 +381,13 @@ class FragmentElement extends ContentElement {
       element = source[i];
       if (element.openTagStart > index) {
         result
-          ..add(new FragmentElement(content, index, element.openTagStart))
+          ..add(FragmentElement(content, index, element.openTagStart))
           ..add(element);
         index = element.closeTagEnd;
       }
     }
     if (index < content.length) {
-      result.add(new FragmentElement(content, index, content.length));
+      result.add(FragmentElement(content, index, content.length));
     }
 
     return result;
@@ -393,4 +399,3 @@ class FragmentElement extends ContentElement {
   @override
   String toString() => outer;
 }
-

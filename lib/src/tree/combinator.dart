@@ -4,17 +4,22 @@ part of tree.less;
 
 ///
 class Combinator extends Node {
-  @override final String      name = null;
-  @override final String      type = 'Combinator';
-  @override covariant String  value;
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Combinator';
+
+  @override
+  covariant String value;
 
   ///
-  bool              emptyOrWhitespace;
+  bool emptyOrWhitespace;
 
-  Map<String, bool> _noSpaceCombinators = <String, bool>{
-      '':  true,
-      ' ': true,
-      '|': true
+  final Map<String, bool> _noSpaceCombinators = <String, bool>{
+    '': true,
+    ' ': true,
+    '|': true
   };
 
   ///
@@ -41,9 +46,8 @@ class Combinator extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   /// Writes value in [output]

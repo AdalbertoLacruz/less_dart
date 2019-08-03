@@ -1,10 +1,8 @@
 import 'dart:io';
 
+import 'package:less_dart/src/data/constants.dart';
+import 'package:less_dart/src/less_options.dart';
 import 'package:test/test.dart';
-
-import '../lib/src/data/constants.dart';
-import '../lib/src/less_options.dart';
-//import '../lib/src/logger.dart';
 
 void main() {
 //  SimpleConfiguration config = new SimpleConfiguration();
@@ -22,12 +20,12 @@ void lessOptionsTest() {
     bool        result;
 
     final RegExp regOption =
-        new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
+        RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
 
     Match getArgument(String argument) => regOption.firstMatch(argument);
 
     setUp(() {
-      options = new LessOptions();
+      options = LessOptions();
     });
 
     test('-v', () {

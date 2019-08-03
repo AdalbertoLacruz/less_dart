@@ -4,7 +4,8 @@ part of tree.less;
 
 ///
 class Media extends DirectiveBase {
-  @override final String type = 'Media';
+  @override
+  final String type = 'Media';
 
   ///
   Node features;
@@ -13,18 +14,15 @@ class Media extends DirectiveBase {
   Media(List<Node> value, List<Node> features,
       [int index, FileInfo currentFileInfo, VisibilityInfo visibilityInfo])
       : super(
-          index: index,
-          currentFileInfo: currentFileInfo,
-          visibilityInfo: visibilityInfo
-        ) {
+            index: index,
+            currentFileInfo: currentFileInfo,
+            visibilityInfo: visibilityInfo) {
+    final List<Node> selectors =
+        Selector(<Element>[], index: _index, currentFileInfo: _fileInfo)
+            .createEmptySelectors();
 
-    final List<Node> selectors = new Selector(<Element>[],
-        index: _index,
-        currentFileInfo: _fileInfo)
-        .createEmptySelectors();
-
-    this.features = new Value(features);
-    rules = <Ruleset>[new Ruleset(selectors, value)..allowImports = true];
+    this.features = Value(features);
+    rules = <Ruleset>[Ruleset(selectors, value)..allowImports = true];
     allowRoot = true;
     setParent(selectors, this);
     setParent(this.features, this);
@@ -49,10 +47,9 @@ class Media extends DirectiveBase {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'features': features,
-    'rules': rules
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'features': features, 'rules': rules};
 
   ///
   @override
@@ -91,11 +88,13 @@ class Media extends DirectiveBase {
   Node eval(Contexts context) {
     if (context.mediaBlocks == null) {
       context
-          ..mediaBlocks = <Media>[]
-          ..mediaPath = <Media>[];
+        ..mediaBlocks = <Media>[]
+        ..mediaPath = <Media>[];
     }
 
-    final Media media = new Media(null, <Node>[], _index, _fileInfo, visibilityInfo());
+    final Media media =
+        Media(null, <Node>[], _index, _fileInfo, visibilityInfo());
+
     if (debugInfo != null) {
       rules[0].debugInfo = debugInfo;
       media.debugInfo = debugInfo;
@@ -106,8 +105,9 @@ class Media extends DirectiveBase {
     context.mediaPath.add(media);
     context.mediaBlocks.add(media);
 
-    (rules[0] as Ruleset).functionRegistry =
-        new FunctionRegistry.inherit((context.frames[0]as VariableMixin).functionRegistry);
+    (rules[0] as Ruleset).functionRegistry = FunctionRegistry.inherit(
+        (context.frames[0] as VariableMixin).functionRegistry);
+
     context.frames.insert(0, rules[0]);
     media.rules = <Ruleset>[rules[0].eval(context)];
     context.frames.removeAt(0);
@@ -156,19 +156,19 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      final List<Selector> selectors = new Selector(<Element>[],
-          index: index,
-          currentFileInfo: currentFileInfo)
-          .createEmptySelectors();
-      result = new Ruleset(selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
-          ..multiMedia = true
-          ..copyVisibilityInfo(visibilityInfo());
+      final List<Selector> selectors =
+          Selector(<Element>[], index: index, currentFileInfo: currentFileInfo)
+              .createEmptySelectors();
+      result = Ruleset(
+          selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
+        ..multiMedia = true
+        ..copyVisibilityInfo(visibilityInfo());
       setParent(result, this);
     }
 
     context
-        ..mediaBlocks = null
-        ..mediaPath = null;
+      ..mediaBlocks = null
+      ..mediaPath = null;
 
     return result;
 
@@ -194,9 +194,9 @@ class Media extends DirectiveBase {
 
   ///
   Ruleset evalNested(Contexts context) {
-    final List<Media>       mediaPath = context.mediaPath.sublist(0)..add(this);
-    final List<List<Node>>  path = <List<Node>>[];
-    dynamic                 value; //Node or List<Node>
+    final List<Media> mediaPath = context.mediaPath.sublist(0)..add(this);
+    final List<List<Node>> path = <List<Node>>[];
+    dynamic value; //Node or List<Node>
 
     // Extract the media-query conditions separated with `,` (OR).
     for (int i = 0; i < mediaPath.length; i++) {
@@ -214,23 +214,22 @@ class Media extends DirectiveBase {
     //    b and c and d
     //    b and c and e
 
-    features = new Value(permute(path).map((List<Node> path) {
-        path = path
-            //All must be Node!!. This not necessary
-            .map((Node fragment) =>
-                (fragment is Node) ? fragment : new Anonymous(fragment))
-            .toList();
+    features = Value(permute(path).map((List<Node> path) {
+      path = path
+          // All must be Node!!. This not necessary
+          .map((Node fragment) =>
+              (fragment is Node) ? fragment : Anonymous(fragment))
+          .toList();
 
-        for (int i = path.length - 1; i > 0; i--) {
-          path.insert(i, new Anonymous('and'));
-        }
-
-        return new Expression(path);
-      }).toList());
+      for (int i = path.length - 1; i > 0; i--) {
+        path.insert(i, Anonymous('and'));
+      }
+      return Expression(path);
+    }).toList());
     setParent(features, this);
 
     // Fake a tree-node that doesn't output anything.
-    return new Ruleset(<Selector>[], <Node>[]);
+    return Ruleset(<Selector>[], <Node>[]);
 
 //3.0.0 20160714
 // Media.prototype.evalNested = function (context) {
@@ -321,7 +320,9 @@ class Media extends DirectiveBase {
   ///
   void bubbleSelectors(List<Selector> selectors) {
     if (selectors == null) return;
-    rules = <Ruleset>[new Ruleset(selectors.sublist(0), <Node>[rules[0]])];
+    rules = <Ruleset>[
+      Ruleset(selectors.sublist(0), <Node>[rules[0]])
+    ];
     setParent(rules, this);
 
 //3.0.0 20160714
@@ -336,8 +337,7 @@ class Media extends DirectiveBase {
 
   @override
   String toString() {
-    final Output output = new Output()
-        ..add('@media ');
+    final Output output = Output()..add('@media ');
     features.genCSS(null, output);
     return output.toString();
   }

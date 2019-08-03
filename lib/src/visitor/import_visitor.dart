@@ -5,22 +5,28 @@ part of visitor.less;
 ///
 class ImportVisitor extends VisitorBase {
   ///
-  Contexts              context;
+  Contexts context;
+
   ///
-  ImportManager         importer;
+  ImportManager importer;
+
   ///
-  LessError             lessError;
+  LessError lessError;
+
   ///
-  ImportDetector        onceFileDetectionMap;
+  ImportDetector onceFileDetectionMap;
+
   ///
-  ImportDetector        recursionDetector;
+  ImportDetector recursionDetector;
 
   /// visitImport futures for await their completion
-  List<Future<Null>>    runners = <Future<Null>>[];
+  List<Future<Null>> runners = <Future<Null>>[];
+
   ///
-  List<VariableImport>  variableImports = <VariableImport>[];
+  List<VariableImport> variableImports = <VariableImport>[];
+
   ///
-  Visitor               _visitor;
+  Visitor _visitor;
 
   ///
   /// Structure to search for @import in the tree.
@@ -29,10 +35,9 @@ class ImportVisitor extends VisitorBase {
       [Contexts context,
       ImportDetector onceFileDetectionMap,
       ImportDetector recursionDetector]) {
-
     isReplacing = false;
-    _visitor = new Visitor(this);
-    this.context = context ?? new Contexts.eval();
+    _visitor = Visitor(this);
+    this.context = context ?? Contexts.eval();
 
     this.onceFileDetectionMap = ImportDetector.own(onceFileDetectionMap);
     this.recursionDetector = ImportDetector.clone(recursionDetector); //own?
@@ -79,22 +84,21 @@ class ImportVisitor extends VisitorBase {
 //  }
   }
 
-///
+  ///
   Future<Null> tryRun() {
-    final Completer<Null> task = new Completer<Null>();
+    final Completer<Null> task = Completer<Null>();
     Future.wait(runners, eagerError: true).then((_) {
       if (variableImports.isNotEmpty) {
         final VariableImport variableImport = variableImports.removeAt(0);
-        processImportNode(variableImport.importNode, variableImport.context, variableImport.importParent);
+        processImportNode(variableImport.importNode, variableImport.context,
+            variableImport.importParent);
         tryRun().then((_) {
           task.complete();
         });
       } else {
         task.complete();
       }
-    }).catchError((Object e) {
-      task.completeError(e);
-    });
+    }).catchError(task.completeError);
     return task.future;
   }
 
@@ -111,16 +115,17 @@ class ImportVisitor extends VisitorBase {
   /// @import node - recursively load file and parse
   ///
   void visitImport(Import importNode, VisitArgs visitArgs) {
-    final bool inlineCSS = importNode.options.inline ?? false; //include the file, but not process
+    //include the file, but not process
+    final bool inlineCSS = importNode.options.inline ?? false;
 
     if (!importNode.css || inlineCSS) {
       final Contexts context =
-          new Contexts.eval(this.context, this.context.frames.sublist(0));
+          Contexts.eval(this.context, this.context.frames.sublist(0));
       final Node importParent = context.frames[0];
 
       if (importNode.isVariableImport()) {
         //process this type of imports *last*
-        variableImports.add(new VariableImport(importNode, context, importParent));
+        variableImports.add(VariableImport(importNode, context, importParent));
       } else {
         processImportNode(importNode, context, importParent);
       }
@@ -149,8 +154,9 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  void processImportNode(Import importNode, Contexts context, Node importParent) {
-    final Completer<Null> completer = new Completer<Null>();
+  void processImportNode(
+      Import importNode, Contexts context, Node importParent) {
+    final Completer<Null> completer = Completer<Null>();
     runners.add(completer.future);
 
     Import evaldImportNode;
@@ -164,10 +170,10 @@ class ImportVisitor extends VisitorBase {
           filename: importNode.currentFileInfo.filename,
           index: importNode.index);
       importNode
-          // attempt to eval properly and treat as css
-          ..css = true
-          // if that fails, this error will be thrown
-          ..errorImport = error;
+        // attempt to eval properly and treat as css
+        ..css = true
+        // if that fails, this error will be thrown
+        ..errorImport = error;
     }
 
     if (evaldImportNode != null && (!evaldImportNode.css || inlineCSS)) {
@@ -182,27 +188,25 @@ class ImportVisitor extends VisitorBase {
         }
       }
       importer
-        .push(evaldImportNode.getPath(),
-            evaldImportNode.currentFileInfo,
-            evaldImportNode.options,
-            tryAppendLessExtension: !evaldImportNode.css)
-        .then((ImportedFile importedFile) {
-          onImported(evaldImportNode, context, importedFile.root, importedFile.fullPath,
-              importedAtRoot: importedFile.importedPreviously)
-          .then((_) {
-            completer.complete();
-          }).catchError((Object e) {
-            completer.completeError(e);
-          });
-        }).catchError((Object e, StackTrace s) {
-          final LessError error = LessError.transform(e,
-              index: evaldImportNode.index,
-              filename: evaldImportNode.currentFileInfo.filename,
-              context: context,
-              stackTrace: s);
-          lessError = error;
-          completer.completeError(error);
-        });
+          .push(evaldImportNode.getPath(), evaldImportNode.currentFileInfo,
+              evaldImportNode.options,
+              tryAppendLessExtension: !evaldImportNode.css)
+          .then((ImportedFile importedFile) {
+        onImported(evaldImportNode, context, importedFile.root,
+                importedFile.fullPath,
+                importedAtRoot: importedFile.importedPreviously)
+            .then((_) {
+          completer.complete();
+        }).catchError(completer.completeError);
+      }).catchError((Object e, StackTrace s) {
+        final LessError error = LessError.transform(e,
+            index: evaldImportNode.index,
+            filename: evaldImportNode.currentFileInfo.filename,
+            context: context,
+            stackTrace: s);
+        lessError = error;
+        completer.completeError(error);
+      });
     } else {
       completer.complete();
     }
@@ -256,9 +260,10 @@ class ImportVisitor extends VisitorBase {
   /// Recursively analyze the imported root for more imports
   /// [root] is String or Ruleset
   ///
-  Future<Null> onImported(Import importNode, Contexts context, dynamic root, String fullPath,
+  Future<Null> onImported(
+      Import importNode, Contexts context, dynamic root, String fullPath,
       {bool importedAtRoot}) {
-    final Completer<Null> completer = new Completer<Null>();
+    final Completer<Null> completer = Completer<Null>();
     final ImportVisitor importVisitor = this;
     final bool inlineCSS = importNode.options.inline ?? false;
     final bool isOptional = importNode.options.optional ?? false;
@@ -287,18 +292,18 @@ class ImportVisitor extends VisitorBase {
     // recursion - analyze the new root
     if (root != null) {
       importNode
-          ..root = root
-          ..importedFilename = fullPath;
+        ..root = root
+        ..importedFilename = fullPath;
 
-      if (!inlineCSS && ((context.importMultiple ?? false) || !duplicateImport)) {
+      if (!inlineCSS &&
+          ((context.importMultiple ?? false) || !duplicateImport)) {
         recursionDetector[fullPath] = true;
-        new ImportVisitor(importer, context, onceFileDetectionMap, recursionDetector)
-          .runAsync(root)
-          .then((_) {
-            completer.complete();
-        }).catchError((Object e) {
-          completer.completeError(e);
-        });
+        ImportVisitor(
+                importer, context, onceFileDetectionMap, recursionDetector)
+            .runAsync(root)
+            .then((_) {
+          completer.complete();
+        }).catchError(completer.completeError);
       } else {
         completer.complete();
       }
@@ -418,7 +423,8 @@ class ImportVisitor extends VisitorBase {
   }
 
   ///
-  void visitMixinDefinition(MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
+  void visitMixinDefinition(
+      MixinDefinition mixinDefinitionNode, VisitArgs visitArgs) {
     context.frames.insert(0, mixinDefinitionNode);
 
 //2.3.1
@@ -511,8 +517,10 @@ class ImportVisitor extends VisitorBase {
 class VariableImport {
   ///
   Import importNode;
+
   ///
   Contexts context;
+
   ///
   Node importParent;
 

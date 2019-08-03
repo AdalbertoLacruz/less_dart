@@ -4,8 +4,11 @@ part of tree.less;
 
 ///
 class VariableCall extends Node {
-  @override final String name = null;
-  @override final String type = 'VariableCall';
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'VariableCall';
 
   ///
   String variable;
@@ -22,20 +25,20 @@ class VariableCall extends Node {
 //      this._fileInfo = currentFileInfo;
 //      this.allowRoot = true;
 //  };
-}
+  }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'variable': variable
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'variable': variable};
 
   ///
   @override
   Ruleset eval(Contexts context) {
-    final Node result = new Variable(variable, index, currentFileInfo).eval(context);
+    final Node result =
+        Variable(variable, index, currentFileInfo).eval(context);
     DetachedRuleset detachedRuleset;
-    final LessExceptionError error = new LessExceptionError(new LessError(
-        message: 'Could not evaluate variable call $variable'));
+    final LessExceptionError error = LessExceptionError(
+        LessError(message: 'Could not evaluate variable call $variable'));
 
     if (result is! DetachedRuleset) {
       List<Node> rules;
@@ -49,8 +52,7 @@ class VariableCall extends Node {
       } else {
         throw error;
       }
-      rs ??= new Ruleset(null, rules);
-      detachedRuleset = new DetachedRuleset(rs);
+      detachedRuleset = DetachedRuleset(rs ?? Ruleset(null, rules));
     } else {
       detachedRuleset = result;
     }

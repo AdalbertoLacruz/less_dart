@@ -7,48 +7,47 @@ class MixinDefinition extends Node
     with VariableMixin
     implements MakeImportantNode, MatchConditionNode {
   //
-  @override String        name; //Same as Selector
-  @override final String  type = 'MixinDefinition';
+  @override
+  String name; //Same as Selector
+
+  @override
+  final String type = 'MixinDefinition';
 
   /// Number of params
-  int                   arity;
+  int arity;
 
   /// when (condition) {}
-  Node                  condition;
+  Node condition;
 
   ///
-  List<Node>            frames;
+  List<Node> frames;
 
   /// Arguments number optional
-  List<String>          optionalParameters;
+  List<String> optionalParameters;
 
   /// Mixin params
-  List<MixinArgs>       params;
+  List<MixinArgs> params;
 
   /// Arguments number required
-  int                   required;
+  int required;
 
   /// Mixin body
-  @override List<Node>  rules;
+  @override
+  List<Node> rules;
 
-  //List<Node>          selectors; // Same as name
+  //List<Node> selectors; // Same as name
 
   /// Arguments number is variable
-  bool                  variadic;
+  bool variadic;
 
   ///
   //index, currentFileInfo not in original. See order when calling with frames.
-  MixinDefinition(
-      String name,
-      this.params,
-      this.rules,
-      this.condition,
+  MixinDefinition(String name, this.params, this.rules, this.condition,
       {this.variadic,
       int index,
       FileInfo currentFileInfo,
       this.frames,
       VisibilityInfo visibilityInfo}) {
-
     this.name = name ??= 'anonymous mixin';
     evalFirst = true;
     isRuleset = true;
@@ -57,11 +56,11 @@ class MixinDefinition extends Node
     this.index = index;
 
     selectors = <Selector>[
-      new Selector(<Element>[new Element(null, name,
-          isVariable: false,
-          index: _index,
-          currentFileInfo: _fileInfo)])
-      ];
+      Selector(<Element>[
+        Element(null, name,
+            isVariable: false, index: _index, currentFileInfo: _fileInfo)
+      ])
+    ];
 
     arity = params.length;
 
@@ -109,12 +108,13 @@ class MixinDefinition extends Node
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'name': name,
-    'params': params,
-    'condition': condition,
-    'rules': rules
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{
+        'name': name,
+        'params': params,
+        'condition': condition,
+        'rules': rules
+      };
 
   ///
   @override
@@ -157,22 +157,23 @@ class MixinDefinition extends Node
   ///
   Ruleset evalParams(Contexts context, Contexts mixinEnv, List<MixinArgs> args,
       List<Node> evaldArguments) {
-    int                   argIndex;
-    int                   argsLength = 0;
-    final Ruleset         frame = new Ruleset(null, null);
-    bool                  isNamedFound;
-    String                name;
+    int argIndex;
+    int argsLength = 0;
+    final Ruleset frame = Ruleset(null, null);
+    bool isNamedFound;
+    String name;
     final List<MixinArgs> params = this.params.sublist(0);
 
     //Fill with nulls the list
     evaldArguments.length = math.max(params?.length ?? 0, args?.length ?? 0);
 
     if ((mixinEnv.frames?.first as VariableMixin)?.functionRegistry != null) {
-      frame.functionRegistry = new FunctionRegistry.inherit((mixinEnv.frames[0] as VariableMixin).functionRegistry);
+      frame.functionRegistry = FunctionRegistry.inherit(
+          (mixinEnv.frames[0] as VariableMixin).functionRegistry);
     }
 
     final Contexts _mixinEnv =
-        new Contexts.eval(mixinEnv, <Node>[frame]..addAll(mixinEnv.frames));
+        Contexts.eval(mixinEnv, <Node>[frame]..addAll(mixinEnv.frames));
     final List<MixinArgs> _args = args?.sublist(0);
 
     if (_args != null) {
@@ -186,7 +187,7 @@ class MixinDefinition extends Node
           for (int j = 0; j < params.length; j++) {
             if (evaldArguments[j] == null && name == params[j].name) {
               evaldArguments[j] = arg.value.eval(context);
-              frame.prependRule(new Declaration(name, arg.value.eval(context)));
+              frame.prependRule(Declaration(name, arg.value.eval(context)));
               isNamedFound = true;
               break;
             }
@@ -196,9 +197,10 @@ class MixinDefinition extends Node
             i--;
             continue;
           } else {
-            throw new LessExceptionError(new LessError(
+            throw LessExceptionError(LessError(
                 type: 'Runtime',
-                message: 'Named argument for ${this.name} ${_args[i].name}  not found'));
+                message:
+                    'Named argument for ${this.name} ${_args[i].name}  not found'));
           }
         }
       }
@@ -208,9 +210,8 @@ class MixinDefinition extends Node
     for (int i = 0; i < params.length; i++) {
       if (i < evaldArguments.length && evaldArguments[i] != null) continue;
 
-      final MixinArgs arg = (_args != null && argIndex < _args.length)
-          ? _args[argIndex]
-          : null;
+      final MixinArgs arg =
+          (_args != null && argIndex < _args.length) ? _args[argIndex] : null;
 
       if ((name = params[i].name) != null) {
         if (params[i].variadic) {
@@ -218,25 +219,25 @@ class MixinDefinition extends Node
           for (int j = argIndex; j < argsLength; j++) {
             varargs.add(_args[j].value.eval(context));
           }
-          frame.prependRule(new Declaration(name, new Expression(varargs).eval(context)));
+          frame.prependRule(
+              Declaration(name, Expression(varargs).eval(context)));
         } else {
           Node val = arg?.value;
           if (val != null) {
             // This was a mixin call, pass in a detached ruleset of it's eval'd rules
-            if (val is Nodeset) {
-              val = new DetachedRuleset(new Ruleset(null, val.rules));
-            } else {
-              val = val.eval(context);
-            }
+            val = (val is Nodeset)
+                ? DetachedRuleset(Ruleset(null, val.rules))
+                : val.eval(context);
           } else if (params[i].value != null) {
             val = params[i].value.eval(_mixinEnv);
             frame.resetCache();
           } else {
-            throw new LessExceptionError(new LessError(
+            throw LessExceptionError(LessError(
                 type: 'Runtime',
-                message: 'wrong number of arguments for ${this.name} ($argsLength for $arity)'));
+                message:
+                    'wrong number of arguments for ${this.name} ($argsLength for $arity)'));
           }
-          frame.prependRule(new Declaration(name, val));
+          frame.prependRule(Declaration(name, val));
           evaldArguments[i] = val;
         }
       }
@@ -353,14 +354,14 @@ class MixinDefinition extends Node
   MixinDefinition makeImportant() {
     final List<Node> rules = (this.rules == null)
         ? this.rules
-        : this.rules.map((Node r) {
-            if (r is MakeImportantNode) {
-              return (r as MakeImportantNode).makeImportant();
-            } else {
-              return r;
-            }
-          }).toList();
-    return new MixinDefinition(name, params, rules, condition,
+        : this
+            .rules
+            .map((Node r) => (r is MakeImportantNode)
+                ? (r as MakeImportantNode).makeImportant()
+                : r)
+            .toList();
+
+    return MixinDefinition(name, params, rules, condition,
         variadic: variadic,
         index: index,
         currentFileInfo: currentFileInfo,
@@ -386,7 +387,7 @@ class MixinDefinition extends Node
   @override
   MixinDefinition eval(Contexts context) {
     final List<Node> frames = this.frames ?? context.frames.sublist(0);
-    return new MixinDefinition(name, params, rules, condition,
+    return MixinDefinition(name, params, rules, condition,
         variadic: variadic,
         index: index,
         currentFileInfo: currentFileInfo,
@@ -399,27 +400,28 @@ class MixinDefinition extends Node
   }
 
   ///
-  Ruleset evalCall(Contexts context, List<MixinArgs> args,
-        {bool important}) {
-    final List<Node>  _arguments = <Node>[];
-    List<Node>        rules;
-    Ruleset           ruleset;
+  Ruleset evalCall(Contexts context, List<MixinArgs> args, {bool important}) {
+    final List<Node> _arguments = <Node>[];
+    List<Node> rules;
+    Ruleset ruleset;
 
     final List<Node> mixinFrames = (frames != null)
         ? (frames.sublist(0)..addAll(context.frames))
         : context.frames;
 
-    final Ruleset frame = evalParams(context, new Contexts.eval(context, mixinFrames), args, _arguments)
-        ..prependRule(new Declaration('@arguments', new Expression(_arguments).eval(context)));
+    final Ruleset frame = evalParams(
+        context, Contexts.eval(context, mixinFrames), args, _arguments)
+      ..prependRule(
+          Declaration('@arguments', Expression(_arguments).eval(context)));
 
     rules = this.rules.sublist(0);
 
-    ruleset = new Ruleset(null, rules)
-        ..originalRuleset = this
-        ..id = id;
+    ruleset = Ruleset(null, rules)
+      ..originalRuleset = this
+      ..id = id;
 
-    ruleset = ruleset.eval(
-        new Contexts.eval(context, <Node>[this, frame]..addAll(mixinFrames)));
+    ruleset = ruleset
+        .eval(Contexts.eval(context, <Node>[this, frame]..addAll(mixinFrames)));
 
     if (important) ruleset = ruleset.makeImportant();
     return ruleset;
@@ -455,15 +457,16 @@ class MixinDefinition extends Node
         : context.frames;
     final List<Node> frames = <Node>[
       // the parameter variables
-      evalParams(context, new Contexts.eval(context, thisFrames), args, <Node>[])
+      evalParams(context, Contexts.eval(context, thisFrames), args, <Node>[])
     ]
-        ..addAll(this.frames ?? <Node>[]) // the parent namespace/mixin frames
-        ..addAll(context.frames); // the current environment frames
+      ..addAll(this.frames ?? <Node>[]) // the parent namespace/mixin frames
+      ..addAll(context.frames); // the current environment frames
 
     if (condition != null &&
-        !condition.eval(new Contexts.eval(context, frames)).evaluated) {
+        !condition.eval(Contexts.eval(context, frames)).evaluated) {
       return false;
     }
+
     return true;
 
 //2.5.0 20150419
@@ -488,13 +491,10 @@ class MixinDefinition extends Node
     final int allArgsCnt = args?.length ?? 0;
     final int requiredArgsCnt = (args == null)
         ? 0
-        : args.fold(0, (int count, MixinArgs p) {
-          if (!optionalParameters.contains(p.name)) {
-            return count + 1;
-          } else {
-            return count;
-          }
-        });
+        : args.fold(
+            0,
+            (int count, MixinArgs p) =>
+                (!optionalParameters.contains(p.name)) ? count + 1 : count);
 
     if (!variadic) {
       if (requiredArgsCnt < required) return false;
@@ -554,8 +554,7 @@ class MixinDefinition extends Node
   @override
   String toString() {
     bool first = true;
-    final StringBuffer sb = new StringBuffer()
-        ..write(name);
+    final StringBuffer sb = StringBuffer()..write(name);
     if (params != null) {
       sb.write('(');
       params.forEach((MixinArgs m) {

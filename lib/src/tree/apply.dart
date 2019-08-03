@@ -6,20 +6,24 @@ part of tree.less;
 /// @apply(--mixin-name); directive
 ///
 class Apply extends Node {
-  @override final String        name = null;
-  @override final String        type = 'Apply';
-  @override covariant Anonymous value;
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Apply';
+
+  @override
+  covariant Anonymous value;
 
   ///
   Apply(this.value, int index, FileInfo currentFileInfo)
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-        allowRoot = true;
-      }
+    allowRoot = true;
+  }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
@@ -31,7 +35,7 @@ class Apply extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

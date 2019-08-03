@@ -1,4 +1,3 @@
-
 part of less_plugin_clean_css.plugins.less;
 
 ///
@@ -8,23 +7,28 @@ part of less_plugin_clean_css.plugins.less;
 ///
 class CleanCssVisitor extends VisitorBase {
   ///
-  CleanCssContext cleancsscontext = new CleanCssContext();
+  CleanCssContext cleancsscontext = CleanCssContext();
+
   ///
   CleanCssOptions cleanCssOptions;
+
   ///
-  bool            keepOneComment = false;
+  bool keepOneComment = false;
+
   ///
-  bool            keepAllComments = false;
+  bool keepAllComments = false;
+
   ///
-  LessOptions     lessOptions;
+  LessOptions lessOptions;
+
   ///
-  Visitor         _visitor;
+  Visitor _visitor;
 
   ///
   CleanCssVisitor(this.cleanCssOptions) {
     isReplacing = true;
-    lessOptions = new Environment().options;
-    _visitor = new Visitor(this);
+    lessOptions = Environment().options;
+    _visitor = Visitor(this);
 
     if (cleanCssOptions.keepSpecialComments == '*') {
       keepAllComments = true;
@@ -34,7 +38,8 @@ class CleanCssVisitor extends VisitorBase {
     }
 
     cleancsscontext.compatibility = cleanCssOptions.compatibility;
-    Output.separators[')'] = !cleancsscontext.compatibility.properties.spaceAfterClosingBrace;
+    Output.separators[')'] =
+        !cleancsscontext.compatibility.properties.spaceAfterClosingBrace;
   }
 
   ///
@@ -75,7 +80,7 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove units in 0
   ///
   Dimension visitDimension(Dimension dimensionNode, VisitArgs visitArgs) {
-    dimensionNode.cleanCss = new CleanCssContext();
+    dimensionNode.cleanCss = CleanCssContext();
     if (dimensionNode.isUnit('px')) {
       dimensionNode.cleanCss.precision = cleanCssOptions.roundingPrecision;
     }
@@ -129,7 +134,7 @@ class CleanCssVisitor extends VisitorBase {
     if (declNode.name == 'background') {
       final String value = declNode.value.toString();
       if (value == 'none' || value == 'transparent') {
-        declNode.value = new Keyword('0 0');
+        declNode.value = Keyword('0 0');
       }
 
       // if (declNode.value is Keyword) {
@@ -155,10 +160,10 @@ class CleanCssVisitor extends VisitorBase {
     if (declNode.name == 'font-weight') {
       final String value = declNode.value.toString();
       if (value == 'normal') {
-        declNode.value = new Dimension(400);
+        declNode.value = Dimension(400);
       }
       if (value == 'bold') {
-        declNode.value = new Dimension(700);
+        declNode.value = Dimension(700);
       }
       // if (declNode.value is Keyword) {
       //   if (declNode.value.value == 'normal')
@@ -171,7 +176,7 @@ class CleanCssVisitor extends VisitorBase {
     if (declNode.name == 'outline') {
       final String value = declNode.value.toString();
       if (value == 'none') {
-        declNode.value = new Dimension(0);
+        declNode.value = Dimension(0);
       }
 
       // if (declNode.value is Keyword) {
@@ -190,20 +195,21 @@ class CleanCssVisitor extends VisitorBase {
   /// - Example: `([class*="lead"]) -> ([class*=lead])`
   ///
   Ruleset visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    Attribute       attribute;
-    List<Element>   elements;
-    Match           match;
-    Quoted          quoted;
-    List<Selector>  selectors;
-    String          valueStr;
+    Attribute attribute;
+    List<Element> elements;
+    Match match;
+    Quoted quoted;
+    List<Selector> selectors;
+    String valueStr;
 
     //for compress analysis we need the full parsed node. Ex. Color
     rulesetNode.parseForCompression();
 
     //RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
-    final RegExp attrRe = new RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]',caseSensitive: false);
+    final RegExp attrRe =
+        RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]', caseSensitive: false);
 
-    rulesetNode.cleanCss = new CleanCssContext();
+    rulesetNode.cleanCss = CleanCssContext();
     rulesetNode.cleanCss.keepBreaks = cleanCssOptions.keepBreaks;
 
     if (!rulesetNode.root) {
@@ -224,7 +230,8 @@ class CleanCssVisitor extends VisitorBase {
                   }
                 }
               } else if (cleanCssOptions.advanced) {
-                if (element.value is String) { // "([class*="lead"])"
+                // "([class*="lead"])"
+                if (element.value is String) {
                   valueStr = element.value;
                   if ((match = attrRe.firstMatch(valueStr)) != null) {
                     element.value = removeQuotesAndSpace(match, valueStr, 2);
@@ -263,7 +270,7 @@ class CleanCssVisitor extends VisitorBase {
   ///
   /// Has ./$ ... characters
   ///
-  bool hasSymbol(String value) => new RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
+  bool hasSymbol(String value) => RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
 
   ///
   /// Remove spaces and quotes. [indexQuoted] for quotes in the [match]
@@ -275,9 +282,11 @@ class CleanCssVisitor extends VisitorBase {
     final int start = source.indexOf(quoted);
 
     final String prefix = source.substring(0, start).replaceAll(' ', '');
-    final String suffix = source.substring(start + quoted.length).replaceAll(' ', '');
+    final String suffix =
+        source.substring(start + quoted.length).replaceAll(' ', '');
 
-    final String newQuoted = quoted.substring(1, quoted.length-1); //remove quotes
+    final String newQuoted =
+        quoted.substring(1, quoted.length - 1); //remove quotes
     if (!hasSymbol(newQuoted)) quoted = newQuoted;
 
     return '$prefix$quoted$suffix';
@@ -287,8 +296,8 @@ class CleanCssVisitor extends VisitorBase {
   /// Remove ' ( ', ' ) ', ': ', \n '  '
   ///
   String removeSpaces(String value) {
-    int     len;
-    String  _value = value;
+    int len;
+    String _value = value;
 
     do {
       len = _value.length;

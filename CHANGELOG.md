@@ -1,3 +1,6 @@
+## 2.3.2 (2019-xx-xx)
+- Linter updates.
+
 ## 2.3.1 (2019-07-08)
 - Prepare for breaking change to HttpClientResponse return type (sdk #36900).
 

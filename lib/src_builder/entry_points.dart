@@ -8,11 +8,13 @@ part of builder.less;
 ///
 class EntryPoints {
   ///
-  List<RegExp>  include = <RegExp>[];
+  List<RegExp> include = <RegExp>[];
+
   ///
-  bool          isLessSingle = false;
+  bool isLessSingle = false;
+
   ///
-  List<RegExp>  exclude = <RegExp>[];
+  List<RegExp> exclude = <RegExp>[];
 
   ///
   /// Constructor
@@ -40,8 +42,8 @@ class EntryPoints {
       final String _path = path.trim();
       if (_path.isNotEmpty) {
         _path.startsWith('!')
-          ? exclude.add(toRegExp(_path.substring(1)))
-          : include.add(toRegExp(_path));
+            ? exclude.add(toRegExp(_path.substring(1)))
+            : include.add(toRegExp(_path));
       }
     });
   }
@@ -108,7 +110,7 @@ class EntryPoints {
   ///
   /// Creates a RegExp from a path with wildcards and normalize
   ///
-  RegExp toRegExp(String path) => new RegExp(
+  RegExp toRegExp(String path) => RegExp(
       path
           .replaceAll(r'\', r'/')
           .replaceAll(r'/', r'\/')

@@ -13,15 +13,17 @@ class AbstractFileManager {
   ///
   /// This FileManager can load async the filename
   ///
-  bool supports (String filename, String currentDirectory, Contexts options,
-      Environment environment) => false;
+  bool supports(String filename, String currentDirectory, Contexts options,
+          Environment environment) =>
+      false;
 
   ///
   /// Returns whether this file manager supports this file for syncronous file retrieval
   /// If true is returned, loadFileSync will then be called with the file.
   ///
   bool supportsSync(String filename, String currentDirectory, Contexts options,
-      Environment environment) => false;
+          Environment environment) =>
+      false;
 
   ///
   /// Loads a file asynchronously. Expects a Future that either rejects with an error or fulfills with an
@@ -30,7 +32,8 @@ class AbstractFileManager {
   ///   contents: - the contents of the file, as a string }
   ///
   Future<FileLoaded> loadFile(String filename, String currentDirectory,
-      Contexts options, Environment environment) => null;
+          Contexts options, Environment environment) =>
+      null;
 
   ///
   /// Loads a file synchronously. Expects an immediate return with an object containing
@@ -40,18 +43,20 @@ class AbstractFileManager {
   ///     codeunits: - the contents of the file, asBytes }
   ///
   FileLoaded loadFileSync(String filename, String currentDirectory,
-      Contexts options, Environment environment) => null;
+          Contexts options, Environment environment) =>
+      null;
 
   ///
   /// Check if [filename] exists in the include paths
   ///
   FileLoaded existSync(String filename, String currentDirectory,
-      Contexts options, Environment environment) => null;
+          Contexts options, Environment environment) =>
+      null;
 
   ///
   /// Given the full path to a file [filename], return the path component
   ///
-  String getPath(String filename) => pathLib.dirname(filename);
+  String getPath(String filename) => path_lib.dirname(filename);
 
   //2.3.1
 //abstractFileManager.prototype.getPath = function (filename) {
@@ -78,7 +83,7 @@ class AbstractFileManager {
   /// Append a [ext] extension to [path] if appropriate.
   ///
   String tryAppendExtension(String path, String ext) {
-    final RegExp re = new RegExp(r'(\.[a-z]*$)|([\?;].*)$');
+    final RegExp re = RegExp(r'(\.[a-z]*$)|([\?;].*)$');
     return re.hasMatch(path) ? path : '$path$ext';
 
 //2.4.0 20150226
@@ -91,7 +96,8 @@ class AbstractFileManager {
   /// Append a .less extension to [path] if appropriate.
   /// Only called if less thinks one could be added.
   ///
-  String tryAppendLessExtension(String path) => tryAppendExtension(path, '.less');
+  String tryAppendLessExtension(String path) =>
+      tryAppendExtension(path, '.less');
 
 //2.4.0 20150226
 //  abstractFileManager.prototype.tryAppendLessExtension = function(path) {
@@ -107,7 +113,7 @@ class AbstractFileManager {
   ///
   /// Returns whether a path is absolute
   ///
-  bool isPathAbsolute(String path) => pathLib.isAbsolute(path);
+  bool isPathAbsolute(String path) => path_lib.isAbsolute(path);
 
 //2.4.0
 //  abstractFileManager.prototype.isPathAbsolute = function(filename) {
@@ -117,7 +123,8 @@ class AbstractFileManager {
   ///
   /// Joins together 2 paths
   ///
-  String join(String basePath, String laterPath) => pathLib.join(basePath, laterPath);
+  String join(String basePath, String laterPath) =>
+      path_lib.join(basePath, laterPath);
 
 //2.3.1
 //abstractFileManager.prototype.join = function(basePath, laterPath) {
@@ -135,13 +142,14 @@ class AbstractFileManager {
   ///   url = 'a/b/' baseUrl = 'a/'   returns 'b/'
   ///
   String pathDiff(String url, String baseUrl) {
-    final UrlParts  baseUrlParts = extractUrlParts(baseUrl);
-    int             i;
-    final UrlParts  urlParts = extractUrlParts(url);
+    final UrlParts baseUrlParts = extractUrlParts(baseUrl);
+    int i;
+    final UrlParts urlParts = extractUrlParts(url);
 
     if (urlParts.hostPart != baseUrlParts.hostPart) return '';
 
-    final int max = math.max(baseUrlParts.directories.length, urlParts.directories.length);
+    final int max = math_lib.max(
+        baseUrlParts.directories.length, urlParts.directories.length);
 
     for (i = 0; i < max; i++) {
       if (baseUrlParts.directories[i] != urlParts.directories[i]) break;
@@ -149,7 +157,8 @@ class AbstractFileManager {
     final List<String> baseUrlDirectories = baseUrlParts.directories.sublist(i);
     final List<String> urlDirectories = urlParts.directories.sublist(i);
 
-    if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) { //both directories are the same
+    if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) {
+      //both directories are the same
       return './';
     }
 
@@ -190,7 +199,9 @@ class AbstractFileManager {
     // urlParts[4] = filename
     // urlParts[5] = parameters
 
-    final RegExp urlPartsRegex = new RegExp(r'^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$', caseSensitive: false);
+    final RegExp urlPartsRegex = RegExp(
+        r'^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$',
+        caseSensitive: false);
     final List<String> urlParts = <String>[];
 
     Match match = urlPartsRegex.firstMatch(url);
@@ -200,12 +211,11 @@ class AbstractFileManager {
       }
     }
 
-    final UrlParts returner = new UrlParts();
+    final UrlParts returner = UrlParts();
 
     if (urlParts.isEmpty) {
-      final LessError error = new LessError(
-          message: "Could not parse sheet href - '$url'");
-      throw new LessExceptionError(error);
+      throw LessExceptionError(
+          LessError(message: "Could not parse sheet href - '$url'"));
     }
 
     List<String> directories = <String>[];
@@ -222,9 +232,8 @@ class AbstractFileManager {
       }
 
       if (baseUrlParts.isEmpty) {
-        final LessError error = new LessError(
-            message: "Could not parse page url - '$baseUrl'");
-        throw new LessExceptionError(error);
+        throw LessExceptionError(
+            LessError(message: "Could not parse page url - '$baseUrl'"));
       }
 
       urlParts[1] ??= baseUrlParts[1] ?? '';
@@ -234,10 +243,10 @@ class AbstractFileManager {
     if (urlParts[3] != null) {
       rawPath = urlParts[3].replaceAll('\\', '/');
       // collapse '..' and skip '.'
-      directories = pathLib.split(pathLib.normalize(rawPath))..add('');
+      directories = path_lib.split(path_lib.normalize(rawPath))..add('');
     }
 
-    for (int i = 0; i < urlParts.length; i ++) {
+    for (int i = 0; i < urlParts.length; i++) {
       if (urlParts[i] == null) urlParts[i] = '';
     }
 
@@ -245,15 +254,14 @@ class AbstractFileManager {
       urlParts.add('');
     }
 
-    returner
-        ..hostPart = urlParts[1]
-        ..directories = directories
-        ..rawPath = '${urlParts[1]}$rawPath'
-        ..path = '${urlParts[1]}${directories.join('/')}'
-        ..filename = urlParts[4]
-        ..fileUrl = '${returner.path}${urlParts[4]}'
-        ..url = '${returner.fileUrl}${urlParts[5]}';
-    return returner;
+    return returner
+      ..hostPart = urlParts[1]
+      ..directories = directories
+      ..rawPath = '${urlParts[1]}$rawPath'
+      ..path = '${urlParts[1]}${directories.join('/')}'
+      ..filename = urlParts[4]
+      ..fileUrl = '${returner.path}${urlParts[4]}'
+      ..url = '${returner.fileUrl}${urlParts[5]}';
 
 //3.0.0 20171009
 // helper function, not part of API
@@ -317,11 +325,14 @@ class AbstractFileManager {
 /// return type for loadFile
 class FileLoaded {
   ///
-  String    filename;
+  String filename;
+
   ///
-  String    contents;
+  String contents;
+
   ///
   LessError error;
+
   ///
   List<int> codeUnits;
 
@@ -332,17 +343,23 @@ class FileLoaded {
 ///
 class UrlParts {
   ///
-  List<String>  directories;
+  List<String> directories;
+
   ///
-  String        hostPart;
+  String hostPart;
+
   ///
-  String        filename;
+  String filename;
+
   ///
-  String        fileUrl;
+  String fileUrl;
+
   ///
-  String        path;
+  String path;
+
   ///
-  String        rawPath;
+  String rawPath;
+
   ///
-  String        url;
+  String url;
 }

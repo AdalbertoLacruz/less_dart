@@ -4,40 +4,53 @@ part of tree.less;
 
 ///
 class Extend extends Node {
-  @override final String name = null;
-  @override final String type = 'Extend';
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Extend';
 
   ///
-  bool            allowAfter;
-  ///
-  bool            allowBefore;
-  ///
-  bool            firstExtendOnThisSelectorPath = false;
-  ///
-  bool            hasFoundMatches = false; // ProcessExtendsVisitor
-  ///
-  static int      nextId = 0;
-  ///
-  int             objectId;
-  ///
-  String          option;
-  ///
-  List<int>       parentIds;
-  ///
-  Ruleset         ruleset; //extend
-  ///
-  Node            selector;
-  ///
-  List<Selector>  selfSelectors;
+  bool allowAfter;
 
   ///
-  Extend(this.selector, this.option, int index,
-      FileInfo currentFileInfo, [VisibilityInfo visibilityInfo])
+  bool allowBefore;
+
+  ///
+  bool firstExtendOnThisSelectorPath = false;
+
+  ///
+  bool hasFoundMatches = false; // ProcessExtendsVisitor
+
+  ///
+  static int nextId = 0;
+
+  ///
+  int objectId;
+
+  ///
+  String option;
+
+  ///
+  List<int> parentIds;
+
+  ///
+  Ruleset ruleset; //extend
+
+  ///
+  Node selector;
+
+  ///
+  List<Selector> selfSelectors;
+
+  ///
+  Extend(this.selector, this.option, int index, FileInfo currentFileInfo,
+      [VisibilityInfo visibilityInfo])
       : super.init(index: index) {
     //
     objectId = nextId++;
     parentIds = <int>[objectId];
-    this.currentFileInfo = currentFileInfo ?? new FileInfo();
+    this.currentFileInfo = currentFileInfo ?? FileInfo();
     copyVisibilityInfo(visibilityInfo);
     allowRoot = true;
 
@@ -79,10 +92,9 @@ class Extend extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'selector': selector,
-    'option': option
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'selector': selector, 'option': option};
 
   ///
   @override
@@ -97,8 +109,8 @@ class Extend extends Node {
 
   ///
   @override
-  Extend eval(Contexts context) =>
-      new Extend(selector.eval(context), option, index, currentFileInfo, visibilityInfo());
+  Extend eval(Contexts context) => Extend(
+      selector.eval(context), option, index, currentFileInfo, visibilityInfo());
 
 //3.0.0 20160714
 // Extend.prototype.eval = function (context) {
@@ -108,7 +120,7 @@ class Extend extends Node {
   ///
   //removed clone(context)
   Extend clone() =>
-      new Extend(selector, option, index, currentFileInfo, visibilityInfo());
+      Extend(selector, option, index, currentFileInfo, visibilityInfo());
 
 //3.0.0 20160714
 // Extend.prototype.clone = function (context) {
@@ -119,7 +131,7 @@ class Extend extends Node {
   /// It concatenates (joins) all selectors in selector array
   ///
   void findSelfSelectors(List<Selector> selectors) {
-    List<Element>       selectorElements;
+    List<Element> selectorElements;
     final List<Element> selfElements = <Element>[];
 
     for (int i = 0; i < selectors.length; i++) {
@@ -135,7 +147,7 @@ class Extend extends Node {
       selfElements.addAll(selectors[i].elements);
     }
 
-    selfSelectors = <Selector>[new Selector(selfElements)];
+    selfSelectors = <Selector>[Selector(selfElements)];
     selfSelectors[0].copyVisibilityInfo(visibilityInfo());
 
 //2.5.3 20151120
@@ -162,9 +174,9 @@ class Extend extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     selector.genCSS(null, output);
-    if(option != null) output.add(' $option');
+    if (option != null) output.add(' $option');
     return output.toString().trim();
   }
 }

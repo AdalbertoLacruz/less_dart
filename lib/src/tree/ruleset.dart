@@ -5,26 +5,28 @@ part of tree.less;
 ///
 class Ruleset extends Node
     with VariableMixin
-    implements
-        MakeImportantNode,
-        MatchConditionNode {
-
-  @override final String type = 'Ruleset';
+    implements MakeImportantNode, MatchConditionNode {
+  @override
+  final String type = 'Ruleset';
 
   ///
-  bool                  allowImports = false;
+  bool allowImports = false;
+
   ///
-  bool                  extendOnEveryPath = false; // used in ExtendFinderVisitor
+  bool extendOnEveryPath = false; // used in ExtendFinderVisitor
   ///
-  bool                  firstRoot = false;
+  bool firstRoot = false;
+
   ///
-  bool                  multiMedia = false;
+  bool multiMedia = false;
+
   ///
-  List<List<Selector>>  paths; // The paths are [[Selector]]
+  List<List<Selector>> paths; // The paths are [[Selector]]
   ///
-  bool                  root = false;
+  bool root = false;
+
   ///
-  bool                  strictImports;
+  bool strictImports;
 
   ///
   Ruleset(List<Selector> selectors, List<Node> rules,
@@ -56,10 +58,9 @@ class Ruleset extends Node
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'selectors': selectors,
-    'rules': rules
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'selectors': selectors, 'rules': rules};
 
   ///
   @override
@@ -88,37 +89,39 @@ class Ruleset extends Node
   ///
   @override
   Ruleset eval(Contexts context) {
-    bool                  hasOnePassingSelector = false;
-    bool                  hasVariable = false;
-    List<Selector>        selectors;
+    bool hasOnePassingSelector = false;
+    bool hasVariable = false;
+    List<Selector> selectors;
 
-    final DefaultFunc defaultFunc = context.defaultFunc ??= new DefaultFunc();
+    final DefaultFunc defaultFunc = context.defaultFunc ??= DefaultFunc();
 
     // selector such as body, h1, ...
     if (this.selectors?.isNotEmpty ?? false) {
       selectors = <Selector>[];
-      defaultFunc.error(new LessError(
+      defaultFunc.error(LessError(
           type: 'Syntax',
           message: 'it is currently only allowed in parametric mixin guards,',
           context: context));
 
       this.selectors.forEach((Selector sel) {
         final Selector selector = sel.eval(context);
-        hasVariable = hasVariable || selector.elements.any((Element el) => el.isVariable);
+        hasVariable =
+            hasVariable || selector.elements.any((Element el) => el.isVariable);
         selectors.add(selector);
         if (selector.evaldCondition) hasOnePassingSelector = true;
       });
 
       if (hasVariable) {
-        final List<String> toParseSelectors = selectors.map((Selector selector) =>
-            selector.toCSS(context)
-        ).toList();
+        final List<String> toParseSelectors = selectors
+            .map((Selector selector) => selector.toCSS(context))
+            .toList();
 
-        final List<Selector> result = new ParseNode(
-            toParseSelectors.join(','),
-            selectors.first.index,
-            selectors.first.currentFileInfo).selectors();
-        if (result != null) selectors = result; // selectors = utils.flattenArray(result);
+        final List<Selector> result = ParseNode(toParseSelectors.join(','),
+                selectors.first.index, selectors.first.currentFileInfo)
+            .selectors();
+
+        // selectors = utils.flattenArray(result);
+        if (result != null) selectors = result;
       }
 
       defaultFunc.reset();
@@ -126,28 +129,28 @@ class Ruleset extends Node
       hasOnePassingSelector = true;
     }
 
-    final Ruleset ruleset = new Ruleset(selectors,
-        hasOnePassingSelector ? rules?.sublist(0) : <Node>[],  //rules
+    final Ruleset ruleset = Ruleset(
+        selectors, hasOnePassingSelector ? rules?.sublist(0) : <Node>[], //rules
         strictImports: strictImports,
         visibilityInfo: visibilityInfo())
-            ..originalRuleset = this
-            ..id = id
-            ..root = root
-            ..firstRoot = firstRoot
-            ..allowImports = allowImports
-            ..debugInfo = debugInfo;
+      ..originalRuleset = this
+      ..id = id
+      ..root = root
+      ..firstRoot = firstRoot
+      ..allowImports = allowImports
+      ..debugInfo = debugInfo;
 
     // inherit a function registry from the frames stack when possible; (in js from the top)
-    final FunctionRegistry parentFR = FunctionRegistry.foundInherit(context.frames);
-    ruleset.functionRegistry = new FunctionRegistry.inherit(parentFR);
+    final FunctionRegistry parentFR =
+        FunctionRegistry.foundInherit(context.frames);
+    ruleset.functionRegistry = FunctionRegistry.inherit(parentFR);
 
     // push the current ruleset to the frames stack
-    final List<Node> ctxFrames = context.frames
-        ..insert(0, ruleset);
+    final List<Node> ctxFrames = context.frames..insert(0, ruleset);
 
     // current selectors
-    final List<List<Selector>> ctxSelectors = (context.selectors ??= <List<Selector>>[])
-        ..insert(0, this.selectors);
+    final List<List<Selector>> ctxSelectors =
+        (context.selectors ??= <List<Selector>>[])..insert(0, this.selectors);
 
     // Evaluate imports
     if (ruleset.root ||
@@ -156,9 +159,9 @@ class Ruleset extends Node
 
     // Store the frames around mixin definitions,
     // so they can be evaluated like closures when the time comes.
-    ruleset.rules = ruleset.rules?.map((Node rule) =>
-      (rule.evalFirst) ? rule.eval(context) : rule
-    )?.toList();
+    ruleset.rules = ruleset.rules
+        ?.map((Node rule) => (rule.evalFirst) ? rule.eval(context) : rule)
+        ?.toList();
 
     final int mediaBlockCount = context.mediaBlocks?.length ?? 0;
 
@@ -167,29 +170,26 @@ class Ruleset extends Node
     for (int i = 0; i < rsRuleCnt; i++) {
       final Node rule = ruleset.rules[i];
       if (rule is MixinCall) {
-        final List<Node> rules = rule.eval(context).rules..retainWhere((Node r) {
-          if (r is Declaration && r.variable) {
-            // do not pollute the scope if the variable is
-            // already there. consider returning false here
-            // but we need a way to "return" variable from mixins
-            // Collateral effect. Variable() needs access to ruleset.rules updated
-            return (ruleset.variable(r.name) == null);
-          }
-          return true;
-        });
+        final List<Node> rules = rule.eval(context).rules
+          ..retainWhere((Node r) {
+            if (r is Declaration && r.variable) {
+              // do not pollute the scope if the variable is
+              // already there. consider returning false here
+              // but we need a way to "return" variable from mixins
+              // Collateral effect. Variable() needs access to ruleset.rules updated
+              return ruleset.variable(r.name) == null;
+            }
+            return true;
+          });
         ruleset.rules.replaceRange(i, i + 1, rules);
         rsRuleCnt += rules.length - 1;
         i += rules.length - 1;
         ruleset.resetCache();
       } else if (rule is VariableCall) {
-        final List<Node> rules = rule.eval(context).rules..retainWhere((Node r) {
-          if (r is Declaration && r.variable) {
-            // do not pollute the scope at all
-            return false;
-          }
-          return true;
-        });
-        ruleset.rules.replaceRange(i, i+1, rules);
+        final List<Node> rules = rule.eval(context).rules
+          // do not pollute the scope at all
+          ..retainWhere((Node r) => !(r is Declaration && r.variable));
+        ruleset.rules.replaceRange(i, i + 1, rules);
         rsRuleCnt += rules.length - 1;
         i += rules.length - 1;
         ruleset.resetCache();
@@ -201,7 +201,8 @@ class Ruleset extends Node
       final Node rule = ruleset.rules[i];
       if (!rule.evalFirst) {
         final Node ruleEval = rule.eval(context);
-        final List<Node> ruleEvaluated = (ruleEval is Nodeset) ? ruleEval.rules : <Node>[ruleEval];
+        final List<Node> ruleEvaluated =
+            (ruleEval is Nodeset) ? ruleEval.rules : <Node>[ruleEval];
         ruleset.rules.replaceRange(i, i + 1, ruleEvaluated);
         i += ruleEvaluated.length - 1;
       }
@@ -213,15 +214,15 @@ class Ruleset extends Node
       // for rulesets, check if it is a css guard and can be removed
       if (rule is Ruleset && (rule.selectors?.length == 1 ?? false)) {
         // check if it can be folded in (e.g. & where)
-        if (rule.selectors.isNotEmpty && rule.selectors.first.isJustParentSelector()) {
-          ruleset
-            .rules.removeAt(i--)
-            .rules.forEach((Node subRule) {
-              subRule.copyVisibilityInfo(rule.visibilityInfo());
-              if (!(subRule is Declaration) || !(subRule as Declaration).variable) {
-                ruleset.rules.insert(++i, subRule);
-              }
-            });
+        if (rule.selectors.isNotEmpty &&
+            rule.selectors.first.isJustParentSelector()) {
+          ruleset.rules.removeAt(i--).rules.forEach((Node subRule) {
+            subRule.copyVisibilityInfo(rule.visibilityInfo());
+            if (!(subRule is Declaration) ||
+                !(subRule as Declaration).variable) {
+              ruleset.rules.insert(++i, subRule);
+            }
+          });
         }
       }
     }
@@ -425,9 +426,8 @@ class Ruleset extends Node
       if (rules[i] is Import) {
         final Node evalImport = rules[i].eval(context);
         //importRules = (evalImport is List<Node>) ? evalImport : <Node>[evalImport];
-        final List<Node> importRules = (evalImport is Nodeset)
-            ? evalImport.rules
-            : <Node>[evalImport];
+        final List<Node> importRules =
+            (evalImport is Nodeset) ? evalImport.rules : <Node>[evalImport];
         rules.replaceRange(i, i + 1, importRules);
         i += importRules.length - 1;
         resetCache();
@@ -463,12 +463,13 @@ class Ruleset extends Node
 
   ///
   @override
-  Ruleset makeImportant() => new Ruleset(
+  Ruleset makeImportant() => Ruleset(
       selectors,
-      rules.map((Node r) => (r is MakeImportantNode)
-            ? (r as MakeImportantNode).makeImportant()
-            : r
-      ).toList(),
+      rules
+          .map((Node r) => (r is MakeImportantNode)
+              ? (r as MakeImportantNode).makeImportant()
+              : r)
+          .toList(),
       strictImports: strictImports,
       visibilityInfo: visibilityInfo());
 
@@ -488,7 +489,7 @@ class Ruleset extends Node
   ///
   @override
   bool matchArgs(List<MixinArgs> args, Contexts context) =>
-      (args == null || args.isEmpty);
+      args == null || args.isEmpty;
 
 //2.3.1
 //  Ruleset.prototype.matchArgs = function (args) {
@@ -505,7 +506,9 @@ class Ruleset extends Node
     final Selector lastSelector = selectors.last;
     if (!lastSelector.evaldCondition) return false;
     if (lastSelector.condition != null &&
-        !lastSelector.condition.eval(new Contexts.eval(context, context.frames)).evaluated) {
+        !lastSelector.condition
+            .eval(Contexts.eval(context, context.frames))
+            .evaluated) {
       return false;
     }
     return true;
@@ -530,11 +533,7 @@ class Ruleset extends Node
   /// Inserts the [rule] as the first elements of this.rules
   ///
   void prependRule(Node rule) {
-    if (rules != null) {
-      rules.insert(0, rule);
-    } else {
-      rules = <Node>[rule];
-    }
+    (rules ??= <Node>[]).insert(0, rule);
     setParent(rule, this);
 
 //3.0.0 20160714
@@ -555,10 +554,10 @@ class Ruleset extends Node
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    final List<Node>  charsetRuleNodes = <Node>[];
-    Node              rule;
-    final List<Node>  ruleNodes = <Node>[];
-    List<Node>        path;
+    final List<Node> charsetRuleNodes = <Node>[];
+    Node rule;
+    final List<Node> ruleNodes = <Node>[];
+    List<Node> path;
 
     if (firstRoot) context.tabLevel = 0;
     if (!root) context.tabLevel++;
@@ -592,9 +591,7 @@ class Ruleset extends Node
     // a selector, or {}.
     if (!root) {
       if (debugInfo != null) {
-        output
-            ..add(debugInfo.toOutput(context, tabSetStr))
-            ..add(tabSetStr);
+        output..add(debugInfo.toOutput(context, tabSetStr))..add(tabSetStr);
       }
 
       final List<List<Selector>> paths = this.paths;
@@ -633,8 +630,11 @@ class Ruleset extends Node
       }
 
       context.lastRule = currentLastRule;
-      if (!context.lastRule && (rule.isVisible() ?? true)) { //isVisible() null affect debug tests
-        if (firstRoot && (cleanCss?.keepBreaks ?? false) && output.last != '\n') {
+      if (!context.lastRule && (rule.isVisible() ?? true)) {
+        //isVisible() null affect debug tests
+        if (firstRoot &&
+            (cleanCss?.keepBreaks ?? false) &&
+            output.last != '\n') {
           output.add('\n');
         } else {
           output.add(isCompress(context) ? '' : '\n$tabRuleStr');
@@ -781,7 +781,7 @@ class Ruleset extends Node
   }
 
   ///
-  void joinSelector(List<List<Selector>> paths, List<List<Selector>>context,
+  void joinSelector(List<List<Selector>> paths, List<List<Selector>> context,
       Selector selector) {
     List<List<Selector>> newPaths = <List<Selector>>[];
     final bool hadParentSelector =
@@ -795,7 +795,7 @@ class Ruleset extends Node
               .map((Selector sel) =>
                   deriveSelector(selector.visibilityInfo(), sel))
               .toList()
-              ..add(selector);
+                ..add(selector);
           newPaths.add(concatenated);
         }
       } else {
@@ -844,16 +844,16 @@ class Ruleset extends Node
     Paren replacementParen;
 
     if (elementsToPak.isEmpty) {
-      replacementParen = new Paren(null);
+      replacementParen = Paren(null);
     } else {
       final List<Element> insideParent = <Element>[]; // TODO map?
       for (int j = 0; j < elementsToPak.length; j++) {
-        insideParent.add(new Element(null, elementsToPak[j],
+        insideParent.add(Element(null, elementsToPak[j],
             isVariable: originalElement.isVariable,
             index: originalElement._index,
             currentFileInfo: originalElement._fileInfo));
       }
-      replacementParen = new Paren(new Selector(insideParent));
+      replacementParen = Paren(Selector(insideParent));
     }
     return replacementParen;
 
@@ -882,11 +882,11 @@ class Ruleset extends Node
 
   ///
   Selector createSelector(Node containedElement, Element originalElement) {
-    final Element element = new Element(null, containedElement,
+    final Element element = Element(null, containedElement,
         isVariable: originalElement.isVariable,
         index: originalElement._index,
         currentFileInfo: originalElement._fileInfo);
-    return new Selector(<Element>[element]);
+    return Selector(<Element>[element]);
 
 // inside joinSelector
 // 3.5.0.beta 20180625
@@ -988,8 +988,7 @@ class Ruleset extends Node
             // the combinator used on el should now be applied to the next element instead so that
             // it is not lost
             if (sel.isNotEmpty) {
-              sel.first.elements.add(new Element(
-                  el.combinator, '',
+              sel.first.elements.add(Element(el.combinator, '',
                   isVariable: el.isVariable,
                   index: el._index,
                   currentFileInfo: el._fileInfo));
@@ -1155,13 +1154,12 @@ class Ruleset extends Node
   /// returns concatenated path
   ///
   List<Selector> addReplacementIntoPath(
-      List<Selector>  beginningPath,
-      List<Selector>  addPath,
-      Element         replacedElement,
-      Selector        originalSelector) {
-
-    List<Selector>  newSelectorPath = <Selector>[];
-    Selector        newJoinedSelector;
+      List<Selector> beginningPath,
+      List<Selector> addPath,
+      Element replacedElement,
+      Selector originalSelector) {
+    List<Selector> newSelectorPath = <Selector>[];
+    Selector newJoinedSelector;
 
     // construct the joined selector - if & is the first thing this will be empty,
     // if not newJoinedSelector will be the last set of elements in the selector
@@ -1190,22 +1188,25 @@ class Ruleset extends Node
 
       // join the elements so far with the first part of the parent
       newJoinedSelector.elements
-          ..add(new Element(combinator, parentEl.value,
-              isVariable: replacedElement.isVariable,
-              index: replacedElement._index,
-              currentFileInfo: replacedElement._fileInfo))
-          ..addAll(addPath.first.elements.sublist(1));
+        ..add(Element(combinator, parentEl.value,
+            isVariable: replacedElement.isVariable,
+            index: replacedElement._index,
+            currentFileInfo: replacedElement._fileInfo))
+        ..addAll(addPath.first.elements.sublist(1));
     }
 
     // now add the joined selector - but only if it is not empty
-    if (newJoinedSelector.elements.isNotEmpty) newSelectorPath.add(newJoinedSelector);
+    if (newJoinedSelector.elements.isNotEmpty) {
+      newSelectorPath.add(newJoinedSelector);
+    }
 
     // put together the parent selectors after the join (e.g. the rest of the parent)
     if (addPath.length > 1) {
       List<Selector> restOfPath = addPath.sublist(1);
-      restOfPath = restOfPath.map((Selector selector) =>
-          selector.createDerived(selector.elements, extendList: <Extend>[])
-      ).toList();
+      restOfPath = restOfPath
+          .map((Selector selector) =>
+              selector.createDerived(selector.elements, extendList: <Extend>[]))
+          .toList();
       newSelectorPath.addAll(restOfPath);
     }
 
@@ -1272,12 +1273,11 @@ class Ruleset extends Node
   /// returns array with all concatenated paths
   ///
   List<List<Selector>> addAllReplacementsIntoPath(
-      List<List<Selector>>  beginningPath,
-      List<Selector>        addPaths,
-      Element               replacedElement,
-      Selector              originalSelector,
-      List<List<Selector>>  result) {
-
+      List<List<Selector>> beginningPath,
+      List<Selector> addPaths,
+      Element replacedElement,
+      Selector originalSelector,
+      List<List<Selector>> result) {
     for (int j = 0; j < beginningPath.length; j++) {
       final List<Selector> newSelectorPath = addReplacementIntoPath(
           beginningPath[j], addPaths, replacedElement, originalSelector);
@@ -1300,11 +1300,12 @@ class Ruleset extends Node
   }
 
   ///
-  void mergeElementsOnToSelectors(List<Element> elements, List<List<Selector>> selectors) {
+  void mergeElementsOnToSelectors(
+      List<Element> elements, List<List<Selector>> selectors) {
     if (elements.isEmpty) return;
 
     if (selectors.isEmpty) {
-      selectors.add(<Selector>[new Selector(elements)]);
+      selectors.add(<Selector>[Selector(elements)]);
       return;
     }
 
@@ -1314,7 +1315,7 @@ class Ruleset extends Node
         sel[sel.length - 1] = sel[sel.length - 1] //last
             .createDerived(sel.last.elements.sublist(0)..addAll(elements));
       } else {
-        sel.add(new Selector(elements));
+        sel.add(Selector(elements));
       }
     });
 
@@ -1347,7 +1348,7 @@ class Ruleset extends Node
       deriveFrom.createDerived(deriveFrom.elements,
           extendList: deriveFrom.extendList,
           evaldCondition: deriveFrom.evaldCondition)
-          ..copyVisibilityInfo(visibilityInfo);
+        ..copyVisibilityInfo(visibilityInfo);
 
 // inside joinSelector
 //2.5.3 20151120
@@ -1361,7 +1362,7 @@ class Ruleset extends Node
   @override
   String toString() {
     if (selectors == null) return '';
-    return selectors.fold(new StringBuffer(), (StringBuffer sb, Selector selector) {
+    return selectors.fold(StringBuffer(), (StringBuffer sb, Selector selector) {
       if (sb.isNotEmpty) sb.write(', ');
       return sb..write(selector.toString());
     }).toString();
@@ -1380,18 +1381,21 @@ class Ruleset extends Node
 /// -
 abstract class VariableMixin implements Node {
   ///
-  FunctionRegistry              functionRegistry;
+  FunctionRegistry functionRegistry;
+
   ///
   Map<String, List<MixinFound>> _lookups = <String, List<MixinFound>>{};
+
   ///
-  Node                          paren;
+  Node paren;
+
   ///
   Map<String, List<Declaration>> _properties; // $properties
 
-  //var                         _rulesets;
+  //var rulesets;
 
   ///
-  Map<String, Node>             _variables; // List of Variable Nodes, by @name
+  Map<String, Node> _variables; // List of Variable Nodes, by @name
 
   ///
   void resetCache() {
@@ -1423,7 +1427,7 @@ abstract class VariableMixin implements Node {
           // guard against root being a string (in the case of inlined less)
           if (r is Import && r.root != null && r.root is VariableMixin) {
             final Map<String, Node> vars = r.root.variables();
-            for (String name in vars.keys) {
+            for (final String name in vars.keys) {
               if (vars.containsKey(name)) hash[name] = r.root.variable(name);
             }
           }
@@ -1454,21 +1458,23 @@ abstract class VariableMixin implements Node {
 //      return this._variables;
 //  };
 
-///
-Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
-    ? <String, List<Declaration>>{}
-    : rules.fold(<String, List<Declaration>>{}, (Map<String, List<Declaration>> hash, Node r) {
-        if (r is Declaration && !r.variable) {
-          final String name = (r.name is String) ? r.name : r.name.first.value; // :keyword
-          // Properties don't overwrite as they can merge
-          if (!hash.containsKey('\$$name')) {
-            hash['\$$name'] = <Declaration>[r];
-          } else {
-            hash['\$$name'].add(r);
+  ///
+  Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
+      ? <String, List<Declaration>>{}
+      : rules.fold(<String, List<Declaration>>{},
+          (Map<String, List<Declaration>> hash, Node r) {
+          if (r is Declaration && !r.variable) {
+            final String name =
+                (r.name is String) ? r.name : r.name.first.value; // :keyword
+            // Properties don't overwrite as they can merge
+            if (!hash.containsKey('\$$name')) {
+              hash['\$$name'] = <Declaration>[r];
+            } else {
+              hash['\$$name'].add(r);
+            }
           }
-        }
-        return hash;
-      });
+          return hash;
+        });
 
 //3.0.0 20160718
 // Ruleset.prototype.properties = function () {
@@ -1497,8 +1503,7 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   Node variable(String name) {
     final Node decl = variables()[name];
-    if (decl != null) return parseValue(decl);
-    return null;
+    return decl != null ? parseValue(decl) : null;
 
 //3.0.0 20160718
 // Ruleset.prototype.variable = function (name) {
@@ -1507,7 +1512,7 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
 //         return this.parseValue(decl);
 //     }
 // };
-}
+  }
 
 //2.3.1
 //  Ruleset.prototype.variable = function (name) {
@@ -1517,8 +1522,7 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   List<Declaration> property(String name) {
     final List<Declaration> decl = properties()[name];
-    if (decl != null) return parseValue(decl);
-    return null;
+    return decl != null ? parseValue(decl) : null;
 
 //3.0.0 20160718
 // Ruleset.prototype.property = function (name) {
@@ -1605,9 +1609,9 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   Declaration transformDeclaration(Declaration decl) {
     if (decl.value is Anonymous && !decl.parsed) {
       if (!decl.value.parsed && decl.value.value is String) {
-        final List<dynamic> result = new ParseNode(decl.value.value,
-            decl.value.index, decl.currentFileInfo)
-            .value();
+        final List<dynamic> result =
+            ParseNode(decl.value.value, decl.value.index, decl.currentFileInfo)
+                .value();
         if (result != null) {
           decl
             ..value = result[0]
@@ -1684,29 +1688,35 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
   ///
   /// Function: bool filter(rule)
   ///
-  List<MixinFound> find (Selector selector, [VariableMixin self, Function filter]) {
-    final String            key = selector.toCSS(null); // ' selector'
-    final List<MixinFound>  rules = <MixinFound>[];
-    final VariableMixin     _self = self ?? this;
+  List<MixinFound> find(Selector selector,
+      [VariableMixin self, Function filter]) {
+    final String key = selector.toCSS(null); // ' selector'
+    final List<MixinFound> rules = <MixinFound>[];
+    final VariableMixin _self = self ?? this;
 
     if (_lookups.containsKey(key)) return _lookups[key];
 
-    rulesets().forEach((Node rule) {//List of MixinDefinition and Ruleset
+    //List of MixinDefinition and Ruleset
+    rulesets().forEach((Node rule) {
       if (rule != _self) {
         for (int j = 0; j < rule.selectors.length; j++) {
-          final int match = selector.match(rule.selectors[j]); // Selectors matchs number. 0 not match
+          final int match = selector
+              .match(rule.selectors[j]); // Selectors matchs number. 0 not match
           if (match > 0) {
             if (selector.elements.length > match) {
               if (filter == null || filter(rule)) {
                 final List<MixinFound> foundMixins = (rule as VariableMixin)
-                    .find(new Selector(selector.elements.sublist(match)), _self, filter);
+                    .find(Selector(selector.elements.sublist(match)), _self,
+                        filter);
                 for (int i = 0; i < foundMixins.length; i++) {
-                  foundMixins[i].path.add(rule); //2.3.1 MixinDefinition, Ruleset
+                  foundMixins[i]
+                      .path
+                      .add(rule); //2.3.1 MixinDefinition, Ruleset
                 }
                 rules.addAll(foundMixins);
               }
             } else {
-              rules.add(new MixinFound(rule, <Node>[]));
+              rules.add(MixinFound(rule, <Node>[]));
             }
             break;
           }
@@ -1756,9 +1766,10 @@ Map<String, List<Declaration>> properties() => _properties ??= (rules == null)
 ///
 class MixinFound {
   ///
-  Node        rule;
+  Node rule;
+
   ///
-  List<Node>  path;
+  List<Node> path;
 
   ///
   MixinFound(this.rule, this.path);

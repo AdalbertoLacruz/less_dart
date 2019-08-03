@@ -5,17 +5,20 @@ part of visitor.less;
 ///
 class ExtendFinderVisitor extends VisitorBase {
   ///
-  List<List<Extend>>    allExtendsStack;
+  List<List<Extend>> allExtendsStack;
+
   ///
-  List<List<Selector>>  contexts;
+  List<List<Selector>> contexts;
+
   ///
-  bool                  foundExtends = false;
+  bool foundExtends = false;
+
   ///
-  Visitor               _visitor;
+  Visitor _visitor;
 
   ///
   ExtendFinderVisitor() {
-    _visitor = new Visitor(this);
+    _visitor = Visitor(this);
     contexts = <List<Selector>>[];
     allExtendsStack = <List<Extend>>[<Extend>[]];
 
@@ -30,8 +33,7 @@ class ExtendFinderVisitor extends VisitorBase {
   ///
   @override
   Ruleset run(Ruleset root) {
-    final Ruleset _root = _visitor.visit(root)
-        ..allExtends = allExtendsStack[0];
+    final Ruleset _root = _visitor.visit(root)..allExtends = allExtendsStack[0];
     return _root;
 
 //2.3.1
@@ -83,9 +85,9 @@ class ExtendFinderVisitor extends VisitorBase {
     // and the ones which apply to an individual extend
     final List<List<Selector>> paths = rulesetNode.paths;
     for (int i = 0; i < paths.length; i++) {
-      final List<Selector>  selectorPath = paths[i];
-      final Selector        selector = selectorPath.last;
-      final List<Extend>    selExtendList = selector.extendList;
+      final List<Selector> selectorPath = paths[i];
+      final Selector selector = selectorPath.last;
+      final List<Extend> selExtendList = selector.extendList;
 
       List<Extend> extendList = selExtendList != null
           ? (selExtendList.sublist(0)..addAll(allSelectorsExtendList))
@@ -100,8 +102,8 @@ class ExtendFinderVisitor extends VisitorBase {
       for (int j = 0; j < extendList.length; j++) {
         foundExtends = true;
         final Extend extend = extendList[j]
-            ..findSelfSelectors(selectorPath)
-            ..ruleset = rulesetNode;
+          ..findSelfSelectors(selectorPath)
+          ..ruleset = rulesetNode;
         if (j == 0) extend.firstExtendOnThisSelectorPath = true;
         allExtendsStack.last.add(extend);
       }

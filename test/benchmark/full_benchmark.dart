@@ -23,16 +23,16 @@ class FullBenchmark {
   String _data;
 
   //filename
-  String _file = 'benchmark/benchmark.less';
+  final String _file = 'benchmark/benchmark.less';
 
   // parser time: parserEnd - start
-  List<num> _parserBenchmark = <num>[];
+  final List<num> _parserBenchmark = <num>[];
   // transformTree time: evalEnd - parserEnd
-  List<num> _evalBenchmark = <num>[];
+  final List<num> _evalBenchmark = <num>[];
   // toCSS time: totalEnd - evalEnd
-  List<num> _cssBenchmark = <num>[];
+  final List<num> _cssBenchmark = <num>[];
   // total time: totalEnd - start
-  List<num> _totalBenchmark = <num>[];
+  final List<num> _totalBenchmark = <num>[];
 
   // _start -> _parserEnd -> _evalEnd -> _totalEnd
   DateTime _start;
@@ -42,7 +42,7 @@ class FullBenchmark {
 
   ///
   FullBenchmark({this.totalruns = 0, this.ignoreruns = 0}) {
-    _less = new Less(); //initialize options in cache and other environment
+    _less = Less(); //initialize options in cache and other environment
     _data = readSampleFile(_file);
   }
 
@@ -80,21 +80,21 @@ class FullBenchmark {
   Future<Null> nextRun() async {
     for (int i = 0; i < totalruns; i++) {
       stdout.write('*');
-      _start = new DateTime.now();
+      _start = DateTime.now();
       final LessOptions options = Environment.cache[-1].options;
-      final Contexts toCSSOptions = new Contexts()
+      final Contexts toCSSOptions = Contexts()
                         ..dumpLineNumbers = ''
                         ..numPrecision = 8;
-      final RenderResult result = new RenderResult();
-      final Parser parser = new Parser(options);
+      final RenderResult result = RenderResult();
+      final Parser parser = Parser(options);
 
       try {
         await parser.parse(_data).then((Ruleset root) {
-          _parserEnd = new DateTime.now();
-          final Ruleset evaldRoot = new TransformTree().call(root, options);
-          _evalEnd = new DateTime.now();
+          _parserEnd = DateTime.now();
+          final Ruleset evaldRoot = TransformTree().call(root, options);
+          _evalEnd = DateTime.now();
           result.css = evaldRoot.toCSS(toCSSOptions).toString();
-          _totalEnd = new DateTime.now();
+          _totalEnd = DateTime.now();
 
           //difference in milliseconds
           _totalBenchmark.add(_totalEnd.difference(_start).inMilliseconds);
@@ -109,8 +109,7 @@ class FullBenchmark {
       }
     }
 
-    if (!_isError)
-      finish();
+    if (!_isError) finish();
 
 ///3.0.0 20160714
 // function nextRun() {
@@ -180,8 +179,8 @@ class FullBenchmark {
 
       for (int i = ignoreruns; i < totalruns; i++) {
           totalTime += benchMarkData[i];
-          mintime = Math.min(mintime, benchMarkData[i]);
-          maxtime = Math.max(maxtime, benchMarkData[i]);
+          mintime = math_lib.min(mintime, benchMarkData[i]);
+          maxtime = math_lib.max(maxtime, benchMarkData[i]);
       }
       final double avgtime = totalTime / (totalruns - ignoreruns);
       final num variation = maxtime - mintime;

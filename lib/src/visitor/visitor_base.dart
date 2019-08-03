@@ -25,8 +25,10 @@ part 'visitor.dart';
 abstract class VisitorBase {
   ///
   bool isPreEvalVisitor = false; //plugins
+
   ///
   bool isPreVisitor = false; //plugins
+
   ///
   bool isReplacing = false;
 
@@ -41,11 +43,8 @@ abstract class VisitorBase {
 
   ///
   void error({int index, String type, String message, String filename}) {
-    throw new LessExceptionError(new LessError(
-         index: index,
-         type: type,
-         message: message,
-         filename: filename));
+    throw LessExceptionError(LessError(
+        index: index, type: type, message: message, filename: filename));
   }
 
   ///

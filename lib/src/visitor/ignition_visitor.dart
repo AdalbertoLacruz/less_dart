@@ -7,20 +7,23 @@ part of visitor.less;
 ///
 class IgnitionVisitor extends VisitorBase {
   ///
-  Contexts    context;
+  Contexts context;
+
   ///
   Environment environment;
+
   ///
   LessOptions lessOptions;
+
   ///
-  Visitor     _visitor;
+  Visitor _visitor;
 
   ///
   IgnitionVisitor() {
     isReplacing = true;
-    _visitor = new Visitor(this);
-    environment = new Environment();
-    context = new Contexts.eval();
+    _visitor = Visitor(this);
+    environment = Environment();
+    context = Contexts.eval();
   }
 
   ///
@@ -44,13 +47,13 @@ class IgnitionVisitor extends VisitorBase {
   Options visitOptions(Options optionsNode, VisitArgs visitArgs) {
     optionsNode.apply(environment);
 
-    final PluginManager pluginManager = lessOptions.pluginManager; //could vary from pluginManager used in run
+    //could vary from pluginManager used in run
+    final PluginManager pluginManager = lessOptions.pluginManager;
     if (pluginManager != null) {
       optionsNode.functions = pluginManager.getCustomFunction().sublist(0);
       pluginManager.resetCustomFunction();
       return optionsNode; //we need eval and load the functions
     }
-
     return null;
   }
 

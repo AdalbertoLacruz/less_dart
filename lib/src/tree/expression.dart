@@ -4,8 +4,11 @@ part of tree.less;
 
 ///
 class Expression extends Node {
-  @override final String          type = 'Expression';
-  @override covariant List<Node>  value;
+  @override
+  final String type = 'Expression';
+
+  @override
+  covariant List<Node> value;
 
   ///
   bool noSpacing;
@@ -16,8 +19,8 @@ class Expression extends Node {
     parensInOp = false;
 
     if (value == null) {
-      throw new LessExceptionError(new LessError(
-          message: 'Expression requires an array parameter'));
+      throw LessExceptionError(
+          LessError(message: 'Expression requires an array parameter'));
     }
 
 //3.0.4 20180622
@@ -31,9 +34,8 @@ class Expression extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
@@ -49,18 +51,16 @@ class Expression extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    bool        doubleParen = false;
-    final bool  inParenthesis = parens &&
-        (context.math != MathConstants.strictLegacy || !parensInOp);
-    final bool  mathOn = context.isMathOn();
-    Node        returnValue;
+    bool doubleParen = false;
+    final bool inParenthesis =
+        parens && (context.math != MathConstants.strictLegacy || !parensInOp);
+    final bool mathOn = context.isMathOn();
+    Node returnValue;
 
     if (inParenthesis) context.inParenthesis();
     if (value.length > 1) {
-      returnValue = new Expression(
-          value.map((Node e) => e?.eval(context)).toList(),
-          noSpacing: noSpacing
-      );
+      returnValue = Expression(value.map((Node e) => e?.eval(context)).toList(),
+          noSpacing: noSpacing);
     } else if (value.length == 1) {
       if (value.first.parens && !value.first.parensInOp && !context.inCalc) {
         doubleParen = true;
@@ -70,8 +70,12 @@ class Expression extends Node {
       returnValue = this;
     }
     if (inParenthesis) context.outOfParenthesis();
-    if (parens && parensInOp && !mathOn && !doubleParen && returnValue is! Dimension) {
-      returnValue = new Paren(returnValue);
+    if (parens &&
+        parensInOp &&
+        !mathOn &&
+        !doubleParen &&
+        returnValue is! Dimension) {
+      returnValue = Paren(returnValue);
     }
     return returnValue;
 
@@ -155,7 +159,7 @@ class Expression extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

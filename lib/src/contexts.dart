@@ -171,7 +171,7 @@ class Contexts {
   ///
   //2.2.0 TODO
   factory Contexts.eval([dynamic options, List<Node> frames]) {
-    final Contexts context = new Contexts();
+    final Contexts context = Contexts();
 
     evalCopyProperties(context, options);
     context.frames = frames ?? <Node>[];
@@ -205,19 +205,18 @@ class Contexts {
     files ??= <String, Node>{};
 
     if (currentFileInfo == null) {
-      final String filename = (options.filename?.isNotEmpty ?? false)
-          ? options.filename
-          : 'input';
-      final String entryPath = filename.replaceAll(new RegExp(r'[^\/\\]*$'), '');
+      final String filename =
+          (options.filename?.isNotEmpty ?? false) ? options.filename : 'input';
+      final String entryPath = filename.replaceAll(RegExp(r'[^\/\\]*$'), '');
       options.filename = null;
 
-      currentFileInfo = new FileInfo()
-            ..filename = filename
-            ..rewriteUrls = rewriteUrls
-            ..rootpath = options.rootpath ?? ''
-            ..currentDirectory = entryPath
-            ..entryPath = entryPath
-            ..rootFilename = filename;
+      currentFileInfo = FileInfo()
+        ..filename = filename
+        ..rewriteUrls = rewriteUrls
+        ..rootpath = options.rootpath ?? ''
+        ..currentDirectory = entryPath
+        ..entryPath = entryPath
+        ..rootFilename = filename;
     }
 
 //2.2.0
@@ -228,11 +227,10 @@ class Contexts {
 //  };
   }
 
-
   ///
   /// clone this, non deep
   ///
-  Contexts clone() => Utils.clone(this, new Contexts());
+  Contexts clone() => Utils.clone(this, Contexts());
 
   ///
   /// Copy properties for parse
@@ -243,7 +241,7 @@ class Contexts {
     if (options is! LessOptions && options is! Contexts) return;
 
     final List<String> properties = <String>[
-      'paths',          // from options
+      'paths', // from options
       'rewriteUrls',
       'rootpath',
       'strictImports',
@@ -259,7 +257,7 @@ class Contexts {
       'color',
       'pluginManager',
       'cleanCss',
-      'files',          // from contexts
+      'files', // from contexts
       'contents',
       'contentsIgnoredChars',
       'currentFileInfo'
@@ -276,7 +274,7 @@ class Contexts {
     if (options == null) return;
 
     final List<String> properties = <String>[
-      'compress',       // from options
+      'compress', // from options
       'ieCompat',
       'math',
       'strictUnits',
@@ -290,7 +288,7 @@ class Contexts {
       'paths',
       'rewriteUrls',
       'cleanCss',
-      'defaultFunc',     // from Contexts
+      'defaultFunc', // from Contexts
       'importantScope'
     ];
 
@@ -330,9 +328,7 @@ class Contexts {
   /// parensStack push
   ///
   void inParenthesis() {
-    parensStack == null
-        ? parensStack = <bool>[true]
-        : parensStack.add(true);
+    parensStack == null ? parensStack = <bool>[true] : parensStack.add(true);
 
 //2.2.0
 //  contexts.Eval.prototype.inParenthesis = function () {
@@ -357,7 +353,9 @@ class Contexts {
   bool isMathOn([String op]) {
     if (!mathOn) return false;
 
-    if (op == '/' && math != MathConstants.always && (parensStack?.isEmpty ?? true)) {
+    if (op == '/' &&
+        math != MathConstants.always &&
+        (parensStack?.isEmpty ?? true)) {
       return false;
     }
 
@@ -385,9 +383,10 @@ class Contexts {
   ///
   /// True if path is local or relative
   ///
-  bool pathRequiresRewrite(String path) => rewriteUrls == RewriteUrlsConstants.local
-      ? isPathLocalRelative(path)
-      : isPathRelative(path);
+  bool pathRequiresRewrite(String path) =>
+      rewriteUrls == RewriteUrlsConstants.local
+          ? isPathLocalRelative(path)
+          : isPathRelative(path);
 
 // 3.7.1 20180718
 //  contexts.Eval.prototype.pathRequiresRewrite = function (path) {
@@ -403,8 +402,9 @@ class Contexts {
 
     // If a path was explicit relative and the rootpath was not an absolute path
     // we must ensure that the new path is also explicit relative.
-    if (isPathLocalRelative(path) && isPathRelative(_rootpath) &&
-      !isPathLocalRelative(newPath)) {
+    if (isPathLocalRelative(path) &&
+        isPathRelative(_rootpath) &&
+        !isPathLocalRelative(newPath)) {
       newPath = './$newPath';
     }
 
@@ -487,7 +487,7 @@ class Contexts {
 
   ///
   bool isPathRelative(String path) {
-    final RegExp re =  new RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
+    final RegExp re = RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
     return !re.hasMatch(path);
 
 // 3.7.1 20180718

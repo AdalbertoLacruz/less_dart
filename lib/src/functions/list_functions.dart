@@ -4,7 +4,6 @@ part of functions.less;
 
 ///
 class ListFunctions extends FunctionBase {
-
   ///
   // handle non-array values as an array of length 1
   // return null if index is invalid
@@ -50,11 +49,9 @@ class ListFunctions extends FunctionBase {
   ///
   Node extract(Node values, Node index) {
     final int iIndex = (index.value as num).toInt() - 1; // (1-based index)
-    //return MoreList.elementAt(getItemsFromNode(values), iIndex); //cover out of range
     try {
       return getItemsFromNode(values).elementAt(iIndex);
     } catch (e) {
-      // } on RangeError catch(_) { // Alternative
       return null;
     }
 
@@ -75,8 +72,7 @@ class ListFunctions extends FunctionBase {
   /// Example: length(1px solid #0080ff);
   ///   Output: 3
   ///
-  Dimension length(Node values) =>
-      new Dimension(getItemsFromNode(values).length);
+  Dimension length(Node values) => Dimension(getItemsFromNode(values).length);
 
 // 3.5.0.beta.6 20180704
 //  length: function(values) {
@@ -112,10 +108,10 @@ class ListFunctions extends FunctionBase {
     }
 
     for (num i = from; i <= to.value; i += stepValue) {
-      list.add(new Dimension(i, to.unit));
+      list.add(Dimension(i, to.unit));
     }
 
-    return new Expression(list);
+    return Expression(list);
 
 // 3.8.2 20181129
 //  range: function(start, end, step) {
@@ -168,9 +164,9 @@ class ListFunctions extends FunctionBase {
   ///  }
   ///
   Node each(Node list, Node rs) {
-    List<Node>       iterator;
-    List<Node>       newRules;
-    Ruleset          ruleset;
+    List<Node> iterator;
+    List<Node> newRules;
+    Ruleset ruleset;
     final List<Node> rules = <Node>[];
 
     if (list is DetachedRuleset) {
@@ -194,7 +190,7 @@ class ListFunctions extends FunctionBase {
       valueName = md.params.isNotEmpty ? md.params[0].name : null;
       keyName = md.params.length > 1 ? md.params[1].name : null;
       indexName = md.params.length > 2 ? md.params[2].name : null;
-      ruleset = new Ruleset(null, md.rules);
+      ruleset = Ruleset(null, md.rules);
     } else if (rs is DetachedRuleset) {
       ruleset = rs.ruleset;
     } else {
@@ -207,36 +203,48 @@ class ListFunctions extends FunctionBase {
       Node value;
 
       if (item is Declaration) {
-        key = item.name is String ? new Anonymous(item.name) : item.name.first;
+        key = item.name is String ? Anonymous(item.name) : item.name.first;
         value = item.value;
       } else {
-        key = new Dimension(i + 1);
+        key = Dimension(i + 1);
         value = item;
       }
 
       if (item is Comment) continue;
 
-      newRules = new List<Node>.from(ruleset.rules); // clone
+      newRules = List<Node>.from(ruleset.rules); // clone
       if (valueName != null) {
-        newRules.add(new Declaration(valueName, value,
-            important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
+        newRules.add(Declaration(valueName, value,
+            important: '',
+            merge: '',
+            index: index,
+            currentFileInfo: currentFileInfo));
       }
       if (indexName != null) {
-        newRules.add(new Declaration(indexName, new Dimension(i + 1),
-            important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
+        newRules.add(Declaration(indexName, Dimension(i + 1),
+            important: '',
+            merge: '',
+            index: index,
+            currentFileInfo: currentFileInfo));
       }
       if (keyName != null) {
-        newRules.add(new Declaration(keyName, key,
-            important: '', merge: '', index: index, currentFileInfo: currentFileInfo));
+        newRules.add(Declaration(keyName, key,
+            important: '',
+            merge: '',
+            index: index,
+            currentFileInfo: currentFileInfo));
       }
-      rules.add(new Ruleset(<Selector>[new Selector(<Element>[new Element('', '&')])],
-          newRules));
-
+      rules.add(Ruleset(<Selector>[
+        Selector(<Element>[Element('', '&')])
+      ], newRules));
     }
 
-    return new Ruleset(<Selector>[new Selector(<Element>[new Element('', '&')])],
-      rules, strictImports: ruleset.strictImports, visibilityInfo: ruleset.visibilityInfo())
-      .eval(context);
+    return Ruleset(<Selector>[
+      Selector(<Element>[Element('', '&')])
+    ], rules,
+            strictImports: ruleset.strictImports,
+            visibilityInfo: ruleset.visibilityInfo())
+        .eval(context);
 
 // 3.8.1 20181129
 //  each: function(list, rs) {
@@ -317,5 +325,4 @@ class ListFunctions extends FunctionBase {
 //
 //  }
   }
-
 }

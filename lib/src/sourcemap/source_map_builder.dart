@@ -3,16 +3,20 @@
 part of sourcemap.less;
 
 //conflict name with SourceMapBuilder dart package. Renamed to LessSourceMapBuilder
+
 ///
 class LessSourceMapBuilder {
   ///
-  SourceMapOptions  options;
+  SourceMapOptions options;
+
   ///
-  String            sourceMap;    //map contents
+  String sourceMap; //map contents
+
   ///
-  String            sourceMapInputFilename;
+  String sourceMapInputFilename;
+
   ///
-  String            sourceMapURL; //map filename or base64 contents
+  String sourceMapURL; //map filename or base64 contents
 
   ///
   LessSourceMapBuilder(this.options);
@@ -21,7 +25,7 @@ class LessSourceMapBuilder {
   /// Generates the css & map contents
   ///
   String toCSS(Ruleset rootNode, Contexts context, ImportManager imports) {
-    final SourceMapOutput sourceMapOutput = new SourceMapOutput(
+    final SourceMapOutput sourceMapOutput = SourceMapOutput(
         contentsIgnoredCharsMap: imports.contentsIgnoredChars,
         rootNode: rootNode,
         contentsMap: imports.contents,
@@ -31,8 +35,7 @@ class LessSourceMapBuilder {
         sourceMapBasepath: options.sourceMapBasepath,
         sourceMapRootpath: options.sourceMapRootpath,
         outputSourceFiles: options.outputSourceFiles,
-        sourceMapFileInline: options.sourceMapFileInline
-    );
+        sourceMapFileInline: options.sourceMapFileInline);
 
     final String css = sourceMapOutput.toCSS(context).toString();
     sourceMap = sourceMapOutput.sourceMap;
@@ -41,8 +44,9 @@ class LessSourceMapBuilder {
       sourceMapInputFilename =
           sourceMapOutput.normalizeFilename(options.sourceMapInputFilename);
     }
-        
-    if (options.sourceMapBasepath.isNotEmpty && (sourceMapURL?.isNotEmpty ?? false)) {
+
+    if (options.sourceMapBasepath.isNotEmpty &&
+        (sourceMapURL?.isNotEmpty ?? false)) {
       sourceMapURL = sourceMapOutput.removeBasePath(sourceMapURL);
     }
 
@@ -84,14 +88,13 @@ class LessSourceMapBuilder {
 
     if (options.sourceMapFileInline) {
       if (sourceMap == null) return '';
-      sourceMapURL = 'data:application/json;base64,${Base64String.encode(sourceMap)}';
+      sourceMapURL =
+          'data:application/json;base64,${Base64String.encode(sourceMap)}';
     }
 
-    if (sourceMapURL.isNotEmpty) {
-      return '/*# sourceMappingURL=$sourceMapURL */';
-    }
-
-    return '';
+    return sourceMapURL.isNotEmpty
+        ? '/*# sourceMappingURL=$sourceMapURL */'
+        : '';
 
 //2.4.0
 //  SourceMapBuilder.prototype.getCSSAppendage = function() {

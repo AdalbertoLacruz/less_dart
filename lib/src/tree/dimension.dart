@@ -6,8 +6,11 @@ part of tree.less;
 /// A number with a unit
 ///
 class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
-  @override final String      type = 'Dimension';
-  @override covariant double  value;
+  @override
+  final String type = 'Dimension';
+
+  @override
+  covariant double value;
 
   ///
   Unit unit;
@@ -17,33 +20,16 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// [unit] is Unit or String
   ///
   Dimension(dynamic value, [dynamic unit]) {
-//    try {
-//      this.value = (value is String) ? double.parse(value) : value.toDouble();
-//    } catch (e) {
-//      throw new LessExceptionError(new LessError(
-//        message: 'Dimension is not a number.')
-//      );
-//    }
-
     this.value = (value is String)
         ? double.parse(value)
         : (value is num)
-          ? value.toDouble()
-          : throw new LessExceptionError(new LessError(
-              message: 'Dimension is not a number.')
-          );
-
-//    if (unit != null) {
-//      this.unit = (unit is Unit) ? unit : new Unit(<String>[unit as String]);
-//    } else {
-//      this.unit = new Unit();
-//    }
+            ? value.toDouble()
+            : throw LessExceptionError(
+                LessError(message: 'Dimension is not a number.'));
 
     this.unit = (unit is Unit)
         ? unit
-        : (unit == null)
-          ? new Unit()
-          : new Unit(<String>[unit as String]);
+        : (unit == null) ? Unit() : Unit(<String>[unit as String]);
 
     setParent(this.unit, this);
 
@@ -60,10 +46,9 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value,
-    'unit': unit
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'value': value, 'unit': unit};
 
   ///
   @override
@@ -81,14 +66,15 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   Dimension eval(Contexts context) => this;
 
   ///
-  Color toColor() => new Color.fromList(<num>[value, value, value]);
+  Color toColor() => Color.fromList(<num>[value, value, value]);
 
   ///
   @override
   void genCSS(Contexts context, Output output) {
     if ((context?.strictUnits ?? false) && !unit.isSingular()) {
-      throw new LessExceptionError(new LessError(
-          message: 'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${unit.toString()}'));
+      throw LessExceptionError(LessError(
+          message:
+              'Multiple units in dimension. Correct the units or use the unit function. Bad unit: ${unit.toString()}'));
     }
 
     if (cleanCss != null) return genCleanCSS(context, output);
@@ -98,7 +84,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
       // would be output 1e-6 etc.
-      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+      strValue = value.toStringAsFixed(20).replaceFirst(RegExp(r'0+$'), '');
     }
 
     if (context?.compress ?? false) {
@@ -154,7 +140,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
       // would be output 1e-6 etc.
-      strValue = value.toStringAsFixed(20).replaceFirst(new RegExp(r'0+$'), '');
+      strValue = value.toStringAsFixed(20).replaceFirst(RegExp(r'0+$'), '');
     }
     if (value == 0 && (unit.isLength(context) || unit.isAngle(context))) {
       output.add(strValue);
@@ -182,44 +168,46 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   @override
   Dimension operate(Contexts context, String op, Dimension other) {
     Dimension _other = other;
-    Unit      unit = this.unit.clone();
-    num       value = _operate(context, op, this.value, _other.value);
+    Unit unit = this.unit.clone();
+    num value = _operate(context, op, this.value, _other.value);
 
     if (op == '+' || op == '-') {
       if (unit.numerator.isEmpty && unit.denominator.isEmpty) {
         unit = _other.unit.clone();
-        if (this.unit.backupUnit != null) unit.backupUnit = this.unit.backupUnit;
+        if (this.unit.backupUnit != null) {
+          unit.backupUnit = this.unit.backupUnit;
+        }
       } else if (_other.unit.numerator.isEmpty && unit.denominator.isEmpty) {
         // do nothing
       } else {
         _other = _other.convertTo(this.unit.usedUnits());
 
         if (context.strictUnits && _other.unit.toString() != unit.toString()) {
-          throw new LessExceptionError(new LessError(
-              message: "Incompatible units. Change the units or use the unit function. Bad units: '${
-                  unit.toString()}' and '${_other.unit.toString()}'."));
+          throw LessExceptionError(LessError(
+              message:
+                  "Incompatible units. Change the units or use the unit function. Bad units: '${unit.toString()}' and '${_other.unit.toString()}'."));
         }
         value = _operate(context, op, this.value, _other.value);
       }
     } else if (op == '*') {
       unit.numerator
-          ..addAll(_other.unit.numerator)
-          ..sort();
+        ..addAll(_other.unit.numerator)
+        ..sort();
       unit.denominator
-          ..addAll(_other.unit.denominator)
-          .. sort();
+        ..addAll(_other.unit.denominator)
+        ..sort();
       unit.cancel();
     } else if (op == '/') {
       unit.numerator
-          ..addAll(_other.unit.denominator)
-          ..sort();
+        ..addAll(_other.unit.denominator)
+        ..sort();
       unit.denominator
-          ..addAll(_other.unit.numerator)
-          ..sort();
+        ..addAll(_other.unit.numerator)
+        ..sort();
       unit.cancel();
     }
 
-    return new Dimension(value, unit);
+    return Dimension(value, unit);
 
 //2.4.0+3
 //  Dimension.prototype.operate = function (context, op, other) {
@@ -267,8 +255,8 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   int compare(Node otherNode) {
     if (otherNode is! Dimension) return null;
 
-    Dimension       a;
-    Dimension       b;
+    Dimension a;
+    Dimension b;
     final Dimension other = otherNode;
 
     if (unit.isEmpty() || other.unit.isEmpty()) {
@@ -308,11 +296,8 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   /// Normalize the units to px, s, or rad
   ///
-  Dimension unify() => convertTo(<String, String>{
-      'length': 'px',
-      'duration': 's',
-      'angle': 'rad'
-  });
+  Dimension unify() => convertTo(
+      <String, String>{'length': 'px', 'duration': 's', 'angle': 'rad'});
 
 //2.3.1
 //  Dimension.prototype.unify = function () {
@@ -325,15 +310,16 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// String | Map<String, String>
   ///
   Dimension convertTo(dynamic conversions) {
-    Map<String, String>       conversionsMap;
+    Map<String, String> conversionsMap;
     final Map<String, String> derivedConversions = <String, String>{};
-    Map<String, double>       group;
-    String                    targetUnit; //new unit
-    final Unit                unit = this.unit.clone();
-    double                    value = this.value;
+    Map<String, double> group;
+    String targetUnit; //new unit
+    final Unit unit = this.unit.clone();
+    double value = this.value;
 
     if (conversions is String) {
-      for (String i in UnitConversions.groups.keys) { //length, duration, angle
+      for (final String i in UnitConversions.groups.keys) {
+        // groups = length, duration, angle
         if (UnitConversions.groups[i].containsKey(conversions)) {
           derivedConversions.clear();
           derivedConversions[i] = conversions;
@@ -359,7 +345,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       return atomicUnit;
     }
 
-    for (String groupName in conversionsMap.keys) {
+    for (final String groupName in conversionsMap.keys) {
       if (conversionsMap.containsKey(groupName)) {
         targetUnit = conversionsMap[groupName];
         group = UnitConversions.groups[groupName];
@@ -370,7 +356,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
     unit.cancel();
 
-    return new Dimension(value, unit);
+    return Dimension(value, unit);
 
 //2.3.1
 //  Dimension.prototype.convertTo = function (conversions) {
@@ -418,7 +404,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

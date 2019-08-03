@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:less_dart/less.dart';
 
 void main() {
-    final Less less = new Less();
+    final Less less = Less();
     less.transform(<String>[
       '-no-color',
       '--strict-units=on',

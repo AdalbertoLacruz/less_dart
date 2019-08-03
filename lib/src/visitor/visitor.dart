@@ -4,8 +4,8 @@ part of visitor.less;
 
 ///
 class Visitor extends VisitorBase {
-  VisitorBase _implementation; //Join_Selector_visitor, ...
-  VisitArgs   _visitArgs = new VisitArgs(visitDeeper: true);
+  final VisitorBase _implementation; //Join_Selector_visitor, ...
+  final VisitArgs _visitArgs = VisitArgs(visitDeeper: true);
 
 // Cache implementation, same times in benchmark
 //  Map<Type, Function> _visitInCache = <Type, Function>{};
@@ -37,7 +37,6 @@ class Visitor extends VisitorBase {
 //        : _visitOutCache[nodeType] = _implementation.visitFtnOut(_node);
     final Function func = _implementation.visitFtn(_node);
     final Function funcOut = _implementation.visitFtnOut(_node);
-
 
     if (func != null) {
       final dynamic newNode = func(_node, _visitArgs); //Node or List
@@ -181,7 +180,8 @@ class Visitor extends VisitorBase {
       item = arr[i];
       if (item == null) continue;
 
-      if (item is! List) { //Node
+      if (item is! List) {
+        //Node
         _out.add(item);
         continue;
       }
@@ -191,7 +191,8 @@ class Visitor extends VisitorBase {
       for (int j = 0; j < nestedCnt; j++) {
         nestedItem = (item as List<dynamic>)[j];
         if (nestedItem == null) continue;
-        if (nestedItem is! List) { //Node
+        if (nestedItem is! List) {
+          //Node
           _out.add(nestedItem);
         } else if (nestedItem.isNotEmpty) {
           _out = flatten<T>(nestedItem, _out);

@@ -4,7 +4,7 @@ import 'package:less_dart/less.dart';
 // Test toTree, to show a less tree
 // use: pub run test/to_tree_test.dart output.txt
 void main(List<String> args) {
-    final Less less = new Less();
+    final Less less = Less();
     less.transform(<String>[
       '-no-color',
       '--math=always',
@@ -19,7 +19,7 @@ void main(List<String> args) {
             ..write(less.stdout.toString());
       } else {
         stderr.write(less.stderr.toString());
-        new File(args[0])
+        File(args[0])
             ..createSync(recursive: true)
             ..writeAsStringSync(less.stdout.toString());
       }

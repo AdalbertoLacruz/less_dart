@@ -57,7 +57,7 @@ class BaseBuilder {
   /// Transform the less content to css
   ///
   Future<BaseBuilder> transform(Function modifyOptions) {
-    final Completer<BaseBuilder> task = new Completer<BaseBuilder>();
+    final Completer<BaseBuilder> task = Completer<BaseBuilder>();
     isError = false;
     message = 'builder message';
     outputContent = '';

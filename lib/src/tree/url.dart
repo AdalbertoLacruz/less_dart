@@ -4,18 +4,18 @@ part of tree.less;
 
 ///
 class URL extends Node {
-  @override String          type = 'Url';
-  @override covariant Node  value;
+  @override
+  String type = 'Url';
+
+  @override
+  covariant Node value;
 
   ///
-  bool  isEvald;
+  bool isEvald;
 
   ///
-  URL(this.value, {
-    int index,
-    FileInfo currentFileInfo,
-    this.isEvald = false
-    }) : super.init(currentFileInfo: currentFileInfo, index: index);
+  URL(this.value, {int index, FileInfo currentFileInfo, this.isEvald = false})
+      : super.init(currentFileInfo: currentFileInfo, index: index);
 
 //3.0.0
 // var URL = function (val, index, currentFileInfo, isEvald) {
@@ -26,9 +26,8 @@ class URL extends Node {
 // };
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
@@ -78,10 +77,11 @@ class URL extends Node {
 
       // Add url args if enabled
       if (isNotEmpty(context.urlArgs)) {
-        final RegExp reData = new RegExp(r'^\s*data:');
+        final RegExp reData = RegExp(r'^\s*data:');
         final Match match = reData.firstMatch(val.value);
         if (match == null) {
-          final String delimiter = !(val.value as String).contains('?') ? '?' : '&';
+          final String delimiter =
+              !(val.value as String).contains('?') ? '?' : '&';
           final String urlArgs = delimiter + context.urlArgs;
           if ((val.value as String).contains('#')) {
             val.value = (val.value as String).replaceFirst('#', '$urlArgs#');
@@ -91,10 +91,8 @@ class URL extends Node {
         }
       }
     }
-    return new URL(val,
-        index: index,
-        currentFileInfo: currentFileInfo,
-        isEvald: true);
+    return URL(val,
+        index: index, currentFileInfo: currentFileInfo, isEvald: true);
 
 // 3.7.1 20180718
 //  URL.prototype.eval = function (context) {
@@ -137,7 +135,7 @@ class URL extends Node {
   /// Replaces (, ), ', " and space with \(, \), \', \"
   ///
   String escapePath(String path) => path.replaceAllMapped(
-      new RegExp(r'''[\(\)'"\s]'''), (Match match) => '\\${match[0]}');
+      RegExp(r'''[\(\)'"\s]'''), (Match match) => '\\${match[0]}');
 
 // 3.7.1 20180718
 //  function escapePath(path) {
@@ -146,7 +144,7 @@ class URL extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

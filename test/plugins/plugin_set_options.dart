@@ -39,7 +39,7 @@ class PluginSetOptions extends Plugin {
       error = 'setOptions() not setting option $options correctly';
     }
 
-    if (error != null) throw new LessException(error);
+    if (error != null) throw LessException(error);
   }
 
   @override

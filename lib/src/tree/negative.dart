@@ -4,16 +4,18 @@ part of tree.less;
 
 ///
 class Negative extends Node {
-  @override final String    type = 'Negative';
-  @override covariant Node  value;
+  @override
+  final String type = 'Negative';
+
+  @override
+  covariant Node value;
 
   ///
   Negative(this.value);
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
@@ -30,11 +32,9 @@ class Negative extends Node {
 
   ///
   @override
-  Node eval(Contexts context) {
-    if (context.isMathOn()) {
-      return (new Operation('*', <Node>[new Dimension(-1), value])).eval(context);
-    }
-    return new Negative(value.eval(context));
+  Node eval(Contexts context) => context.isMathOn()
+      ? Operation('*', <Node>[Dimension(-1), value]).eval(context)
+      : Negative(value.eval(context));
 
 //2.3.1
 //  Negative.prototype.eval = function (context) {
@@ -43,11 +43,10 @@ class Negative extends Node {
 //      }
 //      return new Negative(this.value.eval(context));
 //  };
-  }
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

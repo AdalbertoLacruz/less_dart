@@ -4,25 +4,30 @@ part of tree.less;
 
 ///
 class Anonymous extends Node implements CompareNode {
-  @override final String name = null;
-  @override String       type = 'Anonymous';
+  @override
+  final String name = null;
+
+  @override
+  String type = 'Anonymous';
 
   ///
-  bool  mapLines;
-  ///
-  bool  rulesetLike;
+  bool mapLines;
 
   ///
-  Anonymous(dynamic value, {
-      int index,
+  bool rulesetLike;
+
+  ///
+  Anonymous(dynamic value,
+      {int index,
       FileInfo currentFileInfo,
       this.mapLines = false,
       this.rulesetLike = false,
-      VisibilityInfo visibilityInfo
-      }) : super.init(currentFileInfo: currentFileInfo, index: index,  value: value) {
-        allowRoot = true;
-        copyVisibilityInfo(visibilityInfo);
-      }
+      VisibilityInfo visibilityInfo})
+      : super.init(
+            currentFileInfo: currentFileInfo, index: index, value: value) {
+    allowRoot = true;
+    copyVisibilityInfo(visibilityInfo);
+  }
 
 //3.0.0 20160714
 // var Anonymous = function (value, index, currentFileInfo, mapLines, rulesetLike, visibilityInfo) {
@@ -36,13 +41,12 @@ class Anonymous extends Node implements CompareNode {
 // };
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
-  Node eval(Contexts context) => new Anonymous(value,
+  Node eval(Contexts context) => Anonymous(value,
       index: _index,
       currentFileInfo: _fileInfo,
       mapLines: mapLines,
@@ -72,7 +76,7 @@ class Anonymous extends Node implements CompareNode {
   ///
   @override
   void genCSS(Contexts context, Output output) {
-    nodeVisible = (value != null);
+    nodeVisible = value != null;
     if (nodeVisible) {
       output.add(value, fileInfo: _fileInfo, index: _index, mapLines: mapLines);
     }
@@ -90,7 +94,7 @@ class Anonymous extends Node implements CompareNode {
   String toString() {
     if (value is String) return value as String;
 
-    final Output output = new Output();
+    final Output output = Output();
     value.genCSS(null, output);
     return output.toString();
   }

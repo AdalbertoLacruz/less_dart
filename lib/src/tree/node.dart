@@ -7,71 +7,72 @@ part of tree.less;
 ///
 abstract class Node {
   /// For extends visitor process
-  List<Extend>        allExtends;
+  List<Extend> allExtends;
 
   /// The Node type could be used in the root ruleset
-  bool                allowRoot = false;
+  bool allowRoot = false;
 
   /// Info to optimize the node with cleanCss
-  CleanCssContext     cleanCss;
+  CleanCssContext cleanCss;
 
   /// Filename and line coordinates for error debug
-  DebugInfo           debugInfo;
+  DebugInfo debugInfo;
 
   /// Selector elements
-  List<Element>       elements;
+  List<Element> elements;
 
   /// DetachedRuleset and MixinDefinition must be evaluated before other nodes
   /// in the Ruleset.eval() funciton
-  bool                evalFirst = false;
+  bool evalFirst = false;
 
   /// result from bool eval, used in condition
-  bool                evaluated;
+  bool evaluated;
 
   /// hashCode own or inherited for object comparation
-  int                 id;
+  int id;
 
   /// True if is a Ruleset or MixinDefinition
-  bool                isRuleset = false;
+  bool isRuleset = false;
 
   /// Only output css code for nodeVisible = true
-  bool                nodeVisible;
+  bool nodeVisible;
 
   /// For operation node
-  List<Node>          operands;
+  List<Node> operands;
 
   /// for Rulesets and mixins process
-  Node                originalRuleset;
+  Node originalRuleset;
 
   /// parent Node, used by index and fileInfo.
-  Node                parent;
+  Node parent;
 
   /// The node has been parsed inside parenthesis `()`
-  bool                parens = false; //Expression
+  bool parens = false; //Expression
 
   /// for expression evaluation
-  bool                parensInOp = false; //See parsers.operand & Expression
+  bool parensInOp = false; //See parsers.operand & Expression
 
   /// Some anonymous nodes are lazy parsed
-  bool                parsed = false;
+  bool parsed = false;
 
   ///
-  bool                rootNode;
+  bool rootNode;
 
   /// The ruleset rules
   List<Node> rules;
 
   /// The ruleset selectors
-  List<Selector>      selectors;
+  List<Selector> selectors;
 
   /// the node value
-  dynamic    value;
+  dynamic value;
 
   /// Node visibility control
-  int                 visibilityBlocks;
+  int visibilityBlocks;
 
   ///
   /// Standard Node constructor
+  ///
   Node() {
     id = hashCode;
   }
@@ -79,13 +80,12 @@ abstract class Node {
   ///
   /// Constructor for super call in derived class
   ///
-  Node.init({
-    FileInfo currentFileInfo,
-    int index,
-    this.operands,
-    this.rules,
-    this.value
-    }) {
+  Node.init(
+      {FileInfo currentFileInfo,
+      int index,
+      this.operands,
+      this.rules,
+      this.value}) {
     _fileInfo = currentFileInfo;
     _index = index;
     id = hashCode;
@@ -95,18 +95,17 @@ abstract class Node {
   Map<String, dynamic> get treeField => null;
 
   /// Node name
-  dynamic get         name => null; //String | List<Node>
+  dynamic get name => null; //String | List<Node>
 
   /// Node generic name == class name
-  String get          type;
+  String get type;
 
   // ---------------------- index
   int _index;
 
   /// returns index from this node or their parent
-  int getIndex() => _index
-      ?? parent?._index;
-      //?? 0;  //return must be null to avoid error detached-ruleset-5
+  int getIndex() => _index ?? parent?._index;
+  //?? 0;  //return must be null to avoid error detached-ruleset-5
 
   /// index from this node or their parent, position in the less file
   int get index => getIndex();
@@ -130,9 +129,7 @@ abstract class Node {
   FileInfo _fileInfo;
 
   /// returns fileInfo from this node or their parent
-  FileInfo fileInfo() => _fileInfo
-      ?? parent?._fileInfo
-      ?? new FileInfo();
+  FileInfo fileInfo() => _fileInfo ?? parent?._fileInfo ?? FileInfo();
 
   /// get fileInfo from this node or their parent
   FileInfo get currentFileInfo => fileInfo();
@@ -170,6 +167,7 @@ abstract class Node {
       if (node == null) return;
       node.parent = parent;
     }
+
     if (nodes is List<Node>) {
       nodes.forEach(set);
     } else {
@@ -190,7 +188,7 @@ abstract class Node {
 //         set(nodes);
 //     }
 // };
-}
+  }
 
   ///
   void throwAwayComments() {}
@@ -199,9 +197,8 @@ abstract class Node {
   /// Returns node transformed to css code
   ///
   String toCSS(Contexts context) {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(context, output);
-    //if (context != null) context.avoidDartOptimization = true; //avoid dart context prune
     return output.toString();
 
 //2.3.1
@@ -254,10 +251,14 @@ abstract class Node {
   ///
   num _operate(Contexts context, String op, num a, num b) {
     switch (op) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': return a / b;
+      case '+':
+        return a + b;
+      case '-':
+        return a - b;
+      case '*':
+        return a * b;
+      case '/':
+        return a / b;
     }
     return null;
 
@@ -390,9 +391,9 @@ abstract class Node {
 //          : a  >  b ?  1 : undefined;
 //  };
 
-///
-/// Returns true if this node represents root of was imported by reference
-///
+  ///
+  /// Returns true if this node represents root of was imported by reference
+  ///
   bool blocksVisibility() {
     visibilityBlocks ??= 0;
     return visibilityBlocks != 0;
@@ -473,11 +474,9 @@ abstract class Node {
 //     return this.nodeVisible;
 // };
 
-///
-  VisibilityInfo visibilityInfo() => new VisibilityInfo(
-      visibilityBlocks: visibilityBlocks,
-      nodeVisible: nodeVisible
-    );
+  ///
+  VisibilityInfo visibilityInfo() => VisibilityInfo(
+      visibilityBlocks: visibilityBlocks, nodeVisible: nodeVisible);
 
 //2.5.3 20151120
 // Node.prototype.visibilityInfo = function() {
@@ -509,8 +508,8 @@ abstract class Node {
   /// debug print the node tree
   ///
   StringBuffer toTree(LessOptions options) {
-    final Contexts  env = new Contexts.eval(options);
-    final Output    output = new Output();
+    final Contexts env = Contexts.eval(options);
+    final Output output = Output();
 
     genTree(env, output);
     return output.value;
@@ -520,26 +519,27 @@ abstract class Node {
   /// Writes in [output] the tree, for debug
   ///
   void genTree(Contexts env, Output output, [String prefix = '']) {
-      genTreeTitle(env, output, prefix, type, toString());
+    genTreeTitle(env, output, prefix, type, toString());
 
-      final int tabs = prefix.isEmpty ? 1 : 2;
-      env.tabLevel = env.tabLevel + tabs ;
+    final int tabs = prefix.isEmpty ? 1 : 2;
+    env.tabLevel = env.tabLevel + tabs;
 
-      if (treeField == null) {
-        output.add('***** FIELDS NOT DEFINED in $type *****');
-      } else {
-        treeField.forEach((String fieldName, dynamic fieldValue) {
-          genTreeField(env, output, fieldName, fieldValue);
-        });
-      }
+    if (treeField == null) {
+      output.add('***** FIELDS NOT DEFINED in $type *****');
+    } else {
+      treeField.forEach((String fieldName, dynamic fieldValue) {
+        genTreeField(env, output, fieldName, fieldValue);
+      });
+    }
 
-      env.tabLevel = env.tabLevel - tabs;
+    env.tabLevel = env.tabLevel - tabs;
   }
 
   ///
   /// Build the node tree title
   ///
-  void genTreeTitle(Contexts env, Output output, String prefix, String type, String value) {
+  void genTreeTitle(
+      Contexts env, Output output, String prefix, String type, String value) {
     final String tabStr = '  ' * env.tabLevel;
     output.add('$tabStr$prefix$type ($value)\n');
   }
@@ -547,38 +547,43 @@ abstract class Node {
   ///
   /// Build the subtree for a [fieldName], [fieldValue]
   ///
-  void genTreeField(Contexts env, Output output, String fieldName, dynamic fieldValue) {
+  void genTreeField(
+      Contexts env, Output output, String fieldName, dynamic fieldValue) {
     final String tabStr = '  ' * env.tabLevel;
 
     if (fieldValue == null) {
-
     } else if (fieldValue is String) {
-      if (fieldValue.isNotEmpty) output.add('$tabStr.$fieldName: String ($fieldValue)\n');
+      if (fieldValue.isNotEmpty) {
+        output.add('$tabStr.$fieldName: String ($fieldValue)\n');
+      }
     } else if (fieldValue is num) {
       output.add('$tabStr.$fieldName: num (${fieldValue.toString()})\n');
     } else if (fieldValue is Node) {
       fieldValue.genTree(env, output, '.$fieldName: ');
     } else if (fieldValue is List && fieldValue.isEmpty) {
-
     } else if (fieldValue is List && fieldValue.isNotEmpty) {
       output.add('$tabStr.$fieldName: \n');
       env.tabLevel++;
       if (fieldValue.first is Node) {
-        fieldValue.forEach((dynamic e) { // Node
+        fieldValue.forEach((dynamic e) {
+          // Node
           e.genTree(env, output, '- ');
         });
       } else if (fieldValue.first is MixinArgs) {
-        fieldValue.forEach((dynamic a) { // MixinArgs
+        fieldValue.forEach((dynamic a) {
+          // MixinArgs
           a.genTree(env, output, '- ');
         });
       } else if (fieldValue.first is String) {
         final String tabStr = '  ' * env.tabLevel;
-        fieldValue.forEach((dynamic s) { // String
+        fieldValue.forEach((dynamic s) {
+          // String
           output.add('$tabStr- String ($s)\n');
         });
       } else if (fieldValue.first is num) {
         final String tabStr = '  ' * env.tabLevel;
-        fieldValue.forEach((dynamic n) { // num
+        fieldValue.forEach((dynamic n) {
+          // num
           output.add('$tabStr- num (${n.toString()})\n');
         });
       } else {
@@ -609,8 +614,10 @@ abstract class MakeImportantNode {
 abstract class MatchConditionNode {
   ///
   List<Node> rules;
+
   ///
   bool matchCondition(List<MixinArgs> args, Contexts context);
+
   ///
   bool matchArgs(List<MixinArgs> args, Contexts context);
 }
@@ -631,7 +638,8 @@ abstract class SilentNode {
 ///
 class VisibilityInfo {
   ///
-  int   visibilityBlocks;
+  int visibilityBlocks;
+
   ///
   bool nodeVisible;
 

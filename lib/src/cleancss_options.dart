@@ -5,19 +5,25 @@ import 'logger.dart';
 ///
 class CleancssOptions {
   ///
-  String  compatibility;
+  String compatibility;
+
   ///
-  Logger  console = new Logger();
+  Logger console = Logger();
+
   ///
-  bool    keepBreaks;
+  bool keepBreaks;
+
   ///
-  int     keepSpecialComments;
+  int keepSpecialComments;
+
   ///
-  bool    noAdvanced;
+  bool noAdvanced;
+
   ///
-  bool    parseError = false;
+  bool parseError = false;
+
   ///
-  int     roundingPrecision;
+  int roundingPrecision;
 
   ///
   CleancssOptions();
@@ -52,13 +58,17 @@ class CleancssOptions {
         break;
       case '--compatibility':
         // Force compatibility mode [ie7|ie8]
-        if (cleanOptionArgs.length < 2) return setParseError(cleanOptionArgs[0]);
+        if (cleanOptionArgs.length < 2) {
+          return setParseError(cleanOptionArgs[0]);
+        }
         if (cleanOptionArgs[1] == '') return setParseError(cleanOptionArgs[0]);
         compatibility = cleanOptionArgs[1];
         break;
       case '--rounding-precision':
         // Rounds pixel values to `N` decimal places, defaults to 2
-        if (cleanOptionArgs.length < 2) return setParseError(cleanOptionArgs[0]);
+        if (cleanOptionArgs.length < 2) {
+          return setParseError(cleanOptionArgs[0]);
+        }
         try {
           roundingPrecision = int.parse(cleanOptionArgs[1]);
         } catch (e) {
@@ -74,9 +84,11 @@ class CleancssOptions {
   ///
   bool setParseError(String option) {
     console
-        ..log('unrecognised clean-css option $option')
-        ..log("we support only arguments that make sense for less, '--keep-line-breaks', '-b'")
-        ..log("'--s0', '--s1', '--advanced', '--skip-advanced', '--compatibility', '--rounding-precision'");
+      ..log('unrecognised clean-css option $option')
+      ..log(
+          "we support only arguments that make sense for less, '--keep-line-breaks', '-b'")
+      ..log(
+          "'--s0', '--s1', '--advanced', '--skip-advanced', '--compatibility', '--rounding-precision'");
     parseError = true;
     return false;
   }

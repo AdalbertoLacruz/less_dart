@@ -20,7 +20,7 @@ String _getInputPath() {
     while (path.basename(testRootPath) != 'test') {
       testRootPath = path.dirname(testRootPath);
       if (prev == testRootPath) {
-        throw new Exception('Test root path not detected, Please use TEST_ROOT_PATH');
+        throw Exception('Test root path not detected, Please use TEST_ROOT_PATH');
       }
       prev = testRootPath;
     }
@@ -31,9 +31,9 @@ String _getInputPath() {
 
 ///
 File getSampleFile(String name) {
-  final String _name = path.join(inputPath, name).replaceAll(new RegExp('\\+'), '\\')
-      ..replaceAll(new RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
-  return new File(_name);
+  final String _name = path.join(inputPath, name).replaceAll(RegExp('\\+'), '\\')
+      ..replaceAll(RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
+  return File(_name);
 }
 
 ///
@@ -42,8 +42,8 @@ String readSampleFile(String name) => getSampleFile(name).readAsStringSync();
 ///
 Future<Object> loadSampleJSON(String name) {
   String _name = name
-      .replaceAll(new RegExp('\\+'), '\\')
-      ..replaceAll(new RegExp('/+'), '/') //?
+      .replaceAll(RegExp('\\+'), '\\')
+      ..replaceAll(RegExp('/+'), '/') //?
       .replaceAll('/',Platform.pathSeparator);
   if (_name[0] == Platform.pathSeparator){
     _name = _name.substring(1);

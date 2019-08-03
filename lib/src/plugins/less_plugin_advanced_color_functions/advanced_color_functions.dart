@@ -95,9 +95,8 @@ class AdvancedColorFunctions extends ColorFunctions {
 
     if (lumadif < minLumaDifference) {
       missingLuma = minLumaDifference - lumadif;
-      newLuma += (missingLuma * (color1.luma() < newLuma ? 1 : -1));
-      if (newLuma > 1 || newLuma < 0)
-          newLuma = 1 - hsl.l;
+      newLuma += missingLuma * (color1.luma() < newLuma ? 1 : -1);
+      if (newLuma > 1 || newLuma < 0) newLuma = 1 - hsl.l;
       newLuma = clamp(newLuma);
       hsl.l = newLuma;
       autocontrast = hslaColorSpace(color1, hsl);

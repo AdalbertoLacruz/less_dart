@@ -11,9 +11,8 @@ class MathHelper {
   //@defineMethodSkip
   static Dimension _math(Function fn, String unit, Node n) {
     if (n is! Dimension) {
-     throw new LessExceptionError(new LessError(
-         type: 'Argument',
-         message: 'argument must be a number'));
+      throw LessExceptionError(
+          LessError(type: 'Argument', message: 'argument must be a number'));
     }
 
     Dimension node = n;
@@ -23,9 +22,9 @@ class MathHelper {
       nodeUnit = node.unit;
     } else {
       node = node.unify();
-      nodeUnit = new Unit(<String>[unit]);
+      nodeUnit = Unit(<String>[unit]);
     }
-    return new Dimension(fn(node.value.toDouble()), nodeUnit);
+    return Dimension(fn(node.value.toDouble()), nodeUnit);
 
 //2.5.1 20150720
 // MathHelper._math = function (fn, unit, n) {

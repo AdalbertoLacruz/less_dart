@@ -2,7 +2,7 @@ library less;
 
 import 'dart:async';
 import 'dart:io';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as path_lib;
 
 import 'src/environment/environment.dart';
 import 'src/less_error.dart';
@@ -26,34 +26,34 @@ export 'src/visitor/visitor_base.dart';
 ///
 class Less {
   ///
-  bool          continueProcessing = true;
+  bool continueProcessing = true;
 
   /// process.exitCode to console
-  int           exitCode = 0;
+  int exitCode = 0;
 
   /// return list of imported files
-  List<String>  imports = <String>[];
+  List<String> imports = <String>[];
 
   ///
-  Logger        logger;
+  Logger logger;
 
   ///
-  LessOptions   _options;
+  LessOptions _options;
 
   ///
-  StringBuffer  stdin  = new StringBuffer();
+  StringBuffer stdin = StringBuffer();
 
   ///
-  StringBuffer  stdout = new StringBuffer();
+  StringBuffer stdout = StringBuffer();
 
   ///
-  StringBuffer  stderr = new StringBuffer();
+  StringBuffer stderr = StringBuffer();
 
   ///
   Less() {
-    logger = new Logger(stderr); // care the order
-    _options = new LessOptions();
-    new Environment()..options = _options; //make global
+    logger = Logger(stderr); // care the order
+    _options = LessOptions();
+    Environment().options = _options; //make global
   }
 
   ///
@@ -75,11 +75,11 @@ class Less {
   Future<int> transform(List<String> args, {Function modifyOptions}) {
     if (!argsFilter(args)) {
       exitCode = _options.parseError ? 1 : 0;
-      return new Future<int>.value(exitCode);
+      return Future<int>.value(exitCode);
     }
     if (!_options.validate()) {
       exitCode = _options.parseError ? 1 : 0;
-      return new Future<int>.value(exitCode);
+      return Future<int>.value(exitCode);
     }
 
     if (modifyOptions != null) modifyOptions(_options);
@@ -88,23 +88,20 @@ class Less {
     if (_options.input != '-') {
       // Default to .less
       String filename = _options.input;
-      if (path.extension(filename).isEmpty) filename = '$filename.less';
+      if (path_lib.extension(filename).isEmpty) filename = '$filename.less';
 
-      final File file = new File(filename);
+      final File file = File(filename);
       if (!file.existsSync()) {
         logger.error('Error cannot open file ${_options.input}');
         exitCode = 3;
-        return new Future<int>.value(exitCode);
+        return Future<int>.value(exitCode);
       }
 
-      return file
-          .readAsString()
-          .then((String content) => parseLessFile(content))
-          .catchError((dynamic e) {
-            logger.error('Error reading ${_options.input}');
-            exitCode = 3;
-            return new Future<int>.value(exitCode);
-          });
+      return file.readAsString().then(parseLessFile).catchError((dynamic e) {
+        logger.error('Error reading ${_options.input}');
+        exitCode = 3;
+        return Future<int>.value(exitCode);
+      });
     } else {
       return parseLessFile(stdin.toString());
     }
@@ -114,13 +111,15 @@ class Less {
   /// Process all arguments: -options and input/output
   ///
   bool argsFilter(List<String> args) {
-    final RegExp regOption = new RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
-    final RegExp regPaths = new RegExp(r'^-I(.+)$', caseSensitive: true);
+    final RegExp regOption =
+        RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
+    final RegExp regPaths = RegExp(r'^-I(.+)$', caseSensitive: true);
     Match match;
     bool continueProcessing = true;
 
     args.forEach((String arg) {
-      if ((match = regPaths.firstMatch(arg)) != null) { //I suppose same as include_path  "-I path/to/directory"
+      if ((match = regPaths.firstMatch(arg)) != null) {
+        //I suppose same as include_path  "-I path/to/directory"
         _options.paths.add(match[1]);
         return;
       }
@@ -139,37 +138,36 @@ class Less {
 
   ///
   Future<int> parseLessFile(String data) {
-    final Parser parser = new Parser(_options);
+    final Parser parser = Parser(_options);
     return parser.parse(data).then((Ruleset tree) {
       RenderResult result;
 
-      if (tree == null) return new Future<int>.value(exitCode);
+      if (tree == null) return Future<int>.value(exitCode);
 
       //debug
       if (_options.showTreeLevel == 0) {
         final String css = tree.toTree(_options).toString();
         stdout.write(css);
-        return new Future<int>.value(exitCode);
+        return Future<int>.value(exitCode);
       }
 
       try {
-        result = new ParseTree(tree, parser.imports)
+        result = ParseTree(tree, parser.imports)
             .toCSS(_options.clone(), parser.context);
         imports = result.imports;
 
         if (!_options.lint) writeOutput(_options.output, result, _options);
-
       } on LessExceptionError catch (e) {
         logger.error(e.toString());
         exitCode = 2;
-        return new Future<int>.value(exitCode);
+        return Future<int>.value(exitCode);
       }
 
-      return new Future<int>.value(exitCode);
+      return Future<int>.value(exitCode);
     }).catchError((dynamic e) {
       logger.error(e.toString());
       exitCode = 1;
-      return new Future<int>.value(exitCode);
+      return Future<int>.value(exitCode);
     });
   }
 
@@ -226,12 +224,12 @@ class Less {
   /// Creates the file [filename] with [content]
   void writeFile(String filename, String content) {
     try {
-      new File(filename)
-          ..createSync(recursive: true)
-          ..writeAsStringSync(content);
+      File(filename)
+        ..createSync(recursive: true)
+        ..writeAsStringSync(content);
       logger.info('lessc: wrote $filename');
     } catch (e) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'File',
           message: 'lessc: failed to create file $filename\n${e.toString()}'));
     }

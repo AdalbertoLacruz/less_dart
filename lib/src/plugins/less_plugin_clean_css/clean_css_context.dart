@@ -6,8 +6,10 @@ part of less_plugin_clean_css.plugins.less;
 class CleanCssContext {
   ///
   CleanCssCompatibility compatibility;
+
   ///
-  bool                  keepBreaks = false;
+  bool keepBreaks = false;
+
   ///
-  int                   precision;
+  int precision;
 }

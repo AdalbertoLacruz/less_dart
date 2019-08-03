@@ -4,7 +4,6 @@ library utils.less;
 
 import 'dart:mirrors';
 
-
 ///
 class Utils {
   ///
@@ -24,10 +23,7 @@ class Utils {
 
     line = inputStream.substring(0, index).split('\n').length - 1;
 
-    return new LocationPoint(
-        line: line,
-        column: column
-    );
+    return LocationPoint(line: line, column: column);
 
 //2.2.0
 //getLocation: function(index, inputStream) {
@@ -58,9 +54,11 @@ class Utils {
     final InstanceMirror fromInstanceMirror = reflect(from);
     final InstanceMirror toInstanceMirror = reflect(to);
 
-    fromInstanceMirror.type.declarations.forEach((Symbol variableName, DeclarationMirror declaration) {
+    fromInstanceMirror.type.declarations
+        .forEach((Symbol variableName, DeclarationMirror declaration) {
       if (declaration is VariableMirror) {
-        final dynamic variableValue = fromInstanceMirror.getField(variableName).reflectee;
+        final dynamic variableValue =
+            fromInstanceMirror.getField(variableName).reflectee;
         toInstanceMirror.setField(variableName, variableValue);
       }
     });
@@ -87,14 +85,20 @@ class Utils {
     final InstanceMirror fromInstanceMirror = reflect(from);
     final InstanceMirror toInstanceMirror = reflect(to);
 
-    bool tryCopy(String name) => (properties == null) ? true : properties.contains(name);
+    bool tryCopy(String name) =>
+        (properties == null) ? true : properties.contains(name);
 
-    final Map<Symbol, DeclarationMirror> fromDeclarations = fromInstanceMirror.type.declarations;
+    final Map<Symbol, DeclarationMirror> fromDeclarations =
+        fromInstanceMirror.type.declarations;
 
-    toInstanceMirror.type.declarations.forEach((Symbol variableName, DeclarationMirror declaration) {
+    toInstanceMirror.type.declarations
+        .forEach((Symbol variableName, DeclarationMirror declaration) {
       final String name = MirrorSystem.getName(variableName);
-      if (declaration is VariableMirror && tryCopy(name) && fromDeclarations.containsKey(variableName)) {
-        final dynamic variableValue = fromInstanceMirror.getField(variableName).reflectee;
+      if (declaration is VariableMirror &&
+          tryCopy(name) &&
+          fromDeclarations.containsKey(variableName)) {
+        final dynamic variableValue =
+            fromInstanceMirror.getField(variableName).reflectee;
         toInstanceMirror.setField(variableName, variableValue);
       }
     });
@@ -146,6 +150,7 @@ class Utils {
 class LocationPoint {
   ///
   int line;
+
   ///
   int column;
 

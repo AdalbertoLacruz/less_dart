@@ -8,6 +8,6 @@ class PackageResolverProvider {
   PackageResolver _packageResolver;
 
   /// get PackageResolver instance
-  Future<PackageResolver> getPackageResolver() async =>
-    _packageResolver ??= await PackageResolver.loadConfig(new Uri.file('.packages'));
+  Future<PackageResolver> getPackageResolver() async => _packageResolver ??=
+      await PackageResolver.loadConfig(Uri.file('.packages'));
 }

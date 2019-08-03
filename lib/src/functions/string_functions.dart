@@ -17,7 +17,7 @@ class StringFunctions extends FunctionBase {
   /// Anything else returns an error.
   ///
   //str.evaluated == null. JavaScript not supported
-  Anonymous e(Node str) => new Anonymous(str is JavaScript ? null : str.value);
+  Anonymous e(Node str) => Anonymous(str is JavaScript ? null : str.value);
 
 //    e: function (str) {
 //        return new Anonymous(str instanceof JavaScript ? str.evaluated : str.value);
@@ -38,13 +38,13 @@ class StringFunctions extends FunctionBase {
   /// The current implementation returns undefined on color and unchanged input
   /// on any other kind of argument. This behavior should not be relied on and may change in the future.
   ///
-  Anonymous escape(Node str) =>  new Anonymous(Uri.encodeFull(str.value)
-      ..replaceAll(new RegExp(r'='), '%3D')
-      ..replaceAll(new RegExp(r':'), '%3A')
-      ..replaceAll(new RegExp(r'#'), '%23')
-      ..replaceAll(new RegExp(r';'), '%3B')
-      ..replaceAll(new RegExp(r'\('), '%28')
-      ..replaceAll(new RegExp(r'\)'), '%29'));
+  Anonymous escape(Node str) => Anonymous(Uri.encodeFull(str.value)
+    ..replaceAll(RegExp(r'='), '%3D')
+    ..replaceAll(RegExp(r':'), '%3A')
+    ..replaceAll(RegExp(r'#'), '%23')
+    ..replaceAll(RegExp(r';'), '%3B')
+    ..replaceAll(RegExp(r'\('), '%28')
+    ..replaceAll(RegExp(r'\)'), '%29'));
 
 //    escape: function (str) {
 //        return new Anonymous(encodeURI(str.value).replace(/=/g, "%3D").replace(/:/g, "%3A").replace(/#/g, "%23").replace(/;/g, "%3B").replace(/\(/g, "%28").replace(/\)/g, "%29"));
@@ -52,7 +52,7 @@ class StringFunctions extends FunctionBase {
 
   ///
   /// Replaces a text within a string.
-  //
+  ///
   /// Parameters:
   ///   string: The string to search and replace in.
   ///   pattern: A string or regular expression pattern to search for.
@@ -74,16 +74,15 @@ class StringFunctions extends FunctionBase {
     //string, replacement, flags is Quoted ('value') or Keyword (value)
 
     final String flagsValue = flags != null ? flags.value : '';
-    final MoreRegExp re = new MoreRegExp(pattern.value, flagsValue);
+    final MoreRegExp re = MoreRegExp(pattern.value, flagsValue);
 
-    final String replacementStr = (replacement is Quoted)
-        ? replacement.value
-        : replacement.toCSS(null);
+    final String replacementStr =
+        (replacement is Quoted) ? replacement.value : replacement.toCSS(null);
     final String result = re.replace(string.value, replacementStr);
 
     final String quote = (string is Quoted) ? string.quote : '';
     final bool escaped = (string is Quoted) ? string.escaped : false;
-    return new Quoted(quote, result, escaped: escaped);
+    return Quoted(quote, result, escaped: escaped);
 
 //2.4.0 20150331
 //  replace: function (string, pattern, replacement, flags) {
@@ -125,29 +124,26 @@ class StringFunctions extends FunctionBase {
   Quoted format(List<Node> args) {
     final Node qstr = args[0];
     String result = qstr.value;
-    final MoreRegExp sda = new MoreRegExp(r'%[sda]', 'i');
-    final RegExp az = new RegExp(r'[A-Z]$', caseSensitive: true);
+    final MoreRegExp sda = MoreRegExp(r'%[sda]', 'i');
+    final RegExp az = RegExp(r'[A-Z]$', caseSensitive: true);
 
     String value;
     for (int i = 1; i < args.length; i++) {
       result = sda.replaceMap(result, (Match m) {
-        value =  (args[i] is Quoted &&  m[0].toLowerCase() == '%s')
+        value = (args[i] is Quoted && m[0].toLowerCase() == '%s')
             ? args[i].value
             : args[i].toCSS(context);
         return az.hasMatch(m[0]) ? Uri.encodeComponent(value) : value;
       });
     }
 
-    result.replaceAll(new RegExp(r'%%'), '%');
-    if (qstr is Quoted) {
-      //return new Quoted(getValueOrDefault(qstr.quote, ''), result, qstr.escaped, qstr.index, currentFileInfo);
-      return new Quoted((qstr.quote ?? ''), result,
-        escaped: qstr.escaped,
-        index: qstr.index,
-        currentFileInfo: currentFileInfo);
-    } else {
-      return new Quoted('', result, escaped: null);
-    }
+    result.replaceAll(RegExp(r'%%'), '%');
+    return qstr is Quoted
+        ? Quoted(qstr.quote ?? '', result,
+            escaped: qstr.escaped,
+            index: qstr.index,
+            currentFileInfo: currentFileInfo)
+        : Quoted('', result, escaped: null);
 
 //2.4.0 20150331
 //  '%': function (string /* arg, arg, ...*/) {

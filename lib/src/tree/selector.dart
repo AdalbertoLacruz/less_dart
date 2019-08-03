@@ -6,32 +6,37 @@ part of tree.less;
 /// Selectors such as body, h1, ...
 ///
 class Selector extends Node {
-  @override final String type = 'Selector';
+  @override
+  final String type = 'Selector';
 
   ///
-  Node            condition;
+  Node condition;
+
   ///  List<Element> elements; //body, ...
-  List<Extend>    extendList;
+  List<Extend> extendList;
+
   ///
-  bool            evaldCondition = false;
+  bool evaldCondition = false;
+
   ///
-  bool            mediaEmpty = false;
+  bool mediaEmpty = false;
+
   /// Cached string elements List, such as ['#selector1', .., '.selectorN']
-  List<String>    _mixinElements;
+  List<String> _mixinElements;
 
   ///
   /// elements is List<Element> | String (to be parsed)
   ///
-  Selector(dynamic elements, {
-      this.extendList,
+  Selector(dynamic elements,
+      {this.extendList,
       this.condition,
       int index,
       FileInfo currentFileInfo,
-      VisibilityInfo visibilityInfo
-      }) : super.init(currentFileInfo: currentFileInfo, index: index) {
+      VisibilityInfo visibilityInfo})
+      : super.init(currentFileInfo: currentFileInfo, index: index) {
     //clone if List.clear is used, to avoid collateral effects
     this.elements = getElements(elements);
-    evaldCondition = (condition == null);
+    evaldCondition = condition == null;
     copyVisibilityInfo(visibilityInfo);
     setParent(this.elements, this);
 
@@ -50,11 +55,12 @@ class Selector extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'condition': condition,
-    'elements': elements,
-    'extendList': extendList
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{
+        'condition': condition,
+        'elements': elements,
+        'extendList': extendList
+      };
 
   ///
   @override
@@ -81,16 +87,15 @@ class Selector extends Node {
   /// elements is List<Element> | String (to be parsed)
   ///
   Selector createDerived(dynamic elements,
-      {List<Extend> extendList, bool evaldCondition}) =>
-        new Selector(
-          getElements(elements),
+          {List<Extend> extendList, bool evaldCondition}) =>
+      Selector(getElements(elements),
           extendList: extendList ?? this.extendList,
           condition: null,
           index: index,
           currentFileInfo: currentFileInfo,
           visibilityInfo: visibilityInfo())
-            ..evaldCondition = evaldCondition ?? this.evaldCondition
-            ..mediaEmpty = mediaEmpty;
+        ..evaldCondition = evaldCondition ?? this.evaldCondition
+        ..mediaEmpty = mediaEmpty;
 
 //3.0.0 20170528
 //  Selector.prototype.createDerived = function(elements, extendList, evaldCondition) {
@@ -107,11 +112,15 @@ class Selector extends Node {
   /// [els] is List<Element> | String
   ///
   List<Element> getElements(dynamic els) {
-    if (els == null) return <Element>[new Element('', '&',
-        isVariable: false, index: _index, currentFileInfo: _fileInfo)];
+    if (els == null) {
+      return <Element>[
+        Element('', '&',
+            isVariable: false, index: _index, currentFileInfo: _fileInfo)
+      ];
+    }
 
     if (els is String) {
-      final Node result = new ParseNode(els, _index, _fileInfo).selector();
+      final Node result = ParseNode(els, _index, _fileInfo).selector();
       if (result != null) return result.elements;
     }
     return els;
@@ -143,19 +152,14 @@ class Selector extends Node {
 
   ///
   List<Selector> createEmptySelectors() {
-    final Element el = new Element('', '&',
-        isVariable: false,
-        index: _index,
-        currentFileInfo: _fileInfo);
+    final Element el = Element('', '&',
+        isVariable: false, index: _index, currentFileInfo: _fileInfo);
 
     final List<Selector> sels = <Selector>[
-      new Selector(<Element>[el],
-        index: _index,
-        currentFileInfo: _fileInfo)
+      Selector(<Element>[el], index: _index, currentFileInfo: _fileInfo)
     ];
 
-    return sels
-        ..first.mediaEmpty = true;
+    return sels..first.mediaEmpty = true;
 
 // 3.5.0.beta 20180625
 //  Selector.prototype.createEmptySelectors = function() {
@@ -211,13 +215,14 @@ class Selector extends Node {
   /// Example: ['#sel1', '.sel2', ...]
   ///
   List<String> mixinElements() {
-    final RegExp re = new RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
+    final RegExp re = RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
     if (_mixinElements != null) return _mixinElements; // cache exist
 
     final String css = elements
-        .fold(new StringBuffer(), (StringBuffer prev, Element v) =>
-          prev
+        .fold(
+            StringBuffer(),
+            (StringBuffer prev, Element v) => prev
               ..write(v.combinator.value)
               ..write((v.value is String)
                   ? v.value
@@ -277,7 +282,8 @@ class Selector extends Node {
   ///
   @override
   Selector eval(Contexts context) {
-    final bool evaldCondition = condition?.eval(context)?.evaluated; //evaldCondition null is ok
+    final bool evaldCondition =
+        condition?.eval(context)?.evaluated; //evaldCondition null is ok
     List<Element> elements = this.elements;
     List<Extend> extendList = this.extendList;
 
@@ -285,12 +291,12 @@ class Selector extends Node {
       elements = elements.map((Element e) => e.eval(context)).toList();
     }
     if (extendList != null) {
-      extendList = extendList.map((Extend extend) => extend.eval(context)).toList();
+      extendList =
+          extendList.map((Extend extend) => extend.eval(context)).toList();
     }
 
     return createDerived(elements,
-        extendList: extendList,
-        evaldCondition: evaldCondition);
+        extendList: extendList, evaldCondition: evaldCondition);
 
 //2.3.1
 //  Selector.prototype.eval = function (context) {
@@ -341,7 +347,7 @@ class Selector extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     elements.forEach((Node e) {
       e.genCSS(null, output);
     });

@@ -39,7 +39,7 @@ There is an example:
 
       main() {
         List<String> args = [];
-        Less less = new Less();
+        Less less = Less();
 
         args.add('-no-color');
         args.add('--math=always');

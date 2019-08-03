@@ -8,12 +8,17 @@ part of tree.less;
 ///     "milky way" 'he\'s the one!'
 ///
 class Quoted extends Node implements CompareNode {
-  @override final String      name = null;
-  @override final String      type = 'Quoted';
-  @override covariant String  value;
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Quoted';
+
+  @override
+  covariant String value;
 
   /// false writes quote. true not.
-  bool   escaped;
+  bool escaped;
 
   /// Default value to identify a property: /\$\{([\w-]+)\}/g
   RegExp propRegex;
@@ -22,7 +27,7 @@ class Quoted extends Node implements CompareNode {
   String quote;
 
   ///
-  bool   reparse = false;
+  bool reparse = false;
 
   /// Default value to identify a variable: /@\{([\w-]+)\}/g
   RegExp variableRegex;
@@ -38,8 +43,8 @@ class Quoted extends Node implements CompareNode {
     quote = str.isNotEmpty ? str[0] : '';
     if (!(quote == '"' || quote == "'" || quote == '')) quote = ''; // also ~ ?
 
-    variableRegex = new RegExp(r'@\{([\w-]+)\}');
-    propRegex = new RegExp(r'\$\{([\w-]+)\}');
+    variableRegex = RegExp(r'@\{([\w-]+)\}');
+    propRegex = RegExp(r'\$\{([\w-]+)\}');
 
 //3.0.4 20180622
 // var Quoted = function (str, content, escaped, index, currentFileInfo) {
@@ -54,9 +59,8 @@ class Quoted extends Node implements CompareNode {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
@@ -90,25 +94,27 @@ class Quoted extends Node implements CompareNode {
   Node eval(Contexts context) {
     //RegExp reJS = new RegExp(r'`([^`]+)`'); //javascript expresion
     final Quoted that = this;
-    String       value = this.value;
+    String value = this.value;
 
     //@f: 'ables';
     //@import 'vari@{f}.less';
     //result = @import 'variables.less';
     String variableReplacement(Match m) {
-      final String  name = m[1];
-      final Node    v = new Variable('@$name', that.index, that.currentFileInfo).eval(context);
+      final String name = m[1];
+      final Node v =
+          Variable('@$name', that.index, that.currentFileInfo).eval(context);
 
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
     String propertyReplacement(Match m) {
-      final String  name = m[1];
-      final Node v = new Property('\$$name', index, currentFileInfo).eval(context);
+      final String name = m[1];
+      final Node v = Property('\$$name', index, currentFileInfo).eval(context);
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
-    String iterativeReplace(String value, RegExp regexp, String replacementFnc(Match match) ) {
+    String iterativeReplace(
+        String value, RegExp regexp, String replacementFnc(Match match)) {
       String evaluatedValue = value;
       String _value;
 
@@ -123,10 +129,8 @@ class Quoted extends Node implements CompareNode {
     value = iterativeReplace(value, variableRegex, variableReplacement);
     value = iterativeReplace(value, propRegex, propertyReplacement);
 
-    return new Quoted('$quote$value$quote', value,
-        escaped: escaped,
-        index: index,
-        currentFileInfo: currentFileInfo);
+    return Quoted('$quote$value$quote', value,
+        escaped: escaped, index: index, currentFileInfo: currentFileInfo);
 
 //3.0.4 20180622
 //Quoted.prototype.eval = function (context) {

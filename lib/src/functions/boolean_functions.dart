@@ -4,15 +4,13 @@ part of functions.less;
 
 ///
 class BooleanFunctions extends FunctionBase {
-
   ///
   ///  boolean function. Example:
   ///
   ///     a: boolean(not(2 < 1)); => a: true;
   ///
-  Keyword boolean(Condition condition) => condition.eval(context).evaluated
-      ? new Keyword.True()
-      : new Keyword.False();
+  Keyword boolean(Condition condition) =>
+      condition.eval(context).evaluated ? Keyword.True() : Keyword.False();
 
 //3.0.0 20170607
 // boolean: function(condition) {
@@ -29,7 +27,7 @@ class BooleanFunctions extends FunctionBase {
   Node ifFunction(Condition condition, Node trueValue, [Node falseValue]) =>
       condition.eval(context).evaluated
           ? trueValue
-          : (falseValue ?? new Anonymous(null));
+          : (falseValue ?? Anonymous(null));
 
 //3.0.0 20170607
 // 'if': function(condition, trueValue, falseValue) {

@@ -7,19 +7,23 @@ part of functions.less;
 ///
 class FunctionRegistry {
   ///
-  static List<FunctionBase> globalFunctions = <FunctionBase>[];  //imported by plugin at root
+  // imported by plugin at root
+  static List<FunctionBase> globalFunctions = <FunctionBase>[];
+
   ///
-  FunctionRegistry    base; //parent
+  FunctionRegistry base; //parent
+
   ///
-  List<FunctionBase>  cache;
+  List<FunctionBase> cache;
+
   ///
-  List<FunctionBase>  data = <FunctionBase>[]; //scoped functions
+  List<FunctionBase> data = <FunctionBase>[]; //scoped functions
 
   FunctionRegistry._(this.base);
 
   ///
   factory FunctionRegistry.inherit(FunctionRegistry base) =>
-      new FunctionRegistry._(base);
+      FunctionRegistry._(base);
 
   ///
   /// Search in context.frames the first FunctionRegistry != null

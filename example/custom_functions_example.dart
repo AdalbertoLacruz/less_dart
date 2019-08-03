@@ -7,37 +7,38 @@ import 'dart:io';
 import 'package:less_dart/less.dart';
 
 void main() {
-  final Less less = new Less();
+  final Less less = Less();
 
   less.transform(<String>[
     '-no-color',
     'test/less/functions.less',
-  ], modifyOptions: (LessOptions options){
-    options.definePlugin('myplugin', new MyPlugin(), load: true, options: '');
-  }).then((int exitCode){
+  ], modifyOptions: (LessOptions options) {
+    options.definePlugin('myplugin', MyPlugin(), load: true, options: '');
+  }).then((int exitCode) {
     stderr
-        ..write(less.stderr.toString())
-        ..writeln('\nstdout:')
-        ..write(less.stdout.toString());
+      ..write(less.stderr.toString())
+      ..writeln('\nstdout:')
+      ..write(less.stdout.toString());
   });
 }
 
 ///
 class MyFunctions extends FunctionBase {
   ///
-  Dimension add(Node a, Node b) => new Dimension(a.value + b.value);
+  Dimension add(Node a, Node b) => Dimension(a.value + b.value);
+
   ///
-  Dimension increment(Node a) => new Dimension(a.value + 1);
+  Dimension increment(Node a) => Dimension(a.value + 1);
 
   ///
   @DefineMethod(name: '_color')
-  Color color(Node str) => (str.value == 'evil red') ? new Color('600') : null;
+  Color color(Node str) => (str.value == 'evil red') ? Color('600') : null;
 }
 
 ///
 class MyProcessor extends Processor {
   ///
-  MyProcessor(PluginOptions options):super(options);
+  MyProcessor(PluginOptions options) : super(options);
 
   @override
   String process(String input, Map<String, dynamic> options) =>
@@ -46,17 +47,18 @@ class MyProcessor extends Processor {
 
 ///
 class MyPlugin extends Plugin {
-  @override List<int> minVersion = <int>[2, 1, 0];
+  @override
+  List<int> minVersion = <int>[2, 1, 0];
 
   ///
-  MyPlugin(): super();
+  MyPlugin() : super();
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase myFunctions = new MyFunctions();
+    final FunctionBase myFunctions = MyFunctions();
     pluginManager.addCustomFunctions(myFunctions);
 
-    final Processor myProcessor = new MyProcessor(null);
+    final Processor myProcessor = MyProcessor(null);
     pluginManager.addPostProcessor(myProcessor);
   }
 }

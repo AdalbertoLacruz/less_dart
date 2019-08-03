@@ -4,14 +4,13 @@ part of visitor.less;
 
 ///
 class CSSVisitorUtils extends VisitorBase {
+  final Contexts _context;
 
-  Contexts  _context;
-
-  Visitor   _visitor;
+  Visitor _visitor;
 
   ///
   CSSVisitorUtils(this._context) {
-    _visitor = new Visitor(this);
+    _visitor = Visitor(this);
 
 //2.5.3 20151120
 // var CSSVisitorUtils = function(context) {
@@ -26,7 +25,9 @@ class CSSVisitorUtils extends VisitorBase {
 
     for (int r = 0; r < bodyRules.length; r++) {
       final Node rule = bodyRules[r];
-      if ((rule is SilentNode) && (rule as SilentNode).isSilent(_context) && !rule.blocksVisibility()) {
+      if ((rule is SilentNode) &&
+          (rule as SilentNode).isSilent(_context) &&
+          !rule.blocksVisibility()) {
         //the atRule contains something that was referenced (likely by extend)
         //therefore it needs to be shown in output too
         return true;
@@ -55,7 +56,7 @@ class CSSVisitorUtils extends VisitorBase {
 
   ///
   void keepOnlyVisibleChilds(Node owner) {
-    if (owner?.rules != null ) {
+    if (owner?.rules != null) {
       owner.rules.retainWhere((Node thing) => thing.isVisible());
     }
 
@@ -72,9 +73,8 @@ class CSSVisitorUtils extends VisitorBase {
   ///
   /// if [owner] rules is empty returns true
   ///
-  bool isEmpty(Node owner) => (owner?.rules != null)
-      ? owner.rules.isEmpty
-      : true;
+  bool isEmpty(Node owner) =>
+      (owner?.rules != null) ? owner.rules.isEmpty : true;
 
 //3.0.0 20170601
 // isEmpty: function(owner) {
@@ -82,13 +82,11 @@ class CSSVisitorUtils extends VisitorBase {
 //       ? (owner.rules.length === 0) : true;
 // },
 
-
   ///
   /// true if [rulesetNode] has paths
   ///
-  bool hasVisibleSelector(Ruleset rulesetNode) => (rulesetNode?.paths != null)
-      ? rulesetNode.paths.isNotEmpty
-      : false;
+  bool hasVisibleSelector(Ruleset rulesetNode) =>
+      (rulesetNode?.paths != null) ? rulesetNode.paths.isNotEmpty : false;
 
 //3.0.0 20170601
 // hasVisibleSelector: function(rulesetNode) {
@@ -107,9 +105,8 @@ class CSSVisitorUtils extends VisitorBase {
 
     //TODO
     // final Node compiledRulesBody = node.rules[0];
-    final Node compiledRulesBody = (node.rules != null && node.rules.isNotEmpty)
-        ? node.rules[0]
-        : null;
+    final Node compiledRulesBody =
+        (node.rules != null && node.rules.isNotEmpty) ? node.rules[0] : null;
     keepOnlyVisibleChilds(compiledRulesBody);
 
     if (isEmpty(compiledRulesBody)) return null;

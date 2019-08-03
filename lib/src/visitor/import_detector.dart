@@ -4,13 +4,14 @@ part of visitor.less;
 /// Map<String, bool> used for recursionDetector and onceFileDetectionMap
 ///
 class ImportDetector {
-  Map<String, bool> _item = <String, bool>{};
+  final Map<String, bool> _item = <String, bool>{};
 
   /// Copy the [source] importDetector
   void addAll(ImportDetector source) => _item.addAll(source._item);
 
   ///
   bool containsKey(String key) => _item.containsKey(key);
+
   ///
   Iterable<String> get keys => _item.keys;
 
@@ -26,7 +27,7 @@ class ImportDetector {
   /// Returns a new ImportDector copy of [source]
   ///
   static ImportDetector clone(ImportDetector source) {
-    final ImportDetector result = new ImportDetector();
+    final ImportDetector result = ImportDetector();
     return (source != null) ? (result..addAll(source)) : result;
   }
 
@@ -34,5 +35,5 @@ class ImportDetector {
   /// Returns a not null [detector]
   ///
   static ImportDetector own(ImportDetector detector) =>
-      detector ?? new ImportDetector();
+      detector ?? ImportDetector();
 }

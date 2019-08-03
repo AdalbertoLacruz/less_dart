@@ -5,7 +5,8 @@ part of tree.less;
 /// Nodeset let encapsulate the List and return Node, as Nodeset.rules
 ///
 class Nodeset extends Node {
-  @override final String type = 'Nodeset';
+  @override
+  final String type = 'Nodeset';
 
   ///
   Nodeset(List<Node> rules) : super.init(rules: rules);
@@ -15,11 +16,9 @@ class Nodeset extends Node {
   ///
   @override
   void addVisibilityBlock() {
-    if (rules != null) {
-      rules.forEach((Node node) {
-        node.addVisibilityBlock();
-      });
-    }
+    rules?.forEach((Node node) {
+      node.addVisibilityBlock();
+    });
   }
 
   ///

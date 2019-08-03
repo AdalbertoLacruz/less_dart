@@ -4,15 +4,18 @@ part of tree.less;
 
 ///
 class Variable extends Node {
-  @override String name;
-  @override String type = 'Variable';
+  @override
+  String name;
+
+  @override
+  String type = 'Variable';
 
   ///
-  bool  evaluating = false; // Recursivity control
+  bool evaluating = false; // Recursivity control
 
   ///
   Variable(this.name, [int index, FileInfo currentFileInfo])
-    : super.init(currentFileInfo: currentFileInfo, index: index);
+      : super.init(currentFileInfo: currentFileInfo, index: index);
 
 //3.0.0 20160714
 // var Variable = function (name, index, currentFileInfo) {
@@ -22,9 +25,8 @@ class Variable extends Node {
 // };
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'name': name
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'name': name};
 
   ///
   @override
@@ -32,12 +34,12 @@ class Variable extends Node {
     String name = this.name;
 
     if (name.startsWith('@@')) {
-      // ignore: prefer_interpolation_to_compose_strings
-      name = '@' + new Variable(name.substring(1), index, currentFileInfo).eval(context).value;
+      name =
+          '@${Variable(name.substring(1), index, currentFileInfo).eval(context).value}';
     }
 
     if (evaluating) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Name',
           message: 'Recursive variable definition for $name',
           filename: currentFileInfo.filename,
@@ -55,11 +57,9 @@ class Variable extends Node {
         }
 
         // If in calc, wrap vars in a function call to cascade evaluate args first
-        if (context.inCalc) {
-          return new Call('self', <Node>[v.value]).eval(context);
-        } else {
-          return v.value.eval(context);
-        }
+        return context.inCalc
+            ? Call('self', <Node>[v.value]).eval(context)
+            : v.value.eval(context);
       }
       return null;
     });
@@ -68,7 +68,7 @@ class Variable extends Node {
       evaluating = false;
       return variable;
     } else {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Name',
           message: 'variable $name is undefined',
           filename: currentFileInfo.filename,
@@ -140,11 +140,11 @@ class Variable extends Node {
 // };
 
 // Used by genTree
-@override
-void genCSS(Contexts context, Output output) {
-  output.add(name);
-}
+  @override
+  void genCSS(Contexts context, Output output) {
+    output.add(name);
+  }
 
-@override
-String toString() => name;
+  @override
+  String toString() => name;
 }

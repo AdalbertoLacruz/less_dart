@@ -8,15 +8,17 @@ part of tree.less;
 ///
 class DebugInfo {
   ///
-  String  fileName;
-  ///
-  int     lineNumber;
+  String fileName;
 
   ///
-  DebugInfo({this.lineNumber, String fileName}) { // fileName null?
-    this.fileName = (path.isAbsolute(fileName))
+  int lineNumber;
+
+  ///
+  DebugInfo({this.lineNumber, String fileName}) {
+    // fileName must be != null
+    this.fileName = (path_lib.isAbsolute(fileName))
         ? fileName
-        : path.normalize(path.absolute(fileName));
+        : path_lib.normalize(path_lib.absolute(fileName));
   }
 
   ///
@@ -62,11 +64,11 @@ class DebugInfo {
   }
 
   ///
-  StringBuffer asComment() => new StringBuffer('/* line ')
-      ..write(lineNumber)
-      ..write(', ')
-      ..write(fileName)
-      ..write(' */\n');
+  StringBuffer asComment() => StringBuffer('/* line ')
+    ..write(lineNumber)
+    ..write(', ')
+    ..write(fileName)
+    ..write(' */\n');
 
 //2.3.1
 //  debugInfo.asComment = function(ctx) {
@@ -75,26 +77,26 @@ class DebugInfo {
 
   ///
   StringBuffer asMediaQuery() {
-    String        filenameWithProtocol = fileName;
-    final RegExp  reFileNameWithProtocol =
-        new RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
+    String filenameWithProtocol = fileName;
+    final RegExp reFileNameWithProtocol =
+        RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
 
     if (!reFileNameWithProtocol.hasMatch(filenameWithProtocol)) {
       filenameWithProtocol = 'file://$filenameWithProtocol';
     }
 
-    final String file = filenameWithProtocol
-        .replaceAllMapped(new RegExp(r'([.:\/\\])'), (Match m) {
-            String a = m[1];
-            if (a == '\\') a = '\/';
-            return '\\$a';
-        });
+    final String file =
+        filenameWithProtocol.replaceAllMapped(RegExp(r'([.:\/\\])'), (Match m) {
+      String a = m[1];
+      if (a == '\\') a = '\/';
+      return '\\$a';
+    });
 
-    return new StringBuffer('@media -sass-debug-info{filename{font-family:')
-        ..write(file)
-        ..write('}line{font-family:\\00003')
-        ..write(lineNumber)
-        ..write('}}\n');
+    return StringBuffer('@media -sass-debug-info{filename{font-family:')
+      ..write(file)
+      ..write('}line{font-family:\\00003')
+      ..write(lineNumber)
+      ..write('}}\n');
 
 //2.3.1
 //  debugInfo.asMediaQuery = function(ctx) {

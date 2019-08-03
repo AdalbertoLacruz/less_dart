@@ -4,18 +4,18 @@ part of tree.less;
 
 ///
 class Operation extends Node {
-  @override final String type = 'Operation';
+  @override
+  final String type = 'Operation';
 
   ///
-  bool    isSpaced;
-  ///
-  String  op;
+  bool isSpaced;
 
   ///
-  Operation(String op, List<Node> operands,
-      {this.isSpaced = false})
+  String op;
+
+  ///
+  Operation(String op, List<Node> operands, {this.isSpaced = false})
       : super.init(operands: operands) {
-
     this.op = op.trim();
 
 //2.3.1
@@ -27,10 +27,9 @@ class Operation extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'op': op,
-    'operands': operands
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'op': op, 'operands': operands};
 
   ///
   @override
@@ -55,20 +54,20 @@ class Operation extends Node {
       if (a is Dimension && b is Color) a = (a as Dimension).toColor();
       if (b is Dimension && a is Color) b = (b as Dimension).toColor();
       if (a is! OperateNode) {
-        if (a is Operation && a.op == '/' && context.math == MathConstants.parensDivision) {
-          return new Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
+        if (a is Operation &&
+            a.op == '/' &&
+            context.math == MathConstants.parensDivision) {
+          return Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
         }
-        throw new LessExceptionError(new LessError(
-            type: 'Operation',
-            message: 'Operation on an invalid type'
-        ));
+        throw LessExceptionError(LessError(
+            type: 'Operation', message: 'Operation on an invalid type'));
       }
       //Only for Dimension | Color
       return (b is Dimension)
-        ? (a as OperateNode<Dimension>).operate(context, op, b)
-        : (a as OperateNode<Color>).operate(context, op, b);
+          ? (a as OperateNode<Dimension>).operate(context, op, b)
+          : (a as OperateNode<Color>).operate(context, op, b);
     } else {
-      return new Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
+      return Operation(this.op, <Node>[a, b], isSpaced: isSpaced);
     }
 
 // 3.5.3 20180707
@@ -125,7 +124,7 @@ class Operation extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }

@@ -8,28 +8,28 @@ abstract class JsEvalNodeMixin implements Node {
   /// JavaScript evaluation - not supported
   ///
   String evaluateJavaScript(String expression, Contexts context) {
-    //String                result;
+    // String result;
     final JsEvalNodeMixin that = this;
-    //Map evalContext = {};
+    // Map evalContext = {};
 
     if (!(context.javascriptEnabled ?? false)) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           message: 'Inline JavaScript is not enabled.',
           index: index,
           filename: currentFileInfo.filename));
     }
     final String _expression = expression.replaceAllMapped(
-        new RegExp(r'@\{([\w-]+)\}'),
-        (Match m) => that
-            .jsify(new Variable('@${m[1]}', that.index, that.currentFileInfo).eval(context))
-    );
+        RegExp(r'@\{([\w-]+)\}'),
+        (Match m) => that.jsify(
+            Variable('@${m[1]}', that.index, that.currentFileInfo)
+                .eval(context)));
 
     try {
       // expression = new Function('return (' + expression + ')');
     } catch (e) {
-        // throw { message: "JavaScript evaluation error: " + e.message + " from `" + expression + "`" ,
-             //filename: this.currentFileInfo.filename,
-             //index:
+      // throw { message: "JavaScript evaluation error: " + e.message + " from `" + expression + "`" ,
+      //filename: this.currentFileInfo.filename,
+      //index:
     }
 //      var variables = context.frames[0].variables();
 //      for (var k in variables) {
@@ -105,9 +105,8 @@ abstract class JsEvalNodeMixin implements Node {
   ///
   String jsify(Node obj) {
     if (obj.value is List && obj.value.length > 1) {
-      final List<String> result = (obj.value as List<Node>)
-          .map((Node v) => v.toCSS(null))
-          .toList();
+      final List<String> result =
+          (obj.value as List<Node>).map((Node v) => v.toCSS(null)).toList();
       return "[${result.join(', ')}]";
     } else {
       return obj.toCSS(null);

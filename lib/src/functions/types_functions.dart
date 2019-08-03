@@ -18,7 +18,7 @@ class TypesFunctions extends FunctionBase {
   ///   isruleset(#ff0);     // false
   ///
   Keyword isruleset(Node n) =>
-      (n is DetachedRuleset) ? new Keyword.True() : new Keyword.False();
+      (n is DetachedRuleset) ? Keyword.True() : Keyword.False();
 
 //  isruleset: function (n) {
 //      return isa(n, DetachedRuleset);
@@ -34,8 +34,7 @@ class TypesFunctions extends FunctionBase {
   ///   iscolor(#ff0);     // true
   ///   iscolor("string"); // false
   ///
-  Keyword iscolor(Node n) =>
-      (n is Color) ? new Keyword.True() : new Keyword.False();
+  Keyword iscolor(Node n) => (n is Color) ? Keyword.True() : Keyword.False();
 
   ///
   /// Returns true if a value is a number, false otherwise.
@@ -48,7 +47,7 @@ class TypesFunctions extends FunctionBase {
   ///   isnumber(1234);     // true
   ///
   Keyword isnumber(Node n) =>
-      (n is Dimension) ? new Keyword.True() : new Keyword.False();
+      (n is Dimension) ? Keyword.True() : Keyword.False();
 
   ///
   /// Returns true if a value is a string, false otherwise.
@@ -60,8 +59,7 @@ class TypesFunctions extends FunctionBase {
   ///   isstring(#ff0);     // false
   ///   isstring("string"); // true
   ///
-  Keyword isstring(Node n) =>
-      (n is Quoted) ? new Keyword.True() : new Keyword.False();
+  Keyword isstring(Node n) => (n is Quoted) ? Keyword.True() : Keyword.False();
 
   ///
   /// Returns true if a value is a keyword, false otherwise.
@@ -74,7 +72,7 @@ class TypesFunctions extends FunctionBase {
   ///   iskeyword(keyword);  // true
   ///
   Keyword iskeyword(Node n) =>
-      (n is Keyword) ? new Keyword.True() : new Keyword.False();
+      (n is Keyword) ? Keyword.True() : Keyword.False();
 
   ///
   /// Returns true if a value is a url, false otherwise.
@@ -86,8 +84,7 @@ class TypesFunctions extends FunctionBase {
   ///   isurl(#ff0);     // false
   ///   isurl(url(...)); // true
   ///
-  Keyword isurl(Node n) =>
-      (n is URL) ? new Keyword.True() : new Keyword.False();
+  Keyword isurl(Node n) => (n is URL) ? Keyword.True() : Keyword.False();
 
   ///
   /// Returns true if a value is a number in pixels, false otherwise.
@@ -140,22 +137,21 @@ class TypesFunctions extends FunctionBase {
   ///
   Keyword isunit(Node n, dynamic unit) {
     if (unit == null) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Argument',
           message: 'missing the required second argument to isunit.'));
     }
 
-    //String unitValue = (unit.value is String) ? unit.value : unit;
     final String unitValue = (unit is String) ? unit : unit.value;
     if (unitValue is! String) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Argument',
           message: 'Second argument to isunit should be a unit or a string.'));
     }
 
     return (n is Dimension && n.unit.isUnit(unitValue))
-        ? new Keyword.True()
-        : new Keyword.False();
+        ? Keyword.True()
+        : Keyword.False();
 
 //    isunit = function (n, unit) {
 //        if (unit === undefined) {
@@ -183,11 +179,13 @@ class TypesFunctions extends FunctionBase {
     String unitValue;
 
     if (val is! Dimension) {
-      final String p = val is Operation ? '. Have you forgotten parenthesis?' : '';
-      throw new LessExceptionError(new LessError(
+      final String p =
+          val is Operation ? '. Have you forgotten parenthesis?' : '';
+      throw LessExceptionError(LessError(
           type: 'Argument',
           message: 'the first argument to unit must be a number$p'));
     }
+
     if (unit != null) {
       if (unit is Keyword) {
         unitValue = unit.value;
@@ -197,7 +195,7 @@ class TypesFunctions extends FunctionBase {
     } else {
       unitValue = '';
     }
-    return new Dimension(val.value, unitValue);
+    return Dimension(val.value, unitValue);
 
 //2.4.0
 //  unit: function (val, unit) {
@@ -234,7 +232,7 @@ class TypesFunctions extends FunctionBase {
   ///   Output: //nothing
   ///
   @DefineMethod(name: 'get-unit')
-  Anonymous getUnit(Dimension n) => new Anonymous(n.unit);
+  Anonymous getUnit(Dimension n) => Anonymous(n.unit);
 
   ///
   /// Converts from px, pt or em to rem units
@@ -262,8 +260,7 @@ class TypesFunctions extends FunctionBase {
         default:
       }
     }
-    //base = baseFont != null ? baseFont.value : base;
     base = baseFont?.value ?? base;
-    return new Dimension(fontSize.value / base, 'rem');
+    return Dimension(fontSize.value / base, 'rem');
   }
 }

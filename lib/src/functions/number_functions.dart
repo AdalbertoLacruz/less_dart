@@ -7,18 +7,17 @@ class NumberFunctions extends FunctionBase {
   @defineMethodSkip
   Node _minmax(bool isMin, List<Node> args) {
     if (args.isEmpty) {
-      throw new LessExceptionError(new LessError(
-          type: 'Argument',
-          message: 'one or more arguments required'));
+      throw LessExceptionError(LessError(
+          type: 'Argument', message: 'one or more arguments required'));
     }
 
     Dimension current;
     Dimension currentUnified;
-    int       j;
+    int j;
     Dimension referenceUnified;
-    String    unit;
-    String    unitClone;
-    String    unitStatic;
+    String unit;
+    String unitClone;
+    String unitStatic;
 
     // elems only contains original argument values.
     final List<Dimension> order = <Dimension>[];
@@ -34,12 +33,13 @@ class NumberFunctions extends FunctionBase {
       }
       current = args[i];
       currentUnified = (current.unit.toString() == '' && unitClone != null)
-          ? new Dimension(current.value, unitClone).unify()
+          ? Dimension(current.value, unitClone).unify()
           : current.unify();
       unit = (currentUnified.unit.toString() == '' && unitStatic != null)
           ? unitStatic
           : currentUnified.unit.toString();
-      unitStatic = (unit != '' && unitStatic == null || unit != '' && order[0].unify().unit.toString() == '')
+      unitStatic = (unit != '' && unitStatic == null ||
+              unit != '' && order[0].unify().unit.toString() == '')
           ? unit
           : unitStatic;
       unitClone = (unit != '' && unitClone == null)
@@ -50,16 +50,15 @@ class NumberFunctions extends FunctionBase {
           : values[unit];
       if (j == null) {
         if (unitStatic != null && unit != unitStatic) {
-          throw new LessExceptionError(new LessError(
-              type: 'Argument',
-              message: 'incompatible types'));
+          throw LessExceptionError(
+              LessError(type: 'Argument', message: 'incompatible types'));
         }
         values[unit] = order.length;
         order.add(current);
         continue;
       }
       referenceUnified = (order[j].unit.toString() == '' && unitClone != null)
-          ? new Dimension(order[j].value, unitClone).unify()
+          ? Dimension(order[j].value, unitClone).unify()
           : order[j].unify();
       if (isMin && currentUnified.value < referenceUnified.value ||
           !isMin && currentUnified.value > referenceUnified.value) {
@@ -73,7 +72,7 @@ class NumberFunctions extends FunctionBase {
         .toList()
         .join(context.compress ? ',' : ', ');
 
-    return new Anonymous('${isMin ? 'min' : 'max'}($arguments)');
+    return Anonymous('${isMin ? 'min' : 'max'}($arguments)');
 
 //    var minMax = function (isMin, args) {
 //        args = Array.prototype.slice.call(args);
@@ -175,7 +174,7 @@ class NumberFunctions extends FunctionBase {
   ///   Output: 3.141592653589793
   ///
   ///
-  Dimension pi() => new Dimension(math.pi);
+  Dimension pi() => Dimension(math.pi);
 
   ///
   /// Returns the value of the first argument modulus second argument.
@@ -191,7 +190,7 @@ class NumberFunctions extends FunctionBase {
   ///   Output: 5cm
   ///
   Dimension mod(Dimension a, Dimension b) =>
-      new Dimension(a.value % b.value, a.unit);
+      Dimension(a.value % b.value, a.unit);
 
   ///
   /// Returns the value of the first argument raised to the power of the second argument.
@@ -211,15 +210,14 @@ class NumberFunctions extends FunctionBase {
     dynamic _y = y;
 
     if (_x is num && _y is num) {
-      _x = new Dimension(_x);
-      _y = new Dimension(_y);
+      _x = Dimension(_x);
+      _y = Dimension(_y);
     } else if (_x is! Dimension || _y is! Dimension) {
-      throw new LessExceptionError(new LessError(
-          type: 'Argument',
-          message: 'arguments must be numbers'));
+      throw LessExceptionError(
+          LessError(type: 'Argument', message: 'arguments must be numbers'));
     }
 
-    return new Dimension(math.pow(_x.value, _y.value), _x.unit);
+    return Dimension(math.pow(_x.value, _y.value), _x.unit);
 
 //    pow: function(x, y) {
 //        if (typeof x === "number" && typeof y === "number") {

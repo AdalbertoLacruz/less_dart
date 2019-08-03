@@ -4,11 +4,11 @@ part of batch.test.less;
 class PluginGlobalFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'test-shadow')
-  Anonymous testShadow() => new Anonymous('global');
+  Anonymous testShadow() => Anonymous('global');
 
   ///
   @DefineMethod(name: 'test-global')
-  Anonymous testGlobal() => new Anonymous('global');
+  Anonymous testGlobal() => Anonymous('global');
 }
 
 ///
@@ -18,18 +18,18 @@ class PluginLocalFunctions extends FunctionBase {
 
   /// Supports plugin arguments in the function
   @DefineMethod(name: 'test-shadow')
-   Anonymous testShadow() => new Anonymous('local');
+   Anonymous testShadow() => Anonymous('local');
 
   ///
   @DefineMethod(name: 'test-local')
-  Anonymous testLocal() => new Anonymous('local');
+  Anonymous testLocal() => Anonymous('local');
 }
 
 ///
 class PluginTransitiveFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'test-transitive')
-  Anonymous testTransitive() => new Anonymous('transitive');
+  Anonymous testTransitive() => Anonymous('transitive');
 }
 
 ///
@@ -39,7 +39,7 @@ class PluginSimpleFunctions extends FunctionBase {
   double piAnon() => math.pi;
   ///
   @DefineMethod(name: 'pif')
-  Dimension pif() => new Dimension(math.pi);
+  Dimension pif() => Dimension(math.pi);
 }
 
 ///
@@ -78,7 +78,7 @@ class PluginGlobal extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginGlobalFunctions();
+    final FunctionBase fun = PluginGlobalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -89,7 +89,7 @@ class PluginLocal extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginLocalFunctions();
+    final FunctionBase fun = PluginLocalFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 
@@ -105,7 +105,7 @@ class PluginTransitive extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginTransitiveFunctions();
+    final FunctionBase fun = PluginTransitiveFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -116,7 +116,7 @@ class PluginSimple extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginSimpleFunctions();
+    final FunctionBase fun = PluginSimpleFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -127,7 +127,7 @@ class PluginScope1 extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginScope1Functions();
+    final FunctionBase fun = PluginScope1Functions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -138,7 +138,7 @@ class PluginScope2 extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginScope2Functions();
+    final FunctionBase fun = PluginScope2Functions();
     pluginManager.addCustomFunctions(fun);
   }
 }
@@ -149,7 +149,7 @@ class PluginCollection extends Plugin {
 
   @override
   void install(PluginManager pluginManager) {
-    final FunctionBase fun = new PluginCollectionFunctions();
+    final FunctionBase fun = PluginCollectionFunctions();
     pluginManager.addCustomFunctions(fun);
   }
 }

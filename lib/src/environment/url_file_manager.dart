@@ -5,7 +5,7 @@ part of environment.less;
 /// URL loader
 class UrlFileManager extends AbstractFileManager {
   ///
-  RegExp isUrlRe = new RegExp(r'^(?:https?:)?\/\/', caseSensitive: false);
+  RegExp isUrlRe = RegExp(r'^(?:https?:)?\/\/', caseSensitive: false);
 
   ///
   UrlFileManager(Environment environment) : super(environment);
@@ -14,7 +14,8 @@ class UrlFileManager extends AbstractFileManager {
   /// True is can load the file
   ///
   @override
-  bool supports (String filename, String currentDirectory, Contexts options, Environment environment) =>
+  bool supports(String filename, String currentDirectory, Contexts options,
+          Environment environment) =>
       isUrlRe.hasMatch(filename) || isUrlRe.hasMatch(currentDirectory);
 
 //2.3.1
@@ -25,45 +26,43 @@ class UrlFileManager extends AbstractFileManager {
   /// Load async the url
   //TODO options.strictSSL
   @override
-  Future<FileLoaded> loadFile(String filename, String currentDirectory, Contexts options, Environment environment) {
-    final StringBuffer dataBuffer = new StringBuffer();
-    final HttpClient client = new HttpClient();
-    final Completer<FileLoaded> task = new Completer<FileLoaded>();
+  Future<FileLoaded> loadFile(String filename, String currentDirectory,
+      Contexts options, Environment environment) {
+    final StringBuffer dataBuffer = StringBuffer();
+    final HttpClient client = HttpClient();
+    final Completer<FileLoaded> task = Completer<FileLoaded>();
 
     final String urlStr = isUrlRe.hasMatch(filename)
         ? filename
-        : new Uri.file(currentDirectory).resolve(filename);
+        : Uri.file(currentDirectory).resolve(filename);
 
     client
         .getUrl(Uri.parse(urlStr))
         .then((HttpClientRequest request) => request.close())
         .then((HttpClientResponse response) {
-          response.cast<List<int>>().transform(utf8.decoder).listen((String contents) {
-            dataBuffer.write(contents);
-          }, onDone: () {
-            if (response.statusCode == 404) {
-              final LessError error = new LessError(
-                  type: 'File',
-                  message: 'resource " $urlStr " was not found\n'
-              );
-              return task.completeError(error);
-            }
-            if (dataBuffer.isEmpty) {
-              environment.logger.warn( 'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
-            }
-            final FileLoaded fileLoaded = new FileLoaded(
-                filename: urlStr,
-                contents: dataBuffer.toString()
-            );
-            task.complete(fileLoaded);
-          });
-        }).catchError((dynamic e, StackTrace s) {
-          final LessError error = new LessError(
-              type: 'File',
-              message: 'resource "$urlStr" gave this Error:\n  ${e.message}\n'
-          );
-          task.completeError(error);
-        });
+      response
+          .cast<List<int>>()
+          .transform(utf8.decoder)
+          .listen(dataBuffer.write, onDone: () {
+        if (response.statusCode == 404) {
+          final LessError error = LessError(
+              type: 'File', message: 'resource " $urlStr " was not found\n');
+          return task.completeError(error);
+        }
+        if (dataBuffer.isEmpty) {
+          environment.logger.warn(
+              'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
+        }
+        final FileLoaded fileLoaded =
+            FileLoaded(filename: urlStr, contents: dataBuffer.toString());
+        task.complete(fileLoaded);
+      });
+    }).catchError((dynamic e, StackTrace s) {
+      final LessError error = LessError(
+          type: 'File',
+          message: 'resource "$urlStr" gave this Error:\n  ${e.message}\n');
+      task.completeError(error);
+    });
 
     return task.future;
 

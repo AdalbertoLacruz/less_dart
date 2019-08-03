@@ -23,8 +23,10 @@ class MathConstants {
 class RewriteUrlsConstants {
   /// Don't rewrite
   static const int off = 0;
+
   /// Rewrites only the URLS starting with '.'
   static const int local = 1;
+
   /// Rewrites all URLS
   static const int all = 2;
 }

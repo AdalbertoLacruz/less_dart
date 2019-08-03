@@ -40,9 +40,9 @@ class ParseNode {
   ///
   ParseNode(String input, this.index, this.fileInfo) {
     index ??= 0;
-    fileInfo ??= new FileInfo();
-    parsers = new Parsers(input, new Contexts());
-}
+    fileInfo ??= FileInfo();
+    parsers = Parsers(input, Contexts());
+  }
 
   ///
   /// Wrapper function, called with the specialized [parseFunction]
@@ -54,13 +54,14 @@ class ParseNode {
       if (!parsers.parserInput.end().isFinished) isError = true;
       if (result.isNotEmpty && result.first is Node) {
         result[0]
-            ..index = i + index
-            ..currentFileInfo = fileInfo;
+          ..index = i + index
+          ..currentFileInfo = fileInfo;
       }
     } catch (e) {
       isError = true;
       if (e is LessExceptionError) e.error.index += index;
-      throw new LessExceptionError(LessError.transform(e, filename: fileInfo.filename));
+      throw LessExceptionError(
+          LessError.transform(e, filename: fileInfo.filename));
     }
   }
 
@@ -139,9 +140,7 @@ class ParseNode {
   ///
   List<dynamic> value() {
     parse(() {
-      result
-        ..add(parsers.value())
-        ..add(parsers.important());
+      result..add(parsers.value())..add(parsers.important());
     });
     return isError ? null : result;
   }

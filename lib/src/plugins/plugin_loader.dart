@@ -6,23 +6,26 @@ part of plugins.less;
 ///
 class PluginLoader {
   ///
-  Environment   environment;
+  Environment environment;
+
   ///
-  Logger        logger;
+  Logger logger;
+
   ///
-  LessOptions   options;
+  LessOptions options;
+
   ///
   PluginManager pluginManager;
 
   /// Plugins to install
   Map<String, Plugin> installable = <String, Plugin>{
-    'less-plugin-clean-css': new LessPluginCleanCss(),
-    'less-plugin-advanced-color-functions': new LessPluginAdvancedColorFunctions()
+    'less-plugin-clean-css': LessPluginCleanCss(),
+    'less-plugin-advanced-color-functions': LessPluginAdvancedColorFunctions()
   };
 
   ///
   PluginLoader(this.options) {
-    environment = new Environment();
+    environment = Environment();
     logger = environment.logger;
 
 //    if (options.pluginManager == null) options.pluginManager = new PluginManager();
@@ -47,12 +50,13 @@ class PluginLoader {
     if (installable.containsKey(pluginName)) {
       plugin = installable[pluginName];
       if (compareVersion(plugin.minVersion, LessIndex.version) < 0) {
-        logger.log('plugin $name requires version ${versionToString(plugin.minVersion)}');
+        logger.log(
+            'plugin $name requires version ${versionToString(plugin.minVersion)}');
         return null;
       }
       plugin
-          ..init(options)
-          ..name = name;
+        ..init(options)
+        ..name = name;
 
       try {
         defaultMessage = 'Error setting options on plugin $name\n}';
@@ -61,9 +65,7 @@ class PluginLoader {
         defaultMessage = 'Error during @plugin call';
         plugin.use();
       } catch (e) {
-        logger.log(e is LessException
-          ? e.message
-          : defaultMessage);
+        logger.log(e is LessException ? e.message : defaultMessage);
 
         return null;
       }
@@ -251,9 +253,8 @@ class PluginLoader {
   /// Load plugins
   void start() {
     if (options.plugins.isNotEmpty) {
-      options.pluginManager ??= new PluginManager();
-      pluginManager = options.pluginManager
-          ..addPlugins(options.plugins);
+      options.pluginManager ??= PluginManager();
+      pluginManager = options.pluginManager..addPlugins(options.plugins);
     }
   }
 }

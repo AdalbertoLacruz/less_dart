@@ -4,11 +4,10 @@ part of less_plugin_clean_css.plugins.less;
 
 ///
 class CleanCssProcessor extends Processor {
-
   //CleanCssOptions cleanCssOptions;
 
   ///
-  CleanCssProcessor(CleanCssOptions cleanCssOptions):super(cleanCssOptions);
+  CleanCssProcessor(CleanCssOptions cleanCssOptions) : super(cleanCssOptions);
 
   @override
   String process(String input, Map<String, dynamic> options) => input;

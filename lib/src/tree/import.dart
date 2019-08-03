@@ -26,33 +26,42 @@ part of tree.less;
 
 ///
 class Import extends Node {
-  @override final String  name = null;
-  @override final String  type = 'Import';
+  @override
+  final String name = null;
+
+  @override
+  final String type = 'Import';
 
   ///
-  bool          css = false;
+  bool css = false;
+
   ///
-  LessError     errorImport;
+  LessError errorImport;
+
   ///
-  Node          features;
+  Node features;
+
   ///
-  String        importedFilename;
+  String importedFilename;
+
   ///
   ImportOptions options;
+
   ///
-  dynamic       root; // Ruleset or String
+  dynamic root; // Ruleset or String
+
   ///
-  dynamic       skip; // bool or Function - initialized in import_visitor
+  dynamic skip; // bool or Function - initialized in import_visitor
+
   ///
-  Node          path;
+  Node path;
 
   ///
   Import(this.path, this.features, this.options, int index,
       [FileInfo currentFileInfo, VisibilityInfo visibilityInfo])
       : super.init(currentFileInfo: currentFileInfo, index: index) {
-
     allowRoot = true;
-    final RegExp rPathValue = new RegExp(r'[#\.\&\?]css([\?;].*)?$');
+    final RegExp rPathValue = RegExp(r'[#\.\&\?]css([\?;].*)?$');
 
     if (options.less != null || (options.inline ?? false)) {
       css = !(options.less ?? false) || (options.inline ?? false);
@@ -89,10 +98,9 @@ class Import extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'path': path,
-    'features': features
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'path': path, 'features': features};
 
   ///
   @override
@@ -183,8 +191,8 @@ class Import extends Node {
     Node path = this.path;
     if (path is URL) path = path.value;
 
-    return new Import(path.eval(context), features, options, _index,
-        _fileInfo, visibilityInfo());
+    return Import(path.eval(context), features, options, _index, _fileInfo,
+        visibilityInfo());
 
 //3.0.0 20160714
 // Import.prototype.evalForImport = function (context) {
@@ -200,7 +208,7 @@ class Import extends Node {
 
   ///
   Node evalPath(Contexts context) {
-    final Node    path = this.path.eval(context);
+    final Node path = this.path.eval(context);
 
     if (path is! URL) {
       // Add the rootpath if the URL requires a rewrite
@@ -235,7 +243,6 @@ class Import extends Node {
 //      return path;
 //  };
   }
-
 
   ///
   /// Replaces the @import rule with the imported ruleset
@@ -275,34 +282,35 @@ class Import extends Node {
     if (skip != null) {
       if (skip is Function) skip = skip();
       //if (skip) return [];
-      if (skip) return new Nodeset(<Node>[]);
+      if (skip) return Nodeset(<Node>[]);
     }
 
     if (options.inline ?? false) {
-      final Anonymous contents = new Anonymous(root,
+      final Anonymous contents = Anonymous(root,
           index: 0,
-          currentFileInfo: new FileInfo()
-              ..filename = importedFilename
-              ..reference = path._fileInfo?.reference ?? false,
+          currentFileInfo: FileInfo()
+            ..filename = importedFilename
+            ..reference = path._fileInfo?.reference ?? false,
           mapLines: true,
           rulesetLike: true);
 
       return (this.features != null)
-          ? new Media(<Node>[contents], this.features.value)
-          : new Nodeset(<Node>[contents]);
+          ? Media(<Node>[contents], this.features.value)
+          : Nodeset(<Node>[contents]);
     } else if (css ?? false) {
-      final Import newImport = new Import(evalPath(context), features, options, _index);
+      final Import newImport =
+          Import(evalPath(context), features, options, _index);
       if (!(newImport.css ?? false) && errorImport != null) {
-        throw new LessExceptionError(errorImport);
+        throw LessExceptionError(errorImport);
       }
       return newImport;
     } else {
-      final Ruleset ruleset = new Ruleset(null, root.rules.sublist(0))
-          ..evalImports(context);
+      final Ruleset ruleset = Ruleset(null, root.rules.sublist(0))
+        ..evalImports(context);
       //return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
       return (this.features != null)
-          ? new Media(ruleset.rules, this.features.value)
-          : new Nodeset(ruleset.rules);
+          ? Media(ruleset.rules, this.features.value)
+          : Nodeset(ruleset.rules);
     }
 
 //3.0.0 20160714
@@ -354,7 +362,7 @@ class Import extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     path.genCSS(null, output);
     return output.toString();
   }
@@ -367,12 +375,16 @@ class Import extends Node {
 class ImportOptions {
   ///
   bool less;
+
   ///
   bool css;
+
   ///
   bool multiple;
+
   ///
   bool once;
+
   ///
   bool inline;
 
@@ -380,6 +392,7 @@ class ImportOptions {
 
   ///
   bool reference;
+
   ///
   bool optional;
 

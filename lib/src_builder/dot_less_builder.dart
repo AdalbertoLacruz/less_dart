@@ -6,10 +6,10 @@ part of builder.less;
 class DotLessBuilder extends BaseBuilder {
   @override
   Future<BaseBuilder> transform(Function modifyOptions) {
-    final Completer<BaseBuilder> task = new Completer<BaseBuilder>();
+    final Completer<BaseBuilder> task = Completer<BaseBuilder>();
 
     runZoned(() {
-      final Less less = new Less();
+      final Less less = Less();
       less.stdin.write(inputContent);
       less.transform(flags, modifyOptions: modifyOptions).then((int exitCode) {
         if (exitCode == 0) {

@@ -2,7 +2,7 @@ library sourcemap.less;
 
 import 'dart:convert';
 
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as path_lib;
 import 'package:source_maps/source_maps.dart';
 import 'package:source_span/source_span.dart';
 

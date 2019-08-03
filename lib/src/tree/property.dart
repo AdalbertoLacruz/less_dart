@@ -4,8 +4,11 @@ part of tree.less;
 
 ///
 class Property extends Node with MergeRulesMixin {
-  @override final String name;
-  @override String       type = 'Property';
+  @override
+  final String name;
+
+  @override
+  String type = 'Property';
 
   /// recursive control
   bool evaluating = false;
@@ -24,15 +27,14 @@ class Property extends Node with MergeRulesMixin {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'name': name
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'name': name};
 
   ///
   @override
   Node eval(Contexts context) {
     if (evaluating) {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Name',
           message: 'Recursive property reference for $name',
           filename: currentFileInfo.filename,
@@ -45,14 +47,16 @@ class Property extends Node with MergeRulesMixin {
       final Ruleset _frame = frame;
       final List<Declaration> vArr = _frame.property(name);
       Declaration v;
+
       if (vArr != null) {
         for (int i = 0; i < vArr.length; i++) {
           v = vArr[i];
           vArr[i] = v.clone();
         }
-        mergeRules(vArr);
 
+        mergeRules(vArr);
         v = vArr.last;
+
         if (v.important.isNotEmpty) {
           context.importantScope[context.importantScope.length - 1].important =
               v.important;
@@ -66,7 +70,7 @@ class Property extends Node with MergeRulesMixin {
       evaluating = false;
       return property;
     } else {
-      throw new LessExceptionError(new LessError(
+      throw LessExceptionError(LessError(
           type: 'Name',
           message: "Property '$name' is undefined",
           filename: currentFileInfo.filename,
@@ -126,7 +130,7 @@ class Property extends Node with MergeRulesMixin {
 //                 index: this.index };
 //     }
 // };
-}
+  }
 
   ///
   Node find(List<Node> obj, Function fun) {

@@ -4,16 +4,20 @@ part of tree.less;
 
 ///
 class Condition extends Node {
-  @override final String type = 'Condition';
+  @override
+  final String type = 'Condition';
 
   ///
-  Node    lvalue;
+  Node lvalue;
+
   ///
-  bool    negate;
+  bool negate;
+
   ///
-  String  op;
+  String op;
+
   ///
-  Node    rvalue;
+  Node rvalue;
 
   ///
   /// Conditions are < = > <= >= and or
@@ -21,11 +25,9 @@ class Condition extends Node {
   ///     lvalue op rvalue
   ///     @a1 = true
   ///
-  Condition(String op, this.lvalue, this.rvalue, {
-      int index,
-      this.negate = false
-      }) : super.init(index: index) {
-
+  Condition(String op, this.lvalue, this.rvalue,
+      {int index, this.negate = false})
+      : super.init(index: index) {
     this.op = op.trim();
 
 //3.0.0 20160714
@@ -39,11 +41,9 @@ class Condition extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'op': op,
-    'lvalue': lvalue,
-    'rvalue': rvalue
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'op': op, 'lvalue': lvalue, 'rvalue': rvalue};
 
   ///
   @override
@@ -76,11 +76,11 @@ class Condition extends Node {
         default:
           switch (Node.compareNodes(aNode, bNode)) {
             case -1:
-              return (op == '<' || op == '=<' || op == '<=');
+              return op == '<' || op == '=<' || op == '<=';
             case 0:
-              return (op == '=' || op == '>=' || op == '=<' || op == '<=');
+              return op == '=' || op == '>=' || op == '=<' || op == '<=';
             case 1:
-              return (op == '>' || op == '>=');
+              return op == '>' || op == '>=';
             default:
               return false;
           }

@@ -121,8 +121,7 @@ class DirectiveBase extends Node
         ..mediaPath = <Media>[]
         ..mediaBlocks = <Media>[];
 
-    if (value != null)
-        value = value.eval(context);
+    if (value != null) value = value.eval(context);
     if (rules != null) {
       // assuming that there is only one rule at this point - that is how parser constructs the rule
       rules = <Ruleset>[rules[0].eval(context)];
@@ -133,7 +132,7 @@ class DirectiveBase extends Node
         ..mediaPath = mediaPathBackup
         ..mediaBlocks = mediaBlocksBackup;
 
-    return new AtRule(name, value,
+    return AtRule(name, value,
         rules: rules,
         index: index,
         currentFileInfo: currentFileInfo,
@@ -193,9 +192,10 @@ class DirectiveBase extends Node
   // self type?
   @override
   List<MixinFound> find(Selector selector, [dynamic self, Function filter]) {
-    if (rules?.isNotEmpty ?? false)
-        // assuming that there is only one rule at this point - that is how parser constructs the rule
-        return (rules[0] as Ruleset).find(selector, self, filter);
+    if (rules?.isNotEmpty ?? false) {
+      // assuming that there is only one rule at this point - that is how parser constructs the rule
+      return (rules[0] as Ruleset).find(selector, self, filter);
+    }
     return null;
 
 //2.8.0 20160702

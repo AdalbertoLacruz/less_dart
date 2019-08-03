@@ -7,16 +7,16 @@ part of parser.less;
 ///
 class Entities {
   /// Environment variables
-  Contexts    context;
+  Contexts context;
 
   /// Data about the file being parsed
-  FileInfo    fileInfo;
+  FileInfo fileInfo;
 
   /// Input management
   ParserInput parserInput;
 
   /// For internal use, to reference parsers.expression() and parsers.entity()
-  Parsers     parsers;
+  Parsers parsers;
 
   ///
   /// Constructor. It's an auxiliary class for parsers.
@@ -40,8 +40,8 @@ class Entities {
   ///
   Quoted quoted({bool forceEscaped = false}) {
     final int index = parserInput.i;
-    bool      isEscaped = false;
-    String    str;
+    bool isEscaped = false;
+    String str;
 
     parserInput.save();
     if (parserInput.$char('~') != null) {
@@ -57,10 +57,8 @@ class Entities {
       return null;
     }
     parserInput.forget();
-    return new Quoted(str[0], str.substring(1, str.length - 1),
-        escaped: isEscaped,
-        index: index,
-        currentFileInfo: fileInfo);
+    return Quoted(str[0], str.substring(1, str.length - 1),
+        escaped: isEscaped, index: index, currentFileInfo: fileInfo);
 
 // 3.5.0.beta 20180625
 //  quoted: function (forceEscaped) {
@@ -85,7 +83,9 @@ class Entities {
 //  },
   }
 
-  static final RegExp  _keywordRegEx = new RegExp(r'\[?(?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+\]?', caseSensitive: true);
+  static final RegExp _keywordRegEx = RegExp(
+      r'\[?(?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+\]?',
+      caseSensitive: true);
 
   ///
   /// A catch-all word, such as:
@@ -97,10 +97,7 @@ class Entities {
   Node keyword() {
     final String k = parserInput.$char('%') ?? parserInput.$re(_keywordRegEx);
 
-    if (k != null) {
-      return new Color.fromKeyword(k) ?? new Keyword(k);
-    }
-
+    if (k != null) return Color.fromKeyword(k) ?? Keyword(k);
     return null;
 
 // 3.5.1 20180706
@@ -112,8 +109,9 @@ class Entities {
 //  },
   }
 
-  static final RegExp _callRegExp = new RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
-  static final RegExp _reCallUrl = new RegExp(r'url\(', caseSensitive: false);
+  static final RegExp _callRegExp =
+      RegExp(r'([\w-]+|%|progid:[\w\.]+)\(', caseSensitive: true);
+  static final RegExp _reCallUrl = RegExp(r'url\(', caseSensitive: false);
 
   ///
   /// A function call
@@ -123,10 +121,10 @@ class Entities {
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
   Node call() {
-    List<Node>  args = <Node>[];
-    bool     func;
-    final int   index = parserInput.i;
-    String      name;
+    List<Node> args = <Node>[];
+    bool func;
+    final int index = parserInput.i;
+    String name;
 
     if (parserInput.peek(_reCallUrl)) return null;
 
@@ -139,8 +137,10 @@ class Entities {
     }
 
     func = customFuncCall(name, args); // Different from js
-    if (func != null) { // name found
-      if (args.isNotEmpty && func) { //stop
+    if (func != null) {
+      // name found
+      if (args.isNotEmpty && func) {
+        //stop
         parserInput.forget();
         return args.first; //must return Node
       }
@@ -154,7 +154,7 @@ class Entities {
     }
 
     parserInput.forget();
-    return new Call(name, args, index: index, currentFileInfo: fileInfo);
+    return Call(name, args, index: index, currentFileInfo: fileInfo);
 
 //3.0.0 20170607
 // call: function () {
@@ -195,8 +195,9 @@ class Entities {
 // },
   }
 
-  static final RegExp _alphaRegExp1 = new RegExp(r'\opacity=', caseSensitive: false);
-  static final RegExp _alphaRegExp2 = new RegExp(r'\d+', caseSensitive: true);
+  static final RegExp _alphaRegExp1 =
+      RegExp(r'\opacity=', caseSensitive: false);
+  static final RegExp _alphaRegExp2 = RegExp(r'\d+', caseSensitive: true);
 
   ///
   /// IE's alpha function
@@ -211,12 +212,13 @@ class Entities {
 
     String value = parserInput.$re(_alphaRegExp2);
     if (value == null) {
-      final Variable _value = parserInput.expect(variable, 'Could not parse alpha');
+      final Variable _value =
+          parserInput.expect(variable, 'Could not parse alpha');
       value = '@{${_value.name.substring(1)}}';
     }
     parserInput.expectChar(')');
 
-    return new Quoted('', 'alpha(opacity=$value)');
+    return Quoted('', 'alpha(opacity=$value)');
 
 //3.0.0 20170607
 // ieAlpha: function () {
@@ -260,7 +262,7 @@ class Entities {
       case 'if':
         result = parserInput.expect(parsers.condition, 'expected condition');
         if (result != null) args.add(result);
-        return false;  //look for more arguments
+        return false; //look for more arguments
         break;
     }
     return null; //function not defined
@@ -299,11 +301,11 @@ class Entities {
   /// separated by `,` or `;`
   ///
   List<Node> arguments(List<Node> prevArgs) {
-    List<Node>        argsComma = prevArgs ?? <Node>[];
-    final List<Node>  argsSemiColon = <Node>[];
-    bool              isPrevArgs = prevArgs?.isNotEmpty ?? false;
-    bool              isSemiColonSeparated = false;
-    Node              value;
+    List<Node> argsComma = prevArgs ?? <Node>[];
+    final List<Node> argsSemiColon = <Node>[];
+    bool isPrevArgs = prevArgs?.isNotEmpty ?? false;
+    bool isSemiColonSeparated = false;
+    Node value;
 
     parserInput.save();
 
@@ -311,9 +313,8 @@ class Entities {
       if (isPrevArgs) {
         isPrevArgs = false;
       } else {
-        value = parsers.detachedRuleset()
-            ?? assignment()
-            ?? parsers.expression();
+        value =
+            parsers.detachedRuleset() ?? assignment() ?? parsers.expression();
         if (value == null) break;
         if ((value.value is List) && (value.value?.length == 1 ?? false)) {
           value = value.value.first;
@@ -325,7 +326,7 @@ class Entities {
 
       if (parserInput.$char(';') != null || isSemiColonSeparated) {
         isSemiColonSeparated = true;
-        value = (argsComma.length == 1) ? argsComma.first : new Value(argsComma);
+        value = (argsComma.length == 1) ? argsComma.first : Value(argsComma);
         argsSemiColon.add(value);
         argsComma = <Node>[];
       }
@@ -380,13 +381,7 @@ class Entities {
   ///
   ///     Dimension | Color | Quoted | UnicodeDescriptor (U+A5)
   ///
-  Node literal() {
-    Node result = dimension();
-    result ??= color();
-    result ??= quoted();
-    result ??= unicodeDescriptor();
-
-    return result;
+  Node literal() => dimension() ?? color() ?? quoted() ?? unicodeDescriptor();
 
 //2.2.0
 //  literal: function () {
@@ -395,9 +390,9 @@ class Entities {
 //             this.quoted() ||
 //             this.unicodeDescriptor();
 //  }
-  }
 
-  static final RegExp _assignmentRegExp = new RegExp(r'\w+(?=\s?=)', caseSensitive: false);
+  static final RegExp _assignmentRegExp =
+      RegExp(r'\w+(?=\s?=)', caseSensitive: false);
 
   ///
   /// Assignments are argument entities for calls.
@@ -406,8 +401,8 @@ class Entities {
   ///     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
   ///
   Assignment assignment() {
-    String  key;
-    Node    value;
+    String key;
+    Node value;
 
     parserInput.save();
     key = parserInput.$re(_assignmentRegExp);
@@ -424,7 +419,7 @@ class Entities {
     value = parsers.entity();
     if (value != null) {
       parserInput.forget();
-      return new Assignment(key, value);
+      return Assignment(key, value);
     } else {
       parserInput.restore();
       return null;
@@ -453,7 +448,8 @@ class Entities {
 //  },
   }
 
-  static final RegExp _urlRegExp = new RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
+  static final RegExp _urlRegExp =
+      RegExp(r'''(?:(?:\\[\(\)'"])|[^\(\)'"])+''', caseSensitive: true);
 
   ///
   /// Parse url() tokens
@@ -464,7 +460,7 @@ class Entities {
   ///
   URL url() {
     final int index = parserInput.i;
-    Node      value;
+    Node value;
 
     parserInput.autoCommentAbsorb = false;
 
@@ -473,18 +469,18 @@ class Entities {
       return null;
     }
 
-    value = quoted()
-        ?? variable()
-        ?? property()
-        ?? new Anonymous(parserInput.$re(_urlRegExp) ?? '');
+    value = quoted() ??
+        variable() ??
+        property() ??
+        Anonymous(parserInput.$re(_urlRegExp) ?? '');
 
     parserInput
-        ..autoCommentAbsorb = true
-        ..expectChar(')');
-    return new URL(
+      ..autoCommentAbsorb = true
+      ..expectChar(')');
+    return URL(
         (value.value != null) || (value is Variable) || (value is Property)
             ? value
-            : new Anonymous(value, index: index),
+            : Anonymous(value, index: index),
         index: index,
         currentFileInfo: fileInfo);
 
@@ -513,7 +509,8 @@ class Entities {
 // },
   }
 
-  static final RegExp _variableRegExp = new RegExp(r'@@?[\w-]+', caseSensitive: true);
+  static final RegExp _variableRegExp =
+      RegExp(r'@@?[\w-]+', caseSensitive: true);
 
   ///
   /// A Variable entity, such as `@fink`, in
@@ -525,13 +522,14 @@ class Entities {
   ///
   Node variable() {
     final int index = parserInput.i;
-    String    name;
+    String name;
 
     parserInput.save();
     if ((parserInput.currentChar() == '@') &&
         (name = parserInput.$re(_variableRegExp)) != null) {
       final String ch = parserInput.currentChar();
-      if (ch == '(' || ch == '[' && !parserInput.prevChar().contains(new RegExp(r'\s'))) {
+      if (ch == '(' ||
+          ch == '[' && !parserInput.prevChar().contains(RegExp(r'\s'))) {
         // this may be a VariableCall lookup
         final Node result = parsers.variableCall(name);
         if (result != null) {
@@ -540,7 +538,7 @@ class Entities {
         }
       }
       parserInput.forget();
-      return new Variable(name, index, fileInfo);
+      return Variable(name, index, fileInfo);
     }
     parserInput.restore();
     return null;
@@ -567,7 +565,8 @@ class Entities {
 //  },
   }
 
-  static final RegExp _variableCurlyRegExp = new RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
+  static final RegExp _variableCurlyRegExp =
+      RegExp(r'@\{([\w-]+)\}', caseSensitive: true);
 
   ///
   /// A variable entity using the protective `{}`. Example:
@@ -575,12 +574,12 @@ class Entities {
   ///     @{var}
   ///
   Variable variableCurly() {
-    String    curly;
+    String curly;
     final int index = parserInput.i;
 
     if (parserInput.currentChar() == '@' &&
         (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
-      return new Variable('@$curly', index, fileInfo);
+      return Variable('@$curly', index, fileInfo);
     }
     return null;
 
@@ -594,8 +593,8 @@ class Entities {
 //  }
   }
 
-
-  static final RegExp _propertyRegExp = new RegExp(r'\$[\w-]+', caseSensitive: true);
+  static final RegExp _propertyRegExp =
+      RegExp(r'\$[\w-]+', caseSensitive: true);
 
   ///
   /// A Property accessor, such as `$color`, in
@@ -608,12 +607,12 @@ class Entities {
   ///     background-color: black;
   ///
   Property property() {
-    String    name;
+    String name;
     final int index = parserInput.i;
 
     if (parserInput.currentChar() == r'$' &&
         (name = parserInput.$re(_propertyRegExp, 1)) != null) {
-      return new Property(name, index, fileInfo);
+      return Property(name, index, fileInfo);
     }
     return null;
 
@@ -627,8 +626,8 @@ class Entities {
 // },
   }
 
-
-  static final RegExp _propertyCurlyRegExp = new RegExp(r'\$\{([\w-]+)\}', caseSensitive: true);
+  static final RegExp _propertyCurlyRegExp =
+      RegExp(r'\$\{([\w-]+)\}', caseSensitive: true);
 
   ///
   /// A property entity using the protective `{}`. Example:
@@ -636,12 +635,12 @@ class Entities {
   ///     ${prop}
   ///
   Property propertyCurly() {
-    String    curly;
+    String curly;
     final int index = parserInput.i;
 
     if (parserInput.currentChar() == r'$' &&
         (curly = parserInput.$re(_propertyCurlyRegExp, 1)) != null) {
-      return new Property('\$$curly', index, fileInfo);
+      return Property('\$$curly', index, fileInfo);
     }
     return null;
 
@@ -655,8 +654,8 @@ class Entities {
 // },
   }
 
-  static final RegExp _colorRegExp =
-      new RegExp(r'#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})',
+  static final RegExp _colorRegExp = RegExp(
+      r'#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})',
       caseSensitive: true);
 
   ///
@@ -675,7 +674,7 @@ class Entities {
 
     if (parserInput.currentChar() == '#' &&
         (rgb = parserInput.$reMatch(_colorRegExp)) != null) {
-      return new Color(rgb[1], null, rgb[0]);
+      return Color(rgb[1], null, rgb[0]);
     }
 
     return null;
@@ -691,7 +690,7 @@ class Entities {
   }
 
   static final RegExp _colorKeywordRegExp =
-      new RegExp(r'[_A-Za-z-][_A-Za-z0-9-]+', caseSensitive: true);
+      RegExp(r'[_A-Za-z-][_A-Za-z0-9-]+', caseSensitive: true);
 
   ///
   /// Search for a named color, such as `blue`.
@@ -712,7 +711,7 @@ class Entities {
     }
 
     parserInput.restore();
-    final Color color = new Color.fromKeyword(k);
+    final Color color = Color.fromKeyword(k);
 
     if (color != null) {
       parserInput.$str(k);
@@ -741,7 +740,7 @@ class Entities {
   }
 
   static final RegExp _dimensionRegExp =
-      new RegExp(r'([+-]?\d*\.?\d+)(%|[a-z_]+)?', caseSensitive: false);
+      RegExp(r'([+-]?\d*\.?\d+)(%|[a-z_]+)?', caseSensitive: false);
 
   ///
   /// A Dimension, that is, a number and a unit
@@ -753,9 +752,7 @@ class Entities {
     if (parserInput.peekNotNumeric()) return null;
 
     final List<String> value = parserInput.$re(_dimensionRegExp);
-    if (value != null) return new Dimension(value[1], value[2]);
-
-    return null;
+    return value != null ? Dimension(value[1], value[2]) : null;
 
 //2.5.3 20151207
 //  dimension: function () {
@@ -770,7 +767,8 @@ class Entities {
 //  }
   }
 
-  static final RegExp _unicodeDescriptorRegExp = new RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
+  static final RegExp _unicodeDescriptorRegExp =
+      RegExp(r'U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?', caseSensitive: true);
 
   ///
   /// A unicode descriptor, as is used in unicode-range, such as:
@@ -779,9 +777,7 @@ class Entities {
   ///
   UnicodeDescriptor unicodeDescriptor() {
     final String ud = parserInput.$re(_unicodeDescriptorRegExp, 0);
-    if (ud != null) return new UnicodeDescriptor(ud);
-
-    return null;
+    return ud != null ? UnicodeDescriptor(ud) : null;
 
 //2.2.0
 //  unicodeDescriptor: function () {
@@ -794,7 +790,8 @@ class Entities {
 //  }
   }
 
-  static final RegExp _javascriptRegExp = new RegExp(r'[^`]*`', caseSensitive: true);
+  static final RegExp _javascriptRegExp =
+      RegExp(r'[^`]*`', caseSensitive: true);
 
   ///
   /// JavaScript code to be evaluated
@@ -805,7 +802,7 @@ class Entities {
   ///
   JavaScript javascript() {
     final int index = parserInput.i;
-    String    js;
+    String js;
 
     parserInput.save();
 
@@ -820,10 +817,8 @@ class Entities {
     js = parserInput.$re(_javascriptRegExp);
     if (js != null) {
       parserInput.forget();
-      return new JavaScript(js.substring(0, js.length - 1),
-          escaped: escape != null,
-          index: index,
-          currentFileInfo: fileInfo);
+      return JavaScript(js.substring(0, js.length - 1),
+          escaped: escape != null, index: index, currentFileInfo: fileInfo);
     }
 
     parserInput.restore('invalid javascript definition');

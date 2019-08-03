@@ -4,12 +4,14 @@ part of tree.less;
 
 ///
 class DetachedRuleset extends Node {
-  @override final String type = 'DetachedRuleset';
+  @override
+  final String type = 'DetachedRuleset';
 
   ///
-  List<Node>  frames;
+  List<Node> frames;
+
   ///
-  Ruleset     ruleset;
+  Ruleset ruleset;
 
   ///
   DetachedRuleset(this.ruleset, [this.frames]) {
@@ -25,10 +27,9 @@ class DetachedRuleset extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'ruleset': ruleset,
-    'frames': frames
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'ruleset': ruleset, 'frames': frames};
 
   ///
   @override
@@ -44,7 +45,7 @@ class DetachedRuleset extends Node {
   ///
   @override
   DetachedRuleset eval(Contexts context) =>
-      new DetachedRuleset(ruleset, frames ?? context.frames.sublist(0));
+      DetachedRuleset(ruleset, frames ?? context.frames.sublist(0));
 
 //3.0.0 20160714
 // DetachedRuleset.prototype.eval = function (context) {
@@ -55,7 +56,7 @@ class DetachedRuleset extends Node {
   ///
   Ruleset callEval(Contexts context) {
     final Contexts ctx = (frames != null)
-        ? new Contexts.eval(context, frames.sublist(0)..addAll(context.frames))
+        ? Contexts.eval(context, frames.sublist(0)..addAll(context.frames))
         : context;
     return ruleset.eval(ctx);
 
@@ -67,7 +68,7 @@ class DetachedRuleset extends Node {
 
   // for genTree
   @override
-  void genCSS(Contexts context, Output output){}
+  void genCSS(Contexts context, Output output) {}
 
   @override
   String toString() => '';

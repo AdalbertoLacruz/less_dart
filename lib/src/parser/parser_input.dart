@@ -8,32 +8,32 @@ part of parser.less;
 class ParserInput {
   /// If true, skipWhiteSpace store the comments for further
   /// conversion to Comment node
-  bool                  autoCommentAbsorb = true;
+  bool autoCommentAbsorb = true;
 
   /// Store for comments found with skipWhiteSpace,
   /// waiting to be converted to Comment node if possible
-  List<CommentPointer>  commentStore = <CommentPointer>[];
+  List<CommentPointer> commentStore = <CommentPointer>[];
 
   /// Environment variables
-  Contexts              context;
+  Contexts context;
 
   /// End of input reached in processing
-  bool                  finished = false;
+  bool finished = false;
 
   /// Furthest index the parser has gone to
-  int                   furthest = 0;
+  int furthest = 0;
 
   /// If this is furthest we got to, this is the probably cause
-  String                furthestPossibleErrorMessage;
+  String furthestPossibleErrorMessage;
 
   /// Current index in `input`
-  int                   i = 0;
+  int i = 0;
 
   /// Input string with Less code
-  final String          input;
+  final String input;
 
   /// Holds state for backtracking
-  List<int>             saveStack = <int>[];
+  List<int> saveStack = <int>[];
 
   ///
   /// Receives the `input` string and the environment information and reset pointers.
@@ -54,18 +54,12 @@ class ParserInput {
   ///
   /// If we get null, the end of input has been reached
   ///
-  String charAt(int pos) {
-    if (pos >= input.length) return null;
-    return input[pos];
-  }
+  String charAt(int pos) => pos >= input.length ? null : input[pos];
 
   ///
   /// Get the character code in the [pos]
   ///
-  int charCodeAt(int pos) {
-    if (pos >= input.length) return null;
-    return input.codeUnitAt(pos);
-  }
+  int charCodeAt(int pos) => pos >= input.length ? null : input.codeUnitAt(pos);
 
   ///
   /// Get the character code in the actual position
@@ -104,8 +98,9 @@ class ParserInput {
   ///
   void restore([String possibleErrorMessage]) {
     if (i > furthest ||
-        ((i == furthest) && (possibleErrorMessage != null) &&
-        (furthestPossibleErrorMessage == null))) {
+        ((i == furthest) &&
+            (possibleErrorMessage != null) &&
+            (furthestPossibleErrorMessage == null))) {
       furthest = i;
       furthestPossibleErrorMessage = possibleErrorMessage;
     }
@@ -128,10 +123,10 @@ class ParserInput {
     if (pos < 0 || pos >= input.length) return false;
 
     final int code = input.codeUnitAt(pos);
-    return (code == Charcode.SPACE_32 ||
+    return code == Charcode.SPACE_32 ||
         code == Charcode.CR_13 ||
         code == Charcode.TAB_9 ||
-        code == Charcode.LF_10);
+        code == Charcode.LF_10;
 
 //2.2.0
 //    parserInput.isWhitespace = function (offset) {
@@ -221,7 +216,7 @@ class ParserInput {
     if (startChar != "'" && startChar != '"') return null;
 
     final int start = i;
-    for (int end = (i + 1); end < input.length; end++) {
+    for (int end = i + 1; end < input.length; end++) {
       final String nextChar = charAt(end);
       switch (nextChar) {
         case '\\':
@@ -287,16 +282,17 @@ class ParserInput {
   ///
   // in js $parseUntil(String|RegExp tok). Here we split to avoid dynamic.
   List<ParseUntilReturnItem> $parseUntil({String tok, RegExp tokre}) {
-    int                 blockDepth = 0;
-    final List<String>  blockStack = <String>[]; // key expected to close block '}' ']' ')'
-    bool                inComment = false; // we are inside a comment
-    int                 lastPos = i;
-    bool                loop = true;
-    final List<ParseUntilReturnItem>  parseGroups = <ParseUntilReturnItem>[];
-    String              quote;
-    final int           startPos = i;
+    int blockDepth = 0;
+    // key expected to close block '}' ']' ')'
+    final List<String> blockStack = <String>[];
+    bool inComment = false; // we are inside a comment
+    int lastPos = i;
+    bool loop = true;
+    final List<ParseUntilReturnItem> parseGroups = <ParseUntilReturnItem>[];
+    String quote;
+    final int startPos = i;
 
-    final TestChar tc = new TestChar(tok, tokre);
+    final TestChar tc = TestChar(tok, tokre);
     bool testChar(String char) => tc.test(char);
 
     do {
@@ -304,10 +300,9 @@ class ParserInput {
 
       if (blockDepth == 0 && testChar(currentCharacter)) {
         final String value = input.substring(lastPos, i);
-        parseGroups.add(new ParseUntilReturnItem()
-            ..isEnd = value.isEmpty
-            ..value = value
-        );
+        parseGroups.add(ParseUntilReturnItem()
+          ..isEnd = value.isEmpty
+          ..value = value);
         loop = false;
       } else {
         if (inComment) {
@@ -324,8 +319,8 @@ class ParserInput {
           case r'\':
             i++;
             currentCharacter = currentChar();
-            parseGroups.add(new ParseUntilReturnItem()
-                ..value = input.substring(lastPos, i + 1));
+            parseGroups.add(ParseUntilReturnItem()
+              ..value = input.substring(lastPos, i + 1));
             lastPos = i + 1;
             break;
           case '/':
@@ -340,17 +335,15 @@ class ParserInput {
             quote = $quoted(skip: false);
             if (quote != null) {
               parseGroups
-                  ..add(new ParseUntilReturnItem()
-                      ..value = input.substring(lastPos, i))
-                  ..add(new ParseUntilReturnItem()
-                      ..quote = quote[0]
-                      ..value = quote
-              );
+                ..add(
+                    ParseUntilReturnItem()..value = input.substring(lastPos, i))
+                ..add(ParseUntilReturnItem()
+                  ..quote = quote[0]
+                  ..value = quote);
               i += quote.length - 1;
               lastPos = i + 1;
             } else {
-              throw new ParserInputException()
-                ..expected = currentCharacter;
+              throw ParserInputException()..expected = currentCharacter;
             }
             break;
           case '{':
@@ -368,12 +361,12 @@ class ParserInput {
           case '}':
           case ')':
           case ']':
-            final String expected = blockStack.isNotEmpty ? blockStack.removeLast() : null;
+            final String expected =
+                blockStack.isNotEmpty ? blockStack.removeLast() : null;
             if (currentCharacter == expected) {
               blockDepth--;
             } else {
-              throw new ParserInputException()
-                ..expected = expected;
+              throw ParserInputException()..expected = expected;
             }
         }
 
@@ -512,7 +505,8 @@ class ParserInput {
       if (autoCommentAbsorb && c == Charcode.SLASH_47) {
         final String nextChar = charAt(i + 1);
         if (nextChar == '/') {
-          final CommentPointer comment = new CommentPointer(index: i, isLineComment: true);
+          final CommentPointer comment =
+              CommentPointer(index: i, isLineComment: true);
           int nextNewLine = input.indexOf('\n', i + 2);
 
           if (nextNewLine < 0) nextNewLine = endIndex;
@@ -524,7 +518,7 @@ class ParserInput {
         } else if (nextChar == '*') {
           final int nextStarSlash = input.indexOf('*/', i + 2);
           if (nextStarSlash >= 0) {
-            final CommentPointer comment = new CommentPointer(
+            final CommentPointer comment = CommentPointer(
                 index: i,
                 text: input.substring(i, nextStarSlash + 2),
                 isLineComment: false);
@@ -613,12 +607,8 @@ class ParserInput {
   ///
   //parser.js 2.2.0 lines 64-74
   Null error(String msg, [String type]) {
-    throw new LessExceptionError(new LessError(
-        index: i,
-        type: type != null ? type : 'Syntax',
-        message: msg,
-        context: context)
-    );
+    throw LessExceptionError(LessError(
+        index: i, type: type ?? 'Syntax', message: msg, context: context));
 
 //2.2.0
 //  function error(msg, type) {
@@ -675,7 +665,8 @@ class ParserInput {
   String expectChar(String arg, [String msg]) {
     if ($char(arg) != null) return arg;
 
-    final String message = msg ?? "expected '$arg' got '${currentChar() ?? ''}'";
+    final String message =
+        msg ?? "expected '$arg' got '${currentChar() ?? ''}'";
     return error(message);
   }
 
@@ -697,10 +688,7 @@ class ParserInput {
   ///
   /// Specialization of peek(), searching for String [tok]
   ///
-  bool peekChar(String tok) {
-    if (isEmpty) return false;
-    return input[i] == tok;
-  }
+  bool peekChar(String tok) => isEmpty ? false : input[i] == tok;
 
   ///
   /// Returns the [input] String
@@ -715,9 +703,9 @@ class ParserInput {
 
     final int c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
-    return (c > Charcode.$9_57 || c < Charcode.PLUS_43)
-        || c == Charcode.SLASH_47
-        || c == Charcode.COMMA_44;
+    return (c > Charcode.$9_57 || c < Charcode.PLUS_43) ||
+        c == Charcode.SLASH_47 ||
+        c == Charcode.COMMA_44;
 
 //    parserInput.peekNotNumeric = function() {
 //        var c = input.charCodeAt(parserInput.i);
@@ -731,20 +719,19 @@ class ParserInput {
   ///
   ParserStatus end() {
     String message;
-    final bool isFinished = (i >= input.length);
+    final bool isFinished = i >= input.length;
 
     if (i < furthest) {
       message = furthestPossibleErrorMessage;
       i = furthest;
     }
 
-    return new ParserStatus(
-      isFinished: isFinished,
-      furthest: i,
-      furthestPossibleErrorMessage: message,
-      furthestReachedEnd: (i >= input.length - 1),
-      furthestChar : currentChar()
-    );
+    return ParserStatus(
+        isFinished: isFinished,
+        furthest: i,
+        furthestPossibleErrorMessage: message,
+        furthestReachedEnd: i >= input.length - 1,
+        furthestChar: currentChar());
 
 //2.2.0
 //    parserInput.end = function() {
@@ -794,13 +781,12 @@ class ParserInput {
         }
       }
 
-      throw new LessExceptionError(new LessError(
-        type: 'Parse',
-        message: message,
-        index: endInfo.furthest,
-        filename: context.currentFileInfo?.filename,
-        context: context)
-      );
+      throw LessExceptionError(LessError(
+          type: 'Parse',
+          message: message,
+          index: endInfo.furthest,
+          filename: context.currentFileInfo?.filename,
+          context: context));
     }
 
 //2.2.0
@@ -833,8 +819,8 @@ class ParserInput {
   /// For debug, show the input around the currentChar +- [gap]
   ///
   String showAround([int gap = 20]) {
-    final int start = math.max(i - gap, 0);
-    final int stop = math.min(i + gap, input.length - 1);
+    final int start = math_lib.max(i - gap, 0);
+    final int stop = math_lib.min(i + gap, input.length - 1);
     return input.substring(start, stop);
   }
 }
@@ -846,13 +832,13 @@ class ParserInput {
 ///
 class CommentPointer {
   /// Position in input
-  int     index;
+  int index;
 
   /// false if the comment is inside a line
-  bool    isLineComment;
+  bool isLineComment;
 
   /// The comment itself
-  String  text;
+  String text;
 
   ///
   CommentPointer({this.index, this.isLineComment, this.text});
@@ -874,19 +860,19 @@ class ParserInputException implements Exception {
 ///
 class ParserStatus {
   /// End reached
-  bool    isFinished;
+  bool isFinished;
 
   /// Most advanced  input pointer
-  int     furthest;
+  int furthest;
 
   /// If is error, why?
-  String  furthestPossibleErrorMessage;
+  String furthestPossibleErrorMessage;
 
   /// We are at end of input?
-  bool    furthestReachedEnd;
+  bool furthestReachedEnd;
 
   /// Most advanced character
-  String  furthestChar;
+  String furthestChar;
 
   ///
   ParserStatus(
@@ -902,7 +888,7 @@ class ParserStatus {
 ///
 class ParseUntilReturnItem {
   /// $parseUntil reached the end character (;, [, {, ...)
-  bool   isEnd = false;
+  bool isEnd = false;
 
   /// If value is quoted (', "), the quoted character
   String quote;
@@ -936,7 +922,5 @@ class TestChar {
   ///
   /// check tok match
   ///
-  bool test(String char) => isTokString
-      ? char == toks
-      : tokre.hasMatch(char);
+  bool test(String char) => isTokString ? char == toks : tokre.hasMatch(char);
 }

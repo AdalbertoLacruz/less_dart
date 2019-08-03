@@ -4,8 +4,11 @@ part of tree.less;
 
 ///
 class Paren extends Node {
-  @override final String    type = 'Paren';
-  @override covariant Node  value;
+  @override
+  final String type = 'Paren';
+
+  @override
+  covariant Node value;
 
   ///
   Paren(this.value);
@@ -26,13 +29,12 @@ class Paren extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'value': value
-  };
+  @override
+  Map<String, dynamic> get treeField => <String, dynamic>{'value': value};
 
   ///
   @override
-  Paren eval(Contexts context) => new Paren(value.eval(context));
+  Paren eval(Contexts context) => Paren(value.eval(context));
 
 //2.3.1
 //  Paren.prototype.eval = function (context) {
@@ -41,7 +43,7 @@ class Paren extends Node {
 
   @override
   String toString() {
-    final Output output = new Output();
+    final Output output = Output();
     genCSS(null, output);
     return output.toString();
   }
