@@ -1,4 +1,4 @@
-//source: less/tree/operation.js 3.7.1 20180718
+//source: less/tree/operation.js 3.9.0 20190221
 
 part of tree.less;
 
@@ -34,11 +34,11 @@ class Operation extends Node {
   ///
   @override
   void accept(covariant VisitorBase visitor) {
-    operands = visitor.visit(operands);
+    operands = visitor.visitArray(operands);
 
-//2.3.1
+//3.9.0 20190221
 //  Operation.prototype.accept = function (visitor) {
-//      this.operands = visitor.visit(this.operands);
+//    this.operands = visitor.visitArray(this.operands);
 //  };
   }
 

@@ -1,4 +1,4 @@
-//source: less/tree/quoted.js 3.0.4 20180622
+//source: less/tree/quoted.js 3.9.0 20190711
 
 part of tree.less;
 
@@ -132,7 +132,7 @@ class Quoted extends Node implements CompareNode {
     return Quoted('$quote$value$quote', value,
         escaped: escaped, index: index, currentFileInfo: currentFileInfo);
 
-//3.0.4 20180622
+// 3.9.0 20190711
 //Quoted.prototype.eval = function (context) {
 //    var that = this, value = this.value;
 //    var variableReplacement = function (_, name) {
@@ -146,7 +146,7 @@ class Quoted extends Node implements CompareNode {
 //    function iterativeReplace(value, regexp, replacementFnc) {
 //        var evaluatedValue = value;
 //        do {
-//            value = evaluatedValue;
+//            value = evaluatedValue.toString();
 //            evaluatedValue = value.replace(regexp, replacementFnc);
 //        } while (value !== evaluatedValue);
 //        return evaluatedValue;

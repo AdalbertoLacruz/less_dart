@@ -1,4 +1,4 @@
-// source: lib/less/functions/list.js 3.8.1 20181129
+// source: lib/less/functions/list.js 3.9.0 20190711
 
 part of functions.less;
 
@@ -173,9 +173,9 @@ class ListFunctions extends FunctionBase {
       iterator = list.ruleset.rules;
     } else if (list is Nodeset || list is Ruleset) {
       iterator = list.rules;
-    } else if (list.value is List<Node>) {
+    } else if (list is! Quoted && list.value is List<Node>) {
       iterator = list.value;
-    } else if (list.value is Node) {
+    } else if (list is! Quoted && list.value is Node) {
       iterator = <Node>[list.value]; // Nodeset??
     } else {
       iterator = <Node>[list];
@@ -246,11 +246,11 @@ class ListFunctions extends FunctionBase {
             visibilityInfo: ruleset.visibilityInfo())
         .eval(context);
 
-// 3.8.1 20181129
+// 3.9.0 20190711
 //  each: function(list, rs) {
 //      var rules = [], newRules, iterator;
 //
-//      if (list.value) {
+//      if (list.value && !(list instanceof Quote)) {
 //          if (Array.isArray(list.value)) {
 //              iterator = list.value;
 //          } else {

@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.8.0 20180729
+//source: less/parser/parser.js 3.9.0 20190711
 
 part of parser.less;
 
@@ -655,9 +655,8 @@ class Entities {
   }
 
   static final RegExp _colorRegExp = RegExp(
-      r'#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})',
+      r'#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})([\w.#\[])?',
       caseSensitive: true);
-
   ///
   /// A Hexadecimal color
   ///
@@ -671,21 +670,31 @@ class Entities {
   ///
   Color color() {
     Match rgb;
+    parserInput.save();
 
     if (parserInput.currentChar() == '#' &&
         (rgb = parserInput.$reMatch(_colorRegExp)) != null) {
-      return Color(rgb[1], null, rgb[0]);
+      if (rgb[2] == null) {
+        parserInput.forget();
+        return Color(rgb[1], null, rgb[0]);
+      }
     }
 
+    parserInput.restore();
     return null;
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  color: function () {
 //      var rgb;
+//      parserInput.save();
 //
-//      if (parserInput.currentChar() === '#' && (rgb = parserInput.$re(/^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})/))) {
-//          return new(tree.Color)(rgb[1], undefined, rgb[0]);
+//      if (parserInput.currentChar() === '#' && (rgb = parserInput.$re(/^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})([\w.#\[])?/))) {
+//          if (!rgb[2]) {
+//              parserInput.forget();
+//              return new(tree.Color)(rgb[1], undefined, rgb[0]);
+//          }
 //      }
+//      parserInput.restore();
 //  },
   }
 

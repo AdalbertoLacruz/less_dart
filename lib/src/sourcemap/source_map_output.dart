@@ -1,4 +1,4 @@
-// source: less/source-map-output.js 3.8.0 20180808
+// source: less/source-map-output.js 3.9.0 20190221
 
 part of sourcemap.less;
 
@@ -144,7 +144,8 @@ class SourceMapOutput extends Output {
     String filename = file.replaceAll('\\', '/');
     filename = removeBasePath(filename);
 
-    final String result = path_lib.normalize('${sourceMapRootpath ?? ''}$filename');
+    final String result =
+        path_lib.normalize('${sourceMapRootpath ?? ''}$filename');
     normalizeCache[file] = result;
     return result;
 
@@ -187,6 +188,10 @@ class SourceMapOutput extends Output {
         inputSource =
             inputSource.substring(contentsIgnoredCharsMap[fileInfo.filename]);
       }
+
+      // ignore empty content
+      if (inputSource.isEmpty) return;
+
       inputSource = inputSource.substring(0, _index);
       sourceLines = inputSource.split('\n');
       sourceColumns = sourceLines.last;
@@ -239,61 +244,67 @@ class SourceMapOutput extends Output {
     super.add(chunk);
     indexGenerated += chunk.length;
 
-// 3.8.0 20180808
+// 3.9.0 20190221
 //  SourceMapOutput.prototype.add = function(chunk, fileInfo, index, mapLines) {
 //
-//      // ignore adding empty strings
-//      if (!chunk) {
-//          return;
+//    // ignore adding empty strings
+//    if (!chunk) {
+//      return;
+//    }
+//
+//    var lines,
+//        sourceLines,
+//        columns,
+//        sourceColumns,
+//        i;
+//
+//    if (fileInfo && fileInfo.filename) {
+//      var inputSource = this._contentsMap[fileInfo.filename];
+//
+//      // remove vars/banner added to the top of the file
+//      if (this._contentsIgnoredCharsMap[fileInfo.filename]) {
+//        // adjust the index
+//        index -= this._contentsIgnoredCharsMap[fileInfo.filename];
+//        if (index < 0) { index = 0; }
+//        // adjust the source
+//        inputSource = inputSource.slice(this._contentsIgnoredCharsMap[fileInfo.filename]);
 //      }
 //
-//      var lines,
-//          sourceLines,
-//          columns,
-//          sourceColumns,
-//          i;
-//
-//      if (fileInfo && fileInfo.filename) {
-//          var inputSource = this._contentsMap[fileInfo.filename];
-//
-//          // remove vars/banner added to the top of the file
-//          if (this._contentsIgnoredCharsMap[fileInfo.filename]) {
-//              // adjust the index
-//              index -= this._contentsIgnoredCharsMap[fileInfo.filename];
-//              if (index < 0) { index = 0; }
-//              // adjust the source
-//              inputSource = inputSource.slice(this._contentsIgnoredCharsMap[fileInfo.filename]);
-//          }
-//          inputSource = inputSource.substring(0, index);
-//          sourceLines = inputSource.split('\n');
-//          sourceColumns = sourceLines[sourceLines.length - 1];
+//      // ignore empty content
+//      if (inputSource === undefined) {
+//        return;
 //      }
 //
-//      lines = chunk.split('\n');
-//      columns = lines[lines.length - 1];
+//      inputSource = inputSource.substring(0, index);
+//      sourceLines = inputSource.split('\n');
+//      sourceColumns = sourceLines[sourceLines.length - 1];
+//    }
 //
-//      if (fileInfo && fileInfo.filename) {
-//          if (!mapLines) {
-//              this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
-//                  original: { line: sourceLines.length, column: sourceColumns.length},
-//                  source: this.normalizeFilename(fileInfo.filename)});
-//          } else {
-//              for (i = 0; i < lines.length; i++) {
-//                  this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + i + 1, column: i === 0 ? this._column : 0},
-//                      original: { line: sourceLines.length + i, column: i === 0 ? sourceColumns.length : 0},
-//                      source: this.normalizeFilename(fileInfo.filename)});
-//              }
-//          }
-//      }
+//    lines = chunk.split('\n');
+//    columns = lines[lines.length - 1];
 //
-//      if (lines.length === 1) {
-//          this._column += columns.length;
+//    if (fileInfo && fileInfo.filename) {
+//      if (!mapLines) {
+//        this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
+//                                              original: { line: sourceLines.length, column: sourceColumns.length},
+//                                              source: this.normalizeFilename(fileInfo.filename)});
 //      } else {
-//          this._lineNumber += lines.length - 1;
-//          this._column = columns.length;
+//        for (i = 0; i < lines.length; i++) {
+//          this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + i + 1, column: i === 0 ? this._column : 0},
+//          original: { line: sourceLines.length + i, column: i === 0 ? sourceColumns.length : 0},
+//          source: this.normalizeFilename(fileInfo.filename)});
+//        }
 //      }
+//    }
 //
-//      this._css.push(chunk);
+//    if (lines.length === 1) {
+//      this._column += columns.length;
+//    } else {
+//      this._lineNumber += lines.length - 1;
+//      this._column = columns.length;
+//    }
+//
+//    this._css.push(chunk);
 //  };
   }
 

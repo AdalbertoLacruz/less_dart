@@ -1,4 +1,4 @@
-// source: lib/less/functions/color.js 3.8.0 20180729
+// source: lib/less/functions/color.js 3.9.0 20190711
 
 part of functions.less;
 
@@ -9,8 +9,7 @@ class ColorFunctions extends FunctionBase {
   /// Maintains type
   ///
   @defineMethodSkip
-  T clamp<T extends num>(T val) =>
-      (val is int) ? val.clamp(0, 1) as T : val.clamp(0.0, 1.0) as T;
+  T clamp<T extends num>(T val) => val.clamp(0.0, 1.0) as T;
 
 //  function clamp(val) {
 //      return Math.min(1, Math.max(0, val));
@@ -46,6 +45,40 @@ class ColorFunctions extends FunctionBase {
 //      }
 //  }
   }
+
+  ///
+  /// Convert [color] to HSL or throw error
+  ///
+  @defineMethodSkip
+  HSLType toHSL(Node color) => (color is Color)
+      ? color.toHSL()
+      : throw LessError(message: 'Argument cannot be evaluated to a color');
+
+// 3.9.0 20190711
+//  function toHSL(color) {
+//    if (color.toHSL) {
+//      return color.toHSL();
+//    } else {
+//      throw new Error('Argument cannot be evaluated to a color');
+//    }
+//  }
+
+  ///
+  /// Convert [color] to HSV or throw error
+  ///
+  @defineMethodSkip
+  HSVType toHSV(Node color) => (color is Color)
+      ? color.toHSV()
+      : throw LessError(message: 'Argument cannot be evaluated to a color');
+
+// 3.9.0 20190711
+//  function toHSV(color) {
+//    if (color.toHSV) {
+//      return color.toHSV();
+//    } else {
+//      throw new Error('Argument cannot be evaluated to a color');
+//    }
+//  }
 
   ///
   /// [n] num | Node<Dimension> | error anything else
@@ -111,7 +144,9 @@ class ColorFunctions extends FunctionBase {
   ///
   Color rgb(dynamic r, [dynamic g, dynamic b]) {
     final Color color = rgba(r, g, b, 1.0);
-    return (color != null) ? (color..value = 'rgb') : null;
+//    return (color != null) ? (color..value = 'rgb') : null;
+    color?.value = 'rgb';
+    return color;
 
 // 3.8.0 20180729
 //  rgb: function (r, g, b) {
@@ -182,7 +217,10 @@ class ColorFunctions extends FunctionBase {
   ///
   Color hsl(dynamic h, [dynamic s, dynamic l]) {
     final Color color = hsla(h, s, l, 1.0);
-    return (color != null) ? (color..value = 'hsl') : null;
+
+//    return (color != null) ? (color..value = 'hsl') : null;
+    color?.value = 'hsl';
+    return color;
 
 // 3.8.0 20180729
 //  hsl: function (h, s, l) {
@@ -403,7 +441,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: hue(hsl(90, 100%, 50%))
   ///   Output: 90
   ///
-  Dimension hue(Color color) => Dimension(color.toHSL().h);
+  Dimension hue(Node color) => Dimension(toHSL(color).h);
+
+// 3.9.0 20190711
+//  hue: function (color) {
+//    return new Dimension(toHSL(color).h);
+//  },
 
   ///
   /// Extracts the saturation channel of a color object in the HSL color space.
@@ -414,7 +457,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: saturation(hsl(90, 100%, 50%))
   ///   Output: 100%
   ///
-  Dimension saturation(Color color) => Dimension(color.toHSL().s * 100, '%');
+  Dimension saturation(Node color) => Dimension(toHSL(color).s * 100, '%');
+
+// 3.9.0 20190711
+//  saturation: function (color) {
+//    return new Dimension(toHSL(color).s * 100, '%');
+//  },
 
   ///
   /// Extracts the lightness channel of a color object in the HSL color space.
@@ -425,7 +473,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: lightness(hsl(90, 100%, 50%))
   ///   Output: 50%
   ///
-  Dimension lightness(Color color) => Dimension(color.toHSL().l * 100, '%');
+  Dimension lightness(Node color) => Dimension(toHSL(color).l * 100, '%');
+
+// 3.9.0 20190711
+//  lightness: function (color) {
+//    return new Dimension(toHSL(color).l * 100, '%');
+//  },
 
   ///
   /// Extracts the hue channel of a color object in the HSV color space.
@@ -436,7 +489,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsvhue(hsv(90, 100%, 50%))
   ///   Output: 90
   ///
-  Dimension hsvhue(Color color) => Dimension(color.toHSV().h);
+  Dimension hsvhue(Node color) => Dimension(toHSV(color).h);
+
+// 3.9.0 20190711
+//  hsvhue: function(color) {
+//    return new Dimension(toHSV(color).h);
+//  },
 
   ///
   /// Extracts the saturation channel of a color object in the HSV color space.
@@ -447,7 +505,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsvsaturation(hsv(90, 100%, 50%))
   ///   Output: 100%
   ///
-  Dimension hsvsaturation(Color color) => Dimension(color.toHSV().s * 100, '%');
+  Dimension hsvsaturation(Node color) => Dimension(toHSV(color).s * 100, '%');
+
+// 3.9.0 20190711
+//  hsvsaturation: function (color) {
+//    return new Dimension(toHSV(color).s * 100, '%');
+//  },
 
   ///
   /// Extracts the value channel of a color object in the HSV color space.
@@ -458,7 +521,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: hsvvalue(hsv(90, 100%, 50%))
   ///   Output: 50%
   ///
-  Dimension hsvvalue(Color color) => Dimension(color.toHSV().v * 100, '%');
+  Dimension hsvvalue(Node color) => Dimension(toHSV(color).v * 100, '%');
+
+// 3.9.0 20190711
+//  hsvvalue: function (color) {
+//    return new Dimension(toHSV(color).v * 100, '%');
+//  },
 
   ///
   /// Extracts the red channel of a color object.
@@ -502,7 +570,12 @@ class ColorFunctions extends FunctionBase {
   /// Example: alpha(rgba(10, 20, 30, 0.5))
   ///   Output: 0.5
   ///
-  Dimension alpha(Color color) => Dimension(color.toHSL().a); //color.alpha?
+  Dimension alpha(Node color) => Dimension(toHSL(color).a); //color.alpha?
+
+// 3.9.0 20190711
+//  alpha: function (color) {
+//    return new Dimension(toHSL(color).a);
+//  },
 
   ///
   /// Calculates the luma (perceptual brightness) of a color object.
@@ -553,39 +626,38 @@ class ColorFunctions extends FunctionBase {
   /// Example: saturate(hsl(90, 80%, 50%), 20%)
   ///   Output: #80ff00 // hsl(90, 100%, 50%)
   ///
-  Color saturate(dynamic color, [Dimension amount, Keyword method]) {
+  Color saturate(Node color, [Dimension amount, Keyword method]) {
     // filter: saturate(3.2);
     // should be kept as is, so check for color
-    if (color is! Color) return null;
+    if (color is! Color) return null; // ??
 
-    final HSLType hsl = color.toHSL();
+    final HSLType hsl = toHSL(color);
 
-    if (method != null && method.value == 'relative') {
-      hsl.s += hsl.s * amount.value / 100;
-    } else {
-      hsl.s += amount.value / 100;
-    }
+    hsl
+      ..s += (method?.value == 'relative')
+          ? hsl.s * amount.value / 100
+          : amount.value / 100
+      ..s = clamp(hsl.s);
 
-    hsl.s = clamp(hsl.s);
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  saturate: function (color, amount, method) {
-//      // filter: saturate(3.2);
-//      // should be kept as is, so check for color
-//      if (!color.rgb) {
-//          return null;
-//      }
-//      var hsl = color.toHSL();
+//    // filter: saturate(3.2);
+//    // should be kept as is, so check for color
+//    if (!color.rgb) {
+//      return null;
+//    }
+//    var hsl = toHSL(color);
 //
-//      if (typeof method !== 'undefined' && method.value === 'relative') {
-//          hsl.s +=  hsl.s * amount.value / 100;
-//      }
-//      else {
-//          hsl.s += amount.value / 100;
-//      }
-//      hsl.s = clamp(hsl.s);
-//      return hsla(color, hsl);
+//    if (typeof method !== 'undefined' && method.value === 'relative') {
+//      hsl.s +=  hsl.s * amount.value / 100;
+//    }
+//    else {
+//      hsl.s += amount.value / 100;
+//    }
+//    hsl.s = clamp(hsl.s);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -600,29 +672,29 @@ class ColorFunctions extends FunctionBase {
   /// Example: desaturate(hsl(90, 80%, 50%), 20%)
   ///   Output: #80cc33 // hsl(90, 60%, 50%)
   ///
-  Color desaturate(Color color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = color.toHSL();
+  Color desaturate(Node color, Dimension amount, [Keyword method]) {
+    final HSLType hsl = toHSL(color);
 
-    if (method != null && method.value == 'relative') {
-      hsl.s -= hsl.s * amount.value / 100;
-    } else {
-      hsl.s -= amount.value / 100;
-    }
-    hsl.s = clamp(hsl.s);
+    hsl
+      ..s -= (method?.value == 'relative')
+          ? hsl.s * amount.value / 100
+          : amount.value / 100
+      ..s = clamp(hsl.s);
+
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  desaturate: function (color, amount, method) {
-//      var hsl = color.toHSL();
+//    var hsl = toHSL(color);
 //
-//      if (typeof method !== 'undefined' && method.value === 'relative') {
-//          hsl.s -=  hsl.s * amount.value / 100;
-//      }
-//      else {
-//          hsl.s -= amount.value / 100;
-//      }
-//      hsl.s = clamp(hsl.s);
-//      return hsla(color, hsl);
+//    if (typeof method !== 'undefined' && method.value === 'relative') {
+//      hsl.s -=  hsl.s * amount.value / 100;
+//    }
+//    else {
+//      hsl.s -= amount.value / 100;
+//    }
+//    hsl.s = clamp(hsl.s);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -637,29 +709,29 @@ class ColorFunctions extends FunctionBase {
   /// Example: lighten(hsl(90, 80%, 50%), 20%)
   ///   Output: #b3f075 // hsl(90, 80%, 70%)
   ///
-  Color lighten(Color color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = color.toHSL();
+  Color lighten(Node color, Dimension amount, [Keyword method]) {
+    final HSLType hsl = toHSL(color);
 
-    if (method != null && method.value == 'relative') {
-      hsl.l += hsl.l * amount.value / 100;
-    } else {
-      hsl.l += amount.value / 100;
-    }
-    hsl.l = clamp(hsl.l);
+    hsl
+      ..l += (method?.value == 'relative')
+          ? hsl.l * amount.value / 100
+          : amount.value / 100
+      ..l = clamp(hsl.l);
+
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  lighten: function (color, amount, method) {
-//      var hsl = color.toHSL();
+//    var hsl = toHSL(color);
 //
-//      if (typeof method !== 'undefined' && method.value === 'relative') {
-//          hsl.l +=  hsl.l * amount.value / 100;
-//      }
-//      else {
-//          hsl.l += amount.value / 100;
-//      }
-//      hsl.l = clamp(hsl.l);
-//      return hsla(color, hsl);
+//    if (typeof method !== 'undefined' && method.value === 'relative') {
+//      hsl.l +=  hsl.l * amount.value / 100;
+//    }
+//    else {
+//      hsl.l += amount.value / 100;
+//    }
+//    hsl.l = clamp(hsl.l);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -674,29 +746,29 @@ class ColorFunctions extends FunctionBase {
   /// Example: darken(hsl(90, 80%, 50%), 20%)
   ///   Output: #4d8a0f // hsl(90, 80%, 30%)
   ///
-  Color darken(Color color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = color.toHSL();
+  Color darken(Node color, Dimension amount, [Keyword method]) {
+    final HSLType hsl = toHSL(color);
 
-    if (method != null && method.value == 'relative') {
-      hsl.l -= hsl.l * amount.value / 100;
-    } else {
-      hsl.l -= amount.value / 100;
-    }
-    hsl.l = clamp(hsl.l);
+    hsl
+      ..l -= (method?.value == 'relative')
+          ? hsl.l * amount.value / 100
+          : amount.value / 100
+      ..l = clamp(hsl.l);
+
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  darken: function (color, amount, method) {
-//      var hsl = color.toHSL();
+//    var hsl = toHSL(color);
 //
-//      if (typeof method !== 'undefined' && method.value === 'relative') {
-//          hsl.l -=  hsl.l * amount.value / 100;
-//      }
-//      else {
-//          hsl.l -= amount.value / 100;
-//      }
-//      hsl.l = clamp(hsl.l);
-//      return hsla(color, hsl);
+//    if (typeof method !== 'undefined' && method.value === 'relative') {
+//      hsl.l -=  hsl.l * amount.value / 100;
+//    }
+//    else {
+//      hsl.l -= amount.value / 100;
+//    }
+//    hsl.l = clamp(hsl.l);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -711,29 +783,29 @@ class ColorFunctions extends FunctionBase {
   /// Example: fadein(hsla(90, 90%, 50%, 0.5), 10%)
   ///   Output: rgba(128, 242, 13, 0.6) // hsla(90, 90%, 50%, 0.6)
   ///
-  Color fadein(Color color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = color.toHSL();
+  Color fadein(Node color, Dimension amount, [Keyword method]) {
+    final HSLType hsl = toHSL(color);
 
-    if (method != null && method.value == 'relative') {
-      hsl.a += hsl.a * amount.value / 100;
-    } else {
-      hsl.a += amount.value / 100;
-    }
-    hsl.a = clamp(hsl.a);
+    hsl
+      ..a += (method?.value == 'relative')
+          ? hsl.a * amount.value / 100
+          : amount.value / 100
+      ..a = clamp(hsl.a);
+
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  fadein: function (color, amount, method) {
-//      var hsl = color.toHSL();
+//    var hsl = toHSL(color);
 //
-//      if (typeof method !== 'undefined' && method.value === 'relative') {
-//          hsl.a +=  hsl.a * amount.value / 100;
-//      }
-//      else {
-//          hsl.a += amount.value / 100;
-//      }
-//      hsl.a = clamp(hsl.a);
-//      return hsla(color, hsl);
+//    if (typeof method !== 'undefined' && method.value === 'relative') {
+//      hsl.a +=  hsl.a * amount.value / 100;
+//    }
+//    else {
+//      hsl.a += amount.value / 100;
+//    }
+//    hsl.a = clamp(hsl.a);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -748,29 +820,29 @@ class ColorFunctions extends FunctionBase {
   /// Example: fadeout(hsla(90, 90%, 50%, 0.5), 10%)
   ///   Output: rgba(128, 242, 13, 0.4) // hsla(90, 90%, 50%, 0.4)
   ///
-  Color fadeout(Color color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = color.toHSL();
+  Color fadeout(Node color, Dimension amount, [Keyword method]) {
+    final HSLType hsl = toHSL(color);
 
-    if (method != null && method.value == 'relative') {
-      hsl.a -= hsl.a * amount.value / 100;
-    } else {
-      hsl.a -= amount.value / 100;
-    }
-    hsl.a = clamp(hsl.a);
+    hsl
+      ..a -= (method?.value == 'relative')
+          ? hsl.a * amount.value / 100
+          : amount.value / 100
+      ..a = clamp(hsl.a);
+
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180729
+// 3.9.0 20190711
 //  fadeout: function (color, amount, method) {
-//      var hsl = color.toHSL();
+//    var hsl = toHSL(color);
 //
-//      if (typeof method !== 'undefined' && method.value === 'relative') {
-//          hsl.a -=  hsl.a * amount.value / 100;
-//      }
-//      else {
-//          hsl.a -= amount.value / 100;
-//      }
-//      hsl.a = clamp(hsl.a);
-//      return hsla(color, hsl);
+//    if (typeof method !== 'undefined' && method.value === 'relative') {
+//      hsl.a -=  hsl.a * amount.value / 100;
+//    }
+//    else {
+//      hsl.a -= amount.value / 100;
+//    }
+//    hsl.a = clamp(hsl.a);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -784,18 +856,22 @@ class ColorFunctions extends FunctionBase {
   /// Example: fade(hsl(90, 90%, 50%), 10%)
   ///   Output: rgba(128, 242, 13, 0.1) //hsla(90, 90%, 50%, 0.1)
   ///
-  Color fade(Color color, Dimension amount) {
-    final HSLType hsl = color.toHSL()..a = clamp(amount.value / 100);
+  Color fade(Node color, Dimension amount) {
+    final HSLType hsl = toHSL(color);
+
+    hsl
+      ..a = amount.value / 100
+      ..a = clamp(hsl.a);
 
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20170729
+// 3.9.0 20190711
 //  fade: function (color, amount) {
-//      var hsl = color.toHSL();
+//    var hsl = toHSL(color);
 //
-//      hsl.a = amount.value / 100;
-//      hsl.a = clamp(hsl.a);
-//      return hsla(color, hsl);
+//    hsl.a = amount.value / 100;
+//    hsl.a = clamp(hsl.a);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -827,21 +903,22 @@ class ColorFunctions extends FunctionBase {
   ///     #f2a60d // hsl(40, 90%, 50%)
   ///     #f20d59 // hsl(340, 90%, 50%)
   ///
-  Color spin(Color color, Dimension amount) {
-    final HSLType hsl = color.toHSL();
+  Color spin(Node color, Dimension amount) {
+    final HSLType hsl = toHSL(color);
     final double hue = (hsl.h + amount.value) % 360;
 
     hsl.h = hue < 0 ? 360 + hue : hue;
+
     return hslaColorSpace(color, hsl);
 
-// 3.8.0 20180829
+// 3.9.0 20190711
 //  spin: function (color, amount) {
-//      var hsl = color.toHSL();
-//      var hue = (hsl.h + amount.value) % 360;
+//    var hsl = toHSL(color);
+//    var hue = (hsl.h + amount.value) % 360;
 //
-//      hsl.h = hue < 0 ? 360 + hue : hue;
+//    hsl.h = hue < 0 ? 360 + hue : hue;
 //
-//      return hsla(color, hsl);
+//    return hsla(color, hsl);
 //  },
   }
 
@@ -862,44 +939,50 @@ class ColorFunctions extends FunctionBase {
   ///
   // Copyright (c) 2006-2009 Hampton Catlin, Natalie Weizenbaum, and Chris Eppstein
   // http://sass-lang.com
-  Color mix(Color color1, Color color2, [Dimension weight]) {
+  Color mix(Node color1, Node color2, [Dimension weight]) {
     weight ??= Dimension(50);
 
     final double p = weight.value / 100.0;
     final double w = p * 2 - 1;
-    final double a = color1.toHSL().a - color2.toHSL().a;
+    final double a = toHSL(color1).a - toHSL(color2).a;
+
+    // we are sure now color1 and color2 are Color type
+    final Color _color1 = color1;
+    final Color _color2 = color2;
 
     final double w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
     final double w2 = 1 - w1;
 
     final List<num> rgb = <num>[
-      color1.r * w1 + color2.r * w2,
-      color1.g * w1 + color2.g * w2,
-      color1.b * w1 + color2.b * w2
+      _color1.r * w1 + _color2.r * w2,
+      _color1.g * w1 + _color2.g * w2,
+      _color1.b * w1 + _color2.b * w2
     ];
-    final double alpha = color1.alpha * p + color2.alpha * (1 - p);
+
+    final double alpha = _color1.alpha * p + _color2.alpha * (1 - p);
 
     return Color.fromList(rgb, alpha);
 
-//    mix: function (color1, color2, weight) {
-//        if (!weight) {
-//            weight = new Dimension(50);
-//        }
-//        var p = weight.value / 100.0;
-//        var w = p * 2 - 1;
-//        var a = color1.toHSL().a - color2.toHSL().a;
-//
-//        var w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-//        var w2 = 1 - w1;
-//
-//        var rgb = [color1.rgb[0] * w1 + color2.rgb[0] * w2,
-//            color1.rgb[1] * w1 + color2.rgb[1] * w2,
-//            color1.rgb[2] * w1 + color2.rgb[2] * w2];
-//
-//        var alpha = color1.alpha * p + color2.alpha * (1 - p);
-//
-//        return new Color(rgb, alpha);
+// 3.9.0 20190711
+//  mix: function (color1, color2, weight) {
+//    if (!weight) {
+//      weight = new Dimension(50);
 //    }
+//    var p = weight.value / 100.0;
+//    var w = p * 2 - 1;
+//    var a = toHSL(color1).a - toHSL(color2).a;
+//
+//    var w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+//    var w2 = 1 - w1;
+//
+//    var rgb = [color1.rgb[0] * w1 + color2.rgb[0] * w2,
+//      color1.rgb[1] * w1 + color2.rgb[1] * w2,
+//      color1.rgb[2] * w1 + color2.rgb[2] * w2];
+//
+//    var alpha = color1.alpha * p + color2.alpha * (1 - p);
+//
+//    return new Color(rgb, alpha);
+//  },
   }
 
   ///

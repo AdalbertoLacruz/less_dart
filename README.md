@@ -203,8 +203,8 @@ The `customOptions` method could be override to modify the less options defining
 
 ## [License](LICENSE)
 
-Copyright (c) 2009-2018 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
+Copyright (c) 2009-2019 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
 
-Copyright (c) 2014-2018 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
+Copyright (c) 2014-2019 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
 
 Licensed under the [Apache License](LICENSE).

@@ -1,4 +1,4 @@
-// source: lib/less/functions/string.js 2.5.0
+// source: lib/less/functions/string.js 3.9.0 20190711
 
 part of functions.less;
 
@@ -17,11 +17,12 @@ class StringFunctions extends FunctionBase {
   /// Anything else returns an error.
   ///
   //str.evaluated == null. JavaScript not supported
-  Anonymous e(Node str) => Anonymous(str is JavaScript ? null : str.value);
+  Quoted e(Node str) => Quoted('"', str is JavaScript ? null : str.value.toString(), escaped: true);
 
-//    e: function (str) {
-//        return new Anonymous(str instanceof JavaScript ? str.evaluated : str.value);
-//    }
+// 3.9.0 20190711
+//  e: function (str) {
+//    return new Quote('"', str instanceof JavaScript ? str.evaluated : str.value, true);
+//  },
 
   ///
   /// Applies URL-encoding to special characters found in the input string.
