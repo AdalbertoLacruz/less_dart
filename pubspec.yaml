@@ -4,7 +4,7 @@ author: Adalberto Lacruz <adalberto.lacruz@gmail.com>
 description: Native Dart Less compiler/builder to generate .css files from .less sources.
 homepage: https://github.com/AdalbertoLacruz/less_dart
 environment:
-  sdk: '>=2.0.0 <3.0.0'
+  sdk: '>=2.3.0 <3.0.0'
 dependencies:
   build: '>=1.0.0 <2.0.0'
   build_config: '>=0.3.1 <0.5.0'

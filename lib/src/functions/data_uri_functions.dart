@@ -86,7 +86,7 @@ class DataUriFunctions extends FunctionBase {
         : Uri.encodeComponent(String.fromCharCodes(buf));
 
     final String uri = 'data:$mimetype,$sbuf$fragment';
-
+// TODO remove IE8 ??
     // IE8 cannot handle a data-uri larger than 32,768 characteres. If this is exceeded
     // and the --ieCompat flag is enabled, return a normal url() instead.
 

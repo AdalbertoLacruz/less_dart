@@ -1,4 +1,4 @@
-//source: less/tree/quoted.js 3.9.0 20190711
+//source: less/tree/quoted.js 3.10.3 20190823
 
 part of tree.less;
 
@@ -34,19 +34,20 @@ class Quoted extends Node implements CompareNode {
 
   ///
   Quoted(String str, String content,
-      {this.escaped, int index, FileInfo currentFileInfo}) {
+      {bool escaped, int index, FileInfo currentFileInfo}) {
     this.index = index;
     this.currentFileInfo = currentFileInfo;
 
-    escaped ??= true;
+    this.escaped = escaped ?? true;
     value = content ?? '';
     quote = str.isNotEmpty ? str[0] : '';
     if (!(quote == '"' || quote == "'" || quote == '')) quote = ''; // also ~ ?
 
     variableRegex = RegExp(r'@\{([\w-]+)\}');
     propRegex = RegExp(r'\$\{([\w-]+)\}');
+    allowRoot = escaped ?? false;
 
-//3.0.4 20180622
+//3.10.3 20190823
 // var Quoted = function (str, content, escaped, index, currentFileInfo) {
 //     this.escaped = (escaped == null) ? true : escaped;
 //     this.value = content || '';
@@ -55,6 +56,7 @@ class Quoted extends Node implements CompareNode {
 //     this._fileInfo = currentFileInfo;
 //     this.variableRegex = /@\{([\w-]+)\}/g;
 //     this.propRegex = /\$\{([\w-]+)\}/g;
+//     this.allowRoot = escaped;
 // };
   }
 

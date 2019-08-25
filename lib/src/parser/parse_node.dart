@@ -1,4 +1,4 @@
-//source: less/parser/parser.js partial 3.0.0 20160719
+//source: less/parser/parser.js partial 3.10.3 20190823
 
 part of parser.less;
 
@@ -65,7 +65,7 @@ class ParseNode {
     }
   }
 
-//3.0.0 20160719
+//3.10.3 20190823
 // function parseNode(str, parseList, currentIndex, fileInfo, callback) {
 //     var result, returnNodes = [];
 //     var parser = parserInput;
@@ -81,8 +81,10 @@ class ParseNode {
 //             i = parser.i;
 //             result = parsers[p]();
 //             if (result) {
-//                 result._index = i + currentIndex;
-//                 result._fileInfo = fileInfo;
+//                 try {
+//                     result._index = i + currentIndex;
+//                     result._fileInfo = fileInfo;
+//                 } catch (e) {}
 //                 returnNodes.push(result);
 //             }
 //             else {
