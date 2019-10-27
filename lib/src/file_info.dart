@@ -40,9 +40,9 @@ class FileInfo {
   /// #
   ///
   FileInfo.cloneForLoader(FileInfo current, Contexts context) {
-    rewriteUrls    = context.rewriteUrls;
-    entryPath      = current.entryPath;
-    rootpath       = current.rootpath;
-    rootFilename   = current.rootFilename;
+    rewriteUrls = context.rewriteUrls;
+    entryPath = current.entryPath;
+    rootpath = current.rootpath;
+    rootFilename = current.rootFilename;
   }
 }

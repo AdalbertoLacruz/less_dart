@@ -6,11 +6,14 @@ part of tree.less;
 /// A function call node.
 ///
 class Call extends Node {
-  @override String        name;
-  @override final String  type = 'Call';
+  @override
+  String name;
+
+  @override
+  final String type = 'Call';
 
   /// Function arguments
-  List<Node>  args; // Expression | Dimension | Assignment
+  List<Node> args; // Expression | Dimension | Assignment
 
   /// Controls math on calc function
   bool calc;
@@ -31,10 +34,9 @@ class Call extends Node {
   }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'name': name,
-    'args': args
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'name': name, 'args': args};
 
   ///
   @override
@@ -73,7 +75,9 @@ class Call extends Node {
     if (calc || context.inCalc) context.exitCalc();
     context.mathOn = currentMathContext;
 
-    final FunctionCaller funcCaller = FunctionCaller(name, context, index, currentFileInfo);
+    final FunctionCaller funcCaller =
+        FunctionCaller(name, context, index, currentFileInfo);
+
     dynamic _result;
     Node result;
 
@@ -91,7 +95,7 @@ class Call extends Node {
             filename: currentFileInfo.filename,
             line: LessError.getErrorLine(e),
             column: LessError.getErrorColumn(e))
-        ..message = 'error evaluating function `$name`$message';
+          ..message = 'error evaluating function `$name`$message';
 
         throw LessExceptionError(error);
       }
@@ -104,9 +108,10 @@ class Call extends Node {
             : (_result is bool)
                 ? Anonymous(null)
                 : Anonymous(_result.toString());
+
         return result
-            ..index = _index
-            ..currentFileInfo = _fileInfo;
+          ..index = _index
+          ..currentFileInfo = _fileInfo;
       }
     }
 

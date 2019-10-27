@@ -7,13 +7,12 @@ class BiMap<K, V> implements Map<K, V> {
   final Map<K, V> _map;
 
   ///
-  BiMap([Map<K, V> other])
-    : this.from(other ?? <K, V>{});
+  BiMap([Map<K, V> other]) : this.from(other ?? <K, V>{});
 
   ///
   BiMap.from(Map<K, V> other)
       : _map = other,
-        _inverse =  <V, K>{};
+        _inverse = <V, K>{};
 
   @override
   V operator [](Object key) => _map[key];

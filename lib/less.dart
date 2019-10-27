@@ -34,6 +34,9 @@ class Less {
   /// return list of imported files
   List<String> imports = <String>[];
 
+  /// Imported files that are packages
+  List<String> filesInPackage = <String>[];
+
   ///
   Logger logger;
 
@@ -155,6 +158,7 @@ class Less {
         result = ParseTree(tree, parser.imports)
             .toCSS(_options.clone(), parser.context);
         imports = result.imports;
+        filesInPackage = result.filesInPackage;
 
         if (!_options.lint) writeOutput(_options.output, result, _options);
       } on LessExceptionError catch (e) {

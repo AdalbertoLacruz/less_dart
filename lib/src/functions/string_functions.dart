@@ -17,7 +17,9 @@ class StringFunctions extends FunctionBase {
   /// Anything else returns an error.
   ///
   //str.evaluated == null. JavaScript not supported
-  Quoted e(Node str) => Quoted('"', str is JavaScript ? null : str.value.toString(), escaped: true);
+  Quoted e(Node str) =>
+      Quoted('"', str is JavaScript ? null : str.value.toString(),
+          escaped: true);
 
 // 3.9.0 20190711
 //  e: function (str) {

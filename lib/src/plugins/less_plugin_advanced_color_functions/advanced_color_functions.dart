@@ -23,15 +23,15 @@ class AdvancedColorFunctions extends ColorFunctions {
   /// If color1 and color2 have a similar luma, it contrast color2 a little bit more.
   /// If the color2 luma resultant is greater than 1, or less than 0, its luma is pivoted around color1 luma.
   ///
-  Color contrastmore(Color color1, Color color2, [Dimension minLumaDifferenceDim]) {
+  Color contrastmore(Color color1, Color color2,
+      [Dimension minLumaDifferenceDim]) {
     Color autocontrast = color2;
     final double lumadif = (color1.luma() - autocontrast.luma()).abs();
     final HSLType hsl = autocontrast.toHSL();
     double missingLumaDif;
     double newluma;
-    final double minLumaDifference = (minLumaDifferenceDim == null)
-        ? 0.3
-        : minLumaDifferenceDim.value;
+    final double minLumaDifference =
+        (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
       missingLumaDif = minLumaDifference - lumadif;
@@ -82,16 +82,16 @@ class AdvancedColorFunctions extends ColorFunctions {
   /// If color1 and color2 have a similar luma, it contrast color2 a little bit more.
   /// If the color2 luma resultant is greater than 1, or less than 0, its luma gets inverted.
   ///
-  Color autocontrast(Color color1, Color color2, [Dimension minLumaDifferenceDim]) {
+  Color autocontrast(Color color1, Color color2,
+      [Dimension minLumaDifferenceDim]) {
     Color autocontrast = color2;
     final double lumadif = (color1.luma() - autocontrast.luma()).abs();
     final HSLType hsl = autocontrast.toHSL();
     double newLuma = hsl.l;
     double missingLuma;
 
-    final double minLumaDifference = (minLumaDifferenceDim == null)
-        ? 0.3
-        : minLumaDifferenceDim.value;
+    final double minLumaDifference =
+        (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
       missingLuma = minLumaDifference - lumadif;

@@ -73,6 +73,8 @@ class ParseTree {
       if (file != imports.rootFilename) result.imports.add(file);
     });
 
+    result.filesInPackage = imports.filesInPackage;
+
     return result;
 
 //2.4.0
@@ -139,6 +141,9 @@ class RenderResult {
 
   ///
   String map;
+
+  /// imports that are packages
+  List<String> filesInPackage;
 
   ///
   RenderResult();

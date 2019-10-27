@@ -1,5 +1,5 @@
 name: less_dart
-version: 2.3.2
+version: 2.3.3
 author: Adalberto Lacruz <adalberto.lacruz@gmail.com>
 description: Native Dart Less compiler/builder to generate .css files from .less sources.
 homepage: https://github.com/AdalbertoLacruz/less_dart

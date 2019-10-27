@@ -159,10 +159,12 @@ class Media extends DirectiveBase {
       final List<Selector> selectors =
           Selector(<Element>[], index: index, currentFileInfo: currentFileInfo)
               .createEmptySelectors();
+
       result = Ruleset(
-          selectors, <Node>[]..addAll(context.mediaBlocks)) //Must be List<Node>
+          selectors, <Node>[...context.mediaBlocks]) //Must be List<Node>
         ..multiMedia = true
         ..copyVisibilityInfo(visibilityInfo());
+
       setParent(result, this);
     }
 
@@ -292,8 +294,10 @@ class Media extends DirectiveBase {
 
     for (int i = 0; i < rest.length; i++) {
       for (int j = 0; j < arr[0].length; j++) {
-        result.add(<Node>[arr[0][j]]
-          ..addAll(rest[i] is! List ? <Node>[rest[i]] : rest[i]));
+        result.add(<Node>[
+          arr[0][j],
+          ...rest[i] is! List ? <Node>[rest[i]] : rest[i]
+        ]);
       }
     }
     return result;

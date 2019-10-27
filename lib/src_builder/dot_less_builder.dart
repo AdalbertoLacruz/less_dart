@@ -15,6 +15,7 @@ class DotLessBuilder extends BaseBuilder {
         if (exitCode == 0) {
           outputContent = less.stdout.toString();
           imports = less.imports;
+          filesInPackage = less.filesInPackage;
         } else {
           isError = true;
           outputContent = errorMessage = less.stderr.toString();

@@ -657,6 +657,7 @@ class Entities {
   static final RegExp _colorRegExp = RegExp(
       r'#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})([\w.#\[])?',
       caseSensitive: true);
+
   ///
   /// A Hexadecimal color
   ///

@@ -5,37 +5,40 @@ part of tree.less;
 ///
 /// Base class for AtRule/Directive and Media
 ///
-class DirectiveBase extends Node
-      with OutputRulesetMixin, VariableMixin {
-  //
-  @override FileInfo                currentFileInfo;
-  @override DebugInfo               debugInfo;
-  @override String                  name;
+class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin {
+  @override
+  FileInfo currentFileInfo;
+
+  @override
+  DebugInfo debugInfo;
+
+  @override
+  String name;
+
 //  @override covariant List<Ruleset> rules; //more restrictive type TODO: review
-  @override final String            type = 'DirectiveBase';
+
+  @override
+  final String type = 'DirectiveBase';
 
   ///
-  bool  isRooted = false;
+  bool isRooted = false;
 
   ///
-  DirectiveBase({
-      this.currentFileInfo,
+  DirectiveBase(
+      {this.currentFileInfo,
       this.debugInfo,
       int index,
       this.isRooted,
       this.name,
-      VisibilityInfo visibilityInfo
-    }) {
-      this.index = index;
-      copyVisibilityInfo(visibilityInfo);
-    }
+      VisibilityInfo visibilityInfo}) {
+    this.index = index;
+    copyVisibilityInfo(visibilityInfo);
+  }
 
   /// Fields to show with genTree
-  @override Map<String, dynamic> get treeField => <String, dynamic>{
-    'name': name,
-    'value': value,
-    'rules': rules
-  };
+  @override
+  Map<String, dynamic> get treeField =>
+      <String, dynamic>{'name': name, 'value': value, 'rules': rules};
 
   ///
   @override
@@ -108,8 +111,8 @@ class DirectiveBase extends Node
   ///
   @override
   Node eval(Contexts context) {
-    Node          value = this.value;
-    List<Node>    rules = this.rules; // TODO: review, List<Ruleset>
+    Node value = this.value;
+    List<Node> rules = this.rules; // TODO: review, List<Ruleset>
 
     // media stored inside other directive should not bubble over it
     // backpup media bubbling information
@@ -118,8 +121,8 @@ class DirectiveBase extends Node
 
     // deleted media bubbling information
     context
-        ..mediaPath = <Media>[]
-        ..mediaBlocks = <Media>[];
+      ..mediaPath = <Media>[]
+      ..mediaBlocks = <Media>[];
 
     if (value != null) value = value.eval(context);
     if (rules != null) {
@@ -129,8 +132,8 @@ class DirectiveBase extends Node
     }
     // restore media bubbling information
     context
-        ..mediaPath = mediaPathBackup
-        ..mediaBlocks = mediaBlocksBackup;
+      ..mediaPath = mediaPathBackup
+      ..mediaBlocks = mediaBlocksBackup;
 
     return AtRule(name, value,
         rules: rules,

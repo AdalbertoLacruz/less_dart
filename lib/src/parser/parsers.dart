@@ -1,4 +1,4 @@
-//source: less/parser/parser.js ines 250-end 3.5.3 20180708
+//source: less/parser/parser.js lines 260-end 3.10.3 20190825
 
 part of parser.less;
 
@@ -102,8 +102,8 @@ class Parsers {
 
       node = mixin.definition() ??
           declaration() ??
-          ruleset() ??
           mixin.call(inValue: false, getLookup: false) ??
+          ruleset() ??
           variableCall() ??
           entities.call() ??
           atrule();
@@ -121,9 +121,11 @@ class Parsers {
 
     return root;
 
-// 3.5.0.beta.5 20180702
+// 3.10.3 20190825
 //  primary: function () {
-//      var mixin = this.mixin, root = [], node;
+//      const mixin = this.mixin;
+//      let root = [];
+//      let node;
 //
 //      while (true) {
 //          while (true) {
@@ -145,12 +147,12 @@ class Parsers {
 //              continue;
 //          }
 //
-//          node = mixin.definition() || this.declaration() || this.ruleset() ||
-//              mixin.call(false, false) || this.variableCall() || this.entities.call() || this.atrule();
+//          node = mixin.definition() || this.declaration() || mixin.call(false, false) ||
+//              this.ruleset() || this.variableCall() || this.entities.call() || this.atrule();
 //          if (node) {
 //              root.push(node);
 //          } else {
-//              var foundSemiColon = false;
+//              let foundSemiColon = false;
 //              while (parserInput.$char(';')) {
 //                  foundSemiColon = true;
 //              }

@@ -1,3 +1,7 @@
+## 2.3.3 (2019-10-27)
+- Linter updates.
+- Resolve bug in builder when @import packages
+
 ## 2.3.2 (2019-08-25)
 - Linter updates.
 - Less 3.10.3 code.

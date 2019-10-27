@@ -577,7 +577,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// Returns a String such as #aarrggbb
   ///
-  String toARGB() => toHex(<num>[alpha * 255]..addAll(rgb));
+  String toARGB() => toHex(<num>[alpha * 255, ...rgb]);
 
 //--- CompareNode
 

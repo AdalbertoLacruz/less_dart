@@ -128,22 +128,28 @@ class Base64String {
 
     for (int i = 0; i < data.length; i++) {
       char = data.codeUnitAt(i);
-      if (65 <= char && char <= 90) { // "A" - "Z".
+      if (65 <= char && char <= 90) {
+        // "A" - "Z".
         value = (value << 6) | char - 65;
         charCount++;
-      } else if (97 <= char && char <= 122) { // "a" - "z".
+      } else if (97 <= char && char <= 122) {
+        // "a" - "z".
         value = (value << 6) | char - 97 + 26;
         charCount++;
-      } else if (48 <= char && char <= 57) { // "0" - "9".
+      } else if (48 <= char && char <= 57) {
+        // "0" - "9".
         value = (value << 6) | char - 48 + 52;
         charCount++;
-      } else if (char == 43) { // "+".
+      } else if (char == 43) {
+        // "+".
         value = (value << 6) | 62;
         charCount++;
-      } else if (char == 47) { // "/".
+      } else if (char == 47) {
+        // "/".
         value = (value << 6) | 63;
         charCount++;
-      } else if (char == 61) { // "=".
+      } else if (char == 61) {
+        // "=".
         value = value << 6;
         charCount++;
         padCount++;

@@ -48,11 +48,11 @@ class DotHtmlBuilder extends BaseBuilder {
   /// [content] is the html file content
   ///
   List<ContentElement> parse(String content) {
-    final List<ContentElement> result = <ContentElement>[]
-      ..addAll(LessElement.parse(content))
-      ..addAll(StyleElement.parse(content))
-      ..sort((ContentElement x, ContentElement y) =>
-          x.openTagStart.compareTo(y.openTagStart));
+    final List<ContentElement> result = <ContentElement>[
+      ...LessElement.parse(content),
+      ...StyleElement.parse(content)
+    ]..sort((ContentElement x, ContentElement y) =>
+        x.openTagStart.compareTo(y.openTagStart));
 
     return FragmentElement.parse(content, result);
   }

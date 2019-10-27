@@ -173,7 +173,7 @@ class MixinDefinition extends Node
     }
 
     final Contexts _mixinEnv =
-        Contexts.eval(mixinEnv, <Node>[frame]..addAll(mixinEnv.frames));
+        Contexts.eval(mixinEnv, <Node>[frame, ...mixinEnv.frames]);
     final List<MixinArgs> _args = args?.sublist(0);
 
     if (_args != null) {
@@ -405,9 +405,10 @@ class MixinDefinition extends Node
     List<Node> rules;
     Ruleset ruleset;
 
-    final List<Node> mixinFrames = (frames != null)
-        ? (frames.sublist(0)..addAll(context.frames))
-        : context.frames;
+    final List<Node> mixinFrames = <Node>[
+      ...frames ?? <Node>[],
+      ...context.frames
+    ];
 
     final Ruleset frame = evalParams(
         context, Contexts.eval(context, mixinFrames), args, _arguments)
@@ -421,7 +422,7 @@ class MixinDefinition extends Node
       ..id = id;
 
     ruleset = ruleset
-        .eval(Contexts.eval(context, <Node>[this, frame]..addAll(mixinFrames)));
+        .eval(Contexts.eval(context, <Node>[this, frame, ...mixinFrames]));
 
     if (important) ruleset = ruleset.makeImportant();
     return ruleset;
@@ -452,15 +453,19 @@ class MixinDefinition extends Node
   ///
   @override
   bool matchCondition(List<MixinArgs> args, Contexts context) {
-    final List<Node> thisFrames = (this.frames != null)
-        ? (this.frames.sublist(0)..addAll(context.frames))
-        : context.frames;
+    final List<Node> thisFrames = <Node>[
+      ...this.frames ?? <Node>[],
+      ...context.frames
+    ];
+
     final List<Node> frames = <Node>[
       // the parameter variables
-      evalParams(context, Contexts.eval(context, thisFrames), args, <Node>[])
-    ]
-      ..addAll(this.frames ?? <Node>[]) // the parent namespace/mixin frames
-      ..addAll(context.frames); // the current environment frames
+      evalParams(context, Contexts.eval(context, thisFrames), args, <Node>[]),
+      // the parent namespace/mixin frames
+      ...this.frames ?? <Node>[],
+      // the current environment frames
+      ...context.frames
+    ];
 
     if (condition != null &&
         !condition.eval(Contexts.eval(context, frames)).evaluated) {

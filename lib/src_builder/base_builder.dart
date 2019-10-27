@@ -14,6 +14,9 @@ class BaseBuilder {
   ///
   String errorMessage = '';
 
+  /// files that are package
+  List<String> filesInPackage = <String>[];
+
   /// less cli flags
   List<String> flags;
 

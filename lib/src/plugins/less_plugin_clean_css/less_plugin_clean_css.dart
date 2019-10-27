@@ -47,22 +47,16 @@ class LessPluginCleanCss extends Plugin {
   @override
   void printUsage() {
     logger
-      ..log(
-          '')
-      ..log(
-          'Clean CSS Plugin')
-      ..log(
-          'specify plugin with --clean-css')
+      ..log('')
+      ..log('Clean CSS Plugin')
+      ..log('specify plugin with --clean-css')
       ..log(
           'To pass an option to clean css, we use similar CLI arguments as from https://github.com/GoalSmashers/clean-css')
       ..log(
           'The exception is advanced and rebase - we turn these off by default so use advanced/rebase to turn it back on again.')
-      ..log(
-          '--clean-css="-s1 --advanced --rebase"')
-      ..log(
-          'The options do not require dashes, so this is also equivalent')
-      ..log(
-          '--clean-css="s1 advanced rebase"');
+      ..log('--clean-css="-s1 --advanced --rebase"')
+      ..log('The options do not require dashes, so this is also equivalent')
+      ..log('--clean-css="s1 advanced rebase"');
     printOptions();
     logger.log('');
   }

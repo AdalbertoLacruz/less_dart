@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.5.0.beta.7 20180704
+//source: less/parser/parser.js 3.10.3 20190825
 
 part of parser.less;
 
@@ -528,14 +528,19 @@ class Mixin {
         parserInput.restore();
       }
     } else {
-      parserInput.forget();
+      parserInput.restore();
     }
 
     return null;
 
-// 3.5.0.beta.7 20180704
+// 3.10.3 20190825
 //  definition: function () {
-//      var name, params = [], match, ruleset, cond, variadic = false;
+//      let name;
+//      let params = [];
+//      let match;
+//      let ruleset;
+//      let cond;
+//      let variadic = false;
 //      if ((parserInput.currentChar() !== '.' && parserInput.currentChar() !== '#') ||
 //          parserInput.peek(/^[^{]*\}/)) {
 //          return;
@@ -547,7 +552,7 @@ class Mixin {
 //      if (match) {
 //          name = match[1];
 //
-//          var argInfo = this.args(false);
+//          const argInfo = this.args(false);
 //          params = argInfo.args;
 //          variadic = argInfo.variadic;
 //
@@ -576,7 +581,7 @@ class Mixin {
 //              parserInput.restore();
 //          }
 //      } else {
-//          parserInput.forget();
+//          parserInput.restore();
 //      }
 //  },
   }

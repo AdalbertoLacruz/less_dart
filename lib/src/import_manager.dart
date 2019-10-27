@@ -49,6 +49,9 @@ class ImportManager {
   /// MIME type of .less files
   String mime;
 
+  /// files that are packages
+  List<String> filesInPackage = <String>[];
+
   /// Directories where to search the file when importing
   List<String> paths;
 
@@ -85,8 +88,9 @@ class ImportManager {
   /// Build the return content and save it in files cache
   /// [root] = Node | String
   ///
-  ImportedFile fileParsedFunc(String path, dynamic root, String fullPath,
-      ImportOptions importOptions, {bool useCache = false}) {
+  ImportedFile fileParsedFunc(
+      String path, dynamic root, String fullPath, ImportOptions importOptions,
+      {bool useCache = false}) {
     queue.remove(path);
 
     if (useCache) return files[fullPath];
@@ -97,13 +101,19 @@ class ImportManager {
         fullPath: fullPath,
         options: importOptions);
 
+    if (path.startsWith('package')) {
+      MoreList.addUnique(filesInPackage, path);
+    }
+
     // Inline imports aren't cached here.
     // If we start to cache them, please make sure they won't conflict with non-inline imports of the
     // same name as they used to do before this comment and the condition below have been added.
     //
     // in js only if (!importManager.files[fullPath] && !importOptions.inline).
     // But if we are here, don't like the cache
-    if (fullPath != null && !(importOptions?.inline ?? false)) files[fullPath] = importedFile;
+    if (fullPath != null && !(importOptions?.inline ?? false)) {
+      files[fullPath] = importedFile;
+    }
 
     return importedFile;
   }
@@ -139,19 +149,15 @@ class ImportManager {
   ///   [tryAppendLessExtension] whether to try appending the less extension (if the path has no extension)
   ///
   Future<ImportedFile> push(
-      String path,
-      FileInfo currentFileInfo,
-      ImportOptions importOptions, {
-        bool tryAppendLessExtension = false
-      }) async {
-
+      String path, FileInfo currentFileInfo, ImportOptions importOptions,
+      {bool tryAppendLessExtension = false}) async {
     final Contexts _context = context.clone();
     String resolvedFilename;
 
     queue.add(path);
 
-    final FileInfo newFileInfo = FileInfo
-        .cloneForLoader(currentFileInfo, _context);
+    final FileInfo newFileInfo =
+        FileInfo.cloneForLoader(currentFileInfo, _context);
 
     final AbstractFileManager fileManager = environment.getFileManager(
         path, currentFileInfo.currentDirectory, _context, environment);
@@ -163,9 +169,13 @@ class ImportManager {
     if (tryAppendLessExtension) _context.ext = '.less';
 
     try {
-      final FileLoaded loadedFile = await fileManager.loadFile(path, currentFileInfo.currentDirectory, _context, environment);
+      final FileLoaded loadedFile = await fileManager.loadFile(
+          path, currentFileInfo.currentDirectory, _context, environment);
+
       resolvedFilename = loadedFile.filename;
-      final String contents = loadedFile.contents.replaceFirst(RegExp('^\uFEFF'), '');
+
+      final String contents =
+          loadedFile.contents.replaceFirst(RegExp('^\uFEFF'), '');
 
       // Pass on an updated rootpath if path of imported file is relative and file
       // is in a (sub|sup) directory
@@ -183,20 +193,26 @@ class ImportManager {
           currentDirectory += path_lib.separator;
         }
 
-        final String entryPath = await fileManager.normalizeFilePath(newFileInfo.entryPath);
+        final String entryPath =
+            await fileManager.normalizeFilePath(newFileInfo.entryPath);
 
-        final String pathdiff = fileManager.pathDiff(currentDirectory, entryPath);
-        newFileInfo.rootpath = fileManager.join(_context.rootpath ?? '', pathdiff);
+        final String pathdiff =
+            fileManager.pathDiff(currentDirectory, entryPath);
 
-        if (!fileManager.isPathAbsolute(newFileInfo.rootpath) && fileManager.alwaysMakePathsAbsolute()) {
-          newFileInfo.rootpath = fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
+        newFileInfo.rootpath =
+            fileManager.join(_context.rootpath ?? '', pathdiff);
+
+        if (!fileManager.isPathAbsolute(newFileInfo.rootpath) &&
+            fileManager.alwaysMakePathsAbsolute()) {
+          newFileInfo.rootpath =
+              fileManager.join(newFileInfo.entryPath, newFileInfo.rootpath);
         }
       }
       newFileInfo.filename = resolvedFilename;
 
       final Contexts newEnv = Contexts.parse(_context)
-          ..processImports = false
-          ..currentFileInfo = newFileInfo; // Not in original
+        ..processImports = false
+        ..currentFileInfo = newFileInfo; // Not in original
 
       this.contents[resolvedFilename] = contents;
 
@@ -206,25 +222,28 @@ class ImportManager {
 
       // if (importOptions.isPlugin) ...
       if (importOptions?.inline ?? false) {
-          return fileParsedFunc(path, contents, resolvedFilename, importOptions);
+        return fileParsedFunc(path, contents, resolvedFilename, importOptions);
 
-      // import (multiple) parse trees apparently get altered and can't be cached.
-      // TODO: investigate why this is (js)
-      } else if (files.containsKey(resolvedFilename)
-        && !(files[resolvedFilename].options?.multiple ?? false)
-        && !(importOptions?.multiple ?? false)) {
-        return fileParsedFunc(path, null, resolvedFilename, importOptions, useCache: true);
+        // import (multiple) parse trees apparently get altered and can't be cached.
+        // TODO: investigate why this is (js)
+      } else if (files.containsKey(resolvedFilename) &&
+          !(files[resolvedFilename].options?.multiple ?? false) &&
+          !(importOptions?.multiple ?? false)) {
+        return fileParsedFunc(path, null, resolvedFilename, importOptions,
+            useCache: true);
       } else {
-        final Ruleset root = await Parser.fromImporter(newEnv, this, newFileInfo).parse(contents);
+        final Ruleset root =
+            await Parser.fromImporter(newEnv, this, newFileInfo)
+                .parse(contents);
         return fileParsedFunc(path, root, resolvedFilename, importOptions);
       }
-    }
-    catch (e) {
+    } catch (e) {
       //importOptions.optional: continue compiling when file is not found
       if (importOptions?.optional ?? false) {
-        (logger ??= Logger())
-          .info('The file ${resolvedFilename ?? path} was skipped because it was not found and the import was marked optional.');
-        return fileParsedFunc(path, Ruleset(<Selector>[], <Node>[]), null, importOptions);
+        (logger ??= Logger()).info(
+            'The file ${resolvedFilename ?? path} was skipped because it was not found and the import was marked optional.');
+        return fileParsedFunc(
+            path, Ruleset(<Selector>[], <Node>[]), null, importOptions);
       } else {
         rethrow;
       }
@@ -364,13 +383,17 @@ class ImportManager {
 class ImportedFile {
   ///
   dynamic root; //String or Node - content
+
   ///
-  bool    importedPreviously;
+  bool importedPreviously;
+
   ///
-  String  fullPath;
+  String fullPath;
+
   ///
   ImportOptions options;
 
   ///
-  ImportedFile({this.root, this.importedPreviously, this.fullPath, this.options});
+  ImportedFile(
+      {this.root, this.importedPreviously, this.fullPath, this.options});
 }

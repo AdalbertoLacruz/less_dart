@@ -1,7 +1,7 @@
 // Copyright (c) 2018, adalberto.lacruz@gmail.com
 
 import 'dart:async';
-
+import 'package:path/path.dart' as path_lib;
 import 'package:build/build.dart';
 import 'package:less_dart/less.dart';
 import 'package:less_dart/src_builder/base_builder.dart';
@@ -75,7 +75,24 @@ class LessBuilder implements Builder {
 
       // dependents - force AssetGraph inclusion, we are called on change
       transformer.imports.forEach((String path) async {
-        await buildStep.canRead(AssetId(package, path));
+        // packages are absolute
+        if (path_lib.isRelative(path)) {
+          await buildStep.canRead(AssetId(package, path));
+        }
+      });
+
+      // dependents that are in a package
+      transformer.filesInPackage.forEach((String path) async {
+        try {
+          final List<String> pathData = path_lib.split(path);
+          if (pathData.length > 1) {
+            final String packageName = pathData[1];
+            String pathInPackage =
+                path_lib.joinAll(pathData.getRange(2, pathData.length));
+            pathInPackage = 'lib/$pathInPackage';
+            await buildStep.canRead(AssetId(packageName, pathInPackage));
+          }
+        } catch (_) {}
       });
     } else if (extension.toLowerCase() == '.html') {
       final DotHtmlBuilder transformer = DotHtmlBuilder()
@@ -96,7 +113,10 @@ class LessBuilder implements Builder {
 
       // dependents - force AssetGraph inclusion, we are called on change
       transformer.imports.forEach((String path) async {
-        await buildStep.canRead(AssetId(package, path));
+        // packages are absolute and html in package not used
+        if (path_lib.isRelative(path)) {
+          await buildStep.canRead(AssetId(package, path));
+        }
       });
     }
   }
