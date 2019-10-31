@@ -36,7 +36,7 @@ class BaseBuilder {
   String outputContent;
 
   ///
-  void createFlags(LessBuilderOptions options) {
+  void createFlags(LessBuilderOptions options, String filePath) {
     flags = <String>['--no-color'];
 
     if (options.cleancss != null) {
@@ -45,9 +45,12 @@ class BaseBuilder {
 
     if (options.compress) flags.add('--compress');
 
+    String include = filePath;
     if (options.includePath.isNotEmpty) {
-      flags.add('--include-path=${options.includePath}');
+      include = '$include;${options.includePath}';
+//      flags.add('--include-path=${options.includePath}');
     }
+    flags.add('--include-path=$include');
 
     if (options.otherFlags != null) flags.addAll(options.otherFlags);
 

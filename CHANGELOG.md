@@ -1,3 +1,6 @@
+## 2.3.4 (2019-10-31)
+- Builder bug with relative imports
+
 ## 2.3.3 (2019-10-27)
 - Linter updates.
 - Resolve bug in builder when @import packages

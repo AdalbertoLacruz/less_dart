@@ -75,7 +75,7 @@ The power of Dart builder is to chain builders, so a `.less` file will be conver
 to a `.css` file and this could be the source for another builder.
 Consider to use the less builder as the first in the chain.
 
-#### builder.yaml Configuration
+#### build.yaml Configuration
 
 In order to use the less builder, you must configure it:
 

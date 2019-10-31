@@ -59,7 +59,7 @@ class LessBuilder implements Builder {
 
     if (extension.toLowerCase() == '.less') {
       final DotLessBuilder transformer = DotLessBuilder()
-        ..createFlags(options)
+        ..createFlags(options, path_lib.dirname(inputId.path))
         ..inputContent = await buildStep.readAsString(inputId);
 
       final AssetId outputId = inputId.changeExtension(DOT_LESS_TO);
@@ -96,7 +96,7 @@ class LessBuilder implements Builder {
       });
     } else if (extension.toLowerCase() == '.html') {
       final DotHtmlBuilder transformer = DotHtmlBuilder()
-        ..createFlags(options)
+        ..createFlags(options, path_lib.dirname(inputId.path))
         ..inputContent = await buildStep.readAsString(inputId);
 
       final String outputPath = inputId.path.replaceAll('.less.html', '.html');
