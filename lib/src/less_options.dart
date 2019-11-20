@@ -233,7 +233,7 @@ class LessOptions {
   ///
   /// Update less options from arg
   ///
-  /// Example: '-include-path=lib/lessIncludes;lib/otherIncludes'
+  /// Example: '--include-path=lib/lessIncludes;lib/otherIncludes'
   ///
   bool parse(Match arg) {
     if (arg == null) return setParseError('empty');
@@ -303,10 +303,12 @@ class LessOptions {
         break;
       case 'include-path':
         if (checkArgFunc(command, arg[2])) {
-          // ; supported on windows.
+          // ; supported on windows and linux, with priority
           // : supported on windows and linux, excluding a drive letter like C:\ so C:\file:D:\file parses to 2
-          if (arg[2].startsWith('package')) {
-            paths = <String>[arg[2]];
+//          if (arg[2].startsWith('package')) {
+//            paths = <String>[arg[2]];
+          if (arg[2].startsWith('package') || arg[2].contains(';')) {
+            paths = arg[2].split(';');
           } else {
             paths =
                 arg[2].split(Platform.isWindows ? RegExp(r':(?!\\)|;') : ':');

@@ -102,14 +102,14 @@ In order to use the less builder, you must configure it:
 The output file will have the same name as the input, with `.css` extension for less.
 For html the `file.less.html` will be `file.html`.
 
-- include_path - see [Less Documentation include_path](http://lesscss.org/usage/#command-line-usage-include-paths).
+- include_path - see [Less Documentation include_path](http://lesscss.org/usage/#less-options-include-paths).
 
 - cleancss - Compress/optimize with clean-css plugin.
 	- true: Use default options
 	- "option1 option2..." Specifies options to be used.
 	- See [Plugin Info](lib/src/plugins/less_plugin_clean_css/README.md).
 
-- compress - see [Less Documentation compress](http://lesscss.org/usage/#command-line-usage-compress).
+- compress - see [Less Documentation compress](http://lesscss.org/usage/#less-options-source-map-options). Deprecated in js version, not here.
 
 - other_flags - Let add other flags such as (--source-map, ...) in the lessc command line.
 
@@ -190,6 +190,11 @@ The `customOptions` method could be override to modify the less options defining
   Also, option `--include-path` supports package, for easy use of shared mixins libraries:
   - `--include-path=packages/package-name/path/starting-in-lib`
   - `--include-path=package://package-name/path/starting-in-lib`
+  
+  Use `';'` as separator if needed multiples libraries:
+  - `--include-path=packages/package-name/path/starting-in-lib;packages/package-name/others`
+  
+  And remember, the own package could be used as package-name.
 
 
 ## Known issues

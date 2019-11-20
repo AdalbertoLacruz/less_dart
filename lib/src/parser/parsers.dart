@@ -1,4 +1,4 @@
-//source: less/parser/parser.js lines 260-end 3.10.3 20190825
+//source: less/parser/parser.js lines 260-end 3.10.3 20190923
 
 part of parser.less;
 
@@ -240,7 +240,6 @@ class Parsers {
   ///
   Node variableCall([String parsedName]) {
     final int index = parserInput.i;
-    bool important = false;
     final bool inValue = parsedName != null;
     String name = parsedName;
     List<String> lsName; // Each () matched in regExp
@@ -261,8 +260,6 @@ class Parsers {
 
       if (!inValue) name = lsName[1];
 
-      if ((lookups != null) && (this.important() != null)) important = true;
-
       final VariableCall call = VariableCall(name, index, fileInfo);
 
       if (!inValue && end()) {
@@ -270,18 +267,19 @@ class Parsers {
         return call;
       } else {
         parserInput.forget();
-        return NamespaceValue(call, lookups,
-            index: index, fileInfo: fileInfo, important: important);
+        return NamespaceValue(call, lookups, index: index, fileInfo: fileInfo);
       }
     }
 
     parserInput.restore();
     return null;
 
-// 3.5.0 20180705
+// 3.10.3 20190923
 //  variableCall: function (parsedName) {
-//      var lookups, important, i = parserInput.i,
-//          inValue = !!parsedName, name = parsedName;
+//      let lookups;
+//      const i = parserInput.i;
+//      const inValue = !!parsedName;
+//      let name = parsedName;
 //
 //      parserInput.save();
 //
@@ -299,18 +297,14 @@ class Parsers {
 //              name = name[1];
 //          }
 //
-//          if (lookups && parsers.important()) {
-//              important = true;
-//          }
-//
-//          var call = new tree.VariableCall(name, i, fileInfo);
+//          const call = new tree.VariableCall(name, i, fileInfo);
 //          if (!inValue && parsers.end()) {
 //              parserInput.forget();
 //              return call;
 //          }
 //          else {
 //              parserInput.forget();
-//              return new tree.NamespaceValue(call, lookups, important, i, fileInfo);
+//              return new tree.NamespaceValue(call, lookups, i, fileInfo);
 //          }
 //      }
 //

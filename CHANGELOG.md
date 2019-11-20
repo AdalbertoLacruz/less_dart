@@ -1,3 +1,7 @@
+## 2.3.5 (2019-11-20)
+- Support for builder in other less packages (Ex. Angular lib)
+- Changed build.yaml auto_apply: from 'none' to 'dependents'
+
 ## 2.3.4 (2019-10-31)
 - Builder bug with relative imports
 

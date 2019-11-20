@@ -1,4 +1,4 @@
-//source: less/parser/parser.js 3.10.3 20190825
+//source: less/parser/parser.js 3.10.3 20190923
 
 part of parser.less;
 
@@ -86,19 +86,22 @@ class Mixin {
             index: index,
             currentFileInfo: fileInfo,
             important: lookups == null && important);
-        return lookups != null
-            ? NamespaceValue(mixin, lookups, important: important)
-            : mixin;
+        return lookups != null ? NamespaceValue(mixin, lookups) : mixin;
       }
     }
 
     parserInput.restore();
     return null;
 
-// 3.5.0.beta.5 20180702
+// 3.10.3 20190923
 //  call: function (inValue, getLookup) {
-//      var s = parserInput.currentChar(), important = false, lookups,
-//          index = parserInput.i, elements, args, hasParens;
+//      const s = parserInput.currentChar();
+//      let important = false;
+//      let lookups;
+//      const index = parserInput.i;
+//      let elements;
+//      let args;
+//      let hasParens;
 //
 //      if (s !== '.' && s !== '#') { return; }
 //
@@ -133,9 +136,9 @@ class Mixin {
 //
 //          if (inValue || parsers.end()) {
 //              parserInput.forget();
-//              var mixin = new(tree.mixin.Call)(elements, args, index, fileInfo, !lookups && important);
+//              const mixin = new(tree.mixin.Call)(elements, args, index, fileInfo, !lookups && important);
 //              if (lookups) {
-//                  return new tree.NamespaceValue(mixin, lookups, important);
+//                  return new tree.NamespaceValue(mixin, lookups);
 //              }
 //              else {
 //                  return mixin;

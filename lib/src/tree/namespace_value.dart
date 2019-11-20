@@ -1,4 +1,4 @@
-// source: less/tree/namespace-value.js 3.5.0.beta.6 20180704
+// source: less/tree/namespace-value.js 3.10.3 20190923
 
 part of tree.less;
 
@@ -11,9 +11,6 @@ class NamespaceValue extends Node {
   covariant Node value;
 
   ///
-  bool important;
-
-  ///
   List<String> lookups;
 
   ///
@@ -22,20 +19,20 @@ class NamespaceValue extends Node {
   // Ex.
   //   color: #color[primary]
   //
-  NamespaceValue(Node ruleCall, this.lookups,
-      {int index, FileInfo fileInfo, this.important})
+  NamespaceValue(Node ruleCall, this.lookups, {int index, FileInfo fileInfo})
       : super.init(currentFileInfo: fileInfo, index: index) {
     // ignore: prefer_initializing_formals
     value = ruleCall;
 
-// 3.5.0.beta.4 20180630
-//  var NamespaceValue = function (ruleCall, lookups, important, index, fileInfo) {
+// 3.10.3 20190923
+//  constructor(ruleCall, lookups, index, fileInfo) {
+//      super();
+//
 //      this.value = ruleCall;
 //      this.lookups = lookups;
-//      this.important = important;
 //      this._index = index;
 //      this._fileInfo = fileInfo;
-//  };
+//  }
   }
 
   ///

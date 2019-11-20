@@ -59,11 +59,12 @@ class LessBuilder implements Builder {
 
     if (extension.toLowerCase() == '.less') {
       final DotLessBuilder transformer = DotLessBuilder()
-        ..createFlags(options, path_lib.dirname(inputId.path))
+        // ..createFlags(options, path_lib.dirname(inputId.path))
+        ..createFlags(options, calculateIncludePath(inputId))
         ..inputContent = await buildStep.readAsString(inputId);
 
       final AssetId outputId = inputId.changeExtension(DOT_LESS_TO);
-      log.info(
+      log.fine(
           '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
       await transformer.transform(customOptions);
@@ -96,12 +97,12 @@ class LessBuilder implements Builder {
       });
     } else if (extension.toLowerCase() == '.html') {
       final DotHtmlBuilder transformer = DotHtmlBuilder()
-        ..createFlags(options, path_lib.dirname(inputId.path))
+        ..createFlags(options, calculateIncludePath(inputId))
         ..inputContent = await buildStep.readAsString(inputId);
 
       final String outputPath = inputId.path.replaceAll('.less.html', '.html');
       final AssetId outputId = AssetId(package, outputPath);
-      log.info(
+      log.fine(
           '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
       await transformer.transform(customOptions);
@@ -126,6 +127,29 @@ class LessBuilder implements Builder {
         '.less.html': <String>[DOT_HTML_TO],
         '.less': <String>[DOT_LESS_TO]
       };
+
+  ///
+  /// calculate the --include-path=   less option
+  ///
+  /// As we use the stdin to pass the .less file, we must use --include-path to keep
+  /// the relative imports.
+  ///
+  /// When the path starts with 'lib/' we use the package format to let builders in other packages
+  /// as required by Angular.
+  ///
+  /// So, 'lib/sub/file.less' becomes 'packages/package_name/sub'
+  ///
+  String calculateIncludePath(AssetId inputId) {
+    final int len = inputId.pathSegments.length;
+    if (len > 1 && inputId.pathSegments.first == 'lib') {
+      return <String>[
+        'packages',
+        inputId.package,
+        ...inputId.pathSegments.sublist(1, len - 1) // could be empty
+      ].join('/');
+    }
+    return path_lib.dirname(inputId.path);
+  }
 
   ///
   /// Extending the builder let modify programmatically the less options.
