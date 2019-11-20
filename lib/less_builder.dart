@@ -1,7 +1,6 @@
 // Copyright (c) 2018, adalberto.lacruz@gmail.com
 
 import 'dart:async';
-import 'package:build_runner_core/build_runner_core.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:build/build.dart';
 import 'package:less_dart/less.dart';
