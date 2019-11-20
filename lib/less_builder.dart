@@ -1,6 +1,8 @@
 // Copyright (c) 2018, adalberto.lacruz@gmail.com
 
 import 'dart:async';
+import 'package:build_runner_core/build_runner_core.dart';
+import 'package:less_dart/src_builder/get_package_graph.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:build/build.dart';
 import 'package:less_dart/less.dart';
@@ -42,6 +44,8 @@ PostProcessBuilder lessSourceCleanup(BuilderOptions options) =>
 class LessBuilder implements Builder {
   ///
   final LessBuilderOptions options;
+  ///
+  final PackageGraph _graph = getPackageGraph();
 
   ///
   LessBuilder(this.options);
@@ -56,14 +60,15 @@ class LessBuilder implements Builder {
 
     final String package = inputId.package;
     final String extension = inputId.extension;
+    final String inputPath = _filePathFor(inputId);
 
     if (extension.toLowerCase() == '.less') {
       final DotLessBuilder transformer = DotLessBuilder()
-        ..createFlags(options, path_lib.dirname(inputId.path))
+        ..createFlags(options, path_lib.dirname(inputPath))
         ..inputContent = await buildStep.readAsString(inputId);
 
       final AssetId outputId = inputId.changeExtension(DOT_LESS_TO);
-      log.info(
+      log.fine(
           '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
       await transformer.transform(customOptions);
@@ -96,12 +101,12 @@ class LessBuilder implements Builder {
       });
     } else if (extension.toLowerCase() == '.html') {
       final DotHtmlBuilder transformer = DotHtmlBuilder()
-        ..createFlags(options, path_lib.dirname(inputId.path))
+        ..createFlags(options, path_lib.dirname(inputPath))
         ..inputContent = await buildStep.readAsString(inputId);
 
       final String outputPath = inputId.path.replaceAll('.less.html', '.html');
       final AssetId outputId = AssetId(package, outputPath);
-      log.info(
+      log.fine(
           '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
       await transformer.transform(customOptions);
@@ -133,4 +138,12 @@ class LessBuilder implements Builder {
   /// See test/custom_functions.dart and test/less_custom_builder.dart
   ///
   void customOptions(LessOptions options) {}
+
+  String _filePathFor(AssetId id) {
+    final PackageNode package = _graph[id.package];
+    if (package == null) {
+      throw PackageNotFoundException(id.package);
+    }
+    return path_lib.join(package.path, id.path);
+  }
 }
