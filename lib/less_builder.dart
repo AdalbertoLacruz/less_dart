@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'package:build_runner_core/build_runner_core.dart';
-import 'package:less_dart/src_builder/get_package_graph.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:build/build.dart';
 import 'package:less_dart/less.dart';
@@ -45,7 +44,7 @@ class LessBuilder implements Builder {
   ///
   final LessBuilderOptions options;
   ///
-  final PackageGraph _graph = getPackageGraph();
+  final PackageResolverProvider _packageResolverProvider = PackageResolverProvider();
 
   ///
   LessBuilder(this.options);
@@ -60,7 +59,7 @@ class LessBuilder implements Builder {
 
     final String package = inputId.package;
     final String extension = inputId.extension;
-    final String inputPath = _filePathFor(inputId);
+    final String inputPath = await _filePathFor(inputId);
 
     if (extension.toLowerCase() == '.less') {
       final DotLessBuilder transformer = DotLessBuilder()
@@ -139,11 +138,14 @@ class LessBuilder implements Builder {
   ///
   void customOptions(LessOptions options) {}
 
-  String _filePathFor(AssetId id) {
-    final PackageNode package = _graph[id.package];
-    if (package == null) {
+  Future<String> _filePathFor(AssetId id) async {
+    final PackageResolver resolver = await _packageResolverProvider.getPackageResolver();
+
+    final String packagePath = await resolver.packagePath(id.package);
+
+    if (packagePath == null) {
       throw PackageNotFoundException(id.package);
     }
-    return path_lib.join(package.path, id.path);
+    return path_lib.join(packagePath, id.path);
   }
 }
