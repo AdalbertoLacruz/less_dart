@@ -2,7 +2,7 @@ builders:
   less_dart:
     import: 'package:less_dart/less_builder.dart'
     builder_factories: ['lessBuilder']
-    auto_apply: none
+    auto_apply: dependents
     build_extensions:
           .less.html: ['.html']
           .less: ['.css']
