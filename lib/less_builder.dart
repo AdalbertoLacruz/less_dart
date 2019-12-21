@@ -59,7 +59,6 @@ class LessBuilder implements Builder {
 
     if (extension.toLowerCase() == '.less') {
       final DotLessBuilder transformer = DotLessBuilder()
-        // ..createFlags(options, path_lib.dirname(inputId.path))
         ..createFlags(options, calculateIncludePath(inputId))
         ..inputContent = await buildStep.readAsString(inputId);
 
@@ -79,6 +78,11 @@ class LessBuilder implements Builder {
         // packages are absolute
         if (path_lib.isRelative(path)) {
           await buildStep.canRead(AssetId(package, path));
+        } else if (path_lib.isAbsolute(path)) {
+          final String package = guessPackage(path);
+          if (package != null) {
+            MoreList.addUnique(transformer.filesInPackage, package);
+          }
         }
       });
 
@@ -88,9 +92,10 @@ class LessBuilder implements Builder {
           final List<String> pathData = path_lib.split(path);
           if (pathData.length > 1) {
             final String packageName = pathData[1];
-            String pathInPackage =
-                path_lib.joinAll(pathData.getRange(2, pathData.length));
-            pathInPackage = 'lib/$pathInPackage';
+            final String pathInPackage = path_lib.joinAll(<String>[
+              'lib',
+              ...pathData.sublist(2),
+            ]);
             await buildStep.canRead(AssetId(packageName, pathInPackage));
           }
         } catch (_) {}
@@ -149,6 +154,24 @@ class LessBuilder implements Builder {
       ].join('/');
     }
     return path_lib.dirname(inputId.path);
+  }
+
+  ///
+  /// The builder needs the absolute path transformed to package format
+  /// Ex.: 'c:\some\package\lib\other' -> 'packages\package\other'
+  ///
+  String guessPackage(String path) {
+    String result;
+    final List<String> segments = path_lib.split(path);
+    final int index = segments.indexWhere((String segment) => segment == 'lib');
+    if (index > 0 && index < (segments.length - 1)) {
+      result = path_lib.joinAll(<String>[
+        'packages',
+        segments[index - 1],
+        ...segments.sublist(index + 1),
+      ]);
+    }
+    return result;
   }
 
   ///

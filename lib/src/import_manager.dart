@@ -102,7 +102,8 @@ class ImportManager {
         options: importOptions);
 
     if (path.startsWith('package')) {
-      MoreList.addUnique(filesInPackage, path);
+      MoreList.addUnique(
+          filesInPackage, path_lib.joinAll(path_lib.split(path))); //normalize
     }
 
     // Inline imports aren't cached here.

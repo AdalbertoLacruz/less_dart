@@ -1,3 +1,6 @@
+## 2.3.6 (2019-12-21)
+- Mark dependents for imports in packages to let builder updates.
+
 ## 2.3.5 (2019-11-20)
 - Support for builder in other less packages (Ex. Angular lib)
 - Changed build.yaml auto_apply: from 'none' to 'dependents'

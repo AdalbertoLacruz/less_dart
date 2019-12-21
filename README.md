@@ -180,7 +180,7 @@ The `customOptions` method could be override to modify the less options defining
 - Basic support for Custom CSS mixins as used by Polymer 1.0.
   - `--mixin-name: {...}`
   - `@apply(--mixin-name);`
-- Function rem to convert from px, pt or em to rem, defined as rem(fontSize, [baseFont]):
+- Function rem to convert from px, pt or em to rem, defined as `rem(fontSize, [baseFont])`:
   - `rem(16), rem(16px), rem(12pt), rem(1em), rem(20, 20)`
   - `1rem, 1rem, 1rem, 1rem, 1rem`
 - @import supports packages as source:
