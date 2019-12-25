@@ -83,7 +83,7 @@ class AbstractFileManager {
   /// Append a [ext] extension to [path] if appropriate.
   ///
   String tryAppendExtension(String path, String ext) {
-    final RegExp re = RegExp(r'(\.[a-z]*$)|([\?;].*)$');
+    final re = RegExp(r'(\.[a-z]*$)|([\?;].*)$');
     return re.hasMatch(path) ? path : '$path$ext';
 
 //2.4.0 20150226
@@ -142,20 +142,20 @@ class AbstractFileManager {
   ///   url = 'a/b/' baseUrl = 'a/'   returns 'b/'
   ///
   String pathDiff(String url, String baseUrl) {
-    final UrlParts baseUrlParts = extractUrlParts(baseUrl);
+    final baseUrlParts = extractUrlParts(baseUrl);
     int i;
-    final UrlParts urlParts = extractUrlParts(url);
+    final urlParts = extractUrlParts(url);
 
     if (urlParts.hostPart != baseUrlParts.hostPart) return '';
 
-    final int max = math_lib.max(
+    final max = math_lib.max(
         baseUrlParts.directories.length, urlParts.directories.length);
 
     for (i = 0; i < max; i++) {
       if (baseUrlParts.directories[i] != urlParts.directories[i]) break;
     }
-    final List<String> baseUrlDirectories = baseUrlParts.directories.sublist(i);
-    final List<String> urlDirectories = urlParts.directories.sublist(i);
+    final baseUrlDirectories = baseUrlParts.directories.sublist(i);
+    final urlDirectories = urlParts.directories.sublist(i);
 
     if (baseUrlDirectories.isEmpty && urlDirectories.isEmpty) {
       //both directories are the same
@@ -199,34 +199,34 @@ class AbstractFileManager {
     // urlParts[4] = filename
     // urlParts[5] = parameters
 
-    final RegExp urlPartsRegex = RegExp(
+    final urlPartsRegex = RegExp(
         r'^((?:[a-z-]+:)?\/{2}(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$',
         caseSensitive: false);
-    final List<String> urlParts = <String>[];
+    final urlParts = <String>[];
 
     Match match = urlPartsRegex.firstMatch(url);
     if (match != null) {
-      for (int i = 0; i < match.groupCount; i++) {
+      for (var i = 0; i < match.groupCount; i++) {
         urlParts.add(match[i]);
       }
     }
 
-    final UrlParts returner = UrlParts();
+    final returner = UrlParts();
 
     if (urlParts.isEmpty) {
       throw LessExceptionError(
           LessError(message: "Could not parse sheet href - '$url'"));
     }
 
-    List<String> directories = <String>[];
-    String rawPath = '';
+    var directories = <String>[];
+    var rawPath = '';
 
     // Stylesheets in IE don't always return the full path
     if (baseUrl != null && (urlParts[1] == null || urlParts[2] != null)) {
       match = urlPartsRegex.firstMatch(baseUrl);
-      final List<String> baseUrlParts = <String>[];
+      final baseUrlParts = <String>[];
       if (match != null) {
-        for (int i = 0; i < match.groupCount; i++) {
+        for (var i = 0; i < match.groupCount; i++) {
           baseUrlParts.add(match[i]);
         }
       }
@@ -246,11 +246,11 @@ class AbstractFileManager {
       directories = path_lib.split(path_lib.normalize(rawPath))..add('');
     }
 
-    for (int i = 0; i < urlParts.length; i++) {
+    for (var i = 0; i < urlParts.length; i++) {
       if (urlParts[i] == null) urlParts[i] = '';
     }
 
-    for (int i = urlParts.length; i < 6; i++) {
+    for (var i = urlParts.length; i < 6; i++) {
       urlParts.add('');
     }
 

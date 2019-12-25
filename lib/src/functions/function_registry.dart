@@ -31,7 +31,7 @@ class FunctionRegistry {
   ///
   static FunctionRegistry foundInherit(List<Node> frames) {
     VariableMixin frame;
-    for (int i = 0; i < frames.length; i++) {
+    for (var i = 0; i < frames.length; i++) {
       frame = frames[i];
       if (frame.functionRegistry != null) return frame.functionRegistry;
     }

@@ -21,7 +21,7 @@ class ColorFunctions extends FunctionBase {
   ///
   @defineMethodSkip
   Color hslaColorSpace(Color origColor, HSLType hsl) {
-    final Color color = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
+    final color = hsla(hsl.h, hsl.s, hsl.l, hsl.a);
     if (color != null) {
       color.value =
           _hslaRegExp.hasMatch(origColor?.value ?? '') // todo could be null?
@@ -143,8 +143,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #5a8120
   ///
   Color rgb(dynamic r, [dynamic g, dynamic b]) {
-    final Color color = rgba(r, g, b, 1.0);
-//    return (color != null) ? (color..value = 'rgb') : null;
+    final color = rgba(r, g, b, 1.0);
     color?.value = 'rgb';
     return color;
 
@@ -174,11 +173,11 @@ class ColorFunctions extends FunctionBase {
   Color rgba(dynamic r, [dynamic g, dynamic b, dynamic a]) {
     try {
       if (r is Color) {
-        final num alpha = g != null ? number(g) : r.alpha;
+        final alpha = g != null ? number(g) : r.alpha;
         return Color.fromList(r.rgb, alpha, 'rgba');
       }
 
-      final List<num> rgb =
+      final rgb =
           <dynamic>[r, g, b].map((dynamic c) => scaled(c, 255)).toList();
       return Color.fromList(rgb, number(a), 'rgba');
     } catch (e) {
@@ -216,9 +215,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #80ff00
   ///
   Color hsl(dynamic h, [dynamic s, dynamic l]) {
-    final Color color = hsla(h, s, l, 1.0);
-
-//    return (color != null) ? (color..value = 'hsl') : null;
+    final color = hsla(h, s, l, 1.0);
     color?.value = 'hsl';
     return color;
 
@@ -247,7 +244,7 @@ class ColorFunctions extends FunctionBase {
   Color hsla(dynamic h, [dynamic s, dynamic l, dynamic a]) {
     try {
       if (h is Color) {
-        final num alpha = s != null ? number(s) : h.alpha;
+        final alpha = s != null ? number(s) : h.alpha;
         return Color.fromList(h.rgb, alpha, 'hsla');
       }
 
@@ -260,7 +257,7 @@ class ColorFunctions extends FunctionBase {
       final double m1 = _l * 2 - m2;
 
       double hue(num h) {
-        final num _h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
+        final _h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
         if (_h * 6 < 1) {
           return m1 + (m2 - m1) * _h * 6;
         } else if (_h * 2 < 1) {
@@ -272,7 +269,7 @@ class ColorFunctions extends FunctionBase {
         }
       }
 
-      final List<num> rgb = <num>[
+      final rgb = <num>[
         hue(_h + 1 / 3) * 255,
         hue(_h) * 255,
         hue(_h - 1 / 3) * 255
@@ -387,14 +384,14 @@ class ColorFunctions extends FunctionBase {
     final int i = ((_h / 60) % 6).floor();
     final double f = (_h / 60) - i;
 
-    final List<num> vs = <num>[
+    final vs = <num>[
       _v,
       _v * (1 - _s),
       _v * (1 - f * _s),
       _v * (1 - (1 - f) * _s)
     ];
 
-    final List<List<int>> perm = <List<int>>[
+    final perm = <List<int>>[
       <int>[0, 3, 1],
       <int>[2, 0, 1],
       <int>[1, 0, 3],
@@ -599,7 +596,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: 65%
   ///
   Dimension luminance(Color color) {
-    final double luminance = (0.2126 * color.r / 255) +
+    final luminance = (0.2126 * color.r / 255) +
         (0.7152 * color.g / 255) +
         (0.0722 * color.b / 255);
 
@@ -631,7 +628,7 @@ class ColorFunctions extends FunctionBase {
     // should be kept as is, so check for color
     if (color is! Color) return null; // ??
 
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..s += (method?.value == 'relative')
@@ -673,7 +670,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #80cc33 // hsl(90, 60%, 50%)
   ///
   Color desaturate(Node color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..s -= (method?.value == 'relative')
@@ -710,7 +707,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #b3f075 // hsl(90, 80%, 70%)
   ///
   Color lighten(Node color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..l += (method?.value == 'relative')
@@ -747,7 +744,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #4d8a0f // hsl(90, 80%, 30%)
   ///
   Color darken(Node color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..l -= (method?.value == 'relative')
@@ -784,7 +781,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: rgba(128, 242, 13, 0.6) // hsla(90, 90%, 50%, 0.6)
   ///
   Color fadein(Node color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..a += (method?.value == 'relative')
@@ -821,7 +818,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: rgba(128, 242, 13, 0.4) // hsla(90, 90%, 50%, 0.4)
   ///
   Color fadeout(Node color, Dimension amount, [Keyword method]) {
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..a -= (method?.value == 'relative')
@@ -857,7 +854,7 @@ class ColorFunctions extends FunctionBase {
   ///   Output: rgba(128, 242, 13, 0.1) //hsla(90, 90%, 50%, 0.1)
   ///
   Color fade(Node color, Dimension amount) {
-    final HSLType hsl = toHSL(color);
+    final hsl = toHSL(color);
 
     hsl
       ..a = amount.value / 100
@@ -904,8 +901,8 @@ class ColorFunctions extends FunctionBase {
   ///     #f20d59 // hsl(340, 90%, 50%)
   ///
   Color spin(Node color, Dimension amount) {
-    final HSLType hsl = toHSL(color);
-    final double hue = (hsl.h + amount.value) % 360;
+    final hsl = toHSL(color);
+    final hue = (hsl.h + amount.value) % 360;
 
     hsl.h = hue < 0 ? 360 + hue : hue;
 
@@ -942,18 +939,18 @@ class ColorFunctions extends FunctionBase {
   Color mix(Node color1, Node color2, [Dimension weight]) {
     weight ??= Dimension(50);
 
-    final double p = weight.value / 100.0;
-    final double w = p * 2 - 1;
-    final double a = toHSL(color1).a - toHSL(color2).a;
+    final p = weight.value / 100.0;
+    final w = p * 2 - 1;
+    final a = toHSL(color1).a - toHSL(color2).a;
 
     // we are sure now color1 and color2 are Color type
     final Color _color1 = color1;
     final Color _color2 = color2;
 
-    final double w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-    final double w2 = 1 - w1;
+    final w1 = (((w * a == -1) ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+    final w2 = 1 - w1;
 
-    final List<num> rgb = <num>[
+    final rgb = <num>[
       _color1.r * w1 + _color2.r * w2,
       _color1.g * w1 + _color2.g * w2,
       _color1.b * w1 + _color2.b * w2
@@ -1015,12 +1012,12 @@ class ColorFunctions extends FunctionBase {
     if (colorNode is! Color) return null;
     final Color color = colorNode;
 
-    Color _light = light ?? rgba(255, 255, 255, 1.0);
-    Color _dark = dark ?? rgba(0, 0, 0, 1.0);
+    var _light = light ?? rgba(255, 255, 255, 1.0);
+    var _dark = dark ?? rgba(0, 0, 0, 1.0);
 
     //Figure out which is actually light and dark!
     if (_dark.luma() > _light.luma()) {
-      final Color t = _light;
+      final t = _light;
       _light = _dark;
       _dark = t;
     }
@@ -1082,16 +1079,15 @@ class ColorFunctions extends FunctionBase {
   ///   Output: #aaa
   ///
   Color color(dynamic c) {
-    final RegExp re = RegExp(
-        r'^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$',
+    final re = RegExp(r'^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})$',
         caseSensitive: false);
 
     if (c is Quoted && re.hasMatch(c.value)) {
-      final String val = c.value.substring(1);
+      final val = c.value.substring(1);
       return Color(val, null, '#$val');
     }
 
-    final Color _c = (c is Color)
+    final _c = (c is Color)
         ? c
         : Color.fromKeyword(c.value); //c.value must be a color name
     if (_c != null) {

@@ -63,7 +63,7 @@ void main() {
   config = configFill();
 
   group('simple', () {
-    for (final int id in config.keys) {
+    for (final id in config.keys) {
       if (!config[id].isExtendedText &&
           (runOnly?.contains(id) ?? true) &&
           (runExternal || !config[id].isExternal)) {
@@ -73,7 +73,7 @@ void main() {
   });
 
   group('extended', () {
-    for (final int id in config.keys) {
+    for (final id in config.keys) {
       if (config[id].isExtendedText && (runOnly?.contains(id) ?? true)) {
         declareTest(id);
       }
@@ -83,8 +83,8 @@ void main() {
 
 ///
 void declareTest(int id) {
-  final Config c = config[id];
-  final String ref = '(#${id.toString()})';
+  final c = config[id];
+  final ref = '(#${id.toString()})';
   // ignore: prefer_interpolation_to_compose_strings
   test(c.name + ref, () async {
     await runZoned(() async {
@@ -578,12 +578,12 @@ Config def(String name,
     bool isReplaceSource = false,
     bool isSourcemapTest = false,
     Function modifyOptions}) {
-  bool _isExtendedTest = isExtendedTest;
-  List<String> _options = options;
-  List<Map<String, String>> _replace = replace;
+  var _isExtendedTest = isExtendedTest;
+  var _options = options;
+  var _replace = replace;
 
-  String baseLess = '${dirPath}less'; //base directory for less sources
-  String baseCss = '${dirPath}css'; //base directory for css comparison
+  var baseLess = '${dirPath}less'; //base directory for less sources
+  var baseCss = '${dirPath}css'; //base directory for css comparison
 
   if (isSourcemapTest) {
     baseLess = '${dirPath}webSourceMap';
@@ -621,9 +621,8 @@ Config def(String name,
 
 ///
 String escFile(String fileName) {
-  final String file =
-      fileName.replaceAllMapped(RegExp(r'([.:\/\\])'), (Match m) {
-    String a = m[1];
+  final file = fileName.replaceAllMapped(RegExp(r'([.:\/\\])'), (Match m) {
+    var a = m[1];
     if (a == '\\') a = '\/';
     // ignore: prefer_interpolation_to_compose_strings
     return '\\' + a;
@@ -639,20 +638,20 @@ String absPath(String pathName) =>
 
 ///
 Future<Null> testRun(int c) async {
-  final List<String> args = <String>[];
-  final String fileError = config[c].errorFile;
+  final args = <String>[];
+  final fileError = config[c].errorFile;
   String fileOutputName;
-  final String fileResult = config[c].cssFile;
-  final String fileToTest = config[c].lessFile;
-  final Less less = Less();
+  final fileResult = config[c].cssFile;
+  final fileToTest = config[c].lessFile;
+  final less = Less();
 
   args.add('--no-color');
   if (config[c].options != null) args.addAll(config[c].options);
 
   if (config[c].isReplaceSource) {
-    String source = File(fileToTest).readAsStringSync();
+    var source = File(fileToTest).readAsStringSync();
     if (config[c].replace != null) {
-      for (int i = 0; i < config[c].replace.length; i++) {
+      for (var i = 0; i < config[c].replace.length; i++) {
         source = source.replaceAll(
             config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
@@ -667,33 +666,31 @@ Future<Null> testRun(int c) async {
     fileOutputName = '${path.withoutExtension(config[c].lessFile)}.css';
     args.add(fileOutputName);
   }
-  final int exitCode =
+  final exitCode =
       await less.transform(args, modifyOptions: config[c].modifyOptions);
   config[c].stderr = less.stderr.toString();
 
   expect(exitCode, isNot(equals(3)));
 
   if (config[c].isSourcemapTest) {
-    final String expectedCss = File(config[c].cssFile).readAsStringSync();
-    final String resultCss = File(fileOutputName).readAsStringSync();
+    final expectedCss = File(config[c].cssFile).readAsStringSync();
+    final resultCss = File(fileOutputName).readAsStringSync();
     expect(resultCss, equals(expectedCss));
 
-    final String mapFileName =
-        '${path.withoutExtension(config[c].lessFile)}.map';
-    final String expectedMapFileName =
+    final mapFileName = '${path.withoutExtension(config[c].lessFile)}.map';
+    final expectedMapFileName =
         '${path.withoutExtension(config[c].cssFile)}.map';
     if (File(mapFileName).existsSync()) {
-      final String resultMap = File(mapFileName).readAsStringSync();
-      final String expectedResultMap =
-          File(expectedMapFileName).readAsStringSync();
+      final resultMap = File(mapFileName).readAsStringSync();
+      final expectedResultMap = File(expectedMapFileName).readAsStringSync();
       expect(resultMap, equals(expectedResultMap));
     }
   } else if (config[c].isErrorTest) {
-    final String errorContent = await File(fileError).readAsString();
+    final errorContent = await File(fileError).readAsString();
 
-    String errorContentReplaced = errorContent;
+    var errorContentReplaced = errorContent;
     if (config[c].replace != null) {
-      for (int i = 0; i < config[c].replace.length; i++) {
+      for (var i = 0; i < config[c].replace.length; i++) {
         errorContentReplaced = errorContentReplaced.replaceAll(
             config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
@@ -716,11 +713,11 @@ Future<Null> testRun(int c) async {
       rethrow;
     }
   } else {
-    final String cssGood = await File(fileResult).readAsString();
+    final cssGood = await File(fileResult).readAsString();
 
-    String cssGoodReplaced = cssGood;
+    var cssGoodReplaced = cssGood;
     if (config[c].replace != null) {
-      for (int i = 0; i < config[c].replace.length; i++) {
+      for (var i = 0; i < config[c].replace.length; i++) {
         cssGoodReplaced = cssGoodReplaced.replaceAll(
             config[c].replace[i]['from'], config[c].replace[i]['to']);
       }
@@ -746,7 +743,7 @@ Future<Null> testRun(int c) async {
 
 ///
 void writeTestResult(int c, String fileType, String content) {
-  final String name = '${dirPath}result/TestFile$c.$fileType';
+  final name = '${dirPath}result/TestFile$c.$fileType';
   File(name)
     ..createSync(recursive: true)
     ..writeAsStringSync(content);

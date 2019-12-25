@@ -25,7 +25,7 @@ class LessSourceMapBuilder {
   /// Generates the css & map contents
   ///
   String toCSS(Ruleset rootNode, Contexts context, ImportManager imports) {
-    final SourceMapOutput sourceMapOutput = SourceMapOutput(
+    final sourceMapOutput = SourceMapOutput(
         contentsIgnoredCharsMap: imports.contentsIgnoredChars,
         rootNode: rootNode,
         contentsMap: imports.contents,
@@ -37,7 +37,7 @@ class LessSourceMapBuilder {
         outputSourceFiles: options.outputSourceFiles,
         sourceMapFileInline: options.sourceMapFileInline);
 
-    final String css = sourceMapOutput.toCSS(context).toString();
+    final css = sourceMapOutput.toCSS(context).toString();
     sourceMap = sourceMapOutput.sourceMap;
     sourceMapURL = sourceMapOutput.sourceMapURL;
     if (options.sourceMapInputFilename.isNotEmpty) {
@@ -84,7 +84,7 @@ class LessSourceMapBuilder {
 
   ///
   String getCSSAppendage() {
-    String sourceMapURL = this.sourceMapURL;
+    var sourceMapURL = this.sourceMapURL;
 
     if (options.sourceMapFileInline) {
       if (sourceMap == null) return '';

@@ -90,10 +90,10 @@ class Less {
 
     if (_options.input != '-') {
       // Default to .less
-      String filename = _options.input;
+      var filename = _options.input;
       if (path_lib.extension(filename).isEmpty) filename = '$filename.less';
 
-      final File file = File(filename);
+      final file = File(filename);
       if (!file.existsSync()) {
         logger.error('Error cannot open file ${_options.input}');
         exitCode = 3;
@@ -114,11 +114,11 @@ class Less {
   /// Process all arguments: -options and input/output
   ///
   bool argsFilter(List<String> args) {
-    final RegExp regOption =
+    final regOption =
         RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
-    final RegExp regPaths = RegExp(r'^-I(.+)$', caseSensitive: true);
+    final regPaths = RegExp(r'^-I(.+)$', caseSensitive: true);
     Match match;
-    bool continueProcessing = true;
+    var continueProcessing = true;
 
     args.forEach((String arg) {
       if ((match = regPaths.firstMatch(arg)) != null) {
@@ -141,7 +141,7 @@ class Less {
 
   ///
   Future<int> parseLessFile(String data) {
-    final Parser parser = Parser(_options);
+    final parser = Parser(_options);
     return parser.parse(data).then((Ruleset tree) {
       RenderResult result;
 
@@ -149,7 +149,7 @@ class Less {
 
       //debug
       if (_options.showTreeLevel == 0) {
-        final String css = tree.toTree(_options).toString();
+        final css = tree.toTree(_options).toString();
         stdout.write(css);
         return Future<int>.value(exitCode);
       }

@@ -29,8 +29,8 @@ class CleanCssCompatibility {
     String option;
     String part;
 
-    final List<String> parts = source.split(',');
-    final String nav = parts[0].trim();
+    final parts = source.split(',');
+    final nav = parts[0].trim();
 
     switch (nav) {
       case 'ie8':
@@ -70,7 +70,7 @@ class CleanCssCompatibility {
 
     // fine tuning
     if (parts.length > 1) {
-      for (int i = 1; i < parts.length; i++) {
+      for (var i = 1; i < parts.length; i++) {
         part = parts[i].trim();
         isAdd = part[0] == '+';
         key = part.substring(1).split('.');

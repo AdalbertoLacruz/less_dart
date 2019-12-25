@@ -67,16 +67,15 @@ class Call extends Node {
   @override
   Node eval(Contexts context) {
     // Turn off math for calc(), and switch back on for evaluating nested functions
-    final bool currentMathContext = context.mathOn;
+    final currentMathContext = context.mathOn;
     context.mathOn = !calc;
     if (calc || context.inCalc) context.enterCalc();
 
-    final List<Node> args = this.args.map((Node a) => a.eval(context)).toList();
+    final args = this.args.map((Node a) => a.eval(context)).toList();
     if (calc || context.inCalc) context.exitCalc();
     context.mathOn = currentMathContext;
 
-    final FunctionCaller funcCaller =
-        FunctionCaller(name, context, index, currentFileInfo);
+    final funcCaller = FunctionCaller(name, context, index, currentFileInfo);
 
     dynamic _result;
     Node result;
@@ -85,11 +84,11 @@ class Call extends Node {
       try {
         _result = funcCaller.call(args);
       } catch (e) {
-        String message = LessError.getMessage(e);
+        var message = LessError.getMessage(e);
         message = (message.isEmpty) ? '' : ': $message';
-        final String type = LessError.getType(e);
+        final type = LessError.getType(e);
 
-        final LessError error = LessError.transform(e,
+        final error = LessError.transform(e,
             type: (type?.isNotEmpty ?? false) ? type : 'Runtime',
             index: index,
             filename: currentFileInfo.filename,
@@ -180,7 +179,7 @@ class Call extends Node {
 
     output.add('$name(', fileInfo: currentFileInfo, index: index);
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
       if (i + 1 < args.length) output.add(', ');
     }
@@ -206,7 +205,7 @@ class Call extends Node {
   void genCleanCSS(Contexts context, Output output) {
     output.add('$name(', fileInfo: currentFileInfo, index: index);
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       args[i].genCSS(context, output);
       if (i + 1 < args.length) output.add(',');
     }
@@ -216,7 +215,7 @@ class Call extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     genCSS(null, output);
     return output.toString();
   }

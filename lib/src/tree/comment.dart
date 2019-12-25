@@ -62,7 +62,7 @@ class Comment extends Node implements SilentNode {
   ///
   @override
   bool isSilent(Contexts context) {
-    final bool isCompressed =
+    final isCompressed =
         context.compress && (value.length > 2) && (value[2] != '!');
     return isLineComment || isCompressed;
 

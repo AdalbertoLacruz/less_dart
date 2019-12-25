@@ -9,6 +9,7 @@ part of benchmark.test.less;
 class FullBenchmark {
   /// Run the test several times to get the average time
   int totalruns;
+
   /// ignore the first runs
   int ignoreruns;
 
@@ -49,7 +50,8 @@ class FullBenchmark {
   ///
   Future<Null> run() async {
     _isError = false;
-    print('Benchmarking Full...\n${path.basename(_file)} (${_data.length / 1024} KB)');
+    print(
+        'Benchmarking Full...\n${path.basename(_file)} (${_data.length / 1024} KB)');
     return nextRun();
 
 //3.0.0 20160714
@@ -78,20 +80,20 @@ class FullBenchmark {
 
   ///
   Future<Null> nextRun() async {
-    for (int i = 0; i < totalruns; i++) {
+    for (var i = 0; i < totalruns; i++) {
       stdout.write('*');
       _start = DateTime.now();
-      final LessOptions options = Environment.cache[-1].options;
-      final Contexts toCSSOptions = Contexts()
-                        ..dumpLineNumbers = ''
-                        ..numPrecision = 8;
-      final RenderResult result = RenderResult();
-      final Parser parser = Parser(options);
+      final options = Environment.cache[-1].options;
+      final toCSSOptions = Contexts()
+        ..dumpLineNumbers = ''
+        ..numPrecision = 8;
+      final result = RenderResult();
+      final parser = Parser(options);
 
       try {
         await parser.parse(_data).then((Ruleset root) {
           _parserEnd = DateTime.now();
-          final Ruleset evaldRoot = TransformTree().call(root, options);
+          final evaldRoot = TransformTree().call(root, options);
           _evalEnd = DateTime.now();
           result.css = evaldRoot.toCSS(toCSSOptions).toString();
           _totalEnd = DateTime.now();
@@ -111,7 +113,7 @@ class FullBenchmark {
 
     if (!_isError) finish();
 
-///3.0.0 20160714
+    ///3.0.0 20160714
 // function nextRun() {
 //     var start, renderEnd, parserEnd;
 //
@@ -169,27 +171,28 @@ class FullBenchmark {
   /// benchMarkData List<miliseconds>
   ///
   void analyze(String benchmark, List<num> benchMarkData, int dataLength) {
-      num totalTime = 0;
-      num mintime = 9999999;
-      num maxtime = 0;
+    num totalTime = 0;
+    num mintime = 9999999;
+    num maxtime = 0;
 
-      print('----------------------');
-      print(benchmark);
-      print('----------------------');
+    print('----------------------');
+    print(benchmark);
+    print('----------------------');
 
-      for (int i = ignoreruns; i < totalruns; i++) {
-          totalTime += benchMarkData[i];
-          mintime = math_lib.min(mintime, benchMarkData[i]);
-          maxtime = math_lib.max(maxtime, benchMarkData[i]);
-      }
-      final double avgtime = totalTime / (totalruns - ignoreruns);
-      final num variation = maxtime - mintime;
-      final double variationperc = (variation / avgtime) * 100;
+    for (var i = ignoreruns; i < totalruns; i++) {
+      totalTime += benchMarkData[i];
+      mintime = math_lib.min(mintime, benchMarkData[i]);
+      maxtime = math_lib.max(maxtime, benchMarkData[i]);
+    }
+    final avgtime = totalTime / (totalruns - ignoreruns);
+    final variation = maxtime - mintime;
+    final variationperc = (variation / avgtime) * 100;
 
-      print('Min. Time: $mintime ms');
-      print('Max. Time: $maxtime ms');
-      print('Total Average Time: ${avgtime.round()} ms (${1000 / avgtime * dataLength / 1024} KB\/s)');
-      print('+/- ${variationperc.round()}%');
+    print('Min. Time: $mintime ms');
+    print('Max. Time: $maxtime ms');
+    print(
+        'Total Average Time: ${avgtime.round()} ms (${1000 / avgtime * dataLength / 1024} KB\/s)');
+    print('+/- ${variationperc.round()}%');
 
 //3.0.0 20160714
 // function analyze(benchmark, benchMarkData) {

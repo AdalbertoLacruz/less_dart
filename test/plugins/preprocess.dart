@@ -7,7 +7,7 @@ class TestPreProcessor extends Processor {
 
   @override
   String process(String src, Map<String, dynamic> options) {
-    final String injected = '@color: red;\n';
+    final injected = '@color: red;\n';
     final Map<String, int> ignored = options['imports'].contentsIgnoredChars;
     final FileInfo fileInfo = options['fileInfo'];
     if (ignored[fileInfo.filename] == null) ignored[fileInfo.filename] = 0;

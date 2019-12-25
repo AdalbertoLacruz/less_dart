@@ -49,7 +49,7 @@ class ParseNode {
   ///
   void parse(Function parseFunction) {
     try {
-      final int i = parsers.parserInput.i;
+      final i = parsers.parserInput.i;
       parseFunction();
       if (!parsers.parserInput.end().isFinished) isError = true;
       if (result.isNotEmpty && result.first is Node) {

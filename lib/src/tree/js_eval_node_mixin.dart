@@ -9,7 +9,7 @@ abstract class JsEvalNodeMixin implements Node {
   ///
   String evaluateJavaScript(String expression, Contexts context) {
     // String result;
-    final JsEvalNodeMixin that = this;
+    final that = this;
     // Map evalContext = {};
 
     if (!(context.javascriptEnabled ?? false)) {
@@ -18,7 +18,7 @@ abstract class JsEvalNodeMixin implements Node {
           index: index,
           filename: currentFileInfo.filename));
     }
-    final String _expression = expression.replaceAllMapped(
+    final _expression = expression.replaceAllMapped(
         RegExp(r'@\{([\w-]+)\}'),
         (Match m) => that.jsify(
             Variable('@${m[1]}', that.index, that.currentFileInfo)
@@ -105,7 +105,7 @@ abstract class JsEvalNodeMixin implements Node {
   ///
   String jsify(Node obj) {
     if (obj.value is List && obj.value.length > 1) {
-      final List<String> result =
+      final result =
           (obj.value as List<Node>).map((Node v) => v.toCSS(null)).toList();
       return "[${result.join(', ')}]";
     } else {

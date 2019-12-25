@@ -94,9 +94,9 @@ class Declaration extends Node implements MakeImportantNode {
 
   ///
   String evalName(Contexts context, List<Node> name) {
-    final Output output = Output();
+    final output = Output();
 
-    for (int i = 0; i < name.length; i++) {
+    for (var i = 0; i < name.length; i++) {
       name[i].eval(context).genCSS(context, output);
     }
     return output.toString();
@@ -117,7 +117,7 @@ class Declaration extends Node implements MakeImportantNode {
   void genCSS(Contexts context, Output output) {
     if (cleanCss != null) return genCleanCSS(context, output);
 
-    final String colon = (context?.compress ?? false) ? ':' : ': ';
+    final colon = (context?.compress ?? false) ? ':' : ': ';
     output.add('$name$colon', fileInfo: currentFileInfo, index: index);
 
     try {
@@ -127,7 +127,7 @@ class Declaration extends Node implements MakeImportantNode {
           index: _index, filename: _fileInfo.filename, context: context));
     }
 
-    String out = '';
+    var out = '';
     if (!(inline ?? false)) {
       out = ((context?.lastRule ?? false) && (context?.compress ?? false))
           ? ''
@@ -161,7 +161,7 @@ class Declaration extends Node implements MakeImportantNode {
           index: index, filename: currentFileInfo.filename, context: context));
     }
 
-    String out = '';
+    var out = '';
     if (!(inline ?? false)) {
       out = (context.lastRule) ? '' : ';';
     }
@@ -171,10 +171,10 @@ class Declaration extends Node implements MakeImportantNode {
   ///
   @override
   Declaration eval(Contexts context) {
-    bool mathBypass = false;
+    var mathBypass = false;
     int prevMath;
     dynamic name = this.name; // String || List<Node> (Variable, Keyword, ...)
-    bool variable = this.variable;
+    var variable = this.variable;
 
     if (name is! String) {
       // expand 'primitive' name directly to get
@@ -195,7 +195,7 @@ class Declaration extends Node implements MakeImportantNode {
 
     try {
       context.importantScope.add(ImportantRule());
-      final Node evaldValue = value.eval(context);
+      final evaldValue = value.eval(context);
 
       if (!this.variable && (evaldValue is DetachedRuleset)) {
         throw LessExceptionError(LessError(
@@ -205,8 +205,8 @@ class Declaration extends Node implements MakeImportantNode {
             context: context));
       }
 
-      String important = this.important;
-      final ImportantRule importantResult = context.importantScope.removeLast();
+      var important = this.important;
+      final importantResult = context.importantScope.removeLast();
       if (important.isEmpty && importantResult.important.isNotEmpty) {
         important = importantResult.important;
       }
@@ -300,7 +300,7 @@ class Declaration extends Node implements MakeImportantNode {
   void genTree(Contexts env, Output output, [String prefix = '']) {
     genTreeTitle(env, output, prefix, type, toString());
 
-    final int tabs = prefix.isEmpty ? 1 : 2;
+    final tabs = prefix.isEmpty ? 1 : 2;
     env.tabLevel = env.tabLevel + tabs;
 
     if (treeField == null) {
@@ -320,7 +320,7 @@ class Declaration extends Node implements MakeImportantNode {
   ///
   @override
   String toString() {
-    final StringBuffer sb = StringBuffer();
+    final sb = StringBuffer();
 
     if (name is String) sb.write(name);
     if (name is List) {

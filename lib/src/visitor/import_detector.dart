@@ -27,7 +27,7 @@ class ImportDetector {
   /// Returns a new ImportDector copy of [source]
   ///
   static ImportDetector clone(ImportDetector source) {
-    final ImportDetector result = ImportDetector();
+    final result = ImportDetector();
     return (source != null) ? (result..addAll(source)) : result;
   }
 

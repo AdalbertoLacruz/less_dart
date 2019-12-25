@@ -58,7 +58,7 @@ class BiMap<K, V> implements Map<K, V> {
       : _inverse.containsKey(value);
 
   @override
-  void forEach(void f(K key, V value)) {
+  void forEach(void Function(K key, V value) f) {
     //Potential problems for _inverse
     _inverse.clear();
     _map.forEach(f);
@@ -85,7 +85,7 @@ class BiMap<K, V> implements Map<K, V> {
   int get length => _map.length;
 
   @override
-  V putIfAbsent(K key, V ifAbsent()) {
+  V putIfAbsent(K key, V Function() ifAbsent) {
     // Potential problems for _inverse
     _inverse.clear();
     return _map.putIfAbsent(key, ifAbsent);

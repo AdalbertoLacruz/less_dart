@@ -81,7 +81,7 @@ class Parsers {
   List<Node> primary() {
     Node node;
     List<Node> nodeList;
-    final List<Node> root = <Node>[];
+    final root = <Node>[];
 
     while (true) {
       while (true) {
@@ -111,7 +111,7 @@ class Parsers {
       if (node != null) {
         root.add(node);
       } else {
-        bool foundSemiColon = false;
+        var foundSemiColon = false;
         while (parserInput.$char(';') != null) {
           foundSemiColon = true;
         }
@@ -185,7 +185,7 @@ class Parsers {
   ///
   Comment comment() {
     if (parserInput.commentStore.isNotEmpty) {
-      final CommentPointer comment = parserInput.commentStore.removeAt(0);
+      final comment = parserInput.commentStore.removeAt(0);
       return Comment(comment.text,
           isLineComment: comment.isLineComment,
           index: comment.index,
@@ -239,16 +239,16 @@ class Parsers {
   ///     color: @fink[@color];
   ///
   Node variableCall([String parsedName]) {
-    final int index = parserInput.i;
-    final bool inValue = parsedName != null;
-    String name = parsedName;
+    final index = parserInput.i;
+    final inValue = parsedName != null;
+    var name = parsedName;
     List<String> lsName; // Each () matched in regExp
 
     parserInput.save();
     if (inValue ||
         (parserInput.currentChar() == '@' &&
             (lsName = parserInput.$re(_variableCallRegExp)) != null)) {
-      final List<String> lookups = mixin.ruleLookups();
+      final lookups = mixin.ruleLookups();
 
       if (lookups == null &&
           ((inValue && parserInput.$str('()') != '()') ||
@@ -260,7 +260,7 @@ class Parsers {
 
       if (!inValue) name = lsName[1];
 
-      final VariableCall call = VariableCall(name, index, fileInfo);
+      final call = VariableCall(name, index, fileInfo);
 
       if (!inValue && end()) {
         parserInput.forget();
@@ -324,7 +324,7 @@ class Parsers {
     Element e;
     List<Element> elements;
     List<Extend> extendedList;
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String option;
 
     if (parserInput.$str(isRule ? '&:extend(' : ':extend(') == null) {
@@ -474,7 +474,7 @@ class Parsers {
   Element element() {
     Combinator c;
     dynamic e; //String or Node
-    final int index = parserInput.i;
+    final index = parserInput.i;
     Selector v;
 
     c = combinator();
@@ -551,7 +551,7 @@ class Parsers {
   /// we deal with this in *combinator.dart*.
   ///
   Combinator combinator() {
-    String c = parserInput.currentChar();
+    var c = parserInput.currentChar();
 
     if (c == '/') {
       parserInput.save();
@@ -627,7 +627,7 @@ class Parsers {
     Element e;
     List<Element> elements;
     List<Extend> extendList;
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String when;
 
     while ((isLess && (extendList = extend()) != null) ||
@@ -856,7 +856,7 @@ class Parsers {
   ///     { rules }
   ///
   Ruleset blockRuleset() {
-    final List<Node> block = this.block();
+    final block = this.block();
 
     return (block != null) ? Ruleset(null, block) : null;
 
@@ -890,7 +890,7 @@ class Parsers {
       // yet settable as `@dr: #(@arg) {}`
       // This should be done when DRs are merged with mixins.
       // See: https://github.com/less/less-meta/issues/16
-      final MixinReturner argInfo = mixin.args(isCall: false);
+      final argInfo = mixin.args(isCall: false);
       params = argInfo.args;
       variadic = argInfo.variadic;
       if (parserInput.$char(')') == null) {
@@ -899,7 +899,7 @@ class Parsers {
       }
     }
 
-    final Ruleset blockRuleset = this.blockRuleset();
+    final blockRuleset = this.blockRuleset();
     if (blockRuleset != null) {
       parserInput.forget();
       if (params != null) {
@@ -962,11 +962,11 @@ class Parsers {
       debugInfo = getDebugInfo(parserInput.i);
     }
 
-    final List<Selector> selectors = this.selectors();
+    final selectors = this.selectors();
 
     if (selectors != null && (rules = block()) != null) {
       parserInput.forget();
-      final Ruleset ruleset =
+      final ruleset =
           Ruleset(selectors, rules, strictImports: context.strictImports);
       if (context.dumpLineNumbers?.isNotEmpty ?? false) {
         ruleset.debugInfo = debugInfo;
@@ -1013,12 +1013,12 @@ class Parsers {
   ///     color: red;
   ///
   Declaration declaration() {
-    final String c = parserInput.currentChar();
-    bool hasDR = false; // has DetachedRuleset
+    final c = parserInput.currentChar();
+    var hasDR = false; // has DetachedRuleset
     String important;
-    final int index = parserInput.i;
+    final index = parserInput.i;
     bool isVariable;
-    String merge = '';
+    var merge = '';
     dynamic name; //String or List<Node>
     Node value;
 
@@ -1172,7 +1172,7 @@ class Parsers {
   ///     2px solid superred
   ///
   Anonymous anonymousValue() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     final String match = parserInput.$re(_anonymousValueRegExp1, 1);
     return match != null ? Anonymous(match, index: index) : null;
 
@@ -1196,16 +1196,16 @@ class Parsers {
   /// math is allowed.
   ///
   Node permissiveValue({String untilTokensString, RegExp untilTokensRegExp}) {
-    final int index = parserInput.i;
-    final List<Node> result = <Node>[];
+    final index = parserInput.i;
+    final result = <Node>[];
 
-    final TestChar tc = TestChar(untilTokensString, untilTokensRegExp);
+    final tc = TestChar(untilTokensString, untilTokensRegExp);
     bool testCurrentChar() => tc.test(parserInput.currentChar());
 
     if (testCurrentChar()) return null;
 
     Node e;
-    final List<Node> valueNodes = <Node>[];
+    final valueNodes = <Node>[];
     do {
       e = comment();
       if (e != null) {
@@ -1217,7 +1217,7 @@ class Parsers {
     } while (e != null);
 
     if (valueNodes.isNotEmpty) {
-      final Expression expression = Expression(valueNodes);
+      final expression = Expression(valueNodes);
       if (testCurrentChar()) {
         // done
         return expression;
@@ -1247,8 +1247,8 @@ class Parsers {
         return Anonymous('', index: index);
       }
 
-      for (int i = 0; i < value.length; i++) {
-        final ParseUntilReturnItem item = value[i];
+      for (var i = 0; i < value.length; i++) {
+        final item = value[i];
 
         if (item.quote != null) {
           // Treat actual quotes as normal quoted values
@@ -1363,10 +1363,10 @@ class Parsers {
   /// The importing is a file-system operation, ruled by the Import node.
   ///
   Import import() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     List<Node> features;
     Value nodeFeatures;
-    ImportOptions options = ImportOptions();
+    var options = ImportOptions();
     Node path;
 
     final String dir = parserInput.$re(_importRegExp1);
@@ -1433,7 +1433,7 @@ class Parsers {
   ImportOptions importOptions() {
     String o;
     String optionName;
-    final ImportOptions options = ImportOptions();
+    final options = ImportOptions();
     bool value;
 
     // list of options, surrounded by parens
@@ -1521,7 +1521,7 @@ class Parsers {
   ///
   Expression mediaFeature() {
     Node e;
-    final List<Node> nodes = <Node>[];
+    final nodes = <Node>[];
     String p;
 
     parserInput.save();
@@ -1593,7 +1593,7 @@ class Parsers {
   ///
   List<Node> mediaFeatures() {
     Node e;
-    final List<Node> features = <Node>[];
+    final features = <Node>[];
 
     do {
       e = mediaFeature();
@@ -1645,7 +1645,7 @@ class Parsers {
     Media media;
     List<Node> rules;
 
-    final int index = parserInput.i;
+    final index = parserInput.i;
 
     if (context.dumpLineNumbers?.isNotEmpty ?? false) {
       debugInfo = getDebugInfo(index);
@@ -1721,7 +1721,7 @@ class Parsers {
   /// Pass-throught to css to let polymer work
   ///
   Apply apply() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String name;
 
     if (parserInput.$re(_applyRegExp1) != null) {
@@ -1755,7 +1755,7 @@ class Parsers {
   /// To load a plugin use @plugin.
   ///
   Options options() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     Quoted value;
 
     final String dir = parserInput.$re(_optionsRegExp1);
@@ -1788,12 +1788,12 @@ class Parsers {
   /// Differs from standard implementation. Here is Options and not import.
   ///
   Options plugin() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     Quoted value;
 
     final String dir = parserInput.$re(_pluginRegExp1);
     if (dir != null) {
-      final String args = pluginArgs();
+      final args = pluginArgs();
       if ((value = entities.quoted()) != null) {
         if (parserInput.$char(';') == null) {
           parserInput
@@ -1901,12 +1901,12 @@ class Parsers {
   ///     @charset "utf-8";
   ///
   Node atrule() {
-    bool hasBlock = true;
-    bool hasExpression = false;
-    bool hasIdentifier = false;
-    bool hasUnknown = false;
-    final int index = parserInput.i;
-    bool isRooted = true;
+    var hasBlock = true;
+    var hasExpression = false;
+    var hasIdentifier = false;
+    var hasUnknown = false;
+    final index = parserInput.i;
+    var isRooted = true;
     String name;
     String nonVendorSpecificName;
     Ruleset rules;
@@ -2084,8 +2084,8 @@ class Parsers {
   ///
   Value value() {
     Expression e;
-    final List<Expression> expressions = <Expression>[];
-    final int index = parserInput.i;
+    final expressions = <Expression>[];
+    final index = parserInput.i;
 
     do {
       e = expression();
@@ -2350,7 +2350,7 @@ class Parsers {
     Node a;
     Node b;
     Condition condition;
-    final int index = parserInput.i;
+    final index = parserInput.i;
 
     a = this.condition(needsParens: true);
     if (a != null) {
@@ -2405,12 +2405,12 @@ class Parsers {
   Condition condition({bool needsParens = false}) {
     String or() => parserInput.$str('or');
 
-    Condition result = conditionAnd(needsParens: needsParens);
+    var result = conditionAnd(needsParens: needsParens);
     if (result == null) return null;
 
-    final String logical = or();
+    final logical = or();
     if (logical != null) {
-      final Condition next = condition(needsParens: needsParens);
+      final next = condition(needsParens: needsParens);
       if (next != null) {
         result = Condition(logical, result, next);
       } else {
@@ -2452,7 +2452,7 @@ class Parsers {
   Condition conditionAnd({bool needsParens = false}) {
     // inside functions
     Condition insideCondition() {
-      final Condition cond = negatedCondition(needsParens: needsParens) ??
+      final cond = negatedCondition(needsParens: needsParens) ??
           parenthesisCondition(needsParens: needsParens);
       if (cond == null && !needsParens) {
         return atomicCondition(needsParens: needsParens);
@@ -2463,12 +2463,12 @@ class Parsers {
     String and() => parserInput.$str('and');
 
     // code
-    Condition result = insideCondition();
+    var result = insideCondition();
     if (result == null) return null;
 
-    final String logical = and();
+    final logical = and();
     if (logical != null) {
-      final Condition next = conditionAnd(needsParens: needsParens);
+      final next = conditionAnd(needsParens: needsParens);
       if (next != null) {
         result = Condition(logical, result, next);
       } else {
@@ -2515,7 +2515,7 @@ class Parsers {
   ///
   Condition negatedCondition({bool needsParens = false}) {
     if (parserInput.$str('not') != null) {
-      final Condition result = parenthesisCondition(needsParens: needsParens);
+      final result = parenthesisCondition(needsParens: needsParens);
       if (result != null) result.negate = !result.negate;
       return result;
     }
@@ -2546,7 +2546,7 @@ class Parsers {
     //
     Condition tryConditionFollowedByParenthesis() {
       parserInput.save();
-      final Condition body = condition(needsParens: needsParens);
+      final body = condition(needsParens: needsParens);
       if (body == null) {
         parserInput.restore();
         return null;
@@ -2565,7 +2565,7 @@ class Parsers {
       return null;
     }
 
-    Condition body = tryConditionFollowedByParenthesis();
+    var body = tryConditionFollowedByParenthesis();
     if (body != null) {
       parserInput.forget();
       return body;
@@ -2652,7 +2652,7 @@ class Parsers {
     Node a;
     Node b;
     Condition c;
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String op;
 
     // function definition
@@ -2820,8 +2820,8 @@ class Parsers {
   Expression expression() {
     String delim;
     Node e;
-    final List<Node> entities = <Node>[];
-    final int index = parserInput.i;
+    final entities = <Node>[];
+    final index = parserInput.i;
 
     do {
       e = comment();
@@ -2908,9 +2908,9 @@ class Parsers {
   ///     transform+: or *zoom: or @(prefix)width:
   ///
   List<Node> ruleProperty() {
-    final List<int> index = <int>[];
-    final List<String> name = <String>[];
-    final List<Node> result = <Node>[]; //in js is name
+    final index = <int>[];
+    final name = <String>[];
+    final result = <Node>[]; //in js is name
     String s;
 
     parserInput.save();
@@ -2923,7 +2923,7 @@ class Parsers {
     }
 
     bool match(RegExp re) {
-      final int i = parserInput.i;
+      final i = parserInput.i;
       final String chunk = parserInput.$re(re);
 
       if (chunk != null) {
@@ -2949,7 +2949,7 @@ class Parsers {
         index.removeAt(0);
       }
 
-      for (int k = 0; k < name.length; k++) {
+      for (var k = 0; k < name.length; k++) {
         s = name[k];
         result.add((!s.startsWith('@') && !s.startsWith(r'$'))
             ? Keyword(s)

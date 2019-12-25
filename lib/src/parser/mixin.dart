@@ -46,12 +46,12 @@ class Mixin {
   Node call({bool inValue = false, bool getLookup}) {
     List<MixinArgs> args;
     List<Element> elements;
-    bool hasparens = false;
-    bool important = false;
+    var hasparens = false;
+    var important = false;
     List<String> lookups;
 
-    final int index = parserInput.i;
-    final String s = parserInput.currentChar();
+    final index = parserInput.i;
+    final s = parserInput.currentChar();
 
     if (s != '.' && s != '#') return null;
 
@@ -82,7 +82,7 @@ class Mixin {
 
       if (inValue || parsers.end()) {
         parserInput.forget();
-        final MixinCall mixin = MixinCall(elements, args,
+        final mixin = MixinCall(elements, args,
             index: index,
             currentFileInfo: fileInfo,
             important: lookups == null && important);
@@ -211,16 +211,16 @@ class Mixin {
   ///
   MixinReturner args({bool isCall = false}) {
     Node arg;
-    final List<MixinArgs> argsComma = <MixinArgs>[];
-    final List<MixinArgs> argsSemiColon = <MixinArgs>[];
-    bool expand = false; // &1 {.m3(@x...)}
-    bool expressionContainsNamed = false;
-    List<Node> expressions = <Node>[];
-    bool hasSep = true;
+    final argsComma = <MixinArgs>[];
+    final argsSemiColon = <MixinArgs>[];
+    var expand = false; // &1 {.m3(@x...)}
+    var expressionContainsNamed = false;
+    var expressions = <Node>[];
+    var hasSep = true;
     String name;
     String nameLoop;
-    bool isSemiColonSeperated = false;
-    final MixinReturner returner = MixinReturner();
+    var isSemiColonSeperated = false;
+    final returner = MixinReturner();
     Node value;
 
     parserInput.save();
@@ -496,11 +496,11 @@ class Mixin {
     final String name = parserInput.$re(_definitionRegExp);
     if (name != null) {
       Condition cond;
-      final MixinReturner argInfo = args(isCall: false);
-      final int index = parserInput.i; //not in original
+      final argInfo = args(isCall: false);
+      final index = parserInput.i; //not in original
 
-      final List<MixinArgs> params = argInfo.args;
-      final bool variadic = argInfo.variadic;
+      final params = argInfo.args;
+      final variadic = argInfo.variadic;
 
       // .mixincall("@{a}");
       // looks a bit like a mixin definition..
@@ -519,7 +519,7 @@ class Mixin {
         cond = parserInput.expect(parsers.conditions, 'expected condition');
       }
 
-      final List<Node> ruleset = parsers.block();
+      final ruleset = parsers.block();
 
       if (ruleset != null) {
         parserInput.forget();
@@ -597,7 +597,7 @@ class Mixin {
     String rule;
 
     if (parserInput.currentChar() != r'[') return null;
-    final List<String> lookups = <String>[];
+    final lookups = <String>[];
 
     while (true) {
       parserInput.save();

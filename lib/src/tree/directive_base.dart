@@ -112,12 +112,12 @@ class DirectiveBase extends Node with OutputRulesetMixin, VariableMixin {
   @override
   Node eval(Contexts context) {
     Node value = this.value;
-    List<Node> rules = this.rules; // TODO: review, List<Ruleset>
+    var rules = this.rules; // TODO: review, List<Ruleset>
 
     // media stored inside other directive should not bubble over it
     // backpup media bubbling information
-    final List<Media> mediaPathBackup = context.mediaPath;
-    final List<Media> mediaBlocksBackup = context.mediaBlocks;
+    final mediaPathBackup = context.mediaPath;
+    final mediaBlocksBackup = context.mediaBlocks;
 
     // deleted media bubbling information
     context

@@ -43,8 +43,8 @@ class PluginLoader {
   ///
   Plugin tryLoadPlugin(String name, String argument) {
     Plugin plugin;
-    final String prefix = installable.containsKey(name) ? '' : 'less-plugin-';
-    final String pluginName = '$prefix$name';
+    final prefix = installable.containsKey(name) ? '' : 'less-plugin-';
+    final pluginName = '$prefix$name';
     String defaultMessage;
 
     if (installable.containsKey(pluginName)) {
@@ -195,7 +195,7 @@ class PluginLoader {
   ///
   // String (as js version) not supported in aVersion for simplicity
   int compareVersion(List<int> aVersion, List<int> bVersion) {
-    for (int i = 0; i < aVersion.length; i++) {
+    for (var i = 0; i < aVersion.length; i++) {
       if (aVersion[i] != bVersion[i]) {
         return (aVersion[i] > bVersion[i]) ? -1 : 1;
       }

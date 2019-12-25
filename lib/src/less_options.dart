@@ -218,9 +218,9 @@ class LessOptions {
   ///
   bool fromCommandLine(String line) {
     Match match;
-    final RegExp regOption =
+    final regOption =
         RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
-    bool result = true;
+    var result = true;
 
     line.split(' ').forEach((String arg) {
       if ((match = regOption.firstMatch(arg)) != null) {
@@ -237,7 +237,7 @@ class LessOptions {
   ///
   bool parse(Match arg) {
     if (arg == null) return setParseError('empty');
-    final String command = arg[1];
+    final command = arg[1];
 
     switch (command) {
       case 'v':
@@ -495,9 +495,9 @@ class LessOptions {
         break;
       case 'plugin':
         final Match splitupArg = pluginRe.firstMatch(arg[2]);
-        final String name = splitupArg[1];
-        final String pluginOptions = splitupArg[3];
-        final Plugin plugin = pluginLoader.tryLoadPlugin(name, pluginOptions);
+        final name = splitupArg[1];
+        final pluginOptions = splitupArg[3];
+        final plugin = pluginLoader.tryLoadPlugin(name, pluginOptions);
 
         if (plugin != null) {
           plugins.add(plugin);
@@ -507,7 +507,7 @@ class LessOptions {
         }
         break;
       default:
-        final Plugin plugin =
+        final plugin =
             pluginLoader.tryLoadPlugin('less-plugin-$command', arg[2]);
         if (plugin != null) {
           plugins.add(plugin);
@@ -552,7 +552,7 @@ class LessOptions {
   ///
   bool checkBooleanArg(String arg) {
     Match match;
-    final RegExp onOff =
+    final onOff =
         RegExp(r'^(on|t|true|y|yes)|(off|f|false|n|no)$', caseSensitive: false);
 
     if ((match = onOff.firstMatch(arg)) == null) {
@@ -567,7 +567,7 @@ class LessOptions {
 
   ///
   void parseVariableOption(String option, List<VariableDefinition> variables) {
-    final List<String> parts = option.split('=');
+    final parts = option.split('=');
     variables.add(VariableDefinition(parts[0], parts[1]));
 
 //2.4.0
@@ -596,7 +596,7 @@ class LessOptions {
     pluginLoader.define(name, plugin);
 
     if (load) {
-      final Plugin pluginLoaded = pluginLoader.tryLoadPlugin(name, options);
+      final pluginLoaded = pluginLoader.tryLoadPlugin(name, options);
       if (pluginLoaded != null) plugins.add(pluginLoaded);
     }
   }
@@ -644,10 +644,10 @@ class LessOptions {
           ..sourceMapFilename =
               path_lib.basename(sourceMapOptions.sourceMapFullFilename);
       } else if (!sourceMapOptions.sourceMapFileInline) {
-        final String mapFilename =
+        final mapFilename =
             path_lib.absolute(sourceMapOptions.sourceMapFullFilename);
-        final String mapDir = path_lib.dirname(mapFilename);
-        final String outputDir = path_lib.dirname(output);
+        final mapDir = path_lib.dirname(mapFilename);
+        final outputDir = path_lib.dirname(output);
 
         sourceMapOptions
           // find the path from the map to the output file
@@ -667,11 +667,10 @@ class LessOptions {
     }
 
     if (sourceMapOptions.sourceMapRootpath.isEmpty) {
-      final String pathToMap = path_lib.dirname(
-          sourceMapOptions.sourceMapFileInline
-              ? output
-              : sourceMapOptions.sourceMapFullFilename);
-      final String pathToInput =
+      final pathToMap = path_lib.dirname(sourceMapOptions.sourceMapFileInline
+          ? output
+          : sourceMapOptions.sourceMapFullFilename);
+      final pathToInput =
           path_lib.dirname(sourceMapOptions.sourceMapInputFilename);
       sourceMapOptions.sourceMapRootpath =
           path_lib.relative(pathToMap, from: pathToInput);
@@ -692,7 +691,7 @@ class LessOptions {
 
   ///
   LessOptions clone() {
-    final LessOptions op = LessOptions()
+    final op = LessOptions()
       ..silent = silent
       ..verbose = verbose
       ..ieCompat = ieCompat

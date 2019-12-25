@@ -39,8 +39,8 @@ class Entities {
   ///     "milky way" 'he\'s the one!'
   ///
   Quoted quoted({bool forceEscaped = false}) {
-    final int index = parserInput.i;
-    bool isEscaped = false;
+    final index = parserInput.i;
+    var isEscaped = false;
     String str;
 
     parserInput.save();
@@ -121,9 +121,9 @@ class Entities {
   /// The arguments are parsed with the `entities.arguments` parser.
   ///
   Node call() {
-    List<Node> args = <Node>[];
+    var args = <Node>[];
     bool func;
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String name;
 
     if (parserInput.peek(_reCallUrl)) return null;
@@ -301,10 +301,10 @@ class Entities {
   /// separated by `,` or `;`
   ///
   List<Node> arguments(List<Node> prevArgs) {
-    List<Node> argsComma = prevArgs ?? <Node>[];
-    final List<Node> argsSemiColon = <Node>[];
-    bool isPrevArgs = prevArgs?.isNotEmpty ?? false;
-    bool isSemiColonSeparated = false;
+    var argsComma = prevArgs ?? <Node>[];
+    final argsSemiColon = <Node>[];
+    var isPrevArgs = prevArgs?.isNotEmpty ?? false;
+    var isSemiColonSeparated = false;
     Node value;
 
     parserInput.save();
@@ -459,7 +459,7 @@ class Entities {
   /// to be enclosed within a string, so it can't be parsed as an Expression.
   ///
   URL url() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     Node value;
 
     parserInput.autoCommentAbsorb = false;
@@ -521,17 +521,17 @@ class Entities {
   /// see `parsers.variable`.
   ///
   Node variable() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String name;
 
     parserInput.save();
     if ((parserInput.currentChar() == '@') &&
         (name = parserInput.$re(_variableRegExp)) != null) {
-      final String ch = parserInput.currentChar();
+      final ch = parserInput.currentChar();
       if (ch == '(' ||
           ch == '[' && !parserInput.prevChar().contains(RegExp(r'\s'))) {
         // this may be a VariableCall lookup
-        final Node result = parsers.variableCall(name);
+        final result = parsers.variableCall(name);
         if (result != null) {
           parserInput.forget();
           return result;
@@ -575,7 +575,7 @@ class Entities {
   ///
   Variable variableCurly() {
     String curly;
-    final int index = parserInput.i;
+    final index = parserInput.i;
 
     if (parserInput.currentChar() == '@' &&
         (curly = parserInput.$re(_variableCurlyRegExp, 1)) != null) {
@@ -608,7 +608,7 @@ class Entities {
   ///
   Property property() {
     String name;
-    final int index = parserInput.i;
+    final index = parserInput.i;
 
     if (parserInput.currentChar() == r'$' &&
         (name = parserInput.$re(_propertyRegExp, 1)) != null) {
@@ -636,7 +636,7 @@ class Entities {
   ///
   Property propertyCurly() {
     String curly;
-    final int index = parserInput.i;
+    final index = parserInput.i;
 
     if (parserInput.currentChar() == r'$' &&
         (curly = parserInput.$re(_propertyCurlyRegExp, 1)) != null) {
@@ -710,7 +710,7 @@ class Entities {
   Color colorKeyword() {
     parserInput.save();
 
-    final bool autoCommentAbsorb = parserInput.autoCommentAbsorb;
+    final autoCommentAbsorb = parserInput.autoCommentAbsorb;
     parserInput.autoCommentAbsorb = false;
     final String k = parserInput.$re(_colorKeywordRegExp);
     parserInput.autoCommentAbsorb = autoCommentAbsorb;
@@ -721,7 +721,7 @@ class Entities {
     }
 
     parserInput.restore();
-    final Color color = Color.fromKeyword(k);
+    final color = Color.fromKeyword(k);
 
     if (color != null) {
       parserInput.$str(k);
@@ -811,13 +811,13 @@ class Entities {
   /// JavaScript evaluation is not supported.
   ///
   JavaScript javascript() {
-    final int index = parserInput.i;
+    final index = parserInput.i;
     String js;
 
     parserInput.save();
 
-    final String escape = parserInput.$char('~');
-    final String jsQuote = parserInput.$char('`');
+    final escape = parserInput.$char('~');
+    final jsQuote = parserInput.$char('`');
 
     if (jsQuote == null) {
       parserInput.restore();

@@ -12,9 +12,9 @@ class Utils {
   /// [index] is the character position in [inputStream]
   ///
   static LocationPoint getLocation(int index, String inputStream) {
-    int n = (index >= inputStream.length - 1) ? inputStream.length : index + 1;
+    var n = (index >= inputStream.length - 1) ? inputStream.length : index + 1;
     int line;
-    int column = -1;
+    var column = -1;
 
     while (--n >= 0 && inputStream[n] != '\n') {
       column++;
@@ -51,8 +51,8 @@ class Utils {
   /// Example, clone a Contexts: result = Utils.clone(context, new Contexts());
   ///
   static dynamic clone(dynamic from, dynamic to) {
-    final InstanceMirror fromInstanceMirror = reflect(from);
-    final InstanceMirror toInstanceMirror = reflect(to);
+    final fromInstanceMirror = reflect(from);
+    final toInstanceMirror = reflect(to);
 
     fromInstanceMirror.type.declarations
         .forEach((Symbol variableName, DeclarationMirror declaration) {
@@ -82,18 +82,17 @@ class Utils {
   /// [properties] contains the variable names to copy if possible. If null, copy all possible.
   ///
   static dynamic copyFrom(dynamic from, dynamic to, [List<String> properties]) {
-    final InstanceMirror fromInstanceMirror = reflect(from);
-    final InstanceMirror toInstanceMirror = reflect(to);
+    final fromInstanceMirror = reflect(from);
+    final toInstanceMirror = reflect(to);
 
     bool tryCopy(String name) =>
         (properties == null) ? true : properties.contains(name);
 
-    final Map<Symbol, DeclarationMirror> fromDeclarations =
-        fromInstanceMirror.type.declarations;
+    final fromDeclarations = fromInstanceMirror.type.declarations;
 
     toInstanceMirror.type.declarations
         .forEach((Symbol variableName, DeclarationMirror declaration) {
-      final String name = MirrorSystem.getName(variableName);
+      final name = MirrorSystem.getName(variableName);
       if (declaration is VariableMirror &&
           tryCopy(name) &&
           fromDeclarations.containsKey(variableName)) {

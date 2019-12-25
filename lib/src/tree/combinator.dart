@@ -56,7 +56,7 @@ class Combinator extends Node {
   void genCSS(Contexts context, Output output) {
     if (context?.cleanCss ?? false) return genCleanCSS(context, output);
 
-    final String spaceOrEmpty =
+    final spaceOrEmpty =
         ((context?.compress ?? false) || (_noSpaceCombinators[value] ?? false))
             ? ''
             : ' ';

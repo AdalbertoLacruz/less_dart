@@ -34,10 +34,9 @@ class VariableCall extends Node {
   ///
   @override
   Ruleset eval(Contexts context) {
-    final Node result =
-        Variable(variable, index, currentFileInfo).eval(context);
+    final result = Variable(variable, index, currentFileInfo).eval(context);
     DetachedRuleset detachedRuleset;
-    final LessExceptionError error = LessExceptionError(
+    final error = LessExceptionError(
         LessError(message: 'Could not evaluate variable call $variable'));
 
     if (result is! DetachedRuleset) {

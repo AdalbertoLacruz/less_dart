@@ -42,8 +42,8 @@ class FileFileManager extends AbstractFileManager {
   ///
   List<String> createListPaths(
       String filename, String currentDirectory, Contexts options) {
-    final bool isAbsoluteFilename = isPathAbsolute(filename);
-    final List<String> paths = isAbsoluteFilename
+    final isAbsoluteFilename = isPathAbsolute(filename);
+    final paths = isAbsoluteFilename
         ? <String>['']
         : <String>[path_lib.normalize(currentDirectory)];
     MoreList.addAllUnique(paths, options.paths, map: path_lib.normalize);
@@ -58,7 +58,7 @@ class FileFileManager extends AbstractFileManager {
   ///
   Future<String> findFile(String filename, List<String> paths,
       [int index = 0]) {
-    final Completer<String> task = Completer<String>();
+    final task = Completer<String>();
     String fullFilename;
 
     if (index == 0) filenamesTried.clear(); //first call not recursive
@@ -86,7 +86,7 @@ class FileFileManager extends AbstractFileManager {
     String fullFilename;
 
     filenamesTried.clear();
-    for (int i = 0; i < paths.length; i++) {
+    for (var i = 0; i < paths.length; i++) {
       fullFilename = environment.pathJoin(paths[i], filename);
       filenamesTried.add(fullFilename);
       if (File(fullFilename).existsSync()) return fullFilename;
@@ -99,13 +99,13 @@ class FileFileManager extends AbstractFileManager {
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory,
       Contexts options, Environment environment) async {
-    final Contexts _options = options ?? Contexts();
-    final String _filename = (_options.ext != null)
+    final _options = options ?? Contexts();
+    final _filename = (_options.ext != null)
         ? tryAppendExtension(filename, _options.ext)
         : filename;
 
     if (_options.syncImport ?? false) {
-      final FileLoaded fileLoaded =
+      final fileLoaded =
           loadFileSync(_filename, currentDirectory, _options, environment);
       if (fileLoaded.error == null) {
         return fileLoaded;
@@ -113,10 +113,10 @@ class FileFileManager extends AbstractFileManager {
         throw fileLoaded.error;
       }
     }
-    final String normalizedFilename = await normalizeFilePath(_filename);
-    final List<String> paths = await _normalizePaths(
+    final normalizedFilename = await normalizeFilePath(_filename);
+    final paths = await _normalizePaths(
         createListPaths(_filename, currentDirectory, _options));
-    final String fullFilename = await findFile(normalizedFilename, paths);
+    final fullFilename = await findFile(normalizedFilename, paths);
     if (fullFilename != null) {
       return getLoadedFile(fullFilename);
     } else {
@@ -290,12 +290,11 @@ class FileFileManager extends AbstractFileManager {
   @override
   FileLoaded loadFileSync(String filename, String currentDirectory,
       Contexts options, Environment environment) {
-    final FileLoaded fileLoaded = FileLoaded();
-    final Contexts _options = options ?? Contexts();
+    final fileLoaded = FileLoaded();
+    final _options = options ?? Contexts();
 
-    final List<String> paths =
-        createListPaths(filename, currentDirectory, _options);
-    final String fullFilename = findFileSync(filename, paths);
+    final paths = createListPaths(filename, currentDirectory, _options);
+    final fullFilename = findFileSync(filename, paths);
 
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
@@ -330,12 +329,11 @@ class FileFileManager extends AbstractFileManager {
   @override
   FileLoaded existSync(String filename, String currentDirectory,
       Contexts options, Environment environment) {
-    final FileLoaded fileLoaded = FileLoaded();
-    final Contexts _options = options ?? Contexts();
+    final fileLoaded = FileLoaded();
+    final _options = options ?? Contexts();
 
-    final List<String> paths =
-        createListPaths(filename, currentDirectory, _options);
-    final String fullFilename = findFileSync(filename, paths);
+    final paths = createListPaths(filename, currentDirectory, _options);
+    final fullFilename = findFileSync(filename, paths);
 
     if (fullFilename != null) {
       fileLoaded.filename = fullFilename;
@@ -357,7 +355,7 @@ class FileFileManager extends AbstractFileManager {
     if (contents.containsKey(fullPath)) {
       return FileLoaded(filename: fullPath, contents: contents[fullPath]);
     }
-    final String data = await File(fullPath).readAsString();
+    final data = await File(fullPath).readAsString();
     contents[fullPath] = data;
     return FileLoaded(filename: fullPath, contents: data);
   }
@@ -368,18 +366,17 @@ class FileFileManager extends AbstractFileManager {
 
   @override
   Future<String> normalizeFilePath(String filename) async {
-    final List<String> pathData = path_lib.split(path_lib.normalize(filename));
+    final pathData = path_lib.split(path_lib.normalize(filename));
     if (pathData.length > 1 && pathData.first.startsWith(PACKAGES_PREFIX)) {
-      final String packageName = pathData[1];
-      String pathInPackage =
+      final packageName = pathData[1];
+      var pathInPackage =
           path_lib.joinAll(pathData.getRange(2, pathData.length));
       if (pathData.first.contains(PACKAGES_TEST)) {
         //change from lib/path to test/path
         pathInPackage = '../test/$pathInPackage';
       }
-      final PackageResolver _resolver =
-          await _packageResolverProvider.getPackageResolver();
-      String result =
+      final _resolver = await _packageResolverProvider.getPackageResolver();
+      var result =
           (await _resolver.urlFor(packageName, _normalizePath(pathInPackage)))
               .toFilePath();
 
@@ -406,8 +403,8 @@ class FileFileManager extends AbstractFileManager {
 
   ///
   Future<List<String>> _normalizePaths(List<String> paths) async {
-    final List<String> normalizedPaths = <String>[];
-    for (final String path in paths) {
+    final normalizedPaths = <String>[];
+    for (final path in paths) {
       normalizedPaths.add(await normalizeFilePath(path));
     }
     return normalizedPaths;

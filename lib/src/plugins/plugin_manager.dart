@@ -159,7 +159,7 @@ class PluginManager {
 
   ///
   List<Processor> getPreProcessors() {
-    final List<Processor> preProcessors = <Processor>[];
+    final preProcessors = <Processor>[];
     this.preProcessors.forEach((ProcessorItem item) {
       preProcessors.add(item.preProcessor);
     });
@@ -177,7 +177,7 @@ class PluginManager {
 
   ///
   List<Processor> getPostProcessors() {
-    final List<Processor> postProcessors = <Processor>[];
+    final postProcessors = <Processor>[];
     this.postProcessors.forEach((ProcessorItem item) {
       postProcessors.add(item.postProcessor);
     });

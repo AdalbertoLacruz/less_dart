@@ -73,42 +73,42 @@ class Base64String {
 
   /// [income] String or List<int>
   static String encode(dynamic income) {
-    final List<String> characters = <String>[];
+    final characters = <String>[];
     final List<int> data = (income is String) ? income.codeUnits : income;
     int i;
     int index;
 
     for (i = 0; i + 3 <= data.length; i += 3) {
-      int value = 0;
+      var value = 0;
       value |= data[i + 2];
       value |= data[i + 1] << 8;
       value |= data[i] << 16;
-      for (int j = 0; j < 4; j++) {
+      for (var j = 0; j < 4; j++) {
         index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
     }
     // Remainders.
     if (i + 2 == data.length) {
-      int value = 0;
+      var value = 0;
       value |= data[i + 1] << 8;
       value |= data[i] << 16;
-      for (int j = 0; j < 3; j++) {
+      for (var j = 0; j < 3; j++) {
         index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
       characters.add('=');
     } else if (i + 1 == data.length) {
-      int value = 0;
+      var value = 0;
       value |= data[i] << 16;
-      for (int j = 0; j < 2; j++) {
+      for (var j = 0; j < 2; j++) {
         index = (value >> ((3 - j) * 6)) & ((1 << 6) - 1);
         characters.add(_encodingTable[index]);
       }
       characters..add('=')..add('=');
     }
 
-    final StringBuffer output = StringBuffer();
+    final output = StringBuffer();
     for (i = 0; i < characters.length; i++) {
 //      if (i > 0 && i % 76 == 0) {
 //        output.write("\r\n");
@@ -121,12 +121,12 @@ class Base64String {
   ///
   static String decode(String data) {
     int char;
-    int charCount = 0;
-    int padCount = 0;
-    final List<int> result = <int>[];
-    int value = 0;
+    var charCount = 0;
+    var padCount = 0;
+    final result = <int>[];
+    var value = 0;
 
-    for (int i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       char = data.codeUnitAt(i);
       if (65 <= char && char <= 90) {
         // "A" - "Z".

@@ -136,8 +136,8 @@ class Element extends Node {
   ///
   @override
   String toCSS(Contexts context) {
-    final Contexts _context = context ?? Contexts();
-    final bool firstSelector = _context.firstSelector;
+    final _context = context ?? Contexts();
+    final firstSelector = _context.firstSelector;
 
     if (this.value is Paren) {
       // selector in parens should not be affected by outer selector

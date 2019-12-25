@@ -36,17 +36,17 @@ class Options extends Node {
   /// Load the options and plugins
   ///
   void apply(Environment environment) {
-    final LessOptions lessOptions = environment.options;
-    final Logger logger = environment.logger;
-    String line = value.value;
+    final lessOptions = environment.options;
+    final logger = environment.logger;
+    var line = value.value;
     if (isPlugin) {
       line = '--plugin=$line';
       if (pluginArgs != null) line = '$line=$pluginArgs';
     }
 
     logger.captureStart();
-    final bool result = lessOptions.fromCommandLine(line);
-    String capture = logger.captureStop();
+    final result = lessOptions.fromCommandLine(line);
+    var capture = logger.captureStop();
     if (capture.isNotEmpty) capture = capture.split('\n').first;
 
     if (!result) {

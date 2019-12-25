@@ -8,7 +8,7 @@ import '../data/constants.dart';
 import '../environment/environment.dart';
 import '../file_info.dart';
 import '../less_error.dart';
-import '../logger.dart';
+//import '../logger.dart';
 import '../tree/tree.dart';
 
 part 'boolean_functions.dart';

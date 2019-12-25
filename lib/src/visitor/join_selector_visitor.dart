@@ -54,8 +54,8 @@ class JoinSelectorVisitor extends VisitorBase {
 
   ///
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
-    final List<List<Selector>> context = contexts.last;
-    final List<List<Selector>> paths = <List<Selector>>[];
+    final context = contexts.last;
+    final paths = <List<Selector>>[];
     List<Selector> selectors;
 
     contexts.add(paths);
@@ -106,7 +106,7 @@ class JoinSelectorVisitor extends VisitorBase {
 
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    final List<List<Selector>> context = contexts.last;
+    final context = contexts.last;
     (mediaNode.rules[0] as Ruleset).root = context.isEmpty ||
         (context[0] is Ruleset && (context[0] as Ruleset).multiMedia);
 
@@ -119,7 +119,7 @@ class JoinSelectorVisitor extends VisitorBase {
 
   ///
   void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
-    final List<List<Selector>> context = contexts.last;
+    final context = contexts.last;
     if (atRuleNode.rules != null && atRuleNode.rules.isNotEmpty) {
       (atRuleNode.rules[0] as Ruleset).root =
           atRuleNode.isRooted || context.isEmpty;

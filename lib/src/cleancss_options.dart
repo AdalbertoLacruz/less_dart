@@ -34,7 +34,7 @@ class CleancssOptions {
   ///
   bool parse(String command) {
     if (command == null) return setParseError('empty');
-    final List<String> cleanOptionArgs = command.split(':');
+    final cleanOptionArgs = command.split(':');
 
     switch (cleanOptionArgs[0]) {
       case '--keep-line-breaks':

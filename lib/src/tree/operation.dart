@@ -45,8 +45,8 @@ class Operation extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    Node a = operands[0].eval(context);
-    Node b = operands[1].eval(context);
+    var a = operands[0].eval(context);
+    var b = operands[1].eval(context);
     String op;
 
     if (context.isMathOn(this.op)) {
@@ -124,7 +124,7 @@ class Operation extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     genCSS(null, output);
     return output.toString();
   }

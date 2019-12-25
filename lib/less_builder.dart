@@ -49,20 +49,20 @@ class LessBuilder implements Builder {
   ///
   @override
   Future<dynamic> build(BuildStep buildStep) async {
-    final AssetId inputId = buildStep.inputId;
+    final inputId = buildStep.inputId;
 
-    final bool toProcess = options.entryPoints.check(inputId.path);
+    final toProcess = options.entryPoints.check(inputId.path);
     if (!toProcess) return;
 
-    final String package = inputId.package;
-    final String extension = inputId.extension;
+    final package = inputId.package;
+    final extension = inputId.extension;
 
     if (extension.toLowerCase() == '.less') {
-      final DotLessBuilder transformer = DotLessBuilder()
+      final transformer = DotLessBuilder()
         ..createFlags(options, calculateIncludePath(inputId))
         ..inputContent = await buildStep.readAsString(inputId);
 
-      final AssetId outputId = inputId.changeExtension(DOT_LESS_TO);
+      final outputId = inputId.changeExtension(DOT_LESS_TO);
       log.fine(
           '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
@@ -79,9 +79,9 @@ class LessBuilder implements Builder {
         if (path_lib.isRelative(path)) {
           await buildStep.canRead(AssetId(package, path));
         } else if (path_lib.isAbsolute(path)) {
-          final String package = guessPackage(path);
-          if (package != null) {
-            MoreList.addUnique(transformer.filesInPackage, package);
+          final packagePath = guessPackage(path);
+          if (packagePath != null) {
+            MoreList.addUnique(transformer.filesInPackage, packagePath);
           }
         }
       });
@@ -89,10 +89,10 @@ class LessBuilder implements Builder {
       // dependents that are in a package
       transformer.filesInPackage.forEach((String path) async {
         try {
-          final List<String> pathData = path_lib.split(path);
+          final pathData = path_lib.split(path);
           if (pathData.length > 1) {
-            final String packageName = pathData[1];
-            final String pathInPackage = path_lib.joinAll(<String>[
+            final packageName = pathData[1];
+            final pathInPackage = path_lib.joinAll(<String>[
               'lib',
               ...pathData.sublist(2),
             ]);
@@ -101,12 +101,12 @@ class LessBuilder implements Builder {
         } catch (_) {}
       });
     } else if (extension.toLowerCase() == '.html') {
-      final DotHtmlBuilder transformer = DotHtmlBuilder()
+      final transformer = DotHtmlBuilder()
         ..createFlags(options, calculateIncludePath(inputId))
         ..inputContent = await buildStep.readAsString(inputId);
 
-      final String outputPath = inputId.path.replaceAll('.less.html', '.html');
-      final AssetId outputId = AssetId(package, outputPath);
+      final outputPath = inputId.path.replaceAll('.less.html', '.html');
+      final outputId = AssetId(package, outputPath);
       log.fine(
           '  -- Building ${transformer.message} ${inputId.path} > ${outputId.path}');
 
@@ -145,7 +145,7 @@ class LessBuilder implements Builder {
   /// So, 'lib/sub/file.less' becomes 'packages/package_name/sub'
   ///
   String calculateIncludePath(AssetId inputId) {
-    final int len = inputId.pathSegments.length;
+    final len = inputId.pathSegments.length;
     if (len > 1 && inputId.pathSegments.first == 'lib') {
       return <String>[
         'packages',
@@ -162,8 +162,8 @@ class LessBuilder implements Builder {
   ///
   String guessPackage(String path) {
     String result;
-    final List<String> segments = path_lib.split(path);
-    final int index = segments.indexWhere((String segment) => segment == 'lib');
+    final segments = path_lib.split(path);
+    final index = segments.indexWhere((String segment) => segment == 'lib');
     if (index > 0 && index < (segments.length - 1)) {
       result = path_lib.joinAll(<String>[
         'packages',

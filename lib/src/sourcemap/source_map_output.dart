@@ -115,7 +115,7 @@ class SourceMapOutput extends Output {
 
   ///
   String removeBasePath(String path) {
-    String _path = path;
+    var _path = path;
     if (sourceMapBasepath != null && path.startsWith(sourceMapBasepath)) {
       _path = _path.substring(sourceMapBasepath.length);
       if (_path.startsWith('\\') || _path.startsWith('/')) {
@@ -141,11 +141,10 @@ class SourceMapOutput extends Output {
   String normalizeFilename(String file) {
     if (normalizeCache.containsKey(file)) return normalizeCache[file];
 
-    String filename = file.replaceAll('\\', '/');
+    var filename = file.replaceAll('\\', '/');
     filename = removeBasePath(filename);
 
-    final String result =
-        path_lib.normalize('${sourceMapRootpath ?? ''}$filename');
+    final result = path_lib.normalize('${sourceMapRootpath ?? ''}$filename');
     normalizeCache[file] = result;
     return result;
 
@@ -166,9 +165,9 @@ class SourceMapOutput extends Output {
       {FileInfo fileInfo, int index = 0, bool mapLines = false}) {
     if (s == null) return;
 
-    final String chunk = (s is String) ? s : s.toString();
+    final chunk = (s is String) ? s : s.toString();
     String columns;
-    int _index = index;
+    var _index = index;
     List<String> lines;
     String sourceColumns;
     List<String> sourceLines;
@@ -177,7 +176,7 @@ class SourceMapOutput extends Output {
     if (chunk.isEmpty) return;
 
     if (fileInfo?.filename != null) {
-      String inputSource = contentsMap[fileInfo.filename];
+      var inputSource = contentsMap[fileInfo.filename];
 
       // remove vars/banner added to the top of the file
       if (contentsIgnoredCharsMap[fileInfo.filename] != null) {
@@ -202,7 +201,7 @@ class SourceMapOutput extends Output {
 
     if (fileInfo?.filename != null) {
       if (!mapLines) {
-        final SourcemapData data = SourcemapData(
+        final data = SourcemapData(
             originalIndex: _index,
             originalLine: sourceLines.length - 1,
             originalColumn: sourceColumns.length,
@@ -216,8 +215,8 @@ class SourceMapOutput extends Output {
         }
       } else {
         // @import (inline)
-        for (int i = 0; i < lines.length; i++) {
-          final SourcemapData data = SourcemapData(
+        for (var i = 0; i < lines.length; i++) {
+          final data = SourcemapData(
               originalIndex: _index,
               originalLine: sourceLines.length + i - 1,
               originalColumn: (i == 0) ? sourceColumns.length : 0,
@@ -310,14 +309,14 @@ class SourceMapOutput extends Output {
 
   ///
   String toCSS(Contexts context) {
-    final Map<String, String> contents = <String, String>{};
+    final contents = <String, String>{};
     Map<dynamic, dynamic> json; //<String, dynamic> dynamic = String | int
-    String sourceMapURL = '';
+    var sourceMapURL = '';
 
     if (outputSourceFiles) {
       //--source-map-less-inline
-      for (final String filename in contentsMap.keys) {
-        String source = contentsMap[filename];
+      for (final filename in contentsMap.keys) {
+        var source = contentsMap[filename];
         if (contentsIgnoredCharsMap[filename] != null) {
           source = source.substring(contentsIgnoredCharsMap[filename]);
         }
@@ -332,7 +331,7 @@ class SourceMapOutput extends Output {
       if (outputSourceFiles) {
         //--source-map-less-inline
         json = sourceMapGenerator.build(normalizeFilename(outputFilename));
-        final List<String> sourcesContent = <String>[];
+        final sourcesContent = <String>[];
         for (final String filename in json['sources']) {
           sourcesContent.add(contents[filename]);
         }
@@ -447,7 +446,7 @@ class SourcemapData {
           last.generatedLine == generatedLine) return null;
     }
 
-    final SourcemapData data = SourcemapData.create(
+    final data = SourcemapData.create(
         originalIndex,
         originalLine,
         originalColumn,

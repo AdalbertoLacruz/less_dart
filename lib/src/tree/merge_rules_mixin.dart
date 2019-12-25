@@ -18,18 +18,17 @@ class MergeRulesMixin {
   void mergeRules(List<Node> rules) {
     if (rules == null) return;
 
-    final Map<String, List<Declaration>> groups = <String, List<Declaration>>{};
-    final List<List<Declaration>> groupsArr = <List<Declaration>>[];
+    final groups = <String, List<Declaration>>{};
+    final groupsArr = <List<Declaration>>[];
 
-    for (int i = 0; i < rules.length; i++) {
-      final Node rule = rules[i];
+    for (var i = 0; i < rules.length; i++) {
+      final rule = rules[i];
 
       // group rules and remove these to be merged
       // rule is not only Declaration
       if (rule is Declaration && (rule.merge?.isNotEmpty ?? false)) {
         final String key = rule.name;
-        final List<Declaration> group =
-            groups.putIfAbsent(key, () => <Declaration>[]);
+        final group = groups.putIfAbsent(key, () => <Declaration>[]);
         group.isNotEmpty ? rules.removeAt(i--) : groupsArr.add(group);
         group.add(rule);
       }
@@ -37,9 +36,9 @@ class MergeRulesMixin {
 
     groupsArr.forEach((List<Declaration> group) {
       if (group.isNotEmpty) {
-        final Declaration result = group.first;
-        List<Node> space = <Node>[];
-        final List<Expression> comma = <Expression>[Expression(space)];
+        final result = group.first;
+        var space = <Node>[];
+        final comma = <Expression>[Expression(space)];
         group.forEach((Declaration rule) {
           if ((rule.merge == '+') && (space.isNotEmpty)) {
             space = <Node>[];

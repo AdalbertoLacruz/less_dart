@@ -46,7 +46,7 @@ class Negative extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     genCSS(null, output);
     return output.toString();
   }

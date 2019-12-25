@@ -51,10 +51,10 @@ class Expression extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    bool doubleParen = false;
-    final bool inParenthesis =
+    var doubleParen = false;
+    final inParenthesis =
         parens && (context.math != MathConstants.strictLegacy || !parensInOp);
-    final bool mathOn = context.isMathOn();
+    final mathOn = context.isMathOn();
     Node returnValue;
 
     if (inParenthesis) context.inParenthesis();
@@ -120,7 +120,7 @@ class Expression extends Node {
   void genCSS(Contexts context, Output output) {
     if (cleanCss != null) return genCleanCSS(context, output);
 
-    for (int i = 0; i < value.length; i++) {
+    for (var i = 0; i < value.length; i++) {
       value[i].genCSS(context, output);
       if (!noSpacing && i + 1 < value.length) output.add(' ');
     }
@@ -138,7 +138,7 @@ class Expression extends Node {
 
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
-    for (int i = 0; i < value.length; i++) {
+    for (var i = 0; i < value.length; i++) {
       output.conditional(' ');
       value[i].genCSS(context, output);
     }
@@ -159,7 +159,7 @@ class Expression extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     genCSS(null, output);
     return output.toString();
   }

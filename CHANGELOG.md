@@ -1,3 +1,6 @@
+## 2.3.7 (2019-12-25)
+- Linter update to pedantic 1.9.0.
+
 ## 2.3.6 (2019-12-21)
 - Mark dependents for imports in packages to let builder updates.
 

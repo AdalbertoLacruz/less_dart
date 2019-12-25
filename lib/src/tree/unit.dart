@@ -57,7 +57,7 @@ class Unit extends Node implements CompareNode {
   @override
   void genCSS(Contexts context, Output output) {
     // Dimension checks the unit is singular and throws an error if in strict math mode.
-    final bool stricUnits = context?.strictUnits ?? false;
+    final stricUnits = context?.strictUnits ?? false;
 
     if (numerator.length == 1) {
       output.add(numerator[0]); // the ideal situation
@@ -155,11 +155,11 @@ class Unit extends Node implements CompareNode {
   /// callback returns new unit
   ///
   void map(Function callback) {
-    for (int i = 0; i < numerator.length; i++) {
+    for (var i = 0; i < numerator.length; i++) {
       numerator[i] = callback(numerator[i], false);
     }
 
-    for (int i = 0; i < denominator.length; i++) {
+    for (var i = 0; i < denominator.length; i++) {
       denominator[i] = callback(denominator[i], true);
     }
 
@@ -181,7 +181,7 @@ class Unit extends Node implements CompareNode {
   Map<String, String> usedUnits() {
     Map<String, double> group;
     String groupName;
-    final Map<String, String> result = <String, String>{};
+    final result = <String, String>{};
 
     // ignore: avoid_positional_boolean_parameters
     String mapUnit(String atomicUnit, bool isDenominator) {
@@ -231,15 +231,15 @@ class Unit extends Node implements CompareNode {
   ///
   void cancel() {
     String atomicUnit;
-    final Map<String, int> counter = <String, int>{};
+    final counter = <String, int>{};
 
-    for (int i = 0; i < numerator.length; i++) {
+    for (var i = 0; i < numerator.length; i++) {
       atomicUnit = numerator[i];
       if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] + 1;
     }
 
-    for (int i = 0; i < denominator.length; i++) {
+    for (var i = 0; i < denominator.length; i++) {
       atomicUnit = denominator[i];
       if (!counter.containsKey(atomicUnit)) counter[atomicUnit] = 0;
       counter[atomicUnit] = counter[atomicUnit] - 1;
@@ -250,13 +250,13 @@ class Unit extends Node implements CompareNode {
 
     for (atomicUnit in counter.keys) {
       if (counter.containsKey(atomicUnit)) {
-        final int count = counter[atomicUnit];
+        final count = counter[atomicUnit];
         if (count > 0) {
-          for (int i = 0; i < count; i++) {
+          for (var i = 0; i < count; i++) {
             numerator.add(atomicUnit);
           }
         } else if (count < 0) {
-          for (int i = 0; i < -count; i++) {
+          for (var i = 0; i < -count; i++) {
             denominator.add(atomicUnit);
           }
         }

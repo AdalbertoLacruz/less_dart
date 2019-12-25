@@ -28,9 +28,9 @@ class UrlFileManager extends AbstractFileManager {
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory,
       Contexts options, Environment environment) {
-    final StringBuffer dataBuffer = StringBuffer();
-    final HttpClient client = HttpClient();
-    final Completer<FileLoaded> task = Completer<FileLoaded>();
+    final dataBuffer = StringBuffer();
+    final client = HttpClient();
+    final task = Completer<FileLoaded>();
 
     final String urlStr = isUrlRe.hasMatch(filename)
         ? filename
@@ -45,7 +45,7 @@ class UrlFileManager extends AbstractFileManager {
           .transform(utf8.decoder)
           .listen(dataBuffer.write, onDone: () {
         if (response.statusCode == 404) {
-          final LessError error = LessError(
+          final error = LessError(
               type: 'File', message: 'resource " $urlStr " was not found\n');
           return task.completeError(error);
         }
@@ -53,12 +53,12 @@ class UrlFileManager extends AbstractFileManager {
           environment.logger.warn(
               'Warning: Empty body (HTTP ${response.statusCode}) returned by "$urlStr"');
         }
-        final FileLoaded fileLoaded =
+        final fileLoaded =
             FileLoaded(filename: urlStr, contents: dataBuffer.toString());
         task.complete(fileLoaded);
       });
     }).catchError((dynamic e, StackTrace s) {
-      final LessError error = LessError(
+      final error = LessError(
           type: 'File',
           message: 'resource "$urlStr" gave this Error:\n  ${e.message}\n');
       task.completeError(error);

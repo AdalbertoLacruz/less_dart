@@ -90,7 +90,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
   ///
   Media visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    final List<Node> originalRules = mediaNode.rules[0].rules;
+    final originalRules = mediaNode.rules[0].rules;
     mediaNode.accept(_visitor);
     visitArgs.visitDeeper = false;
 
@@ -155,7 +155,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
     // it is still true that it is only one ruleset in array
     // this is last such moment
     // process childs
-    final List<Node> originalRules = getBodyRules(atRuleNode);
+    final originalRules = getBodyRules(atRuleNode);
     atRuleNode.accept(_visitor);
     visitArgs.visitDeeper = false;
 
@@ -203,9 +203,8 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
       // be considered illegal css as it has to be on the first line
       if (charset) {
         if (atRuleNode.debugInfo != null) {
-          final String directive =
-              atRuleNode.toCSS(_context).replaceAll(r'\n', '');
-          final Comment comment = Comment('/* $directive */\n')
+          final directive = atRuleNode.toCSS(_context).replaceAll(r'\n', '');
+          final comment = Comment('/* $directive */\n')
             ..debugInfo = atRuleNode.debugInfo;
           return _visitor.visit(comment);
         }
@@ -246,27 +245,30 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   void checkValidNodes(List<Node> rules, {bool isRoot}) {
     if (rules == null) return;
 
-    for (int i = 0; i < rules.length; i++) {
-      final Node ruleNode = rules[i];
+    for (var i = 0; i < rules.length; i++) {
+      final ruleNode = rules[i];
       if (isRoot && ruleNode is Declaration && !ruleNode.variable) {
         error(
-            message:
-                'Properties must be inside selector blocks. They cannot be in the root',
-            index: ruleNode.index,
-            filename: ruleNode.currentFileInfo?.filename);
+          message:
+              'Properties must be inside selector blocks. They cannot be in the root',
+          index: ruleNode.index,
+          filename: ruleNode.currentFileInfo?.filename,
+        );
       }
       if (ruleNode is Call) {
         error(
-            message: "Function '${ruleNode.name}' is undefined",
-            index: ruleNode.index,
-            filename: ruleNode.currentFileInfo?.filename);
+          message: "Function '${ruleNode.name}' is undefined",
+          index: ruleNode.index,
+          filename: ruleNode.currentFileInfo?.filename,
+        );
       }
       if ((ruleNode.type != null) && !ruleNode.allowRoot) {
         error(
-            message:
-                '${ruleNode.type} node returned by a function is not valid here',
-            index: ruleNode.index,
-            filename: ruleNode.currentFileInfo?.filename);
+          message:
+              '${ruleNode.type} node returned by a function is not valid here',
+          index: ruleNode.index,
+          filename: ruleNode.currentFileInfo?.filename,
+        );
       }
     }
 
@@ -297,7 +299,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
   /// return Node | List<Node>
   dynamic visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     //at this point rulesets are nested into each other
-    final List<dynamic> rulesets = <dynamic>[]; //Node || List<Node>
+    final rulesets = <dynamic>[]; //Node || List<Node>
 
     // error test for rules at first level, not inside a ruleset ?? TODO if?
     if (rulesetNode.firstRoot) {
@@ -309,11 +311,11 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
       _compileRulesetPaths(rulesetNode);
 
       // remove rulesets from this ruleset body and compile them separately
-      final List<Node> nodeRules = rulesetNode.rules;
-      int nodeRuleCnt = nodeRules?.length ?? 0;
+      final nodeRules = rulesetNode.rules;
+      var nodeRuleCnt = nodeRules?.length ?? 0;
 
-      for (int i = 0; i < nodeRuleCnt;) {
-        final Node rule = nodeRules[i];
+      for (var i = 0; i < nodeRuleCnt;) {
+        final rule = nodeRules[i];
         if (rule?.rules != null) {
           // visit because we are moving them out from being a child
           rulesets.add(_visitor.visit(rule));
@@ -415,7 +417,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
         if (p[0].elements[0].combinator.value == ' ') {
           p[0].elements[0].combinator = Combinator('');
         }
-        for (int i = 0; i < p.length; i++) {
+        for (var i = 0; i < p.length; i++) {
           if ((p[i].isVisible() ?? false) && p[i].getIsOutput()) return true;
         }
         return false;
@@ -450,11 +452,11 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
 
     // If !Key Map[Rule1.name] = Rule1
     // If key Map[Rule1.name] = [Rule1.tocss] + [Rule2.tocss if different] + ...
-    final Map<String, dynamic> ruleCache =
-        <String, dynamic>{}; //<String, Declaration || List<String>>
+    //<String, Declaration || List<String>>
+    final ruleCache = <String, dynamic>{};
 
-    for (int i = rules.length - 1; i >= 0; i--) {
-      final Node rule = rules[i];
+    for (var i = rules.length - 1; i >= 0; i--) {
+      final rule = rules[i];
       if (rule is Declaration) {
         if (!ruleCache.containsKey(rule.name)) {
           ruleCache[rule.name] = rule;
@@ -464,7 +466,7 @@ class ToCSSVisitor extends VisitorBase with MergeRulesMixin {
                   ? <String>[ruleCache[rule.name].toCSS(_context)]
                   : ruleCache[rule.name];
 
-          final String ruleCSS = rule.toCSS(_context);
+          final ruleCSS = rule.toCSS(_context);
 
           if (ruleList.contains(ruleCSS)) {
             rules.removeAt(i);

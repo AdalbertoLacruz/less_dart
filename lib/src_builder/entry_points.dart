@@ -39,7 +39,7 @@ class EntryPoints {
     if (paths == null) return;
 
     paths.forEach((String path) {
-      final String _path = path.trim();
+      final _path = path.trim();
       if (_path.isNotEmpty) {
         _path.startsWith('!')
             ? exclude.add(toRegExp(_path.substring(1)))
@@ -60,20 +60,20 @@ class EntryPoints {
   /// true if [path] is a valid entry_point
   ///
   bool check(String path) {
-    bool result = false;
+    var result = false;
     bool found;
     RegExp re;
-    String candidate = path;
+    var candidate = path;
     candidate = candidate.replaceAll(r'\', r'/'); //normalize
 
-    for (int i = 0; i < include.length; i++) {
+    for (var i = 0; i < include.length; i++) {
       re = include[i];
       result = re.hasMatch(candidate);
       if (result) break;
     }
 
     if (result) {
-      for (int i = 0; i < exclude.length; i++) {
+      for (var i = 0; i < exclude.length; i++) {
         re = exclude[i];
         found = re.hasMatch(candidate);
         if (found) {
@@ -91,11 +91,11 @@ class EntryPoints {
   /// [include] only must have one '.less' path, with not wildcards
   ///
   void getLessSingle() {
-    int count = 0;
+    var count = 0;
     String path;
 
     isLessSingle = true;
-    for (int i = 0; i < include.length; i++) {
+    for (var i = 0; i < include.length; i++) {
       path = include[i].pattern;
       if (path.endsWith('.less')) {
         count++;

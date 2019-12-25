@@ -31,8 +31,8 @@ class MoreList {
     if (a == null || b == null) return false;
     if (a.length != b.length) return false;
 
-    bool result = true;
-    for (int i = 0; i < a.length; i++) {
+    var result = true;
+    for (var i = 0; i < a.length; i++) {
       result = result && (a[i] == b[i]);
     }
     return result;
@@ -56,7 +56,7 @@ class MoreList {
   /// with specified endian format. [buffer] is List<int> (0..255).
   ///
   static int readInt16LE(List<int> buffer, int offset) {
-    final String hex =
+    final hex =
         MoreList.foldHex(buffer.sublist(offset, offset + 2).reversed.toList());
     return int.parse(hex, radix: 16).toSigned(16);
   }

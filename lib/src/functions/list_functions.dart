@@ -48,7 +48,7 @@ class ListFunctions extends FunctionBase {
   ///     Output: dotted
   ///
   Node extract(Node values, Node index) {
-    final int iIndex = (index.value as num).toInt() - 1; // (1-based index)
+    final iIndex = (index.value as num).toInt() - 1; // (1-based index)
     try {
       return getItemsFromNode(values).elementAt(iIndex);
     } catch (e) {
@@ -96,7 +96,7 @@ class ListFunctions extends FunctionBase {
     num from;
     Dimension to;
     num stepValue = 1;
-    final List<Node> list = <Node>[];
+    final list = <Node>[];
 
     if (end != null) {
       to = end;
@@ -107,7 +107,7 @@ class ListFunctions extends FunctionBase {
       to = start;
     }
 
-    for (num i = from; i <= to.value; i += stepValue) {
+    for (var i = from; i <= to.value; i += stepValue) {
       list.add(Dimension(i, to.unit));
     }
 
@@ -167,7 +167,7 @@ class ListFunctions extends FunctionBase {
     List<Node> iterator;
     List<Node> newRules;
     Ruleset ruleset;
-    final List<Node> rules = <Node>[];
+    final rules = <Node>[];
 
     if (list is DetachedRuleset) {
       iterator = list.ruleset.rules;
@@ -181,12 +181,12 @@ class ListFunctions extends FunctionBase {
       iterator = <Node>[list];
     }
 
-    String valueName = '@value';
-    String keyName = '@key';
-    String indexName = '@index';
+    var valueName = '@value';
+    var keyName = '@key';
+    var indexName = '@index';
 
     if (rs is MixinDefinition && rs.params != null) {
-      final MixinDefinition md = rs;
+      final md = rs;
       valueName = md.params.isNotEmpty ? md.params[0].name : null;
       keyName = md.params.length > 1 ? md.params[1].name : null;
       indexName = md.params.length > 2 ? md.params[2].name : null;
@@ -197,8 +197,8 @@ class ListFunctions extends FunctionBase {
       return null; // Something goes bad - function not processed
     }
 
-    for (int i = 0; i < iterator.length; i++) {
-      final Node item = iterator[i];
+    for (var i = 0; i < iterator.length; i++) {
+      final item = iterator[i];
       Node key;
       Node value;
 

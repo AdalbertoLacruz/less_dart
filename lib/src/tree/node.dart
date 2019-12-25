@@ -197,7 +197,7 @@ abstract class Node {
   /// Returns node transformed to css code
   ///
   String toCSS(Contexts context) {
-    final Output output = Output();
+    final output = Output();
     genCSS(context, output);
     return output.toString();
 
@@ -282,7 +282,7 @@ abstract class Node {
   num fround(Contexts context, num value, [int precision]) {
     if (value is int) return value;
 
-    final int _precision = (precision == null || precision == -1)
+    final _precision = (precision == null || precision == -1)
         ? context?.numPrecision
         : precision;
 
@@ -329,7 +329,7 @@ abstract class Node {
     if (aValue is! List) return (aValue == bValue) ? 0 : null;
     if (aValue is List && bValue is List) {
       if (aValue.length != bValue.length) return null;
-      for (int i = 0; i < aValue.length; i++) {
+      for (var i = 0; i < aValue.length; i++) {
         if (Node.compareNodes(aValue[i], bValue[i]) != 0) return null;
       }
     }
@@ -508,8 +508,8 @@ abstract class Node {
   /// debug print the node tree
   ///
   StringBuffer toTree(LessOptions options) {
-    final Contexts env = Contexts.eval(options);
-    final Output output = Output();
+    final env = Contexts.eval(options);
+    final output = Output();
 
     genTree(env, output);
     return output.value;
@@ -521,7 +521,7 @@ abstract class Node {
   void genTree(Contexts env, Output output, [String prefix = '']) {
     genTreeTitle(env, output, prefix, type, toString());
 
-    final int tabs = prefix.isEmpty ? 1 : 2;
+    final tabs = prefix.isEmpty ? 1 : 2;
     env.tabLevel = env.tabLevel + tabs;
 
     if (treeField == null) {
@@ -540,7 +540,7 @@ abstract class Node {
   ///
   void genTreeTitle(
       Contexts env, Output output, String prefix, String type, String value) {
-    final String tabStr = '  ' * env.tabLevel;
+    final tabStr = '  ' * env.tabLevel;
     output.add('$tabStr$prefix$type ($value)\n');
   }
 
@@ -549,7 +549,7 @@ abstract class Node {
   ///
   void genTreeField(
       Contexts env, Output output, String fieldName, dynamic fieldValue) {
-    final String tabStr = '  ' * env.tabLevel;
+    final tabStr = '  ' * env.tabLevel;
 
     if (fieldValue == null) {
     } else if (fieldValue is String) {
@@ -575,13 +575,13 @@ abstract class Node {
           a.genTree(env, output, '- ');
         });
       } else if (fieldValue.first is String) {
-        final String tabStr = '  ' * env.tabLevel;
+        final tabStr = '  ' * env.tabLevel;
         fieldValue.forEach((dynamic s) {
           // String
           output.add('$tabStr- String ($s)\n');
         });
       } else if (fieldValue.first is num) {
-        final String tabStr = '  ' * env.tabLevel;
+        final tabStr = '  ' * env.tabLevel;
         fieldValue.forEach((dynamic n) {
           // num
           output.add('$tabStr- num (${n.toString()})\n');

@@ -14,17 +14,17 @@ class ColorBlend extends FunctionBase {
 
   @defineMethodSkip
   Color colorBlend(Function fMode, Color color1, Color color2) {
-    final double ab = color1.alpha.toDouble(); // backdrop
+    final ab = color1.alpha.toDouble(); // backdrop
     double cb;
-    final double as = color2.alpha.toDouble(); // source
+    final as = color2.alpha.toDouble(); // source
     double cs;
     double ar; // alpha result
     double cr; // channel result
-    final List<num> r = <num>[0, 0, 0];
+    final r = <num>[0, 0, 0];
 
     ar = as + ab * (1 - as);
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       cb = color1.rgb[i] / 255;
       cs = color2.rgb[i] / 255;
       cr = fMode(cb, cs) as double;
@@ -100,7 +100,7 @@ class ColorBlend extends FunctionBase {
   ///
   @defineMethodSkip
   double fOverlay(double cb, double cs) {
-    final double _cb = cb * 2;
+    final _cb = cb * 2;
     return (_cb <= 1) ? fMultiply(_cb, cs) : fScreen(_cb - 1, cs);
 
 //    overlay: function(cb, cs) {
@@ -126,8 +126,8 @@ class ColorBlend extends FunctionBase {
   ///
   @defineMethodSkip
   double fSoftlight(double cb, double cs) {
-    double d = 1.0;
-    double e = cb;
+    var d = 1.0;
+    var e = cb;
 
     if (cs > 0.5) {
       e = 1.0;

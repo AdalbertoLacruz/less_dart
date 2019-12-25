@@ -132,9 +132,9 @@ class Extend extends Node {
   ///
   void findSelfSelectors(List<Selector> selectors) {
     List<Element> selectorElements;
-    final List<Element> selfElements = <Element>[];
+    final selfElements = <Element>[];
 
-    for (int i = 0; i < selectors.length; i++) {
+    for (var i = 0; i < selectors.length; i++) {
       selectorElements = selectors[i].elements;
 
       // duplicate the logic in genCSS function inside the selector node.
@@ -174,7 +174,7 @@ class Extend extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     selector.genCSS(null, output);
     if (option != null) output.add(' $option');
     return output.toString().trim();

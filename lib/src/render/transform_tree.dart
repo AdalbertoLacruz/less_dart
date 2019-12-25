@@ -9,10 +9,10 @@ class TransformTree {
   ///
   Ruleset call(Ruleset root, LessOptions options) {
     Ruleset evaldRoot;
-    final LessOptions _options = options ?? LessOptions();
+    final _options = options ?? LessOptions();
 
-    final Map<String, Node> variables = _options.variables;
-    final Contexts evalEnv = Contexts.eval(_options);
+    final variables = _options.variables;
+    final evalEnv = Contexts.eval(_options);
 
     // Allows setting variables with a hash, so:
     //
@@ -26,7 +26,7 @@ class TransformTree {
     //     ])
     //   )
     if (variables != null) {
-      final List<Node> vars = <Node>[];
+      final vars = <Node>[];
 
       variables.forEach((String k, Node value) {
         if (value is! Value) {
@@ -38,8 +38,8 @@ class TransformTree {
       evalEnv.frames = <Node>[Ruleset(null, vars)];
     }
 
-    final List<VisitorBase> preEvalVisitors = <VisitorBase>[];
-    final List<VisitorBase> visitors = <VisitorBase>[
+    final preEvalVisitors = <VisitorBase>[];
+    final visitors = <VisitorBase>[
       JoinSelectorVisitor(),
       SetTreeVisibilityVisitor(visible: true), // MarkVisibleSelectorsVisitor
       ProcessExtendsVisitor(),
@@ -67,13 +67,13 @@ class TransformTree {
       });
     }
 
-    for (int i = 0; i < preEvalVisitors.length; i++) {
+    for (var i = 0; i < preEvalVisitors.length; i++) {
       preEvalVisitors[i].run(root);
     }
 
     evaldRoot = root.eval(evalEnv);
 
-    for (int i = 0; i < visitors.length; i++) {
+    for (var i = 0; i < visitors.length; i++) {
       visitors[i].run(evaldRoot);
     }
 

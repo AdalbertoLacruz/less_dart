@@ -70,7 +70,7 @@ class AddMultipleFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'test-detached-ruleset')
   DetachedRuleset testDetachedRuleset() {
-    final Declaration decl = less.declaration('prop', 'value');
+    final decl = less.declaration('prop', 'value');
     return less.detachedRuleset(less.ruleset(null, <Node>[decl]));
   }
 

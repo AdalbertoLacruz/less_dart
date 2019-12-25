@@ -12,7 +12,7 @@ class TestFileManager extends AbstractFileManager {
   @override
   Future<FileLoaded> loadFile(String filename, String currentDirectory,
       Contexts options, Environment environment) {
-    final RegExp testRe = RegExp(r'.*\.test$');
+    final testRe = RegExp(r'.*\.test$');
     if (testRe.hasMatch(filename)) {
       return environment.fileManagers[0]
           .loadFile('colors.test', currentDirectory, options, environment);

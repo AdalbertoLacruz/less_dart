@@ -95,7 +95,7 @@ class ImportManager {
 
     if (useCache) return files[fullPath];
 
-    final ImportedFile importedFile = ImportedFile(
+    final importedFile = ImportedFile(
         root: root,
         importedPreviously: fullPath == rootFilename, // importedEqualsRoot
         fullPath: fullPath,
@@ -152,17 +152,15 @@ class ImportManager {
   Future<ImportedFile> push(
       String path, FileInfo currentFileInfo, ImportOptions importOptions,
       {bool tryAppendLessExtension = false}) async {
-    final Contexts _context = context.clone();
+    final _context = context.clone();
     String resolvedFilename;
 
     queue.add(path);
 
-    final FileInfo newFileInfo =
-        FileInfo.cloneForLoader(currentFileInfo, _context);
+    final newFileInfo = FileInfo.cloneForLoader(currentFileInfo, _context);
 
-    final AbstractFileManager fileManager = environment.getFileManager(
+    final fileManager = environment.getFileManager(
         path, currentFileInfo.currentDirectory, _context, environment);
-
     if (fileManager == null) {
       throw LessError(message: 'Could not find a file-manager for $path');
     }
@@ -170,13 +168,12 @@ class ImportManager {
     if (tryAppendLessExtension) _context.ext = '.less';
 
     try {
-      final FileLoaded loadedFile = await fileManager.loadFile(
+      final loadedFile = await fileManager.loadFile(
           path, currentFileInfo.currentDirectory, _context, environment);
 
       resolvedFilename = loadedFile.filename;
 
-      final String contents =
-          loadedFile.contents.replaceFirst(RegExp('^\uFEFF'), '');
+      final contents = loadedFile.contents.replaceFirst(RegExp('^\uFEFF'), '');
 
       // Pass on an updated rootpath if path of imported file is relative and file
       // is in a (sub|sup) directory
@@ -189,16 +186,15 @@ class ImportManager {
 
       newFileInfo.currentDirectory = fileManager.getPath(resolvedFilename);
       if (newFileInfo.rewriteUrls > RewriteUrlsConstants.off) {
-        String currentDirectory = newFileInfo.currentDirectory;
+        var currentDirectory = newFileInfo.currentDirectory;
         if (!currentDirectory.endsWith(path_lib.separator)) {
           currentDirectory += path_lib.separator;
         }
 
-        final String entryPath =
+        final entryPath =
             await fileManager.normalizeFilePath(newFileInfo.entryPath);
 
-        final String pathdiff =
-            fileManager.pathDiff(currentDirectory, entryPath);
+        final pathdiff = fileManager.pathDiff(currentDirectory, entryPath);
 
         newFileInfo.rootpath =
             fileManager.join(_context.rootpath ?? '', pathdiff);
@@ -211,7 +207,7 @@ class ImportManager {
       }
       newFileInfo.filename = resolvedFilename;
 
-      final Contexts newEnv = Contexts.parse(_context)
+      final newEnv = Contexts.parse(_context)
         ..processImports = false
         ..currentFileInfo = newFileInfo; // Not in original
 
@@ -233,9 +229,8 @@ class ImportManager {
         return fileParsedFunc(path, null, resolvedFilename, importOptions,
             useCache: true);
       } else {
-        final Ruleset root =
-            await Parser.fromImporter(newEnv, this, newFileInfo)
-                .parse(contents);
+        final root = await Parser.fromImporter(newEnv, this, newFileInfo)
+            .parse(contents);
         return fileParsedFunc(path, root, resolvedFilename, importOptions);
       }
     } catch (e) {

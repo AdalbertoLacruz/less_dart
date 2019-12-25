@@ -38,10 +38,10 @@ class NamespaceValue extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    Node rules = value.eval(context);
+    var rules = value.eval(context);
 
-    for (int i = 0; i < lookups.length; i++) {
-      String name = lookups[i];
+    for (var i = 0; i < lookups.length; i++) {
+      var name = lookups[i];
 
       // Eval'd DRs return rulesets.
       // Eval'd mixins return rules, so let's make a ruleset if we need it.

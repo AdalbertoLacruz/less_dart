@@ -58,13 +58,13 @@ class JavaScript extends Node with JsEvalNodeMixin {
   //for genTree
   @override
   void genCSS(Contexts context, Output output) {
-    final String escape = escaped ? '~' : '';
+    final escape = escaped ? '~' : '';
     output.add('$escape`$expression`');
   }
 
   @override
   String toString() {
-    final String escape = escaped ? '~' : '';
+    final escape = escaped ? '~' : '';
     return '$escape`$expression`';
   }
 }

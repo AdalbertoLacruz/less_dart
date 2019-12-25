@@ -43,7 +43,7 @@ class Chunker {
   /// Split a new chunk from input
   ///
   void emitChunk({bool force = false}) {
-    final int len = chunkerCurrentIndex - emitFrom;
+    final len = chunkerCurrentIndex - emitFrom;
 
     if (((len < 512) && !force) || len == 0) return;
 
@@ -57,14 +57,14 @@ class Chunker {
   List<String> getChunks() {
     int cc; //character
     int cc2; //character
-    int lastMultiComment = 0;
-    int lastMultiCommentEndBrace = 0;
-    int lastOpening = 0;
-    int lastOpeningParen = 0;
-    final int len = input.length;
-    int level = 0;
+    var lastMultiComment = 0;
+    var lastMultiCommentEndBrace = 0;
+    var lastOpening = 0;
+    var lastOpeningParen = 0;
+    final len = input.length;
+    var level = 0;
     bool matched;
-    int parenLevel = 0;
+    var parenLevel = 0;
 
     for (chunkerCurrentIndex = 0;
         chunkerCurrentIndex < len;

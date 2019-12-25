@@ -19,7 +19,7 @@ void lessOptionsTest() {
     LessOptions options;
     bool        result;
 
-    final RegExp regOption =
+    final regOption =
         RegExp(r'^--?([a-z][0-9a-z-]*)(?:=(.*))?$', caseSensitive: false);
 
     Match getArgument(String argument) => regOption.firstMatch(argument);
@@ -139,7 +139,7 @@ void lessOptionsTest() {
     });
 
     test('-include-path', () {
-      final String sep = Platform.isWindows ? ';' : ':';
+      final sep = Platform.isWindows ? ';' : ':';
       result = options.parse(getArgument('-include-path=lib/lessIncludes${sep}lib/otherIncludes'));
       expect(result, true);
       expect(options.paths, contains('lib/otherIncludes'));

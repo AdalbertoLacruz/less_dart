@@ -20,13 +20,13 @@ class NumberFunctions extends FunctionBase {
     String unitStatic;
 
     // elems only contains original argument values.
-    final List<Dimension> order = <Dimension>[];
+    final order = <Dimension>[];
 
     // key is the unit.toString() for unified Dimension values,
     // value is the index into the order array.
-    final Map<String, int> values = <String, int>{};
+    final values = <String, int>{};
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       if (args[i] is! Dimension) {
         if (args[i].value is List) args.addAll(args[i].value);
         continue;
@@ -67,7 +67,7 @@ class NumberFunctions extends FunctionBase {
     }
 
     if (order.length == 1) return order[0];
-    final String arguments = order
+    final arguments = order
         .map((Dimension a) => a.toCSS(context))
         .toList()
         .join(context.compress ? ',' : ', ');

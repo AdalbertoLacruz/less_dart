@@ -22,6 +22,6 @@ T negate<T extends num>(T value) => (value == null) ? null : value * -1;
 /// if n == 0.0 returns '0'
 ///
 String numToString(num n) {
-  final int i = n.toInt();
+  final i = n.toInt();
   return (n == i) ? i.toString() : n.toString();
 }

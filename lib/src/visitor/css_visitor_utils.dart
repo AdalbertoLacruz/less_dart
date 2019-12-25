@@ -6,6 +6,7 @@ part of visitor.less;
 class CSSVisitorUtils extends VisitorBase {
   final Contexts _context;
 
+  // ignore:unused_field
   Visitor _visitor;
 
   ///
@@ -23,8 +24,8 @@ class CSSVisitorUtils extends VisitorBase {
   bool containsSilentNonBlockedChild(List<Node> bodyRules) {
     if (bodyRules == null) return false;
 
-    for (int r = 0; r < bodyRules.length; r++) {
-      final Node rule = bodyRules[r];
+    for (var r = 0; r < bodyRules.length; r++) {
+      final rule = bodyRules[r];
       if ((rule is SilentNode) &&
           (rule as SilentNode).isSilent(_context) &&
           !rule.blocksVisibility()) {
@@ -105,7 +106,7 @@ class CSSVisitorUtils extends VisitorBase {
 
     //TODO
     // final Node compiledRulesBody = node.rules[0];
-    final Node compiledRulesBody =
+    final compiledRulesBody =
         (node.rules != null && node.rules.isNotEmpty) ? node.rules[0] : null;
     keepOnlyVisibleChilds(compiledRulesBody);
 

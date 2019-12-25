@@ -72,14 +72,13 @@ class LessError extends Error {
     filename ??= context.currentFileInfo?.filename;
     type ??= 'Syntax';
 
-    final String input = getInput(filename, context);
+    final input = getInput(filename, context);
     if (input != null && index != null) {
-      final LocationPoint loc = Utils.getLocation(index, input);
-      final int line = loc.line;
-      final int col = loc.column;
-      final int callLine =
-          (call != null) ? Utils.getLocation(call, input).line : 0;
-      final List<String> lines = input.split('\n');
+      final loc = Utils.getLocation(index, input);
+      final line = loc.line;
+      final col = loc.column;
+      final callLine = (call != null) ? Utils.getLocation(call, input).line : 0;
+      final lines = input.split('\n');
 
       this.line = (line is num) ? line + 1 : null;
       this.callLine = callLine + 1;
@@ -216,11 +215,11 @@ class LessExceptionError implements Exception {
   ///
   // less/index.js 1.7.5 lines 44-92
   String formatError() {
-    final List<String> errorLines = <String>[];
+    final errorLines = <String>[];
     String errorPosition; // '....^'
     String errorTxt;
-    final int lineCounterWidth = (error.line + 1).toString().length;
-    final StringBuffer message = StringBuffer();
+    final lineCounterWidth = (error.line + 1).toString().length;
+    final message = StringBuffer();
 
     error
       ..type ??= 'Syntax'
@@ -297,7 +296,7 @@ class LessExceptionError implements Exception {
   String stylize(String str, int style) {
     if (!_color) return str;
 
-    final Map<int, List<int>> styles = <int, List<int>>{
+    final styles = <int, List<int>>{
       STYLE_RESET: <int>[0, 0],
       STYLE_BOLD: <int>[1, 22],
       STYLE_INVERSE: <int>[7, 27],
@@ -307,7 +306,7 @@ class LessExceptionError implements Exception {
       STYLE_RED: <int>[31, 39],
       STYLE_GREY: <int>[90, 39]
     };
-    const String ESC = '\u001b[';
+    const ESC = '\u001b[';
 
     return '$ESC${styles[style][0]}m$str$ESC${styles[style][1]}m'; //TODO test in linux
   }

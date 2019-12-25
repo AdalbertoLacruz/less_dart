@@ -77,17 +77,17 @@ class DebugInfo {
 
   ///
   StringBuffer asMediaQuery() {
-    String filenameWithProtocol = fileName;
-    final RegExp reFileNameWithProtocol =
+    var filenameWithProtocol = fileName;
+    final reFileNameWithProtocol =
         RegExp(r'^[a-z]+:\/\/', caseSensitive: false);
 
     if (!reFileNameWithProtocol.hasMatch(filenameWithProtocol)) {
       filenameWithProtocol = 'file://$filenameWithProtocol';
     }
 
-    final String file =
+    final file =
         filenameWithProtocol.replaceAllMapped(RegExp(r'([.:\/\\])'), (Match m) {
-      String a = m[1];
+      var a = m[1];
       if (a == '\\') a = '\/';
       return '\\$a';
     });

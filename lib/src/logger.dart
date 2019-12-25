@@ -75,14 +75,14 @@ class Logger {
   /// Returns captured messages and goes to normal log mode
   ///
   String captureStop() {
-    final String result = capture.toString();
+    final result = capture.toString();
     capture = null;
     return result;
   }
 
   ///
   void log(String msg) {
-    final StringBuffer buffer = (capture == null) ? stderr : capture;
+    final buffer = (capture == null) ? stderr : capture;
 
     if (buffer.isNotEmpty) buffer.write('\n');
     buffer.write('$msg');

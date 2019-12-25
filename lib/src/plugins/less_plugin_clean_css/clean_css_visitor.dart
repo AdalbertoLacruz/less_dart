@@ -132,7 +132,7 @@ class CleanCssVisitor extends VisitorBase {
     }
 
     if (declNode.name == 'background') {
-      final String value = declNode.value.toString();
+      final value = declNode.value.toString();
       if (value == 'none' || value == 'transparent') {
         declNode.value = Keyword('0 0');
       }
@@ -158,7 +158,7 @@ class CleanCssVisitor extends VisitorBase {
     }
 
     if (declNode.name == 'font-weight') {
-      final String value = declNode.value.toString();
+      final value = declNode.value.toString();
       if (value == 'normal') {
         declNode.value = Dimension(400);
       }
@@ -174,7 +174,7 @@ class CleanCssVisitor extends VisitorBase {
     }
 
     if (declNode.name == 'outline') {
-      final String value = declNode.value.toString();
+      final value = declNode.value.toString();
       if (value == 'none') {
         declNode.value = Dimension(0);
       }
@@ -206,8 +206,7 @@ class CleanCssVisitor extends VisitorBase {
     rulesetNode.parseForCompression();
 
     //RegExp symbolRe = new RegExp(r'[^a-zA-Z0-9]');
-    final RegExp attrRe =
-        RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]', caseSensitive: false);
+    final attrRe = RegExp(r'\[(.)*=\s*("[a-z0-9]+")\s*]', caseSensitive: false);
 
     rulesetNode.cleanCss = CleanCssContext();
     rulesetNode.cleanCss.keepBreaks = cleanCssOptions.keepBreaks;
@@ -278,15 +277,13 @@ class CleanCssVisitor extends VisitorBase {
   /// Example: "([class *= "lead"])" -> "([class*=lead])"
   ///
   String removeQuotesAndSpace(Match match, String source, int indexQuoted) {
-    String quoted = match[indexQuoted];
-    final int start = source.indexOf(quoted);
+    var quoted = match[indexQuoted];
+    final start = source.indexOf(quoted);
 
-    final String prefix = source.substring(0, start).replaceAll(' ', '');
-    final String suffix =
-        source.substring(start + quoted.length).replaceAll(' ', '');
+    final prefix = source.substring(0, start).replaceAll(' ', '');
+    final suffix = source.substring(start + quoted.length).replaceAll(' ', '');
 
-    final String newQuoted =
-        quoted.substring(1, quoted.length - 1); //remove quotes
+    final newQuoted = quoted.substring(1, quoted.length - 1); //remove quotes
     if (!hasSymbol(newQuoted)) quoted = newQuoted;
 
     return '$prefix$quoted$suffix';
@@ -297,7 +294,7 @@ class CleanCssVisitor extends VisitorBase {
   ///
   String removeSpaces(String value) {
     int len;
-    String _value = value;
+    var _value = value;
 
     do {
       len = _value.length;

@@ -58,7 +58,7 @@ class URL extends Node {
   ///
   @override
   URL eval(Contexts context) {
-    final Node val = value.eval(context);
+    final val = value.eval(context);
     String rootpath;
 
     if (!isEvald) {
@@ -77,12 +77,11 @@ class URL extends Node {
 
       // Add url args if enabled
       if (isNotEmpty(context.urlArgs)) {
-        final RegExp reData = RegExp(r'^\s*data:');
+        final reData = RegExp(r'^\s*data:');
         final Match match = reData.firstMatch(val.value);
         if (match == null) {
-          final String delimiter =
-              !(val.value as String).contains('?') ? '?' : '&';
-          final String urlArgs = delimiter + context.urlArgs;
+          final delimiter = !(val.value as String).contains('?') ? '?' : '&';
+          final urlArgs = delimiter + context.urlArgs;
           if ((val.value as String).contains('#')) {
             val.value = (val.value as String).replaceFirst('#', '$urlArgs#');
           } else {
@@ -144,7 +143,7 @@ class URL extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     genCSS(null, output);
     return output.toString();
   }

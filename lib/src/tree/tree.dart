@@ -19,7 +19,7 @@ import '../file_info.dart';
 import '../functions/functions.dart';
 import '../less_error.dart';
 import '../less_options.dart';
-import '../logger.dart';
+//import '../logger.dart';
 import '../output.dart';
 import '../parser/parser.dart';
 import '../plugins/less_plugin_clean_css/less_plugin_clean_css.dart';

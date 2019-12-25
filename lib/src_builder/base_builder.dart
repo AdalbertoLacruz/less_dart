@@ -45,7 +45,7 @@ class BaseBuilder {
 
     if (options.compress) flags.add('--compress');
 
-    String include = filePath;
+    var include = filePath;
     if (options.includePath.isNotEmpty) {
       include = '$include;${options.includePath}';
 //      flags.add('--include-path=${options.includePath}');
@@ -63,7 +63,7 @@ class BaseBuilder {
   /// Transform the less content to css
   ///
   Future<BaseBuilder> transform(Function modifyOptions) {
-    final Completer<BaseBuilder> task = Completer<BaseBuilder>();
+    final task = Completer<BaseBuilder>();
     isError = false;
     message = 'builder message';
     outputContent = '';

@@ -158,11 +158,11 @@ class MixinDefinition extends Node
   Ruleset evalParams(Contexts context, Contexts mixinEnv, List<MixinArgs> args,
       List<Node> evaldArguments) {
     int argIndex;
-    int argsLength = 0;
-    final Ruleset frame = Ruleset(null, null);
+    var argsLength = 0;
+    final frame = Ruleset(null, null);
     bool isNamedFound;
     String name;
-    final List<MixinArgs> params = this.params.sublist(0);
+    final params = this.params.sublist(0);
 
     //Fill with nulls the list
     evaldArguments.length = math.max(params?.length ?? 0, args?.length ?? 0);
@@ -172,19 +172,19 @@ class MixinDefinition extends Node
           (mixinEnv.frames[0] as VariableMixin).functionRegistry);
     }
 
-    final Contexts _mixinEnv =
+    final _mixinEnv =
         Contexts.eval(mixinEnv, <Node>[frame, ...mixinEnv.frames]);
-    final List<MixinArgs> _args = args?.sublist(0);
+    final _args = args?.sublist(0);
 
     if (_args != null) {
       argsLength = _args.length;
 
-      for (int i = 0; i < _args.length; i++) {
-        final MixinArgs arg = _args[i];
+      for (var i = 0; i < _args.length; i++) {
+        final arg = _args[i];
         name = arg?.name;
         if (name != null) {
           isNamedFound = false;
-          for (int j = 0; j < params.length; j++) {
+          for (var j = 0; j < params.length; j++) {
             if (evaldArguments[j] == null && name == params[j].name) {
               evaldArguments[j] = arg.value.eval(context);
               frame.prependRule(Declaration(name, arg.value.eval(context)));
@@ -207,22 +207,22 @@ class MixinDefinition extends Node
     }
 
     argIndex = 0;
-    for (int i = 0; i < params.length; i++) {
+    for (var i = 0; i < params.length; i++) {
       if (i < evaldArguments.length && evaldArguments[i] != null) continue;
 
-      final MixinArgs arg =
+      final arg =
           (_args != null && argIndex < _args.length) ? _args[argIndex] : null;
 
       if ((name = params[i].name) != null) {
         if (params[i].variadic) {
-          final List<Node> varargs = <Node>[];
-          for (int j = argIndex; j < argsLength; j++) {
+          final varargs = <Node>[];
+          for (var j = argIndex; j < argsLength; j++) {
             varargs.add(_args[j].value.eval(context));
           }
           frame.prependRule(
               Declaration(name, Expression(varargs).eval(context)));
         } else {
-          Node val = arg?.value;
+          var val = arg?.value;
           if (val != null) {
             // This was a mixin call, pass in a detached ruleset of it's eval'd rules
             val = (val is Nodeset)
@@ -242,7 +242,7 @@ class MixinDefinition extends Node
         }
       }
       if (params[i].variadic && _args != null) {
-        for (int j = argIndex; j < argsLength; j++) {
+        for (var j = argIndex; j < argsLength; j++) {
           evaldArguments[j] = _args[j].value.eval(context);
         }
       }
@@ -352,7 +352,7 @@ class MixinDefinition extends Node
   ///
   @override
   MixinDefinition makeImportant() {
-    final List<Node> rules = (this.rules == null)
+    final rules = (this.rules == null)
         ? this.rules
         : this
             .rules
@@ -386,7 +386,7 @@ class MixinDefinition extends Node
   ///
   @override
   MixinDefinition eval(Contexts context) {
-    final List<Node> frames = this.frames ?? context.frames.sublist(0);
+    final frames = this.frames ?? context.frames.sublist(0);
     return MixinDefinition(name, params, rules, condition,
         variadic: variadic,
         index: index,
@@ -401,16 +401,13 @@ class MixinDefinition extends Node
 
   ///
   Ruleset evalCall(Contexts context, List<MixinArgs> args, {bool important}) {
-    final List<Node> _arguments = <Node>[];
+    final _arguments = <Node>[];
     List<Node> rules;
     Ruleset ruleset;
 
-    final List<Node> mixinFrames = <Node>[
-      ...frames ?? <Node>[],
-      ...context.frames
-    ];
+    final mixinFrames = <Node>[...frames ?? <Node>[], ...context.frames];
 
-    final Ruleset frame = evalParams(
+    final frame = evalParams(
         context, Contexts.eval(context, mixinFrames), args, _arguments)
       ..prependRule(
           Declaration('@arguments', Expression(_arguments).eval(context)));
@@ -453,12 +450,9 @@ class MixinDefinition extends Node
   ///
   @override
   bool matchCondition(List<MixinArgs> args, Contexts context) {
-    final List<Node> thisFrames = <Node>[
-      ...this.frames ?? <Node>[],
-      ...context.frames
-    ];
+    final thisFrames = <Node>[...this.frames ?? <Node>[], ...context.frames];
 
-    final List<Node> frames = <Node>[
+    final frames = <Node>[
       // the parameter variables
       evalParams(context, Contexts.eval(context, thisFrames), args, <Node>[]),
       // the parent namespace/mixin frames
@@ -493,8 +487,8 @@ class MixinDefinition extends Node
   ///
   @override
   bool matchArgs(List<MixinArgs> args, Contexts context) {
-    final int allArgsCnt = args?.length ?? 0;
-    final int requiredArgsCnt = (args == null)
+    final allArgsCnt = args?.length ?? 0;
+    final requiredArgsCnt = (args == null)
         ? 0
         : args.fold(
             0,
@@ -509,8 +503,8 @@ class MixinDefinition extends Node
     }
 
     // check patterns
-    final int len = math.min(requiredArgsCnt, arity);
-    for (int i = 0; i < len; i++) {
+    final len = math.min(requiredArgsCnt, arity);
+    for (var i = 0; i < len; i++) {
       if (params[i].name == null && !params[i].variadic) {
         if (args[i].value.eval(context).toCSS(context) !=
             params[i].value.eval(context).toCSS(context)) return false;
@@ -558,8 +552,8 @@ class MixinDefinition extends Node
 
   @override
   String toString() {
-    bool first = true;
-    final StringBuffer sb = StringBuffer()..write(name);
+    var first = true;
+    final sb = StringBuffer()..write(name);
     if (params != null) {
       sb.write('(');
       params.forEach((MixinArgs m) {

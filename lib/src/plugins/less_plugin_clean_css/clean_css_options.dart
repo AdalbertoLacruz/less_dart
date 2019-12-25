@@ -32,11 +32,11 @@ class CleanCssOptions extends PluginOptions {
   CleanCssOptions(String cmdOptions) {
     String argName;
     List<String> argSplit;
-    final List<String> cleanOptionArgs = cmdOptions.split(' ');
-    String compatibilitySource = '';
-    final RegExp reName = RegExp(r'^-+');
+    final cleanOptionArgs = cmdOptions.split(' ');
+    var compatibilitySource = '';
+    final reName = RegExp(r'^-+');
 
-    for (int i = 0; i < cleanOptionArgs.length; i++) {
+    for (var i = 0; i < cleanOptionArgs.length; i++) {
       argSplit = cleanOptionArgs[i].split('=');
       argName = argSplit[0].replaceFirst(reName, '');
 
@@ -54,7 +54,7 @@ class CleanCssOptions extends PluginOptions {
           keepSpecialComments = '1';
           break;
         case 'keepSpecialComments':
-          final String specialCommentOption = argSplit[1];
+          final specialCommentOption = argSplit[1];
           if (specialCommentOption != '*') {
             keepSpecialComments = int.parse(specialCommentOption).toString();
           }

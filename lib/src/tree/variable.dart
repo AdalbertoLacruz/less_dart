@@ -31,7 +31,7 @@ class Variable extends Node {
   ///
   @override
   Node eval(Contexts context) {
-    String name = this.name;
+    var name = this.name;
 
     if (name.startsWith('@@')) {
       name =
@@ -49,7 +49,7 @@ class Variable extends Node {
 
     evaluating = true;
 
-    final Node variable = find(context.frames, (VariableMixin frame) {
+    final variable = find(context.frames, (VariableMixin frame) {
       final Declaration v = frame.variable(name);
       if (v != null) {
         if (v.important.isNotEmpty) {
@@ -123,7 +123,7 @@ class Variable extends Node {
 
   ///
   Node find(List<Node> obj, Function fun) {
-    for (int i = 0; i < obj.length; i++) {
+    for (var i = 0; i < obj.length; i++) {
       final Node r = fun(obj[i]);
       if (r != null) return r;
     }

@@ -69,12 +69,12 @@ class ExtendFinderVisitor extends VisitorBase {
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     if (rulesetNode.root) return;
 
-    final List<Extend> allSelectorsExtendList = <Extend>[];
+    final allSelectorsExtendList = <Extend>[];
 
     // get &:extend(.a); rules which apply to all selectors in this ruleset
-    final List<Node> rules = rulesetNode.rules;
-    final int ruleCnt = rules?.length ?? 0;
-    for (int i = 0; i < ruleCnt; i++) {
+    final rules = rulesetNode.rules;
+    final ruleCnt = rules?.length ?? 0;
+    for (var i = 0; i < ruleCnt; i++) {
       if (rulesetNode.rules[i] is Extend) {
         allSelectorsExtendList.add(rules[i]);
         rulesetNode.extendOnEveryPath = true;
@@ -83,13 +83,13 @@ class ExtendFinderVisitor extends VisitorBase {
 
     // now find every selector and apply the extends that apply to all extends
     // and the ones which apply to an individual extend
-    final List<List<Selector>> paths = rulesetNode.paths;
-    for (int i = 0; i < paths.length; i++) {
-      final List<Selector> selectorPath = paths[i];
-      final Selector selector = selectorPath.last;
-      final List<Extend> selExtendList = selector.extendList;
+    final paths = rulesetNode.paths;
+    for (var i = 0; i < paths.length; i++) {
+      final selectorPath = paths[i];
+      final selector = selectorPath.last;
+      final selExtendList = selector.extendList;
 
-      List<Extend> extendList = selExtendList != null
+      var extendList = selExtendList != null
           ? (selExtendList.sublist(0)..addAll(allSelectorsExtendList))
           : allSelectorsExtendList;
 
@@ -99,9 +99,9 @@ class ExtendFinderVisitor extends VisitorBase {
             .toList();
       }
 
-      for (int j = 0; j < extendList.length; j++) {
+      for (var j = 0; j < extendList.length; j++) {
         foundExtends = true;
-        final Extend extend = extendList[j]
+        final extend = extendList[j]
           ..findSelfSelectors(selectorPath)
           ..ruleset = rulesetNode;
         if (j == 0) extend.firstExtendOnThisSelectorPath = true;

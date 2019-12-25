@@ -30,7 +30,7 @@ class IgnitionVisitor extends VisitorBase {
   @override
   Ruleset run(Ruleset root) {
     lessOptions = environment.options;
-    final PluginManager pluginManager = lessOptions.pluginManager;
+    final pluginManager = lessOptions.pluginManager;
     if (pluginManager != null) {
       FunctionRegistry.globalFunctions =
           pluginManager.getCustomFunction().sublist(0);
@@ -48,7 +48,7 @@ class IgnitionVisitor extends VisitorBase {
     optionsNode.apply(environment);
 
     //could vary from pluginManager used in run
-    final PluginManager pluginManager = lessOptions.pluginManager;
+    final pluginManager = lessOptions.pluginManager;
     if (pluginManager != null) {
       optionsNode.functions = pluginManager.getCustomFunction().sublist(0);
       pluginManager.resetCustomFunction();

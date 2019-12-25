@@ -165,7 +165,7 @@ class MathFunctions extends FunctionBase {
     final num fraction = (f == null) ? 0 : f.value;
 
     return MathHelper._math((num d) {
-      final double exp = math.pow(10, fraction).toDouble();
+      final exp = math.pow(10, fraction).toDouble();
       return (d * exp).roundToDouble() / exp;
     }, null, n);
 

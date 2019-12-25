@@ -11,8 +11,8 @@ class DefaultFunc extends FunctionBase {
   ///
   @DefineMethod(name: 'default')
   Node eval() {
-    final int v = _value;
-    final LessError e = _error;
+    final v = _value;
+    final e = _error;
 
     if (e != null) {
       throw LessExceptionError(e);

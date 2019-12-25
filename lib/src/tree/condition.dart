@@ -65,8 +65,8 @@ class Condition extends Node {
   Node eval(Contexts context) {
     //
     bool comparation(String op, Node aNode, Node bNode) {
-      final bool a = aNode is Condition ? aNode.evaluated : false;
-      final bool b = bNode is Condition ? bNode.evaluated : false;
+      final a = aNode is Condition ? aNode.evaluated : false;
+      final b = bNode is Condition ? bNode.evaluated : false;
 
       switch (op) {
         case 'and':

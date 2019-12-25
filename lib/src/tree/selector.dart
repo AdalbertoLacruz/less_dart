@@ -152,10 +152,10 @@ class Selector extends Node {
 
   ///
   List<Selector> createEmptySelectors() {
-    final Element el = Element('', '&',
+    final el = Element('', '&',
         isVariable: false, index: _index, currentFileInfo: _fileInfo);
 
-    final List<Selector> sels = <Selector>[
+    final sels = <Selector>[
       Selector(<Element>[el], index: _index, currentFileInfo: _fileInfo)
     ];
 
@@ -176,12 +176,12 @@ class Selector extends Node {
   /// Returns number of matched Selector elements if match. 0 means not match.
   ///
   int match(Selector other) {
-    final List<String> otherElements = other.mixinElements();
+    final otherElements = other.mixinElements();
 
     if (otherElements.isEmpty || elements.length < otherElements.length) {
       return 0;
     } else {
-      for (int i = 0; i < otherElements.length; i++) {
+      for (var i = 0; i < otherElements.length; i++) {
         if (elements[i].value != otherElements[i]) return 0;
       }
     }
@@ -215,11 +215,11 @@ class Selector extends Node {
   /// Example: ['#sel1', '.sel2', ...]
   ///
   List<String> mixinElements() {
-    final RegExp re = RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
+    final re = RegExp(r'[,&#\*\.\w-]([\w-]|(\\.))*');
 
     if (_mixinElements != null) return _mixinElements; // cache exist
 
-    final String css = elements
+    final css = elements
         .fold(
             StringBuffer(),
             (StringBuffer prev, Element v) => prev
@@ -282,10 +282,11 @@ class Selector extends Node {
   ///
   @override
   Selector eval(Contexts context) {
-    final bool evaldCondition =
-        condition?.eval(context)?.evaluated; //evaldCondition null is ok
-    List<Element> elements = this.elements;
-    List<Extend> extendList = this.extendList;
+    //evaldCondition null is ok
+    final evaldCondition = condition?.eval(context)?.evaluated;
+
+    var elements = this.elements;
+    var extendList = this.extendList;
 
     if (elements != null) {
       elements = elements.map((Element e) => e.eval(context)).toList();
@@ -320,7 +321,7 @@ class Selector extends Node {
         elements[0].combinator.value == '') {
       output.add(' ', fileInfo: currentFileInfo, index: index);
     }
-    for (int i = 0; i < elements.length; i++) {
+    for (var i = 0; i < elements.length; i++) {
       elements[i].genCSS(context, output);
     }
 
@@ -347,7 +348,7 @@ class Selector extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     elements.forEach((Node e) {
       e.genCSS(null, output);
     });

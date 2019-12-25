@@ -46,7 +46,7 @@ abstract class Plugin {
   String normalizeCommand(String cmdOptions) {
     if (cmdOptions == null) return null;
 
-    final String command =
+    final command =
         cmdOptions.startsWith('"') ? cmdOptions.substring(1) : cmdOptions;
 
     return command.endsWith('"')

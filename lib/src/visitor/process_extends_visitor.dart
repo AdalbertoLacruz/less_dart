@@ -28,7 +28,7 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   @override
   Ruleset run(Ruleset root) {
-    final ExtendFinderVisitor extendFinder = ExtendFinderVisitor();
+    final extendFinder = ExtendFinderVisitor();
     Ruleset newRoot;
 
     extendIndices = <String, bool>{};
@@ -59,20 +59,20 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void checkExtendsForNonMatched(List<Extend> extendList) {
-    final Map<String, bool> indices = extendIndices;
-    final Logger logger = Logger();
+    final indices = extendIndices;
+    final logger = Logger();
 
     extendList
       ..retainWhere((Extend extend) =>
           !extend.hasFoundMatches && extend.parentIds.length == 1)
       ..forEach((Extend extend) {
-        String selector = '_unknown_';
+        var selector = '_unknown_';
 
         try {
           selector = extend.selector.toCSS(Contexts());
         } catch (_) {}
 
-        final String key = '${extend.index.toString()} $selector';
+        final key = '${extend.index.toString()} $selector';
         if (!indices.containsKey(key)) {
           indices[key] = true;
           logger.warn("extend '$selector' has no matches");
@@ -112,8 +112,8 @@ class ProcessExtendsVisitor extends VisitorBase {
   List<Extend> doExtendChaining(
       List<Extend> extendsList, List<Extend> extendsListTarget,
       [int iterationCount = 0]) {
-    final List<Extend> extendsToAdd = <Extend>[];
-    final ProcessExtendsVisitor extendVisitor = this;
+    final extendsToAdd = <Extend>[];
+    final extendVisitor = this;
 
     // loop through comparing every extend with every target extend.
     // a target extend is the one on the ruleset we are looking at copy/edit/pasting in place
@@ -121,40 +121,35 @@ class ProcessExtendsVisitor extends VisitorBase {
     // and the second is the target.
     // the separation into two lists allows us to process a subset of chains with a bigger set, as is the
     // case when processing media queries
-    for (int extendIndex = 0; extendIndex < extendsList.length; extendIndex++) {
-      for (int targetExtendIndex = 0;
+    for (var extendIndex = 0; extendIndex < extendsList.length; extendIndex++) {
+      for (var targetExtendIndex = 0;
           targetExtendIndex < extendsListTarget.length;
           targetExtendIndex++) {
-        final Extend extend = extendsList[extendIndex];
-        final Extend targetExtend = extendsListTarget[targetExtendIndex];
+        final extend = extendsList[extendIndex];
+        final targetExtend = extendsListTarget[targetExtendIndex];
 
         // look for circular references
         if (extend.parentIds.contains(targetExtend.objectId)) continue;
 
         // find a match in the target extends self selector (the bit before :extend)
-        final List<Selector> selectorPath = <Selector>[
-          targetExtend.selfSelectors[0]
-        ];
-        final List<MatchSelector> matches =
-            extendVisitor.findMatch(extend, selectorPath);
+        final selectorPath = <Selector>[targetExtend.selfSelectors[0]];
+        final matches = extendVisitor.findMatch(extend, selectorPath);
 
         if (matches.isNotEmpty) {
           extend.hasFoundMatches = true;
 
           //we found a match, so for each self selector.
           extend.selfSelectors.forEach((Selector selfSelector) {
-            final VisibilityInfo info = targetExtend.visibilityInfo();
+            final info = targetExtend.visibilityInfo();
 
             //process the extend as usual
-            final List<Selector> newSelector =
-                //extendVisitor.extendSelector(matches, selectorPath, selfSelector);
-                extendVisitor.extendSelector(
-                    matches, selectorPath, selfSelector,
-                    isVisible: extend.isVisible());
+            final newSelector = extendVisitor.extendSelector(
+                matches, selectorPath, selfSelector,
+                isVisible: extend.isVisible());
 
             // but now we create a new extend from it
-            final Extend newExtend = Extend(targetExtend.selector,
-                targetExtend.option, 0, targetExtend.currentFileInfo, info)
+            final newExtend = Extend(targetExtend.selector, targetExtend.option,
+                0, targetExtend.currentFileInfo, info)
               ..selfSelectors = newSelector;
 
             // add the extend onto the list of extends for that selector
@@ -186,8 +181,8 @@ class ProcessExtendsVisitor extends VisitorBase {
       // may no longer be needed.
       extendChainCount++;
       if (iterationCount > 100) {
-        String selectorOne = r'{unable to calculate}';
-        String selectorTwo = r'{unable to calculate}';
+        var selectorOne = r'{unable to calculate}';
+        var selectorTwo = r'{unable to calculate}';
         try {
           selectorOne = extendsToAdd[0].selfSelectors[0].toCSS(null);
           selectorTwo = extendsToAdd[0].selector.toCSS(null);
@@ -337,33 +332,32 @@ class ProcessExtendsVisitor extends VisitorBase {
   void visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
     if (rulesetNode.root) return;
 
-    final List<Extend> allExtends = allExtendsStack.last;
-    final ProcessExtendsVisitor extendVisitor = this;
-    final List<List<Selector>> selectorsToAdd = <List<Selector>>[];
+    final allExtends = allExtendsStack.last;
+    final extendVisitor = this;
+    final selectorsToAdd = <List<Selector>>[];
 
     // look at each selector path in the ruleset, find any extend matches and then copy, find and replace
-    for (int extendIndex = 0; extendIndex < allExtends.length; extendIndex++) {
-      for (int pathIndex = 0;
+    for (var extendIndex = 0; extendIndex < allExtends.length; extendIndex++) {
+      for (var pathIndex = 0;
           pathIndex < rulesetNode.paths.length;
           pathIndex++) {
-        final List<Selector> selectorPath = rulesetNode.paths[pathIndex];
+        final selectorPath = rulesetNode.paths[pathIndex];
 
         // extending extends happens initially, before the main pass
         if (rulesetNode.extendOnEveryPath) continue;
-        final List<Extend> extendList = selectorPath.last.extendList;
+        final extendList = selectorPath.last.extendList;
         if (extendList?.isNotEmpty ?? false) continue;
 
-        final List<MatchSelector> matches =
-            findMatch(allExtends[extendIndex], selectorPath);
+        final matches = findMatch(allExtends[extendIndex], selectorPath);
 
         if (matches.isNotEmpty) {
           allExtends[extendIndex].hasFoundMatches = true;
           allExtends[extendIndex]
               .selfSelectors
               .forEach((Selector selfSelector) {
-            final List<Selector> extendedSelectors = extendVisitor
-                .extendSelector(matches, selectorPath, selfSelector,
-                    isVisible: allExtends[extendIndex].isVisible());
+            final extendedSelectors = extendVisitor.extendSelector(
+                matches, selectorPath, selfSelector,
+                isVisible: allExtends[extendIndex].isVisible());
             selectorsToAdd.add(extendedSelectors);
           });
         }
@@ -414,22 +408,21 @@ class ProcessExtendsVisitor extends VisitorBase {
   ///
   List<MatchSelector> findMatch(
       Extend extend, List<Selector> haystackSelectorPath) {
-    final ProcessExtendsVisitor extendVisitor = this;
-    final List<MatchSelector> matches = <MatchSelector>[];
-    final List<Element> needleElements = extend.selector.elements;
-    final List<MatchSelector> potentialMatches = <MatchSelector>[];
+    final extendVisitor = this;
+    final matches = <MatchSelector>[];
+    final needleElements = extend.selector.elements;
+    final potentialMatches = <MatchSelector>[];
 
     // loop through the haystack elements
-    for (int haystackSelectorIndex = 0;
+    for (var haystackSelectorIndex = 0;
         haystackSelectorIndex < haystackSelectorPath.length;
         haystackSelectorIndex++) {
-      final Selector hackstackSelector =
-          haystackSelectorPath[haystackSelectorIndex];
+      final hackstackSelector = haystackSelectorPath[haystackSelectorIndex];
 
-      for (int hackstackElementIndex = 0;
+      for (var hackstackElementIndex = 0;
           hackstackElementIndex < hackstackSelector.elements.length;
           hackstackElementIndex++) {
-        final Element haystackElement =
+        final haystackElement =
             hackstackSelector.elements[hackstackElementIndex];
 
         // if we allow elements before our match we can add a potential match every time. otherwise only at the first element.
@@ -442,13 +435,13 @@ class ProcessExtendsVisitor extends VisitorBase {
             ..initialCombinator = haystackElement.combinator);
         }
 
-        for (int i = 0; i < potentialMatches.length; i++) {
-          MatchSelector potentialMatch = potentialMatches[i];
+        for (var i = 0; i < potentialMatches.length; i++) {
+          var potentialMatch = potentialMatches[i];
 
           // selectors add " " onto the first element. When we use & it joins the selectors together, but if we don't
           // then each selector in haystackSelectorPath has a space before it added in the toCSS phase. so we need to work out
           // what the resulting combinator will be
-          String targetCombinator = haystackElement.combinator.value;
+          var targetCombinator = haystackElement.combinator.value;
           if (targetCombinator == '' && hackstackElementIndex == 0) {
             targetCombinator = ' ';
           }
@@ -614,7 +607,7 @@ class ProcessExtendsVisitor extends VisitorBase {
           _elementValue1.elements.length != _elementValue2.elements.length) {
         return false;
       }
-      for (int i = 0; i < _elementValue1.elements.length; i++) {
+      for (var i = 0; i < _elementValue1.elements.length; i++) {
         if (_elementValue1.elements[i].combinator.value !=
             _elementValue2.elements[i].combinator.value) {
           if (i != 0 ||
@@ -680,18 +673,20 @@ class ProcessExtendsVisitor extends VisitorBase {
       List<Selector> selectorPath, Selector replacementSelector,
       {bool isVisible = false}) {
     //
-    int currentSelectorPathElementIndex = 0;
-    int currentSelectorPathIndex = 0;
-    final List<Selector> path = <Selector>[];
+    var currentSelectorPathElementIndex = 0;
+    var currentSelectorPathIndex = 0;
+    final path = <Selector>[];
 
-    for (int matchIndex = 0; matchIndex < matches.length; matchIndex++) {
-      final MatchSelector match = matches[matchIndex];
-      final Selector selector = selectorPath[match.pathIndex];
-      final Element firstElement = Element(
-          match.initialCombinator, replacementSelector.elements[0].value,
-          isVariable: replacementSelector.elements[0].isVariable,
-          index: replacementSelector.elements[0].index,
-          currentFileInfo: replacementSelector.elements[0].currentFileInfo);
+    for (var matchIndex = 0; matchIndex < matches.length; matchIndex++) {
+      final match = matches[matchIndex];
+      final selector = selectorPath[match.pathIndex];
+      final firstElement = Element(
+        match.initialCombinator,
+        replacementSelector.elements[0].value,
+        isVariable: replacementSelector.elements[0].isVariable,
+        index: replacementSelector.elements[0].index,
+        currentFileInfo: replacementSelector.elements[0].currentFileInfo,
+      );
 
       if (match.pathIndex > currentSelectorPathIndex &&
           currentSelectorPathElementIndex > 0) {
@@ -702,7 +697,7 @@ class ProcessExtendsVisitor extends VisitorBase {
         currentSelectorPathIndex++;
       }
 
-      final List<Element> newElements = selector.elements
+      final newElements = selector.elements
           .sublist(currentSelectorPathElementIndex, match.index)
             ..add(firstElement)
             ..addAll(replacementSelector.elements.sublist(1));
@@ -738,8 +733,7 @@ class ProcessExtendsVisitor extends VisitorBase {
     return path.map((Selector currentValue) {
       // we can re-use elements here, because the visibility property
       // matters only for selectors
-      final Selector derived =
-          currentValue.createDerived(currentValue.elements);
+      final derived = currentValue.createDerived(currentValue.elements);
       if (isVisible ?? false) {
         derived.ensureVisibility();
       } else {
@@ -826,7 +820,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitMedia(Media mediaNode, VisitArgs visitArgs) {
-    final List<Extend> newAllExtends = mediaNode.allExtends.sublist(0)
+    final newAllExtends = mediaNode.allExtends.sublist(0)
       ..addAll(allExtendsStack.last);
     newAllExtends.addAll(doExtendChaining(newAllExtends, mediaNode.allExtends));
     allExtendsStack.add(newAllExtends);
@@ -852,7 +846,7 @@ class ProcessExtendsVisitor extends VisitorBase {
 
   ///
   void visitAtRule(AtRule atRuleNode, VisitArgs visitArgs) {
-    final List<Extend> newAllExtends = atRuleNode.allExtends.sublist(0)
+    final newAllExtends = atRuleNode.allExtends.sublist(0)
       ..addAll(allExtendsStack.last);
     newAllExtends
         .addAll(doExtendChaining(newAllExtends, atRuleNode.allExtends));

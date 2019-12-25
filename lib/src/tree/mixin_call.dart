@@ -66,16 +66,16 @@ class MixinCall extends Node {
   //List<Node> eval(Contexts context) {
   @override
   Node eval(Contexts context) {
-    final List<MixinArgs> args = <MixinArgs>[];
-    final List<Candidate> candidates = <Candidate>[];
-    final List<bool> conditionResult = <bool>[null, null];
+    final args = <MixinArgs>[];
+    final candidates = <Candidate>[];
+    final conditionResult = <bool>[null, null];
     int defaultResult;
-    bool isOneFound = false;
+    var isOneFound = false;
     bool isRecursive;
-    bool match = false;
+    var match = false;
     List<Node> mixinPath;
     List<MixinFound> mixins;
-    final List<Node> rules = <Node>[];
+    final rules = <Node>[];
 
     DefaultFunc defaultFunc;
     if (context.defaultFunc == null) {
@@ -84,21 +84,21 @@ class MixinCall extends Node {
       defaultFunc = context.defaultFunc;
     }
 
-    final int defFalseEitherCase = -1;
+    final defFalseEitherCase = -1;
 
-    final int defNone = 0;
-    final int defTrue = 1;
-    final int defFalse = 2;
+    final defNone = 0;
+    final defTrue = 1;
+    final defFalse = 2;
 
     selector = selector.eval(context);
 
     // mixin is Node, mixinPath is List<Node>
     int calcDefGroup(MatchConditionNode mixin, List<Node> mixinPath) {
-      for (int f = 0; f < 2; f++) {
+      for (var f = 0; f < 2; f++) {
         conditionResult[f] = true;
         defaultFunc.value(f);
-        for (int p = 0; p < mixinPath.length && conditionResult[f]; p++) {
-          final Node namespace = mixinPath[p];
+        for (var p = 0; p < mixinPath.length && conditionResult[f]; p++) {
+          final namespace = mixinPath[p];
           if (namespace is MatchConditionNode) {
             conditionResult[f] = conditionResult[f] &&
                 (namespace as MatchConditionNode).matchCondition(null, context);
@@ -122,7 +122,7 @@ class MixinCall extends Node {
       dynamic argValue = arg.value.eval(context);
       if (arg.expand && argValue.value is List) {
         argValue = argValue.value;
-        for (int m = 0; m < argValue.length; m++) {
+        for (var m = 0; m < argValue.length; m++) {
           args.add(MixinArgs(value: argValue[m]));
         }
       } else {
@@ -134,7 +134,7 @@ class MixinCall extends Node {
         rule.matchArgs(null, context);
 
     // Search MixinDefinition
-    for (int i = 0; i < context.frames.length; i++) {
+    for (var i = 0; i < context.frames.length; i++) {
       if ((mixins = (context.frames[i] as VariableMixin)
               .find(selector, null, noArgumentsFilter))
           .isNotEmpty) {
@@ -145,11 +145,11 @@ class MixinCall extends Node {
         // and build candidate list with corresponding flags. Then, when we know all possible matches,
         // we make a final decision.
 
-        for (int m = 0; m < mixins.length; m++) {
-          final MatchConditionNode mixin = mixins[m].rule as MatchConditionNode;
+        for (var m = 0; m < mixins.length; m++) {
+          final mixin = mixins[m].rule as MatchConditionNode;
           mixinPath = mixins[m].path;
           isRecursive = false;
-          for (int f = 0; f < context.frames.length; f++) {
+          for (var f = 0; f < context.frames.length; f++) {
             if ((mixin is! MixinDefinition) &&
                 ((mixin as Node) == context.frames[f].originalRuleset ||
                     (mixin as Node) == context.frames[f])) {
@@ -160,7 +160,7 @@ class MixinCall extends Node {
           if (isRecursive) continue;
 
           if (mixin.matchArgs(args, context)) {
-            final Candidate candidate =
+            final candidate =
                 Candidate(mixin: mixin, group: calcDefGroup(mixin, mixinPath));
             if (candidate.group != defFalseEitherCase) {
               candidates.add(candidate);
@@ -171,8 +171,8 @@ class MixinCall extends Node {
 
         defaultFunc.reset();
 
-        final List<int> count = <int>[0, 0, 0];
-        for (int m = 0; m < candidates.length; m++) {
+        final count = <int>[0, 0, 0];
+        for (var m = 0; m < candidates.length; m++) {
           count[candidates[m].group]++;
         }
 
@@ -190,11 +190,11 @@ class MixinCall extends Node {
           }
         }
 
-        for (int m = 0; m < candidates.length; m++) {
-          final int candidateGroup = candidates[m].group;
+        for (var m = 0; m < candidates.length; m++) {
+          final candidateGroup = candidates[m].group;
           if (candidateGroup == defNone || candidateGroup == defaultResult) {
             try {
-              MatchConditionNode mixin = candidates[m].mixin;
+              var mixin = candidates[m].mixin;
               if (mixin is! MixinDefinition) {
                 final Ruleset originalRuleset =
                     (mixin as Ruleset).originalRuleset ?? mixin;
@@ -208,7 +208,7 @@ class MixinCall extends Node {
                   (mixin as MixinDefinition).id = originalRuleset.id;
                 }
               }
-              final List<Node> newRules = (mixin as MixinDefinition)
+              final newRules = (mixin as MixinDefinition)
                   .evalCall(context, args, important: important)
                   .rules;
               _setVisibilityToReplacement(newRules);
@@ -406,8 +406,8 @@ class MixinCall extends Node {
 
   /// Returns a String with the Mixin arguments
   String format(List<MixinArgs> args) {
-    final String result = selector.toCSS(null).trim();
-    final String argsStr = (args != null)
+    final result = selector.toCSS(null).trim();
+    final argsStr = (args != null)
         ? args.fold(StringBuffer(), (StringBuffer sb, MixinArgs a) {
             if (sb.isNotEmpty) sb.write(', ');
             if (isNotEmpty(a.name)) sb.write('${a.name}:');
@@ -463,7 +463,7 @@ class MixinArgs {
 
   ///
   void genTree(Contexts env, Output output, [String prefix = '']) {
-    String tabStr = '  ' * env.tabLevel;
+    var tabStr = '  ' * env.tabLevel;
     output.add('$tabStr${prefix}MixinArgs (${toString()})\n');
 
     env.tabLevel = env.tabLevel + 2;
@@ -478,9 +478,9 @@ class MixinArgs {
   ///
   @override
   String toString() {
-    final String _name = name ?? '';
-    final String _value = (value != null) ? value.toString() : '';
-    final String _separator = _value.isNotEmpty ? ': ' : '';
+    final _name = name ?? '';
+    final _value = (value != null) ? value.toString() : '';
+    final _separator = _value.isNotEmpty ? ': ' : '';
 
     return '$_name$_separator$_value';
   }

@@ -39,15 +39,15 @@ class MoreRegExp {
   ///   re == 'This is a new string.'
   ///
   String replace(String source, String replacement) {
-    final RegExp dollar = RegExp(r'\$\d+');
+    final dollar = RegExp(r'\$\d+');
     String dollarN;
     Match match;
-    String _replacement = replacement;
+    var _replacement = replacement;
 
     if (dollar.hasMatch(_replacement)) {
       match = _thisRE.firstMatch(source);
       if (match != null) {
-        for (int i = 0; i <= match.groupCount; i++) {
+        for (var i = 0; i <= match.groupCount; i++) {
           // ignore: prefer_interpolation_to_compose_strings
           dollarN = '\$' + i.toString();
           _replacement = _replacement.replaceAll(dollarN, match[i]);

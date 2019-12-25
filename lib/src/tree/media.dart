@@ -92,8 +92,7 @@ class Media extends DirectiveBase {
         ..mediaPath = <Media>[];
     }
 
-    final Media media =
-        Media(null, <Node>[], _index, _fileInfo, visibilityInfo());
+    final media = Media(null, <Node>[], _index, _fileInfo, visibilityInfo());
 
     if (debugInfo != null) {
       rules[0].debugInfo = debugInfo;
@@ -156,7 +155,7 @@ class Media extends DirectiveBase {
 
     // Render all dependent Media blocks.
     if (context.mediaBlocks.length > 1) {
-      final List<Selector> selectors =
+      final selectors =
           Selector(<Element>[], index: index, currentFileInfo: currentFileInfo)
               .createEmptySelectors();
 
@@ -196,12 +195,12 @@ class Media extends DirectiveBase {
 
   ///
   Ruleset evalNested(Contexts context) {
-    final List<Media> mediaPath = context.mediaPath.sublist(0)..add(this);
-    final List<List<Node>> path = <List<Node>>[];
+    final mediaPath = context.mediaPath.sublist(0)..add(this);
+    final path = <List<Node>>[];
     dynamic value; //Node or List<Node>
 
     // Extract the media-query conditions separated with `,` (OR).
-    for (int i = 0; i < mediaPath.length; i++) {
+    for (var i = 0; i < mediaPath.length; i++) {
       value = (mediaPath[i].features is Value)
           ? mediaPath[i].features.value
           : mediaPath[i].features;
@@ -223,7 +222,7 @@ class Media extends DirectiveBase {
               (fragment is Node) ? fragment : Anonymous(fragment))
           .toList();
 
-      for (int i = path.length - 1; i > 0; i--) {
+      for (var i = path.length - 1; i > 0; i--) {
         path.insert(i, Anonymous('and'));
       }
       return Expression(path);
@@ -287,13 +286,13 @@ class Media extends DirectiveBase {
   List<List<Node>> permute(List<List<Node>> arr) {
     if (arr.length < 2) return arr;
 
-    final List<List<Node>> result = <List<Node>>[];
+    final result = <List<Node>>[];
     final List<dynamic> rest = (arr.length == 2)
         ? arr.last
         : permute(arr.sublist(1)); // List<Node> | List<List<Node>>
 
-    for (int i = 0; i < rest.length; i++) {
-      for (int j = 0; j < arr[0].length; j++) {
+    for (var i = 0; i < rest.length; i++) {
+      for (var j = 0; j < arr[0].length; j++) {
         result.add(<Node>[
           arr[0][j],
           ...rest[i] is! List ? <Node>[rest[i]] : rest[i]
@@ -341,7 +340,7 @@ class Media extends DirectiveBase {
 
   @override
   String toString() {
-    final Output output = Output()..add('@media ');
+    final output = Output()..add('@media ');
     features.genCSS(null, output);
     return output.toString();
   }

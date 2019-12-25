@@ -24,7 +24,7 @@ class DotHtmlBuilder extends BaseBuilder {
   ///
   @override
   Future<BaseBuilder> transform(Function modifyOptions) {
-    final Completer<BaseBuilder> task = Completer<BaseBuilder>();
+    final task = Completer<BaseBuilder>();
 
     elements = parse(inputContent)
       ..forEach((ContentElement element) {
@@ -48,7 +48,7 @@ class DotHtmlBuilder extends BaseBuilder {
   /// [content] is the html file content
   ///
   List<ContentElement> parse(String content) {
-    final List<ContentElement> result = <ContentElement>[
+    final result = <ContentElement>[
       ...LessElement.parse(content),
       ...StyleElement.parse(content)
     ]..sort((ContentElement x, ContentElement y) =>
@@ -61,10 +61,10 @@ class DotHtmlBuilder extends BaseBuilder {
   /// Transform less to css inside the [element]
   ///
   Future<Null> execute(ContentElement element, Function modifyOptions) {
-    final Completer<Null> task = Completer<Null>();
+    final task = Completer<Null>();
 
     runZoned(() {
-      final Less less = Less();
+      final less = Less();
       less.stdin.write(element.inner);
       less.transform(flags, modifyOptions: modifyOptions).then((int exitCode) {
         if (exitCode == 0) {
@@ -93,7 +93,7 @@ class DotHtmlBuilder extends BaseBuilder {
 //    if (elements.length == 1)
 //      deliverToPipe = false;
 
-    final StringBuffer output = elements.fold(
+    final output = elements.fold(
         StringBuffer(),
         (StringBuffer out, ContentElement element) =>
             out..write(element.toString()));
@@ -198,9 +198,9 @@ class ContentElement {
   /// Build the tab separator to tag
   ///
   String getTabStr(String content) {
-    int tab = 0;
+    var tab = 0;
 
-    for (int i = openTagStart - 1; i >= 0; i--) {
+    for (var i = openTagStart - 1; i >= 0; i--) {
       if (content[i] != '\n') {
         tab++;
       } else {
@@ -215,7 +215,7 @@ class ContentElement {
   /// Removes inner double spaces
   ///
   String trimSpaces(String content) {
-    String result = content;
+    var result = content;
     while (result.contains('  ')) {
       result = result.replaceAll('  ', ' ');
     }
@@ -227,11 +227,11 @@ class ContentElement {
   /// Build the inner <style> result element string, with the line tabs
   ///
   String tabCss() {
-    final StringBuffer resultBuffer = StringBuffer();
-    final List<String> lines = css.split('\n');
+    final resultBuffer = StringBuffer();
+    final lines = css.split('\n');
     if (lines.last == '') lines.removeLast(); //no empty line
 
-    for (int i = 0; i < lines.length; i++) {
+    for (var i = 0; i < lines.length; i++) {
       resultBuffer.writeln(tabStr2 + lines[i]);
     }
 
@@ -266,10 +266,10 @@ class StyleElement extends ContentElement {
   /// Build a list with the detected elements
   ///
   static List<StyleElement> parse(String content) {
-    final List<StyleElement> result = <StyleElement>[];
+    final result = <StyleElement>[];
 
     ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
-      final String openTag = ContentElement.getOpenTag(fragment[0], openTagReg);
+      final openTag = ContentElement.getOpenTag(fragment[0], openTagReg);
       if (styleTypeReg.hasMatch(openTag)) {
         result.add(StyleElement(fragment));
       }
@@ -324,7 +324,7 @@ class LessElement extends ContentElement {
 
   ///
   static List<LessElement> parse(String content) {
-    final List<LessElement> result = <LessElement>[];
+    final result = <LessElement>[];
 
     ContentElement.parse(content, outerTagReg).forEach((Match fragment) {
       result.add(LessElement(fragment));
@@ -349,7 +349,7 @@ class LessElement extends ContentElement {
 
   /// Build <style> string
   String cssToString() {
-    final String prefix = isReplace ? '' : '\n$tabStr';
+    final prefix = isReplace ? '' : '\n$tabStr';
     return '$prefix$cssOpenTag\n${tabCss()}$tabStr$cssCloseTag';
   }
 }
@@ -373,11 +373,11 @@ class FragmentElement extends ContentElement {
   ///
   static List<ContentElement> parse(
       String content, List<ContentElement> source) {
-    final List<ContentElement> result = <ContentElement>[];
+    final result = <ContentElement>[];
     ContentElement element;
-    int index = 0;
+    var index = 0;
 
-    for (int i = 0; i < source.length; i++) {
+    for (var i = 0; i < source.length; i++) {
       element = source[i];
       if (element.openTagStart > index) {
         result

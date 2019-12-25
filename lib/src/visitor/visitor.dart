@@ -35,8 +35,8 @@ class Visitor extends VisitorBase {
 //    final Function funcOut = _visitOutCache.containsKey(nodeType)
 //        ? _visitOutCache[nodeType]
 //        : _visitOutCache[nodeType] = _implementation.visitFtnOut(_node);
-    final Function func = _implementation.visitFtn(_node);
-    final Function funcOut = _implementation.visitFtnOut(_node);
+    final func = _implementation.visitFtn(_node);
+    final funcOut = _implementation.visitFtnOut(_node);
 
     if (func != null) {
       final dynamic newNode = func(_node, _visitArgs); //Node or List
@@ -110,15 +110,15 @@ class Visitor extends VisitorBase {
 
     // Non-replacing
     if (nonReplacing || !_implementation.isReplacing) {
-      for (int i = 0; i < nodes.length; i++) {
+      for (var i = 0; i < nodes.length; i++) {
         visit(nodes[i]);
       }
       return nodes;
     }
 
     // Replacing
-    List<T> out = <T>[];
-    for (int i = 0; i < nodes.length; i++) {
+    var out = <T>[];
+    for (var i = 0; i < nodes.length; i++) {
       final dynamic evald = visit(nodes[i]); //Node | List<Node>
       if (evald == null) continue;
 
@@ -170,13 +170,13 @@ class Visitor extends VisitorBase {
   ///
   // List<T> flatten<T>(List<T> arr, List<T> out) {
   List<T> flatten<T>(List<dynamic> arr, List<T> out) {
-    List<T> _out = out ?? <T>[];
+    var _out = out ?? <T>[];
 
     dynamic item; //Node or List
     int nestedCnt;
     dynamic nestedItem;
 
-    for (int i = 0; i < arr.length; i++) {
+    for (var i = 0; i < arr.length; i++) {
       item = arr[i];
       if (item == null) continue;
 
@@ -188,7 +188,7 @@ class Visitor extends VisitorBase {
 
       //item is List
       nestedCnt = (item as List<dynamic>).length;
-      for (int j = 0; j < nestedCnt; j++) {
+      for (var j = 0; j < nestedCnt; j++) {
         nestedItem = (item as List<dynamic>)[j];
         if (nestedItem == null) continue;
         if (nestedItem is! List) {

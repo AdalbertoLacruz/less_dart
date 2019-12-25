@@ -77,14 +77,14 @@ class StringFunctions extends FunctionBase {
     //string, replacement, flags is Quoted ('value') or Keyword (value)
 
     final String flagsValue = flags != null ? flags.value : '';
-    final MoreRegExp re = MoreRegExp(pattern.value, flagsValue);
+    final re = MoreRegExp(pattern.value, flagsValue);
 
-    final String replacementStr =
+    final replacementStr =
         (replacement is Quoted) ? replacement.value : replacement.toCSS(null);
-    final String result = re.replace(string.value, replacementStr);
+    final result = re.replace(string.value, replacementStr);
 
-    final String quote = (string is Quoted) ? string.quote : '';
-    final bool escaped = (string is Quoted) ? string.escaped : false;
+    final quote = (string is Quoted) ? string.quote : '';
+    final escaped = (string is Quoted) ? string.escaped : false;
     return Quoted(quote, result, escaped: escaped);
 
 //2.4.0 20150331
@@ -125,13 +125,13 @@ class StringFunctions extends FunctionBase {
   ///
   @DefineMethod(name: '%', listArguments: true)
   Quoted format(List<Node> args) {
-    final Node qstr = args[0];
+    final qstr = args[0];
     String result = qstr.value;
-    final MoreRegExp sda = MoreRegExp(r'%[sda]', 'i');
-    final RegExp az = RegExp(r'[A-Z]$', caseSensitive: true);
+    final sda = MoreRegExp(r'%[sda]', 'i');
+    final az = RegExp(r'[A-Z]$', caseSensitive: true);
 
     String value;
-    for (int i = 1; i < args.length; i++) {
+    for (var i = 1; i < args.length; i++) {
       result = sda.replaceMap(result, (Match m) {
         value = (args[i] is Quoted && m[0].toLowerCase() == '%s')
             ? args[i].value

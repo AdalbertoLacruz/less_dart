@@ -94,7 +94,7 @@ class Anonymous extends Node implements CompareNode {
   String toString() {
     if (value is String) return value as String;
 
-    final Output output = Output();
+    final output = Output();
     value.genCSS(null, output);
     return output.toString();
   }

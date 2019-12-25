@@ -7,7 +7,7 @@ import 'dart:io';
 import 'package:less_dart/less.dart';
 
 void main() {
-  final Less less = Less();
+  final less = Less();
 
   less.transform(<String>[
     '-no-color',

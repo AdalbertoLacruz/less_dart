@@ -61,12 +61,12 @@ class Import extends Node {
       [FileInfo currentFileInfo, VisibilityInfo visibilityInfo])
       : super.init(currentFileInfo: currentFileInfo, index: index) {
     allowRoot = true;
-    final RegExp rPathValue = RegExp(r'[#\.\&\?]css([\?;].*)?$');
+    final rPathValue = RegExp(r'[#\.\&\?]css([\?;].*)?$');
 
     if (options.less != null || (options.inline ?? false)) {
       css = !(options.less ?? false) || (options.inline ?? false);
     } else {
-      final String pathValue = getPath();
+      final pathValue = getPath();
       if ((pathValue != null) && (rPathValue.hasMatch(pathValue))) css = true;
     }
 
@@ -165,7 +165,7 @@ class Import extends Node {
 
   ///
   bool isVariableImport() {
-    Node path = this.path;
+    var path = this.path;
     if (path is URL) path = path.value;
     if (path is Quoted) return path.containsVariables();
     return true;
@@ -188,7 +188,7 @@ class Import extends Node {
   /// Resolves @var in the path
   ///
   Import evalForImport(Contexts context) {
-    Node path = this.path;
+    var path = this.path;
     if (path is URL) path = path.value;
 
     return Import(path.eval(context), features, options, _index, _fileInfo,
@@ -208,7 +208,7 @@ class Import extends Node {
 
   ///
   Node evalPath(Contexts context) {
-    final Node path = this.path.eval(context);
+    final path = this.path.eval(context);
 
     if (path is! URL) {
       // Add the rootpath if the URL requires a rewrite
@@ -251,7 +251,7 @@ class Import extends Node {
   // In js returns Node or List<Node>
   @override
   Node eval(Contexts context) {
-    final Node result = doEval(context);
+    final result = doEval(context);
     if ((options.reference ?? false) || blocksVisibility()) {
       result.addVisibilityBlock();
     }
@@ -277,7 +277,7 @@ class Import extends Node {
   ///
   // In js returns Node or List<Node>
   Node doEval(Contexts context) {
-    final Node features = this.features?.eval(context);
+    final features = this.features?.eval(context);
 
     if (skip != null) {
       if (skip is Function) skip = skip();
@@ -286,26 +286,27 @@ class Import extends Node {
     }
 
     if (options.inline ?? false) {
-      final Anonymous contents = Anonymous(root,
-          index: 0,
-          currentFileInfo: FileInfo()
-            ..filename = importedFilename
-            ..reference = path._fileInfo?.reference ?? false,
-          mapLines: true,
-          rulesetLike: true);
+      final contents = Anonymous(
+        root,
+        index: 0,
+        currentFileInfo: FileInfo()
+          ..filename = importedFilename
+          ..reference = path._fileInfo?.reference ?? false,
+        mapLines: true,
+        rulesetLike: true,
+      );
 
       return (this.features != null)
           ? Media(<Node>[contents], this.features.value)
           : Nodeset(<Node>[contents]);
     } else if (css ?? false) {
-      final Import newImport =
-          Import(evalPath(context), features, options, _index);
+      final newImport = Import(evalPath(context), features, options, _index);
       if (!(newImport.css ?? false) && errorImport != null) {
         throw LessExceptionError(errorImport);
       }
       return newImport;
     } else {
-      final Ruleset ruleset = Ruleset(null, root.rules.sublist(0))
+      final ruleset = Ruleset(null, root.rules.sublist(0))
         ..evalImports(context);
       //return (this.features != null) ? new Media(ruleset.rules, this.features.value) : ruleset.rules;
       return (this.features != null)
@@ -362,7 +363,7 @@ class Import extends Node {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     path.genCSS(null, output);
     return output.toString();
   }

@@ -30,9 +30,11 @@ class Output {
 
   /// [s] String | Node. (Node.toString())
   void add(Object s, {FileInfo fileInfo, int index, bool mapLines}) {
-    final Object _s = (separator != null) ? compose(s) : s;
-    last =
-        (_s is String && _s.isNotEmpty) ? _s[_s.length - 1] : ''; //for cleanCss
+    final _s = (separator != null) ? compose(s) : s;
+
+    //for cleanCss
+    last = (_s is String && _s.isNotEmpty) ? _s[_s.length - 1] : '';
+
     value.write(_s);
   }
 
@@ -51,8 +53,8 @@ class Output {
   /// [s] = String | Node
   ///
   String compose(dynamic s) {
-    final String source = s is String ? s : s.toString();
-    final String separator = this.separator ?? '';
+    final source = s is String ? s : s.toString();
+    final separator = this.separator ?? '';
     this.separator = null;
 
     if (source.isEmpty) return source;

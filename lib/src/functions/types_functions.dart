@@ -179,19 +179,14 @@ class TypesFunctions extends FunctionBase {
     String unitValue;
 
     if (val is! Dimension) {
-      final String p =
-          val is Operation ? '. Have you forgotten parenthesis?' : '';
+      final p = val is Operation ? '. Have you forgotten parenthesis?' : '';
       throw LessExceptionError(LessError(
           type: 'Argument',
           message: 'the first argument to unit must be a number$p'));
     }
 
     if (unit != null) {
-      if (unit is Keyword) {
-        unitValue = unit.value;
-      } else {
-        unitValue = unit.toCSS(null);
-      }
+      unitValue = unit is Keyword ? unit.value : unit.toCSS(null);
     } else {
       unitValue = '';
     }

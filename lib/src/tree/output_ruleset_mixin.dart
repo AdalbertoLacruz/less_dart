@@ -9,7 +9,7 @@ class OutputRulesetMixin {
   void outputRuleset(Contexts context, Output output, List<Node> rules) {
     if (context.cleanCss) return outputCleanRuleset(context, output, rules);
 
-    final int ruleCnt = rules.length;
+    final ruleCnt = rules.length;
 
     context.tabLevel ??= 0;
     context.tabLevel++;
@@ -17,7 +17,7 @@ class OutputRulesetMixin {
     // Compressed
     if (context.compress) {
       output.add('{');
-      for (int i = 0; i < ruleCnt; i++) {
+      for (var i = 0; i < ruleCnt; i++) {
         rules[i].genCSS(context, output);
       }
       output.add('}');
@@ -27,14 +27,14 @@ class OutputRulesetMixin {
 
     // Non-compressed
     // ignore: prefer_interpolation_to_compose_strings
-    final String tabSetStr = '\n' + '  ' * (context.tabLevel - 1);
-    final String tabRuleStr = '$tabSetStr  ';
+    final tabSetStr = '\n' + '  ' * (context.tabLevel - 1);
+    final tabRuleStr = '$tabSetStr  ';
     if (ruleCnt == 0) {
       output.add(' {$tabSetStr}');
     } else {
       output.add(' {$tabRuleStr');
       rules[0].genCSS(context, output);
-      for (int i = 1; i < ruleCnt; i++) {
+      for (var i = 1; i < ruleCnt; i++) {
         output.add(tabRuleStr);
         rules[i].genCSS(context, output);
       }
@@ -79,13 +79,13 @@ class OutputRulesetMixin {
 
   ///
   void outputCleanRuleset(Contexts context, Output output, List<Node> rules) {
-    final int ruleCnt = rules.length;
+    final ruleCnt = rules.length;
 
     context.tabLevel ??= 0;
     context.tabLevel++;
 
     output.add('{');
-    for (int i = 0; i < ruleCnt; i++) {
+    for (var i = 0; i < ruleCnt; i++) {
       rules[i].genCSS(context, output);
     }
     output.add('}');

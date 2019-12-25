@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -9,18 +8,19 @@ import 'package:path/path.dart' as path;
 export 'package:test/test.dart';
 
 ///
-final  String inputPath = _getInputPath();
+final String inputPath = _getInputPath();
 
 String _getInputPath() {
-  String testRootPath = Platform.environment['TEST_ROOT_PATH'];
-  if (testRootPath== null) {
+  var testRootPath = Platform.environment['TEST_ROOT_PATH'];
+  if (testRootPath == null) {
     //testRootPath = path.dirname(Platform.script.path);
     testRootPath = path.dirname(Platform.script.toFilePath());
-    String prev = testRootPath;
+    var prev = testRootPath;
     while (path.basename(testRootPath) != 'test') {
       testRootPath = path.dirname(testRootPath);
       if (prev == testRootPath) {
-        throw Exception('Test root path not detected, Please use TEST_ROOT_PATH');
+        throw Exception(
+            'Test root path not detected, Please use TEST_ROOT_PATH');
       }
       prev = testRootPath;
     }
@@ -31,8 +31,8 @@ String _getInputPath() {
 
 ///
 File getSampleFile(String name) {
-  final String _name = path.join(inputPath, name).replaceAll(RegExp('\\+'), '\\')
-      ..replaceAll(RegExp('/+'), '/').replaceAll('/',Platform.pathSeparator);
+  final _name = path.join(inputPath, name).replaceAll(RegExp('\\+'), '\\')
+    ..replaceAll(RegExp('/+'), '/').replaceAll('/', Platform.pathSeparator);
   return File(_name);
 }
 
@@ -41,18 +41,17 @@ String readSampleFile(String name) => getSampleFile(name).readAsStringSync();
 
 ///
 Future<Object> loadSampleJSON(String name) {
-  String _name = name
-      .replaceAll(RegExp('\\+'), '\\')
-      ..replaceAll(RegExp('/+'), '/') //?
-      .replaceAll('/',Platform.pathSeparator);
-  if (_name[0] == Platform.pathSeparator){
+  var _name = name.replaceAll(RegExp('\\+'), '\\')
+    ..replaceAll(RegExp('/+'), '/') //?
+        .replaceAll('/', Platform.pathSeparator);
+  if (_name[0] == Platform.pathSeparator) {
     _name = _name.substring(1);
   }
   return getSampleFile(_name).readAsString().then(json.decode);
 }
 
 ///
-void initTestCommonSetting(){
+void initTestCommonSetting() {
   //useVMConfiguration();
   _initLog();
 }
@@ -60,7 +59,8 @@ void initTestCommonSetting(){
 void _initLog() {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord rec) {
-    final String msg = '${rec.level.name}: ${rec.time}: ${rec.loggerName}: ${rec.message}';
+    final msg =
+        '${rec.level.name}: ${rec.time}: ${rec.loggerName}: ${rec.message}';
     print(msg);
   });
 }

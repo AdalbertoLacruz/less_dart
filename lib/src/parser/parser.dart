@@ -115,11 +115,11 @@ class Parser {
   ///
   Future<Ruleset> parse(String str) {
     Ruleset root;
-    String _str = str;
+    var _str = str;
 
     fileInfo ??= context.currentFileInfo;
     imports ??= ImportManager(context, fileInfo);
-    final Map<String, dynamic> processOptions = <String, dynamic>{
+    final processOptions = <String, dynamic>{
       'context': context,
       'imports': imports,
       'fileInfo': fileInfo

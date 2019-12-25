@@ -171,7 +171,7 @@ class Contexts {
   ///
   //2.2.0 TODO
   factory Contexts.eval([dynamic options, List<Node> frames]) {
-    final Contexts context = Contexts();
+    final context = Contexts();
 
     evalCopyProperties(context, options);
     context.frames = frames ?? <Node>[];
@@ -207,7 +207,7 @@ class Contexts {
     if (currentFileInfo == null) {
       final String filename =
           (options.filename?.isNotEmpty ?? false) ? options.filename : 'input';
-      final String entryPath = filename.replaceAll(RegExp(r'[^\/\\]*$'), '');
+      final entryPath = filename.replaceAll(RegExp(r'[^\/\\]*$'), '');
       options.filename = null;
 
       currentFileInfo = FileInfo()
@@ -240,7 +240,7 @@ class Contexts {
   void parseCopyProperties(dynamic options) {
     if (options is! LessOptions && options is! Contexts) return;
 
-    final List<String> properties = <String>[
+    final properties = <String>[
       'paths', // from options
       'rewriteUrls',
       'rootpath',
@@ -273,7 +273,7 @@ class Contexts {
   static void evalCopyProperties(Contexts newctx, dynamic options) {
     if (options == null) return;
 
-    final List<String> properties = <String>[
+    final properties = <String>[
       'compress', // from options
       'ieCompat',
       'math',
@@ -397,8 +397,8 @@ class Contexts {
 
   ///
   String rewritePath(String path, String rootpath) {
-    final String _rootpath = rootpath ?? '';
-    String newPath = normalizePath(_rootpath + path);
+    final _rootpath = rootpath ?? '';
+    var newPath = normalizePath(_rootpath + path);
 
     // If a path was explicit relative and the rootpath was not an absolute path
     // we must ensure that the new path is also explicit relative.
@@ -433,11 +433,11 @@ class Contexts {
   /// Resolves '.' and '..' in the path
   ///
   String normalizePath(String path) {
-    final List<String> pathList = <String>[];
-    final List<String> segments = path.split('/').reversed.toList();
+    final pathList = <String>[];
+    final segments = path.split('/').reversed.toList();
 
     while (segments.isNotEmpty) {
-      final String segment = segments.removeLast();
+      final segment = segments.removeLast();
       switch (segment) {
         case '.':
           break;
@@ -487,7 +487,7 @@ class Contexts {
 
   ///
   bool isPathRelative(String path) {
-    final RegExp re = RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
+    final re = RegExp(r'^(?:[a-z-]+:|\/|#)', caseSensitive: false);
     return !re.hasMatch(path);
 
 // 3.7.1 20180718

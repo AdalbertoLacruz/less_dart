@@ -13,21 +13,21 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @defineMethodSkip
   ImageDimension imageSizeFtn(Quoted filePathNode) {
-    String filePath = filePathNode.value;
-    final String currentDirectory =
+    var filePath = filePathNode.value;
+    final currentDirectory =
         currentFileInfo.rewriteUrls > RewriteUrlsConstants.off
             ? currentFileInfo.currentDirectory
             : currentFileInfo.entryPath;
 
-    final int fragmentStart = filePath.indexOf('#');
+    final fragmentStart = filePath.indexOf('#');
     if (fragmentStart != -1) {
       filePath = filePath.substring(0, fragmentStart);
     }
 
-    final AbstractFileManager fileManager = environment.getFileManager(
+    final fileManager = environment.getFileManager(
         filePath, currentDirectory, context, environment,
         isSync: true);
-    final FileLoaded fileSync =
+    final fileSync =
         fileManager.existSync(filePath, currentDirectory, context, environment);
     if (fileSync.error != null) {
       throw fileSync.error;
@@ -81,7 +81,7 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'image-size')
   Expression imageSize(Quoted filePathNode) {
-    final ImageDimension size = imageSizeFtn(filePathNode);
+    final size = imageSizeFtn(filePathNode);
     return size == null
         ? null
         : Expression(
@@ -108,7 +108,7 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'image-width')
   Dimension imageWidth(Quoted filePathNode) {
-    final ImageDimension size = imageSizeFtn(filePathNode);
+    final size = imageSizeFtn(filePathNode);
     return size == null ? null : Dimension(size.width, 'px');
 
 //2.4.0 20150321
@@ -129,7 +129,7 @@ class ImageSizeFunctions extends FunctionBase {
   ///
   @DefineMethod(name: 'image-height')
   Dimension imageHeigth(Quoted filePathNode) {
-    final ImageDimension size = imageSizeFtn(filePathNode);
+    final size = imageSizeFtn(filePathNode);
     return size == null ? null : Dimension(size.height, 'px');
 
 //2.4.0 20150321

@@ -65,8 +65,8 @@ class TreeApi {
   ///
   Ruleset ruleset(String selectors, List<Node> rules) {
     if (selectors?.isNotEmpty ?? false) {
-      final String _selectors = '$selectors {}';
-      final Ruleset result = ParseNode(_selectors, 0, null).ruleset();
+      final _selectors = '$selectors {}';
+      final result = ParseNode(_selectors, 0, null).ruleset();
       return Ruleset(result.selectors, rules);
     } else {
       return Ruleset(null, rules);
@@ -84,7 +84,7 @@ class TreeApi {
   /// [value] is Node | num | String
   ///
   Value value(dynamic value) {
-    List<Node> result = <Node>[];
+    var result = <Node>[];
     if (value is List) {
       result = toListNode(value);
     } else {
@@ -104,7 +104,7 @@ class TreeApi {
   /// returns List<Node> from a List with Node|String|num elements
   ///
   List<Node> toListNode(List<dynamic> value) {
-    final List<Node> result = <Node>[];
+    final result = <Node>[];
     value.forEach((dynamic v) {
       result.add(toNode(v));
     });

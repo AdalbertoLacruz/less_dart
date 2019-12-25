@@ -80,7 +80,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
     if (cleanCss != null) return genCleanCSS(context, output);
 
     final double value = fround(context, this.value);
-    String strValue = numToString(value); //10.0 -> '10'
+    var strValue = numToString(value); //10.0 -> '10'
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
       // would be output 1e-6 etc.
@@ -136,7 +136,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   /// clean-css output
   void genCleanCSS(Contexts context, Output output) {
     final double value = fround(context, this.value, cleanCss.precision);
-    String strValue = numToString(value); // 10.0 -> '10'
+    var strValue = numToString(value); // 10.0 -> '10'
 
     if (value != 0 && value < 0.000001 && value > -0.000001) {
       // would be output 1e-6 etc.
@@ -167,9 +167,9 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   @override
   Dimension operate(Contexts context, String op, Dimension other) {
-    Dimension _other = other;
-    Unit unit = this.unit.clone();
-    num value = _operate(context, op, this.value, _other.value);
+    var _other = other;
+    var unit = this.unit.clone();
+    var value = _operate(context, op, this.value, _other.value);
 
     if (op == '+' || op == '-') {
       if (unit.numerator.isEmpty && unit.denominator.isEmpty) {
@@ -311,14 +311,14 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
   ///
   Dimension convertTo(dynamic conversions) {
     Map<String, String> conversionsMap;
-    final Map<String, String> derivedConversions = <String, String>{};
+    final derivedConversions = <String, String>{};
     Map<String, double> group;
     String targetUnit; //new unit
-    final Unit unit = this.unit.clone();
-    double value = this.value;
+    final unit = this.unit.clone();
+    var value = this.value;
 
     if (conversions is String) {
-      for (final String i in UnitConversions.groups.keys) {
+      for (final i in UnitConversions.groups.keys) {
         // groups = length, duration, angle
         if (UnitConversions.groups[i].containsKey(conversions)) {
           derivedConversions.clear();
@@ -345,7 +345,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
       return atomicUnit;
     }
 
-    for (final String groupName in conversionsMap.keys) {
+    for (final groupName in conversionsMap.keys) {
       if (conversionsMap.containsKey(groupName)) {
         targetUnit = conversionsMap[groupName];
         group = UnitConversions.groups[groupName];
@@ -404,7 +404,7 @@ class Dimension extends Node implements CompareNode, OperateNode<Dimension> {
 
   @override
   String toString() {
-    final Output output = Output();
+    final output = Output();
     genCSS(null, output);
     return output.toString();
   }

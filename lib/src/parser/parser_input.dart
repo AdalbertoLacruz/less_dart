@@ -119,10 +119,10 @@ class ParserInput {
   /// Char at pos + [offset] is 32 (space), 13 (CR), 9 (tab) or 10 (LF)
   ///
   bool isWhitespace([int offset = 0]) {
-    final int pos = i + offset;
+    final pos = i + offset;
     if (pos < 0 || pos >= input.length) return false;
 
-    final int code = input.codeUnitAt(pos);
+    final code = input.codeUnitAt(pos);
     return code == Charcode.SPACE_32 ||
         code == Charcode.CR_13 ||
         code == Charcode.TAB_9 ||
@@ -156,7 +156,7 @@ class ParserInput {
   dynamic $re(RegExp reg, [int index]) {
     if (isEmpty) return null;
 
-    final Match m = reg.matchAsPrefix(input, i);
+    final m = reg.matchAsPrefix(input, i);
     if (m == null) return null;
 
     assert(m.end == (m[0].length + i));
@@ -165,8 +165,8 @@ class ParserInput {
     if (m.groupCount == 0) return m[0];
     if (m.groupCount == 1) return m[1];
 
-    final List<String> resultList = <String>[];
-    for (int item = 0; item <= m.groupCount; item++) {
+    final resultList = <String>[];
+    for (var item = 0; item <= m.groupCount; item++) {
       resultList.add(m[item]);
     }
     return resultList;
@@ -176,7 +176,7 @@ class ParserInput {
   /// Returns the raw match for [reg] Regular Expression
   ///
   Match $reMatch(RegExp reg) {
-    final Match m = reg.matchAsPrefix(input, i);
+    final m = reg.matchAsPrefix(input, i);
     if (m == null) return null;
 
     assert(m.end == (m[0].length + i));
@@ -212,12 +212,12 @@ class ParserInput {
   /// so, point to the first "|' character.
   ///
   String $quoted({bool skip = true}) {
-    final String startChar = currentChar();
+    final startChar = currentChar();
     if (startChar != "'" && startChar != '"') return null;
 
-    final int start = i;
-    for (int end = i + 1; end < input.length; end++) {
-      final String nextChar = charAt(end);
+    final start = i;
+    for (var end = i + 1; end < input.length; end++) {
+      final nextChar = charAt(end);
       switch (nextChar) {
         case '\\':
           end++;
@@ -230,7 +230,7 @@ class ParserInput {
         case "'":
         case '"':
           if (nextChar == startChar) {
-            final String str = input.substring(start, end + 1);
+            final str = input.substring(start, end + 1);
             if (skip) skipWhitespace(end + 1);
             return str;
           }
@@ -282,24 +282,24 @@ class ParserInput {
   ///
   // in js $parseUntil(String|RegExp tok). Here we split to avoid dynamic.
   List<ParseUntilReturnItem> $parseUntil({String tok, RegExp tokre}) {
-    int blockDepth = 0;
+    var blockDepth = 0;
     // key expected to close block '}' ']' ')'
-    final List<String> blockStack = <String>[];
-    bool inComment = false; // we are inside a comment
-    int lastPos = i;
-    bool loop = true;
-    final List<ParseUntilReturnItem> parseGroups = <ParseUntilReturnItem>[];
+    final blockStack = <String>[];
+    var inComment = false; // we are inside a comment
+    var lastPos = i;
+    var loop = true;
+    final parseGroups = <ParseUntilReturnItem>[];
     String quote;
-    final int startPos = i;
+    final startPos = i;
 
-    final TestChar tc = TestChar(tok, tokre);
+    final tc = TestChar(tok, tokre);
     bool testChar(String char) => tc.test(char);
 
     do {
-      String currentCharacter = currentChar(); // nextChar in js
+      var currentCharacter = currentChar(); // nextChar in js
 
       if (blockDepth == 0 && testChar(currentCharacter)) {
-        final String value = input.substring(lastPos, i);
+        final value = input.substring(lastPos, i);
         parseGroups.add(ParseUntilReturnItem()
           ..isEnd = value.isEmpty
           ..value = value);
@@ -361,7 +361,7 @@ class ParserInput {
           case '}':
           case ')':
           case ']':
-            final String expected =
+            final expected =
                 blockStack.isNotEmpty ? blockStack.removeLast() : null;
             if (currentCharacter == expected) {
               blockDepth--;
@@ -496,18 +496,17 @@ class ParserInput {
   /// Assure the input pointer is not a white space. Move forward if one is found.
   ///
   void skipWhitespace(int newi) {
-    final int endIndex = input.length;
+    final endIndex = input.length;
 
     i = newi;
 
     for (; i < endIndex; i++) {
-      final int c = charCodeAt(i);
+      final c = charCodeAt(i);
       if (autoCommentAbsorb && c == Charcode.SLASH_47) {
-        final String nextChar = charAt(i + 1);
+        final nextChar = charAt(i + 1);
         if (nextChar == '/') {
-          final CommentPointer comment =
-              CommentPointer(index: i, isLineComment: true);
-          int nextNewLine = input.indexOf('\n', i + 2);
+          final comment = CommentPointer(index: i, isLineComment: true);
+          var nextNewLine = input.indexOf('\n', i + 2);
 
           if (nextNewLine < 0) nextNewLine = endIndex;
           i = nextNewLine;
@@ -516,9 +515,9 @@ class ParserInput {
           commentStore.add(comment);
           continue;
         } else if (nextChar == '*') {
-          final int nextStarSlash = input.indexOf('*/', i + 2);
+          final nextStarSlash = input.indexOf('*/', i + 2);
           if (nextStarSlash >= 0) {
-            final CommentPointer comment = CommentPointer(
+            final comment = CommentPointer(
                 index: i,
                 text: input.substring(i, nextStarSlash + 2),
                 isLineComment: false);
@@ -636,7 +635,7 @@ class ParserInput {
     final dynamic result = (arg is Function) ? arg() : $re(arg);
     if (result != null) return result;
 
-    String message = msg; // ? avoid bug
+    var message = msg; // ? avoid bug
     message ??= (arg is String)
         ? "expected '$arg' got '${currentChar()}'"
         : 'unexpected token';
@@ -665,8 +664,7 @@ class ParserInput {
   String expectChar(String arg, [String msg]) {
     if ($char(arg) != null) return arg;
 
-    final String message =
-        msg ?? "expected '$arg' got '${currentChar() ?? ''}'";
+    final message = msg ?? "expected '$arg' got '${currentChar() ?? ''}'";
     return error(message);
   }
 
@@ -701,7 +699,7 @@ class ParserInput {
   bool peekNotNumeric() {
     if (isEmpty) return false;
 
-    final int c = charCodeAtPos();
+    final c = charCodeAtPos();
     //Is the first char of the dimension 0-9, '.', '+' or '-'
     return (c > Charcode.$9_57 || c < Charcode.PLUS_43) ||
         c == Charcode.SLASH_47 ||
@@ -719,7 +717,7 @@ class ParserInput {
   ///
   ParserStatus end() {
     String message;
-    final bool isFinished = i >= input.length;
+    final isFinished = i >= input.length;
 
     if (i < furthest) {
       message = furthestPossibleErrorMessage;
@@ -763,9 +761,9 @@ class ParserInput {
   /// and the part which didn't), so we can color them differently.
   ///
   void isFinished() {
-    final ParserStatus endInfo = end();
+    final endInfo = end();
     if (!endInfo.isFinished) {
-      String message = endInfo.furthestPossibleErrorMessage;
+      var message = endInfo.furthestPossibleErrorMessage;
 
       if (message == null) {
         message = 'Unrecognised input';
@@ -819,8 +817,8 @@ class ParserInput {
   /// For debug, show the input around the currentChar +- [gap]
   ///
   String showAround([int gap = 20]) {
-    final int start = math_lib.max(i - gap, 0);
-    final int stop = math_lib.min(i + gap, input.length - 1);
+    final start = math_lib.max(i - gap, 0);
+    final stop = math_lib.min(i + gap, input.length - 1);
     return input.substring(start, stop);
   }
 }

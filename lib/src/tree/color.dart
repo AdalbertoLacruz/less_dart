@@ -43,7 +43,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// [originalForm] returned to CSS if color is not processed: #rgb or #rrggbb.
   ///
   Color(String rgb, [this.alpha = 1, String originalForm]) {
-    final RegExp hex6 = RegExp('.{2}');
+    final hex6 = RegExp('.{2}');
 
     if (rgb.length >= 6) {
       // # 'rrggbbaa', # 'rrggbb'
@@ -114,7 +114,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   factory Color.fromKeyword(String keyword) {
     Color c;
-    final String key = keyword.toLowerCase();
+    final key = keyword.toLowerCase();
 
     // detect named color
     String colorValue;
@@ -180,7 +180,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// Format alpha
   ///
   String alphaToString(num alpha) {
-    final String alphaStr = numToString(clamp(alpha, 1));
+    final alphaStr = numToString(clamp(alpha, 1));
     return cleanCss != null
         ? alphaStr.replaceFirst('0.', '.') // 0.1 -> .1
         : alphaStr;
@@ -194,9 +194,9 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// Calculates the luma (perceptual brightness) of a color object
   ///
   double luma() {
-    double r = this.r / 255;
-    double g = this.g / 255;
-    double b = this.b / 255;
+    var r = this.r / 255;
+    var g = this.g / 255;
+    var b = this.b / 255;
 
     r = (r <= 0.03928)
         ? r / 12.92
@@ -242,9 +242,9 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
     num alpha;
     String color;
-    final bool compress = context?.compress ?? false; // && !doNotCompress;
+    final compress = context?.compress ?? false; // && !doNotCompress;
     String colorFunction;
-    List<String> args = <String>[];
+    var args = <String>[];
 
     // `value` is set if this color was originally
     // converted from a named color string so we need
@@ -274,7 +274,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
       hsl:
       case 'hsl':
-        final HSLType color = toHSL();
+        final color = toHSL();
         args = <String>[
               numToString(fround(context, color.h)),
               '${numToString(fround(context, color.s * 100))}%',
@@ -286,7 +286,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
     // Values are capped between `0` and `255`, rounded and zero-padded.
     if (colorFunction != null) {
-      final String separator = isCompress(context) ? ',' : ', ';
+      final separator = isCompress(context) ? ',' : ', ';
       return '$colorFunction(${args.join(separator)})';
     }
 
@@ -363,8 +363,8 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 
   /// clean-css output
   String toCleanCSS(Contexts context) {
-    final num alpha = fround(context, this.alpha);
-    String color = toRGB();
+    final alpha = fround(context, this.alpha);
+    var color = toRGB();
 
     if (cleanCss.compatibility.colors.opacity &&
         alpha == 0 &&
@@ -372,7 +372,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       return transparentKeyword;
     }
     if (alpha == 1) {
-      final String key = getColorKey(color);
+      final key = getColorKey(color);
       color = tryHex3(color);
       if (key != null) {
         if (key.length < color.length) return key;
@@ -395,10 +395,10 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   Color operate(Contexts context, String op, Color other) {
-    final List<num> rgb = <num>[0, 0, 0];
-    final num alpha = this.alpha * (1 - other.alpha) + other.alpha;
+    final rgb = <num>[0, 0, 0];
+    final alpha = this.alpha * (1 - other.alpha) + other.alpha;
 
-    for (int c = 0; c < 3; c++) {
+    for (var c = 0; c < 3; c++) {
       rgb[c] = _operate(context, op, this.rgb[c], other.rgb[c]);
     }
     return Color.fromList(rgb, alpha);
@@ -423,25 +423,25 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// Returns this Color as HSLA
   ///
   HSLType toHSL() {
-    final double r = this.r / 255;
-    final double g = this.g / 255;
-    final double b = this.b / 255;
-    final double a = alpha.toDouble();
+    final r = this.r / 255;
+    final g = this.g / 255;
+    final b = this.b / 255;
+    final a = alpha.toDouble();
 
-    final Map<String, double> rawMap = <String, double>{'r': r, 'g': g, 'b': b};
+    final rawMap = <String, double>{'r': r, 'g': g, 'b': b};
 
     // maxMap = { 'r or g or b': max_value, ..., 'r or g or b': min_value }.
     // Repeated values removed.
-    final SplayTreeMap<String, double> maxMap = SplayTreeMap<String, double>.of(
+    final maxMap = SplayTreeMap<String, double>.of(
         rawMap, (String a, String b) => rawMap[b].compareTo(rawMap[a]));
 
-    final double max = maxMap[maxMap.firstKey()];
-    final double min = maxMap[maxMap.lastKey()];
+    final max = maxMap[maxMap.firstKey()];
+    final min = maxMap[maxMap.lastKey()];
 
     double h;
     double s;
-    final double l = (max + min) / 2;
-    final double d = max - min;
+    final l = (max + min) / 2;
+    final d = max - min;
 
     if (max == min) {
       h = s = 0.0;
@@ -497,25 +497,25 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
    * http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
    */
   HSVType toHSV() {
-    final double r = this.r / 255;
-    final double g = this.g / 255;
-    final double b = this.b / 255;
-    final double a = alpha.toDouble();
+    final r = this.r / 255;
+    final g = this.g / 255;
+    final b = this.b / 255;
+    final a = alpha.toDouble();
 
-    final Map<String, double> rawMap = <String, double>{'r': r, 'g': g, 'b': b};
+    final rawMap = <String, double>{'r': r, 'g': g, 'b': b};
 
     // maxMap = { 'r or g or b': max_value, ..., 'r or g or b': min_value }.
     // Repeated values removed.
-    final SplayTreeMap<String, double> maxMap = SplayTreeMap<String, double>.of(
+    final maxMap = SplayTreeMap<String, double>.of(
         rawMap, (String a, String b) => rawMap[b].compareTo(rawMap[a]));
 
-    final double max = maxMap[maxMap.firstKey()];
-    final double min = maxMap[maxMap.lastKey()];
+    final max = maxMap[maxMap.firstKey()];
+    final min = maxMap[maxMap.lastKey()];
 
     double h;
     double s;
-    final double v = max;
-    final double d = max - min;
+    final v = max;
+    final d = max - min;
 
     if (max == 0.0) {
       s = 0.0;
@@ -636,18 +636,18 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// => 'rgba(r, g, b, a)'
   ///
   String toRGBFunction(Contexts context) {
-    final num alpha = fround(context, this.alpha);
+    final alpha = fround(context, this.alpha);
 
-    final List<String> resultList =
+    final resultList =
         rgb.map((num c) => clamp(c.round(), 255).toString()).toList();
 
-    final String alphaStr = numToString(clamp(alpha, 1));
+    final alphaStr = numToString(clamp(alpha, 1));
     resultList.add(cleanCss != null
         ? alphaStr.replaceFirst('0.', '.') // 0.1 -> .1
         : alphaStr);
 
-    final String separator = isCompress(context) ? ',' : ', ';
-    final String result = resultList.join(separator);
+    final separator = isCompress(context) ? ',' : ', ';
+    final result = resultList.join(separator);
     return 'rgba($result)';
 
 //      alpha = this.fround(context, this.alpha);

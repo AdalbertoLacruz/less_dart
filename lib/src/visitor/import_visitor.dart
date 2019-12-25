@@ -86,10 +86,10 @@ class ImportVisitor extends VisitorBase {
 
   ///
   Future<Null> tryRun() {
-    final Completer<Null> task = Completer<Null>();
+    final task = Completer<Null>();
     Future.wait(runners, eagerError: true).then((_) {
       if (variableImports.isNotEmpty) {
-        final VariableImport variableImport = variableImports.removeAt(0);
+        final variableImport = variableImports.removeAt(0);
         processImportNode(variableImport.importNode, variableImport.context,
             variableImport.importParent);
         tryRun().then((_) {
@@ -116,12 +116,12 @@ class ImportVisitor extends VisitorBase {
   ///
   void visitImport(Import importNode, VisitArgs visitArgs) {
     //include the file, but not process
-    final bool inlineCSS = importNode.options.inline ?? false;
+    final inlineCSS = importNode.options.inline ?? false;
 
     if (!importNode.css || inlineCSS) {
-      final Contexts context =
+      final context =
           Contexts.eval(this.context, this.context.frames.sublist(0));
-      final Node importParent = context.frames[0];
+      final importParent = context.frames[0];
 
       if (importNode.isVariableImport()) {
         //process this type of imports *last*
@@ -156,17 +156,17 @@ class ImportVisitor extends VisitorBase {
   ///
   void processImportNode(
       Import importNode, Contexts context, Node importParent) {
-    final Completer<Null> completer = Completer<Null>();
+    final completer = Completer<Null>();
     runners.add(completer.future);
 
     Import evaldImportNode;
-    final bool inlineCSS = importNode.options.inline ?? false;
+    final inlineCSS = importNode.options.inline ?? false;
 
     try {
       //expand @variables in path value, ...
       evaldImportNode = importNode.evalForImport(context);
     } catch (e) {
-      final LessError error = LessError.transform(e,
+      final error = LessError.transform(e,
           filename: importNode.currentFileInfo.filename,
           index: importNode.index);
       importNode
@@ -181,7 +181,7 @@ class ImportVisitor extends VisitorBase {
         context.importMultiple = true;
       }
 
-      for (int i = 0; i < importParent.rules.length; i++) {
+      for (var i = 0; i < importParent.rules.length; i++) {
         if (importParent.rules[i] == importNode) {
           importParent.rules[i] = evaldImportNode;
           break;
@@ -199,7 +199,7 @@ class ImportVisitor extends VisitorBase {
           completer.complete();
         }).catchError(completer.completeError);
       }).catchError((Object e, StackTrace s) {
-        final LessError error = LessError.transform(e,
+        final error = LessError.transform(e,
             index: evaldImportNode.index,
             filename: evaldImportNode.currentFileInfo.filename,
             context: context,
@@ -263,11 +263,11 @@ class ImportVisitor extends VisitorBase {
   Future<Null> onImported(
       Import importNode, Contexts context, dynamic root, String fullPath,
       {bool importedAtRoot}) {
-    final Completer<Null> completer = Completer<Null>();
-    final ImportVisitor importVisitor = this;
-    final bool inlineCSS = importNode.options.inline ?? false;
-    final bool isOptional = importNode.options.optional ?? false;
-    final bool duplicateImport =
+    final completer = Completer<Null>();
+    final importVisitor = this;
+    final inlineCSS = importNode.options.inline ?? false;
+    final isOptional = importNode.options.optional ?? false;
+    final duplicateImport =
         importedAtRoot || recursionDetector.containsKey(fullPath);
 
     if (!(context.importMultiple ?? false)) {

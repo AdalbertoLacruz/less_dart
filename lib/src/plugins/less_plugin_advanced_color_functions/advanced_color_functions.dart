@@ -6,7 +6,7 @@ class AdvancedColorFunctions extends ColorFunctions {
   /// Inverts the luma of a color giving a version darken or lighter than the original
   ///
   Color invertluma(Color color) {
-    final HSLType hsl = color.toHSL();
+    final hsl = color.toHSL();
     hsl.l = clamp(1 - hsl.l);
 
     return hslaColorSpace(color, hsl);
@@ -25,12 +25,12 @@ class AdvancedColorFunctions extends ColorFunctions {
   ///
   Color contrastmore(Color color1, Color color2,
       [Dimension minLumaDifferenceDim]) {
-    Color autocontrast = color2;
-    final double lumadif = (color1.luma() - autocontrast.luma()).abs();
-    final HSLType hsl = autocontrast.toHSL();
+    var autocontrast = color2;
+    final lumadif = (color1.luma() - autocontrast.luma()).abs();
+    final hsl = autocontrast.toHSL();
     double missingLumaDif;
     double newluma;
-    final double minLumaDifference =
+    final minLumaDifference =
         (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {
@@ -84,13 +84,13 @@ class AdvancedColorFunctions extends ColorFunctions {
   ///
   Color autocontrast(Color color1, Color color2,
       [Dimension minLumaDifferenceDim]) {
-    Color autocontrast = color2;
-    final double lumadif = (color1.luma() - autocontrast.luma()).abs();
-    final HSLType hsl = autocontrast.toHSL();
-    double newLuma = hsl.l;
+    var autocontrast = color2;
+    final lumadif = (color1.luma() - autocontrast.luma()).abs();
+    final hsl = autocontrast.toHSL();
+    var newLuma = hsl.l;
     double missingLuma;
 
-    final double minLumaDifference =
+    final minLumaDifference =
         (minLumaDifferenceDim == null) ? 0.3 : minLumaDifferenceDim.value;
 
     if (lumadif < minLumaDifference) {

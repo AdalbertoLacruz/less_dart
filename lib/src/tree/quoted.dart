@@ -95,29 +95,29 @@ class Quoted extends Node implements CompareNode {
   @override
   Node eval(Contexts context) {
     //RegExp reJS = new RegExp(r'`([^`]+)`'); //javascript expresion
-    final Quoted that = this;
-    String value = this.value;
+    final that = this;
+    var value = this.value;
 
     //@f: 'ables';
     //@import 'vari@{f}.less';
     //result = @import 'variables.less';
     String variableReplacement(Match m) {
-      final String name = m[1];
-      final Node v =
+      final name = m[1];
+      final v =
           Variable('@$name', that.index, that.currentFileInfo).eval(context);
 
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
     String propertyReplacement(Match m) {
-      final String name = m[1];
-      final Node v = Property('\$$name', index, currentFileInfo).eval(context);
+      final name = m[1];
+      final v = Property('\$$name', index, currentFileInfo).eval(context);
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
     String iterativeReplace(
-        String value, RegExp regexp, String replacementFnc(Match match)) {
-      String evaluatedValue = value;
+        String value, RegExp regexp, String Function(Match match) replacementFnc) {
+      var evaluatedValue = value;
       String _value;
 
       do {

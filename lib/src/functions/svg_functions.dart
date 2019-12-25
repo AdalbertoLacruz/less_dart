@@ -35,20 +35,20 @@ class SvgFunctions extends FunctionBase {
 
     num alpha;
     Node color; //Color, except argument error
-    final Node direction = arguments[0];
+    final direction = arguments[0];
     String gradientDirectionSvg;
-    String gradientType = 'linear';
+    var gradientType = 'linear';
     Node position; //Dimension, except argument error
     String positionValue;
-    String rectangleDimension = 'x="0" y="0" width="1" height="1"';
+    var rectangleDimension = 'x="0" y="0" width="1" height="1"';
     List<Node> stops;
-    final Contexts renderEnv = Contexts()
+    final renderEnv = Contexts()
       ..compress = false
       ..numPrecision = context.numPrecision;
     String returner;
-    final StringBuffer returnerSb = StringBuffer();
+    final returnerSb = StringBuffer();
 
-    final String directionValue = direction.toCSS(renderEnv);
+    final directionValue = direction.toCSS(renderEnv);
 
     if (arguments.length == 2) {
       if (arguments[1].value is! List || arguments[1].value.length < 2) {
@@ -100,7 +100,7 @@ class SvgFunctions extends FunctionBase {
       ..write('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">')
       ..write('<${gradientType}Gradient id="g" $gradientDirectionSvg>');
 
-    for (int i = 0; i < stops.length; i++) {
+    for (var i = 0; i < stops.length; i++) {
       if (stops[i] is Expression) {
         color = stops[i].value[0];
         position = stops[i].value[1];
@@ -111,7 +111,7 @@ class SvgFunctions extends FunctionBase {
 
       if ((color is! Color) ||
           (!((i == 0 || i + 1 == stops.length) && position == null) &&
-              !(position is Dimension))) {
+              (position is! Dimension))) {
         throwArgumentDescriptor();
       }
 
@@ -119,7 +119,7 @@ class SvgFunctions extends FunctionBase {
           position != null ? position.toCSS(renderEnv) : i == 0 ? '0%' : '100%';
       final Color col = color;
       alpha = col.alpha;
-      final String stopOpacity =
+      final stopOpacity =
           (alpha < 1) ? ' stop-opacity="${alpha.toString()}"' : '';
       returnerSb.write(
           '<stop offset="$positionValue" stop-color="${col.toRGB()}"$stopOpacity/>');

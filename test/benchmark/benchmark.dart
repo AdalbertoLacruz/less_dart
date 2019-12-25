@@ -19,7 +19,7 @@ Less less;
 Future<Null> main(List<String> args) async {
   if (args.isEmpty) return mainParserBig();
 
-  final String arg = args[0];
+  final arg = args[0];
   switch (arg) {
     case 'parser':
     case '-p':
@@ -45,13 +45,13 @@ Null help() {
 /// big file parsing times
 ///
 Future<Null> mainParserBig() async {
-  final Less less = Less();
-  final String sampleFile1 = 'benchmark/big1.less';
-  final String content = readSampleFile(sampleFile1);
+  final less = Less();
+  final sampleFile1 = 'benchmark/big1.less';
+  final content = readSampleFile(sampleFile1);
 
-  const int N = 1;
-  for (int i = 0; i < N; i++) {
-    final Stopwatch stopwatch = Stopwatch()..start();
+  const N = 1;
+  for (var i = 0; i < N; i++) {
+    final stopwatch = Stopwatch()..start();
     await less.parseLessFile(content);
     print('Time (Parser big1.less): ${stopwatch.elapsedMilliseconds}');
     if (less.stderr.isNotEmpty) {
@@ -66,20 +66,20 @@ Future<Null> mainParserBig() async {
 /// Benchmark only for parser
 ///
 Future<Null> mainParser() async {
-  final String file =  'benchmark/benchmark.less';
-  final Less less = Less();
-  final String data = readSampleFile(file);
+  final file =  'benchmark/benchmark.less';
+  final less = Less();
+  final data = readSampleFile(file);
   print('Benchmarking Parser...\n${path.basename(file)} (${data.length / 1024} KB)');
 
-  final List<int> benchMarkData = <int>[];
+  final benchMarkData = <int>[];
 
-  final int totalruns = 100;
-  final int ignoreruns = 30;
+  final totalruns = 100;
+  final ignoreruns = 30;
 
-  for (int i = 0; i < totalruns; i++) {
-    final DateTime start = DateTime.now();
+  for (var i = 0; i < totalruns; i++) {
+    final start = DateTime.now();
     await less.parseLessFile(data);
-    final DateTime end = DateTime.now();
+    final end = DateTime.now();
     benchMarkData.add(end.difference(start).inMilliseconds);
 //    if (err) {
 //      less.writeError(err);
@@ -90,14 +90,14 @@ Future<Null> mainParser() async {
   num totalTime = 0;
   num mintime = 9999999;
   num maxtime = 0;
-  for (int i = ignoreruns; i < totalruns; i++) {
+  for (var i = ignoreruns; i < totalruns; i++) {
     totalTime += benchMarkData[i];
     mintime = math_lib.min(mintime, benchMarkData[i]);
     maxtime = math_lib.max(maxtime, benchMarkData[i]);
   }
-  final double avgtime = totalTime / (totalruns - ignoreruns);
-  final num variation = maxtime - mintime;
-  final double variationperc = (variation / avgtime) * 100;
+  final avgtime = totalTime / (totalruns - ignoreruns);
+  final variation = maxtime - mintime;
+  final variationperc = (variation / avgtime) * 100;
 
   print('Min. Time: $mintime ms');
   print('Max. Time: $maxtime ms');

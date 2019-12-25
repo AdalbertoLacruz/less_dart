@@ -55,7 +55,7 @@ class DetachedRuleset extends Node {
 
   ///
   Ruleset callEval(Contexts context) {
-    final Contexts ctx = (frames != null)
+    final ctx = (frames != null)
         ? Contexts.eval(context, frames.sublist(0)..addAll(context.frames))
         : context;
     return ruleset.eval(ctx);

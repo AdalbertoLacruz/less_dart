@@ -71,10 +71,10 @@ class Environment {
   /// Lookup the mime-type of a [filename]
   ///
   String mimeLookup(String filename) {
-    final String type = mime_lib.lookupMimeType(filename);
+    final type = mime_lib.lookupMimeType(filename);
 
     if (type == null) {
-      final String ext = path_lib.extension(filename);
+      final ext = path_lib.extension(filename);
       throw LessExceptionError(LessError(
           message: 'Optional dependency "mime" is required for $ext'));
     }
@@ -86,7 +86,7 @@ class Environment {
   ///
   String charsetLookup(String mime) {
     // assumes all text types are UTF-8
-    final RegExp re = RegExp(r'^text\/');
+    final re = RegExp(r'^text\/');
 
     return (mime != null && re.hasMatch(mime)) ? 'UTF-8' : '';
   }
@@ -120,7 +120,7 @@ class Environment {
       }
     }
 
-    for (int i = fileManagers.length - 1; i >= 0; i--) {
+    for (var i = fileManagers.length - 1; i >= 0; i--) {
       fileManager = fileManagers[i];
       if (isSync &&
           fileManager.supportsSync(

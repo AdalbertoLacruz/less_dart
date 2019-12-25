@@ -43,13 +43,13 @@ class Property extends Node with MergeRulesMixin {
 
     evaluating = true;
 
-    final Node property = find(context.frames, (Node frame) {
+    final property = find(context.frames, (Node frame) {
       final Ruleset _frame = frame;
-      final List<Declaration> vArr = _frame.property(name);
+      final vArr = _frame.property(name);
       Declaration v;
 
       if (vArr != null) {
-        for (int i = 0; i < vArr.length; i++) {
+        for (var i = 0; i < vArr.length; i++) {
           v = vArr[i];
           vArr[i] = v.clone();
         }
@@ -134,7 +134,7 @@ class Property extends Node with MergeRulesMixin {
 
   ///
   Node find(List<Node> obj, Function fun) {
-    for (int i = 0; i < obj.length; i++) {
+    for (var i = 0; i < obj.length; i++) {
       final Node r = fun(obj[i]);
       if (r != null) return r;
     }

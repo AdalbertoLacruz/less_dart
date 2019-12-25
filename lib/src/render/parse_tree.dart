@@ -24,7 +24,7 @@ class ParseTree {
   // context for errors
   RenderResult toCSS(LessOptions options, Contexts context) {
     Ruleset evaldRoot;
-    final RenderResult result = RenderResult();
+    final result = RenderResult();
     LessSourceMapBuilder sourceMapBuilder;
     Contexts toCSSOptions;
 
