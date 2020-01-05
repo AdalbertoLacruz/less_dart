@@ -1,3 +1,6 @@
+## 2.3.8 (2020-xx-xx)
+- Color Node refactoring
+
 ## 2.3.7 (2019-12-25)
 - Linter update to pedantic 1.9.0.
 

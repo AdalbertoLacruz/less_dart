@@ -115,8 +115,8 @@ class Quoted extends Node implements CompareNode {
       return (v is Quoted) ? v.value : v.toCSS(null);
     }
 
-    String iterativeReplace(
-        String value, RegExp regexp, String Function(Match match) replacementFnc) {
+    String iterativeReplace(String value, RegExp regexp,
+        String Function(Match match) replacementFnc) {
       var evaluatedValue = value;
       String _value;
 

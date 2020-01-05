@@ -27,6 +27,7 @@ part 'global_functions.dart';
 part 'image_size.dart';
 part 'more_list.dart';
 part 'more_reg_exp.dart';
+part 'number_formatter.dart';
 part 'url_file_manager.dart';
 
 ///

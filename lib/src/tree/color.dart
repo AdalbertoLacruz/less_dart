@@ -17,10 +17,10 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   @override
   covariant String value;
 
-  ///
+  /// 0 to 1.0
   num alpha;
 
-  ///
+  /// [r, g, b]. Not always int.
   List<num> rgb;
 
   ///
@@ -32,7 +32,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// This facilitates operations and conversions.
   ///
-  /// [rgb] is a String:
+  /// [rgb] is a String (The caller assure the format is correct):
   ///   length=8 # 'rrggbbaa'
   ///   length=6 # 'rrggbb'
   ///   length=4 # 'rgba'
@@ -42,27 +42,41 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// [originalForm] returned to CSS if color is not processed: #rgb or #rrggbb.
   ///
-  Color(String rgb, [this.alpha = 1, String originalForm]) {
-    final hex6 = RegExp('.{2}');
+  Color(String rgb, [alpha = 1, String originalForm]) {
+    // 0x0000000U -> 0x000000UU
+    int fToff(int unit) => (unit << 4) | unit;
 
-    if (rgb.length >= 6) {
-      // # 'rrggbbaa', # 'rrggbb'
-      this.rgb = hex6
-          .allMatches(rgb)
-          .map<int>((Match c) => int.parse(c[0], radix: 16))
-          .toList();
+    this.alpha = (alpha ?? 1).clamp(0, 1);
+    final len = rgb.length;
+    var val = int.parse(rgb, radix: 16);
+
+    if (len >= 6) {
+      // #rrggbbaa => alpha 0xrrggbb
+      if (len == 8) {
+        this.alpha = (val & 0x000000ff) / 0xff;
+        val = (val & 0xffffff00) >> 8;
+      }
+      // val = 0xrrggbb
+      this.rgb = <num>[
+        (0x00ff0000 & val) >> 16,
+        (0x0000ff00 & val) >> 8,
+        (0x000000ff & val) >> 0
+      ];
     } else {
-      // # 'rgba', # 'rgb'
-      this.rgb = rgb
-          .split('')
-          .map<int>((String c) => int.parse('$c$c', radix: 16))
-          .toList();
+      // #rgba => alpha 0xrgb
+      if (len == 4) {
+        this.alpha = fToff(val & 0x0000000f) / 0xff;
+        val = (val & 0x0000fff0) >> 4;
+      }
+      // 0xrgb
+      this.rgb = <num>[
+        fToff((val & 0x00000f00) >> 8),
+        fToff((val & 0x000000f0) >> 4),
+        fToff((val & 0x0000000f) >> 0)
+      ];
     }
 
-    if (this.rgb.length > 3) alpha = this.rgb.removeAt(3) / 255;
     if (originalForm != null) value = originalForm;
-
-    alphaCheck();
 
 // 3.8.0 20180729
 //  var Color = function (rgb, a, originalForm) {
@@ -102,34 +116,31 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   }
 
   ///
-  /// [rgb] is a List<int> [128, 255, 0]
+  /// [rgb] is a List<num> [128, 255, 0] or [62.2, 125.5, 67]
+  /// The decimal arguments came from color operations
   ///
   /// [alpha] 0 < alpha < 1. Default = 1.
   ///
-  Color.fromList(this.rgb, [this.alpha = 1, String originalForm]) {
+  Color.fromList(rgb, [alpha = 1, String originalForm]) {
+    this.rgb = <num>[for (var c in rgb) c.clamp(0, 255)];
+    this.alpha = (alpha ?? 1).clamp(0, 1);
     if (originalForm != null) value = originalForm;
-    alphaCheck();
   }
 
   ///
   factory Color.fromKeyword(String keyword) {
-    Color c;
     final key = keyword.toLowerCase();
+    Color c;
+    String colorValue;
 
     // detect named color
-    String colorValue;
     if ((colorValue = colors[key]) != null) {
-      c = Color(colorValue.substring(1));
+      c = Color(colorValue.substring(1))..value = keyword;
     } else if (key == transparentKeyword) {
-      c = Color.fromList(<int>[0, 0, 0], 0);
+      c = Color.fromList(<num>[0, 0, 0], 0)..value = keyword;
     }
 
-    if (c != null) {
-      c.value = keyword;
-      return c;
-    }
-
-    return null;
+    return c;
 
 //2.3.1
 //  Color.fromKeyword = function(keyword) {
@@ -148,14 +159,26 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 //  };
   }
 
-  ///
+  /// Alpha without trailing zeros: 0 0.1 1
+  String get alphaAsString => NumberFormatter().format(alpha);
+
+  /// red 0 to 255, could be xx.xxx
   num get r => rgb[0];
 
-  ///
+  /// 0 to 1 -> 0.xxx
+  double get red => r / 255;
+
+  /// green 0 to 255, could be xx.xxx
   num get g => rgb[1];
 
-  ///
+  /// 0 to 1 -> 0.xxx
+  double get green => g / 255;
+
+  /// blue 0 to 255, could be xx.xxx
   num get b => rgb[2];
+
+  /// 0 to 1 -> 0.xxx
+  double get blue => b / 255;
 
   /// Fields to show with genTree
   @override
@@ -163,52 +186,33 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       <String, dynamic>{'rgb': rgb, 'alpha': alpha};
 
   ///
-  /// Review alpha value and type
-  ///
-  void alphaCheck() {
-    alpha ??= 1;
-    if (alpha is double && alpha.remainder(1) == 0) alpha = alpha.toInt();
-  }
-
-  ///
   /// Don't use spaces to css
   ///
-  bool isCompress(Contexts context) =>
+  bool _isCompress(Contexts context) =>
       (cleanCss != null) || (context?.compress ?? false);
-
-  ///
-  /// Format alpha
-  ///
-  String alphaToString(num alpha) {
-    final alphaStr = numToString(clamp(alpha, 1));
-    return cleanCss != null
-        ? alphaStr.replaceFirst('0.', '.') // 0.1 -> .1
-        : alphaStr;
-  }
 
   ///
   @override
   Node eval(Contexts env) => this;
 
   ///
+  /// See https://www.w3.org/TR/WCAG20/#relativeluminancedef
+  ///
+  static double _linearizeColorComponent(double component) =>
+      (component <= 0.03928)
+          ? component / 12.92
+          : math.pow((component + 0.055) / 1.055, 2.4);
+
+  ///
   /// Calculates the luma (perceptual brightness) of a color object
+  /// Value between 0 for darkest and 1 for lightest.
   ///
   double luma() {
-    var r = this.r / 255;
-    var g = this.g / 255;
-    var b = this.b / 255;
+    final _r = _linearizeColorComponent(red);
+    final _g = _linearizeColorComponent(green);
+    final _b = _linearizeColorComponent(blue);
 
-    r = (r <= 0.03928)
-        ? r / 12.92
-        : math.pow((r + 0.055) / 1.055, 2.4).toDouble();
-    g = (g <= 0.03928)
-        ? g / 12.92
-        : math.pow((g + 0.055) / 1.055, 2.4).toDouble();
-    b = (b <= 0.03928)
-        ? b / 12.92
-        : math.pow((b + 0.055) / 1.055, 2.4).toDouble();
-
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return 0.2126 * _r + 0.7152 * _g + 0.0722 * _b;
 
 //2.2.0
 //  Color.prototype.luma = function () {
@@ -240,59 +244,62 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       return toCleanCSS(context);
     }
 
-    num alpha;
-    String color;
+    final alphaFormatter = AlphaFormatter(context)
+      ..removeLeadingZero = cleanCss != null;
+    final numberFormatter = NumberFormatter()
+      ..precision = context?.numPrecision;
+
     final compress = context?.compress ?? false; // && !doNotCompress;
-    String colorFunction;
-    var args = <String>[];
+    final _alpha = alphaFormatter.adjustPrecision(alpha);
 
     // `value` is set if this color was originally
     // converted from a named color string so we need
     // to respect this and try to output named color too.
-    alpha = fround(context, this.alpha);
 
+    String colorFunction;
     if (value != null) {
       if (value.startsWith('rgb')) {
-        if (alpha < 1) colorFunction = 'rgba';
+        if (_alpha < 1) colorFunction = 'rgba';
       } else if (value.startsWith('hsl')) {
-        colorFunction = alpha < 1 ? 'hsla' : 'hsl';
+        colorFunction = _alpha < 1 ? 'hsla' : 'hsl';
       } else {
         return value;
       }
     } else {
-      if (alpha < 1) colorFunction = 'rgba';
+      if (_alpha < 1) colorFunction = 'rgba';
     }
 
+    List<String> args;
     switch (colorFunction) {
       case 'rgba':
-        args = rgb.map((num c) => clamp(c.round(), 255).toString()).toList()
-          ..add(alphaToString(alpha));
+        args = [
+          for (var c in rgb) c.round().toString(),
+          alphaFormatter.format(_alpha, formatted: true)
+        ];
         break;
       case 'hsla':
-        args.add(alphaToString(alpha));
+        args = <String>[alphaFormatter.format(_alpha, formatted: true)];
         continue hsl;
-
       hsl:
       case 'hsl':
         final color = toHSL();
         args = <String>[
-              numToString(fround(context, color.h)),
-              '${numToString(fround(context, color.s * 100))}%',
-              '${numToString(fround(context, color.l * 100))}%'
-            ] +
-            args;
+          numberFormatter.format(color.h),
+          '${numberFormatter.format(color.s * 100)}%',
+          '${numberFormatter.format(color.l * 100)}%',
+          ...?args,
+        ];
         break;
     }
 
     // Values are capped between `0` and `255`, rounded and zero-padded.
     if (colorFunction != null) {
-      final separator = isCompress(context) ? ',' : ', ';
+      final separator = _isCompress(context) ? ',' : ', ';
       return '$colorFunction(${args.join(separator)})';
     }
 
-    color = toRGB();
-    if (compress) color = tryHex3(color);
-    return color;
+    final color = toRGB();
+    return compress ? tryHex3(color) : color;
 
 // 3.8.0 20180808
 //  Color.prototype.toCSS = function (context, doNotCompress) {
@@ -361,17 +368,19 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 //  };
   }
 
+  ///
   /// clean-css output
+  ///
   String toCleanCSS(Contexts context) {
-    final alpha = fround(context, this.alpha);
+    final _alpha = AlphaFormatter(context).adjustPrecision(alpha);
     var color = toRGB();
 
     if (cleanCss.compatibility.colors.opacity &&
-        alpha == 0 &&
+        _alpha == 0 &&
         color == '#000000') {
       return transparentKeyword;
     }
-    if (alpha == 1) {
+    if (_alpha == 1) {
       final key = getColorKey(color);
       color = tryHex3(color);
       if (key != null) {
@@ -382,7 +391,7 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       }
     }
 
-    return alpha < 1 ? toRGBFunction(context) : color;
+    return _alpha < 1 ? toRGBFunction(context) : color;
   }
 
 //--- OperateNode
@@ -395,12 +404,13 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   @override
   Color operate(Contexts context, String op, Color other) {
-    final rgb = <num>[0, 0, 0];
     final alpha = this.alpha * (1 - other.alpha) + other.alpha;
 
-    for (var c = 0; c < 3; c++) {
-      rgb[c] = _operate(context, op, this.rgb[c], other.rgb[c]);
-    }
+    final rgb = <num>[
+      for (var c = 0; c < 3; c++)
+        _operate(context, op, this.rgb[c], other.rgb[c])
+    ];
+
     return Color.fromList(rgb, alpha);
 
 //3.0.0 20160714
@@ -417,18 +427,22 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// Returns this color as String #rrggbb.
   ///
-  String toRGB() => toHex(rgb);
+  String toRGB() {
+    final rrggbb = rgb.fold(0x00000000,
+        (rr, val) => (rr << 8) | (val.round().toInt() & 0x000000ff)) as int;
+    return '#${rrggbb.toRadixString(16).padLeft(6, '0')}';
+  }
 
   ///
   /// Returns this Color as HSLA
   ///
   HSLType toHSL() {
-    final r = this.r / 255;
-    final g = this.g / 255;
-    final b = this.b / 255;
-    final a = alpha.toDouble();
+    final _r = red;
+    final _g = green;
+    final _b = blue;
+    final _a = alpha.toDouble();
 
-    final rawMap = <String, double>{'r': r, 'g': g, 'b': b};
+    final rawMap = <String, double>{'r': _r, 'g': _g, 'b': _b};
 
     // maxMap = { 'r or g or b': max_value, ..., 'r or g or b': min_value }.
     // Repeated values removed.
@@ -438,11 +452,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     final max = maxMap[maxMap.firstKey()];
     final min = maxMap[maxMap.lastKey()];
 
-    double h;
-    double s;
     final l = (max + min) / 2;
     final d = max - min;
 
+    double h;
+    double s;
     if (max == min) {
       h = s = 0.0;
     } else {
@@ -451,19 +465,19 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       // max
       switch (maxMap.firstKey()) {
         case 'r':
-          h = (g - b) / d + (g < b ? 6 : 0);
+          h = (_g - _b) / d + (_g < _b ? 6 : 0);
           break;
         case 'g':
-          h = (b - r) / d + 2;
+          h = (_b - _r) / d + 2;
           break;
         case 'b':
-          h = (r - g) / d + 4;
+          h = (_r - _g) / d + 4;
           break;
       }
       h /= 6;
     }
 
-    return HSLType(h: h * 360, s: s, l: l, a: a);
+    return HSLType(h: h * 360, s: s, l: l, a: _a);
 
 //2.2.0
 //  Color.prototype.toHSL = function () {
@@ -497,12 +511,12 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
    * http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
    */
   HSVType toHSV() {
-    final r = this.r / 255;
-    final g = this.g / 255;
-    final b = this.b / 255;
-    final a = alpha.toDouble();
+    final _r = red;
+    final _g = green;
+    final _b = blue;
+    final _a = alpha.toDouble();
 
-    final rawMap = <String, double>{'r': r, 'g': g, 'b': b};
+    final rawMap = <String, double>{'r': _r, 'g': _g, 'b': _b};
 
     // maxMap = { 'r or g or b': max_value, ..., 'r or g or b': min_value }.
     // Repeated values removed.
@@ -512,11 +526,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
     final max = maxMap[maxMap.firstKey()];
     final min = maxMap[maxMap.lastKey()];
 
-    double h;
-    double s;
     final v = max;
     final d = max - min;
 
+    double h;
+    double s;
     if (max == 0.0) {
       s = 0.0;
     } else {
@@ -529,19 +543,19 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
       // max
       switch (maxMap.firstKey()) {
         case 'r':
-          h = (g - b) / d + (g < b ? 6 : 0);
+          h = (_g - _b) / d + (_g < _b ? 6 : 0);
           break;
         case 'g':
-          h = (b - r) / d + 2;
+          h = (_b - _r) / d + 2;
           break;
         case 'b':
-          h = (r - g) / d + 4;
+          h = (_r - _g) / d + 4;
           break;
       }
       h /= 6;
     }
 
-    return HSVType(h: h * 360, s: s, v: v, a: a);
+    return HSVType(h: h * 360, s: s, v: v, a: _a);
 
 //2.2.0
 //  Color.prototype.toHSV = function () {
@@ -577,7 +591,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   ///
   /// Returns a String such as #aarrggbb
   ///
-  String toARGB() => toHex(<num>[alpha * 255, ...rgb]);
+  String toARGB() {
+    final aarrggbb = rgb.fold((alpha * 255).round().toInt() & 0x000000ff,
+        (rr, val) => (rr << 8) | (val.round().toInt() & 0x000000ff)) as int;
+    return '#${aarrggbb.toRadixString(16).padLeft(8, '0')}';
+  }
 
 //--- CompareNode
 
@@ -585,13 +603,11 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// Returns -1, 0 for different, equal
   ///
   @override
-  int compare(Node x) {
-    if (x is! Color) return -1;
+  int compare(Node xx) {
+    if (xx is! Color) return -1;
 
-    final Color xx = x;
-    return (xx.r == r && xx.g == g && xx.b == b && xx.alpha == alpha)
-        ? 0
-        : null;
+    final Color x = xx;
+    return (x.r == r && x.g == g && x.b == b && x.alpha == alpha) ? 0 : null;
 
 //2.2.0
 //  Color.prototype.compare = function (x) {
@@ -602,16 +618,16 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
 //          x.alpha  === this.alpha) ? 0 : undefined;
 //  };
   }
-
-  ///
-  /// Returns a String #rrggbb.
-  /// [v] is a List<num> = [r, g, b] or [r, g, b, a].
-  ///
-  String toHex(List<num> v) => v.fold(
-      '#',
-      (String result, num c) =>
-          result +
-          c.round().clamp(0, 255).toInt().toRadixString(16).padLeft(2, '0'));
+//
+//  ///
+//  /// Returns a String #rrggbb.
+//  /// [v] is a List<num> = [r, g, b] or [r, g, b, a].
+//  ///
+//  String toHex(List<num> v) => v.fold(
+//      '#',
+//      (String result, num c) =>
+//          result +
+//          c.round().clamp(0, 255).toInt().toRadixString(16).padLeft(2, '0'));
 
   //2.2.0
   //  function toHex(v) {
@@ -636,43 +652,22 @@ class Color extends Node implements CompareNode, OperateNode<Color> {
   /// => 'rgba(r, g, b, a)'
   ///
   String toRGBFunction(Contexts context) {
-    final alpha = fround(context, this.alpha);
+    final formatter = AlphaFormatter(context)
+      ..removeLeadingZero = cleanCss != null;
+    final separator = _isCompress(context) ? ',' : ', ';
 
-    final resultList =
-        rgb.map((num c) => clamp(c.round(), 255).toString()).toList();
+    final arguments = <String>[
+      for (var c in rgb) c.round().toString(),
+      formatter.format(alpha),
+    ].join(separator);
 
-    final alphaStr = numToString(clamp(alpha, 1));
-    resultList.add(cleanCss != null
-        ? alphaStr.replaceFirst('0.', '.') // 0.1 -> .1
-        : alphaStr);
-
-    final separator = isCompress(context) ? ',' : ', ';
-    final result = resultList.join(separator);
-    return 'rgba($result)';
-
-//      alpha = this.fround(context, this.alpha);
-//      if (alpha < 1) {
-//          return "rgba(" + this.rgb.map(function (c) {
-//              return clamp(Math.round(c), 255);
-//          }).concat(clamp(alpha, 1))
-//              .join(',' + (compress ? '' : ' ')) + ")";
-//      }
+    return 'rgba($arguments)';
   }
 
   ///
   /// [value] == '#rrggbb' returns the color key (color name)
   ///
-  String getColorKey(String value) => colors.getKey(value);
-
-  ///
-  /// Returns num v in the range [0 v max].
-  ///
-  num clamp(num v, num max) => v.clamp(0, max);
-
-//2.2.0
-//  function clamp(v, max) {
-//      return Math.min(Math.max(v, 0), max);
-//  }
+  static String getColorKey(String value) => colors.getKey(value);
 
   @override
   String toString() => toCSS(null);
@@ -712,4 +707,14 @@ class HSVType {
 
   ///
   HSVType({this.h, this.s, this.v, this.a});
+}
+
+///
+/// Formatter for alpha in color
+///
+class AlphaFormatter extends NumberFormatter {
+  /// alpha from num to string
+  AlphaFormatter(Contexts context) : super() {
+    precision = context?.numPrecision;
+  }
 }

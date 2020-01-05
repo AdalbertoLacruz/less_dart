@@ -163,7 +163,7 @@ Map<int, Config> configFill() => <int, Config>{
       90: def('selectors'),
       91: def('strings'),
       92: def('urls',
-          options: <String>['--relative-urls', '--silent', '--ie-compat']),
+          options: <String>['--rewrite-urls=all', '--silent', '--ie-compat']),
       93: def('variables'),
       94: def('variables-in-at-rules'),
       95: def('whitespace'),

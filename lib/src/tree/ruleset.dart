@@ -1702,9 +1702,8 @@ abstract class VariableMixin implements Node {
           if (match > 0) {
             if (selector.elements.length > match) {
               if (filter == null || filter(rule)) {
-                final foundMixins = (rule as VariableMixin)
-                    .find(Selector(selector.elements.sublist(match)), _self,
-                        filter);
+                final foundMixins = (rule as VariableMixin).find(
+                    Selector(selector.elements.sublist(match)), _self, filter);
                 for (var i = 0; i < foundMixins.length; i++) {
                   foundMixins[i]
                       .path

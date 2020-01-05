@@ -33,7 +33,6 @@ class SvgFunctions extends FunctionBase {
               'svg-gradient expects direction, start_color [start_position], [color position,]..., end_color [end_position] or direction, color list'));
     }
 
-    num alpha;
     Node color; //Color, except argument error
     final direction = arguments[0];
     String gradientDirectionSvg;
@@ -118,9 +117,8 @@ class SvgFunctions extends FunctionBase {
       positionValue =
           position != null ? position.toCSS(renderEnv) : i == 0 ? '0%' : '100%';
       final Color col = color;
-      alpha = col.alpha;
       final stopOpacity =
-          (alpha < 1) ? ' stop-opacity="${alpha.toString()}"' : '';
+          (col.alpha < 1) ? ' stop-opacity="${col.alphaAsString}"' : '';
       returnerSb.write(
           '<stop offset="$positionValue" stop-color="${col.toRGB()}"$stopOpacity/>');
     }
