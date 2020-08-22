@@ -26,7 +26,7 @@ Clean-css optimizations implemented in the less plugin
 ### Rules
 	Remove spaces around '!important'
 	Change 'background: none' to 'background: 0 0'
-	Change 'background: trnasparent' to 'background: 0 0'
+	Change 'background: transparent' to 'background: 0 0'
 	Change 'outline: none' to 'outline: 0'
 
 ### Selectors

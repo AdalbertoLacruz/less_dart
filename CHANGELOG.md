@@ -1,5 +1,6 @@
-## 2.3.8 (2020-xx-xx)
+## 2.3.8 (2020-08-22)
 - Color Node refactoring
+- Clean-css: Avoid selectors compression if starts with number
 
 ## 2.3.7 (2019-12-25)
 - Linter update to pedantic 1.9.0.
@@ -127,4 +128,4 @@
 
 ## 0.1.0 (2014-12-30)
 
-- Initial translation [less 1.7.5](http://lesscss.org/).
+- Initial translation [less 1.7.5](https://lesscss.org/).

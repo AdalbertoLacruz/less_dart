@@ -192,6 +192,7 @@ class CleanCssVisitor extends VisitorBase {
   ///
   /// Change selectors attribute from quoted
   /// - Example: `input[type="text"] -> input[type=text]``
+  /// - Example: `input[type="1"] -> input[type="1"]`` (starts with number)
   /// - Example: `([class*="lead"]) -> ([class*=lead])`
   ///
   Ruleset visitRuleset(Ruleset rulesetNode, VisitArgs visitArgs) {
@@ -267,9 +268,10 @@ class CleanCssVisitor extends VisitorBase {
   }
 
   ///
-  /// Has ./$ ... characters
+  /// Has ./$ ... characters. Starts with letter
   ///
-  bool hasSymbol(String value) => RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
+//  bool hasSymbol(String value) => RegExp(r'[^a-zA-Z0-9]').hasMatch(value);
+  bool hasSymbol(String value) => RegExp(r'[^a-zA-Z]').hasMatch(value);
 
   ///
   /// Remove spaces and quotes. [indexQuoted] for quotes in the [match]

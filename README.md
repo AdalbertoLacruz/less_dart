@@ -1,6 +1,6 @@
 ## Native Dart Less compiler/builder/compressor for .less files and html style tags to css
 
-[Less](http://lesscss.org/)-builder for [webdev serve](https://webdev.dartlang.org/tools/webdev#serve), [webdev build](https://webdev.dartlang.org/tools/webdev#build) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run)
+[Less](https://lesscss.org/)-builder for [webdev serve](https://webdev.dartlang.org/tools/webdev#serve), [webdev build](https://webdev.dartlang.org/tools/webdev#build) and Less-compiler for [pub-run](https://www.dartlang.org/tools/pub/cmd/pub-run)
 
 This is a translation from Less 3.10.3 Javascript (over nodejs) to Dart.
 It is a pure Dart implementation for the server/developer side.
@@ -102,14 +102,14 @@ In order to use the less builder, you must configure it:
 The output file will have the same name as the input, with `.css` extension for less.
 For html the `file.less.html` will be `file.html`.
 
-- include_path - see [Less Documentation include_path](http://lesscss.org/usage/#less-options-include-paths).
+- include_path - see [Less Documentation include_path](https://lesscss.org/usage/#less-options-include-paths).
 
 - cleancss - Compress/optimize with clean-css plugin.
 	- true: Use default options
 	- "option1 option2..." Specifies options to be used.
 	- See [Plugin Info](lib/src/plugins/less_plugin_clean_css/README.md).
 
-- compress - see [Less Documentation compress](http://lesscss.org/usage/#less-options-source-map-options). Deprecated in js version, not here.
+- compress - see [Less Documentation compress](https://lesscss.org/usage/#less-options-source-map-options). Deprecated in js version, not here.
 
 - other_flags - Let add other flags such as (--source-map, ...) in the lessc command line.
 
@@ -120,7 +120,7 @@ It could be
 
 #### Html transformation
 
-When a `.less.html` file is builded, the transformer look for `<less>...</less>` tags and then the equivalent `<style>...</style>` tags are added below, and at the same level.
+When a `.less.html` file is built, the transformer look for `<less>...</less>` tags and then the equivalent `<style>...</style>` tags are added below, and at the same level.
 
 All the `<less>` attributes are copied, except 'replace'. With this attribute `<less>` tags are removed in the final file.
 
@@ -203,12 +203,12 @@ The `customOptions` method could be override to modify the less options defining
 
 - Error color output. In windows cmd don't support the color commands. [ConEmu](https://conemu.github.io/) is an alternative.
 
-## Contribuitors
+## Contributors
 [DisDis](https://github.com/DisDis)
 
 ## [License](LICENSE)
 
-Copyright (c) 2009-2019 [Alexis Sellier](http://cloudhead.io/) & The Core Less Team.
+Copyright (c) 2009-2019 [Alexis Sellier](https://cloudhead.io/) & The Core Less Team.
 
 Copyright (c) 2014-2019 [Adalberto Lacruz](https://github.com/AdalbertoLacruz) for dart translation.
 

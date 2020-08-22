@@ -9,3 +9,4 @@
 #selectors input[type=text]{color:#fff}
 #selectors a[href^="http://"]{color:#000}
 #selectors p:not ([class*=lead]){color:#000}
+#selectors .div[data-id="1"]{color:red}
